@@ -34,7 +34,7 @@ Milestones must end with green CI.
 
 **Rollback**: Delete `specs/projects/kerrigan/` folder
 
-**Tasks**: See `specs/projects/kerrigan/tasks.md` Milestone 1 section for complete task list (11 tasks, all complete)
+**Tasks**: See Milestone 1 section in `specs/projects/kerrigan/tasks.md` for complete task list (11 tasks, all complete)
 
 ## Milestone 2: Agent workflow validation
 **Goal**: Prove agents can execute the full workflow end-to-end
