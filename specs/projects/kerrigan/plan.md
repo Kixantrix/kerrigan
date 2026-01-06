@@ -18,13 +18,15 @@ Milestones must end with green CI.
 **Deliverable**: Initial commit to main branch
 
 ## Milestone 1: Kerrigan governs itself
+**Status**: ✅ Complete
+
 **Goal**: Make Kerrigan the first project managed by the system
 
-- [ ] Create `specs/projects/kerrigan/` with all required artifacts
-- [ ] Validate that CI passes for kerrigan project
+- [x] Create `specs/projects/kerrigan/` with all required artifacts
+- [x] Validate that CI passes for kerrigan project
 - [ ] Test autonomy modes with a trial issue
 - [ ] Document any gaps in artifact contracts
-- [ ] Verify all validators work on kerrigan's own structure
+- [x] Verify all validators work on kerrigan's own structure
 
 **Deliverable**: Kerrigan project passes all its own validators
 
