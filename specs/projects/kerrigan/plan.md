@@ -22,19 +22,19 @@ Milestones must end with green CI.
 
 **Goal**: Make Kerrigan the first project managed by the system
 
-- [x] Create `specs/projects/kerrigan/` with all required artifacts
-- [x] Fill in all kerrigan artifact files (spec, acceptance-tests, architecture, plan, tasks, test-plan, runbook, cost-plan)
-- [x] Run validators on kerrigan project
-- [x] Verify all validators work on kerrigan's own structure
-- [x] Commit and verify CI passes
+**Key accomplishments**:
+- Created `specs/projects/kerrigan/` with all required artifacts
+- Filled in all 8 artifact files with comprehensive content
+- Verified validators pass for kerrigan's own structure
+- Committed changes and confirmed CI passes
 
-**Deliverable**: Kerrigan project passes all its own validators
+**Deliverable**: Kerrigan project passes all its own validators ✅
 
 **Dependencies**: None (uses existing foundation)
 
 **Rollback**: Delete `specs/projects/kerrigan/` folder
 
-**Note**: Testing autonomy modes and documenting gaps will be addressed in Milestone 2 during agent workflow validation.
+**Tasks**: See `specs/projects/kerrigan/tasks.md` Milestone 1 section for complete task list (10 tasks, all complete)
 
 ## Milestone 2: Agent workflow validation
 **Goal**: Prove agents can execute the full workflow end-to-end
