@@ -1,0 +1,14 @@
+name: Agent Gates
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  autonomy_gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gate note
+        run: |
+          echo "Autonomy gates are enforced by tools/validators/check_artifacts.py"
+          echo "Labels can override: autonomy:override"
