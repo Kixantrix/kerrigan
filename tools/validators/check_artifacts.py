@@ -127,7 +127,7 @@ def validate_status_json(status_path: Path, project_name: str) -> None:
     
     # If status is blocked, blocked_reason should be present
     if data["status"] == "blocked" and not data.get("blocked_reason"):
-        warn(f"Project '{project_name}' status.json has status=blocked but no blocked_reason provided")
+        warn(f"Project '{project_name}' status.json has status=blocked but no blocked_reason provided. Please add a blocked_reason field explaining why work is paused.")
 
 def main() -> None:
     # Constitution must exist
