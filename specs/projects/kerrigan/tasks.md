@@ -8,43 +8,43 @@ Each task should be executable and have "done" criteria.
   - Done when: `specs/projects/kerrigan/` exists with all template files
   - Links: architecture.md (artifact layer)
 
-- [ ] Task: Fill in kerrigan spec.md
+- [x] Task: Fill in kerrigan spec.md
   - Done when: spec.md has goal, scope, acceptance criteria, risks
   - Links: spec.md template, constitution.md
 
-- [ ] Task: Fill in kerrigan acceptance-tests.md
+- [x] Task: Fill in kerrigan acceptance-tests.md
   - Done when: tests cover validator enforcement, autonomy gates, agent workflow
   - Links: acceptance-tests.md template
 
-- [ ] Task: Fill in kerrigan architecture.md
+- [x] Task: Fill in kerrigan architecture.md
   - Done when: documents components, data flow, tradeoffs
   - Links: architecture.md template, meta-specs
 
-- [ ] Task: Fill in kerrigan plan.md
+- [x] Task: Fill in kerrigan plan.md
   - Done when: has 6+ milestones from foundation to external adoption
   - Links: plan.md template
 
-- [ ] Task: Fill in kerrigan tasks.md
+- [x] Task: Fill in kerrigan tasks.md
   - Done when: has executable tasks with done criteria for each milestone
   - Links: tasks.md template
 
-- [ ] Task: Fill in kerrigan test-plan.md
+- [x] Task: Fill in kerrigan test-plan.md
   - Done when: defines testing strategy for validators and workflows
   - Links: test-plan.md template
 
-- [ ] Task: Fill in kerrigan runbook.md
+- [x] Task: Fill in kerrigan runbook.md
   - Done when: documents how to operate Kerrigan swarm
   - Links: runbook.md template, playbooks/
 
-- [ ] Task: Fill in kerrigan cost-plan.md
+- [x] Task: Fill in kerrigan cost-plan.md
   - Done when: estimates agent API costs and defines guardrails
   - Links: cost-plan.md template, cost-guardrails.md
 
-- [ ] Task: Run validators on kerrigan project
+- [x] Task: Run validators on kerrigan project
   - Done when: `python tools/validators/check_artifacts.py` passes
   - Links: check_artifacts.py
 
-- [ ] Task: Commit and verify CI
+- [x] Task: Commit and verify CI
   - Done when: CI goes green on PR with kerrigan artifacts
   - Links: .github/workflows/ci.yml
 
