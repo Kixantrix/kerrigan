@@ -11,9 +11,11 @@ Design philosophy: keep checks simple, actionable, and stack-agnostic.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
@@ -91,6 +93,42 @@ def is_deployable(project_dir: Path) -> bool:
             return True
     return False
 
+def validate_status_json(status_path: Path, project_name: str) -> None:
+    """Validate status.json structure and content."""
+    try:
+        content = status_path.read_text(encoding="utf-8")
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        fail(f"Project '{project_name}' has invalid JSON in status.json: {e}")
+    except Exception as e:
+        fail(f"Project '{project_name}' failed to read status.json: {e}")
+    
+    # Required fields
+    required_fields = ["status", "current_phase", "last_updated"]
+    missing = [f for f in required_fields if f not in data]
+    if missing:
+        fail(f"Project '{project_name}' status.json missing required fields: {missing}")
+    
+    # Validate status values
+    valid_statuses = ["active", "blocked", "completed", "on-hold"]
+    if data["status"] not in valid_statuses:
+        fail(f"Project '{project_name}' status.json has invalid status '{data['status']}'. Must be one of: {valid_statuses}")
+    
+    # Validate current_phase values
+    valid_phases = ["spec", "architecture", "implementation", "testing", "deployment"]
+    if data["current_phase"] not in valid_phases:
+        fail(f"Project '{project_name}' status.json has invalid current_phase '{data['current_phase']}'. Must be one of: {valid_phases}")
+    
+    # Validate last_updated is ISO 8601 format
+    try:
+        datetime.fromisoformat(data["last_updated"].replace("Z", "+00:00"))
+    except (ValueError, AttributeError) as e:
+        fail(f"Project '{project_name}' status.json has invalid last_updated timestamp. Must be ISO 8601 format: {e}")
+    
+    # If status is blocked, blocked_reason should be present
+    if data["status"] == "blocked" and not data.get("blocked_reason"):
+        warn(f"Project '{project_name}' status.json has status=blocked but no blocked_reason provided")
+
 def main() -> None:
     # Constitution must exist
     constitution = ROOT / "specs" / "constitution.md"
@@ -116,6 +154,12 @@ def main() -> None:
             for f in ["runbook.md", "cost-plan.md"]:
                 if not (proj / f).exists():
                     fail(f"Project '{proj.name}' appears deployable but is missing {f}.")
+        
+        # Optional status.json validation
+        status_json = proj / "status.json"
+        if status_json.exists():
+            validate_status_json(status_json, proj.name)
+    
     print("Artifact checks passed.")
 
 if __name__ == "__main__":
