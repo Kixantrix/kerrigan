@@ -62,7 +62,10 @@ def read_text(p: Path) -> str:
 
 def has_heading(text: str, heading: str) -> bool:
     # Match markdown headings like "# Heading" or "## Heading"
-    pattern = re.compile(rf"^#{1,6}\s+{re.escape(heading)}\s*$", re.MULTILINE)
+    # Don't escape spaces in the heading, only special regex chars
+    # We want "Acceptance criteria" to match literally with its space
+    escaped = re.escape(heading).replace('\\ ', ' ')
+    pattern = re.compile(r"^#{1,6}\s+" + escaped + r"\s*$", re.MULTILINE)
     return bool(pattern.search(text))
 
 def ensure_sections(p: Path, headings: List[str], doc_name: str) -> None:
