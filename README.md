@@ -16,8 +16,9 @@ This repo is intentionally **stack-agnostic**. It focuses on:
 
 1) Read: `playbooks/kickoff.md`
 2) Set autonomy mode: `playbooks/autonomy-modes.md`
-3) Create a new project spec folder under `specs/projects/<project-name>/`
-4) Use the prompts in `.github/agents/` to drive the swarm.
+3) **Configure automation** (optional): `.github/automation/README.md`
+4) Create a new project spec folder under `specs/projects/<project-name>/`
+5) Use the prompts in `.github/agents/` to drive the swarm.
 
 CI will enforce:
 - required artifacts/sections exist,
@@ -25,6 +26,8 @@ CI will enforce:
 - basic "quality from day 1" heuristics (no giant blob files by default).
 
 **Autonomy gates**: PRs require `agent:go` or `agent:sprint` label on linked issues, or `autonomy:override` label on the PR itself. This ensures human control over when agents can work. See `playbooks/autonomy-modes.md` for details.
+
+**Automation** (optional): Configure auto-assignment of reviewers, auto-generation of issues, and more. See `.github/automation/README.md` for setup.
 
 ---
 

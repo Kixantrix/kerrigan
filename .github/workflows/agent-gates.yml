@@ -7,6 +7,9 @@ on:
 jobs:
   autonomy_gate:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: read
     steps:
       - name: Check autonomy gates
         id: check_gates
@@ -108,6 +111,22 @@ jobs:
                 if (issueLabels.includes('agent:sprint')) {
                   console.log(`✅ Issue #${issueNum} has agent:sprint label - gate passed (sprint mode)`);
                   hasAutonomyGrant = true;
+                  
+                  // Auto-apply agent:go label to PR for sprint mode convenience
+                  if (!prLabels.includes('agent:go')) {
+                    try {
+                      await github.rest.issues.addLabels({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: pr.number,
+                        labels: ['agent:go']
+                      });
+                      console.log(`   🏷️  Auto-applied agent:go label to PR (sprint mode)`);
+                    } catch (error) {
+                      console.log(`   ⚠️  Could not auto-apply agent:go label: ${error.message}`);
+                    }
+                  }
+                  
                   break;
                 }
               } catch (error) {

@@ -1,0 +1,115 @@
+name: Auto-Assign Issues
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  assign_issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auto-assign issues based on role labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const issue = context.payload.issue;
+            const issueLabels = issue.labels.map(l => l.name);
+            
+            console.log('🔍 Auto-assigning issue #' + issue.number);
+            console.log('Issue Labels:', issueLabels.join(', ') || '(none)');
+            
+            // Load configuration
+            let config;
+            try {
+              const configPath = '.github/automation/reviewers.json';
+              const configContent = fs.readFileSync(configPath, 'utf8');
+              config = JSON.parse(configContent);
+            } catch (error) {
+              console.log('⚠️  Could not load reviewers.json config:', error.message);
+              console.log('Skipping auto-assignment');
+              return;
+            }
+            
+            if (!config.auto_assign_on_label) {
+              console.log('ℹ️  Auto-assignment is disabled in config');
+              return;
+            }
+            
+            // Find role labels and collect assignees
+            const assigneesSet = new Set();
+            let foundRoleLabel = false;
+            
+            for (const label of issueLabels) {
+              if (config.role_mappings[label]) {
+                foundRoleLabel = true;
+                console.log(`✓ Found role label: ${label}`);
+                
+                const mappings = config.role_mappings[label];
+                for (const mapping of mappings) {
+                  // Skip team mappings for issue assignment (teams can't be assigned to issues)
+                  if (!mapping.startsWith('team:')) {
+                    assigneesSet.add(mapping);
+                  }
+                }
+              }
+            }
+            
+            // Add default assignees if no role labels found
+            if (!foundRoleLabel && config.default_reviewers) {
+              console.log('ℹ️  No role labels found, using default reviewers as assignees');
+              for (const mapping of config.default_reviewers) {
+                // Skip team mappings
+                if (!mapping.startsWith('team:')) {
+                  assigneesSet.add(mapping);
+                }
+              }
+            }
+            
+            const assignees = Array.from(assigneesSet);
+            
+            // Get current assignees to avoid duplicates
+            const currentAssignees = issue.assignees.map(a => a.login);
+            
+            // Filter out already assigned and issue author
+            const newAssignees = assignees.filter(a => 
+              !currentAssignees.includes(a) && a !== issue.user.login
+            );
+            
+            if (newAssignees.length === 0) {
+              console.log('✓ No new assignees to add');
+              return;
+            }
+            
+            // Assign users
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                assignees: newAssignees
+              });
+              
+              console.log('✅ Assigned:', newAssignees.join(', '));
+              
+              // Post comment if configured
+              if (config.comment_on_assignment) {
+                const assigneesList = newAssignees.map(a => `@${a}`).join(', ');
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `🤖 Auto-assigned based on role labels: ${assigneesList}`
+                });
+              }
+            } catch (error) {
+              console.log('⚠️  Failed to assign:', error.message);
+              // Don't fail the workflow if assignment fails
+            }

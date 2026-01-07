@@ -1,0 +1,166 @@
+name: Auto-Generate Issues
+
+on:
+  push:
+    paths:
+      - 'specs/projects/*/tasks.md'
+  workflow_dispatch:
+    inputs:
+      project_path:
+        description: 'Project path (e.g., specs/projects/my-project)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run (just show what would be created)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  generate_issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to find changed files
+
+      - name: Generate issues from tasks.md
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Determine which tasks.md files to process
+            let tasksFiles = [];
+            
+            if (context.eventName === 'workflow_dispatch') {
+              const projectPath = context.payload.inputs.project_path;
+              const tasksPath = path.join(projectPath, 'tasks.md');
+              if (fs.existsSync(tasksPath)) {
+                tasksFiles.push(tasksPath);
+              } else {
+                console.log(`❌ File not found: ${tasksPath}`);
+                return;
+              }
+            } else {
+              // Find changed tasks.md files
+              const { execSync } = require('child_process');
+              try {
+                const changedFiles = execSync('git diff --name-only HEAD~1 HEAD', {encoding: 'utf8'});
+                tasksFiles = changedFiles.split('\n')
+                  .filter(f => f.includes('specs/projects/') && f.endsWith('tasks.md'))
+                  .filter(f => fs.existsSync(f));
+              } catch (error) {
+                console.log('Could not determine changed files, processing all tasks.md');
+                // Fallback: process all tasks.md files
+                const projectsDir = 'specs/projects';
+                if (fs.existsSync(projectsDir)) {
+                  const projects = fs.readdirSync(projectsDir)
+                    .filter(f => fs.statSync(path.join(projectsDir, f)).isDirectory() && f !== '_template');
+                  tasksFiles = projects
+                    .map(p => path.join(projectsDir, p, 'tasks.md'))
+                    .filter(f => fs.existsSync(f));
+                }
+              }
+            }
+            
+            console.log(`📋 Processing ${tasksFiles.length} tasks.md file(s)`);
+            
+            const dryRun = context.payload.inputs?.dry_run === 'true';
+            if (dryRun) {
+              console.log('🧪 DRY RUN MODE - no issues will be created');
+            }
+            
+            for (const tasksFile of tasksFiles) {
+              console.log(`\n📄 Processing: ${tasksFile}`);
+              const projectName = path.basename(path.dirname(tasksFile));
+              const content = fs.readFileSync(tasksFile, 'utf8');
+              
+              // Parse tasks with AUTO-ISSUE markers
+              const taskPattern = /##\s+Task:\s+(.+?)\n<!--\s*AUTO-ISSUE:\s*(.+?)\s*-->\n\n([\s\S]+?)(?=\n##\s+Task:|---\n|$)/g;
+              let match;
+              let tasksFound = 0;
+              
+              while ((match = taskPattern.exec(content)) !== null) {
+                tasksFound++;
+                const taskTitle = match[1].trim();
+                const autoIssueConfig = match[2].trim();
+                const taskBody = match[3].trim();
+                
+                console.log(`\n✓ Found task: "${taskTitle}"`);
+                console.log(`  Config: ${autoIssueConfig}`);
+                
+                // Parse labels from config
+                const labels = ['kerrigan'];
+                const configParts = autoIssueConfig.split(/\s+/);
+                for (const part of configParts) {
+                  if (part.includes(':')) {
+                    labels.push(part);
+                  }
+                }
+                
+                // Check if issue already exists with this title
+                try {
+                  const existingIssues = await github.rest.issues.listForRepo({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    state: 'open',
+                    labels: labels.join(',')
+                  });
+                  
+                  const alreadyExists = existingIssues.data.some(issue => 
+                    issue.title === taskTitle || issue.title.includes(taskTitle)
+                  );
+                  
+                  if (alreadyExists) {
+                    console.log(`  ⏭️  Issue already exists, skipping`);
+                    continue;
+                  }
+                } catch (error) {
+                  console.log(`  ⚠️  Could not check for existing issues: ${error.message}`);
+                }
+                
+                // Format issue body
+                const issueBody = `${taskBody}
+
+---
+
+**Project**: ${projectName}  
+**Source**: \`${tasksFile}\`  
+**Auto-generated** from tasks.md
+
+*This issue was automatically created by the auto-generate-issues workflow.*
+`;
+                
+                if (dryRun) {
+                  console.log(`  🧪 Would create issue:`);
+                  console.log(`     Title: ${taskTitle}`);
+                  console.log(`     Labels: ${labels.join(', ')}`);
+                } else {
+                  // Create the issue
+                  try {
+                    const newIssue = await github.rest.issues.create({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      title: taskTitle,
+                      body: issueBody,
+                      labels: labels
+                    });
+                    console.log(`  ✅ Created issue #${newIssue.data.number}: ${taskTitle}`);
+                  } catch (error) {
+                    console.log(`  ❌ Failed to create issue: ${error.message}`);
+                  }
+                }
+              }
+              
+              if (tasksFound === 0) {
+                console.log(`  ℹ️  No tasks with AUTO-ISSUE markers found`);
+              } else {
+                console.log(`\n✅ Processed ${tasksFound} task(s) from ${tasksFile}`);
+              }
+            }
