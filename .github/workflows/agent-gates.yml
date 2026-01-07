@@ -40,10 +40,15 @@ jobs:
             // Also support cross-repo references like "Fixes owner/repo#123"
             // Note: Cross-repo issue numbers are extracted but only checked in current repo
             // Using matchAll to avoid regex state issues with exec() in loops
+            
+            // Common pattern for optional repo prefix
+            const repoPattern = '([A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+)';
+            
             const patterns = [
-              /(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\s+(?:([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)#)?(\d+)/gi,
-              /(?:issue|ref|see)\s+(?:([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)#)?(\d+)/gi,
-              /(?:^|\s)(?:([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)#)?(\d+)(?=\s|[,.:;!?]|$)/gim
+              new RegExp(`(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\\s+(?:${repoPattern}#)?(\\d+)`, 'gi'),
+              new RegExp(`(?:issue|ref|see)\\s+(?:${repoPattern}#)?(\\d+)`, 'gi'),
+              // Multiline flag needed for standalone pattern to match issue numbers at line endings
+              new RegExp(`(?:^|\\s)(?:${repoPattern}#)?(\\d+)(?=\\s|[,.:;!?]|$)`, 'gim')
             ];
             
             for (const pattern of patterns) {
