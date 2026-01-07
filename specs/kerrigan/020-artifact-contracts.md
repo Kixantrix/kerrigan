@@ -51,6 +51,45 @@ For each project under `specs/projects/<project-name>/`:
    - Guardrails (budgets/alerts/tags)
    - Scale assumptions
 
+9) `status.json` (optional, for workflow control)
+   - Tracks project state and agent workflow progress
+   - Enables pause/resume control for human oversight
+   - See schema below
+
+## status.json schema
+
+The `status.json` file provides runtime control over agent workflow. It is optional but recommended for multi-agent projects requiring human oversight.
+
+**Location**: `specs/projects/<project-name>/status.json`
+
+**Schema**:
+```json
+{
+  "status": "active|blocked|completed|on-hold",
+  "current_phase": "spec|architecture|implementation|testing|deployment",
+  "last_updated": "ISO 8601 timestamp",
+  "blocked_reason": "optional: explanation if status=blocked",
+  "notes": "optional: human notes or context"
+}
+```
+
+**Field definitions**:
+- `status` (required): Current workflow state
+  - `active`: Agents may proceed with work
+  - `blocked`: Agents must pause; human intervention needed
+  - `completed`: Project work is done
+  - `on-hold`: Temporarily paused; may resume later
+- `current_phase` (required): Where the project is in the workflow lifecycle
+- `last_updated` (required): ISO 8601 timestamp of last status change
+- `blocked_reason` (optional but recommended when status=blocked): Explains why work is paused
+- `notes` (optional): Free-form text for human context
+
+**Agent behavior**:
+- Agents MUST check status.json before starting work
+- If status=blocked or on-hold, agents MUST NOT proceed
+- Agents SHOULD update last_updated when changing phases
+- Agents MAY add notes but MUST NOT change status from active to blocked
+
 ## Kerrigan-wide artifacts
 - `specs/constitution.md` governs all work.
 - `specs/kerrigan/030-quality-bar.md` defines definition-of-done and heuristics.
