@@ -21,8 +21,10 @@ This repo is intentionally **stack-agnostic**. It focuses on:
 
 CI will enforce:
 - required artifacts/sections exist,
-- autonomy gates (when enabled),
-- basic “quality from day 1” heuristics (no giant blob files by default).
+- autonomy gates via label-based controls (see below),
+- basic "quality from day 1" heuristics (no giant blob files by default).
+
+**Autonomy gates**: PRs require `agent:go` or `agent:sprint` label on linked issues, or `autonomy:override` label on the PR itself. This ensures human control over when agents can work. See `playbooks/autonomy-modes.md` for details.
 
 ---
 
