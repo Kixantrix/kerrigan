@@ -39,9 +39,9 @@ jobs:
             // Also match: "Issue #123", "#123" (standalone)
             // Using matchAll to avoid regex state issues with exec() in loops
             const patterns = [
-              /(?:closes?d?|fix(?:es|ed)?|resolves?d?)\s+#(\d+)/gi,
+              /(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\s+#(\d+)/gi,
               /(?:issue|ref|see)\s+#(\d+)/gi,
-              /(?:^|\s)#(\d+)(?=\s|$)/gi
+              /(?:^|\s)#(\d+)(?=\s|[,.:;!?]|$)/gi
             ];
             
             for (const pattern of patterns) {
