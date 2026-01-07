@@ -81,7 +81,7 @@ The `status.json` file provides runtime control over agent workflow. It is optio
   - `on-hold`: Temporarily paused; may resume later
 - `current_phase` (required): Where the project is in the workflow lifecycle
 - `last_updated` (required): ISO 8601 timestamp of last status change
-- `blocked_reason` (optional): Required if status=blocked; explains why
+- `blocked_reason` (optional but recommended when status=blocked): Explains why work is paused
 - `notes` (optional): Free-form text for human context
 
 **Agent behavior**:

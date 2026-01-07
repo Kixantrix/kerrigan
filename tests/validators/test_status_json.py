@@ -188,6 +188,29 @@ class TestStatusJsonValidation(unittest.TestCase):
         status_path = self.write_status_json(data)
         validate_status_json(status_path, "test-project")
 
+    def test_blocked_status_without_reason_warns(self):
+        """Test blocked status without blocked_reason triggers warning"""
+        data = {
+            "status": "blocked",
+            "current_phase": "implementation",
+            "last_updated": "2026-01-06T21:00:00Z"
+        }
+        status_path = self.write_status_json(data)
+        # Should not raise exception, only warning
+        validate_status_json(status_path, "test-project")
+
+    def test_blocked_status_with_empty_reason_warns(self):
+        """Test blocked status with empty blocked_reason triggers warning"""
+        data = {
+            "status": "blocked",
+            "current_phase": "implementation",
+            "last_updated": "2026-01-06T21:00:00Z",
+            "blocked_reason": ""
+        }
+        status_path = self.write_status_json(data)
+        # Should not raise exception, only warning
+        validate_status_json(status_path, "test-project")
+
 
 if __name__ == "__main__":
     unittest.main()
