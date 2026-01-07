@@ -45,10 +45,11 @@ jobs:
             const repoPattern = '([A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+)';
             
             const patterns = [
-              new RegExp(`(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\\s+(?:${repoPattern}#)?(\\d+)`, 'gi'),
-              new RegExp(`(?:issue|ref|see)\\s+(?:${repoPattern}#)?(\\d+)`, 'gi'),
+              new RegExp(`(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\\s+(?:${repoPattern})?#(\\d+)`, 'gi'),
+              new RegExp(`(?:issue|ref|see)\\s+(?:${repoPattern})?#(\\d+)`, 'gi'),
               // Multiline flag needed for standalone pattern to match issue numbers at line endings
-              new RegExp(`(?:^|\\s)(?:${repoPattern}#)?(\\d+)(?=\\s|[,.:;!?]|$)`, 'gim')
+              // Requires # to avoid matching standalone numbers
+              new RegExp(`(?:^|\\s)(?:${repoPattern})?#(\\d+)(?=\\s|[,.:;!?]|$)`, 'gim')
             ];
             
             for (const pattern of patterns) {
