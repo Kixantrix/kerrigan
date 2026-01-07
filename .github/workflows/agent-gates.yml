@@ -38,17 +38,21 @@ jobs:
             // Match patterns like: "Fixes #123", "Closes #456", "Resolves #789"
             // Also match: "Issue #123", "#123" (standalone)
             // Also support cross-repo references like "Fixes owner/repo#123"
+            // Note: Cross-repo issue numbers are extracted but only checked in current repo
             // Using matchAll to avoid regex state issues with exec() in loops
             const patterns = [
-              /(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\s+(?:[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)?#(\d+)/gi,
-              /(?:issue|ref|see)\s+(?:[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)?#(\d+)/gi,
-              /(?:^|\s)(?:[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)?#(\d+)(?=\s|[,.:;!?]|$)/gim
+              /(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\s+(?:([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)#)?(\d+)/gi,
+              /(?:issue|ref|see)\s+(?:([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)#)?(\d+)/gi,
+              /(?:^|\s)(?:([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)#)?(\d+)(?=\s|[,.:;!?]|$)/gim
             ];
             
             for (const pattern of patterns) {
               const matches = bodyText.matchAll(pattern);
               for (const match of matches) {
-                issueNumbersSet.add(parseInt(match[1], 10));
+                // match[1] is the optional repo part (captured but not used)
+                // match[2] is the issue number (or match[1] if no repo part)
+                const issueNum = parseInt(match[2] || match[1], 10);
+                issueNumbersSet.add(issueNum);
               }
             }
             
