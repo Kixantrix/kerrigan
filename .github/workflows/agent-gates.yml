@@ -41,13 +41,13 @@ jobs:
             const patterns = [
               /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi,
               /(?:issue|ref|see)\s+#(\d+)/gi,
-              /(?:^|\s)#(\d+)(?=\s|$)/gm
+              /(?:^|\s)#(\d+)(?=\s|$)/g
             ];
             
             for (const pattern of patterns) {
               const matches = bodyText.matchAll(pattern);
               for (const match of matches) {
-                issueNumbersSet.add(parseInt(match[1]));
+                issueNumbersSet.add(parseInt(match[1], 10));
               }
             }
             
@@ -81,7 +81,7 @@ jobs:
               console.log('  4. Add autonomy:override label to this PR (human approval)');
               console.log('');
               console.log('See playbooks/autonomy-modes.md for details on autonomy modes.');
-              core.setFailed('Autonomy gate: no linked issue with agent:go/agent:sprint label, and PR lacks required labels');
+              core.setFailed('Autonomy gate: no linked issues found and PR lacks required labels');
               return;
             }
             
