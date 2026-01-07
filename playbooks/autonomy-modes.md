@@ -39,6 +39,13 @@ The workflow recognizes these patterns in PR body:
 - `Fixes #123`, `Closes #456`, `Resolves #789`
 - `Issue #123`, `Ref #456`, `See #789`
 - `#123` (standalone, with whitespace around it)
+- Cross-repository references: `Fixes owner/repo#123`, `Closes Kixantrix/kerrigan#5`
+
+**Notes:**
+- Matching is case-insensitive (e.g., `issue #123`, `ISSUE #123`, and `Issue #123` are all treated the same)
+- The `Issue/Ref/See` forms require a space before the `#` (e.g., `issue #123` works, but `issue#123` does **not**)
+- The standalone `#123` form must be surrounded by whitespace or punctuation to be recognized
+- Cross-repository references are supported but will only check issues in the current repository
 
 ### Testing the gate
 

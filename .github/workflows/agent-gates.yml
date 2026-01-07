@@ -37,11 +37,12 @@ jobs:
             
             // Match patterns like: "Fixes #123", "Closes #456", "Resolves #789"
             // Also match: "Issue #123", "#123" (standalone)
+            // Also support cross-repo references like "Fixes owner/repo#123"
             // Using matchAll to avoid regex state issues with exec() in loops
             const patterns = [
-              /(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\s+#(\d+)/gi,
-              /(?:issue|ref|see)\s+#(\d+)/gi,
-              /(?:^|\s)#(\d+)(?=\s|[,.:;!?]|$)/gi
+              /(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\s+(?:[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)?#(\d+)/gi,
+              /(?:issue|ref|see)\s+(?:[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)?#(\d+)/gi,
+              /(?:^|\s)(?:[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)?#(\d+)(?=\s|[,.:;!?]|$)/gim
             ];
             
             for (const pattern of patterns) {
@@ -87,6 +88,8 @@ jobs:
             
             // Check labels on linked issues
             let hasAutonomyGrant = false;
+            let allIssuesFailed = true;
+            let successfullyCheckedIssues = 0;
             
             for (const issueNum of issueNumbers) {
               try {
@@ -95,6 +98,9 @@ jobs:
                   repo: context.repo.repo,
                   issue_number: issueNum
                 });
+                
+                successfullyCheckedIssues++;
+                allIssuesFailed = false;
                 
                 const issueLabels = issue.data.labels.map(l => l.name);
                 console.log(`Issue #${issueNum} labels: ${issueLabels.join(', ') || '(none)'}`);
@@ -119,14 +125,29 @@ jobs:
               console.log('');
               console.log('❌ Autonomy gate check FAILED');
               console.log('');
-              console.log(`Linked issue(s): ${issueNumbers.join(', ')}`);
-              console.log('None of the linked issues have the required agent:go or agent:sprint label.');
-              console.log('');
-              console.log('To proceed, do ONE of:');
-              console.log('  1. Add agent:go label to one of the linked issues (on-demand mode)');
-              console.log('  2. Add agent:sprint label to one of the linked issues (sprint mode)');
-              console.log('  3. Add autonomy:override label to this PR (human approval)');
-              console.log('');
+              
+              if (allIssuesFailed) {
+                console.log(`Linked issue(s): ${issueNumbers.join(', ')}`);
+                console.log('⚠️  Could not verify any linked issues due to API errors or access restrictions.');
+                console.log('This may occur if issues are private, from external repos, or GitHub API is unavailable.');
+                console.log('');
+                console.log('To proceed, do ONE of:');
+                console.log('  1. Add agent:go or agent:sprint label directly to this PR (fallback mode)');
+                console.log('  2. Add autonomy:override label to this PR (human approval)');
+                console.log('  3. Ensure linked issues are accessible and retry');
+                console.log('');
+                core.setFailed('Autonomy gate: could not verify linked issues due to API errors');
+              } else {
+                console.log(`Linked issue(s): ${issueNumbers.join(', ')}`);
+                console.log(`Successfully checked ${successfullyCheckedIssues} issue(s), but none have the required agent:go or agent:sprint label.`);
+                console.log('');
+                console.log('To proceed, do ONE of:');
+                console.log('  1. Add agent:go label to one of the linked issues (on-demand mode)');
+                console.log('  2. Add agent:sprint label to one of the linked issues (sprint mode)');
+                console.log('  3. Add autonomy:override label to this PR (human approval)');
+                console.log('');
+                core.setFailed('Autonomy gate: linked issue(s) lack agent:go or agent:sprint label');
+              }
+              
               console.log('See playbooks/autonomy-modes.md for details on autonomy modes.');
-              core.setFailed('Autonomy gate: linked issue(s) lack agent:go or agent:sprint label');
             }
