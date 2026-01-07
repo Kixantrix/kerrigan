@@ -82,7 +82,7 @@ jobs:
               const content = fs.readFileSync(tasksFile, 'utf8');
               
               // Parse tasks with AUTO-ISSUE markers
-              const taskPattern = /##\s+Task:\s+(.+?)\n<!--\s*AUTO-ISSUE:\s*(.+?)\s*-->\n\n([\s\S]+?)(?=\n##\s+Task:|---\n|$)/g;
+              const taskPattern = /##\s+Task:\s+([^\n]+)\n<!--\s*AUTO-ISSUE:\s*([^>]+?)\s*-->\s*\n(.*?)(?=\n##\s+Task:|\n---\s*\n|$)/gs;
               let match;
               let tasksFound = 0;
               
@@ -128,14 +128,14 @@ jobs:
                 // Format issue body
                 const issueBody = `${taskBody}
 
----
+                ---
 
-**Project**: ${projectName}  
-**Source**: \`${tasksFile}\`  
-**Auto-generated** from tasks.md
+                **Project**: ${projectName}  
+                **Source**: \`${tasksFile}\`  
+                **Auto-generated** from tasks.md
 
-*This issue was automatically created by the auto-generate-issues workflow.*
-`;
+                *This issue was automatically created by the auto-generate-issues workflow.*
+                `;
                 
                 if (dryRun) {
                   console.log(`  🧪 Would create issue:`);

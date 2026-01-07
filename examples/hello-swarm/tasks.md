@@ -17,8 +17,6 @@ This file demonstrates the AUTO-ISSUE feature for automated issue generation.
 
 **Estimated effort**: small
 
----
-
 ## Task: Add greeting customization
 <!-- AUTO-ISSUE: role:swe priority:medium -->
 
