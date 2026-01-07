@@ -50,8 +50,8 @@ jobs:
               const matches = bodyText.matchAll(pattern);
               for (const match of matches) {
                 // match[1] is the optional repo part (captured but not used)
-                // match[2] is the issue number (or match[1] if no repo part)
-                const issueNum = parseInt(match[2] || match[1], 10);
+                // match[2] is always the issue number
+                const issueNum = parseInt(match[2], 10);
                 issueNumbersSet.add(issueNum);
               }
             }
