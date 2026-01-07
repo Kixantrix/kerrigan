@@ -14,7 +14,13 @@ class TestReviewersConfig(unittest.TestCase):
         # Get to repo root from tests/test_automation.py
         repo_root = Path(__file__).resolve().parent.parent
         config_path = repo_root / ".github" / "automation" / "reviewers.json"
-        self.config = json.loads(config_path.read_text())
+        
+        try:
+            self.config = json.loads(config_path.read_text())
+        except FileNotFoundError:
+            self.fail(f"Configuration file not found: {config_path}")
+        except json.JSONDecodeError as e:
+            self.fail(f"Invalid JSON in {config_path}: {e}")
 
     def test_config_has_required_fields(self):
         """Test that config has all required fields"""
