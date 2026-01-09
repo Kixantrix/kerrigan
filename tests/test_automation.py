@@ -24,7 +24,7 @@ class TestReviewersConfig(unittest.TestCase):
 
     def test_config_has_required_fields(self):
         """Test that config has all required fields"""
-        required_fields = ["role_mappings", "default_reviewers", "require_code_owner_review", "auto_assign_on_label"]
+        required_fields = ["role_mappings", "default_reviewers", "auto_assign_on_label", "comment_on_assignment"]
         for field in required_fields:
             self.assertIn(field, self.config, f"Missing required field: {field}")
 
@@ -40,9 +40,9 @@ class TestReviewersConfig(unittest.TestCase):
         """Test that auto_assign_on_label is a boolean"""
         self.assertIsInstance(self.config["auto_assign_on_label"], bool)
 
-    def test_require_code_owner_review_is_bool(self):
-        """Test that require_code_owner_review is a boolean"""
-        self.assertIsInstance(self.config["require_code_owner_review"], bool)
+    def test_comment_on_assignment_is_bool(self):
+        """Test that comment_on_assignment is a boolean"""
+        self.assertIsInstance(self.config["comment_on_assignment"], bool)
 
     def test_role_mappings_values_are_lists(self):
         """Test that all role_mappings values are lists"""
@@ -104,10 +104,9 @@ class TestTasksFormat(unittest.TestCase):
             content = tasks_file.read_text()
             
             # Find all tasks with AUTO-ISSUE markers
-            # Using DOTALL mode and proper lookahead
+            # Matches task body until next task header, separator, or end of file
             task_pattern = re.compile(
-                r'##\s+Task:\s+([^\n]+)\n<!--\s*AUTO-ISSUE:\s*([^>]+?)\s*-->\s*\n(.*?)(?=\n##\s+Task:|\n---\s*\n|$)',
-                re.DOTALL
+                r'##\s+Task:\s+([^\r\n]+)\r?\n<!--\s*AUTO-ISSUE:\s*([^>]+?)\s*-->\s*\r?\n([\s\S]+?)(?=\n##\s+Task:|\n---\s*\n|$)'
             )
             
             matches = task_pattern.findall(content)

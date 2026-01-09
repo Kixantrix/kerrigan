@@ -38,7 +38,8 @@ This document defines generic automation contracts that enable platform-agnostic
     "role:deployment": ["username6", "team:ops"]
   },
   "default_reviewers": ["team:maintainers"],
-  "require_code_owner_review": true
+  "auto_assign_on_label": true,
+  "comment_on_assignment": true
 }
 ```
 
@@ -129,7 +130,6 @@ All automation configuration lives in `.github/automation/` to:
 .github/
 ├── automation/
 │   ├── reviewers.json          # Role-to-reviewer mappings
-│   ├── issue-generation.yml    # Issue generation config
 │   └── README.md              # Automation documentation
 ├── workflows/
 │   ├── auto-assign-reviewers.yml

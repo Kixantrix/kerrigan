@@ -5,11 +5,9 @@
     "role:swe": [],
     "role:testing": [],
     "role:security": [],
-    "role:deployment": [],
-    "role:debugging": []
+    "role:deployment": []
   },
   "default_reviewers": [],
-  "require_code_owner_review": false,
   "auto_assign_on_label": true,
   "comment_on_assignment": true
 }

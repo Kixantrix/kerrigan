@@ -5,7 +5,6 @@ This directory contains configuration files for Kerrigan's GitHub automation fea
 ## Files
 
 - **reviewers.json**: Maps role labels to reviewers/teams for auto-assignment
-- **issue-generation.yml**: Configuration for auto-generating issues from tasks.md
 
 ## Setup Instructions
 

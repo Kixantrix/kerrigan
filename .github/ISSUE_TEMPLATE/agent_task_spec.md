@@ -11,7 +11,7 @@ What needs to be specified or clarified?
 
 ## Scope
 - [ ] What should be included
-- [ ] What should be included
+- [ ] Specific deliverables
 
 ## Non-goals
 - What is explicitly out of scope

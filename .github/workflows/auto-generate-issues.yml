@@ -71,7 +71,7 @@ jobs:
             
             console.log(`📋 Processing ${tasksFiles.length} tasks.md file(s)`);
             
-            const dryRun = context.payload.inputs?.dry_run === 'true';
+            const dryRun = context.payload.inputs?.dry_run === true;
             if (dryRun) {
               console.log('🧪 DRY RUN MODE - no issues will be created');
             }
@@ -82,7 +82,7 @@ jobs:
               const content = fs.readFileSync(tasksFile, 'utf8');
               
               // Parse tasks with AUTO-ISSUE markers
-              const taskPattern = /##\s+Task:\s+([^\n]+)\n<!--\s*AUTO-ISSUE:\s*([^>]+?)\s*-->\s*\n(.*?)(?=\n##\s+Task:|\n---\s*\n|$)/gs;
+              const taskPattern = /##\s+Task:\s+([^\r\n]+)\r?\n<!--\s*AUTO-ISSUE:\s*([^>]+?)\s*-->\s*\r?\n([\s\S]+?)(?=\n##\s+Task:|\n---\s*\n|$)/g;
               let match;
               let tasksFound = 0;
               
@@ -113,8 +113,9 @@ jobs:
                     labels: labels.join(',')
                   });
                   
-                  const alreadyExists = existingIssues.data.some(issue => 
-                    issue.title === taskTitle || issue.title.includes(taskTitle)
+                  const normalizedTaskTitle = taskTitle.trim().toLowerCase();
+                  const alreadyExists = existingIssues.data.some(issue =>
+                    issue.title && issue.title.trim().toLowerCase() === normalizedTaskTitle
                   );
                   
                   if (alreadyExists) {
@@ -126,16 +127,17 @@ jobs:
                 }
                 
                 // Format issue body
-                const issueBody = `${taskBody}
-
-                ---
-
-                **Project**: ${projectName}  
-                **Source**: \`${tasksFile}\`  
-                **Auto-generated** from tasks.md
-
-                *This issue was automatically created by the auto-generate-issues workflow.*
-                `;
+                const issueBody = [
+                  taskBody,
+                  '',
+                  '---',
+                  '',
+                  `**Project**: ${projectName}`,
+                  `**Source**: \`${tasksFile}\``,
+                  '**Auto-generated** from tasks.md',
+                  '',
+                  '*This issue was automatically created by the auto-generate-issues workflow.*'
+                ].join('\n');
                 
                 if (dryRun) {
                   console.log(`  🧪 Would create issue:`);
