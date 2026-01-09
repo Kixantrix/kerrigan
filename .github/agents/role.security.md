@@ -151,6 +151,9 @@ Identify and prevent common security issues early in the development process.
 ## Tools and Resources
 
 ### Scanning Tools
+
+**Note**: Tool names and versions change over time. Focus on the type of security checks needed, and use current best-of-breed tools for your ecosystem.
+
 - **Dependency scanning**: Snyk, Dependabot, npm audit, pip-audit
 - **Static analysis**: Bandit (Python), ESLint (JS), Brakeman (Ruby), Gosec (Go)
 - **Container scanning**: Trivy, Clair

@@ -87,6 +87,8 @@ curl -X POST http://localhost:3000/api/login \
   -d '{"username":"test","password":"secret"}'
 ```
 
+**Note**: This ESLint configuration is a minimal starting point. Customize rules based on your team's coding standards and project requirements.
+
 ## Common Patterns
 
 ### Project Start Checklist

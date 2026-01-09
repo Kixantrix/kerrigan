@@ -6,6 +6,8 @@ Kerrigan is a multi-agent orchestration system that coordinates specialized AI a
 
 ## Architecture Diagram
 
+**Note**: This diagram is rendered using Mermaid syntax. If viewing on GitHub, the diagram should display automatically. If not rendering, see the text description below.
+
 ```mermaid
 flowchart TD
     %% Human Inputs

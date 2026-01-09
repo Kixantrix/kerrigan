@@ -66,8 +66,8 @@ def test_login_with_valid_credentials_returns_jwt_token():
     assert "token" in result, "Response should contain JWT token"
     assert len(result["token"]) > 0, "Token should not be empty"
     
-    # Verify token is valid JWT
-    decoded = jwt.decode(result["token"], verify=False)
+    # Verify token is valid JWT (example - adjust for your JWT library)
+    decoded = jwt.decode(result["token"], options={"verify_signature": False})
     assert decoded["username"] == "testuser"
 ```
 
