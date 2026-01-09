@@ -12,46 +12,143 @@ This repo is intentionally **stack-agnostic**. It focuses on:
 
 ---
 
-## Quick start (human)
+## 🚀 5-Minute Quickstart
 
-1) Read: `playbooks/kickoff.md`
-2) Set autonomy mode: `playbooks/autonomy-modes.md`
-3) Create a new project spec folder under `specs/projects/<project-name>/`
-4) Use the prompts in `.github/agents/` to drive the swarm.
+**New to Kerrigan?** Get started fast:
 
-CI will enforce:
-- required artifacts/sections exist,
-- autonomy gates via label-based controls (see below),
-- basic "quality from day 1" heuristics (no giant blob files by default).
+1. **Clone or use as template**: [Use this template](https://github.com/Kixantrix/kerrigan/generate) to create your own repository
+2. **Create GitHub labels**: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file` ([detailed instructions](docs/setup.md#step-2-set-up-github-labels))
+3. **Create an issue** with your project idea and add the `agent:go` label
+4. **Copy agent prompts** from `.github/agents/` to your AI assistant (GitHub Copilot, Claude, etc.)
+5. **Let agents build**: Spec → Architecture → Implementation → Testing → Deploy
 
-**Autonomy gates**: PRs require `agent:go` or `agent:sprint` label on linked issues, or `autonomy:override` label on the PR itself. This ensures human control over when agents can work. See `playbooks/autonomy-modes.md` for details.
+**CI automatically enforces**:
+- Required artifacts and structure
+- Quality bar (max 800 LOC per file)
+- Autonomy gates (label-based control)
 
----
-
-## Repo map
-
-- `specs/` – governing principles and project specs (your “source of truth”)
-- `playbooks/` – how work moves from spec → architecture → implementation → testing → deploy
-- `.github/agents/` – role prompts + output expectations
-- `tools/validators/` – CI checks that enforce artifacts and quality bar
-- `examples/` – a minimal end-to-end example project
-
-Start here:
-- Principles: `specs/constitution.md`
-- Quality bar: `specs/kerrigan/030-quality-bar.md`
-- Artifact contracts: `specs/kerrigan/020-artifact-contracts.md`
+📖 **Full setup guide**: [docs/setup.md](docs/setup.md)
 
 ---
 
-## Philosophy (short)
+## 📐 Architecture
 
-- **Artifact-driven**: agents communicate via repo files. If it’s not written down, it doesn’t exist.
-- **Quality from day one**: no prototype leniency. Create structure + tests early.
-- **Small diffs**: prefer incremental PRs that keep CI green.
-- **Stack agnostic**: contracts describe *what* artifacts exist, not *what tech* you must use.
-- **Human-in-the-loop**: you approve key decisions, but agents own testing/debug/deploy excellence.
+Kerrigan orchestrates specialized agents through an artifact-driven workflow:
+
+```
+Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → Deploy → PR → Review → Merge
+         ↑ Labels              ↓ Artifacts
+         ↑ status.json         ↓ Validated by CI
+```
+
+**Visual diagram**: See [docs/architecture.md](docs/architecture.md) for complete workflow and component details.
+
+**Key principles**:
+- **Artifact-driven**: All work captured in repo files (specs, code, tests, runbooks)
+- **Quality from day one**: No prototype mode—tests and structure from the start
+- **Human-in-loop**: Humans decide strategy, agents execute details
+- **Stack-agnostic**: Works with any language, framework, or toolchain
 
 ---
 
-## License
+## 📚 Documentation
+
+### Getting Started
+- **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
+- **[FAQ](docs/FAQ.md)**: Answers to common questions
+- **[Architecture](docs/architecture.md)**: System design and workflow visualization
+
+### Process & Workflow
+- **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
+- **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
+- **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
+- **[PR Review](playbooks/pr-review.md)**: Human review guidelines
+
+### Specifications
+- **[Constitution](specs/constitution.md)**: Non-negotiable principles
+- **[Artifact Contracts](specs/kerrigan/020-artifact-contracts.md)**: Required files and structure
+- **[Quality Bar](specs/kerrigan/030-quality-bar.md)**: Quality standards and enforcement
+
+### Agent Roles
+- **[Agent README](.github/agents/README.md)**: Overview of all agent types
+- **Individual prompts**: See `.github/agents/role.*.md` for each specialized agent
+
+---
+
+## 🎯 Autonomy Control
+
+Kerrigan gives you fine-grained control over when agents can work:
+
+**Autonomy gates**: PRs require `agent:go` or `agent:sprint` label on linked issues, or `autonomy:override` label on the PR itself. This ensures human control over when agents can work.
+
+**Status tracking**: Use `status.json` to pause/resume work:
+```json
+{"status": "blocked", "blocked_reason": "Awaiting security review"}
+```
+
+See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed configuration options.
+
+---
+
+## 📋 Quick Reference
+
+| Task | Command/Location |
+|------|------------------|
+| Start new project | `cp -r specs/projects/_template/ specs/projects/<name>/` |
+| Enable agent work | Add `agent:go` label to GitHub issue |
+| Pause project | Create `status.json` with `"status": "blocked"` |
+| Invoke agent | Copy prompt from `.github/agents/role.*.md` |
+| Validate locally | `python tools/validators/check_artifacts.py` |
+| Check CI | View GitHub Actions tab |
+
+---
+
+## 🗂️ Repository Structure
+
+```
+kerrigan/
+├── .github/
+│   ├── agents/              # Agent role prompts (Spec, Architect, SWE, etc.)
+│   └── workflows/           # CI configuration (validators, autonomy gates)
+├── docs/                    # Comprehensive documentation
+│   ├── architecture.md      # System design and workflow diagram
+│   ├── setup.md            # Step-by-step setup guide
+│   └── FAQ.md              # Frequently asked questions
+├── playbooks/               # Process guides (kickoff, handoffs, autonomy modes)
+├── specs/
+│   ├── constitution.md      # Core principles
+│   ├── kerrigan/           # Meta-specs (how Kerrigan works)
+│   └── projects/           # Your projects go here
+│       ├── _template/      # Template for new projects
+│       └── <project>/      # Individual project artifacts
+├── tools/
+│   └── validators/         # Artifact validation scripts
+└── examples/               # Complete example projects
+```
+
+---
+
+## 🤝 Contributing
+
+Kerrigan is designed to be customized! Feel free to:
+- Fork and adapt for your workflow
+- Add custom validators or agent roles
+- Improve documentation
+- Share examples and learnings
+
+See examples in `examples/` and specifications in `specs/kerrigan/` for how the system works.
+
+---
+
+## 📜 License
+
 MIT (see `LICENSE`).
+
+---
+
+## 🙋 Need Help?
+
+- **First time?** Start with the [Setup Guide](docs/setup.md)
+- **Questions?** Check the [FAQ](docs/FAQ.md)
+- **Issues?** Open a GitHub issue
+- **Want to understand the system?** Read the [Architecture](docs/architecture.md)
