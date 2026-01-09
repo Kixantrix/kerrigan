@@ -12,6 +12,8 @@ Kerrigan includes GitHub-native automation workflows that:
 
 All automations are **opt-in** and configurable.
 
+📖 **For agent assignment details**, see: [Agent Assignment Pattern](../docs/agent-assignment.md)
+
 ## Setup
 
 ### Step 1: Configure Reviewer Mappings
