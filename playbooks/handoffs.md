@@ -3,6 +3,35 @@
 Handoffs are file-based. Each stage must produce the artifacts defined in:
 - `specs/kerrigan/020-artifact-contracts.md`
 
+## Workflow Refinements (from hello-api end-to-end validation)
+
+### Key Learnings
+
+1. **Validator expectations must be explicit**: The artifact validator expects exact heading names (case-sensitive), but this isn't documented in agent prompts or README. Agents should be told specific heading names: "Acceptance criteria" (not "Acceptance Criteria"), "Components & interfaces", "Security & privacy notes".
+
+2. **Manual testing is essential**: Even with 97% automated test coverage, manual curl testing was critical for validating real behavior. Agent prompts should emphasize both automated AND manual verification.
+
+3. **Testing guidance needed in SWE prompt**: The SWE agent prompt says "Add or update tests" but doesn't specify WHEN (before/during/after implementation) or what kind. Should encourage TDD or at minimum test-driven development practices.
+
+4. **Architecture phase creates most artifacts**: The architect agent must create 6+ artifacts (spec, acceptance-tests, architecture, plan, tasks, test-plan, runbook, cost-plan). This is the heaviest phase and most prone to validator failures. Consider splitting or adding validation checkpoints.
+
+5. **Linting configuration matters**: Projects need linting config files (.flake8, .eslintrc, etc.) from the start. SWE agent should create these alongside code, not as an afterthought.
+
+6. **Deploy validation may require workarounds**: Some deployment environments (corporate networks, CI systems) have SSL/proxy issues that prevent Docker builds. Document alternative validation approaches.
+
+7. **Security scanning must be continuous**: Dependencies can have vulnerabilities discovered after initial implementation. Always scan dependencies before finalizing work and document the scanning process. Example: Gunicorn 21.2.0 had HTTP smuggling vulnerabilities, required update to 22.0.0.
+
+### Improved Handoff Checklist
+
+**Before moving to next phase, verify:**
+- [ ] All required artifacts exist and pass validators
+- [ ] Required section headings match validator expectations EXACTLY
+- [ ] Manual smoke testing completed (where applicable)
+- [ ] Linting/formatting tools configured and passing
+- [ ] Dependencies scanned for security vulnerabilities
+- [ ] Documentation updated with current state
+- [ ] CI is green
+
 ## Status tracking and workflow control
 
 Projects can include a `status.json` file to control agent workflow state:
