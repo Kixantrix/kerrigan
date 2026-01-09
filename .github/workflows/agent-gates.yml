@@ -4,11 +4,164 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
+permissions:
+  issues: read
+  pull-requests: read
+
 jobs:
   autonomy_gate:
     runs-on: ubuntu-latest
     steps:
-      - name: Gate note
-        run: |
-          echo "Autonomy gates are enforced by tools/validators/check_artifacts.py"
-          echo "Labels can override: autonomy:override"
+      - name: Check autonomy gates
+        id: check_gates
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const prLabels = pr.labels.map(l => l.name);
+            
+            console.log('🔍 Checking autonomy gates...');
+            console.log(`PR #${pr.number}: ${pr.title}`);
+            console.log(`PR Labels: ${prLabels.join(', ') || '(none)'}`);
+            
+            // Check for override label on PR
+            if (prLabels.includes('autonomy:override')) {
+              console.log('✅ autonomy:override label found on PR - bypassing all gates');
+              return;
+            }
+            
+            // Check for allow:large-file label (informational only)
+            if (prLabels.includes('allow:large-file')) {
+              console.log('ℹ️  allow:large-file label found - quality bar file size checks may be bypassed');
+            }
+            
+            // Extract linked issue numbers from PR body
+            const issueNumbersSet = new Set();
+            const bodyText = pr.body || '';
+            
+            // Match patterns like: "Fixes #123", "Closes #456", "Resolves #789"
+            // Also match: "Issue #123", "#123" (standalone)
+            // Also support cross-repo references like "Fixes owner/repo#123"
+            // Note: Cross-repo issue numbers are extracted but only checked in current repo
+            // Using matchAll to avoid regex state issues with exec() in loops
+            
+            // Common pattern for optional repo prefix
+            const repoPattern = '([A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+)';
+            
+            const patterns = [
+              new RegExp(`(?:close[ds]?|fix(?:e[ds]?)?|resolve[ds]?)\\s+(?:${repoPattern})?#(\\d+)`, 'gi'),
+              new RegExp(`(?:issue|ref|see)\\s+(?:${repoPattern})?#(\\d+)`, 'gi'),
+              // Multiline flag needed for standalone pattern to match issue numbers at line endings
+              // Requires # to avoid matching standalone numbers
+              new RegExp(`(?:^|\\s)(?:${repoPattern})?#(\\d+)(?=\\s|[,.:;!?]|$)`, 'gim')
+            ];
+            
+            for (const pattern of patterns) {
+              const matches = bodyText.matchAll(pattern);
+              for (const match of matches) {
+                // match[1] is the optional repo part (captured but not used)
+                // match[2] is always the issue number
+                const issueNum = parseInt(match[2], 10);
+                issueNumbersSet.add(issueNum);
+              }
+            }
+            
+            const issueNumbers = Array.from(issueNumbersSet);
+            console.log(`Linked issues found: ${issueNumbers.length > 0 ? issueNumbers.join(', ') : '(none)'}`);
+            
+            // If no linked issues, check PR labels for agent:go or agent:sprint
+            if (issueNumbers.length === 0) {
+              console.log('⚠️  No linked issues found in PR body');
+              console.log('   Checking PR labels for direct autonomy grants...');
+              
+              if (prLabels.includes('agent:go')) {
+                console.log('✅ agent:go label found on PR - gate passed');
+                return;
+              }
+              
+              if (prLabels.includes('agent:sprint')) {
+                console.log('✅ agent:sprint label found on PR - gate passed (sprint mode)');
+                return;
+              }
+              
+              console.log('');
+              console.log('❌ Autonomy gate check FAILED');
+              console.log('');
+              console.log('This PR does not reference any issues and lacks required autonomy labels.');
+              console.log('');
+              console.log('To proceed, do ONE of:');
+              console.log('  1. Link this PR to an issue with agent:go label (add "Fixes #123" to PR body)');
+              console.log('  2. Add agent:go label directly to this PR');
+              console.log('  3. Add agent:sprint label to this PR (for sprint mode)');
+              console.log('  4. Add autonomy:override label to this PR (human approval)');
+              console.log('');
+              console.log('See playbooks/autonomy-modes.md for details on autonomy modes.');
+              core.setFailed('Autonomy gate: no linked issues found and PR lacks required labels');
+              return;
+            }
+            
+            // Check labels on linked issues
+            let hasAutonomyGrant = false;
+            let allIssuesFailed = true;
+            let successfullyCheckedIssues = 0;
+            
+            for (const issueNum of issueNumbers) {
+              try {
+                const issue = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNum
+                });
+                
+                successfullyCheckedIssues++;
+                allIssuesFailed = false;
+                
+                const issueLabels = issue.data.labels.map(l => l.name);
+                console.log(`Issue #${issueNum} labels: ${issueLabels.join(', ') || '(none)'}`);
+                
+                if (issueLabels.includes('agent:go')) {
+                  console.log(`✅ Issue #${issueNum} has agent:go label - gate passed (on-demand mode)`);
+                  hasAutonomyGrant = true;
+                  break;
+                }
+                
+                if (issueLabels.includes('agent:sprint')) {
+                  console.log(`✅ Issue #${issueNum} has agent:sprint label - gate passed (sprint mode)`);
+                  hasAutonomyGrant = true;
+                  break;
+                }
+              } catch (error) {
+                console.log(`⚠️  Could not fetch issue #${issueNum}: ${error.message}`);
+              }
+            }
+            
+            if (!hasAutonomyGrant) {
+              console.log('');
+              console.log('❌ Autonomy gate check FAILED');
+              console.log('');
+              
+              if (allIssuesFailed) {
+                console.log(`Linked issue(s): ${issueNumbers.join(', ')}`);
+                console.log('⚠️  Could not verify any linked issues due to API errors or access restrictions.');
+                console.log('This may occur if issues are private, from external repos, or GitHub API is unavailable.');
+                console.log('');
+                console.log('To proceed, do ONE of:');
+                console.log('  1. Add agent:go or agent:sprint label directly to this PR (fallback mode)');
+                console.log('  2. Add autonomy:override label to this PR (human approval)');
+                console.log('  3. Ensure linked issues are accessible and retry');
+                console.log('');
+                core.setFailed('Autonomy gate: could not verify linked issues due to API errors');
+              } else {
+                console.log(`Linked issue(s): ${issueNumbers.join(', ')}`);
+                console.log(`Successfully checked ${successfullyCheckedIssues} issue(s), but none have the required agent:go or agent:sprint label.`);
+                console.log('');
+                console.log('To proceed, do ONE of:');
+                console.log('  1. Add agent:go label to one of the linked issues (on-demand mode)');
+                console.log('  2. Add agent:sprint label to one of the linked issues (sprint mode)');
+                console.log('  3. Add autonomy:override label to this PR (human approval)');
+                console.log('');
+                core.setFailed('Autonomy gate: linked issue(s) lack agent:go or agent:sprint label');
+              }
+              
+              console.log('See playbooks/autonomy-modes.md for details on autonomy modes.');
+            }
