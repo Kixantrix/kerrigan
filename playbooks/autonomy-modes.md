@@ -2,6 +2,16 @@
 
 Goal: allow agents to open PRs directly when helpful, while retaining an easy "pause / on-demand" switch.
 
+## Automation Features
+
+**New in v2**: Kerrigan now includes automation workflows to reduce manual intervention:
+- **Auto-assign reviewers**: Based on role labels (role:swe, role:testing, etc.)
+- **Auto-assign issues**: Issues with role labels auto-assign to configured users
+- **Auto-generate issues**: Create issues from tasks.md with `<!-- AUTO-ISSUE -->` markers
+- **Sprint mode auto-approval**: PRs linked to `agent:sprint` issues auto-receive `agent:go` label
+
+See `.github/automation/README.md` for setup instructions.
+
 ## Mode A — On-demand (recommended default)
 - Agents may only open PRs when the linked issue is labeled `agent:go`.
 - If not labeled, CI fails with an autonomy gate message.
@@ -10,6 +20,7 @@ Goal: allow agents to open PRs directly when helpful, while retaining an easy "p
 - Label a single tracking issue/milestone as `agent:sprint`.
 - Agents may open PRs referencing that tracking issue until the milestone is met.
 - After the milestone PR merges, agents should stop.
+- **Automation**: PRs linked to sprint issues automatically receive `agent:go` label.
 
 ## Mode C — Hybrid
 - Spec + Architecture roles may propose PRs anytime.

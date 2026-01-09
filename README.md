@@ -29,6 +29,8 @@ This repo is intentionally **stack-agnostic**. It focuses on:
 
 📖 **Full setup guide**: [docs/setup.md](docs/setup.md)
 
+**Automation** (optional): Configure auto-assignment of reviewers, auto-generation of issues, and more. See [.github/automation/README.md](.github/automation/README.md) and [playbooks/automation.md](playbooks/automation.md) for setup.
+
 ---
 
 ## 📐 Architecture
