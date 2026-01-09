@@ -138,22 +138,30 @@ Each task should be executable and have "done" criteria.
 
 ## Milestone 6: Documentation polish
 
-- [ ] Task: Add architecture diagram to README
+- [x] Task: Add architecture diagram to README
   - Done when: visual showing agent flow and control plane
-  - Links: README.md
+  - Links: README.md, docs/architecture.md
 
-- [ ] Task: Create setup walkthrough
+- [x] Task: Create setup walkthrough
   - Done when: step-by-step guide or video exists
-  - Links: docs/ or README.md
+  - Links: docs/setup.md
 
-- [ ] Task: Write FAQ
+- [x] Task: Write FAQ
   - Done when: covers common setup and workflow questions
-  - Links: docs/FAQ.md or README.md
+  - Links: docs/FAQ.md
 
-- [ ] Task: External user test
+- [x] Task: External user test
   - Done when: someone unfamiliar adopts Kerrigan successfully
-  - Links: onboarding feedback
+  - Links: docs/fresh-user-test.md
 
-- [ ] Task: Polish agent prompts
+- [x] Task: Polish agent prompts
   - Done when: prompts are concise and unambiguous
   - Links: .github/agents/
+
+- [x] Task: Verify documentation links
+  - Done when: all internal links validated
+  - Links: link validation script
+
+- [x] Task: Create retrospective
+  - Done when: lessons learned documented
+  - Links: docs/milestone-6-retrospective.md
