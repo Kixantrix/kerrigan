@@ -1,0 +1,23 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+
+# Tests
+tests/
+
+# Git
+.git/
+.gitignore
+
+# CI
+.github/
+
+# Documentation
+README.md
