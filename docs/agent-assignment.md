@@ -254,7 +254,7 @@ A: Delete or disable the workflow files in `.github/workflows/`, or set `auto_as
 
 ## See Also
 
-- [Automation Configuration](.github/automation/README.md) — Full automation setup
-- [Agent Prompts](.github/agents/README.md) — All agent role definitions  
-- [Autonomy Modes](playbooks/autonomy-modes.md) — Control when agents can work
-- [Setup Guide](docs/setup.md) — Initial repository setup
+- [Automation Configuration](../.github/automation/README.md) — Full automation setup
+- [Agent Prompts](../.github/agents/README.md) — All agent role definitions  
+- [Autonomy Modes](../playbooks/autonomy-modes.md) — Control when agents can work
+- [Setup Guide](./setup.md) — Initial repository setup

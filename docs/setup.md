@@ -53,7 +53,7 @@ These labels enable automatic assignment via the automation workflows:
 | `role:deployment` | Deployment tasks | `#c2e0c6` (green) |
 | `role:debugging` | Bug fixing | `#e99695` (red) |
 
-**Note**: Role labels enable [agent assignment automation](agent-assignment.md) but are optional if you prefer manual assignment.
+**Note**: Role labels enable [agent assignment automation](./agent-assignment.md) but are optional if you prefer manual assignment.
 
 ### Creating Labels via GitHub UI
 
@@ -141,7 +141,7 @@ Open `.github/automation/reviewers.json` and add GitHub usernames or teams:
 When you apply a role label (e.g., `role:swe`) to an issue:
 - GitHub Actions automatically assigns configured users
 - Those users can then execute the corresponding agent prompt
-- See [Agent Assignment Guide](agent-assignment.md) for full details
+- See [Agent Assignment Guide](./agent-assignment.md) for full details
 
 **Note**: This is optional. You can manually assign issues without this automation.
 
