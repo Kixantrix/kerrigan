@@ -1,5 +1,17 @@
 # Frequently Asked Questions (FAQ)
 
+## 🔥 Most Common Questions
+
+New to Kerrigan? Start here:
+
+1. **[What is Kerrigan?](#what-is-kerrigan)** – Understanding the system
+2. **[How is Kerrigan different from GitHub Copilot?](#how-is-kerrigan-different-from-github-copilot)** – Key differences
+3. **[How do I control when agents can work?](#how-do-i-control-when-agents-can-work)** – Autonomy control
+4. **[How much does it cost to run Kerrigan?](#how-much-does-it-cost-to-run-kerrigan)** – Cost breakdown
+5. **[How long does setup take?](#how-long-does-it-take-to-set-up-kerrigan)** – Time investment
+
+---
+
 ## General Questions
 
 ### What is Kerrigan?

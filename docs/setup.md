@@ -57,10 +57,14 @@ Kerrigan uses labels to control agent autonomy. Create these labels in your repo
 
 ### Creating Labels via GitHub CLI (Faster)
 
+**Prerequisite**: Install GitHub CLI from https://cli.github.com/
+
 ```bash
 # Install GitHub CLI if not already installed
-# brew install gh  # macOS
-# apt install gh   # Ubuntu/Debian
+# macOS: brew install gh
+# Ubuntu/Debian: apt install gh  
+# Windows: winget install GitHub.cli
+# Or download from: https://cli.github.com/
 
 # Authenticate
 gh auth login
@@ -71,6 +75,8 @@ gh label create "agent:sprint" --color "fbca04" --description "Sprint-mode appro
 gh label create "autonomy:override" --color "d73a4a" --description "Human override for exceptional cases"
 gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large file checks"
 ```
+
+**Note**: Label colors are suggestions and can be customized to your preference.
 
 ## Step 3: Choose Your Autonomy Mode
 
