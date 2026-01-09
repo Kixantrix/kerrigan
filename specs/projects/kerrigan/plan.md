@@ -85,15 +85,33 @@ Milestones must end with green CI.
 **Rollback**: Remove autonomy gate workflow; rely on human PR review only
 
 ## Milestone 5: Handoff protocol refinement
+**Status**: ✅ Complete
+
 **Goal**: Optimize role-to-role transitions based on real usage
 
-- [ ] Run full spec → deploy cycle on a new example project
-- [ ] Identify handoff friction points
-- [ ] Update playbooks/handoffs.md with learnings
-- [ ] Refine agent prompts for clearer output expectations
-- [ ] Add handoff checklist to artifact contracts
+- [x] Run full spec → deploy cycle on a new example project (hello-api)
+- [x] Identify handoff friction points (6 documented friction points)
+- [x] Update playbooks/handoffs.md with learnings
+- [x] Refine agent prompts for clearer output expectations
+- [x] Add handoff checklist to artifact contracts
 
-**Deliverable**: Smooth multi-agent workflow with minimal human intervention
+**Deliverable**: Smooth multi-agent workflow with minimal human intervention ✅
+
+**Key Accomplishments**:
+- Created hello-api example project with full workflow execution
+- Documented 6 friction points across all agent phases
+- Updated handoffs.md with workflow refinements and checklist
+- Achieved 97% test coverage on implementation
+- Validated artifact contracts through real usage
+- Identified validator heading requirements as key pain point
+
+**Lessons Learned**:
+1. Validator expectations need explicit documentation
+2. Manual testing essential even with high automated coverage
+3. Architecture phase is heaviest (6+ artifacts)
+4. Linting config should be created with code, not after
+5. Testing guidance needed in SWE agent prompt
+6. Deploy validation may need environment-specific workarounds
 
 **Dependencies**: Milestones 2-4 (full workflow with controls)
 
