@@ -198,3 +198,24 @@ The Hello API is intentionally designed to be **extremely low-cost**:
 **Expected steady-state cost**: **$0-10/month**
 
 This makes it suitable as a learning example without financial concerns.
+
+## Security Maintenance
+
+### Dependency Vulnerabilities
+
+**Important**: Regularly scan dependencies for security vulnerabilities using tools like:
+- `pip-audit` for Python packages
+- GitHub Dependabot alerts
+- `safety check` command
+
+**Example vulnerability fixed**: 
+- **Issue**: Gunicorn 21.2.0 had HTTP Request/Response Smuggling vulnerabilities (CVE-2024-1135)
+- **Fix**: Updated to gunicorn 22.0.0 (patched version)
+- **Date**: 2026-01-09
+- **Action**: Always update to latest patched versions when vulnerabilities are discovered
+
+### Ongoing Security Costs
+
+- **Time cost**: ~15 minutes/month to review and apply security updates
+- **Risk mitigation**: Prevents potential exploitation and data breaches
+- **Best practice**: Set up automated alerts for dependency vulnerabilities

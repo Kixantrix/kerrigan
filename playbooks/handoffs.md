@@ -19,6 +19,8 @@ Handoffs are file-based. Each stage must produce the artifacts defined in:
 
 6. **Deploy validation may require workarounds**: Some deployment environments (corporate networks, CI systems) have SSL/proxy issues that prevent Docker builds. Document alternative validation approaches.
 
+7. **Security scanning must be continuous**: Dependencies can have vulnerabilities discovered after initial implementation. Always scan dependencies before finalizing work and document the scanning process. Example: Gunicorn 21.2.0 had HTTP smuggling vulnerabilities, required update to 22.0.0.
+
 ### Improved Handoff Checklist
 
 **Before moving to next phase, verify:**
@@ -26,6 +28,7 @@ Handoffs are file-based. Each stage must produce the artifacts defined in:
 - [ ] Required section headings match validator expectations EXACTLY
 - [ ] Manual smoke testing completed (where applicable)
 - [ ] Linting/formatting tools configured and passing
+- [ ] Dependencies scanned for security vulnerabilities
 - [ ] Documentation updated with current state
 - [ ] CI is green
 
