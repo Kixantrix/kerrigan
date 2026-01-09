@@ -1,13 +1,21 @@
 {
+  "_comment": "Configure agent role assignments here. Add GitHub usernames (not @mentions) to assign specific users when role labels are applied to issues or PRs.",
   "role_mappings": {
     "role:spec": [],
     "role:architect": [],
     "role:swe": [],
     "role:testing": [],
     "role:security": [],
-    "role:deployment": []
+    "role:deployment": [],
+    "role:debugging": []
   },
   "default_reviewers": [],
   "auto_assign_on_label": true,
-  "comment_on_assignment": true
+  "comment_on_assignment": true,
+  "_usage_notes": {
+    "description": "Agent roles work via labels, not @mentions. Apply role labels to issues/PRs to trigger automated assignment.",
+    "example_user": "role:swe assigns to usernames listed in role_mappings['role:swe']",
+    "example_team": "Use 'team:engineering' format to assign to a GitHub team",
+    "disable": "Set auto_assign_on_label to false to disable automation"
+  }
 }

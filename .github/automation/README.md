@@ -6,6 +6,12 @@ This directory contains configuration files for Kerrigan's GitHub automation fea
 
 - **reviewers.json**: Maps role labels to reviewers/teams for auto-assignment
 
+## Quick Start
+
+Agent roles (spec, architect, swe, etc.) work via **labels**, not @mentions. Apply a role label (e.g., `role:swe`) to an issue or PR to automatically assign configured users.
+
+📖 **Full guide**: [Agent Assignment Pattern](../../docs/agent-assignment.md)
+
 ## Setup Instructions
 
 ### 1. Configure Reviewer Mappings
