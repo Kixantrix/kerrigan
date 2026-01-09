@@ -62,7 +62,7 @@ Kerrigan uses labels to control agent autonomy. Create these labels in your repo
 ```bash
 # Install GitHub CLI if not already installed
 # macOS: brew install gh
-# Ubuntu/Debian: apt install gh  
+# Ubuntu/Debian: sudo apt install gh  
 # Windows: winget install GitHub.cli
 # Or download from: https://cli.github.com/
 
