@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
+permissions:
+  issues: read
+  pull-requests: read
+
 jobs:
   autonomy_gate:
     runs-on: ubuntu-latest
