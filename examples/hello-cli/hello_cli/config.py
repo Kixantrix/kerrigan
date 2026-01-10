@@ -32,9 +32,10 @@ class Config:
             with open(path, 'r', encoding='utf-8') as f:
                 self.config = yaml.safe_load(f) or {}
         except FileNotFoundError:
-            raise FileNotFoundError(f"Config file not found: {path}")
+            raise FileNotFoundError(
+                f"Config file not found: {path}") from None
         except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML in config file: {e}")
+            raise ValueError(f"Invalid YAML in config file: {e}") from e
 
     def _load_default(self):
         """Load configuration from default locations."""
