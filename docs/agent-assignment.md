@@ -38,6 +38,8 @@ When you apply a role label to an issue or PR:
 3. **Automatic assignment** adds those users as assignees (issues) or reviewers (PRs)
 4. **Optional comment** notifies assigned users
 
+Additionally, when `auto_triage_on_assign` is enabled, the **`auto-triage-on-assign.yml` workflow** handles the reverse direction: when users are assigned directly, it uses the `triage_mappings` in `.github/automation/reviewers.json` to apply the corresponding role labels.
+
 ```
 ┌─────────────┐      ┌──────────────┐      ┌─────────────┐      ┌──────────────┐
 │ Apply Label │ ───▶ │ Workflow     │ ───▶ │ Config      │ ───▶ │ Auto-assign  │

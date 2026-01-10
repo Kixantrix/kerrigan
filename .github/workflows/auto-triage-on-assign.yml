@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Auto-triage issue with role labels when copilot is assigned
+      - name: Auto-triage issue with role labels based on assignee
         uses: actions/github-script@v7
         with:
           script: |
@@ -26,13 +26,40 @@ jobs:
             console.log('Assigned to:', assignee.login);
             
             // Load configuration
+            const configPath = '.github/automation/reviewers.json';
             let config;
             try {
-              const configPath = '.github/automation/reviewers.json';
+              if (!fs.existsSync(configPath)) {
+                console.log(`ℹ️  Config file not found at ${configPath}. Skipping auto-triage.`);
+                return;
+              }
+
               const configContent = fs.readFileSync(configPath, 'utf8');
-              config = JSON.parse(configContent);
+              try {
+                config = JSON.parse(configContent);
+              } catch (parseError) {
+                console.log('⚠️  reviewers.json contains invalid JSON:', parseError.message);
+                console.log('Please fix the JSON syntax in .github/automation/reviewers.json.');
+                console.log('Skipping auto-triage');
+                return;
+              }
             } catch (error) {
-              console.log('⚠️  Could not load reviewers.json config:', error.message);
+              console.log('⚠️  Unexpected error while loading reviewers.json config:', error.message);
+              console.log('Skipping auto-triage');
+              return;
+            }
+            
+            // Validate required configuration fields
+            const missingFields = [];
+            if (!Object.prototype.hasOwnProperty.call(config, 'auto_triage_on_assign')) {
+              missingFields.push('auto_triage_on_assign');
+            }
+            if (!Object.prototype.hasOwnProperty.call(config, 'triage_mappings')) {
+              missingFields.push('triage_mappings');
+            }
+
+            if (missingFields.length > 0) {
+              console.log('⚠️  reviewers.json is missing required field(s): ' + missingFields.join(', '));
               console.log('Skipping auto-triage');
               return;
             }
@@ -51,6 +78,15 @@ jobs:
             }
             
             const labelsToAdd = triageConfig[assignee.login];
+            
+            // Validate that labelsToAdd is an array
+            if (!Array.isArray(labelsToAdd)) {
+              console.log(`⚠️  Invalid configuration for ${assignee.login}: labels must be an array, got ${typeof labelsToAdd}`);
+              console.log('Please fix the triage_mappings configuration in .github/automation/reviewers.json');
+              console.log('Skipping auto-triage');
+              return;
+            }
+            
             console.log(`📋 Triage rules for ${assignee.login}:`, labelsToAdd);
             
             // Get current labels
@@ -83,7 +119,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
-                  body: `🏷️ Auto-triaged with labels: ${labelsList}\n\nThese labels indicate which agent role(s) should handle this issue. See the [Agent Assignment Guide](docs/agent-assignment.md) for details.`
+                  body: `🏷️ Auto-triaged with labels: ${labelsList}\n\nThese labels indicate which agent role(s) should handle this issue. See the [Agent Assignment Guide](/docs/agent-assignment.md) for details.`
                 });
               }
             } catch (error) {
