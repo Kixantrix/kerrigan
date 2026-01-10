@@ -6,7 +6,8 @@ import os
 # Read version from __init__.py
 here = os.path.abspath(os.path.dirname(__file__))
 about = {}
-with open(os.path.join(here, 'hello_cli', '__init__.py'), 'r') as f:
+with open(os.path.join(here, 'hello_cli', '__init__.py'), 'r',
+          encoding='utf-8') as f:
     for line in f:
         if line.startswith('__version__'):
             about['__version__'] = line.split('"')[1]
