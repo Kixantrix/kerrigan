@@ -289,6 +289,16 @@ class TestAutoTriageWorkflow(unittest.TestCase):
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "auto-triage-on-assign.yml"
 
+    def _get_workflow_trigger_key(self, content):
+        """
+        Get the workflow trigger key from YAML content.
+        
+        YAML parses 'on:' as boolean True when using safe_load.
+        This is a known YAML quirk where 'on' is a reserved word.
+        Returns 'on' if present, otherwise True.
+        """
+        return "on" if "on" in content else True
+
     def test_workflow_exists(self):
         """Test that auto-triage-on-assign workflow exists"""
         self.assertTrue(self.workflow_path.exists(), "auto-triage-on-assign.yml not found")
@@ -301,8 +311,7 @@ class TestAutoTriageWorkflow(unittest.TestCase):
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
         content = yaml.safe_load(self.workflow_path.read_text())
-        # 'on' is a YAML keyword and may be parsed as True, check for it
-        trigger_key = "on" if "on" in content else True
+        trigger_key = self._get_workflow_trigger_key(content)
         self.assertIn(trigger_key, content)
         self.assertIn("issues", content[trigger_key])
         self.assertIn("assigned", content[trigger_key]["issues"]["types"])
@@ -362,6 +371,16 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "auto-generate-issues.yml"
 
+    def _get_workflow_trigger_key(self, content):
+        """
+        Get the workflow trigger key from YAML content.
+        
+        YAML parses 'on:' as boolean True when using safe_load.
+        This is a known YAML quirk where 'on' is a reserved word.
+        Returns 'on' if present, otherwise True.
+        """
+        return "on" if "on" in content else True
+
     def test_workflow_exists(self):
         """Test that auto-generate-issues workflow exists"""
         self.assertTrue(self.workflow_path.exists(), "auto-generate-issues.yml not found")
@@ -374,8 +393,7 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
         content = yaml.safe_load(self.workflow_path.read_text())
-        # 'on' is a YAML keyword and may be parsed as True, check for it
-        trigger_key = "on" if "on" in content else True
+        trigger_key = self._get_workflow_trigger_key(content)
         self.assertIn(trigger_key, content)
         self.assertIn("push", content[trigger_key])
         self.assertIn("paths", content[trigger_key]["push"])
@@ -392,8 +410,7 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
         content = yaml.safe_load(self.workflow_path.read_text())
-        # 'on' is a YAML keyword and may be parsed as True, check for it
-        trigger_key = "on" if "on" in content else True
+        trigger_key = self._get_workflow_trigger_key(content)
         self.assertIn("workflow_dispatch", content[trigger_key])
 
     def test_workflow_has_dry_run_option(self):
@@ -404,8 +421,7 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
         content = yaml.safe_load(self.workflow_path.read_text())
-        # 'on' is a YAML keyword and may be parsed as True, check for it
-        trigger_key = "on" if "on" in content else True
+        trigger_key = self._get_workflow_trigger_key(content)
         if "workflow_dispatch" in content[trigger_key] and "inputs" in content[trigger_key]["workflow_dispatch"]:
             inputs = content[trigger_key]["workflow_dispatch"]["inputs"]
             self.assertIn("dry_run", inputs, "Workflow should have dry_run input")
@@ -519,10 +535,13 @@ class TestEdgeCases(unittest.TestCase):
             all_reviewers.extend(reviewers)
         
         for reviewer in all_reviewers:
-            if "team" in reviewer.lower():
-                # If it looks like a team, it should use team: prefix
-                self.assertTrue(reviewer.startswith("team:"), 
-                    f"Team mapping should use 'team:' prefix: {reviewer}")
+            # Check for team: prefix explicitly
+            if reviewer.startswith("team:"):
+                # Valid team format
+                continue
+            # If it contains @org/ or similar patterns, it's likely wrong
+            if "@" in reviewer or "/" in reviewer:
+                self.fail(f"Team mapping appears incorrect, should use 'team:' prefix: {reviewer}")
 
     def test_no_duplicate_role_mappings(self):
         """Test that role mappings don't have duplicate entries"""
@@ -534,7 +553,6 @@ class TestEdgeCases(unittest.TestCase):
     def test_config_has_usage_notes(self):
         """Test that config has helpful usage notes or comments"""
         # Config should be self-documenting
-        config_str = json.dumps(self.config)
         has_documentation = "_comment" in self.config or "_usage_notes" in self.config
         self.assertTrue(has_documentation, 
             "Config should have usage notes or comments for maintainability")
