@@ -223,7 +223,8 @@ class TestAgentPromptArtifactAlignment(unittest.TestCase):
         content = architect_prompt.read_text()
         
         # From artifact contract: architect should produce architecture.md, plan.md, tasks.md, test-plan.md
-        required_deliverables = ["architecture.md", "plan.md"]
+        # Testing core deliverables that are always required
+        required_deliverables = ["architecture.md", "plan.md", "tasks.md", "test-plan.md"]
         
         for deliverable in required_deliverables:
             self.assertIn(deliverable, content,
