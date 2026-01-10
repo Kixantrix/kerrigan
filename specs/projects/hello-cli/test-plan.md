@@ -24,15 +24,22 @@
 - **Scope**: Full command execution from CLI entry point
 - **Coverage**: End-to-end command workflows
 - **Approach**:
-  - Use subprocess to invoke CLI as user would
-  - Verify stdout/stderr output
-  - Check exit codes
+  - Use Click's CliRunner for most integration testing (fast, reliable)
+  - CliRunner invokes commands through Click's testing interface
+  - Some tests use subprocess for full installed-command validation
+  - Verify stdout/stderr output and exit codes
   - Test with real config files
-- **Tools**: unittest with subprocess
+- **Tools**: unittest with Click's CliRunner and subprocess
 - **Target coverage**: All user-facing commands
 
 **Test files**:
 - `test_integration.py`: Test complete command execution flows
+
+**Note**: Click's CliRunner is preferred over subprocess for most tests as it's:
+- Faster (no process spawning overhead)
+- More reliable (doesn't depend on installation state)
+- Easier to debug (errors show up in test output immediately)
+Subprocess tests validate the actual console script entry point works.
 
 ### E2E Tests
 Not needed for this simple CLI tool. Integration tests with subprocess provide sufficient end-to-end coverage.
