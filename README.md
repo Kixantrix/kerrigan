@@ -17,10 +17,11 @@ This repo is intentionally **stack-agnostic**. It focuses on:
 **New to Kerrigan?** Get started fast:
 
 1. **Clone or use as template**: [Use this template](https://github.com/Kixantrix/kerrigan/generate) to create your own repository
-2. **Create GitHub labels**: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file` ([detailed instructions](docs/setup.md#step-2-set-up-github-labels))
+2. **Create GitHub labels**: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file`, plus role labels like `role:swe`, `role:spec` ([detailed instructions](docs/setup.md#step-2-set-up-github-labels))
 3. **Create an issue** with your project idea and add the `agent:go` label
-4. **Copy agent prompts** from `.github/agents/` to your AI assistant (GitHub Copilot, Claude, etc.)
-5. **Let agents build**: Spec → Architecture → Implementation → Testing → Deploy
+4. **Add role label** to assign work (e.g., `role:swe` for implementation tasks) — see [Agent Assignment Guide](docs/agent-assignment.md)
+5. **Copy agent prompts** from `.github/agents/` to your AI assistant (GitHub Copilot, Claude, etc.)
+6. **Let agents build**: Spec → Architecture → Implementation → Testing → Deploy
 
 **CI automatically enforces**:
 - Required artifacts and structure
@@ -57,6 +58,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 
 ### Getting Started
 - **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
+- **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
 - **[Architecture](docs/architecture.md)**: System design and workflow visualization
 

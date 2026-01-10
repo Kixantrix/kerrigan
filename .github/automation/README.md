@@ -4,7 +4,17 @@ This directory contains configuration files for Kerrigan's GitHub automation fea
 
 ## Files
 
-- **reviewers.json**: Maps role labels to reviewers/teams for auto-assignment
+- **reviewers.json**: Maps role labels to reviewers/teams for auto-assignment and auto-triage
+
+## Quick Start
+
+Agent roles (spec, architect, swe, etc.) work via **labels**, not @mentions. 
+
+**Two-way automation:**
+1. **Label → Assignment**: Apply a role label (e.g., `role:swe`) to auto-assign users
+2. **Assignment → Labels** (New!): Assign copilot to auto-add role labels for triaging
+
+📖 **Full guide**: [Agent Assignment Pattern](../../docs/agent-assignment.md)
 
 ## Setup Instructions
 
@@ -29,7 +39,24 @@ Edit `reviewers.json` to map role labels to GitHub usernames or teams:
 - Use team slugs with prefix: `"team:engineering"`
 - Leave arrays empty to disable auto-assignment for that role
 
-### 2. Enable Issue Generation
+### 2. Configure Auto-Triage (New!)
+
+Enable reverse assignment: when specific users are assigned, automatically add role labels.
+
+```json
+{
+  "triage_mappings": {
+    "copilot": ["role:swe"],
+    "alice": ["role:spec", "role:architect"]
+  },
+  "auto_triage_on_assign": true,
+  "comment_on_triage": true
+}
+```
+
+**Use case**: When copilot is assigned to an issue, automatically add `role:swe` label to indicate which agent should handle the work.
+
+### 3. Enable Issue Generation
 
 Issue generation is triggered by:
 - Pushing changes to any `tasks.md` file in `specs/projects/*/`
@@ -43,7 +70,7 @@ To enable a task for auto-generation, add this comment:
 **Description**: Add JWT-based authentication...
 ```
 
-### 3. Sprint Mode
+### 4. Sprint Mode
 
 When a tracking issue has the `agent:sprint` label:
 - PRs linked to that issue automatically get `agent:go` label
@@ -53,9 +80,10 @@ When a tracking issue has the `agent:sprint` label:
 
 The following workflows are available:
 
-- `auto-assign-reviewers.yml`: Runs on PR opened/labeled
+- `auto-assign-reviewers.yml`: Runs on PR opened/labeled (label → assignment)
+- `auto-assign-issues.yml`: Runs on issue labeled (label → assignment)
+- `auto-triage-on-assign.yml`: Runs on issue assigned (assignment → labels, NEW!)
 - `auto-generate-issues.yml`: Runs on push to tasks.md or manual trigger  
-- `auto-assign-issues.yml`: Runs on issue labeled
 - `agent-gates.yml`: Enhanced with sprint mode auto-approval
 
 ## Disabling Automation

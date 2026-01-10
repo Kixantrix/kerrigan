@@ -1,0 +1,128 @@
+name: Auto-Triage on Assignment
+
+on:
+  issues:
+    types: [assigned]
+
+jobs:
+  auto_triage:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auto-triage issue with role labels based on assignee
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const issue = context.payload.issue;
+            const assignee = context.payload.assignee;
+            
+            console.log('🔍 Auto-triaging issue #' + issue.number);
+            console.log('Assigned to:', assignee.login);
+            
+            // Load configuration
+            const configPath = '.github/automation/reviewers.json';
+            let config;
+            try {
+              if (!fs.existsSync(configPath)) {
+                console.log(`ℹ️  Config file not found at ${configPath}. Skipping auto-triage.`);
+                return;
+              }
+
+              const configContent = fs.readFileSync(configPath, 'utf8');
+              try {
+                config = JSON.parse(configContent);
+              } catch (parseError) {
+                console.log('⚠️  reviewers.json contains invalid JSON:', parseError.message);
+                console.log('Please fix the JSON syntax in .github/automation/reviewers.json.');
+                console.log('Skipping auto-triage');
+                return;
+              }
+            } catch (error) {
+              console.log('⚠️  Unexpected error while loading reviewers.json config:', error.message);
+              console.log('Skipping auto-triage');
+              return;
+            }
+            
+            // Validate required configuration fields
+            const missingFields = [];
+            if (!Object.prototype.hasOwnProperty.call(config, 'auto_triage_on_assign')) {
+              missingFields.push('auto_triage_on_assign');
+            }
+            if (!Object.prototype.hasOwnProperty.call(config, 'triage_mappings')) {
+              missingFields.push('triage_mappings');
+            }
+
+            if (missingFields.length > 0) {
+              console.log('⚠️  reviewers.json is missing required field(s): ' + missingFields.join(', '));
+              console.log('Skipping auto-triage');
+              return;
+            }
+            
+            // Check if auto-triage is enabled
+            if (!config.auto_triage_on_assign) {
+              console.log('ℹ️  Auto-triage is disabled in config');
+              return;
+            }
+            
+            // Check if this assignee should trigger auto-triage
+            const triageConfig = config.triage_mappings || {};
+            if (!triageConfig[assignee.login]) {
+              console.log(`ℹ️  No triage rules configured for ${assignee.login}`);
+              return;
+            }
+            
+            const labelsToAdd = triageConfig[assignee.login];
+            
+            // Validate that labelsToAdd is an array
+            if (!Array.isArray(labelsToAdd)) {
+              console.log(`⚠️  Invalid configuration for ${assignee.login}: labels must be an array, got ${typeof labelsToAdd}`);
+              console.log('Please fix the triage_mappings configuration in .github/automation/reviewers.json');
+              console.log('Skipping auto-triage');
+              return;
+            }
+            
+            console.log(`📋 Triage rules for ${assignee.login}:`, labelsToAdd);
+            
+            // Get current labels
+            const currentLabels = issue.labels.map(l => l.name);
+            
+            // Determine which labels need to be added
+            const newLabels = labelsToAdd.filter(label => !currentLabels.includes(label));
+            
+            if (newLabels.length === 0) {
+              console.log('✓ All triage labels already present');
+              return;
+            }
+            
+            // Add labels
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: newLabels
+              });
+              
+              console.log('✅ Added labels:', newLabels.join(', '));
+              
+              // Post comment if configured
+              if (config.comment_on_triage) {
+                const labelsList = newLabels.map(l => `\`${l}\``).join(', ');
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `🏷️ Auto-triaged with labels: ${labelsList}\n\nThese labels indicate which agent role(s) should handle this issue. See the [Agent Assignment Guide](/docs/agent-assignment.md) for details.`
+                });
+              }
+            } catch (error) {
+              console.log('⚠️  Failed to add labels:', error.message);
+              // Don't fail the workflow if labeling fails
+            }

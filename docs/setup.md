@@ -28,7 +28,7 @@ cd your-kerrigan-repo
 
 ## Step 2: Set Up GitHub Labels
 
-Kerrigan uses labels to control agent autonomy. Create these labels in your repository:
+Kerrigan uses labels to control agent autonomy and assign work to agents. Create these labels in your repository:
 
 ### Required Labels
 
@@ -39,13 +39,21 @@ Kerrigan uses labels to control agent autonomy. Create these labels in your repo
 | `autonomy:override` | Human override for exceptional cases | `#d73a4a` (red) |
 | `allow:large-file` | Bypass large file checks (use sparingly) | `#f9d0c4` (orange) |
 
-### Optional Role Labels (for organization)
-- `role:spec` - Specification work
-- `role:architect` - Architecture design
-- `role:swe` - Software engineering
-- `role:testing` - Test coverage work
-- `role:deploy` - Deployment tasks
-- `role:debug` - Bug fixing
+### Role Labels (for agent assignment)
+
+These labels enable automatic assignment via the automation workflows:
+
+| Label | Description | Color |
+|-------|-------------|-------|
+| `role:spec` | Specification work | `#d4c5f9` (purple) |
+| `role:architect` | Architecture design | `#c5def5` (blue) |
+| `role:swe` | Software engineering | `#bfdadc` (teal) |
+| `role:testing` | Test coverage work | `#fef2c0` (yellow) |
+| `role:security` | Security review | `#f9d0c4` (orange) |
+| `role:deployment` | Deployment tasks | `#c2e0c6` (green) |
+| `role:debugging` | Bug fixing | `#e99695` (red) |
+
+**Note**: Role labels enable [agent assignment automation](./agent-assignment.md) but are optional if you prefer manual assignment.
 
 ### Creating Labels via GitHub UI
 
@@ -69,11 +77,20 @@ Kerrigan uses labels to control agent autonomy. Create these labels in your repo
 # Authenticate
 gh auth login
 
-# Create labels
+# Create required labels
 gh label create "agent:go" --color "0e8a16" --description "On-demand approval for agent work"
 gh label create "agent:sprint" --color "fbca04" --description "Sprint-mode approval for milestone"
 gh label create "autonomy:override" --color "d73a4a" --description "Human override for exceptional cases"
 gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large file checks"
+
+# Create role labels (optional but recommended for agent assignment)
+gh label create "role:spec" --color "d4c5f9" --description "Specification work"
+gh label create "role:architect" --color "c5def5" --description "Architecture design"
+gh label create "role:swe" --color "bfdadc" --description "Software engineering"
+gh label create "role:testing" --color "fef2c0" --description "Test coverage work"
+gh label create "role:security" --color "f9d0c4" --description "Security review"
+gh label create "role:deployment" --color "c2e0c6" --description "Deployment tasks"
+gh label create "role:debugging" --color "e99695" --description "Bug fixing"
 ```
 
 **Note**: Label colors are suggestions and can be customized to your preference.
@@ -99,7 +116,36 @@ Kerrigan supports different modes of agent autonomy. Choose one based on your wo
 
 **Configuration**: Edit `playbooks/autonomy-modes.md` if you want to customize behavior. The default is **Mode A (On-Demand)**.
 
-## Step 4: Understand the Repository Structure
+## Step 4: Configure Agent Assignment (Optional)
+
+Agent assignment automation is pre-configured but disabled by default. To enable automatic assignment of issues/PRs based on role labels:
+
+### 1. Edit Assignment Configuration
+
+Open `.github/automation/reviewers.json` and add GitHub usernames or teams:
+
+```json
+{
+  "role_mappings": {
+    "role:swe": ["your-github-username"],
+    "role:spec": ["your-github-username"],
+    "role:architect": ["your-github-username"]
+  },
+  "auto_assign_on_label": true,
+  "comment_on_assignment": true
+}
+```
+
+### 2. How It Works
+
+When you apply a role label (e.g., `role:swe`) to an issue:
+- GitHub Actions automatically assigns configured users
+- Those users can then execute the corresponding agent prompt
+- See [Agent Assignment Guide](./agent-assignment.md) for full details
+
+**Note**: This is optional. You can manually assign issues without this automation.
+
+## Step 5: Understand the Repository Structure
 
 Familiarize yourself with the key directories:
 
@@ -121,7 +167,7 @@ your-repo/
 └── docs/                 # Additional documentation
 ```
 
-## Step 5: Read Core Documentation
+## Step 6: Read Core Documentation
 
 Before creating your first project, review these key documents:
 
@@ -133,7 +179,7 @@ Before creating your first project, review these key documents:
 
 **Time investment**: ~15-20 minutes for initial reading
 
-## Step 6: Create Your First Project
+## Step 7: Create Your First Project
 
 Let's create a simple project to test the workflow.
 
@@ -214,7 +260,7 @@ Follow the workflow defined in `playbooks/kickoff.md`:
 
 Each agent handoff is artifact-driven — one agent produces files that the next agent consumes.
 
-## Step 7: Validate with CI
+## Step 8: Validate with CI
 
 After each major change, push to GitHub and let CI run:
 
@@ -235,7 +281,7 @@ If CI fails, check:
 2. **Autonomy Gates**: Is the issue labeled correctly?
 3. **Quality Bar**: Are any files >800 lines? Use `allow:large-file` label if justified.
 
-## Step 8: Work with Pull Requests
+## Step 9: Work with Pull Requests
 
 When an agent wants to merge work:
 
@@ -255,7 +301,7 @@ When an agent wants to merge work:
    - 🔄 Request changes (agent iterates)
    - ❌ Close (start over)
 
-## Step 9: Pause and Resume Work (Optional)
+## Step 10: Pause and Resume Work (Optional)
 
 You can control agent workflow state with `status.json`:
 

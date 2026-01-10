@@ -2,6 +2,16 @@
 
 This directory contains prompts for specialized AI agents that collaborate to deliver software projects.
 
+## Agent Assignment via Labels
+
+**Important**: Agents are not GitHub user accounts. To assign work to an agent role:
+
+1. Apply a **role label** to the issue (e.g., `role:swe`, `role:spec`)
+2. Automation assigns configured GitHub users (see `.github/automation/reviewers.json`)
+3. Assigned users copy the agent prompt and execute it using their AI assistant
+
+📖 **Full guide**: [Agent Assignment Pattern](../../docs/agent-assignment.md)
+
 ## Available Agents
 
 ### Project Workflow Agents
