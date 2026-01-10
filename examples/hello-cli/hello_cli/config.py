@@ -29,7 +29,7 @@ class Config:
     def _load_file(self, path):
         """Load configuration from file."""
         try:
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 self.config = yaml.safe_load(f) or {}
         except FileNotFoundError:
             raise FileNotFoundError(f"Config file not found: {path}")
