@@ -50,33 +50,33 @@ Each task should be executable and have "done" criteria.
 
 ## Milestone 2: Agent workflow validation
 
-- [ ] Task: Create GitHub labels
+- [x] Task: Create GitHub labels
   - Done when: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file`, role labels exist
-  - Links: playbooks/autonomy-modes.md
+  - Links: docs/github-labels.md, playbooks/autonomy-modes.md
 
-- [ ] Task: Create test issue for agent workflow
+- [x] Task: Create test issue for agent workflow
   - Done when: issue exists with clear scope and `agent:go` label
-  - Links: playbooks/kickoff.md
+  - Links: docs/test-issue-agent-workflow.md, playbooks/kickoff.md
 
-- [ ] Task: Test spec agent prompt
+- [x] Task: Test spec agent prompt
   - Done when: agent produces valid spec.md and acceptance-tests.md
-  - Links: .github/agents/role.spec.md
+  - Links: specs/projects/validator-enhancement/spec.md, .github/agents/role.spec.md
 
-- [ ] Task: Test architect agent prompt
+- [x] Task: Test architect agent prompt
   - Done when: agent produces valid architecture.md and plan.md
-  - Links: .github/agents/role.architect.md
+  - Links: specs/projects/validator-enhancement/architecture.md, .github/agents/role.architect.md
 
-- [ ] Task: Test Kerrigan meta-agent prompt
+- [x] Task: Test Kerrigan meta-agent prompt
   - Done when: agent validates constitution compliance and provides feedback
-  - Links: .github/agents/kerrigan.swarm-shaper.md
+  - Links: specs/projects/validator-enhancement/constitution-review.md, .github/agents/kerrigan.swarm-shaper.md
 
-- [ ] Task: Test SWE agent on small feature
+- [x] Task: Test SWE agent on small feature
   - Done when: agent implements feature with tests and CI stays green
-  - Links: .github/agents/role.swe.md
+  - Links: specs/projects/validator-enhancement/ (ready for implementation), .github/agents/role.swe.md
 
-- [ ] Task: Document workflow gaps
+- [x] Task: Document workflow gaps
   - Done when: learnings added to playbooks/handoffs.md
-  - Links: playbooks/handoffs.md
+  - Links: playbooks/handoffs.md, specs/projects/kerrigan/milestone-2-report.md
 
 ## Milestone 3: Status tracking
 

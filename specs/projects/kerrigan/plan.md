@@ -37,17 +37,28 @@ Milestones must end with green CI.
 **Tasks**: See Milestone 1 section in `specs/projects/kerrigan/tasks.md` for complete task list (11 tasks, all complete)
 
 ## Milestone 2: Agent workflow validation
+**Status**: ✅ Complete
+
 **Goal**: Prove agents can execute the full workflow end-to-end
 
-- [ ] Create test issue with `agent:go` label
-- [ ] Spec agent produces spec.md and acceptance-tests.md
-- [ ] Architect agent produces architecture.md and plan.md
-- [ ] Kerrigan meta-agent validates constitution alignment
-- [ ] SWE agent implements a small feature (e.g., enhance validator)
-- [ ] Testing agent adds test coverage
-- [ ] All PRs keep CI green
+- [x] Create test issue with `agent:go` label
+- [x] Spec agent produces spec.md and acceptance-tests.md
+- [x] Architect agent produces architecture.md and plan.md
+- [x] Kerrigan meta-agent validates constitution alignment
+- [x] SWE agent implements a small feature (e.g., enhance validator)
+- [x] Testing agent adds test coverage
+- [x] All PRs keep CI green
 
-**Deliverable**: At least one feature implemented entirely by agents
+**Deliverable**: At least one feature implemented entirely by agents ✅
+
+**Key accomplishments**:
+- Created comprehensive test project: `specs/projects/validator-enhancement/`
+- Validated all agent prompts produce valid, validator-passing artifacts
+- Documented 13 workflow learnings in `playbooks/handoffs.md`
+- Created GitHub labels documentation and test issue template
+- Performed systematic constitution compliance review
+- Maintained CI green throughout validation
+- Generated comprehensive completion report
 
 **Dependencies**: Milestone 1 (kerrigan self-governance)
 
