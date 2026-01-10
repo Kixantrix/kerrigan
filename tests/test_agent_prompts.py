@@ -351,7 +351,12 @@ class TestAgentPromptCompleteness(unittest.TestCase):
         self.agents_dir = repo_root / ".github" / "agents"
 
     def test_expected_agents_exist(self):
-        """Test that all expected agent role prompts exist"""
+        """Test that all expected agent role prompts exist
+        
+        This is a test for CORE agents that are part of the standard workflow.
+        If adding new core agents, update this list. Non-core or experimental
+        agents don't need to be in this list.
+        """
         expected_agents = [
             "role.spec.md",
             "role.architect.md",
