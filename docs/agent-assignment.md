@@ -64,23 +64,60 @@ Edit `.github/automation/reviewers.json`:
   },
   "default_reviewers": ["team:maintainers"],
   "auto_assign_on_label": true,
-  "comment_on_assignment": true
+  "comment_on_assignment": true,
+  "triage_mappings": {
+    "copilot": ["role:swe"]
+  },
+  "auto_triage_on_assign": true,
+  "comment_on_triage": true
 }
 ```
 
 **Configuration Options:**
+- **role_mappings**: Maps role labels to users/teams for auto-assignment
 - **Usernames**: Use plain GitHub usernames (e.g., `"alice"`)
 - **Teams**: Use `"team:slug"` format (e.g., `"team:engineering"`)
 - **Multiple assignees**: List multiple users/teams in the array
 - **Empty arrays**: Leave empty `[]` to disable auto-assignment for that role
 - **Default**: `default_reviewers` used when no role label is present
 
-### Disabling Automation
+### Setting Up Auto-Triage (New!)
 
-To disable auto-assignment entirely:
+The `triage_mappings` section enables **reverse assignment**: when specified users are assigned to an issue, the system automatically adds appropriate role labels.
+
+**Use case**: When copilot (or any AI assistant) is assigned to an issue, automatically add role labels to indicate which agent should handle the work.
+
 ```json
 {
-  "auto_assign_on_label": false
+  "triage_mappings": {
+    "copilot": ["role:swe"],
+    "alice": ["role:spec", "role:architect"],
+    "bob": ["role:swe", "role:testing"]
+  },
+  "auto_triage_on_assign": true,
+  "comment_on_triage": true
+}
+```
+
+**How it works:**
+1. User assigns copilot (or any configured user) to an issue
+2. Workflow detects the assignment
+3. Automatically adds configured role labels
+4. Labels indicate which agent prompt to use
+
+**Example:**
+```bash
+gh issue edit 123 --add-assignee copilot
+# Automatically adds role:swe label
+```
+
+### Disabling Automation
+
+To disable specific automation features:
+```json
+{
+  "auto_assign_on_label": false,     // Disable label → assignment
+  "auto_triage_on_assign": false     // Disable assignment → labels
 }
 ```
 
@@ -123,6 +160,27 @@ gh issue create --title "Add payment processing" \
 You can always manually assign users regardless of automation:
 ```bash
 gh issue edit 123 --add-assignee alice
+```
+
+### Example 5: Auto-Triage on Assignment (New!)
+
+When copilot is assigned, role labels are automatically added:
+```bash
+# Create issue and assign copilot
+gh issue create --title "Fix login bug" --assignee copilot
+
+# Result: Automatically adds role:swe label
+# This indicates which agent prompt should be used
+```
+
+Configured triage mappings:
+```json
+{
+  "triage_mappings": {
+    "copilot": ["role:swe"],
+    "alice": ["role:spec", "role:architect"]
+  }
+}
 ```
 
 ## Integration with Agent Workflows
