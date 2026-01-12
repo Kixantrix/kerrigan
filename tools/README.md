@@ -83,6 +83,7 @@ With `-AutoMerge` flag, the script will:
 - Verifies no unresolved review comments
 - Checks that CI is truly green (not just pending)
 - Validates merge conflicts are resolved
+- **Blocks auto-merge for PRs that modify workflow files** (`.github/workflows/*`) to prevent workflow abuse
 - Always use `-DryRun` first to preview actions
 
 #### 📝 Next-Step Issue Generation
@@ -110,6 +111,12 @@ GitHub requires manual approval for workflows from certain contributors for secu
 - This prevents malicious code in workflows from running automatically
 - Use `-ApproveWorkflows` flag to approve pending CI runs via CLI
 - Or approve manually at: https://github.com/Kixantrix/kerrigan/actions
+
+**📖 For detailed configuration guidance**, see [Workflow Approval Setup Guide](../docs/workflow-approval-setup.md) which covers:
+- Repository settings to reduce manual approvals
+- Adding bot accounts as collaborators
+- Using GitHub Apps for programmatic approval
+- Security best practices for workflow automation
 
 ## Why Copilot Can't Be a PR Reviewer
 

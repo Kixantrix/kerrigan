@@ -309,10 +309,28 @@ foreach ($pr in $prs) {
                 if ($AutoMerge) {
                     Write-Host "`n  🤖 Evaluating for auto-merge..." -ForegroundColor Cyan
                     
-                    $mergeCheck = Test-PRReadyForMerge -prData $prData -runs $runs
+                    # Check if PR modifies workflow files (security consideration)
+                    $prFiles = gh pr view $pr.number --json files -q '.files[].path' 2>&1
+                    $modifiesWorkflows = $false
                     
-                    if ($mergeCheck.Ready) {
-                        Write-Host "  ✅ All merge criteria met!" -ForegroundColor Green
+                    if ($LASTEXITCODE -eq 0) {
+                        foreach ($file in $prFiles) {
+                            if ($file -like ".github/workflows/*") {
+                                $modifiesWorkflows = $true
+                                break
+                            }
+                        }
+                    }
+                    
+                    if ($modifiesWorkflows) {
+                        Write-Host "  ⚠️  PR modifies workflow files - auto-merge disabled for security" -ForegroundColor Yellow
+                        Write-Host "     Manual review required for: .github/workflows/*" -ForegroundColor Gray
+                        Write-Host "     This prevents potential workflow abuse or malicious code execution" -ForegroundColor Gray
+                    } else {
+                        $mergeCheck = Test-PRReadyForMerge -prData $prData -runs $runs
+                        
+                        if ($mergeCheck.Ready) {
+                            Write-Host "  ✅ All merge criteria met!" -ForegroundColor Green
                         
                         if (-not $DryRun) {
                             # Get linked issues (handle null body)
@@ -367,10 +385,11 @@ foreach ($pr in $prs) {
                                 Body = $prData.body
                             }
                         }
-                    } else {
-                        Write-Host "  ⚠️  Cannot auto-merge:" -ForegroundColor Yellow
-                        foreach ($reason in $mergeCheck.Reasons) {
-                            Write-Host "    - $reason" -ForegroundColor Gray
+                        } else {
+                            Write-Host "  ⚠️  Cannot auto-merge:" -ForegroundColor Yellow
+                            foreach ($reason in $mergeCheck.Reasons) {
+                                Write-Host "    - $reason" -ForegroundColor Gray
+                            }
                         }
                     }
                 }
