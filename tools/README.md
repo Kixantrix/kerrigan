@@ -21,7 +21,7 @@ Systematic script for managing Copilot reviews on open pull requests.
 
 ## What it does
 
-1. **Finds all open PRs** (skips drafts by default)
+1. **Finds all open PRs** (lists drafts but doesn't modify them by default)
 2. **Marks PRs ready** (with `-MarkReadyForReview` flag)
 3. **Adds Copilot as reviewer** if not already reviewing
 4. **Checks review status** and reports:
