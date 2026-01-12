@@ -116,13 +116,13 @@ foreach ($pr in $prs) {
                 $shouldPostComment = $true
                 try {
                     $recentWindow = (Get-Date).AddDays(-1)
-                    $commentsJson = gh api repos/:owner/:repo/issues/$($pr.number)/comments 2>&1
+                    $commentsJson = gh pr view $pr.number --json comments 2>&1
                     if ($LASTEXITCODE -eq 0) {
-                        $comments = $commentsJson | ConvertFrom-Json
-                        $existingNotification = $comments | Where-Object {
-                            if ($_.body -eq $notificationBody -and $_.created_at) {
+                        $prComments = ($commentsJson | ConvertFrom-Json).comments
+                        $existingNotification = $prComments | Where-Object {
+                            if ($_.body -eq $notificationBody -and $_.createdAt) {
                                 $parsedDate = [DateTime]::MinValue
-                                if ([DateTime]::TryParse($_.created_at, [ref]$parsedDate)) {
+                                if ([DateTime]::TryParse($_.createdAt, [ref]$parsedDate)) {
                                     return $parsedDate -gt $recentWindow
                                 }
                             }
@@ -139,11 +139,14 @@ foreach ($pr in $prs) {
                 }
                 
                 if ($shouldPostComment) {
-                    gh pr comment $pr.number --body $notificationBody
+                    $result = gh pr comment $pr.number --body $notificationBody 2>&1
                     if ($LASTEXITCODE -eq 0) {
                         Write-Host "  Posted comment" -ForegroundColor Green
                     } else {
                         Write-Host "  Failed to post comment (exit code $LASTEXITCODE)" -ForegroundColor Red
+                        if ($result) {
+                            Write-Host "  gh output: $result" -ForegroundColor DarkRed
+                        }
                     }
                 }
             } else {
