@@ -1,10 +1,175 @@
 ﻿# Systematic PR Review Script
-# Manages PR reviews and CI workflow approvals
+# Manages PR reviews and CI workflow approvals with agentic capabilities
 param(
     [switch]$DryRun,
     [switch]$MarkReadyForReview,
-    [switch]$ApproveWorkflows
+    [switch]$ApproveWorkflows,
+    [switch]$AutoMerge,
+    [switch]$GenerateNextIssues,
+    [switch]$UpdateStatus
 )
+
+# Helper Functions
+function Get-LinkedIssues {
+    param([string]$prBody)
+    
+    $issues = @()
+    if ($prBody) {
+        # Match patterns like "Closes #123", "Fixes #456", "Resolves #789"
+        $matches = [regex]::Matches($prBody, '(?:Close|Closes|Closed|Fix|Fixes|Fixed|Resolve|Resolves|Resolved)[\s:]+#(\d+)', 'IgnoreCase')
+        foreach ($match in $matches) {
+            $issues += $match.Groups[1].Value
+        }
+    }
+    return $issues
+}
+
+function Test-PRReadyForMerge {
+    param(
+        [object]$prData,
+        [array]$runs
+    )
+    
+    $reasons = @()
+    
+    # Check if approved
+    if ($prData.reviewDecision -ne "APPROVED") {
+        $reasons += "Not approved (status: $($prData.reviewDecision))"
+    }
+    
+    # Check if mergeable
+    if ($prData.mergeable -ne "MERGEABLE") {
+        $reasons += "Not mergeable (status: $($prData.mergeable))"
+    }
+    
+    # Check CI status
+    $completedRuns = $runs | Where-Object { $_.status -eq "completed" }
+    $failedRuns = $completedRuns | Where-Object { $_.conclusion -in @("failure", "cancelled") }
+    if ($failedRuns) {
+        $reasons += "CI checks failed ($($failedRuns.Count) workflow(s))"
+    }
+    
+    $pendingRuns = $runs | Where-Object { $_.status -in @("queued", "in_progress", "waiting") -or $_.conclusion -eq "action_required" }
+    if ($pendingRuns) {
+        $reasons += "CI checks pending ($($pendingRuns.Count) workflow(s))"
+    }
+    
+    # Check for unresolved review comments
+    if ($prData.reviews) {
+        $unresolvedComments = $prData.reviews | Where-Object { $_.state -eq "CHANGES_REQUESTED" }
+        if ($unresolvedComments) {
+            $reasons += "Unresolved change requests"
+        }
+    }
+    
+    return @{
+        Ready = ($reasons.Count -eq 0)
+        Reasons = $reasons
+    }
+}
+
+function Get-TasksFromFile {
+    param([string]$filePath)
+    
+    if (-not (Test-Path $filePath)) {
+        return @()
+    }
+    
+    $content = Get-Content $filePath -Raw
+    $tasks = @()
+    
+    # Parse tasks by milestone
+    $milestonePattern = '##\s+Milestone\s+\d+:\s+([^\r\n]+)'
+    $taskPattern = '-\s+\[([ x])\]\s+Task:\s+([^\r\n]+)'
+    
+    $lines = $content -split "`r?`n"
+    $currentMilestone = ""
+    
+    foreach ($line in $lines) {
+        if ($line -match $milestonePattern) {
+            $currentMilestone = $matches[1].Trim()
+        }
+        elseif ($line -match $taskPattern) {
+            $completed = $matches[1] -eq 'x'
+            $taskName = $matches[2].Trim()
+            
+            $tasks += @{
+                Milestone = $currentMilestone
+                Name = $taskName
+                Completed = $completed
+            }
+        }
+    }
+    
+    return $tasks
+}
+
+function Find-NextTasks {
+    param(
+        [array]$allTasks,
+        [string]$completedTaskName
+    )
+    
+    # Find the completed task
+    $taskIndex = -1
+    for ($i = 0; $i -lt $allTasks.Count; $i++) {
+        if ($allTasks[$i].Name -like "*$completedTaskName*") {
+            $taskIndex = $i
+            break
+        }
+    }
+    
+    if ($taskIndex -eq -1) {
+        return @()
+    }
+    
+    $currentMilestone = $allTasks[$taskIndex].Milestone
+    $nextTasks = @()
+    
+    # Find next incomplete tasks in the same milestone
+    for ($i = $taskIndex + 1; $i -lt $allTasks.Count; $i++) {
+        if ($allTasks[$i].Milestone -ne $currentMilestone) {
+            break
+        }
+        if (-not $allTasks[$i].Completed) {
+            $nextTasks += $allTasks[$i]
+            # Only return first incomplete task to avoid creating too many issues
+            break
+        }
+    }
+    
+    return $nextTasks
+}
+
+function Update-ProjectStatus {
+    param(
+        [string]$statusPath,
+        [string]$milestone,
+        [bool]$dryRun
+    )
+    
+    if (-not (Test-Path $statusPath)) {
+        Write-Host "  ⚠️  status.json not found at $statusPath" -ForegroundColor Yellow
+        return
+    }
+    
+    $status = Get-Content $statusPath -Raw | ConvertFrom-Json
+    
+    # Update last_updated timestamp
+    $status.last_updated = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+    
+    # Update notes about milestone
+    if ($milestone) {
+        $status.notes = "Progress on $milestone - Updated by auto-merge script"
+    }
+    
+    if (-not $dryRun) {
+        $status | ConvertTo-Json -Depth 10 | Set-Content $statusPath
+        Write-Host "  ✅ Updated status.json" -ForegroundColor Green
+    } else {
+        Write-Host "  [DRY RUN] Would update status.json" -ForegroundColor Magenta
+    }
+}
 
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "Systematic PR Review - Kerrigan" -ForegroundColor Cyan
@@ -18,6 +183,21 @@ if ($ApproveWorkflows) {
     Write-Host "WORKFLOW APPROVAL MODE: Will approve pending CI runs`n" -ForegroundColor Yellow
 }
 
+if ($AutoMerge) {
+    Write-Host "AUTO-MERGE MODE: Will merge approved PRs`n" -ForegroundColor Yellow
+    if (-not $DryRun) {
+        Write-Host "⚠️  This will automatically merge qualifying PRs!`n" -ForegroundColor Red
+    }
+}
+
+if ($GenerateNextIssues) {
+    Write-Host "ISSUE GENERATION MODE: Will create next-step issues`n" -ForegroundColor Yellow
+}
+
+if ($UpdateStatus) {
+    Write-Host "STATUS UPDATE MODE: Will update status.json`n" -ForegroundColor Yellow
+}
+
 $prs = gh pr list --json number,title,isDraft --limit 50 | ConvertFrom-Json
 
 if ($prs.Count -eq 0) {
@@ -26,6 +206,8 @@ if ($prs.Count -eq 0) {
 }
 
 Write-Host "Found $($prs.Count) open PR(s)`n" -ForegroundColor Cyan
+
+$mergedPRs = @()
 
 foreach ($pr in $prs) {
     Write-Host "`nProcessing PR #$($pr.number): $($pr.title)" -ForegroundColor White
@@ -45,7 +227,7 @@ foreach ($pr in $prs) {
         }
     }
     
-    $prData = gh pr view $pr.number --json reviews,reviewRequests,mergeable,reviewDecision,url,headRefName | ConvertFrom-Json
+    $prData = gh pr view $pr.number --json reviews,reviewRequests,mergeable,reviewDecision,url,headRefName,body,closingIssuesReferences | ConvertFrom-Json
     
     # Check for workflow runs that need approval
     $runs = gh run list --branch $prData.headRefName --json databaseId,status,conclusion,workflowName --limit 10 | ConvertFrom-Json
@@ -95,6 +277,70 @@ foreach ($pr in $prs) {
         if ($prData.reviewDecision -eq "APPROVED") {
             if ($prData.mergeable -eq "MERGEABLE") {
                 Write-Host "   Ready to merge!" -ForegroundColor Green
+                
+                # Auto-merge logic
+                if ($AutoMerge) {
+                    Write-Host "`n  🤖 Evaluating for auto-merge..." -ForegroundColor Cyan
+                    
+                    $mergeCheck = Test-PRReadyForMerge -prData $prData -runs $runs
+                    
+                    if ($mergeCheck.Ready) {
+                        Write-Host "  ✅ All merge criteria met!" -ForegroundColor Green
+                        
+                        if (-not $DryRun) {
+                            # Get linked issues
+                            $linkedIssues = Get-LinkedIssues -prBody $prData.body
+                            
+                            # Merge the PR
+                            Write-Host "  🔀 Merging PR #$($pr.number)..." -ForegroundColor Yellow
+                            $mergeResult = gh pr merge $pr.number --squash --delete-branch 2>&1
+                            
+                            if ($LASTEXITCODE -eq 0) {
+                                Write-Host "  ✅ PR merged successfully!" -ForegroundColor Green
+                                
+                                # Post merge notification comment
+                                $comment = "✅ **Auto-merged** by Kerrigan PR review script`n`n"
+                                $comment += "- Review: Approved ✓`n"
+                                $comment += "- CI: Passing ✓`n"
+                                $comment += "- Merge conflicts: None ✓`n"
+                                
+                                if ($linkedIssues.Count -gt 0) {
+                                    $comment += "`n**Linked issues**: #$($linkedIssues -join ', #')"
+                                }
+                                
+                                gh pr comment $pr.number --body $comment
+                                
+                                # Track merged PR for later processing
+                                $mergedPRs += @{
+                                    Number = $pr.number
+                                    Title = $pr.title
+                                    LinkedIssues = $linkedIssues
+                                    Body = $prData.body
+                                }
+                                
+                                Write-Host "  📝 Posted merge notification" -ForegroundColor Green
+                            } else {
+                                Write-Host "  ❌ Failed to merge: $mergeResult" -ForegroundColor Red
+                            }
+                        } else {
+                            Write-Host "  [DRY RUN] Would merge PR #$($pr.number)" -ForegroundColor Magenta
+                            
+                            # Track for dry-run issue generation
+                            $linkedIssues = Get-LinkedIssues -prBody $prData.body
+                            $mergedPRs += @{
+                                Number = $pr.number
+                                Title = $pr.title
+                                LinkedIssues = $linkedIssues
+                                Body = $prData.body
+                            }
+                        }
+                    } else {
+                        Write-Host "  ⚠️  Cannot auto-merge:" -ForegroundColor Yellow
+                        foreach ($reason in $mergeCheck.Reasons) {
+                            Write-Host "    - $reason" -ForegroundColor Gray
+                        }
+                    }
+                }
             } else {
                 Write-Host "   Has merge conflicts or checks pending" -ForegroundColor Yellow
             }
@@ -108,6 +354,94 @@ foreach ($pr in $prs) {
     }
 }
 
+# Process merged PRs for next-step issue generation
+if ($GenerateNextIssues -and $mergedPRs.Count -gt 0) {
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "Generating Next-Step Issues" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    # Load tasks from kerrigan project
+    $tasksPath = "specs/projects/kerrigan/tasks.md"
+    if (Test-Path $tasksPath) {
+        $allTasks = Get-TasksFromFile -filePath $tasksPath
+        Write-Host "📋 Loaded $($allTasks.Count) tasks from $tasksPath`n" -ForegroundColor Cyan
+        
+        foreach ($mergedPR in $mergedPRs) {
+            Write-Host "`nProcessing merged PR #$($mergedPR.Number): $($mergedPR.Title)" -ForegroundColor White
+            
+            # Try to determine which task was completed
+            $nextTasks = Find-NextTasks -allTasks $allTasks -completedTaskName $mergedPR.Title
+            
+            if ($nextTasks.Count -gt 0) {
+                foreach ($task in $nextTasks) {
+                    Write-Host "  📝 Next task identified: $($task.Name)" -ForegroundColor Green
+                    Write-Host "     Milestone: $($task.Milestone)" -ForegroundColor Gray
+                    
+                    # Create issue for next task
+                    $issueTitle = $task.Name
+                    $issueBody = "## Next Step After PR #$($mergedPR.Number)`n`n"
+                    $issueBody += "This task is the next logical step following the completion of:`n"
+                    $issueBody += "- **Merged PR**: #$($mergedPR.Number) - $($mergedPR.Title)`n`n"
+                    $issueBody += "**Milestone**: $($task.Milestone)`n`n"
+                    $issueBody += "**Task**: $($task.Name)`n`n"
+                    $issueBody += "---`n`n"
+                    $issueBody += "*Auto-generated by the PR review script's next-step issue generation.*"
+                    
+                    if (-not $DryRun) {
+                        # Check if issue already exists
+                        $existingIssues = gh issue list --search "in:title $issueTitle" --json number,title --limit 10 | ConvertFrom-Json
+                        $alreadyExists = $existingIssues | Where-Object { $_.title -eq $issueTitle }
+                        
+                        if (-not $alreadyExists) {
+                            Write-Host "  📤 Creating issue: $issueTitle" -ForegroundColor Yellow
+                            $newIssue = gh issue create --title $issueTitle --body $issueBody --label "kerrigan,agent:go" 2>&1
+                            
+                            if ($LASTEXITCODE -eq 0) {
+                                Write-Host "  ✅ Created issue: $newIssue" -ForegroundColor Green
+                            } else {
+                                Write-Host "  ❌ Failed to create issue: $newIssue" -ForegroundColor Red
+                            }
+                        } else {
+                            Write-Host "  ⏭️  Issue already exists: #$($alreadyExists.number)" -ForegroundColor Gray
+                        }
+                    } else {
+                        Write-Host "  [DRY RUN] Would create issue: $issueTitle" -ForegroundColor Magenta
+                    }
+                }
+            } else {
+                Write-Host "  ℹ️  No clear next task identified" -ForegroundColor Gray
+            }
+            
+            # Update status if requested
+            if ($UpdateStatus) {
+                $statusPath = "specs/projects/kerrigan/status.json"
+                if (Test-Path $statusPath) {
+                    Write-Host "  📊 Updating project status..." -ForegroundColor Cyan
+                    
+                    # Determine milestone from task name
+                    $milestone = ""
+                    foreach ($task in $allTasks) {
+                        if ($task.Name -like "*$($mergedPR.Title)*") {
+                            $milestone = $task.Milestone
+                            break
+                        }
+                    }
+                    
+                    Update-ProjectStatus -statusPath $statusPath -milestone $milestone -dryRun $DryRun
+                }
+            }
+        }
+    } else {
+        Write-Host "⚠️  Tasks file not found: $tasksPath" -ForegroundColor Yellow
+        Write-Host "   Cannot generate next-step issues without task definitions" -ForegroundColor Gray
+    }
+}
+
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "Review complete!" -ForegroundColor Green
+
+if ($mergedPRs.Count -gt 0) {
+    Write-Host "✅ Merged $($mergedPRs.Count) PR(s)" -ForegroundColor Green
+}
+
 Write-Host "========================================`n" -ForegroundColor Cyan
