@@ -6,29 +6,48 @@ Systematic script for managing Copilot reviews on open pull requests.
 
 ### Check PR status
 ```powershell
+.\tools\review-prs.ps1
+```
+
+### Check PR status (dry run)
+```powershell
 .\tools\review-prs.ps1 -DryRun
 ```
 
-### Mark draft PRs as ready and add Copilot as reviewer
+### Mark draft PRs as ready for review
 ```powershell
 .\tools\review-prs.ps1 -MarkReadyForReview
 ```
 
-### Add Copilot as reviewer to PRs without review
+### Approve pending workflow runs (fix CI approval issues)
 ```powershell
-.\tools\review-prs.ps1
+.\tools\review-prs.ps1 -ApproveWorkflows
 ```
 
 ## What it does
 
 1. **Finds all open PRs** (lists drafts but doesn't modify them by default)
 2. **Marks PRs ready** (with `-MarkReadyForReview` flag)
-3. **Adds Copilot as reviewer** if not already reviewing
+3. **Approves pending CI workflows** (with `-ApproveWorkflows` flag)
 4. **Checks review status** and reports:
    - Pending reviews
    - Approved PRs (ready to merge)
    - PRs with requested changes
-5. **Posts comments** to notify @copilot when changes are requested
+
+## Why CI Needs Approval
+
+GitHub requires manual approval for workflows from certain contributors for security reasons:
+- PRs from `copilot-swe-agent` or similar bots need approval
+- This prevents malicious code in workflows from running automatically
+- Use `-ApproveWorkflows` flag to approve pending CI runs via CLI
+- Or approve manually at: https://github.com/Kixantrix/kerrigan/actions
+
+## Why Copilot Can't Be a PR Reviewer
+
+"Copilot" is not a standard GitHub user account and cannot be assigned as a PR reviewer. It only works for issue assignments. For PR reviews, use:
+- Manual review by repository collaborators
+- GitHub's built-in review features
+- Rely on CI checks and validators
 
 ## Workflow
 
@@ -40,7 +59,8 @@ Run this script periodically to:
 ## Parameters
 
 - `-DryRun`: Show what would happen without making changes
-- `-MarkReadyForReview`: Convert draft PRs to ready for review
+- `-MarkReadyForReview`: Convert draft PRs to ready for review  
+- `-ApproveWorkflows`: Approve pending GitHub Actions workflow runs
 
 ## Requirements
 
