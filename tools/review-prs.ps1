@@ -123,13 +123,13 @@ function Find-NextTasks {
     
     # Second try: substring match if exact match fails
     if ($taskIndex -eq -1) {
-        # Normalize both strings for comparison: remove common words and punctuation
+        # Normalize both strings for comparison: remove punctuation
         $normalizedSearch = $completedTaskName -replace '[^\w\s]', '' -replace '\s+', ' '
         
         for ($i = 0; $i -lt $allTasks.Count; $i++) {
             $normalizedTask = $allTasks[$i].Name -replace '[^\w\s]', '' -replace '\s+', ' '
             
-            # Only match if the search term is substantial (at least 60% of task name)
+            # Match if the normalized search term appears in the normalized task name
             if ($normalizedTask -match [regex]::Escape($normalizedSearch)) {
                 $taskIndex = $i
                 break
@@ -461,10 +461,20 @@ if ($GenerateNextIssues -and $mergedPRs.Count -gt 0) {
                 if (Test-Path $statusPath) {
                     Write-Host "  📊 Updating project status..." -ForegroundColor Cyan
                     
-                    # Determine milestone from task name
+                    # Determine milestone from task name using same normalization as Find-NextTasks
                     $milestone = ""
+                    $normalizedPRTitle = $mergedPR.Title -replace '[^\w\s]', '' -replace '\s+', ' '
+                    
                     foreach ($task in $allTasks) {
-                        if ($task.Name -like "*$($mergedPR.Title)*") {
+                        # Try exact match first
+                        if ($task.Name -eq $mergedPR.Title) {
+                            $milestone = $task.Milestone
+                            break
+                        }
+                        
+                        # Then try normalized match
+                        $normalizedTaskName = $task.Name -replace '[^\w\s]', '' -replace '\s+', ' '
+                        if ($normalizedTaskName -match [regex]::Escape($normalizedPRTitle)) {
                             $milestone = $task.Milestone
                             break
                         }
