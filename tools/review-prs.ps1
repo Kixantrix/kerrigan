@@ -56,10 +56,18 @@ foreach ($pr in $prs) {
     }
     
     try {
-        $prViewResult = gh pr view $pr.number --json reviews,reviewRequests,mergeable,reviewDecision,url 2>$null
+        $prViewResult = gh pr view $pr.number --json reviews,reviewRequests,mergeable,reviewDecision,url 2>&1
         
-        if ($LASTEXITCODE -ne 0 -or -not $prViewResult) {
+        if ($LASTEXITCODE -ne 0) {
             Write-Host "  Warning: Unable to retrieve details for PR #$($pr.number). It may have been closed or become inaccessible. Skipping." -ForegroundColor Yellow
+            if ($prViewResult) {
+                Write-Host "  gh output: $prViewResult" -ForegroundColor DarkYellow
+            }
+            continue
+        }
+        
+        if (-not $prViewResult) {
+            Write-Host "  Warning: No data returned for PR #$($pr.number). Skipping." -ForegroundColor Yellow
             continue
         }
         
@@ -120,10 +128,12 @@ foreach ($pr in $prs) {
                     if ($LASTEXITCODE -eq 0) {
                         $prComments = ($commentsJson | ConvertFrom-Json).comments
                         $existingNotification = $prComments | Where-Object {
-                            if ($_.body -eq $notificationBody -and $_.createdAt) {
-                                $parsedDate = [DateTime]::MinValue
-                                if ([DateTime]::TryParse($_.createdAt, [ref]$parsedDate)) {
+                            if ($_.body.Trim() -eq $notificationBody.Trim() -and $_.createdAt) {
+                                try {
+                                    $parsedDate = [DateTime]::Parse($_.createdAt)
                                     return $parsedDate -gt $recentWindow
+                                } catch {
+                                    return $false
                                 }
                             }
                             return $false
