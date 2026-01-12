@@ -113,32 +113,38 @@ foreach ($pr in $prs) {
             $notificationBody = "@copilot Please address the requested changes."
             if (-not $DryRun) {
                 # Check for a recent similar comment to avoid duplicate notifications
+                $shouldPostComment = $true
                 try {
                     $recentWindow = (Get-Date).AddDays(-1)
                     $commentsJson = gh api repos/:owner/:repo/issues/$($pr.number)/comments 2>&1
                     if ($LASTEXITCODE -eq 0) {
                         $comments = $commentsJson | ConvertFrom-Json
                         $existingNotification = $comments | Where-Object {
-                            $_.body -eq $notificationBody -and 
-                            $_.created_at -and 
-                            ([DateTime]::TryParse($_.created_at, [ref]$null)) -and
-                            ([DateTime]::Parse($_.created_at) -gt $recentWindow)
+                            if ($_.body -eq $notificationBody -and $_.created_at) {
+                                $parsedDate = [DateTime]::MinValue
+                                if ([DateTime]::TryParse($_.created_at, [ref]$parsedDate)) {
+                                    return $parsedDate -gt $recentWindow
+                                }
+                            }
+                            return $false
                         } | Select-Object -First 1
 
                         if ($existingNotification) {
                             Write-Host "  Skipping comment: similar notification already posted recently" -ForegroundColor Gray
-                            continue
+                            $shouldPostComment = $false
                         }
                     }
                 } catch {
                     Write-Host "  Warning: Unable to check for existing comments. Proceeding with comment." -ForegroundColor Yellow
                 }
                 
-                gh pr comment $pr.number --body $notificationBody
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host "  Posted comment" -ForegroundColor Green
-                } else {
-                    Write-Host "  Failed to post comment (exit code $LASTEXITCODE)" -ForegroundColor Red
+                if ($shouldPostComment) {
+                    gh pr comment $pr.number --body $notificationBody
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "  Posted comment" -ForegroundColor Green
+                    } else {
+                        Write-Host "  Failed to post comment (exit code $LASTEXITCODE)" -ForegroundColor Red
+                    }
                 }
             } else {
                 Write-Host "  [DRY RUN] Would post comment" -ForegroundColor Magenta
