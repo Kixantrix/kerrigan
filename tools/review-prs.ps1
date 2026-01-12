@@ -97,6 +97,8 @@ foreach ($pr in $prs) {
             $result = gh pr edit $pr.number --add-reviewer "Copilot" 2>&1
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "  Added Copilot as reviewer" -ForegroundColor Green
+                # Mark as requested so we can report the correct status
+                $copilotRequested = [PSCustomObject]@{ login = "Copilot" }
             } else {
                 Write-Host "  Failed to add Copilot as reviewer (exit code $LASTEXITCODE)" -ForegroundColor Red
                 if ($result) {
@@ -105,8 +107,8 @@ foreach ($pr in $prs) {
             }
         } else {
             Write-Host "  [DRY RUN] Would add Copilot" -ForegroundColor Magenta
+            # In dry-run mode, don't mark as requested
         }
-        $copilotRequested = $true
     }
     
     if ($copilotRequested) {
