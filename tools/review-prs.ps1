@@ -15,7 +15,17 @@ if ($DryRun) {
 
 $prsJson = gh pr list --json number,title,isDraft --limit 50 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to list pull requests using the GitHub CLI ('gh').`n`nPossible causes:`n  - 'gh' is not installed or not available on PATH`n  - You are not authenticated (run 'gh auth login')`n  - There is a network or GitHub API issue`n`nDetails:`n$prsJson"
+    Write-Error @"
+Failed to list pull requests using the GitHub CLI ('gh').
+
+Possible causes:
+  - 'gh' is not installed or not available on PATH
+  - You are not authenticated (run 'gh auth login')
+  - There is a network or GitHub API issue
+
+Details:
+$prsJson
+"@
     exit 1
 }
 
@@ -129,12 +139,12 @@ foreach ($pr in $prs) {
                         $prComments = ($commentsJson | ConvertFrom-Json).comments
                         $existingNotification = $prComments | Where-Object {
                             if ($_.body.Trim() -eq $notificationBody.Trim() -and $_.createdAt) {
-                                try {
-                                    $parsedDate = [DateTime]::Parse($_.createdAt)
+                                $parsedDate = $null
+                                # Use TryParse for robust date parsing (GitHub API returns ISO 8601 format)
+                                if ([DateTime]::TryParse($_.createdAt, [ref]$parsedDate)) {
                                     return $parsedDate -gt $recentWindow
-                                } catch {
-                                    return $false
                                 }
+                                # Silently ignore date parsing failures - invalid dates are treated as non-matches
                             }
                             return $false
                         } | Select-Object -First 1
