@@ -1,0 +1,129 @@
+# GitHub Labels for Kerrigan
+
+This document lists all required GitHub labels for Kerrigan's agent workflow and autonomy controls.
+
+## Required Labels
+
+### Autonomy Control Labels
+
+These labels control when agents are allowed to work on issues and PRs:
+
+- **`agent:go`** (color: `#0E8A16`, green)
+  - Grants agents permission to work on this issue/PR
+  - Required for on-demand mode (default)
+  - See: `playbooks/autonomy-modes.md`
+
+- **`agent:sprint`** (color: `#FBCA04`, yellow)
+  - Marks an issue as a sprint tracking issue
+  - PRs linked to sprint issues automatically get `agent:go`
+  - Used for sprint mode autonomy
+  - See: `playbooks/autonomy-modes.md`
+
+- **`autonomy:override`** (color: `#D93F0B`, red)
+  - Human-only label to bypass autonomy gates
+  - Use when you need to merge without agent approval
+  - See: `playbooks/autonomy-modes.md`
+
+### Quality Control Labels
+
+- **`allow:large-file`** (color: `#C5DEF5`, light blue)
+  - Bypasses the 800 LOC quality bar check
+  - Use sparingly, only when justified
+  - See: `specs/kerrigan/030-quality-bar.md`
+
+### Role Assignment Labels
+
+These labels are used for assigning work to specific agent roles:
+
+- **`role:spec`** (color: `#5319E7`, purple)
+  - Assigns issue to Spec agent
+  - Produces: spec.md, acceptance-tests.md
+  - See: `.github/agents/role.spec.md`
+
+- **`role:architect`** (color: `#1D76DB`, blue)
+  - Assigns issue to Architect agent
+  - Produces: architecture.md, plan.md, tasks.md, test-plan.md
+  - See: `.github/agents/role.architect.md`
+
+- **`role:swe`** (color: `#006B75`, teal)
+  - Assigns issue to Software Engineering agent
+  - Implements features following the plan
+  - See: `.github/agents/role.swe.md`
+
+- **`role:testing`** (color: `#7057FF`, violet)
+  - Assigns issue to Testing agent
+  - Adds test coverage and validation
+  - See: `.github/agents/role.testing.md`
+
+- **`role:debugging`** (color: `#D93F0B`, orange-red)
+  - Assigns issue to Debugging agent
+  - Investigates and fixes issues
+  - See: `.github/agents/role.debugging.md`
+
+- **`role:security`** (color: `#B60205`, dark red)
+  - Assigns issue to Security agent
+  - Reviews security and adds safeguards
+  - See: `.github/agents/role.security.md`
+
+- **`role:deployment`** (color: `#0E8A16`, green)
+  - Assigns issue to Deployment agent
+  - Creates deployment artifacts and runbooks
+  - See: `.github/agents/role.deployment.md`
+
+### Project Labels (optional but recommended)
+
+- **`kerrigan`** (color: `#000000`, black)
+  - Tags issues related to Kerrigan system itself
+  - Useful for filtering meta-work from project work
+
+## Creating Labels via GitHub CLI
+
+If you have GitHub CLI installed, you can create all required labels with:
+
+```bash
+# Autonomy control labels
+gh label create "agent:go" --color "0E8A16" --description "Grants agents permission to work on this issue/PR"
+gh label create "agent:sprint" --color "FBCA04" --description "Sprint tracking issue - PRs auto-get agent:go"
+gh label create "autonomy:override" --color "D93F0B" --description "Human override to bypass autonomy gates"
+
+# Quality control
+gh label create "allow:large-file" --color "C5DEF5" --description "Bypass 800 LOC quality bar check"
+
+# Role assignment
+gh label create "role:spec" --color "5319E7" --description "Assign to Spec agent"
+gh label create "role:architect" --color "1D76DB" --description "Assign to Architect agent"
+gh label create "role:swe" --color "006B75" --description "Assign to SWE agent"
+gh label create "role:testing" --color "7057FF" --description "Assign to Testing agent"
+gh label create "role:debugging" --color "D93F0B" --description "Assign to Debugging agent"
+gh label create "role:security" --color "B60205" --description "Assign to Security agent"
+gh label create "role:deployment" --color "0E8A16" --description "Assign to Deployment agent"
+
+# Optional project label
+gh label create "kerrigan" --color "000000" --description "Kerrigan system meta-work"
+```
+
+## Creating Labels via GitHub Web UI
+
+1. Navigate to your repository on GitHub
+2. Click on "Issues" tab
+3. Click on "Labels" button
+4. Click "New label" button
+5. Enter the label name, color, and description from the lists above
+6. Click "Create label"
+7. Repeat for all required labels
+
+## Verification
+
+After creating labels, verify they exist:
+
+```bash
+gh label list
+```
+
+Or check via the GitHub web UI at: `https://github.com/OWNER/REPO/labels`
+
+## See Also
+
+- [Autonomy Modes](../playbooks/autonomy-modes.md) - How autonomy labels control agent workflow
+- [Agent Assignment](agent-assignment.md) - How to use role labels
+- [Setup Guide](setup.md) - Complete setup instructions including labels

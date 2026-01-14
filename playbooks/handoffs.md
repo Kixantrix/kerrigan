@@ -3,9 +3,9 @@
 Handoffs are file-based. Each stage must produce the artifacts defined in:
 - `specs/kerrigan/020-artifact-contracts.md`
 
-## Workflow Refinements (from hello-api end-to-end validation)
+## Workflow Refinements (from hello-api and Milestone 2 validation)
 
-### Key Learnings
+### Key Learnings from hello-api
 
 1. **Validator expectations must be explicit**: The artifact validator expects exact heading names (case-sensitive), but this isn't documented in agent prompts or README. Agents should be told specific heading names: "Acceptance criteria" (not "Acceptance Criteria"), "Components & interfaces", "Security & privacy notes".
 
@@ -20,6 +20,20 @@ Handoffs are file-based. Each stage must produce the artifacts defined in:
 6. **Deploy validation may require workarounds**: Some deployment environments (corporate networks, CI systems) have SSL/proxy issues that prevent Docker builds. Document alternative validation approaches.
 
 7. **Security scanning must be continuous**: Dependencies can have vulnerabilities discovered after initial implementation. Always scan dependencies before finalizing work and document the scanning process. Example: Gunicorn 21.2.0 had HTTP smuggling vulnerabilities, required update to 22.0.0.
+
+### Key Learnings from Milestone 2 Validation (validator-enhancement)
+
+8. **Agent prompt validation is lightweight**: Creating artifacts following agent prompts (role.spec.md, role.architect.md) successfully produced valid, validator-passing artifacts without actual agent execution. This confirms prompts are clear and well-structured.
+
+9. **Constitution compliance is checkable**: The Kerrigan meta-agent role can systematically validate projects against all 8 constitution principles. This provides confidence that work meets quality standards before implementation begins.
+
+10. **Test projects are valuable documentation**: Creating a complete test project (validator-enhancement) serves dual purpose: validates the workflow AND provides a reference example for future agents and users.
+
+11. **Small scope enables faster validation**: The validator-enhancement project is intentionally small (~150 LOC) which makes it ideal for workflow validation. Future validation efforts should also use small, focused test projects.
+
+12. **Documentation bootstraps workflow**: Creating comprehensive label documentation (docs/github-labels.md) and test issue templates (docs/test-issue-agent-workflow.md) provides clear guidance for starting new agent workflows.
+
+13. **Artifact creation is the heavy lift**: Spec and architecture phases require significant thought and writing (8 artifacts totaling ~3000 words for validator-enhancement). Implementation is often simpler than planning when scope is well-defined.
 
 ### Improved Handoff Checklist
 
