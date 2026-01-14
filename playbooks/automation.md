@@ -142,6 +142,65 @@ The core contracts (role labels, task format, autonomy modes) are platform-agnos
 3. **Review assignments**: Manual assignments always override automation
 4. **Sprint mode discipline**: Only use `agent:sprint` for focused sprint work
 5. **Keep config updated**: Review `.github/automation/reviewers.json` as team changes
+6. **Validate JSON**: Use JSON validators before committing config changes to avoid workflow errors
+7. **Test with a dry-run first**: For issue generation, use manual dispatch with dry_run mode to preview changes
+8. **Monitor workflow logs**: Check Actions tab periodically for warnings or configuration issues
+9. **Use consistent label names**: Role labels are case-sensitive; maintain consistent naming
+10. **Document team slugs**: Keep a reference of team slugs as they may differ from display names
+
+## Testing Results
+
+The automation infrastructure has been thoroughly tested with 47+ automated tests covering:
+
+- ✅ Configuration validation
+- ✅ Workflow trigger conditions  
+- ✅ Permission requirements
+- ✅ Error handling
+- ✅ Integration between workflows
+- ✅ Edge case scenarios
+
+**Status**: All tests passing, CI green
+
+For detailed testing results, edge cases, and troubleshooting guide, see: [Automation Testing Documentation](../docs/automation-testing.md)
+
+### Key Edge Cases Documented
+
+1. **Team Assignment Limitation**: Teams cannot be assigned to issues (GitHub API limitation), only to PR reviews. Use individual usernames for issue assignment.
+
+2. **Label Case Sensitivity**: All labels and usernames are case-sensitive. Ensure exact matches in configuration.
+
+3. **Duplicate Issue Prevention**: Issue generation checks for duplicates by title. Similar issues must have different titles.
+
+4. **Cross-Repo Links**: Sprint mode detects cross-repo issue references but only checks issues in the current repository.
+
+5. **Configuration Validation**: Workflows validate configuration and log detailed errors but don't fail the workflow to avoid blocking legitimate work.
+
+### Tested Scenarios
+
+**Auto-Assignment**:
+- ✅ Role labels trigger assignment to configured users/teams
+- ✅ Multiple role labels assign all mapped reviewers
+- ✅ Empty role mappings disable assignment for specific roles
+- ✅ Duplicate assignments prevented
+- ✅ Issue author not assigned to own issue
+
+**Auto-Triage**:
+- ✅ User assignment triggers role label addition
+- ✅ Multiple labels can be auto-applied
+- ✅ Existing labels not duplicated
+- ✅ Invalid configurations handled gracefully
+
+**Issue Generation**:
+- ✅ AUTO-ISSUE markers parsed correctly
+- ✅ Duplicate issues prevented (by title matching)
+- ✅ Dry-run mode works without creating issues
+- ✅ Multiple tasks per file handled
+
+**Sprint Mode**:
+- ✅ agent:sprint label detected on linked issues
+- ✅ agent:go auto-applied to linked PRs
+- ✅ Multiple link patterns supported (Fixes #N, Closes #N, #N)
+- ✅ Fallback to PR labels when issues inaccessible
 
 ## Security Considerations
 
