@@ -4,7 +4,7 @@ Each task should be executable and have "done" criteria.
 
 ## Milestone 7a: Foundation (Multi-repo + CLI)
 
-**Target**: Q1 2026 (weeks 1-8)
+**Target**: 8 weeks starting Q1 2026 (approximately Jan-Feb 2026)
 
 ### Phase 1.1: Multi-repository spec design
 
@@ -138,7 +138,7 @@ Each task should be executable and have "done" criteria.
 
 ## Milestone 7b: Visibility (Dashboard + Monitoring)
 
-**Target**: Q2 2026 (weeks 9-16)
+**Target**: 8 weeks following 7a (approximately Mar-Apr 2026)
 
 ### Phase 2.1: Dashboard architecture
 
@@ -268,7 +268,7 @@ Each task should be executable and have "done" criteria.
 
 ## Milestone 7c: Optimization (Coordination + Analytics)
 
-**Target**: Q3 2026 (weeks 17-24)
+**Target**: 8 weeks following 7b (approximately May-Jun 2026)
 
 ### Phase 3.1: Advanced coordination
 

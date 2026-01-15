@@ -161,9 +161,9 @@ Milestones must end with green CI.
 **Goal**: Take Kerrigan from single-repository agent swarm to enterprise-ready platform with multi-repo orchestration, workflow optimization, and comprehensive visibility/analytics.
 
 **Split into 3 phases**:
-- **7a**: Multi-repo support + CLI tool foundation (8 weeks, ~Jan-Feb 2026)
-- **7b**: Status dashboard + basic cost tracking (8 weeks, ~Mar-Apr 2026)
-- **7c**: Advanced coordination + cost analytics + optimization (8 weeks, ~May-Jun 2026)
+- **7a**: Multi-repo support + CLI tool foundation (8 weeks starting Q1 2026, approximately Jan-Feb 2026)
+- **7b**: Status dashboard + basic cost tracking (8 weeks following 7a, approximately Mar-Apr 2026)
+- **7c**: Advanced coordination + cost analytics + optimization (8 weeks following 7b, approximately May-Jun 2026)
 
 **Key features**:
 - Multi-repository project coordination
