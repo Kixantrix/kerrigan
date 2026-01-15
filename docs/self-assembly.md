@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides a comprehensive guide for Kerrigan to reconstruct itself, including a complete dependency map, component relationships, and source code for all critical components. This ensures Kerrigan can be fully reassembled from this documentation alone.
+This document provides a comprehensive technical reference for setting up Kerrigan in new repositories. It includes a complete dependency map, component relationships, and source code for all critical components. This guide enables teams to replicate the Kerrigan agent swarm system into their own projects with full understanding of how the system works.
 
 ## System Dependencies
 
@@ -654,28 +654,30 @@ Strategies to reduce costs
 Approved budget and limits
 ```
 
-## Reconstruction Procedure
+## Setup Procedure for New Repository
 
-### From Scratch (No Backups)
+### Starting from Scratch
 
-**Time Required**: 4-8 hours for complete reconstruction
+**Time Required**: 4-8 hours for complete setup
 
 **Steps**:
 
 1. **Create repository structure** (15 minutes)
    ```bash
-   mkdir -p kerrigan/{.github/{agents,workflows,automation},docs,playbooks,specs/{kerrigan,projects/_template},tools/validators,tests/validators,examples}
-   cd kerrigan
+   mkdir -p your-project/{.github/{agents,workflows,automation},docs,playbooks,specs/{kerrigan,projects/_template},tools/validators,tests/validators,examples}
+   cd your-project
    git init
    ```
 
 2. **Create constitution** (15 minutes)
    - Copy content from "Constitution" section above
+   - Adapt to your team's needs
    - Save to `specs/constitution.md`
 
 3. **Create validators** (30 minutes)
    - Copy `check_artifacts.py` from source code above
    - Copy `check_quality_bar.py` from source code above
+   - Customize thresholds for your project
    - Save to `tools/validators/`
    - Make executable: `chmod +x tools/validators/*.py`
 
@@ -711,41 +713,63 @@ Approved budget and limits
    git commit -m "Initial Kerrigan structure"
    ```
 
-### From Partial Backup
+### Adding to Existing Repository
 
-**Time Required**: 1-2 hours
-
-**Steps**:
-
-1. **Restore available files**
-2. **Identify missing components**
-   ```bash
-   python tools/validators/check_artifacts.py
-   ```
-3. **Recreate missing components** using this guide
-4. **Validate**
-
-### From Full Backup
-
-**Time Required**: 15-30 minutes
+**Time Required**: 2-4 hours
 
 **Steps**:
 
-1. **Clone backup**
+1. **Assess existing structure**
+   - Review current repository organization
+   - Identify conflicts with Kerrigan structure
+   - Plan integration approach
+
+2. **Add Kerrigan components incrementally**
    ```bash
-   git clone kerrigan-backup.git kerrigan
-   cd kerrigan
+   # Add directory structure
+   mkdir -p .github/agents .github/workflows
+   mkdir -p specs/projects/_template
+   mkdir -p tools/validators
    ```
 
-2. **Validate**
+3. **Adapt validators to existing code**
+   - Modify `check_quality_bar.py` thresholds if needed
+   - Update `check_artifacts.py` to accommodate existing structure
+
+4. **Validate integration**
    ```bash
    python tools/validators/check_artifacts.py
    python tools/validators/check_quality_bar.py
    ```
 
-3. **Update remote**
+### Using Template/Fork
+
+**Time Required**: 15-30 minutes
+
+**Steps**:
+
+1. **Use as template or fork**
    ```bash
-   git remote set-url origin https://github.com/yourusername/kerrigan.git
+   # Via GitHub: Click "Use this template" or "Fork"
+   # Or clone the Kerrigan repository
+   git clone https://github.com/Kixantrix/kerrigan.git your-project
+   cd your-project
+   ```
+
+2. **Customize for your project**
+   - Update README with your project details
+   - Modify constitution if needed
+   - Adjust validator thresholds
+
+3. **Validate setup**
+   ```bash
+   python tools/validators/check_artifacts.py
+   python tools/validators/check_quality_bar.py
+   ```
+
+4. **Update remote to your repository**
+   ```bash
+   git remote set-url origin https://github.com/yourusername/your-project.git
    git push origin main
    ```
 
@@ -847,17 +871,17 @@ After reconstruction, verify:
 - [ ] CI runs on test PR
 - [ ] Agent can complete test task
 
-## Self-Assembly Test
+## Replication Test
 
-To verify Kerrigan can self-assemble, run this test:
+To verify Kerrigan can be replicated to a new repository, run this test:
 
 ```bash
 # 1. Create test branch
-git checkout -b test-self-assembly
+git checkout -b test-replication
 
 # 2. Create test project
-mkdir -p specs/projects/self-assembly-test
-cp specs/projects/_template/* specs/projects/self-assembly-test/
+mkdir -p specs/projects/replication-test
+cp specs/projects/_template/* specs/projects/replication-test/
 
 # 3. Validate
 python tools/validators/check_artifacts.py
@@ -868,31 +892,32 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 # 5. Clean up
 git checkout main
-git branch -D test-self-assembly
+git branch -D test-replication
 ```
 
-Expected result: All checks pass, indicating Kerrigan can validate itself.
+Expected result: All checks pass, indicating Kerrigan can be set up and validated in a new context.
 
 ## Maintenance
 
-To keep self-assembly capability:
+To maintain replicability to new repositories:
 
 1. **Update this document** when adding new critical components
 2. **Version control** all source code inline in this document
-3. **Test reconstruction** periodically (quarterly recommended)
+3. **Test replication** periodically (quarterly recommended)
 4. **Keep validators simple** - no external dependencies
-5. **Document changes** in git commit messages
+5. **Document customization points** for teams adopting Kerrigan
+6. **Maintain backward compatibility** when evolving the system
 
 ## Summary
 
-Kerrigan's self-assembly capability relies on:
+Kerrigan's replicability to new repositories relies on:
 - **Minimal external dependencies** (Git, Python stdlib, GitHub)
 - **Complete source code** for critical components embedded in documentation
 - **Clear dependency hierarchy** with no circular dependencies
 - **Comprehensive validation** to detect missing or broken components
-- **Step-by-step procedures** for reconstruction from various states
+- **Step-by-step procedures** for setting up in various scenarios
 
-This ensures Kerrigan can be fully reconstructed from this documentation alone, fulfilling the disaster recovery requirement.
+This ensures teams can adopt the Kerrigan agent swarm system in their own repositories, customizing it to their needs while maintaining the core principles that make it effective.
 
 ---
 

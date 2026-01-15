@@ -1,7 +1,7 @@
-# Disaster Recovery Playbook
+# Kerrigan Replication Guide
 
 ## Purpose
-This playbook provides step-by-step instructions for reconstructing Kerrigan from scratch in the event of repository loss, corruption, or major environmental changes. It is designed so that someone unfamiliar with Kerrigan can rebuild it using only this documentation.
+This guide provides step-by-step instructions for setting up the Kerrigan agent swarm system in a new repository. Kerrigan is designed to be replicated into different team repositories and organizational settings, enabling effective agent-driven development workflows. This guide ensures someone unfamiliar with Kerrigan can establish the system using only this documentation.
 
 ## Prerequisites
 
@@ -15,36 +15,40 @@ This playbook provides step-by-step instructions for reconstructing Kerrigan fro
 - **Text Editor**: VS Code, Vim, or similar
 - **GitHub CLI**: `gh` for easier GitHub operations
 
-## Recovery Scenarios
+## Use Cases
 
-### Scenario 1: Complete Repository Loss
-**Situation**: Repository is deleted or completely inaccessible.
+### Use Case 1: New Team Repository Setup
+**Situation**: A team wants to adopt Kerrigan's agent swarm approach in their project repository.
 
-**Recovery Steps**:
-1. Create a new GitHub repository
+**Setup Steps**:
+1. Create a new GitHub repository for your project
 2. Initialize local repository structure (see [Repository Structure](#repository-structure))
-3. Restore core artifacts from backups or recreate from templates
+3. Customize artifacts for your team's needs
 4. Set up GitHub labels (see [GitHub Labels Setup](#github-labels-setup))
 5. Configure CI workflows
 6. Validate setup with bootstrap script
 
-### Scenario 2: Environment Corruption
-**Situation**: Local environment is broken but repository is intact.
+### Use Case 2: Adding to Existing Repository
+**Situation**: An existing project wants to adopt Kerrigan's workflow without starting from scratch.
 
-**Recovery Steps**:
-1. Clone repository to clean location: `git clone <repo-url>`
-2. Run bootstrap script: `bash tools/bootstrap.sh`
-3. Validate environment: `python tools/validators/check_artifacts.py`
-4. Resume work from current state
+**Integration Steps**:
+1. Clone the existing repository: `git clone <repo-url>`
+2. Add Kerrigan structure alongside existing code
+3. Configure validators to accommodate existing code structure
+4. Set up GitHub labels and workflows
+5. Run bootstrap script: `bash tools/bootstrap.sh`
+6. Gradually migrate project artifacts
 
-### Scenario 3: Configuration Drift
-**Situation**: GitHub settings, labels, or workflows are misconfigured.
+### Use Case 3: Organizational Standardization
+**Situation**: An organization wants to establish Kerrigan as standard practice across multiple teams.
 
-**Recovery Steps**:
-1. Review and restore GitHub labels (see [GitHub Labels Setup](#github-labels-setup))
-2. Verify CI workflows are active in repository settings
-3. Check branch protection rules on main branch
-4. Validate with test issue (see [Validation](#validation))
+**Rollout Steps**:
+1. Create template repository with Kerrigan structure
+2. Document organization-specific customizations
+3. Set up shared GitHub label standards
+4. Provide team training materials
+5. Enable teams to fork/template for their projects
+6. Establish support channels for questions
 
 ## Repository Structure
 
@@ -125,7 +129,7 @@ kerrigan/
 └── README.md                # Main entry point
 ```
 
-## Step-by-Step Reconstruction
+## Step-by-Step Setup for New Repository
 
 ### Step 1: Create Repository
 
@@ -290,7 +294,7 @@ Create a test issue to validate the system:
    - All required artifacts present
    - Quality bar checks pass
 
-## File-by-File Recovery Guide
+## File-by-File Setup Guide
 
 ### Priority 1: Critical Files
 
@@ -338,7 +342,7 @@ These files are absolutely required for Kerrigan to function:
 #### tools/validators/check_artifacts.py
 **Purpose**: Validates required artifacts exist
 
-**Recovery**: This Python script enforces artifact contracts. See [Self-Assembly Guide](../docs/self-assembly.md) for full source code or restore from backup.
+**Setup**: This Python script enforces artifact contracts. See [Self-Assembly Guide](../docs/self-assembly.md) for full source code.
 
 **Key validation logic**:
 - Checks for required files in `specs/projects/*/`
@@ -396,7 +400,7 @@ Agent prompts define how agents behave. These are markdown files in `.github/age
 - **role.security.md**: Reviews for vulnerabilities
 - **kerrigan.swarm-shaper.md**: Ensures constitution compliance
 
-**Recovery**: See [Self-Assembly Guide](../docs/self-assembly.md) for template structure or restore from backup.
+**Setup**: See [Self-Assembly Guide](../docs/self-assembly.md) for template structure.
 
 ### Priority 3: Documentation
 
@@ -408,7 +412,7 @@ Documentation helps humans and agents understand the system:
 - **docs/FAQ.md**: Common questions
 - **playbooks/*.md**: Process guides
 
-**Recovery**: Can be reconstructed from examples or restored from backup.
+**Setup**: Can be created from examples in the Kerrigan repository.
 
 ## Validation
 
@@ -462,58 +466,32 @@ Kerrigan is fully recovered when:
 - [ ] Agent can complete test issue successfully
 - [ ] Documentation is accessible and accurate
 
-## Backup Strategy
+## Version Control Best Practices
 
-To prevent future data loss:
+When replicating Kerrigan to your repository:
 
-### Regular Backups
-
-1. **GitHub repository**:
-   - GitHub automatically maintains backups
-   - Consider enabling GitHub Advanced Security for additional protection
-
-2. **Local backups**:
-   ```bash
-   # Create full repository backup
-   git clone --mirror https://github.com/yourusername/kerrigan.git kerrigan-backup-$(date +%Y%m%d).git
-   
-   # Or use tar archive
-   tar -czf kerrigan-backup-$(date +%Y%m%d).tar.gz kerrigan/
-   ```
-
-3. **Critical artifacts backup**:
-   ```bash
-   # Backup essential files only
-   mkdir -p kerrigan-essentials-backup
-   cp specs/constitution.md kerrigan-essentials-backup/
-   cp tools/validators/*.py kerrigan-essentials-backup/
-   cp .github/workflows/ci.yml kerrigan-essentials-backup/
-   cp -r .github/agents kerrigan-essentials-backup/
-   ```
-
-### Version Control Best Practices
-
-1. **Never force push** to main branch
-2. **Tag important milestones**: `git tag -a v1.0 -m "Stable release"`
-3. **Maintain detailed commit messages**
+1. **Use template or fork approach** - Start from the Kerrigan template repository
+2. **Tag important milestones**: `git tag -a v1.0 -m "Initial Kerrigan setup"`
+3. **Maintain detailed commit messages** - Document customizations you make
 4. **Review PRs before merging** to catch issues early
 5. **Keep main branch stable** - always passing CI
+6. **Document team-specific adaptations** in your repository's README
 
-## Recovery Time Estimates
+## Setup Time Estimates
 
-Based on disaster scenario:
+Time required to set up Kerrigan in a new repository:
 
-| Scenario | Estimated Recovery Time | Required Knowledge Level |
-|----------|------------------------|-------------------------|
-| Complete loss with backups | 1-2 hours | Intermediate |
-| Complete loss without backups | 4-8 hours | Advanced |
-| Environment corruption | 15-30 minutes | Beginner |
-| Configuration drift | 30-60 minutes | Intermediate |
-| Single file corruption | 5-15 minutes | Beginner |
+| Scenario | Estimated Setup Time | Required Knowledge Level |
+|----------|---------------------|-------------------------|
+| New repository from template | 1-2 hours | Intermediate |
+| New repository from scratch | 4-8 hours | Advanced |
+| Adding to existing repository | 2-4 hours | Advanced |
+| Fork and customize | 30-60 minutes | Beginner |
+| Validate existing setup | 15-30 minutes | Beginner |
 
 ## Common Issues & Troubleshooting
 
-### Issue: Validators fail after recovery
+### Issue: Validators fail after setup
 
 **Symptoms**: `check_artifacts.py` reports missing sections
 
@@ -523,10 +501,10 @@ Based on disaster scenario:
 python tools/validators/check_artifacts.py
 
 # Review the specific project structure
-ls -la specs/projects/<failing-project>/
+ls -la specs/projects/<project-name>/
 
 # Compare against template
-diff -r specs/projects/_template/ specs/projects/<failing-project>/
+diff -r specs/projects/_template/ specs/projects/<project-name>/
 ```
 
 ### Issue: CI workflow not running
@@ -580,12 +558,12 @@ gh label create "agent:go" --color "0e8a16" --description "On-demand approval"
 
 ## Conclusion
 
-This playbook provides everything needed to recover Kerrigan from various disaster scenarios. The key principle is that Kerrigan is **artifact-driven and git-native**, meaning the repository contains all necessary information for reconstruction.
+This guide provides everything needed to replicate Kerrigan into new repositories and team settings. The key principle is that Kerrigan is **artifact-driven and git-native**, meaning it can be fully set up using the documentation and structure provided in this repository.
 
-By following this guide, someone unfamiliar with Kerrigan can rebuild it from scratch in a clean environment, ensuring system resilience and continuity.
+By following this guide, teams unfamiliar with Kerrigan can establish the agent swarm system in their own projects, adapting it to their specific needs while maintaining the core principles that make Kerrigan effective.
 
 ---
 
 **Last Updated**: 2026-01-15
 **Tested**: Yes - validated in clean environment
-**Owner**: Kerrigan Core Team
+**Maintained by**: Kerrigan Core Team

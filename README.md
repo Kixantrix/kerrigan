@@ -61,14 +61,14 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
 - **[Architecture](docs/architecture.md)**: System design and workflow visualization
-- **[Self-Assembly Guide](docs/self-assembly.md)**: Complete dependency map and reconstruction guide
+- **[Self-Assembly Guide](docs/self-assembly.md)**: Technical reference for replicating Kerrigan
 
 ### Process & Workflow
 - **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
 - **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
 - **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
 - **[PR Review](playbooks/pr-review.md)**: Human review guidelines
-- **[Disaster Recovery](playbooks/disaster-recovery.md)**: Reconstruct Kerrigan from scratch
+- **[Replication Guide](playbooks/replication-guide.md)**: Set up Kerrigan in new repositories
 
 ### Specifications
 - **[Constitution](specs/constitution.md)**: Non-negotiable principles

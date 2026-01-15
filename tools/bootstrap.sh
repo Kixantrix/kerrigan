@@ -335,7 +335,7 @@ if [ "$TOTAL_ISSUES" -eq 0 ]; then
     echo "  - Setup guide: docs/setup.md"
     echo "  - Architecture: docs/architecture.md"
     echo "  - Self-assembly: docs/self-assembly.md"
-    echo "  - Disaster recovery: playbooks/disaster-recovery.md"
+    echo "  - Replication guide: playbooks/replication-guide.md"
     exit 0
 else
     print_warning "Found $TOTAL_ISSUES issues"
@@ -348,7 +348,7 @@ else
     if [ "$VALIDATE_ONLY" = true ]; then
         echo "  Run without --validate-only to create missing directories"
     fi
-    echo "  Review playbooks/disaster-recovery.md for reconstruction steps"
+    echo "  Review playbooks/replication-guide.md for setup steps"
     echo "  Or see docs/self-assembly.md for detailed component information"
     exit 1
 fi
