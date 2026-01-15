@@ -4,6 +4,28 @@
 
 This playbook defines how to manage projects in `specs/projects/` through their lifecycle, from active development to completion and archival. It ensures the projects folder stays focused while preserving valuable validation work and examples.
 
+**Applies to**: Both the Kerrigan repository itself and teams using Kerrigan as a template for their own projects.
+
+## Using This Strategy in Your Own Repository
+
+If you're using Kerrigan as a template for your team's repo:
+
+1. **Keep Kerrigan's validation examples initially** - They demonstrate the workflow
+2. **Archive or delete after learning** - Once your team understands the patterns, archive Kerrigan's examples
+3. **Apply strategy to your projects** - Use STATUS.md for your completed validation projects
+4. **Customize _archive structure** - Organize based on your team's needs
+
+**Quick cleanup for new repos**:
+```bash
+# After forking/cloning Kerrigan, remove example validation projects
+mv specs/projects/hello-api specs/projects/_archive/
+mv specs/projects/hello-cli specs/projects/_archive/
+mv specs/projects/validator-enhancement specs/projects/_archive/
+
+# Keep hello-swarm as minimal reference (or archive if not needed)
+# Keep kerrigan for understanding the system (or rename to your project)
+```
+
 ## Project Types
 
 ### Production Projects
@@ -62,6 +84,21 @@ Project specs moved to `specs/projects/_archive/` to reduce clutter.
 - Implementation moved to examples/ (if applicable)
 - Lessons learned captured elsewhere
 - Low future reference value
+
+### Failed/Abandoned
+Project was started but not completed successfully.
+
+**Markers**:
+- Create `STATUS.md` with "Status: Failed" or "Status: Abandoned"
+- Document why project was discontinued
+- Note what was learned from the attempt
+- Archive if no reference value
+
+**When to use**:
+- Validation revealed approach isn't viable
+- Requirements changed significantly mid-project
+- Project blocked indefinitely
+- Experiment proved negative result
 
 **How to archive**:
 ```bash
@@ -144,6 +181,26 @@ Archive completed projects when they add noise without value:
 - Common patterns (CLI, API, service templates)
 - Projects with unique lessons or approaches
 
+### 5. Reactivating Completed Projects
+
+Sometimes a completed project needs to be reopened for additional work.
+
+**When to reactivate**:
+- New requirements extend original scope
+- Implementation of previously spec-only project
+- Updates needed for compatibility or security
+
+**How to reactivate**:
+1. Update STATUS.md to note reactivation date and reason
+2. OR remove STATUS.md if project becomes actively maintained
+3. Update tasks.md with new work items
+4. If archived, restore from _archive/ to projects/
+
+**Example STATUS.md update**:
+```markdown
+**Reactivated**: 2026-XX-XX - Implementing color output feature
+```
+
 ## Discovery Mechanisms
 
 ### Find Active Projects
@@ -169,6 +226,60 @@ ls -d specs/projects/_archive/*/
 # See implemented examples
 ls -d examples/*/
 ```
+
+## Special Considerations
+
+### Cross-Project Dependencies
+
+Before archiving a project, check for dependencies:
+
+**Check documentation references**:
+```bash
+# Find references to project in docs
+grep -r "projects/<project-name>" docs/ playbooks/ specs/
+grep -r "<project-name>" README.md
+```
+
+**Check code references**:
+```bash
+# Find references in examples or tools
+grep -r "<project-name>" examples/ tools/
+```
+
+**If dependencies exist**:
+- Keep project in main folder (don't archive)
+- Or update referencing projects first
+- Or document reference in archived project's README
+
+### Git History After Archiving
+
+Moving projects to `_archive/` preserves git history:
+
+```bash
+# View history of archived project
+git log --follow -- specs/projects/_archive/<project-name>/
+
+# View specific file history
+git log --follow -- specs/projects/_archive/<project-name>/spec.md
+```
+
+The `--follow` flag tracks files across renames/moves.
+
+### Archive Organization
+
+As archive grows, consider organizing by category or year:
+
+```
+specs/projects/_archive/
+├── 2025/
+│   └── early-experiment/
+├── 2026/
+│   └── superseded-validation/
+└── one-off-tests/
+    └── quick-prototype/
+```
+
+Update `_archive/README.md` to reflect structure.
 
 ## Decision Guidelines
 
@@ -199,6 +310,37 @@ ls -d examples/*/
 - Requires maintenance
 - Part of core system (like `kerrigan` itself)
 - Long-term reference
+
+## STATUS.md vs status.json
+
+These files serve different purposes and can coexist:
+
+### status.json (Active Project Tracking)
+- **Purpose**: Track current phase and blockers for active projects
+- **Used by**: Agents and CI to understand project state
+- **Required for**: Projects using autonomy gates
+- **Contains**: `status`, `current_phase`, `last_updated`, `blocked_reason`
+- **Validated by**: CI (tools/validators/check_artifacts.py)
+
+### STATUS.md (Completion Marker)
+- **Purpose**: Document completion of validation/experimental projects
+- **Used by**: Humans discovering and learning from past projects
+- **Required for**: Completed validation projects with reference value
+- **Contains**: Purpose, outcomes, lessons learned, future reference
+- **Not validated**: Optional human-readable documentation
+
+### When to Use Each
+
+| Scenario | status.json | STATUS.md |
+|----------|-------------|-----------|
+| Active production project | ✅ Required | ❌ No |
+| Active validation project | ✅ Required | ❌ No |
+| Paused/blocked project | ✅ Required (with blocked_reason) | ❌ No |
+| Completed validation (kept) | ❌ Optional (can remove) | ✅ Required |
+| Completed validation (archived) | ❌ Remove before archiving | ✅ Required |
+| Failed/abandoned project | ❌ Optional | ✅ If lessons valuable |
+
+**Example transition**: When validator-enhancement completes, remove status.json (if it existed) and add STATUS.md.
 
 ## Alignment with Constitution
 
