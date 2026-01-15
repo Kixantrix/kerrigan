@@ -14,6 +14,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
+# File extensions to skip for quality bar size checking (documentation and config files)
+SKIP_EXTENSIONS = {'.md', '.json', '.yaml', '.yml', '.txt'}
+
+
 class AgentSignature:
     """Represents an agent signature in a PR description."""
     
@@ -405,9 +409,6 @@ def check_quality_bar_compliance(
     
     issues = []
     
-    # File extensions to skip for size checking (documentation and config files)
-    SKIP_EXTENSIONS = {'.md', '.json', '.yaml', '.yml', '.txt'}
-    
     # Check file size limits (common across all agents)
     for artifact_path in artifact_paths:
         if not artifact_path.exists():
@@ -581,7 +582,7 @@ if __name__ == "__main__":
         
         # Display warnings
         for warning in warnings:
-            print(f"⚠️  {warning[9:]}")  # Skip "WARNING: " prefix
+            print(f"⚠️  {warning.removeprefix('WARNING: ')}")
         
         if len(errors) == 0:
             print(f"✅ All artifacts meet quality bar standards for {role}")

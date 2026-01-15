@@ -318,7 +318,7 @@ class TestCheckQualityBarCompliance(unittest.TestCase):
 
     def test_check_quality_bar_with_nonexistent_file(self):
         """Test quality bar check with nonexistent file."""
-        fake_path = Path("/tmp/nonexistent_file_12345.py")
+        fake_path = Path(tempfile.gettempdir()) / "nonexistent_file_12345.py"
         meets_standards, issues = check_quality_bar_compliance("role:swe", [fake_path])
         
         self.assertFalse(meets_standards)
