@@ -142,10 +142,10 @@ if __name__ == "__main__":
 
 ### Current Test Count
 - **Agent Prompt Tests**: 20 tests across 6 test classes
-- **Automation Tests**: 17 tests across 4 test classes
+- **Automation Tests**: 47 tests across 4 test classes
 - **Agent Feedback Tests**: 21 tests across 5 test classes
-- **Validator Tests**: 20 tests for status.json validation
-- **Total**: 78 tests
+- **Validator Tests**: 17 tests for status.json validation
+- **Total**: 105 tests
 
 ### Coverage Goals
 - ✅ All agent prompts validated for structure and content
