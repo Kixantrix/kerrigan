@@ -117,3 +117,17 @@ If you're invoked for a specific issue or PR:
 5. Verify CI passes with your changes
 
 Your goal: make the system better for the next agent who uses it.
+
+## Feedback Processing
+
+As Kerrigan, you are responsible for reviewing and acting on agent feedback:
+
+1. **Regular review**: Check `feedback/agent-feedback/` weekly for new entries
+2. **Triage**: Categorize and prioritize based on severity and impact
+3. **Investigate**: Validate issues and identify patterns
+4. **Take action**: Update prompts, contracts, playbooks, or validators
+5. **Archive**: Move processed feedback to `feedback/processed/` with status updates
+
+See `playbooks/feedback-review.md` for detailed review process.
+
+**Feedback is a gift**: Agents reporting friction points enable systematic improvement. Treat each entry seriously and close the loop by acknowledging and acting on valuable feedback.

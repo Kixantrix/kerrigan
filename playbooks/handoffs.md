@@ -35,6 +35,16 @@ Handoffs are file-based. Each stage must produce the artifacts defined in:
 
 13. **Artifact creation is the heavy lift**: Spec and architecture phases require significant thought and writing (8 artifacts totaling ~3000 words for validator-enhancement). Implementation is often simpler than planning when scope is well-defined.
 
+### Agent Feedback for Continuous Improvement
+
+If you encounter friction during handoffs:
+- **Submit feedback**: Use `feedback/agent-feedback/TEMPLATE.yaml` to report issues
+- **Be specific**: Note which artifacts, sections, or instructions were unclear
+- **Suggest improvements**: What would have made the handoff smoother?
+- **Share successes**: Document patterns that worked well
+
+See `specs/kerrigan/080-agent-feedback.md` for details.
+
 ### Improved Handoff Checklist
 
 **Before moving to next phase, verify:**
@@ -45,6 +55,7 @@ Handoffs are file-based. Each stage must produce the artifacts defined in:
 - [ ] Dependencies scanned for security vulnerabilities
 - [ ] Documentation updated with current state
 - [ ] CI is green
+- [ ] Consider submitting feedback if you encountered friction
 
 ## Status tracking and workflow control
 

@@ -1,0 +1,80 @@
+# Agent Feedback Template
+
+Copy this template to create new feedback entries.
+
+**Filename convention**: `YYYY-MM-DD-<issue-number>-<short-slug>.yaml`
+
+Example: `2026-01-15-42-prompt-clarity.yaml`
+
+```yaml
+# REQUIRED FIELDS
+timestamp: "2026-01-15T12:00:00Z"    # ISO 8601 timestamp
+issue_number: 123                     # GitHub issue number where feedback originated
+agent_role: "swe"                     # spec|architect|swe|testing|deployment|debugging|security|kerrigan
+category: "prompt_clarity"            # prompt_clarity|missing_information|artifact_conflict|tool_limitation|quality_bar|workflow_friction|success_pattern
+severity: "medium"                    # low|medium|high (impact on agent effectiveness)
+title: "Brief description"            # 1-line summary
+
+# REQUIRED: Detailed description
+description: |
+  Clear explanation of the issue, friction point, or suggestion.
+  Include specific examples where possible.
+  
+  Example:
+  - What you expected: ...
+  - What you found: ...
+  - Impact: ...
+
+# OPTIONAL FIELDS
+related_files:                        # Files involved in the feedback
+  - ".github/agents/role.swe.md"
+
+related_artifacts:                    # Artifacts involved
+  - "spec.md"
+
+context: |                           # Additional context
+  Any relevant background information.
+  Link to related issues or PRs if applicable.
+
+proposed_solution: |                 # Suggested fix (optional)
+  If you have ideas for improvement, describe them here.
+  
+  This helps Kerrigan understand what would make things better.
+
+# METADATA (added by Kerrigan during processing - leave blank for new feedback)
+status: "new"                        # new|reviewed|implemented|wont_fix
+reviewed_by: ""
+reviewed_date: ""
+implementation_pr: null
+notes: |
+  Processing notes from review and implementation.
+```
+
+## Quick Start
+
+1. Copy this entire file to `feedback/agent-feedback/`
+2. Rename using the convention: `YYYY-MM-DD-<issue-number>-<short-slug>.yaml`
+3. Fill in the required fields
+4. Add optional fields as relevant
+5. Leave metadata fields blank (Kerrigan will fill them)
+6. Include in your PR or submit as separate feedback PR
+
+## Category Guide
+
+- **prompt_clarity**: Instructions are unclear or ambiguous
+- **missing_information**: Prompt lacks necessary information
+- **artifact_conflict**: Artifacts don't match between agents
+- **tool_limitation**: Missing tools or permissions
+- **quality_bar**: Unclear quality expectations
+- **workflow_friction**: Process inefficiencies
+- **success_pattern**: Effective techniques worth documenting
+
+## Severity Guide
+
+- **high**: Blocks work or causes errors
+- **medium**: Causes friction but has workarounds
+- **low**: Nice-to-have improvements
+
+## Examples
+
+See `feedback/processed/` for examples of feedback that has been reviewed and acted upon.

@@ -1,0 +1,77 @@
+# REQUIRED FIELDS
+timestamp: "2026-01-15T10:30:00Z"
+issue_number: 42
+agent_role: "swe"
+category: "prompt_clarity"
+severity: "high"
+title: "Validator heading names not specified in SWE prompt"
+
+# REQUIRED: Detailed description
+description: |
+  The role.swe.md prompt doesn't mention that validators expect
+  exact heading names (case-sensitive). I spent 20 minutes debugging
+  why "Acceptance Criteria" failed validation when it should be
+  "Acceptance criteria".
+  
+  What I expected:
+  - The prompt would mention exact heading names needed
+  - Or validation errors would be clearer about case sensitivity
+  
+  What I found:
+  - Had to dig through validator code to find expected headings
+  - Validation error just said "missing required section"
+  - No documentation of case sensitivity requirement
+  
+  Impact:
+  - Wasted time debugging
+  - Had to rerun CI multiple times
+  - Frustrating experience for first-time agent execution
+
+# OPTIONAL FIELDS
+related_files:
+  - ".github/agents/role.swe.md"
+  - "tools/validators/check_artifacts.py"
+  - "specs/kerrigan/020-artifact-contracts.md"
+
+related_artifacts:
+  - "spec.md"
+  - "acceptance-tests.md"
+
+context: |
+  This happened while working on the hello-api example project.
+  The artifact validator was checking for "Acceptance criteria" but
+  I had written "Acceptance Criteria" (capitalized).
+  
+  The error message was generic: "Missing required section in spec.md"
+  without specifying which section or why it was considered missing.
+
+proposed_solution: |
+  1. Update role.swe.md to include a section listing exact heading names:
+     - "Goal" not "GOAL" or "Goals"
+     - "Acceptance criteria" not "Acceptance Criteria"
+     - etc.
+  
+  2. Improve validator error messages to show:
+     - Which section is missing
+     - What the exact expected name is
+     - Note about case sensitivity
+  
+  3. Add this to handoffs.md as a common gotcha.
+
+# METADATA (added by Kerrigan during processing)
+status: "implemented"
+reviewed_by: "kerrigan-maintainer"
+reviewed_date: "2026-01-16T09:00:00Z"
+implementation_pr: 44
+notes: |
+  Confirmed this is a real issue affecting multiple agents.
+  
+  Actions taken:
+  1. Updated role.swe.md with explicit heading name examples
+  2. Updated handoffs.md to document validator expectations
+  3. Cross-checked other agent prompts - found same issue in role.architect.md
+  4. Updated role.architect.md as well
+  5. Created follow-up issue #45 to improve validator error messages
+  
+  This is a great example of high-value feedback that led to
+  improvements across multiple files and prevented future friction.
