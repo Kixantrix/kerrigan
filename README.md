@@ -76,6 +76,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Constitution](specs/constitution.md)**: Non-negotiable principles
 - **[Artifact Contracts](specs/kerrigan/020-artifact-contracts.md)**: Required files and structure
 - **[Quality Bar](specs/kerrigan/030-quality-bar.md)**: Quality standards and enforcement
+- **[Agent Feedback](specs/kerrigan/080-agent-feedback.md)**: Continuous improvement mechanism
 
 ### Agent Roles
 - **[Agent README](.github/agents/README.md)**: Overview of all agent types

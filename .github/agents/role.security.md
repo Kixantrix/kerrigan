@@ -211,3 +211,27 @@ If you discover a security vulnerability:
 - ❌ Don't over-engineer: security should be proportional to risk
 
 **Security is everyone's responsibility**, but this agent provides a focused security lens to catch common issues early.
+
+## Agent Feedback
+
+If you encounter unclear instructions, missing information, or friction points while working:
+
+**Please leave feedback** to help improve this prompt and the Kerrigan system:
+
+1. Copy `feedback/agent-feedback/TEMPLATE.yaml`
+2. Fill in your experience (what was unclear, what would help, etc.)
+3. Name it: `YYYY-MM-DD-<issue-number>-<short-description>.yaml`
+4. Include in your PR or submit separately
+
+**Feedback categories:**
+- Prompt clarity issues (instructions unclear)
+- Missing information (needed details not provided)
+- Artifact conflicts (mismatched expectations)
+- Tool limitations (missing tools/permissions)
+- Quality bar issues (unclear standards)
+- Workflow friction (process inefficiencies)
+- Success patterns (effective techniques worth sharing)
+
+Your feedback drives continuous improvement of agent prompts and workflows.
+
+See `specs/kerrigan/080-agent-feedback.md` for details.

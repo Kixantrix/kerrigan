@@ -135,11 +135,21 @@ All agents follow these standards:
 - **Documentation**: Update docs when changing public APIs
 - **Security-aware**: No secrets in code, validate inputs, use least privilege
 
+## Agent Feedback
+
+Agents can provide feedback to improve the system:
+- **Purpose**: Report friction points, unclear instructions, or successful patterns
+- **Format**: Structured YAML files in `feedback/agent-feedback/`
+- **Process**: Kerrigan reviews feedback weekly and implements improvements
+- **Template**: Use `feedback/agent-feedback/TEMPLATE.yaml` to submit feedback
+
+See `specs/kerrigan/080-agent-feedback.md` for full specification.
+
 ## Getting Help
 
 - **New to agents?** Read `docs/setup.md` for step-by-step guide
 - **Questions?** Check `docs/FAQ.md`
-- **Issues with prompts?** Open GitHub issue to suggest improvements
+- **Issues with prompts?** Submit feedback via `feedback/agent-feedback/`
 - **Want to understand workflow?** See `docs/architecture.md` for visual diagram
 
 ## Examples

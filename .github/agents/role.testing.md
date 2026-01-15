@@ -96,3 +96,27 @@ If tests are flaky or slow:
 3. **Remove external dependencies**: Mock network calls, file I/O
 4. **Parallelize safely**: Ensure tests don't share mutable state
 5. **Add timeouts**: Prevent hanging tests from blocking CI
+
+## Agent Feedback
+
+If you encounter unclear instructions, missing information, or friction points while working:
+
+**Please leave feedback** to help improve this prompt and the Kerrigan system:
+
+1. Copy `feedback/agent-feedback/TEMPLATE.yaml`
+2. Fill in your experience (what was unclear, what would help, etc.)
+3. Name it: `YYYY-MM-DD-<issue-number>-<short-description>.yaml`
+4. Include in your PR or submit separately
+
+**Feedback categories:**
+- Prompt clarity issues (instructions unclear)
+- Missing information (needed details not provided)
+- Artifact conflicts (mismatched expectations)
+- Tool limitations (missing tools/permissions)
+- Quality bar issues (unclear standards)
+- Workflow friction (process inefficiencies)
+- Success patterns (effective techniques worth sharing)
+
+Your feedback drives continuous improvement of agent prompts and workflows.
+
+See `specs/kerrigan/080-agent-feedback.md` for details.
