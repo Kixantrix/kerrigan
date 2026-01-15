@@ -96,7 +96,7 @@ def main() -> None:
         print("To add a signature, include this comment in your PR description:")
         print("<!-- AGENT_SIGNATURE: role=role:swe, version=1.0, timestamp=2026-01-15T06:00:00Z -->")
         print("")
-        print("See docs/agent-assignment.md for details on agent signatures.")
+        print("See docs/agent-auditing.md for details on agent signatures.")
         
         # Make this a warning, not an error, to keep it lightweight
         print("")
