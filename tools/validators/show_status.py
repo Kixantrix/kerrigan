@@ -12,13 +12,13 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 ROOT = Path(__file__).resolve().parents[2]
 SPECS_DIR = ROOT / "specs" / "projects"
 
 
-def get_project_status(project_dir: Path) -> Dict[str, Any] | None:
+def get_project_status(project_dir: Path) -> Optional[Dict[str, Any]]:
     """Read status.json from a project directory, return None if doesn't exist."""
     status_path = project_dir / "status.json"
     if not status_path.exists():

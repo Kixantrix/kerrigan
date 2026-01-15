@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from pathlib import Path
 import sys
+from typing import Tuple
 
 # Add parent directory to path to import check_artifacts
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "validators"))
@@ -42,7 +43,7 @@ class TestPauseResumeWorkflow(unittest.TestCase):
         with open(status_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
-    def simulate_agent_check_status(self, status_path: Path) -> tuple[bool, str]:
+    def simulate_agent_check_status(self, status_path: Path) -> Tuple[bool, str]:
         """
         Simulate agent checking status.json before starting work.
         
