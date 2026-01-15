@@ -11,6 +11,7 @@ This folder contains the governing documents and specifications for all work don
 | `specs/projects/<name>/` | Per-project specifications and artifacts | spec.md, architecture.md, plan.md, tasks.md |
 | `.github/agents/` | Agent prompt files for execution | role.swe.md, role.spec.md, role.architect.md |
 | `docs/` | User-facing documentation and guides | setup.md, FAQ.md, architecture.md |
+| `playbooks/` | Step-by-step operational guides | kickoff.md, handoffs.md, autonomy-modes.md |
 
 ## Folder Structure Explained
 
@@ -88,6 +89,20 @@ This folder contains the governing documents and specifications for all work don
 - Use `docs/` for explanatory content aimed at humans learning the system
 - Use `specs/` for normative content that defines how the system must work
 
+### Playbooks (playbooks/)
+**Purpose**: Step-by-step operational guides for executing common workflows with the Kerrigan system.
+
+**What belongs here**:
+- `kickoff.md` - How to start a new project
+- `handoffs.md` - Agent-to-agent handoff procedures
+- `autonomy-modes.md` - Configuring agent autonomy levels
+- `pr-review.md` - Guidelines for reviewing agent PRs
+- `automation.md` - Setting up automated workflows
+
+**When to use playbooks/ vs docs/**:
+- Use `playbooks/` for prescriptive, step-by-step workflows ("do this, then that")
+- Use `docs/` for explanatory guides and reference material ("here's how this works")
+
 ## The Flow: Constitution → Meta-Specs → Agent Prompts → Project Specs
 
 ```
@@ -161,6 +176,10 @@ Is it a specification or artifact for a specific project?
 ├─ YES → specs/projects/<project-name>/<artifact-name>.md
 └─ NO → Continue
 
+Is it a step-by-step operational workflow or procedure?
+├─ YES → playbooks/<workflow-name>.md
+└─ NO → Continue
+
 Is it explanatory documentation for humans using the system?
 ├─ YES → docs/<topic>.md
 └─ NO → Ask: Does this fit the Kerrigan model? Consider if you need a new category.
@@ -200,6 +219,11 @@ Is it explanatory documentation for humans using the system?
 - **Format**: `<topic>.md`
 - **Examples**: `setup.md`, `FAQ.md`, `agent-assignment.md`
 - **Rationale**: Descriptive names that clearly indicate content
+
+### Playbooks (playbooks/)
+- **Format**: `<workflow>.md`
+- **Examples**: `kickoff.md`, `handoffs.md`, `autonomy-modes.md`
+- **Rationale**: Action-oriented names describing the workflow or procedure
 
 ## Examples: What Belongs Where?
 
@@ -244,6 +268,15 @@ Is it explanatory documentation for humans using the system?
 - Is it about the prompt? **Yes** (execution details)
 - **Location**: `.github/agents/role.swe.md`
 - **Action**: Update the examples and guidelines in the prompt
+
+### Example 6: Creating a workflow guide
+**Question**: "I want to document the process for deploying a project."
+
+**Decision**:
+- Is it a specification? **No** (it's a procedure)
+- Is it a step-by-step workflow? **Yes**
+- **Location**: `playbooks/deployment.md` or update `playbooks/handoffs.md`
+- **Action**: Create a new playbook or extend an existing one with deployment steps
 
 ## Validation
 
