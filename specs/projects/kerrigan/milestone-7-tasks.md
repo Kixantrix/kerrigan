@@ -145,7 +145,8 @@ Each task should be executable and have "done" criteria.
 - [ ] Task: Design dashboard architecture
   - Done when: Architecture documented with tech stack, data flow, hosting strategy
   - Links: specs/projects/kerrigan-dashboard/architecture.md
-  - Details: Choose framework (React/Vue/Svelte), backend (serverless), deployment
+  - Details: Evaluate frameworks (React/Vue/Svelte), backend (serverless), deployment
+  - Decision criteria: Community size, TypeScript support, performance, team familiarity
 
 - [ ] Task: Define dashboard API endpoints
   - Done when: API spec documents endpoints for projects, status, costs, analytics

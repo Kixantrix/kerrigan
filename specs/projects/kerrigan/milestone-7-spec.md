@@ -261,7 +261,7 @@ Enable teams to:
 
 ### Phase 1: Foundation (Milestone 7a)
 
-**Target**: Q1 2026 (weeks 1-8)
+**Target**: 8 weeks starting Q1 2026 (approximately Jan-Feb 2026)
 
 - Multi-repository project spec schema
 - CLI tool MVP (init, status, invoke)
@@ -273,7 +273,7 @@ Enable teams to:
 
 ### Phase 2: Visibility (Milestone 7b)
 
-**Target**: Q2 2026 (weeks 9-16)
+**Target**: 8 weeks following 7a (approximately Mar-Apr 2026)
 
 - Status dashboard web UI
 - Real-time project status
@@ -285,7 +285,7 @@ Enable teams to:
 
 ### Phase 3: Optimization (Milestone 7c)
 
-**Target**: Q3 2026 (weeks 17-24)
+**Target**: 8 weeks following 7b (approximately May-Jun 2026)
 
 - Advanced coordination (parallel work, dependencies)
 - Cost analytics and recommendations
@@ -294,6 +294,8 @@ Enable teams to:
 - Production hardening
 
 **Deliverable**: System scales to 10+ concurrent projects per team
+
+**Note**: Each phase can be independently adopted. Teams may complete 7a and 7b while deferring 7c based on their needs. The 3-phase structure manages scope and enables iterative delivery.
 
 ## Dependencies
 

@@ -161,9 +161,9 @@ Milestones must end with green CI.
 **Goal**: Take Kerrigan from single-repository agent swarm to enterprise-ready platform with multi-repo orchestration, workflow optimization, and comprehensive visibility/analytics.
 
 **Split into 3 phases**:
-- **7a (Q1 2026)**: Multi-repo support + CLI tool foundation
-- **7b (Q2 2026)**: Status dashboard + basic cost tracking
-- **7c (Q3 2026)**: Advanced coordination + cost analytics + optimization
+- **7a**: Multi-repo support + CLI tool foundation (8 weeks, ~Jan-Feb 2026)
+- **7b**: Status dashboard + basic cost tracking (8 weeks, ~Mar-Apr 2026)
+- **7c**: Advanced coordination + cost analytics + optimization (8 weeks, ~May-Jun 2026)
 
 **Key features**:
 - Multi-repository project coordination
@@ -218,6 +218,9 @@ Milestones must end with green CI.
 - `docs/milestone-6-retrospective.md` - Learnings that informed M7 planning
 
 ## Future (post-v2)
+
+**Note**: Milestone 7 (phases 7a, 7b, 7c) collectively represents the v2.0 release of Kerrigan. The items below are considerations for v3+ and beyond.
+
 - Advanced quality metrics (test coverage, cyclomatic complexity)
 - Integration with external spec tools (e.g., Spec Kit)
 - Agent self-improvement (learning from feedback history)
