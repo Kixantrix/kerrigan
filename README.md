@@ -59,11 +59,13 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 ### Getting Started
 - **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
 - **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
+- **[Project Directory](docs/project-directory.md)**: Overview of all projects and their status
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
 - **[Architecture](docs/architecture.md)**: System design and workflow visualization
 
 ### Process & Workflow
 - **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
+- **[Project Lifecycle](playbooks/project-lifecycle.md)**: Managing projects from active to completed/archived
 - **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
 - **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
 - **[PR Review](playbooks/pr-review.md)**: Human review guidelines
