@@ -100,10 +100,8 @@ if command -v python3 &> /dev/null; then
     PYTHON_VERSION=$(python3 --version | awk '{print $2}')
     print_success "Python found: version $PYTHON_VERSION"
     
-    # Check version is 3.8+
-    PYTHON_MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
-    PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
-    if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 8 ]); then
+    # Check version is 3.8+ using Python itself
+    if ! python3 -c "import sys; exit(0 if sys.version_info >= (3, 8) else 1)" 2>/dev/null; then
         print_error "Python 3.8+ required, found $PYTHON_VERSION"
         exit 1
     fi
@@ -256,7 +254,7 @@ echo ""
 print_header "Step 6: Running Test Suite"
 
 if [ -d "tests" ]; then
-    if python3 -m unittest discover -s tests -p "test_*.py" -v 2>&1 | grep -q "OK\|Ran 0 tests"; then
+    if python3 -m unittest discover -s tests -p "test_*.py" -v >/dev/null 2>&1; then
         print_success "Test suite passed"
     else
         print_warning "Some tests failed (this may be expected in partial setup)"
@@ -292,7 +290,7 @@ if [ "$SKIP_GITHUB" = false ]; then
             print_info "Checking GitHub labels..."
             MISSING_LABELS=0
             for label in "${REQUIRED_LABELS[@]}"; do
-                if gh label list 2>/dev/null | grep -q "^$label"; then
+                if gh label list 2>/dev/null | grep -qF "$label"; then
                     print_success "Label exists: $label"
                 else
                     print_warning "Missing label: $label"

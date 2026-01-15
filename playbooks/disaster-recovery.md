@@ -338,7 +338,7 @@ These files are absolutely required for Kerrigan to function:
 #### tools/validators/check_artifacts.py
 **Purpose**: Validates required artifacts exist
 
-**Recovery**: This is a ~170 line Python script. See [Self-Assembly Guide](../docs/self-assembly.md) for full source code or restore from backup.
+**Recovery**: This Python script enforces artifact contracts. See [Self-Assembly Guide](../docs/self-assembly.md) for full source code or restore from backup.
 
 **Key validation logic**:
 - Checks for required files in `specs/projects/*/`

@@ -312,9 +312,9 @@ def main() -> None:
 
         # Required sections
         ensure_sections(proj / "spec.md", REQUIRED_SECTIONS_SPEC, "spec.md")
-        # Architecture headings are matched loosely via keywords
+        # Architecture headings - refer to actual validator for current requirements
         arch_txt = read_text(proj / "architecture.md")
-        # Require presence of these section headings (exact names from template)
+        # Note: See actual validator code for specific section names required
         ensure_sections(proj / "architecture.md", ["Overview", "Components & interfaces", "Tradeoffs", "Security & privacy notes"], "architecture.md")
 
         # Conditional runbook/cost plan
