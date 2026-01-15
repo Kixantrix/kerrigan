@@ -86,7 +86,7 @@ Strengthen test infrastructure, increase test coverage, eliminate flaky tests, a
 
 ## Success metrics
 
-- Code coverage >80% for new code and critical paths (target: >90%)
+- Code coverage >80% for critical paths (minimum acceptable; target >90% for business logic)
 - Test flakiness rate <1% (tests pass consistently across 100+ runs)
 - Unit test suite execution time <5 minutes
 - Integration test suite execution time <15 minutes

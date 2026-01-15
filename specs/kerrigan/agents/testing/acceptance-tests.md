@@ -22,7 +22,7 @@
 - [ ] **Given** test with time dependency, **When** Testing Agent fixes it, **Then** test uses deterministic time (mocked clock or fixed time)
 - [ ] **Given** test with race condition, **When** Testing Agent fixes it, **Then** proper synchronization or test isolation is added
 - [ ] **Given** test depending on external service, **When** Testing Agent fixes it, **Then** external dependency is mocked or stubbed
-- [ ] **Given** flaky test, **When** fix is applied, **Then** test passes consistently across 100+ runs (verified before merge)
+- [ ] **Given** flaky test, **When** fix is applied, **Then** test passes consistently (verified with multiple runs: 10x for unit tests, 100x for critical integration tests)
 
 ## Test Speed Optimization
 

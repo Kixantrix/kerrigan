@@ -31,7 +31,6 @@ Testing improvements are "done" when:
 - Line coverage (lines executed)
 - Branch coverage (all branches taken)
 - Function coverage (all functions called)
-- Statement coverage (all statements executed)
 
 ### Test Suite Organization
 

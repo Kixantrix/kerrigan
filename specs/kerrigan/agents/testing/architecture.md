@@ -143,21 +143,17 @@ The agent's architecture emphasizes incremental improvement over wholesale repla
         ↓
 [Coverage Analyzer] → Run coverage tools
         ↓
-[Gap Identifier] → Prioritize uncovered code
-        ↓
-[Test Generator] → Add tests for gaps
-        ↓
-[Test Quality Analyzer] → Review existing tests
-        ↓
-[Test Enhancer] → Improve clarity and assertions
-        ↓
-[Flakiness Detector] → Identify unreliable tests
-        ↓
-[Flakiness Eliminator] → Fix root causes
-        ↓
-[Performance Profiler] → Measure execution time
-        ↓
-[Test Optimizer] → Speed up slow tests
+┌───────────────────────┴────────────────────────┐
+│                                                 │
+[Gap Identifier]                    [Flakiness Detector]
+        ↓                                         ↓
+[Test Generator]                    [Flakiness Eliminator]
+        ↓                                         ↓
+[Test Quality Analyzer]             [Performance Profiler]
+        ↓                                         ↓
+[Test Enhancer]                     [Test Optimizer]
+        ↓                                         ↓
+└───────────────────────┬────────────────────────┘
         ↓
 [Test Infrastructure Builder] → Create reusable utilities
         ↓
@@ -170,6 +166,9 @@ The agent's architecture emphasizes incremental improvement over wholesale repla
 [CI Passes?] ─No→ [Fix Issues] ─→ [Run Tests Again]
         ↓Yes
 [Commit & Push] → Enhanced test suite ready
+
+Note: Coverage expansion (left path) and reliability improvements 
+(right path) can proceed in parallel after initial analysis.
 ```
 
 ## Tradeoffs
