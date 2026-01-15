@@ -247,8 +247,8 @@ class TestFeedbackFiles(unittest.TestCase):
                     self.get_feedback_files(self.processed_dir))
         
         # Expected format: YYYY-MM-DD-<issue-number>-<short-slug>.yaml
-        # Slug should start and end with word character, no consecutive dashes
-        pattern = re.compile(r'^\d{4}-\d{2}-\d{2}-\d+-[\w][\w-]*[\w]\.yaml$')
+        # Slug should start with word character, optional additional word characters or dashes
+        pattern = re.compile(r'^\d{4}-\d{2}-\d{2}-\d+-\w(?:[\w-]*\w)?\.yaml$')
         
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
