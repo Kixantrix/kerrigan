@@ -43,6 +43,21 @@ These agents execute the main workflow from specification to deployment:
 3. **Paste into AI tool**: Use GitHub Copilot, Claude, ChatGPT, or your preferred AI assistant
 4. **Review output**: Agents produce files; you review and commit them
 5. **Iterate**: If output needs refinement, provide feedback and re-run
+6. **Add agent signature**: Include an agent signature in your PR description to verify you used the agent prompt (see [Agent Auditing](../../docs/agent-auditing.md))
+
+### Agent Signature (Required for Auditing)
+
+To help verify that agents are following their prompts, include a signature in your PR description:
+
+```bash
+# Generate a signature for your agent role
+python tools/agent_audit.py create-signature role:swe
+
+# Output: <!-- AGENT_SIGNATURE: role=role:swe, version=1.0, timestamp=2026-01-15T06:00:00Z -->
+# Copy this into your PR description
+```
+
+The signature is an HTML comment that won't be visible in rendered markdown but can be checked by reviewers and automation. See [docs/agent-auditing.md](../../docs/agent-auditing.md) for full details.
 
 ### Automated Workflow (Advanced)
 

@@ -5,6 +5,16 @@ Before starting work:
 - If it exists and status is "blocked" or "on-hold", STOP and report the blocked_reason
 - Only proceed if status is "active" or file doesn't exist
 
+## Agent Signature (Required)
+
+When creating a PR, include this signature comment in your PR description:
+
+```
+<!-- AGENT_SIGNATURE: role=role:testing, version=1.0, timestamp=YYYY-MM-DDTHH:MM:SSZ -->
+```
+
+Replace the timestamp with the current UTC time. Generate using: `python tools/agent_audit.py create-signature role:testing`
+
 ## Your Role
 
 Strengthen the testing infrastructure and increase confidence in the codebase.

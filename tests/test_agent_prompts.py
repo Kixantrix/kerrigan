@@ -396,5 +396,66 @@ class TestAgentPromptCompleteness(unittest.TestCase):
                 f"README should document the {role_name} agent")
 
 
+class TestAgentSignatureInPrompts(unittest.TestCase):
+    """Test that agent prompts include signature instructions"""
+
+    def setUp(self):
+        """Load all agent role prompts"""
+        repo_root = Path(__file__).resolve().parent.parent
+        self.agents_dir = repo_root / ".github" / "agents"
+        self.role_prompts = list(self.agents_dir.glob("role.*.md"))
+        
+        self.assertGreater(len(self.role_prompts), 0,
+            "No agent role prompts found in .github/agents/")
+
+    def test_all_agents_have_signature_section(self):
+        """Test that all agent prompts include agent signature section"""
+        for prompt_file in self.role_prompts:
+            with self.subTest(agent=prompt_file.name):
+                content = prompt_file.read_text()
+                
+                # Should have an "Agent Signature" section
+                self.assertIn("Agent Signature", content,
+                    f"{prompt_file.name} must have an 'Agent Signature' section")
+
+    def test_all_agents_mention_signature_format(self):
+        """Test that all agent prompts mention AGENT_SIGNATURE format"""
+        for prompt_file in self.role_prompts:
+            with self.subTest(agent=prompt_file.name):
+                content = prompt_file.read_text()
+                
+                # Should mention the signature comment format
+                self.assertIn("AGENT_SIGNATURE", content,
+                    f"{prompt_file.name} must mention AGENT_SIGNATURE format")
+
+    def test_all_agents_reference_correct_role(self):
+        """Test that agent prompts reference their correct role in signature examples"""
+        for prompt_file in self.role_prompts:
+            with self.subTest(agent=prompt_file.name):
+                content = prompt_file.read_text()
+                
+                # Extract expected role from filename (e.g., role.spec.md -> role:spec)
+                role_name = prompt_file.stem.replace('role.', '')
+                expected_role = f"role:{role_name}"
+                
+                # Signature section should reference the correct role
+                if "Agent Signature" in content:
+                    signature_section_start = content.find("Agent Signature")
+                    signature_section = content[signature_section_start:signature_section_start + 500]
+                    
+                    self.assertIn(expected_role, signature_section,
+                        f"{prompt_file.name} signature section should reference {expected_role}")
+
+    def test_all_agents_mention_audit_tool(self):
+        """Test that agent prompts mention the agent_audit.py tool"""
+        for prompt_file in self.role_prompts:
+            with self.subTest(agent=prompt_file.name):
+                content = prompt_file.read_text()
+                
+                # Should mention the audit tool for generating signatures
+                self.assertIn("agent_audit.py", content,
+                    f"{prompt_file.name} should mention agent_audit.py tool")
+
+
 if __name__ == "__main__":
     unittest.main()
