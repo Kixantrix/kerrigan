@@ -112,7 +112,7 @@
 
 - [ ] **Given** project with status.json, **When** Debugging Agent starts work, **Then** agent checks status is "active" or file doesn't exist
 - [ ] **Given** status.json shows "blocked", **When** Debugging Agent starts work, **Then** agent stops and reports blocked_reason
-- [ [ ] **Given** status.json shows "on-hold", **When** Debugging Agent starts work, **Then** agent stops without proceeding
+- [ ] **Given** status.json shows "on-hold", **When** Debugging Agent starts work, **Then** agent stops without proceeding
 
 ## Escalation
 
