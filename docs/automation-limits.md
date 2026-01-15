@@ -374,26 +374,35 @@ Settings → Actions → General → Workflow permissions:
 
 ## What Can Be Automated: Summary Matrix
 
+### Issue Management
 | Task | Automation Level | Implementation | Human Required |
 |------|------------------|----------------|----------------|
-| **Issue Management** |
 | Create issues from tasks.md | ✅ Full | auto-generate-issues.yml | Write tasks, commit |
 | Assign issues by role | ✅ Full | auto-assign-issues.yml | Apply labels |
 | Auto-triage issues | ✅ Full | auto-triage-on-assign.yml | Assign users |
 | Close completed issues | ⚠️ Manual | N/A | Merge PR |
-| **PR Management** |
+
+### PR Management
+| Task | Automation Level | Implementation | Human Required |
+|------|------------------|----------------|----------------|
 | Create PRs | ❌ No | Requires Copilot/human | Full |
 | Assign reviewers by role | ✅ Full | auto-assign-reviewers.yml | Apply labels |
 | Request Copilot review | ⚠️ Semi | review-prs.ps1 (local) | Run script |
 | Check autonomy gates | ✅ Full | agent-gates.yml | Add labels |
 | Sprint mode auto-approval | ✅ Full | agent-gates.yml | Set sprint label |
 | Merge PRs | ⚠️ Manual | N/A | Human approval |
-| **Code Generation** |
+
+### Code Generation
+| Task | Automation Level | Implementation | Human Required |
+|------|------------------|----------------|----------------|
 | Generate code changes | ❌ No | Requires Copilot | Full |
 | Run tests | ✅ Full | ci.yml | Push code |
 | Run linters | ✅ Full | ci.yml | Push code |
 | Fix failing tests | ❌ No | Requires Copilot | Full |
-| **Workflow Orchestration** |
+
+### Workflow Orchestration
+| Task | Automation Level | Implementation | Human Required |
+|------|------------------|----------------|----------------|
 | Label-based routing | ✅ Full | Multiple workflows | Define labels |
 | Status tracking | ⚠️ Semi | status.json | Update file |
 | Next issue creation | ⚠️ Semi | Agent via gh CLI | Agent execution |
