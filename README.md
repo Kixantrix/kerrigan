@@ -61,12 +61,14 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
 - **[Architecture](docs/architecture.md)**: System design and workflow visualization
+- **[Self-Assembly Guide](docs/self-assembly.md)**: Complete dependency map and reconstruction guide
 
 ### Process & Workflow
 - **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
 - **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
 - **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
 - **[PR Review](playbooks/pr-review.md)**: Human review guidelines
+- **[Disaster Recovery](playbooks/disaster-recovery.md)**: Reconstruct Kerrigan from scratch
 
 ### Specifications
 - **[Constitution](specs/constitution.md)**: Non-negotiable principles
@@ -103,6 +105,7 @@ See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed conf
 | Pause project | Create `status.json` with `"status": "blocked"` |
 | Invoke agent | Copy prompt from `.github/agents/role.*.md` |
 | Validate locally | `python tools/validators/check_artifacts.py` |
+| Bootstrap environment | `bash tools/bootstrap.sh` |
 | Check CI | View GitHub Actions tab |
 
 ---
