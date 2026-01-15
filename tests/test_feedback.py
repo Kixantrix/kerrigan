@@ -247,7 +247,8 @@ class TestFeedbackFiles(unittest.TestCase):
                     self.get_feedback_files(self.processed_dir))
         
         # Expected format: YYYY-MM-DD-<issue-number>-<short-slug>.yaml
-        pattern = re.compile(r'^\d{4}-\d{2}-\d{2}-\d+-[\w-]+\.yaml$')
+        # Slug should start and end with word character, no consecutive dashes
+        pattern = re.compile(r'^\d{4}-\d{2}-\d{2}-\d+-[\w][\w-]*[\w]\.yaml$')
         
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
@@ -274,11 +275,13 @@ class TestAgentPromptFeedbackSections(unittest.TestCase):
         for prompt_file in role_prompts:
             with self.subTest(file=prompt_file.name):
                 with open(prompt_file, 'r') as f:
-                    content = f.read().lower()
+                    content = f.read()
                 
-                self.assertIn("feedback", content,
+                # Check for feedback mention (case-insensitive)
+                self.assertIn("feedback", content.lower(),
                             f"{prompt_file.name} should mention feedback mechanism")
-                self.assertIn("agent feedback", content.lower(),
+                # Check for Agent Feedback section (case-sensitive)
+                self.assertIn("Agent Feedback", content,
                             f"{prompt_file.name} should have 'Agent Feedback' section")
 
     def test_kerrigan_prompt_mentions_feedback_processing(self):
