@@ -62,6 +62,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Project Directory](docs/project-directory.md)**: Overview of all projects and their status
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
 - **[Architecture](docs/architecture.md)**: System design and workflow visualization
+- **[Self-Assembly Guide](docs/self-assembly.md)**: Technical reference for replicating Kerrigan
 
 ### Process & Workflow
 - **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
@@ -69,6 +70,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
 - **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
 - **[PR Review](playbooks/pr-review.md)**: Human review guidelines
+- **[Replication Guide](playbooks/replication-guide.md)**: Set up Kerrigan in new repositories
 
 ### Specifications
 - **[Constitution](specs/constitution.md)**: Non-negotiable principles
@@ -105,6 +107,7 @@ See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed conf
 | Pause project | Create `status.json` with `"status": "blocked"` |
 | Invoke agent | Copy prompt from `.github/agents/role.*.md` |
 | Validate locally | `python tools/validators/check_artifacts.py` |
+| Bootstrap environment | `bash tools/bootstrap.sh` |
 | Check CI | View GitHub Actions tab |
 
 ---
