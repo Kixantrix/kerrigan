@@ -10,6 +10,11 @@ This example project serves as:
 3. **Validation artifact** - Proves the entire system works end-to-end
 4. **Documentation** - Living example of best practices
 
+> **Note**: This is a documentation-focused example. The full spec artifacts (spec.md, architecture.md, etc.) 
+> are described in RUNBOOK.md but not created as separate files, to keep the example focused on M3/M4 
+> features (status tracking, agent auditing, autonomy gates). For examples with complete spec artifacts, 
+> see [hello-api](../hello-api/) or [hello-cli](../hello-cli/).
+
 ## 🏗️ What This Example Demonstrates
 
 ### Milestone 3: Status Tracking & Pause/Resume
