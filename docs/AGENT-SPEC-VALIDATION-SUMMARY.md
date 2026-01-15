@@ -2,7 +2,7 @@
 
 ## Overview
 
-This PR implements the requirements from issue #XX to validate that agent specifications are being used by agents when they do work.
+This PR implements validation to ensure that agent specifications are being used by agents when they do work.
 
 ## What Was Done
 

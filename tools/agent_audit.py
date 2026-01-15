@@ -405,6 +405,9 @@ def check_quality_bar_compliance(
     
     issues = []
     
+    # File extensions to skip for size checking (documentation and config files)
+    SKIP_EXTENSIONS = {'.md', '.json', '.yaml', '.yml', '.txt'}
+    
     # Check file size limits (common across all agents)
     for artifact_path in artifact_paths:
         if not artifact_path.exists():
@@ -412,7 +415,7 @@ def check_quality_bar_compliance(
             continue
         
         # Skip non-source files
-        if artifact_path.suffix in ['.md', '.json', '.yaml', '.yml', '.txt']:
+        if artifact_path.suffix in SKIP_EXTENSIONS:
             continue
         
         # Count lines in source files
@@ -425,8 +428,10 @@ def check_quality_bar_compliance(
                     f"File {artifact_path} has {line_count} lines (exceeds 800 line quality bar limit)"
                 )
             elif line_count > 400:
-                # Warning but not failure
-                print(f"⚠️  Warning: File {artifact_path} has {line_count} lines (approaching 800 line limit)")
+                # Add warning to issues with special prefix for warnings
+                issues.append(
+                    f"WARNING: File {artifact_path} has {line_count} lines (approaching 800 line limit)"
+                )
         except Exception as e:
             issues.append(f"Could not read file {artifact_path}: {e}")
     
@@ -436,7 +441,7 @@ def check_quality_bar_compliance(
         for artifact_path in artifact_paths:
             if artifact_path.name in ["spec.md", "architecture.md"]:
                 try:
-                    content = artifact_path.read_text()
+                    content = artifact_path.read_text(encoding='utf-8', errors='ignore')
                     
                     # Check for required sections based on artifact type
                     if artifact_path.name == "spec.md":
@@ -570,13 +575,21 @@ if __name__ == "__main__":
         print(f"Checking quality bar compliance for {role}...")
         meets_standards, issues = check_quality_bar_compliance(role, artifact_paths)
         
-        if meets_standards:
+        # Separate warnings from errors
+        warnings = [i for i in issues if i.startswith("WARNING:")]
+        errors = [i for i in issues if not i.startswith("WARNING:")]
+        
+        # Display warnings
+        for warning in warnings:
+            print(f"⚠️  {warning[9:]}")  # Skip "WARNING: " prefix
+        
+        if len(errors) == 0:
             print(f"✅ All artifacts meet quality bar standards for {role}")
             sys.exit(0)
         else:
             print(f"❌ Quality bar validation failed for {role}:")
-            for issue in issues:
-                print(f"   - {issue}")
+            for error in errors:
+                print(f"   - {error}")
             sys.exit(1)
     
     else:

@@ -270,7 +270,7 @@ All tests should pass, validating that:
 
 ## Summary
 
-This implementation achieves the goals outlined in issue #XX:
+This implementation achieves the goals outlined in the requirements:
 
 ✅ **Agent prompts link to their specifications** - All 7 agent role files now include prominent references to their spec, quality bar, architecture, and acceptance tests.
 
