@@ -22,6 +22,10 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Show project status
+        run: |
+          python tools/validators/show_status.py
+
       - name: Run validators
         run: |
           python tools/validators/check_artifacts.py

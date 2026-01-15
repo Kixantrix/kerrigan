@@ -52,30 +52,129 @@ Projects can include a `status.json` file to control agent workflow state:
 
 **Location**: `specs/projects/<project-name>/status.json`
 
-**Agent workflow**:
-1. Before starting any work, agents MUST check if status.json exists
-2. If status.json exists and status is `blocked` or `on-hold`, agents MUST NOT proceed
-3. Agents SHOULD update `last_updated` timestamp when changing phases
-4. Agents MAY add `notes` for context but MUST NOT change status from `active` to `blocked`
+### Agent workflow procedures
 
-**Human control**:
-- Set `status: "blocked"` to pause agent work (e.g., for review, discussion, or external dependencies)
-- Include `blocked_reason` to explain why work is paused
-- Set `status: "active"` to resume agent work
-- Set `status: "on-hold"` for temporary pauses without blocking
-- Set `status: "completed"` when project is done
+**Before starting any work:**
 
-**Example pause workflow**:
+1. **Check if status.json exists** in the project directory
+   ```bash
+   # Example: Check status for project 'my-api'
+   cat specs/projects/my-api/status.json
+   ```
+
+2. **Parse and validate the status field**
+   - If status is `blocked` or `on-hold`: **STOP immediately**
+   - Read and report the `blocked_reason` to the user
+   - Do NOT proceed with any work until status changes to `active`
+   - If status.json doesn't exist: proceed normally (equivalent to `active`)
+   - If status is `completed`: project is done, no further work needed
+
+3. **During work (optional but recommended)**
+   - When transitioning between phases, update `current_phase` and `last_updated`
+   - Add `notes` to document progress or decisions
+   - Never change status from `active` to `blocked` (human control only)
+
+### Human control procedures
+
+**To pause agent work (blocking):**
 ```bash
-# Human pauses work for review
-echo '{"status":"blocked","current_phase":"implementation","last_updated":"2026-01-06T21:00:00Z","blocked_reason":"Awaiting security review"}' > specs/projects/myproject/status.json
+# Create or update status.json with blocked status
+cat > specs/projects/myproject/status.json << 'EOF'
+{
+  "status": "blocked",
+  "current_phase": "implementation",
+  "last_updated": "2026-01-15T10:00:00Z",
+  "blocked_reason": "Awaiting security review of authentication module"
+}
+EOF
+```
 
-# Agent checks status before proceeding and sees blocked state - does not continue
+**To resume agent work:**
+```bash
+# Update status.json to active
+cat > specs/projects/myproject/status.json << 'EOF'
+{
+  "status": "active",
+  "current_phase": "implementation",
+  "last_updated": "2026-01-15T14:30:00Z",
+  "notes": "Security review complete. Agent may proceed with remaining tasks."
+}
+EOF
+```
 
-# After review, human resumes work
-echo '{"status":"active","current_phase":"implementation","last_updated":"2026-01-06T21:30:00Z","notes":"Security review complete"}' > specs/projects/myproject/status.json
+**To temporarily pause without blocking:**
+```bash
+# Use on-hold for temporary pauses
+cat > specs/projects/myproject/status.json << 'EOF'
+{
+  "status": "on-hold",
+  "current_phase": "testing",
+  "last_updated": "2026-01-15T16:00:00Z",
+  "notes": "Waiting for upstream dependency release. Expected next week."
+}
+EOF
+```
 
-# Agent can now proceed
+**To mark project complete:**
+```bash
+cat > specs/projects/myproject/status.json << 'EOF'
+{
+  "status": "completed",
+  "current_phase": "deployment",
+  "last_updated": "2026-01-15T18:00:00Z",
+  "notes": "All milestones complete. Production deployment successful."
+}
+EOF
+```
+
+### Checking status across all projects
+
+Use the status display tool to see all project states:
+```bash
+python tools/validators/show_status.py
+```
+
+This displays:
+- Current status (active/blocked/on-hold/completed) for each project
+- Current phase
+- Last update timestamp
+- Blocked reasons (if applicable)
+- Brief notes
+
+### Common status check scenarios
+
+**Scenario 1: Agent receives a new task**
+```
+1. Identify project name from issue/task
+2. Check if specs/projects/<project-name>/status.json exists
+3. If exists, read status field
+4. If blocked/on-hold → Report to user and STOP
+5. If active/missing → Proceed with work
+```
+
+**Scenario 2: Human needs to review mid-implementation**
+```
+1. Human sets status="blocked" with clear blocked_reason
+2. Agent sees blocked status on next check → pauses work
+3. Human completes review
+4. Human sets status="active" with notes about review outcome
+5. Agent resumes work on next run
+```
+
+**Scenario 3: Waiting for external dependency**
+```
+1. Human sets status="on-hold" with notes about dependency
+2. Agent respects on-hold same as blocked (does not proceed)
+3. When dependency available, human sets status="active"
+4. Agent continues work
+```
+
+**Scenario 4: CI status visibility**
+```
+1. CI runs show_status.py before validators
+2. Displays all project statuses in GitHub Actions output
+3. Shows warnings for blocked projects
+4. Helps team understand current project states at a glance
 ```
 
 See `specs/kerrigan/020-artifact-contracts.md` for full status.json schema.
