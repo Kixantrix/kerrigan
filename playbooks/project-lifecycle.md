@@ -204,10 +204,9 @@ ls -d examples/*/
 
 This lifecycle approach aligns with constitution principles:
 
-- **Low overhead** (Principle 8): Simple status markers, no complex tooling
 - **Artifact-driven** (Principle 3): Status captured in repo files
 - **Quality from day one** (Principle 1): No change to quality bar
-- **Clarity for agents** (Principle 8): Clear markers and discoverable structure
+- **Clarity for agents** (Principle 8): Clear markers, discoverable structure, low overhead approach
 
 ## Examples
 

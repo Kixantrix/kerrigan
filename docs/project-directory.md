@@ -89,8 +89,3 @@ Projects use `STATUS.md` files to indicate completion:
 - **STATUS.md with "Active Reference"**: Ongoing reference material (e.g., hello-swarm)
 
 This convention enables easy discovery via grep or file browsing.
-
----
-
-**Last Updated**: 2026-01-10  
-**Maintained by**: Project leads and Kerrigan agents
