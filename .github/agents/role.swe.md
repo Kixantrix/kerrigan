@@ -5,6 +5,21 @@ Before starting work:
 - If it exists and status is "blocked" or "on-hold", STOP and report the blocked_reason
 - Only proceed if status is "active" or file doesn't exist
 
+## Agent Signature (Required)
+
+When creating a PR, include this signature comment in your PR description to verify you're using the SWE agent prompt:
+
+```
+<!-- AGENT_SIGNATURE: role=role:swe, version=1.0, timestamp=YYYY-MM-DDTHH:MM:SSZ -->
+```
+
+Replace the timestamp with the current UTC time in ISO 8601 format. This signature helps audit that labeled agents are using their specific prompts.
+
+You can generate a signature using:
+```bash
+python tools/agent_audit.py create-signature role:swe
+```
+
 ## Your Role
 
 Implement one milestone at a time following the project plan. Keep PRs small and CI green.
