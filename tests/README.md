@@ -50,6 +50,17 @@ Validates automation configuration files and workflows.
 - `TestWorkflowsExist`: Ensures expected GitHub Actions workflows exist
 - `TestIssueTemplates`: Validates GitHub issue templates
 
+### Agent Feedback Tests (`test_feedback.py`)
+
+Validates the agent feedback backchannel system configuration and feedback files.
+
+**Test Classes:**
+- `TestFeedbackStructure`: Validates feedback directory structure and required files
+- `TestFeedbackTemplate`: Validates feedback template completeness
+- `TestFeedbackFiles`: Validates feedback YAML files follow schema and naming conventions
+- `TestAgentPromptFeedbackSections`: Ensures agent prompts mention feedback mechanism
+- `TestDocumentationReferences`: Validates key documents reference feedback system
+
 ### Validator Tests (`validators/`)
 
 Tests for specific validator modules:
@@ -132,12 +143,14 @@ if __name__ == "__main__":
 ### Current Test Count
 - **Agent Prompt Tests**: 20 tests across 6 test classes
 - **Automation Tests**: 17 tests across 4 test classes
+- **Agent Feedback Tests**: 21 tests across 5 test classes
 - **Validator Tests**: 20 tests for status.json validation
-- **Total**: 57 tests
+- **Total**: 78 tests
 
 ### Coverage Goals
 - ✅ All agent prompts validated for structure and content
 - ✅ All automation configurations validated
+- ✅ Agent feedback system fully validated
 - ✅ Status.json schema fully validated
 - 🔄 Future: Add tests for artifact validators
 - 🔄 Future: Add tests for quality bar checker
