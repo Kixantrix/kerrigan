@@ -79,7 +79,7 @@ def ensure_sections(p: Path, headings: List[str], doc_name: str) -> None:
 def project_folders() -> List[Path]:
     if not SPECS_DIR.exists():
         return []
-    return [p for p in SPECS_DIR.iterdir() if p.is_dir() and p.name != "_template"]
+    return [p for p in SPECS_DIR.iterdir() if p.is_dir() and p.name not in ["_template", "_archive"]]
 
 def is_deployable(project_dir: Path) -> bool:
     # Heuristic: if runbook.md exists or the spec mentions "deploy" or "production"
