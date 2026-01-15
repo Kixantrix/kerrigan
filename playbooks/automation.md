@@ -12,6 +12,7 @@ Kerrigan includes GitHub-native automation workflows that:
 
 All automations are **opt-in** and configurable.
 
+📖 **For detailed automation analysis**, see: [Automation Limits & Capabilities](../docs/automation-limits.md)  
 📖 **For agent assignment details**, see: [Agent Assignment Pattern](../docs/agent-assignment.md)
 
 ## Setup
@@ -93,6 +94,19 @@ For autonomous sprints:
 **Triggers**: PR opened, labeled  
 **What it does**: Validates autonomy gates + auto-applies agent:go in sprint mode  
 **Permissions**: Needs `pull-requests: write`, `issues: read`
+
+### PR Review Script (tools/review-prs.ps1)
+**Type**: Local PowerShell script (not GitHub Actions)  
+**What it does**: Systematically manages Copilot reviews on all open PRs  
+**Usage**: Run locally with `.\tools\review-prs.ps1`  
+**Automation potential**: Can be scheduled locally but NOT in GitHub Actions due to authentication requirements
+
+**Why not in Actions**: GitHub Copilot requires user authentication and cannot be triggered via `GITHUB_TOKEN`. The script uses GitHub CLI (`gh`) which requires `gh auth login`. See [Automation Limits](../docs/automation-limits.md#4-pr-review-script-automation) for details.
+
+**Local scheduling options**:
+- Windows: Task Scheduler
+- macOS/Linux: cron
+- Recommended: Run manually or daily
 
 ## Disabling Automation
 

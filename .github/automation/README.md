@@ -14,7 +14,8 @@ Agent roles (spec, architect, swe, etc.) work via **labels**, not @mentions.
 1. **Label → Assignment**: Apply a role label (e.g., `role:swe`) to auto-assign users
 2. **Assignment → Labels** (New!): Assign copilot to auto-add role labels for triaging
 
-📖 **Full guide**: [Agent Assignment Pattern](../../docs/agent-assignment.md)
+📖 **Full guide**: [Agent Assignment Pattern](../../docs/agent-assignment.md)  
+📖 **Automation capabilities & limits**: [Automation Limits](../../docs/automation-limits.md)
 
 ## Setup Instructions
 
