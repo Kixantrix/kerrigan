@@ -92,5 +92,5 @@ This convention enables easy discovery via grep or file browsing.
 
 ---
 
-**Last Updated**: 2026-01-15  
+**Last Updated**: 2026-01-10  
 **Maintained by**: Project leads and Kerrigan agents

@@ -221,11 +221,11 @@ This lifecycle approach aligns with constitution principles:
 
 ### Example: validator-enhancement (Completed Validation Project)
 
-**Purpose**: Added color output to artifact validator
+**Purpose**: Test spec and architect agent prompts with focused enhancement
 
-**Status**: Completed, implementation merged into tools/validators/
+**Status**: Completed (specs only, not implemented)
 
-**Could be archived**: Specs served their purpose, implementation is the source of truth
+**Could be archived**: Validation complete, specs served their purpose to test agent prompts
 
 ### Example: hello-swarm (Active Reference)
 
