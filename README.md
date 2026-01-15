@@ -60,6 +60,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
 - **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
 - **[Project Directory](docs/project-directory.md)**: Overview of all projects and their status
+- **[Agent Auditing](docs/agent-auditing.md)**: Verify agents are using their specific prompts
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
 - **[Architecture](docs/architecture.md)**: System design and workflow visualization
 - **[Self-Assembly Guide](docs/self-assembly.md)**: Technical reference for replicating Kerrigan

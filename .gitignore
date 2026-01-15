@@ -15,3 +15,7 @@ build/
 # Secrets
 .env
 .env.*
+
+# Agent audit logs (optional, can be committed if desired)
+tools/.audit/
+*.audit.json
