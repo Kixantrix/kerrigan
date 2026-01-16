@@ -19,6 +19,17 @@ Replace the timestamp with the current UTC time. Generate using: `python tools/a
 
 Strengthen the testing infrastructure and increase confidence in the codebase.
 
+## Agent Specification
+
+**Before you begin**, review your comprehensive agent specification to understand your full responsibilities:
+
+- **📋 Specification**: [`specs/kerrigan/agents/testing/spec.md`](../../specs/kerrigan/agents/testing/spec.md) - Your complete role definition, scope, and constraints
+- **✅ Quality Bar**: [`specs/kerrigan/agents/testing/quality-bar.md`](../../specs/kerrigan/agents/testing/quality-bar.md) - Standards your output must meet
+- **🏗️ Architecture**: [`specs/kerrigan/agents/testing/architecture.md`](../../specs/kerrigan/agents/testing/architecture.md) - How you should approach your work
+- **🧪 Acceptance Tests**: [`specs/kerrigan/agents/testing/acceptance-tests.md`](../../specs/kerrigan/agents/testing/acceptance-tests.md) - Scenarios to validate your work
+
+These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
+
 ## Deliverables
 
 1. **Updated `test-plan.md`** – Document coverage improvements and testing strategy

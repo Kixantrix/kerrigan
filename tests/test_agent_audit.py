@@ -15,6 +15,9 @@ from agent_audit import (
     AuditLog,
     validate_pr_signature,
     generate_agent_checklist,
+    check_spec_references,
+    validate_spec_compliance,
+    check_quality_bar_compliance,
 )
 
 
@@ -235,6 +238,140 @@ class TestGenerateAgentChecklist(unittest.TestCase):
         
         self.assertIn("Agent Checklist", checklist)
         self.assertIn("role:unknown", checklist)
+
+
+class TestCheckSpecReferences(unittest.TestCase):
+    """Test spec reference checking."""
+
+    def test_check_spec_references_in_actual_repo(self):
+        """Test checking spec references in actual repository."""
+        # Get the repository root (3 levels up from tests/)
+        repo_root = Path(__file__).resolve().parent.parent
+        
+        is_valid, issues = check_spec_references(repo_root)
+        
+        # Should be valid since we just added the references
+        self.assertTrue(is_valid, f"Spec references validation failed: {issues}")
+        self.assertEqual(len(issues), 0)
+
+    def test_check_spec_references_missing_directory(self):
+        """Test behavior when directories are missing."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            
+            is_valid, issues = check_spec_references(temp_path)
+            
+            self.assertFalse(is_valid)
+            self.assertGreater(len(issues), 0)
+            self.assertTrue(any("not found" in issue.lower() for issue in issues))
+
+
+class TestValidateSpecCompliance(unittest.TestCase):
+    """Test spec compliance validation."""
+
+    def test_validate_compliance_without_pr_body(self):
+        """Test validation without PR body."""
+        repo_root = Path(__file__).resolve().parent.parent
+        
+        is_compliant, issues = validate_spec_compliance("role:swe", repo_root=repo_root)
+        
+        # Should pass basic checks
+        self.assertTrue(is_compliant, f"Compliance validation failed: {issues}")
+
+    def test_validate_compliance_with_valid_pr_body(self):
+        """Test validation with valid PR body."""
+        repo_root = Path(__file__).resolve().parent.parent
+        pr_body = """
+# Feature Implementation
+
+<!-- AGENT_SIGNATURE: role=role:swe, version=1.0, timestamp=2026-01-15T06:00:00Z -->
+
+This PR implements feature X.
+"""
+        
+        is_compliant, issues = validate_spec_compliance("role:swe", pr_body, repo_root)
+        
+        self.assertTrue(is_compliant, f"Compliance validation failed: {issues}")
+
+    def test_validate_compliance_with_mismatched_role(self):
+        """Test validation with mismatched role in signature."""
+        repo_root = Path(__file__).resolve().parent.parent
+        pr_body = """
+<!-- AGENT_SIGNATURE: role=role:architect, version=1.0, timestamp=2026-01-15T06:00:00Z -->
+"""
+        
+        is_compliant, issues = validate_spec_compliance("role:swe", pr_body, repo_root)
+        
+        self.assertFalse(is_compliant)
+        self.assertTrue(any("does not match" in issue for issue in issues))
+
+
+class TestCheckQualityBarCompliance(unittest.TestCase):
+    """Test quality bar compliance checking."""
+
+    def test_check_quality_bar_empty_list(self):
+        """Test quality bar check with empty file list."""
+        meets_standards, issues = check_quality_bar_compliance("role:swe", [])
+        
+        self.assertTrue(meets_standards)
+        self.assertEqual(len(issues), 0)
+
+    def test_check_quality_bar_with_nonexistent_file(self):
+        """Test quality bar check with nonexistent file."""
+        fake_path = Path(tempfile.gettempdir()) / "nonexistent_file_12345.py"
+        meets_standards, issues = check_quality_bar_compliance("role:swe", [fake_path])
+        
+        self.assertFalse(meets_standards)
+        self.assertTrue(any("not found" in issue for issue in issues))
+
+    def test_check_quality_bar_with_small_file(self):
+        """Test quality bar check with small file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            # Write a small file (under 800 lines)
+            for i in range(100):
+                f.write(f"# Line {i}\n")
+            temp_path = Path(f.name)
+        
+        try:
+            meets_standards, issues = check_quality_bar_compliance("role:swe", [temp_path])
+            
+            self.assertTrue(meets_standards)
+            self.assertEqual(len(issues), 0)
+        finally:
+            temp_path.unlink()
+
+    def test_check_quality_bar_with_oversized_file(self):
+        """Test quality bar check with oversized file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            # Write a large file (over 800 lines)
+            for i in range(850):
+                f.write(f"# Line {i}\n")
+            temp_path = Path(f.name)
+        
+        try:
+            meets_standards, issues = check_quality_bar_compliance("role:swe", [temp_path])
+            
+            self.assertFalse(meets_standards)
+            self.assertTrue(any("exceeds 800 line" in issue for issue in issues))
+        finally:
+            temp_path.unlink()
+
+    def test_check_quality_bar_ignores_markdown_files(self):
+        """Test quality bar check ignores markdown files."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+            # Write a large markdown file (over 800 lines)
+            for i in range(1000):
+                f.write(f"# Line {i}\n")
+            temp_path = Path(f.name)
+        
+        try:
+            meets_standards, issues = check_quality_bar_compliance("role:swe", [temp_path])
+            
+            # Markdown files should be ignored
+            self.assertTrue(meets_standards)
+            self.assertEqual(len(issues), 0)
+        finally:
+            temp_path.unlink()
 
 
 if __name__ == "__main__":

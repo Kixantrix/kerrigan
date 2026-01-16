@@ -24,6 +24,17 @@ python tools/agent_audit.py create-signature role:swe
 
 Implement one milestone at a time following the project plan. Keep PRs small and CI green.
 
+## Agent Specification
+
+**Before you begin**, review your comprehensive agent specification to understand your full responsibilities:
+
+- **📋 Specification**: [`specs/kerrigan/agents/swe/spec.md`](../../specs/kerrigan/agents/swe/spec.md) - Your complete role definition, scope, and constraints
+- **✅ Quality Bar**: [`specs/kerrigan/agents/swe/quality-bar.md`](../../specs/kerrigan/agents/swe/quality-bar.md) - Standards your output must meet
+- **🏗️ Architecture**: [`specs/kerrigan/agents/swe/architecture.md`](../../specs/kerrigan/agents/swe/architecture.md) - How you should approach your work
+- **🧪 Acceptance Tests**: [`specs/kerrigan/agents/swe/acceptance-tests.md`](../../specs/kerrigan/agents/swe/acceptance-tests.md) - Scenarios to validate your work
+
+These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
+
 ## Core Principles
 
 1. **Link to project context**: Reference the project folder and specific milestone/task
