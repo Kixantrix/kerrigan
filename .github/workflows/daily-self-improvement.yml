@@ -55,9 +55,9 @@ jobs:
           
           echo "Analysis complete!"
           
-          # Extract all metrics in a single pass to reduce file I/O
+          # Extract all metrics using helper script for better readability
           if [ -f analysis-results.json ]; then
-            python -c 'import json; data=json.load(open("analysis-results.json")); metrics=data["metrics"]; print(f"feedback_count={metrics[\"feedback_processed\"]}"); print(f"patterns_count={metrics[\"patterns_found\"]}"); print(f"proposals_count={metrics[\"proposals_generated\"]}"); print(f"high_priority={metrics[\"high_priority_count\"]}")' >> $GITHUB_OUTPUT
+            python tools/extract_metrics.py >> $GITHUB_OUTPUT
           fi
 
       - name: Upload analysis report

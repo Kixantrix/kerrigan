@@ -217,10 +217,10 @@ class RetrospectiveAnalyzer:
         return self.retrospectives
     
     def _extract_section(self, content: str, heading: str) -> str:
-        """Extract content under a specific heading.
+        r"""Extract content under a specific heading.
         
         Pattern explanation:
-        - ^##+ : Match line starting with 2 or more # (markdown heading)
+        - ^##+ : Match line starting with one or more # (markdown heading)
         - {re.escape(heading)} : The heading text (escaped for regex)
         - .*?\n : Rest of heading line
         - (.*?) : Capture content (non-greedy)
@@ -242,14 +242,16 @@ class RetrospectiveAnalyzer:
             for r in self.retrospectives
         ]).lower()
         
-        # Common pattern keywords
+        # Common pattern keywords - count all in a single pass for efficiency
         pattern_keywords = [
             'documentation', 'testing', 'validation', 'agent prompt',
             'workflow', 'automation', 'quality', 'handoff', 'artifact'
         ]
         
-        for keyword in pattern_keywords:
-            if all_text.count(keyword) >= 2:  # Appears in multiple retros
+        keyword_counts = {keyword: all_text.count(keyword) for keyword in pattern_keywords}
+        
+        for keyword, count in keyword_counts.items():
+            if count >= 2:  # Appears in multiple retros
                 patterns.append(f"Recurring theme: {keyword}")
         
         return patterns
