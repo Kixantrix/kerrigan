@@ -1,8 +1,8 @@
 # Architecture: Task Tracker CLI
 
-## System Overview
+## Overview
 
-Task Tracker is a command-line interface (CLI) tool for managing personal tasks with local file storage.
+Task Tracker is a command-line interface (CLI) tool for managing personal tasks with local file storage. It demonstrates a clean, layered architecture with separation of concerns across CLI, business logic, and storage layers.
 
 ```
 ┌─────────────────┐
@@ -34,7 +34,7 @@ Task Tracker is a command-line interface (CLI) tool for managing personal tasks 
 └─────────────────┘
 ```
 
-## Component Details
+## Components & interfaces
 
 ### CLI Layer (`cli.py`)
 **Responsibility**: Command-line interface and user interaction
@@ -111,9 +111,9 @@ Task Tracker is a command-line interface (CLI) tool for managing personal tasks 
 ]
 ```
 
-## Technology Choices
+## Tradeoffs
 
-### Click Framework
+### Click Framework vs. argparse
 **Why**: Industry-standard CLI library with excellent developer experience
 - Automatic help generation
 - Type validation
@@ -138,7 +138,9 @@ Task Tracker is a command-line interface (CLI) tool for managing personal tasks 
 
 **Alternatives considered**: Cloud storage (complexity), database (overkill)
 
-## Error Handling
+## Security & privacy notes
+
+### File Permissions
 
 ### Invalid Task ID
 - Return: Error message "Task not found: {id}"
