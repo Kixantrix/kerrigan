@@ -20,6 +20,11 @@ import argparse
 from pathlib import Path
 
 
+# Configuration constants
+LARGE_DOC_THRESHOLD_KB = 15  # Files larger than this are considered "large documentation"
+DOC_TO_CODE_RATIO_THRESHOLD = 10  # Warn if documentation is 10x+ larger than code
+
+
 def check_pr_references(text):
     """Check if PR references actually exist by pattern analysis."""
     warnings = []
@@ -39,17 +44,19 @@ def check_pr_references(text):
     
     # Check for phrases indicating simulation
     simulation_phrases = [
-        r'created PR #\d+.*approved',
-        r'PR #\d+.*merged',
-        r'simulated.*workflow',
-        r'example workflow.*PR',
-        r'demonstrates.*creating PRs',
+        (r'created PR #\d+.*approved', 'created PR #X...approved'),
+        (r'PR #\d+.*merged', 'PR #X merged'),
+        (r'simulated.*workflow', 'simulated workflow'),
+        (r'example workflow.*PR', 'example workflow with PR'),
+        (r'demonstrates.*creating PRs', 'demonstrates creating PRs'),
     ]
     
-    for pattern in simulation_phrases:
-        if re.search(pattern, text, re.IGNORECASE):
+    for pattern, description in simulation_phrases:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            matched_text = match.group()[:50]  # First 50 chars of match
             warnings.append(
-                f"⚠️  Found phrase that might indicate simulated workflow: '{pattern}'. "
+                f"⚠️  Found phrase indicating simulated workflow: '{matched_text}...'. "
                 f"Ensure documentation describes actual work, not fictional examples."
             )
     
@@ -140,7 +147,7 @@ def check_documentation_ratio(repo_path):
     large_docs = []
     for md_file in examples_path.rglob("*.md"):
         size_kb = md_file.stat().st_size / 1024
-        if size_kb > 15:  # Files larger than 15KB
+        if size_kb > LARGE_DOC_THRESHOLD_KB:
             large_docs.append((md_file.name, size_kb))
     
     if large_docs:
@@ -153,7 +160,7 @@ def check_documentation_ratio(repo_path):
         total_code_kb = sum(f.stat().st_size / 1024 for f in code_files) if code_files else 0
         total_doc_kb = sum(size for _, size in large_docs)
         
-        if total_doc_kb > total_code_kb * 10:  # 10x more docs than code
+        if total_doc_kb > total_code_kb * DOC_TO_CODE_RATIO_THRESHOLD:
             warnings.append(
                 f"⚠️  Documentation significantly outweighs code "
                 f"({total_doc_kb:.1f}KB docs vs {total_code_kb:.1f}KB code). "
