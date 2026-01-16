@@ -85,6 +85,8 @@ $staleThreshold = $now.AddHours(-24)
 
 foreach ($pr in $prs) {
     # Get CI status for this PR
+    # Note: This makes a separate API call per PR, which could hit rate limits with many PRs.
+    # If you have >50 PRs, consider using the GitHub GraphQL API to batch requests.
     $checksJson = gh pr checks $pr.number --json name,state,conclusion 2>&1
     $ciStatus = "unknown"
     $ciPassing = $false
