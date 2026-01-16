@@ -174,13 +174,16 @@ jobs:
           
           echo "   Checking compliance for: $ROLE"
           
-          # Save PR body to temp file for validation
-          cat > /tmp/pr_body.txt << 'EOF'
+          # Create secure temp file for PR body validation
+          PR_BODY_FILE=$(mktemp)
+          trap "rm -f $PR_BODY_FILE" EXIT
+          
+          cat > "$PR_BODY_FILE" << 'EOF'
           ${{ github.event.pull_request.body }}
           EOF
           
           # Run compliance validation
-          python tools/agent_audit.py validate-compliance "$ROLE" /tmp/pr_body.txt || {
+          python tools/agent_audit.py validate-compliance "$ROLE" "$PR_BODY_FILE" || {
             echo ""
             echo "❌ Spec compliance validation failed"
             echo ""
