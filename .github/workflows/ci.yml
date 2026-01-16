@@ -43,16 +43,19 @@ jobs:
           PR_DOC_RATIO_THRESHOLD: 10
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Fetch PR body from GitHub API
-          PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq .body)
+          # Create unique temporary file
+          PR_BODY_FILE=$(mktemp)
           
-          # Save to temporary file
-          echo "$PR_BODY" > /tmp/pr_body.txt
+          # Fetch PR body from GitHub API and save securely
+          gh pr view ${{ github.event.pull_request.number }} --json body --jq .body > "$PR_BODY_FILE"
           
           # Run validator
           python tools/validators/check_pr_documentation.py \
-            --pr-body /tmp/pr_body.txt \
+            --pr-body "$PR_BODY_FILE" \
             --repo-path .
+          
+          # Clean up
+          rm -f "$PR_BODY_FILE"
 
       - name: Run tests
         run: |
