@@ -47,7 +47,7 @@ jobs:
           PR_BODY_FILE=$(mktemp)
           
           # Fetch PR body from GitHub API and save securely
-          gh pr view ${{ github.event.pull_request.number }} --json body --jq .body > "$PR_BODY_FILE"
+          gh pr view '${{ github.event.pull_request.number }}' --json body --jq .body > "$PR_BODY_FILE"
           
           # Run validator
           python tools/validators/check_pr_documentation.py \

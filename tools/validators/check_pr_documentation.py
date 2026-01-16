@@ -12,6 +12,7 @@ Usage:
 Exit codes:
     0: All checks passed
     1: Warnings found (review recommended but not blocking)
+    2: Configuration error (invalid environment variables)
 """
 
 import re
