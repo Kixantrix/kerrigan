@@ -80,43 +80,62 @@ Each task should be executable and have "done" criteria.
 
 ## Milestone 3: Status tracking
 
-- [ ] Task: Design status.json schema
+- [x] Task: Design status.json schema
   - Done when: schema documented in artifact contracts
   - Links: specs/kerrigan/020-artifact-contracts.md
+  - Completed: Schema fully documented (see MILESTONE-3-COMPLETION.md)
 
-- [ ] Task: Add status.json validator
+- [x] Task: Add status.json validator
   - Done when: check_artifacts.py validates status.json structure
   - Links: tools/validators/check_artifacts.py
+  - Completed: Validator with 17 unit tests (see MILESTONE-3-COMPLETION.md)
 
-- [ ] Task: Update agent prompts to check status
+- [x] Task: Update agent prompts to check status
   - Done when: all role prompts include status.json check step
   - Links: .github/agents/role.*.md
+  - Completed: All 7 agent prompts check status (see MILESTONE-3-COMPLETION.md)
 
-- [ ] Task: Test pause/resume workflow
+- [x] Task: Test pause/resume workflow
   - Done when: agent respects "blocked" status and resumes on "active"
-  - Links: playbooks/handoffs.md
+  - Links: playbooks/handoffs.md, tests/validators/test_pause_resume_workflow.py
+  - Completed: 9 integration tests validate workflow (see MILESTONE-3-COMPLETION.md)
 
 ## Milestone 4: Autonomy gates
 
-- [ ] Task: Research GitHub label reading in Actions
+- [x] Task: Research GitHub label reading in Actions
   - Done when: know how to access PR/issue labels in CI
   - Links: .github/workflows/agent-gates.yml
+  - Completed: Workflow already implemented with full label reading capability
 
-- [ ] Task: Implement autonomy gate workflow
+- [x] Task: Implement autonomy gate workflow
   - Done when: workflow checks for required labels based on mode
   - Links: playbooks/autonomy-modes.md
+  - Completed: agent-gates.yml fully implements all three modes
 
-- [ ] Task: Test on-demand mode
+- [x] Task: Test on-demand mode
   - Done when: PR without `agent:go` fails CI
-  - Links: autonomy-modes.md
+  - Links: autonomy-modes.md, tests/test_autonomy_gates.py
+  - Completed: 47 comprehensive tests validate all scenarios
 
-- [ ] Task: Test override mechanism
+- [x] Task: Test sprint mode
+  - Done when: PR with `agent:sprint` reference gets `agent:go`
+  - Links: autonomy-modes.md, tests/test_autonomy_gates.py
+  - Completed: Sprint mode auto-applies agent:go, tests verify behavior
+
+- [x] Task: Test override mechanism
   - Done when: PR with `autonomy:override` bypasses gate
-  - Links: autonomy-modes.md
+  - Links: autonomy-modes.md, tests/test_autonomy_gates.py
+  - Completed: Override mechanism tested and working
 
-- [ ] Task: Document limitations
+- [x] Task: Test all label combinations and edge cases
+  - Done when: All scenarios and error cases validated
+  - Links: tests/test_autonomy_gates.py
+  - Completed: Tests cover fallback mode, API errors, cross-repo issues, etc.
+
+- [x] Task: Document limitations
   - Done when: README notes any manual workarounds needed
   - Links: README.md
+  - Completed: README includes limitations and workarounds section
 
 ## Milestone 5: Handoff refinement
 
