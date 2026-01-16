@@ -70,6 +70,11 @@ These labels are used for assigning work to specific agent roles:
   - Creates deployment artifacts and runbooks
   - See: `.github/agents/role.deployment.md`
 
+- **`role:triage`** (color: `#FBCA04`, yellow)
+  - Assigns issue to Triage agent
+  - Reviews PRs, manages CI issues, approves and merges
+  - See: `.github/agents/role.triage.md`
+
 ### Project Labels (optional but recommended)
 
 - **`kerrigan`** (color: `#000000`, black)
@@ -97,6 +102,7 @@ gh label create "role:testing" --color "7057FF" --description "Assign to Testing
 gh label create "role:debugging" --color "D93F0B" --description "Assign to Debugging agent"
 gh label create "role:security" --color "B60205" --description "Assign to Security agent"
 gh label create "role:deployment" --color "0E8A16" --description "Assign to Deployment agent"
+gh label create "role:triage" --color "FBCA04" --description "Assign to Triage agent"
 
 # Optional project label
 gh label create "kerrigan" --color "000000" --description "Kerrigan system meta-work"
