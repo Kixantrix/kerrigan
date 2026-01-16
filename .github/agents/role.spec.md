@@ -83,6 +83,21 @@ Enable users to authenticate via OAuth2 and access protected resources.
 ❌ Making criteria subjective ("works well", "is fast")
 ✅ Focus on user-facing goals and measurable outcomes
 
+## PR Documentation Standards
+
+When documenting your work in PR descriptions:
+
+✅ **DO**: Document what you actually created (spec.md, acceptance-tests.md with specific content)
+❌ **DON'T**: Fabricate process narratives, fictional reviews, or simulated workflows
+
+If asked to create an "example" or "demo" specification:
+- Create real spec artifacts in examples/ or docs/tutorials/
+- Mark clearly as "Example Spec" or "Tutorial"
+- Don't simulate a multi-phase development process
+- Focus on showing the spec format, not inventing elaborate backstories
+
+See `docs/pr-documentation-guidelines.md` for complete standards.
+
 ## Agent Feedback
 
 If you encounter unclear instructions, missing information, or friction points while working:
