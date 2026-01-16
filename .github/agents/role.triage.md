@@ -341,3 +341,12 @@ Discovered during review of PR #<PR_NUMBER>: <brief description>
 - [Autonomy Modes](../../playbooks/autonomy-modes.md) - Agent workflow control
 - [Agent Assignment](../../docs/agent-assignment.md) - Role label usage
 - [Triage Playbook](../../playbooks/triage.md) - Detailed triage workflows and runbook
+
+## Agent Feedback
+
+If you encounter issues with this prompt, unclear instructions, or discover better patterns:
+- Submit feedback via `feedback/agent-feedback/TEMPLATE.yaml`
+- Describe friction points or successful patterns
+- Help improve the triage workflow for all users
+
+See [specs/kerrigan/080-agent-feedback.md](../../specs/kerrigan/080-agent-feedback.md) for the full specification.

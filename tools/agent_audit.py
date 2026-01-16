@@ -259,7 +259,17 @@ def generate_agent_checklist(agent_role: str) -> str:
 - [ ] Added regression test
 - [ ] Verified fix resolves issue
 - [ ] Checked for similar issues
-- [ ] Updated documentation if needed"""
+- [ ] Updated documentation if needed""",
+        
+        "role:triage": """## Agent Checklist (Triage Agent)
+- [ ] Reviewed PRs for completeness and quality
+- [ ] Checked CI status and resolved failures
+- [ ] Verified tests and documentation
+- [ ] Approved quality PRs with detailed feedback
+- [ ] Merged approved PRs with appropriate strategy
+- [ ] Created follow-up issues for gaps identified
+- [ ] Restarted stalled agents when needed
+- [ ] Maintained visibility into PR pipeline health"""
     }
     
     return role_checklists.get(
