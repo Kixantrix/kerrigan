@@ -16,13 +16,14 @@ Exit codes:
 
 import re
 import sys
+import os
 import argparse
 from pathlib import Path
 
 
-# Configuration constants
-LARGE_DOC_THRESHOLD_KB = 15  # Files larger than this are considered "large documentation"
-DOC_TO_CODE_RATIO_THRESHOLD = 10  # Warn if documentation is 10x+ larger than code
+# Configuration constants (can be overridden via environment variables)
+LARGE_DOC_THRESHOLD_KB = int(os.environ.get('PR_DOC_LARGE_THRESHOLD_KB', '15'))
+DOC_TO_CODE_RATIO_THRESHOLD = int(os.environ.get('PR_DOC_RATIO_THRESHOLD', '10'))
 
 
 def check_pr_references(text):
