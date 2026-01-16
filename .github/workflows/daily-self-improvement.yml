@@ -55,17 +55,9 @@ jobs:
           
           echo "Analysis complete!"
           
-          # Extract metrics for summary
+          # Extract all metrics in a single pass to reduce file I/O
           if [ -f analysis-results.json ]; then
-            FEEDBACK_COUNT=$(python -c "import json; data=json.load(open('analysis-results.json')); print(data['metrics']['feedback_processed'])")
-            PATTERNS_COUNT=$(python -c "import json; data=json.load(open('analysis-results.json')); print(data['metrics']['patterns_found'])")
-            PROPOSALS_COUNT=$(python -c "import json; data=json.load(open('analysis-results.json')); print(data['metrics']['proposals_generated'])")
-            HIGH_PRIORITY=$(python -c "import json; data=json.load(open('analysis-results.json')); print(data['metrics']['high_priority_count'])")
-            
-            echo "feedback_count=${FEEDBACK_COUNT}" >> $GITHUB_OUTPUT
-            echo "patterns_count=${PATTERNS_COUNT}" >> $GITHUB_OUTPUT
-            echo "proposals_count=${PROPOSALS_COUNT}" >> $GITHUB_OUTPUT
-            echo "high_priority=${HIGH_PRIORITY}" >> $GITHUB_OUTPUT
+            python -c 'import json; data=json.load(open("analysis-results.json")); metrics=data["metrics"]; print(f"feedback_count={metrics[\"feedback_processed\"]}"); print(f"patterns_count={metrics[\"patterns_found\"]}"); print(f"proposals_count={metrics[\"proposals_generated\"]}"); print(f"high_priority={metrics[\"high_priority_count\"]}")' >> $GITHUB_OUTPUT
           fi
 
       - name: Upload analysis report
@@ -107,9 +99,7 @@ jobs:
             let skipped = 0;
             
             for (const proposal of issuesToCreate) {
-              // Check if similar issue already exists
-              const searchQuery = proposal.title.substring(0, 50);
-              
+              // Check if similar issue already exists with more precise matching
               try {
                 const existingIssues = await github.rest.issues.listForRepo({
                   owner: context.repo.owner,
@@ -119,10 +109,20 @@ jobs:
                   per_page: 100
                 });
                 
-                const titleLower = proposal.title.toLowerCase();
-                const alreadyExists = existingIssues.data.some(issue =>
-                  issue.title && issue.title.toLowerCase().includes(titleLower.substring(0, 30))
-                );
+                // More precise duplicate detection: normalize and compare full titles
+                const normalizedTitle = proposal.title.toLowerCase().trim();
+                const alreadyExists = existingIssues.data.some(issue => {
+                  if (!issue.title) return false;
+                  const existingTitle = issue.title.toLowerCase().trim();
+                  // Exact match or very high similarity (>80% of words match)
+                  if (existingTitle === normalizedTitle) return true;
+                  
+                  const words1 = new Set(normalizedTitle.split(/\s+/));
+                  const words2 = new Set(existingTitle.split(/\s+/));
+                  const intersection = new Set([...words1].filter(w => words2.has(w)));
+                  const similarity = intersection.size / Math.max(words1.size, words2.size);
+                  return similarity > 0.8;
+                });
                 
                 if (alreadyExists) {
                   console.log(`   ⏭️  Similar issue exists: "${proposal.title}"`);

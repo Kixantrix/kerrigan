@@ -15,11 +15,18 @@ from __future__ import annotations
 import json
 import os
 import re
-import yaml
+import sys
 from collections import defaultdict, Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
+
+# Check for PyYAML dependency
+try:
+    import yaml
+except ImportError:
+    print("Error: PyYAML is required. Install with: pip install pyyaml", file=sys.stderr)
+    sys.exit(1)
 
 
 class FeedbackAnalyzer:
@@ -210,7 +217,15 @@ class RetrospectiveAnalyzer:
         return self.retrospectives
     
     def _extract_section(self, content: str, heading: str) -> str:
-        """Extract content under a specific heading."""
+        """Extract content under a specific heading.
+        
+        Pattern explanation:
+        - ^##+ : Match line starting with 2 or more # (markdown heading)
+        - {re.escape(heading)} : The heading text (escaped for regex)
+        - .*?\n : Rest of heading line
+        - (.*?) : Capture content (non-greedy)
+        - (?=^##+ |\Z) : Stop at next heading or end of string (lookahead)
+        """
         pattern = rf'^##+ {re.escape(heading)}.*?\n(.*?)(?=^##+ |\Z)'
         match = re.search(pattern, content, re.MULTILINE | re.DOTALL | re.IGNORECASE)
         return match.group(1).strip() if match else ""
