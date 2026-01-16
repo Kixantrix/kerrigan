@@ -224,16 +224,53 @@ python tools/agent_audit.py check-quality-bar role:swe src/auth/login.js src/aut
 - Quality bar compliance checking for file size limits
 - Required section validation for architect/spec artifacts
 - Comprehensive test coverage for new validation functions
+- **Automated PR checks**: GitHub Actions workflow validates compliance
+  - Quality bar checks in CI pipeline (all PRs)
+  - Spec reference validation for agent prompt updates
+  - Agent compliance validation for agent-labeled PRs
+
+### Automated CI Integration
+
+The following compliance checks now run automatically:
+
+**1. Quality Bar Check** (`.github/workflows/ci.yml`)
+- **Triggers**: All pull requests and pushes to main
+- **Validates**: File size limits (<400 lines warning, >800 lines fail)
+- **Command**: `python tools/validators/check_quality_bar.py`
+- **Fail behavior**: Blocks PR merge if files exceed 800 lines
+
+**2. Spec Reference Check** (`.github/workflows/agent-spec-compliance.yml`)
+- **Triggers**: PRs modifying `.github/agents/**` or `specs/kerrigan/agents/**` files
+- **Validates**: Agent prompts reference their specification files
+- **Command**: `python tools/agent_audit.py check-spec-references`
+- **Fail behavior**: Blocks PR merge if spec references are missing
+
+**3. Agent Compliance Check** (`.github/workflows/agent-spec-compliance.yml`)
+- **Triggers**: PRs with `role:*` or `agent:*` labels
+- **Validates**: 
+  - Agent signature presence and format
+  - Signature role matches PR labels
+  - Spec compliance for the agent role
+- **Commands**: 
+  - Signature validation via GitHub Actions script
+  - `python tools/agent_audit.py validate-compliance <role> pr_body.txt`
+- **Fail behavior**: Informational warnings only (does not block merge)
+
+### Override Mechanisms
+
+For exceptional cases:
+- `allow:large-file` - Acknowledges large files (informational)
+- `autonomy:override` - Bypass autonomy gates (requires human approval)
 
 ### Potential Enhancements
 
 🔄 **Future Improvements:**
-- **Automated PR checks**: GitHub Actions workflow to validate signatures automatically
 - **Quality bar scoring**: Numeric score for spec compliance (0-100)
 - **Historical tracking**: Track spec compliance over time in audit log
 - **Content analysis**: Use LLM to validate agent output matches spec intent
 - **Template validation**: Check if artifacts follow expected templates
 - **Cross-references**: Validate that plan.md tasks reference architecture.md components
+- **Stricter enforcement**: Make agent signature validation blocking instead of informational
 
 ## Testing the System
 
@@ -280,4 +317,26 @@ This implementation achieves the goals outlined in the requirements:
 
 ✅ **Documentation updated** - README in `.github/agents/` updated with spec validation instructions, and this comprehensive validation document created.
 
-The system provides a foundation for ensuring agents follow their specifications, with room for future enhancements like automated CI checks and deeper content analysis.
+✅ **Automated CI checks** - GitHub Actions workflows automatically validate:
+- Quality bar compliance (file size limits) on all PRs
+- Spec reference integrity on agent prompt updates
+- Agent signature and compliance on agent-labeled PRs
+
+✅ **Clear failure messages** - All validation failures include:
+- Explanation of what failed
+- Actionable commands to fix the issue locally
+- Links to documentation for additional context
+
+✅ **Local validation** - All checks can be run locally:
+```bash
+# Quality bar check
+python tools/agent_audit.py check-quality-bar role:swe src/file1.py src/file2.js
+
+# Spec reference check
+python tools/agent_audit.py check-spec-references
+
+# Compliance validation
+python tools/agent_audit.py validate-compliance role:swe pr_body.txt
+```
+
+The system provides comprehensive validation for agent spec compliance, with automated checks in CI and clear guidance for developers.

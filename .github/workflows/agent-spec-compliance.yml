@@ -16,34 +16,64 @@ jobs:
   check-spec-references:
     name: Verify Agent Prompts Reference Specs
     runs-on: ubuntu-latest
-    if: |
-      contains(github.event.pull_request.changed_files, '.github/agents/') ||
-      contains(join(github.event.pull_request.labels.*.name, ','), 'agent:prompt-update')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history to check file changes
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      - name: Check if agent files changed
+        id: check_files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            
+            // Check for agent:prompt-update label
+            if (prLabels.includes('agent:prompt-update')) {
+              console.log('Label agent:prompt-update found - running spec reference check');
+              return true;
+            }
+            
+            // Check if .github/agents/ or specs/kerrigan/agents/ files were modified
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            
+            const agentFilesChanged = files.some(file => 
+              file.filename.startsWith('.github/agents/') || 
+              file.filename.startsWith('specs/kerrigan/agents/')
+            );
+            
+            if (agentFilesChanged) {
+              console.log('Agent-related files changed - running spec reference check');
+              return true;
+            }
+            
+            console.log('No agent files changed - skipping spec reference check');
+            return false;
+
       - name: Check spec references
+        if: steps.check_files.outputs.result == 'true'
         run: |
           echo "🔍 Checking if agent prompts reference their specifications..."
           python tools/agent_audit.py check-spec-references
         
       - name: Compliance check passed
-        if: success()
+        if: steps.check_files.outputs.result == 'true'
         run: |
           echo "✅ All agent prompts properly reference their specifications"
 
   check-agent-pr-compliance:
     name: Validate Agent PR Compliance
     runs-on: ubuntu-latest
-    if: |
-      contains(join(github.event.pull_request.labels.*.name, ','), 'role:') ||
-      contains(join(github.event.pull_request.labels.*.name, ','), 'agent:')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,25 +83,33 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Check if agent PR
+        id: check_agent
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            const agentLabels = prLabels.filter(l => l.startsWith('role:') || l.startsWith('agent:'));
+            
+            if (agentLabels.length > 0) {
+              console.log(`Agent labels found: ${agentLabels.join(', ')} - running compliance checks`);
+              core.setOutput('is_agent_pr', 'true');
+              core.setOutput('agent_labels', agentLabels.join(','));
+            } else {
+              console.log('No agent/role labels found - skipping compliance checks');
+              core.setOutput('is_agent_pr', 'false');
+            }
+
       - name: Check agent signature
+        if: steps.check_agent.outputs.is_agent_pr == 'true'
         uses: actions/github-script@v7
         with:
           script: |
             const prBody = context.payload.pull_request.body || '';
-            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            const agentLabels = '${{ steps.check_agent.outputs.agent_labels }}'.split(',');
             
             console.log('🔍 Checking agent signature in PR description...');
             console.log(`PR #${context.payload.pull_request.number}: ${context.payload.pull_request.title}`);
-            console.log(`Labels: ${prLabels.join(', ')}`);
-            
-            // Extract agent/role labels
-            const agentLabels = prLabels.filter(l => l.startsWith('role:') || l.startsWith('agent:'));
-            
-            if (agentLabels.length === 0) {
-              console.log('ℹ️  No role: or agent: labels found - skipping compliance check');
-              return;
-            }
-            
             console.log(`Agent labels: ${agentLabels.join(', ')}`);
             
             // Check for agent signature pattern
@@ -112,14 +150,16 @@ jobs:
             }
 
       - name: Validate spec compliance
+        if: steps.check_agent.outputs.is_agent_pr == 'true'
         run: |
           echo "🔍 Validating agent spec compliance..."
           
           # Extract role from PR labels (use first role: label found)
-          LABELS="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
+          LABELS="${{ steps.check_agent.outputs.agent_labels }}"
           ROLE=""
           
-          for label in $LABELS; do
+          IFS=',' read -ra LABEL_ARRAY <<< "$LABELS"
+          for label in "${LABEL_ARRAY[@]}"; do
             if [[ $label == role:* ]]; then
               ROLE=$label
               break
