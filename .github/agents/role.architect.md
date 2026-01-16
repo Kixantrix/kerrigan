@@ -100,6 +100,21 @@ Chosen for simplicity and team familiarity.
 ❌ Omitting "done when" criteria from tasks
 ✅ Validate artifacts incrementally as you create them
 
+## PR Documentation Standards
+
+When documenting your work in PR descriptions:
+
+✅ **DO**: Document the actual artifacts created (architecture.md, plan.md, etc. with actual content)
+❌ **DON'T**: Fabricate elaborate development narratives, simulated multi-phase processes, or fictional reviews
+
+If asked to create an "example" architecture or demonstrate planning features:
+- Create real architecture artifacts in examples/ or docs/tutorials/
+- Mark clearly as "Example Architecture" or "Tutorial"
+- Don't simulate a workflow with fictional phases, pauses, or reviews
+- Focus on showing the architecture format and planning approach
+
+See `docs/pr-documentation-guidelines.md` for complete standards.
+
 ## Agent Feedback
 
 If you encounter unclear instructions, missing information, or friction points while working:

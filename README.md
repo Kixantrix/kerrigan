@@ -71,6 +71,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
 - **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
 - **[PR Review](playbooks/pr-review.md)**: Human review guidelines
+- **[PR Documentation Guidelines](docs/pr-documentation-guidelines.md)**: Standards for accurate, factual documentation
 - **[Replication Guide](playbooks/replication-guide.md)**: Set up Kerrigan in new repositories
 - **[Automation Limits](docs/automation-limits.md)**: What can be automated vs. requires human intervention
 
