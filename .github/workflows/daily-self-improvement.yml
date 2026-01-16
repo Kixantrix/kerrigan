@@ -98,39 +98,42 @@ jobs:
             let created = 0;
             let skipped = 0;
             
+            // Fetch existing issues once to avoid repeated API calls
+            let existingIssues = [];
+            try {
+              const response = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'kerrigan,improvement',
+                per_page: 100
+              });
+              existingIssues = response.data;
+              console.log(`   Found ${existingIssues.length} existing improvement issues`);
+            } catch (error) {
+              console.log(`   ⚠️  Could not fetch existing issues: ${error.message}`);
+            }
+            
             for (const proposal of issuesToCreate) {
               // Check if similar issue already exists with more precise matching
-              try {
-                const existingIssues = await github.rest.issues.listForRepo({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  state: 'open',
-                  labels: 'kerrigan,improvement',
-                  per_page: 100
-                });
+              const normalizedTitle = proposal.title.toLowerCase().trim();
+              const alreadyExists = existingIssues.some(issue => {
+                if (!issue.title) return false;
+                const existingTitle = issue.title.toLowerCase().trim();
+                // Exact match or very high similarity (>80% of words match)
+                if (existingTitle === normalizedTitle) return true;
                 
-                // More precise duplicate detection: normalize and compare full titles
-                const normalizedTitle = proposal.title.toLowerCase().trim();
-                const alreadyExists = existingIssues.data.some(issue => {
-                  if (!issue.title) return false;
-                  const existingTitle = issue.title.toLowerCase().trim();
-                  // Exact match or very high similarity (>80% of words match)
-                  if (existingTitle === normalizedTitle) return true;
-                  
-                  const words1 = new Set(normalizedTitle.split(/\s+/));
-                  const words2 = new Set(existingTitle.split(/\s+/));
-                  const intersection = new Set([...words1].filter(w => words2.has(w)));
-                  const similarity = intersection.size / Math.max(words1.size, words2.size);
-                  return similarity > 0.8;
-                });
-                
-                if (alreadyExists) {
-                  console.log(`   ⏭️  Similar issue exists: "${proposal.title}"`);
-                  skipped++;
-                  continue;
-                }
-              } catch (error) {
-                console.log(`   ⚠️  Could not check for existing issues: ${error.message}`);
+                const words1 = new Set(normalizedTitle.split(/\s+/));
+                const words2 = new Set(existingTitle.split(/\s+/));
+                const intersection = new Set([...words1].filter(w => words2.has(w)));
+                const similarity = intersection.size / Math.max(words1.size, words2.size);
+                return similarity > 0.8;
+              });
+              
+              if (alreadyExists) {
+                console.log(`   ⏭️  Similar issue exists: "${proposal.title}"`);
+                skipped++;
+                continue;
               }
               
               // Create the issue

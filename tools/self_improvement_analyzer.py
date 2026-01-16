@@ -28,6 +28,12 @@ except ImportError:
     print("Error: PyYAML is required. Install with: pip install pyyaml", file=sys.stderr)
     sys.exit(1)
 
+# Common keywords for pattern detection across feedback and retrospectives
+PATTERN_KEYWORDS = [
+    'documentation', 'testing', 'validation', 'agent prompt',
+    'workflow', 'automation', 'quality', 'handoff', 'artifact'
+]
+
 
 class FeedbackAnalyzer:
     """Analyzes agent feedback files."""
@@ -139,8 +145,7 @@ class FeedbackAnalyzer:
         text1 = f"{item1.get('title', '')} {item1.get('description', '')}".lower()
         text2 = f"{item2.get('title', '')} {item2.get('description', '')}".lower()
         
-        keywords = ['prompt', 'validation', 'testing', 'documentation', 'artifact', 'tool']
-        for keyword in keywords:
+        for keyword in PATTERN_KEYWORDS:
             if keyword in text1 and keyword in text2:
                 return True
         
@@ -242,13 +247,8 @@ class RetrospectiveAnalyzer:
             for r in self.retrospectives
         ]).lower()
         
-        # Common pattern keywords - count all in a single pass for efficiency
-        pattern_keywords = [
-            'documentation', 'testing', 'validation', 'agent prompt',
-            'workflow', 'automation', 'quality', 'handoff', 'artifact'
-        ]
-        
-        keyword_counts = {keyword: all_text.count(keyword) for keyword in pattern_keywords}
+        # Count all pattern keywords in a single pass for efficiency
+        keyword_counts = {keyword: all_text.count(keyword) for keyword in PATTERN_KEYWORDS}
         
         for keyword, count in keyword_counts.items():
             if count >= 2:  # Appears in multiple retros
