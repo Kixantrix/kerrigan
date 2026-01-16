@@ -56,13 +56,13 @@ This audit report documents all agent activities during the Task Tracker project
 - Proceeded with work: ✅
 
 **Artifacts Created**:
-1. `specs/projects/task-tracker/spec.md` (432 lines)
+1. `examples/task-tracker/ (documented in RUNBOOK): spec.md` (432 lines)
    - Goal and scope clearly defined
    - 15 measurable acceptance criteria
    - Success metrics included
    - Risks and mitigations documented
 
-2. `specs/projects/task-tracker/acceptance-tests.md` (280 lines)
+2. `examples/task-tracker/ (documented in RUNBOOK): acceptance-tests.md` (280 lines)
    - 12 test scenarios
    - Given/When/Then format
    - Edge cases covered
@@ -117,33 +117,33 @@ This audit report documents all agent activities during the Task Tracker project
 - Proceeded with work: ✅
 
 **Artifacts Created**:
-1. `specs/projects/task-tracker/architecture.md` (512 lines)
+1. `examples/task-tracker/ (documented in RUNBOOK): architecture.md` (512 lines)
    - Component design (4 modules)
    - Data flows documented
    - Security considerations
    - Tradeoffs explained
 
-2. `specs/projects/task-tracker/plan.md` (328 lines)
+2. `examples/task-tracker/ (documented in RUNBOOK): plan.md` (328 lines)
    - 4 incremental milestones
    - Clear dependencies
    - Rollback strategies
 
-3. `specs/projects/task-tracker/tasks.md` (445 lines)
+3. `examples/task-tracker/ (documented in RUNBOOK): tasks.md` (445 lines)
    - 18 executable tasks
    - Clear done criteria
    - Links to artifacts
 
-4. `specs/projects/task-tracker/test-plan.md` (298 lines)
+4. `examples/task-tracker/ (documented in RUNBOOK): test-plan.md` (298 lines)
    - Test levels defined
    - Coverage strategy
    - Tooling choices
 
-5. `specs/projects/task-tracker/runbook.md` (267 lines)
+5. `examples/task-tracker/ (documented in RUNBOOK): runbook.md` (267 lines)
    - Installation guide
    - Usage documentation
    - Troubleshooting
 
-6. `specs/projects/task-tracker/cost-plan.md` (124 lines)
+6. `examples/task-tracker/ (documented in RUNBOOK): cost-plan.md` (124 lines)
    - Cost analysis (zero cost)
    - Resource considerations
 

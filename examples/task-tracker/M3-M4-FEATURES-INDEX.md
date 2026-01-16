@@ -8,15 +8,15 @@ This document provides a quick reference to all Milestone 3 & 4 features demonst
 - **[RUNBOOK](RUNBOOK.md)** - Complete development narrative
 - **[AGENT-AUDIT-REPORT](AGENT-AUDIT-REPORT.md)** - Full audit trail
 - **[WORKFLOW-PHASES](WORKFLOW-PHASES.md)** - Phase-by-phase breakdown
-- **[STATUS-HISTORY](../../../specs/projects/task-tracker/STATUS-HISTORY.md)** - Status.json transitions
+- **[STATUS-HISTORY](STATUS-HISTORY.md)** - Status.json transitions
 
 ## Milestone 3 Features: Status Tracking & Pause/Resume
 
 ### ✅ status.json Workflow Control
-- **Where**: `specs/projects/task-tracker/status.json`
+- **Where**: `examples/task-tracker/status.json`
 - **Description**: JSON file controlling agent workflow state
 - **Demonstrated**: Project tracked through all 5 phases
-- **Documentation**: [STATUS-HISTORY.md](../../../specs/projects/task-tracker/STATUS-HISTORY.md)
+- **Documentation**: [STATUS-HISTORY.md](STATUS-HISTORY.md)
 
 ### ✅ Pause During Development
 - **Pauses**: 2 pauses at critical review points
@@ -33,7 +33,7 @@ This document provides a quick reference to all Milestone 3 & 4 features demonst
 - **Transitions**: 7 total transitions documented
 - **Phases**: spec → architecture → implementation → testing → deployment
 - **Tracking**: Each transition recorded with timestamp and notes
-- **Documentation**: [STATUS-HISTORY.md](../../../specs/projects/task-tracker/STATUS-HISTORY.md)
+- **Documentation**: [STATUS-HISTORY.md](STATUS-HISTORY.md)
 
 ### ✅ Blocked State Handling
 - **blocked_reason**: Used in both pauses to explain why work stopped
@@ -111,7 +111,7 @@ This document provides a quick reference to all Milestone 3 & 4 features demonst
    - M3/M4 feature usage per phase
    - Observations and recommendations
 
-5. **[STATUS-HISTORY.md](../../../specs/projects/task-tracker/STATUS-HISTORY.md)** (4.1 KB)
+5. **[STATUS-HISTORY.md](STATUS-HISTORY.md)** (4.1 KB)
    - All 7 status.json transitions
    - Timeline of changes
    - Summary metrics
@@ -163,7 +163,7 @@ This document provides a quick reference to all Milestone 3 & 4 features demonst
 4. Review **[AGENT-AUDIT-REPORT.md](AGENT-AUDIT-REPORT.md)** for audit trail
 
 ### For Implementation
-1. Copy status.json pattern from **[STATUS-HISTORY.md](../../../specs/projects/task-tracker/STATUS-HISTORY.md)**
+1. Copy status.json pattern from **[STATUS-HISTORY.md](STATUS-HISTORY.md)**
 2. Use signature format from **[AGENT-AUDIT-REPORT.md](AGENT-AUDIT-REPORT.md)**
 3. Follow pause/resume pattern from **[RUNBOOK.md](RUNBOOK.md)**
 4. Reference agent specs as shown in **[WORKFLOW-PHASES.md](WORKFLOW-PHASES.md)**

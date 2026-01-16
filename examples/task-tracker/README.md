@@ -119,7 +119,7 @@ task-tracker logout
 
 ### 1. Status Tracking (Milestone 3)
 
-This project used `specs/projects/task-tracker/status.json` throughout development:
+This project used `examples/task-tracker/status.json` throughout development:
 
 **Initial State (Spec Phase)**:
 ```json
@@ -260,7 +260,7 @@ To use this example as a template for your own project:
 
 2. **Set up status.json**:
    ```bash
-   cp specs/projects/task-tracker/status.json specs/projects/my-project/
+   cp examples/task-tracker/status.json specs/projects/my-project/
    ```
 
 3. **Create issue with agent:go**:

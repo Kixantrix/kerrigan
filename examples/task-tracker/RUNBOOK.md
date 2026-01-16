@@ -79,7 +79,7 @@ all Kerrigan M3/M4 features.
 mkdir -p specs/projects/task-tracker
 
 # Create initial status.json
-cat > specs/projects/task-tracker/status.json << 'EOF'
+cat > examples/task-tracker/status.json << 'EOF'
 {
   "status": "active",
   "current_phase": "spec",
@@ -122,7 +122,7 @@ EOF
 
 ### Artifacts Created
 
-1. **specs/projects/task-tracker/spec.md**
+1. **examples/task-tracker/docs/spec.md (documented in RUNBOOK)**
    - Goal and scope
    - User scenarios
    - Acceptance criteria (15 measurable criteria)
@@ -168,7 +168,7 @@ Verified status.json: status=active, phase=spec ✅
 
 **Status Updated to BLOCKED**:
 ```bash
-cat > specs/projects/task-tracker/status.json << 'EOF'
+cat > examples/task-tracker/status.json << 'EOF'
 {
   "status": "blocked",
   "current_phase": "spec",
