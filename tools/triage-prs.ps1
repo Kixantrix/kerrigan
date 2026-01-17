@@ -31,12 +31,15 @@ param(
     [switch]$DryRun
 )
 
-Write-Host "`n========================================" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "PR Triage Dashboard - Kerrigan" -ForegroundColor Cyan
-Write-Host "========================================`n" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor Cyan
 
 if ($DryRun) {
-    Write-Host "DRY RUN MODE - No actions will be taken`n" -ForegroundColor Magenta
+    Write-Host "DRY RUN MODE - No actions will be taken" -ForegroundColor Magenta
+    Write-Host "" -ForegroundColor Magenta
 }
 
 # Fetch all open PRs with detailed information
@@ -70,7 +73,8 @@ if ($prs.Count -eq 0) {
     exit 0
 }
 
-Write-Host "Found $($prs.Count) open PR(s)`n" -ForegroundColor Cyan
+Write-Host "Found $($prs.Count) open PR(s)" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor Cyan
 
 # Categorize PRs
 $readyForReview = @()
@@ -81,7 +85,6 @@ $mergeReady = @()
 $otherPrs = @()
 
 $now = Get-Date
-$staleThreshold = $now.AddHours(-24)
 
 foreach ($pr in $prs) {
     # Get CI status for this PR
@@ -241,7 +244,8 @@ if ($ShowAll -and $otherPrs.Count -gt 0) {
 }
 
 # Summary
-Write-Host "`n========================================" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "SUMMARY" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Total PRs: $($prs.Count)" -ForegroundColor White
@@ -271,4 +275,6 @@ if ($readyForReview.Count -gt 0) {
     Write-Host "  5. Review and approve ready PRs" -ForegroundColor Blue
 }
 
-Write-Host "`n========================================`n" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor Cyan

@@ -162,8 +162,8 @@ This script shows:
 
 5. **Retrigger CI**
    ```bash
-   # Re-run failed checks
-   gh pr checks <PR#> --required
+   # Re-run failed checks (use RUN_ID from "gh run list")
+   gh run rerun <RUN_ID>
    
    # Or close/reopen for bot PRs
    gh pr close <PR#>
