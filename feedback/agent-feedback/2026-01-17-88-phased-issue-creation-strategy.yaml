@@ -1,0 +1,85 @@
+agent: kerrigan
+date: 2026-01-17
+severity: success
+category: process-improvement
+context:
+  task: "Create strategic issues for Milestone 7 work"
+  related_issues:
+    - 82
+    - 83
+    - 84
+    - 85
+    - 86
+    - 87
+    - 88
+  related_files:
+    - specs/projects/kerrigan/milestone-7-spec.md
+    - specs/projects/kerrigan/milestone-7-tasks.md
+
+observation: |
+  When planning a large milestone (M7 has 60+ tasks across 3 phases spanning 24 weeks),
+  creating all tasks as issues upfront is counterproductive. Many tasks have unmet
+  dependencies and won't be actionable for weeks.
+  
+  Instead, I analyzed the task breakdown and created only 7 foundational issues:
+  - 4 design/architecture issues (no dependencies, block other work)
+  - 2 implementation issues (depend on designs)
+  - 1 tracking issue (monitors overall progress)
+  
+  This approach:
+  - Keeps issue list focused and actionable
+  - Avoids noise from blocked/future work
+  - Allows designs to inform later implementation issues
+  - Enables sequential issue creation as dependencies clear
+
+pattern: |
+  For multi-phase milestones:
+  
+  1. **Read specifications fully** (both spec.md and tasks.md)
+  2. **Identify phases with clear boundaries** (M7 has 7a, 7b, 7c)
+  3. **Focus on earliest phase** (7a: foundation, blocks 7b and 7c)
+  4. **Within phase, identify design vs implementation:**
+     - Design issues have no dependencies, block implementations
+     - Implementation issues depend on designs
+  5. **Create design issues first** (4 architecture/spec issues)
+  6. **Create dependent implementation issues** (2 implementation issues)
+  7. **Create tracking issue** (monitors phase completion)
+  8. **Document dependencies in issue bodies** (until dependency syntax #84 exists)
+  9. **Defer later phases** (create 7b issues after 7a completes)
+
+recommendation: |
+  **For Kerrigan (system maintainer):**
+  - Document "phased issue creation" in playbooks/kickoff.md
+  - Add guidance: "For milestones >20 tasks, create only first phase issues"
+  - Update triage workflow to check for completed phases that need next issues
+  
+  **For Spec agent:**
+  - When creating milestone specs, break into clear phases
+  - Each phase should have ~5-10 issues maximum
+  - Document phase dependencies explicitly
+  - Include guidance on when to create next phase issues
+  
+  **For other agents:**
+  - Check milestone tracking issues to understand phase boundaries
+  - Don't create issues for tasks with unmet dependencies
+  - When completing design work, identify blocked implementation issues
+
+evidence: |
+  Session created 7 strategic M7a issues from 60+ total tasks:
+  - #82: Multi-repo spec (design, no deps)
+  - #83: CLI architecture (design, no deps)
+  - #84: Dependency syntax (design, no deps)
+  - #85: Prompt URL system (design, no deps)
+  - #86: Example multi-repo project (implementation, depends on #82)
+  - #87: CLI implementation (implementation, depends on #82, #83, #84)
+  - #88: M7a tracking (ongoing, monitors all)
+  
+  Result:
+  - All 7 issues immediately actionable (no blocked work)
+  - Clear dependency chain documented
+  - Phase 7b deferred (depends on 7a completion)
+  - Phase 7c deferred (depends on 7b completion)
+  - Issue list remains focused and manageable
+
+impact: high
+actionable: true

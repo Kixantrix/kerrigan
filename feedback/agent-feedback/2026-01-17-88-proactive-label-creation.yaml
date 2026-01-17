@@ -1,0 +1,83 @@
+agent: kerrigan
+date: 2026-01-17
+severity: medium
+category: tooling
+context:
+  task: "Create M7a issues with milestone:m7a and role:triage labels"
+  related_issues:
+    - 82
+    - 88
+  related_files: []
+
+observation: |
+  When creating issues with labels, gh CLI fails if labels don't exist yet.
+  This caused two failed issue creation attempts:
+  
+  1. First attempt at #82 failed: "milestone:m7a not found"
+  2. Created milestone:m7a label, then #82 succeeded
+  3. Later attempt at #88 failed: "role:triage not found"
+  4. Created role:triage label, then #88 succeeded
+  
+  This interrupts workflow and requires retry/recovery.
+
+pattern: |
+  **Current workflow (reactive):**
+  1. Attempt issue creation with new label
+  2. Command fails with "label not found"
+  3. Create label with gh label create
+  4. Retry issue creation
+  5. Success
+  
+  **Better workflow (proactive):**
+  1. Identify all labels needed for issue batch
+  2. Check which labels exist: gh label list --json name --jq '.[].name'
+  3. Create missing labels in batch before creating issues
+  4. Create all issues without interruption
+
+recommendation: |
+  **For Kerrigan (system maintainer):**
+  - Create playbook section on label management
+  - Document standard label taxonomy (role:*, milestone:*, agent:*, severity:*, etc.)
+  - Consider creating script to initialize standard labels in new repos
+  
+  **For all agents:**
+  - When planning to create multiple issues, check labels exist first
+  - Use: `gh label list | Select-String "pattern"` to verify
+  - Create missing labels before issue batch: `gh label create "name" --description "desc" --color "hex"`
+  - Group label creation: `@("label1", "label2") | ForEach-Object { gh label create $_ ... }`
+  
+  **Improvement opportunity:**
+  - Create tools/init-labels.ps1 script to set up standard labels
+  - Run during project initialization
+  - Document in playbooks/kickoff.md
+
+evidence: |
+  Failed commands this session:
+  
+  ```
+  gh issue create --title "[M7a] Design multi-repository..." --label "milestone:m7a" ...
+  > could not add label: 'milestone:m7a' not found
+  
+  gh issue create --title "[M7a] Milestone 7a tracking..." --label "role:triage" ...
+  > could not add label: 'role:triage' not found
+  ```
+  
+  Recovery required manual label creation before retrying issue creation.
+  
+  Better approach would have been:
+  ```powershell
+  # Check and create labels first
+  $labels = @("milestone:m7a", "role:triage")
+  $existing = gh label list --json name --jq '.[].name'
+  foreach ($label in $labels) {
+    if ($existing -notcontains $label) {
+      gh label create $label --description "..." --color "..."
+    }
+  }
+  
+  # Then create all issues without interruption
+  gh issue create ... --label "milestone:m7a" --label "role:triage"
+  ```
+
+impact: medium
+actionable: true
