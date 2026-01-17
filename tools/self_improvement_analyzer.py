@@ -347,13 +347,14 @@ class GitHubAnalysisResearcher:
     def _fetch_prs(self, days_back: int) -> List[Dict[str, Any]]:
         """Fetch pull requests from GitHub API."""
         since = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
-        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/pulls?state=all&per_page=100"
+        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/pulls?state=all&since={since}&per_page=100"
         
         try:
             req = urllib.request.Request(url)
             req.add_header("Authorization", f"Bearer {self.github_token}")
             req.add_header("Accept", "application/vnd.github.v3+json")
             
+            # Security: Use context manager and timeout
             with urllib.request.urlopen(req, timeout=10) as response:
                 return json.loads(response.read().decode())
         except Exception as e:
@@ -370,10 +371,15 @@ class GitHubAnalysisResearcher:
             req.add_header("Authorization", f"Bearer {self.github_token}")
             req.add_header("Accept", "application/vnd.github.v3+json")
             
+            # Security: Use context manager and timeout
             with urllib.request.urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode())
+                # Validate response structure before filtering
+                if not isinstance(data, list):
+                    print(f"   ⚠️  Unexpected API response format")
+                    return []
                 # Filter out PRs (they show up in issues endpoint too)
-                return [item for item in data if 'pull_request' not in item]
+                return [item for item in data if isinstance(item, dict) and 'pull_request' not in item]
         except Exception as e:
             print(f"   ⚠️  Failed to fetch issues: {e}")
             return []
@@ -882,13 +888,20 @@ def main(
         github_token = os.environ.get('GITHUB_TOKEN')
         if github_token:
             # Extract repo info from environment or use defaults
-            repo_owner = os.environ.get('GITHUB_REPOSITORY', 'Kixantrix/kerrigan').split('/')[0]
-            repo_name = os.environ.get('GITHUB_REPOSITORY', 'Kixantrix/kerrigan').split('/')[1]
+            repo_full_name = os.environ.get('GITHUB_REPOSITORY', 'Kixantrix/kerrigan')
+            repo_parts = repo_full_name.split('/')
             
-            gh_researcher = GitHubAnalysisResearcher(repo_owner, repo_name, github_token, enabled=True)
-            gh_findings = gh_researcher.analyze_patterns(days_back=30)
-            external_findings.extend(gh_findings)
-            print(f"      Found {len(gh_findings)} GitHub patterns")
+            # Validate repo format
+            if len(repo_parts) != 2:
+                print(f"      ⚠️  Invalid GITHUB_REPOSITORY format: {repo_full_name}")
+            else:
+                repo_owner = repo_parts[0]
+                repo_name = repo_parts[1]
+                
+                gh_researcher = GitHubAnalysisResearcher(repo_owner, repo_name, github_token, enabled=True)
+                gh_findings = gh_researcher.analyze_patterns(days_back=30)
+                external_findings.extend(gh_findings)
+                print(f"      Found {len(gh_findings)} GitHub patterns")
         else:
             print("      ⚠️  GITHUB_TOKEN not available, skipping GitHub analysis")
     
