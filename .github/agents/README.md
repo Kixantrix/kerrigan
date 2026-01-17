@@ -59,6 +59,41 @@ python tools/agent_audit.py create-signature role:swe
 
 The signature is an HTML comment that won't be visible in rendered markdown but can be checked by reviewers and automation. See [docs/agent-auditing.md](../../docs/agent-auditing.md) for full details.
 
+### Agent Specifications (New!)
+
+Each agent now has a comprehensive specification defining their responsibilities, quality standards, and expected behaviors. These specs are located in `specs/kerrigan/agents/<agent-name>/`:
+
+- **spec.md** - Complete role definition, scope, and constraints
+- **quality-bar.md** - Quality standards for agent output
+- **architecture.md** - How the agent should approach work
+- **acceptance-tests.md** - Test scenarios to validate agent work
+
+**Before starting work as an agent, review your specifications!** Each agent role prompt now includes links to these documents.
+
+#### Validating Spec Compliance
+
+Use the `agent_audit.py` tool to validate that agents are following their specifications:
+
+```bash
+# Check if all agent prompts reference their specs
+python tools/agent_audit.py check-spec-references
+
+# Validate an agent's compliance with its spec
+python tools/agent_audit.py validate-compliance role:swe
+
+# Check if artifacts meet quality bar standards
+python tools/agent_audit.py check-quality-bar role:swe src/main.py src/utils.py
+
+# Generate a checklist for an agent role
+python tools/agent_audit.py generate-checklist role:swe
+```
+
+These validation commands help ensure:
+- Agent prompts properly reference their specifications
+- Agent work follows quality standards (e.g., file size limits)
+- Required sections are present in artifacts
+- PR descriptions include proper agent signatures
+
 ### Automated Workflow (Advanced)
 
 Use orchestration tools that can:

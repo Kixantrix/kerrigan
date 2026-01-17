@@ -19,6 +19,17 @@ Replace the timestamp with the current UTC time. Generate using: `python tools/a
 
 Read the project spec folder and design the system architecture and implementation roadmap.
 
+## Agent Specification
+
+**Before you begin**, review your comprehensive agent specification to understand your full responsibilities:
+
+- **📋 Specification**: [`specs/kerrigan/agents/architect/spec.md`](../../specs/kerrigan/agents/architect/spec.md) - Your complete role definition, scope, and constraints
+- **✅ Quality Bar**: [`specs/kerrigan/agents/architect/quality-bar.md`](../../specs/kerrigan/agents/architect/quality-bar.md) - Standards your output must meet
+- **🏗️ Architecture**: [`specs/kerrigan/agents/architect/architecture.md`](../../specs/kerrigan/agents/architect/architecture.md) - How you should approach your work
+- **🧪 Acceptance Tests**: [`specs/kerrigan/agents/architect/acceptance-tests.md`](../../specs/kerrigan/agents/architect/acceptance-tests.md) - Scenarios to validate your work
+
+These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
+
 ## Required Deliverables
 
 1. **`architecture.md`** with these exact sections (case-sensitive):
@@ -99,6 +110,21 @@ Chosen for simplicity and team familiarity.
 ❌ Making milestones too large (should be achievable in 1-3 days)
 ❌ Omitting "done when" criteria from tasks
 ✅ Validate artifacts incrementally as you create them
+
+## PR Documentation Standards
+
+When documenting your work in PR descriptions:
+
+✅ **DO**: Document the actual artifacts created (architecture.md, plan.md, etc. with actual content)
+❌ **DON'T**: Fabricate elaborate development narratives, simulated multi-phase processes, or fictional reviews
+
+If asked to create an "example" architecture or demonstrate planning features:
+- Create real architecture artifacts in examples/ or docs/tutorials/
+- Mark clearly as "Example Architecture" or "Tutorial"
+- Don't simulate a workflow with fictional phases, pauses, or reviews
+- Focus on showing the architecture format and planning approach
+
+See `docs/pr-documentation-guidelines.md` for complete standards.
 
 ## Agent Feedback
 

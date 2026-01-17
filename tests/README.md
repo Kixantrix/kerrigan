@@ -50,6 +50,21 @@ Validates automation configuration files and workflows.
 - `TestWorkflowsExist`: Ensures expected GitHub Actions workflows exist
 - `TestIssueTemplates`: Validates GitHub issue templates
 
+### Autonomy Gates (`test_autonomy_gates.py`)
+
+Validates autonomy gate enforcement in agent-gates workflow (Milestone 4).
+
+**Test Classes:**
+- `TestAutonomyGatesWorkflow`: Tests workflow structure and basic configuration
+- `TestOnDemandMode`: Tests on-demand autonomy mode (agent:go label required)
+- `TestSprintMode`: Tests sprint mode (agent:sprint label triggers auto-approval)
+- `TestOverrideMode`: Tests override mechanism (autonomy:override bypasses all gates)
+- `TestFallbackMode`: Tests fallback mode (check PR labels when no linked issues)
+- `TestEdgeCases`: Tests error handling and edge cases
+- `TestLabelCombinations`: Tests various label combinations and priorities
+- `TestDocumentationAlignment`: Ensures workflow aligns with documentation
+- `TestWorkflowLogging`: Tests workflow logging and observability
+
 ### Agent Feedback Tests (`test_feedback.py`)
 
 Validates the agent feedback backchannel system configuration and feedback files.
@@ -143,15 +158,18 @@ if __name__ == "__main__":
 ### Current Test Count
 - **Agent Prompt Tests**: 20 tests across 6 test classes
 - **Automation Tests**: 47 tests across 4 test classes
+- **Autonomy Gates Tests**: 47 tests across 9 test classes (Milestone 4)
 - **Agent Feedback Tests**: 21 tests across 5 test classes
 - **Validator Tests**: 17 tests for status.json validation
-- **Total**: 105 tests
+- **Pause/Resume Tests**: 9 tests for status tracking workflow
+- **Total**: 185 tests
 
 ### Coverage Goals
 - ✅ All agent prompts validated for structure and content
 - ✅ All automation configurations validated
 - ✅ Agent feedback system fully validated
 - ✅ Status.json schema fully validated
+- ✅ Autonomy gate enforcement fully tested (Milestone 4)
 - 🔄 Future: Add tests for artifact validators
 - 🔄 Future: Add tests for quality bar checker
 

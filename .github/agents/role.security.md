@@ -19,6 +19,17 @@ Replace the timestamp with the current UTC time. Generate using: `python tools/a
 
 Identify and prevent common security issues early in the development process.
 
+## Agent Specification
+
+**Before you begin**, review your comprehensive agent specification to understand your full responsibilities:
+
+- **📋 Specification**: [`specs/kerrigan/agents/security/spec.md`](../../specs/kerrigan/agents/security/spec.md) - Your complete role definition, scope, and constraints
+- **✅ Quality Bar**: [`specs/kerrigan/agents/security/quality-bar.md`](../../specs/kerrigan/agents/security/quality-bar.md) - Standards your output must meet
+- **🏗️ Architecture**: [`specs/kerrigan/agents/security/architecture.md`](../../specs/kerrigan/agents/security/architecture.md) - How you should approach your work
+- **🧪 Acceptance Tests**: [`specs/kerrigan/agents/security/acceptance-tests.md`](../../specs/kerrigan/agents/security/acceptance-tests.md) - Scenarios to validate your work
+
+These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
+
 ## Deliverables
 
 1. **Security notes in `architecture.md`** – Document security considerations and mitigations

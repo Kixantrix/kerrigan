@@ -71,6 +71,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
 - **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
 - **[PR Review](playbooks/pr-review.md)**: Human review guidelines
+- **[PR Documentation Guidelines](docs/pr-documentation-guidelines.md)**: Standards for accurate, factual documentation
 - **[Replication Guide](playbooks/replication-guide.md)**: Set up Kerrigan in new repositories
 - **[Automation Limits](docs/automation-limits.md)**: What can be automated vs. requires human intervention
 
@@ -92,12 +93,23 @@ Kerrigan gives you fine-grained control over when agents can work:
 
 **Autonomy gates**: PRs require `agent:go` or `agent:sprint` label on linked issues, or `autonomy:override` label on the PR itself. This ensures human control over when agents can work.
 
+**Three autonomy modes supported**:
+- **On-demand**: PRs require `agent:go` label on linked issues (recommended)
+- **Sprint**: PRs linked to `agent:sprint` issues auto-receive `agent:go` label
+- **Override**: `autonomy:override` label on PR bypasses all gates (human approval)
+
 **Status tracking**: Use `status.json` to pause/resume work:
 ```json
 {"status": "blocked", "blocked_reason": "Awaiting security review"}
 ```
 
-See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed configuration options.
+**Limitations & Workarounds**:
+- **API rate limits**: If GitHub API rate limits are hit, add labels directly to PRs as fallback
+- **Private/cross-repo issues**: Cannot check labels on issues in other repos—use direct PR labels instead
+- **Label propagation delay**: GitHub Actions may take a few seconds to trigger after label changes
+- **Manual fallback**: If automation fails, use manual PR review and approval process
+
+See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed configuration options and troubleshooting.
 
 ---
 

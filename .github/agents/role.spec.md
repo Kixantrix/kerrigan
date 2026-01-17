@@ -19,6 +19,17 @@ Replace the timestamp with the current UTC time. Generate using: `python tools/a
 
 Create or update a project spec under `specs/projects/<project-name>/` following the artifact contract.
 
+## Agent Specification
+
+**Before you begin**, review your comprehensive agent specification to understand your full responsibilities:
+
+- **📋 Specification**: [`specs/kerrigan/agents/spec/spec.md`](../../specs/kerrigan/agents/spec/spec.md) - Your complete role definition, scope, and constraints
+- **✅ Quality Bar**: [`specs/kerrigan/agents/spec/quality-bar.md`](../../specs/kerrigan/agents/spec/quality-bar.md) - Standards your output must meet
+- **🏗️ Architecture**: [`specs/kerrigan/agents/spec/architecture.md`](../../specs/kerrigan/agents/spec/architecture.md) - How you should approach your work
+- **🧪 Acceptance Tests**: [`specs/kerrigan/agents/spec/acceptance-tests.md`](../../specs/kerrigan/agents/spec/acceptance-tests.md) - Scenarios to validate your work
+
+These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
+
 ## Required Deliverables
 
 1. **`spec.md`** with these exact sections (case-sensitive):
@@ -71,6 +82,21 @@ Enable users to authenticate via OAuth2 and access protected resources.
 ❌ Including implementation details (tech stack, architecture)
 ❌ Making criteria subjective ("works well", "is fast")
 ✅ Focus on user-facing goals and measurable outcomes
+
+## PR Documentation Standards
+
+When documenting your work in PR descriptions:
+
+✅ **DO**: Document what you actually created (spec.md, acceptance-tests.md with specific content)
+❌ **DON'T**: Fabricate process narratives, fictional reviews, or simulated workflows
+
+If asked to create an "example" or "demo" specification:
+- Create real spec artifacts in examples/ or docs/tutorials/
+- Mark clearly as "Example Spec" or "Tutorial"
+- Don't simulate a multi-phase development process
+- Focus on showing the spec format, not inventing elaborate backstories
+
+See `docs/pr-documentation-guidelines.md` for complete standards.
 
 ## Agent Feedback
 

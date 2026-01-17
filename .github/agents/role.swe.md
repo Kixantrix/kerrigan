@@ -24,6 +24,17 @@ python tools/agent_audit.py create-signature role:swe
 
 Implement one milestone at a time following the project plan. Keep PRs small and CI green.
 
+## Agent Specification
+
+**Before you begin**, review your comprehensive agent specification to understand your full responsibilities:
+
+- **📋 Specification**: [`specs/kerrigan/agents/swe/spec.md`](../../specs/kerrigan/agents/swe/spec.md) - Your complete role definition, scope, and constraints
+- **✅ Quality Bar**: [`specs/kerrigan/agents/swe/quality-bar.md`](../../specs/kerrigan/agents/swe/quality-bar.md) - Standards your output must meet
+- **🏗️ Architecture**: [`specs/kerrigan/agents/swe/architecture.md`](../../specs/kerrigan/agents/swe/architecture.md) - How you should approach your work
+- **🧪 Acceptance Tests**: [`specs/kerrigan/agents/swe/acceptance-tests.md`](../../specs/kerrigan/agents/swe/acceptance-tests.md) - Scenarios to validate your work
+
+These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
+
 ## Core Principles
 
 1. **Link to project context**: Reference the project folder and specific milestone/task
@@ -138,6 +149,66 @@ curl -X POST http://localhost:3000/api/login \
 ❌ Forgetting to create linting config until PR review
 ❌ Committing broken code assuming "CI will catch it"
 ✅ Test continuously, refactor early, keep diffs small and reviewable
+
+## PR Documentation Standards
+
+**CRITICAL**: PR descriptions and documentation must be factually accurate.
+
+### Document What Actually Happened
+
+✅ **DO:**
+- Describe actual work performed (files created, tests added, features implemented)
+- Reference real commits, PRs, and issues that exist
+- Document actual timeline if mentioned (verify against git history)
+- Report actual test results and coverage numbers
+
+❌ **DON'T:**
+- Fabricate process steps that didn't occur
+- Simulate workflows or create fictional narratives
+- Claim human intervention that didn't happen (reviews, approvals, pauses)
+- Invent timestamps, durations, phases, or PR numbers
+- Create elaborate backstories instead of documenting actual work
+
+### When Asked to "Demonstrate" Features
+
+If asked to "demonstrate", "show", or "exercise" features:
+
+**Interpret as**: Build working code that actually uses the feature
+**NOT as**: Create fictional documentation simulating feature usage
+
+**Example - Good:**
+- Build a real CLI tool that uses status.json
+- Create working code in examples/ directory
+- Document how to run and verify it works
+- Show actual output from running the code
+
+**Example - Bad:**
+- Write elaborate documentation describing a fictional 5-phase development process
+- Document PRs (#1, #2, #3) that were never created
+- Simulate agent signatures and timelines for work that didn't happen
+- Create 70KB of process documentation for 400 LOC of code
+
+### Distinguishing Real Work from Examples
+
+**For actual PR work** (your current PR):
+- Use past tense: "Created X", "Added Y", "Implemented Z"
+- Reference specific files and line counts
+- Keep claims verifiable against git history
+
+**For tutorial/example content** (in examples/ or docs/):
+- Clearly mark as "Example:", "Tutorial:", or "Simulated:"
+- Use conditional language: "would create", "could be used"
+- Place in appropriate directories (examples/, docs/tutorials/)
+
+### Red Flags to Avoid
+
+🚩 Disproportionate documentation (70KB docs for 400 LOC code)
+🚩 References to non-existent PRs, issues, or reviews
+🚩 Timeline claims that don't match git history
+🚩 Elaborate multi-phase narratives for simple single-session work
+🚩 Fabricated agent signatures for work not done in phases
+
+See `docs/pr-documentation-guidelines.md` for complete standards.
 
 ## Agent Feedback
 
