@@ -150,8 +150,8 @@ foreach ($pr in $prs) {
 
 # 1. Merge-Ready PRs (highest priority)
 if ($mergeReady.Count -gt 0) {
-    Write-Host "🟢 MERGE READY ($($mergeReady.Count))" -ForegroundColor Green
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Green
+    Write-Host "[OK] MERGE READY ($($mergeReady.Count))" -ForegroundColor Green
+    Write-Host "========================================" -ForegroundColor Green
     foreach ($pr in $mergeReady) {
         Write-Host "  #$($pr.number): $($pr.title)" -ForegroundColor White
         Write-Host "    Status: Approved, CI passing, no conflicts" -ForegroundColor Green
@@ -165,37 +165,37 @@ if ($mergeReady.Count -gt 0) {
 
 # 2. PRs with CI Failures (high priority)
 if ($withCiFailures.Count -gt 0) {
-    Write-Host "🔴 CI FAILURES ($($withCiFailures.Count))" -ForegroundColor Red
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Red
+    Write-Host "[!!] CI FAILURES ($($withCiFailures.Count))" -ForegroundColor Red
+    Write-Host "========================================" -ForegroundColor Red
     foreach ($pr in $withCiFailures) {
         Write-Host "  #$($pr.number): $($pr.title)" -ForegroundColor White
         Write-Host "    Author: $($pr.author.login)" -ForegroundColor Gray
         Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
         Write-Host "    Actions:" -ForegroundColor Yellow
         Write-Host "      gh pr checks $($pr.number)  # View check details" -ForegroundColor Cyan
-        Write-Host "      gh pr comment $($pr.number) --body `"CI is failing. Please review and fix.`"  # Notify author" -ForegroundColor Cyan
+        Write-Host "      gh pr comment $($pr.number) --body 'CI is failing. Please review and fix.'  # Notify author" -ForegroundColor Cyan
         Write-Host ""
     }
 }
 
 # 3. PRs with Merge Conflicts
 if ($withConflicts.Count -gt 0) {
-    Write-Host "⚠️  MERGE CONFLICTS ($($withConflicts.Count))" -ForegroundColor Yellow
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+    Write-Host "[WARN] MERGE CONFLICTS ($($withConflicts.Count))" -ForegroundColor Yellow
+    Write-Host "========================================" -ForegroundColor Yellow
     foreach ($pr in $withConflicts) {
         Write-Host "  #$($pr.number): $($pr.title)" -ForegroundColor White
         Write-Host "    Author: $($pr.author.login)" -ForegroundColor Gray
         Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
         Write-Host "    Actions:" -ForegroundColor Yellow
-        Write-Host "      gh pr comment $($pr.number) --body `"This PR has merge conflicts. Please rebase on main.`"  # Notify author" -ForegroundColor Cyan
+        Write-Host "      gh pr comment $($pr.number) --body 'This PR has merge conflicts. Please rebase on main.'  # Notify author" -ForegroundColor Cyan
         Write-Host ""
     }
 }
 
 # 4. Stalled Draft PRs (>24 hours)
 if ($stalledDrafts.Count -gt 0) {
-    Write-Host "⏸️  STALLED DRAFTS ($($stalledDrafts.Count))" -ForegroundColor Magenta
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Magenta
+    Write-Host "[PAUSE] STALLED DRAFTS ($($stalledDrafts.Count))" -ForegroundColor Magenta
+    Write-Host "========================================" -ForegroundColor Magenta
     foreach ($pr in $stalledDrafts) {
         $hours = [Math]::Floor($pr.hoursSinceUpdate)
         Write-Host "  #$($pr.number): $($pr.title)" -ForegroundColor White
@@ -203,23 +203,22 @@ if ($stalledDrafts.Count -gt 0) {
         Write-Host "    Last updated: $hours hours ago" -ForegroundColor Gray
         Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
         Write-Host "    Actions:" -ForegroundColor Yellow
-        Write-Host "      gh pr comment $($pr.number) --body `"@copilot Please continue work on this PR.`"  # Restart agent" -ForegroundColor Cyan
+        Write-Host "      gh pr comment $($pr.number) --body '@copilot Please continue work on this PR.'  # Restart agent" -ForegroundColor Cyan
         Write-Host ""
     }
 }
 
 # 5. Ready for Review PRs
 if ($readyForReview.Count -gt 0) {
-    Write-Host "📋 READY FOR REVIEW ($($readyForReview.Count))" -ForegroundColor Blue
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Blue
+    Write-Host "[REVIEW] READY FOR REVIEW ($($readyForReview.Count))" -ForegroundColor Blue
+    Write-Host "========================================" -ForegroundColor Blue
     foreach ($pr in $readyForReview) {
         Write-Host "  #$($pr.number): $($pr.title)" -ForegroundColor White
         Write-Host "    Author: $($pr.author.login)" -ForegroundColor Gray
-        Write-Host "    CI Status: $($pr.ciStatus)" -ForegroundColor $(
-            if ($pr.ciStatus -eq "passing") { "Green" }
-            elseif ($pr.ciStatus -eq "pending") { "Yellow" }
-            else { "Red" }
-        )
+        $ciColor = "Red"
+        if ($pr.ciStatus -eq "passing") { $ciColor = "Green" }
+        elseif ($pr.ciStatus -eq "pending") { $ciColor = "Yellow" }
+        Write-Host "    CI Status: $($pr.ciStatus)" -ForegroundColor $ciColor
         Write-Host "    Review Decision: $($pr.reviewDecision)" -ForegroundColor Gray
         Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
         Write-Host "    Actions:" -ForegroundColor Yellow
@@ -233,8 +232,8 @@ if ($readyForReview.Count -gt 0) {
 
 # 6. Other PRs (if ShowAll flag is set)
 if ($ShowAll -and $otherPrs.Count -gt 0) {
-    Write-Host "📝 OTHER PRs ($($otherPrs.Count))" -ForegroundColor Gray
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Gray
+    Write-Host "[OTHER] OTHER PRs ($($otherPrs.Count))" -ForegroundColor Gray
+    Write-Host "========================================" -ForegroundColor Gray
     foreach ($pr in $otherPrs) {
         Write-Host "  #$($pr.number): $($pr.title)" -ForegroundColor White
         Write-Host "    Status: Draft=$($pr.isDraft), CI=$($pr.ciStatus)" -ForegroundColor Gray
@@ -249,12 +248,12 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "SUMMARY" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Total PRs: $($prs.Count)" -ForegroundColor White
-Write-Host "  🟢 Merge ready: $($mergeReady.Count)" -ForegroundColor Green
-Write-Host "  🔴 CI failures: $($withCiFailures.Count)" -ForegroundColor Red
-Write-Host "  ⚠️  Merge conflicts: $($withConflicts.Count)" -ForegroundColor Yellow
-Write-Host "  ⏸️  Stalled drafts: $($stalledDrafts.Count)" -ForegroundColor Magenta
-Write-Host "  📋 Ready for review: $($readyForReview.Count)" -ForegroundColor Blue
-Write-Host "  📝 Other: $($otherPrs.Count)" -ForegroundColor Gray
+Write-Host "  [OK] Merge ready: $($mergeReady.Count)" -ForegroundColor Green
+Write-Host "  [!!] CI failures: $($withCiFailures.Count)" -ForegroundColor Red
+Write-Host "  [WARN] Merge conflicts: $($withConflicts.Count)" -ForegroundColor Yellow
+Write-Host "  [PAUSE] Stalled drafts: $($stalledDrafts.Count)" -ForegroundColor Magenta
+Write-Host "  [REVIEW] Ready for review: $($readyForReview.Count)" -ForegroundColor Blue
+Write-Host "  [OTHER] Other: $($otherPrs.Count)" -ForegroundColor Gray
 Write-Host ""
 
 # Quick action suggestions
