@@ -35,6 +35,28 @@ jobs:
           python tools/validators/check_artifacts.py
           python tools/validators/check_quality_bar.py
 
+      - name: Validate PR documentation
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          PR_DOC_LARGE_THRESHOLD_KB: 15
+          PR_DOC_RATIO_THRESHOLD: 10
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Create unique temporary file
+          PR_BODY_FILE=$(mktemp)
+          
+          # Fetch PR body from GitHub API and save securely
+          gh pr view '${{ github.event.pull_request.number }}' --json body --jq .body > "$PR_BODY_FILE"
+          
+          # Run validator
+          python tools/validators/check_pr_documentation.py \
+            --pr-body "$PR_BODY_FILE" \
+            --repo-path .
+          
+          # Clean up
+          rm -f "$PR_BODY_FILE"
+
       - name: Run tests
         run: |
           python -m unittest discover -s tests -p "test_*.py" -v
