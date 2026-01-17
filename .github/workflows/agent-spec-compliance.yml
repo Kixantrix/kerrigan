@@ -1,0 +1,202 @@
+name: Agent Spec Compliance
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    paths:
+      - '.github/agents/**'
+      - 'specs/kerrigan/agents/**'
+      - 'tools/agent_audit.py'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-spec-references:
+    name: Verify Agent Prompts Reference Specs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history to check file changes
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check if agent files changed
+        id: check_files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            
+            // Check for agent:prompt-update label
+            if (prLabels.includes('agent:prompt-update')) {
+              console.log('Label agent:prompt-update found - running spec reference check');
+              return true;
+            }
+            
+            // Check if .github/agents/ or specs/kerrigan/agents/ files were modified
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            
+            const agentFilesChanged = files.some(file => 
+              file.filename.startsWith('.github/agents/') || 
+              file.filename.startsWith('specs/kerrigan/agents/')
+            );
+            
+            if (agentFilesChanged) {
+              console.log('Agent-related files changed - running spec reference check');
+              return true;
+            }
+            
+            console.log('No agent files changed - skipping spec reference check');
+            return false;
+
+      - name: Check spec references
+        if: steps.check_files.outputs.result == 'true'
+        run: |
+          echo "🔍 Checking if agent prompts reference their specifications..."
+          python tools/agent_audit.py check-spec-references
+        
+      - name: Compliance check passed
+        if: steps.check_files.outputs.result == 'true'
+        run: |
+          echo "✅ All agent prompts properly reference their specifications"
+
+  check-agent-pr-compliance:
+    name: Validate Agent PR Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check if agent PR
+        id: check_agent
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prLabels = context.payload.pull_request.labels.map(l => l.name);
+            const agentLabels = prLabels.filter(l => l.startsWith('role:') || l.startsWith('agent:'));
+            
+            if (agentLabels.length > 0) {
+              console.log(`Agent labels found: ${agentLabels.join(', ')} - running compliance checks`);
+              core.setOutput('is_agent_pr', 'true');
+              core.setOutput('agent_labels', agentLabels.join(','));
+            } else {
+              console.log('No agent/role labels found - skipping compliance checks');
+              core.setOutput('is_agent_pr', 'false');
+            }
+
+      - name: Check agent signature
+        if: steps.check_agent.outputs.is_agent_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body || '';
+            const agentLabels = '${{ steps.check_agent.outputs.agent_labels }}'.split(',');
+            
+            console.log('🔍 Checking agent signature in PR description...');
+            console.log(`PR #${context.payload.pull_request.number}: ${context.payload.pull_request.title}`);
+            console.log(`Agent labels: ${agentLabels.join(', ')}`);
+            
+            // Check for agent signature pattern
+            const signaturePattern = /<!--\s*AGENT_SIGNATURE:\s*role=([^,]+),\s*version=([^,]+),\s*timestamp=([^\s]+)\s*-->/;
+            const match = prBody.match(signaturePattern);
+            
+            if (!match) {
+              console.log('⚠️  No agent signature found in PR description');
+              console.log('');
+              console.log('Agent-labeled PRs should include a signature for auditability.');
+              console.log('');
+              console.log('To add a signature, run:');
+              console.log('  python tools/agent_audit.py create-signature <role>');
+              console.log('');
+              console.log('Example output:');
+              console.log('  <!-- AGENT_SIGNATURE: role=role:swe, version=1.0, timestamp=2026-01-15T06:00:00Z -->');
+              console.log('');
+              console.log('See docs/agent-spec-validation.md for details.');
+              console.log('');
+              console.log('This is informational only - PR can still be merged.');
+              return;
+            }
+            
+            const [_, role, version, timestamp] = match;
+            console.log('✅ Agent signature found');
+            console.log(`   Role: ${role}`);
+            console.log(`   Version: ${version}`);
+            console.log(`   Timestamp: ${timestamp}`);
+            
+            // Check if signature role matches labels
+            if (!agentLabels.includes(role)) {
+              console.log('');
+              console.log(`⚠️  Warning: Signature role '${role}' doesn't match PR labels`);
+              console.log(`   PR labels: ${agentLabels.join(', ')}`);
+              console.log('   Consider updating the signature or labels to match');
+              console.log('');
+              console.log('This is informational only - PR can still be merged.');
+            }
+
+      - name: Validate spec compliance
+        if: steps.check_agent.outputs.is_agent_pr == 'true'
+        run: |
+          echo "🔍 Validating agent spec compliance..."
+          
+          # Extract role from PR labels (use first role: label found)
+          LABELS="${{ steps.check_agent.outputs.agent_labels }}"
+          ROLE=""
+          
+          IFS=',' read -ra LABEL_ARRAY <<< "$LABELS"
+          for label in "${LABEL_ARRAY[@]}"; do
+            if [[ $label == role:* ]]; then
+              ROLE=$label
+              break
+            fi
+          done
+          
+          if [ -z "$ROLE" ]; then
+            echo "ℹ️  No role: label found - skipping compliance validation"
+            echo "   (Only validating PRs with explicit role labels)"
+            exit 0
+          fi
+          
+          echo "   Checking compliance for: $ROLE"
+          
+          # Create secure temp file for PR body validation
+          PR_BODY_FILE=$(mktemp)
+          trap "rm -f $PR_BODY_FILE" EXIT
+          
+          cat > "$PR_BODY_FILE" << 'EOF'
+          ${{ github.event.pull_request.body }}
+          EOF
+          
+          # Run compliance validation
+          python tools/agent_audit.py validate-compliance "$ROLE" "$PR_BODY_FILE" || {
+            echo ""
+            echo "❌ Spec compliance validation failed"
+            echo ""
+            echo "This PR may not be following the agent's specification."
+            echo "See docs/agent-spec-validation.md for compliance requirements."
+            echo ""
+            echo "Common issues:"
+            echo "  - Missing or invalid agent signature"
+            echo "  - Agent prompt doesn't reference specification files"
+            echo "  - Signature role doesn't match expected role"
+            echo ""
+            echo "This is treated as a warning - PR can still be merged with human approval."
+            exit 0
+          }
+          
+          echo "✅ Agent is compliant with specification"
