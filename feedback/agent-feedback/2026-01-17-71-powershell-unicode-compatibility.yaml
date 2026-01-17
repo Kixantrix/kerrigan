@@ -1,0 +1,89 @@
+# Agent Feedback - PowerShell 5.1 Unicode Compatibility
+
+# REQUIRED FIELDS
+timestamp: "2026-01-17T08:00:00Z"
+issue_number: 71
+agent_role: "triage"
+category: "tool_limitation"
+severity: "high"
+title: "PowerShell 5.1 cannot parse Unicode emojis and box-drawing characters"
+
+# REQUIRED: Detailed description
+description: |
+  During development of the triage-prs.ps1 script (PR #71), discovered that 
+  PowerShell 5.1 (Windows PowerShell) fails to parse scripts containing Unicode 
+  emoji characters (🟢🔴⚠️⏸️📋📝) and box-drawing characters (━).
+  
+  **What happened:**
+  - Script tested successfully on PowerShell 7.4.13
+  - Copilot made 6 commit attempts to fix "string terminator missing" errors
+  - All attempts failed because root cause (Unicode characters) wasn't identified
+  - Parser errors pointed to wrong lines (closing braces after emoji sections)
+  
+  **Root cause:**
+  - Multi-byte UTF-8 emojis break PowerShell 5.1 string parser
+  - Box-drawing characters (━) cause similar issues
+  - PowerShell 5.1 still default on Windows (unlike PowerShell 7.x)
+  
+  **Impact:**
+  - Blocked PR #71 for ~24 hours across 7 commits
+  - Script looked correct but couldn't execute
+  - Testing on wrong PowerShell version led to false confidence
+  
+  **Resolution:**
+  - Replaced all Unicode emojis with ASCII alternatives: 🟢→[OK], 🔴→[!!], ⚠️→[WARN]
+  - Replaced box-drawing characters with standard equals signs: ━→=
+  - Script now works on both PowerShell 5.1 and 7.x
+
+# OPTIONAL FIELDS
+related_files:
+  - "tools/triage-prs.ps1"
+  - ".github/agents/role.triage.md"
+
+related_artifacts:
+  - "tools/triage-prs.ps1"
+
+context: |
+  PR #71 introduced the triage role and triage-prs.ps1 dashboard script.
+  The script was developed and tested in PowerShell 7.x environment but 
+  deployed to Windows PowerShell 5.1.
+  
+  The mismatch between development and target environment wasn't caught 
+  until manual local testing after 6 failed automated fix attempts.
+  
+  Related commits in PR #71:
+  - Commits 1-6: Various attempted fixes for string parsing
+  - Commit 7: Final fix replacing Unicode with ASCII
+
+proposed_solution: |
+  **Short term:**
+  1. Document PowerShell version requirements in script headers
+  2. Add PSVersion check at script start with clear error message
+  3. Prefer ASCII characters over Unicode for cross-version compatibility
+  
+  **Long term:**
+  1. Add PowerShell version matrix testing to CI (5.1 + 7.x)
+  2. Include PowerShell linting in CI to catch compatibility issues
+  3. Create PowerShell style guide recommending ASCII over Unicode
+  4. Consider PSScriptAnalyzer rules for compatibility checking
+  
+  **Template for version check:**
+  ```powershell
+  #Requires -Version 5.1
+  if ($PSVersionTable.PSVersion.Major -lt 5) {
+      Write-Error "This script requires PowerShell 5.1 or later"
+      exit 1
+  }
+  ```
+  
+  **Style recommendation:**
+  - Use ASCII art/characters for status indicators: [OK], [!!], [WARN]
+  - Use standard ASCII box characters: =, -, |, +
+  - Reserve Unicode for output only (Write-Host), not in string literals
+
+# METADATA (leave blank for new feedback)
+status: "new"
+reviewed_by: ""
+reviewed_date: ""
+implementation_pr: null
+notes: ""
