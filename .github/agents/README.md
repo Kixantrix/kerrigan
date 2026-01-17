@@ -28,6 +28,14 @@ These agents execute the main workflow from specification to deployment:
 | **Deploy Agent** | `role.deployment.md` | Make projects production-ready | runbook.md, cost-plan.md, deployment pipelines |
 | **Security Agent** | `role.security.md` | Identify and prevent security issues | Security notes in architecture.md and runbook.md |
 
+### Operational Agents
+
+These agents help maintain the PR pipeline and workflow:
+
+| Agent | File | Primary Responsibility | Key Actions |
+|-------|------|----------------------|-------------|
+| **Triage Agent** | `role.triage.md` | Manage PR review pipeline, CI status, approvals, and merges | Review PRs, approve quality work, merge PRs, restart stalled agents, create follow-up issues |
+
 ### Meta Agent
 
 | Agent | File | Primary Responsibility |

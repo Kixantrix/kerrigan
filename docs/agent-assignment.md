@@ -28,6 +28,7 @@ Instead, use **role labels** to indicate which agent role should handle the work
 | `role:security` | Security Agent | Security review and hardening |
 | `role:deployment` | Deployment Agent | Production readiness and operations |
 | `role:debugging` | Debugging Agent | Bug investigation and fixes |
+| `role:triage` | Triage Agent | PR review, CI management, merge workflow |
 
 ### 3. Automated Assignment Workflow
 
