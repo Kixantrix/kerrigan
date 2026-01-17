@@ -1,10 +1,12 @@
-# Task Tracker CLI
+# Task Tracker CLI - Real Implementation
 
 A command-line task management tool demonstrating the complete Kerrigan workflow with **real** use of M3 (status tracking) and M4 (autonomy gates) features. This is not a simulation—it's a working project built incrementally using actual pause/resume cycles.
 
+> **Note**: This is the authentic implementation created in response to issue #54. Unlike the fabricated example in PR #58, this project has real pause/resume cycles, authentic timestamps, and genuine development history documented from actual git commits.
+
 ## What Makes This Special
 
-Unlike typical example projects, Task Tracker documents the **actual development process**:
+Unlike typical example projects (including the fabricated task-tracker), this documents the **actual development process**:
 - ✅ Real pause/resume cycles with timestamps
 - ✅ Genuine status.json state transitions
 - ✅ Actual development timeline (not fabricated)
@@ -17,7 +19,7 @@ See [WORKFLOW-TIMELINE.md](WORKFLOW-TIMELINE.md) for the complete development st
 
 ```bash
 # Install
-cd examples/task-tracker
+cd examples/task-tracker-real
 pip install -e .
 
 # Create tasks
@@ -117,7 +119,7 @@ task complete $TASK
 - **WORKFLOW-TIMELINE.md** - Actual development timeline with real timestamps
 - **README.md** - This file
 
-All documentation is in `../../specs/projects/task-tracker/`.
+All documentation is in `../../specs/projects/task-tracker-real/`.
 
 ## M3/M4 Demonstration
 
@@ -204,7 +206,7 @@ User → CLI → TaskManager → TaskStorage → ~/.task-tracker/tasks.json
 ### From Source
 ```bash
 git clone <repo>
-cd kerrigan/examples/task-tracker
+cd kerrigan/examples/task-tracker-real
 pip install -e .
 task --version
 ```
@@ -312,7 +314,7 @@ This is a reference example project demonstrating Kerrigan workflow.
 For questions about the workflow, see:
 - [WORKFLOW-TIMELINE.md](WORKFLOW-TIMELINE.md) - Development story
 - [Kerrigan docs](../../docs/) - Workflow documentation
-- [specs/projects/task-tracker/](../../specs/projects/task-tracker/) - Project specs
+- [specs/projects/task-tracker-real/](../../specs/projects/task-tracker-real/) - Project specs
 
 ## About
 
