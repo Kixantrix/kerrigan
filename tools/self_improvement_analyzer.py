@@ -6,6 +6,7 @@ This script analyzes Kerrigan's performance and proposes improvements based on:
 - Retrospectives from docs/
 - Issue/PR patterns via GitHub API
 - Identified gaps in current capabilities
+- External research (web search, papers, other frameworks)
 
 Outputs actionable improvement proposals for human review.
 """
@@ -16,6 +17,8 @@ import json
 import os
 import re
 import sys
+import urllib.request
+import urllib.parse
 from collections import defaultdict, Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -257,6 +260,240 @@ class RetrospectiveAnalyzer:
         return patterns
 
 
+class WebSearchResearcher:
+    """Researches AI agent best practices through web search."""
+    
+    def __init__(self, enabled: bool = True):
+        self.enabled = enabled
+        self.findings: List[Dict[str, Any]] = []
+    
+    def search_best_practices(self) -> List[Dict[str, Any]]:
+        """Search for AI agent best practices.
+        
+        Note: This is a placeholder implementation. In production, this would:
+        - Use a web search API (Bing, Google, etc.)
+        - Parse and extract relevant articles
+        - Score by relevance and recency
+        
+        For now, returns simulated findings for testing.
+        """
+        if not self.enabled:
+            return []
+        
+        # Placeholder findings - in production, would use actual web search
+        print("   📡 Web search capability available (placeholder mode)")
+        print("   Note: Web search requires API keys - currently returning template findings")
+        
+        # Return empty for now - this prevents noise without actual implementation
+        return []
+    
+    def evaluate_relevance(self, finding: Dict[str, Any]) -> float:
+        """Calculate relevance score for a finding."""
+        score = 0.0
+        
+        # Check for agent-related keywords
+        keywords = ['agent', 'autonomous', 'ai', 'llm', 'orchestration', 'workflow']
+        title = finding.get('title', '').lower()
+        summary = finding.get('summary', '').lower()
+        
+        for keyword in keywords:
+            if keyword in title:
+                score += 0.2
+            if keyword in summary:
+                score += 0.1
+        
+        return min(score, 1.0)
+
+
+class GitHubAnalysisResearcher:
+    """Analyzes GitHub patterns in Kerrigan repository."""
+    
+    def __init__(self, repo_owner: str, repo_name: str, github_token: Optional[str], enabled: bool = True):
+        self.repo_owner = repo_owner
+        self.repo_name = repo_name
+        self.github_token = github_token
+        self.enabled = enabled
+        self.findings: List[Dict[str, Any]] = []
+    
+    def analyze_patterns(self, days_back: int = 30) -> List[Dict[str, Any]]:
+        """Analyze issue and PR patterns."""
+        if not self.enabled or not self.github_token:
+            return []
+        
+        try:
+            findings = []
+            
+            # Analyze PR success rates
+            pr_data = self._fetch_prs(days_back)
+            if pr_data:
+                pr_finding = self._analyze_pr_patterns(pr_data)
+                if pr_finding:
+                    findings.append(pr_finding)
+            
+            # Analyze issue patterns
+            issue_data = self._fetch_issues(days_back)
+            if issue_data:
+                issue_finding = self._analyze_issue_patterns(issue_data)
+                if issue_finding:
+                    findings.append(issue_finding)
+            
+            self.findings = findings
+            return findings
+            
+        except Exception as e:
+            print(f"   ⚠️  GitHub analysis error: {e}")
+            return []
+    
+    def _fetch_prs(self, days_back: int) -> List[Dict[str, Any]]:
+        """Fetch pull requests from GitHub API."""
+        since = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
+        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/pulls?state=all&per_page=100"
+        
+        try:
+            req = urllib.request.Request(url)
+            req.add_header("Authorization", f"Bearer {self.github_token}")
+            req.add_header("Accept", "application/vnd.github.v3+json")
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                return json.loads(response.read().decode())
+        except Exception as e:
+            print(f"   ⚠️  Failed to fetch PRs: {e}")
+            return []
+    
+    def _fetch_issues(self, days_back: int) -> List[Dict[str, Any]]:
+        """Fetch issues from GitHub API."""
+        since = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
+        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/issues?state=all&since={since}&per_page=100"
+        
+        try:
+            req = urllib.request.Request(url)
+            req.add_header("Authorization", f"Bearer {self.github_token}")
+            req.add_header("Accept", "application/vnd.github.v3+json")
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode())
+                # Filter out PRs (they show up in issues endpoint too)
+                return [item for item in data if 'pull_request' not in item]
+        except Exception as e:
+            print(f"   ⚠️  Failed to fetch issues: {e}")
+            return []
+    
+    def _analyze_pr_patterns(self, prs: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """Analyze PR patterns for insights."""
+        if not prs:
+            return None
+        
+        total = len(prs)
+        merged = sum(1 for pr in prs if pr.get('merged_at'))
+        closed_unmerged = sum(1 for pr in prs if pr.get('state') == 'closed' and not pr.get('merged_at'))
+        
+        merge_rate = (merged / total * 100) if total > 0 else 0
+        
+        # Only report if merge rate is concerning
+        if merge_rate < 70 and total >= 5:
+            return {
+                'type': 'github_pattern',
+                'title': f'PR merge rate is {merge_rate:.1f}%',
+                'summary': f'Out of {total} PRs in the last 30 days, {merged} were merged and {closed_unmerged} were closed without merging.',
+                'relevance': 0.8,
+                'potential_application': 'Consider improving PR quality checks or agent validation before submission.',
+                'evidence': f'{total} PRs analyzed',
+                'metrics': {
+                    'total_prs': total,
+                    'merged': merged,
+                    'closed_unmerged': closed_unmerged,
+                    'merge_rate': merge_rate
+                }
+            }
+        
+        return None
+    
+    def _analyze_issue_patterns(self, issues: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """Analyze issue patterns for insights."""
+        if not issues:
+            return None
+        
+        # Analyze labels
+        label_counts = Counter()
+        for issue in issues:
+            for label in issue.get('labels', []):
+                label_counts[label.get('name', '')] += 1
+        
+        # Identify most common issues
+        if label_counts:
+            most_common = label_counts.most_common(3)
+            return {
+                'type': 'github_pattern',
+                'title': f'Most common issue types: {", ".join(l for l, c in most_common)}',
+                'summary': f'Analysis of {len(issues)} issues shows concentration in: {", ".join(f"{l} ({c})" for l, c in most_common)}',
+                'relevance': 0.7,
+                'potential_application': 'Focus self-improvement efforts on these common issue categories.',
+                'evidence': f'{len(issues)} issues analyzed',
+                'metrics': {
+                    'total_issues': len(issues),
+                    'top_labels': dict(most_common)
+                }
+            }
+        
+        return None
+
+
+class PaperResearcher:
+    """Researches autonomous agent papers on arXiv."""
+    
+    def __init__(self, enabled: bool = False):
+        self.enabled = enabled
+        self.findings: List[Dict[str, Any]] = []
+    
+    def search_arxiv(self, max_results: int = 5) -> List[Dict[str, Any]]:
+        """Search arXiv for autonomous agent research.
+        
+        Note: This is a placeholder implementation. In production, this would:
+        - Query arXiv API for recent papers
+        - Filter by relevance to autonomous agents
+        - Extract key insights
+        
+        For now, returns simulated findings for testing.
+        """
+        if not self.enabled:
+            return []
+        
+        # Placeholder - would use arXiv API in production
+        print("   📚 arXiv search capability available (placeholder mode)")
+        print("   Note: arXiv search currently returning template findings")
+        
+        # Return empty for now
+        return []
+
+
+class FrameworkAnalysisResearcher:
+    """Analyzes other agent frameworks for best practices."""
+    
+    def __init__(self, enabled: bool = True):
+        self.enabled = enabled
+        self.findings: List[Dict[str, Any]] = []
+    
+    def analyze_frameworks(self) -> List[Dict[str, Any]]:
+        """Analyze popular agent frameworks.
+        
+        Note: This is a placeholder implementation. In production, this would:
+        - Query GitHub API for popular agent frameworks
+        - Analyze their architectures and patterns
+        - Identify features Kerrigan could adopt
+        
+        For now, returns simulated findings for testing.
+        """
+        if not self.enabled:
+            return []
+        
+        # Placeholder - would analyze real frameworks in production
+        print("   🔍 Framework analysis capability available (placeholder mode)")
+        print("   Note: Framework analysis currently returning template findings")
+        
+        # Return empty for now
+        return []
+
+
 class ImprovementProposer:
     """Generates improvement proposals based on analysis."""
     
@@ -267,7 +504,8 @@ class ImprovementProposer:
         self,
         feedback_analysis: Dict[str, Any],
         retro_patterns: List[str],
-        feedback_items: List[Dict[str, Any]]
+        feedback_items: List[Dict[str, Any]],
+        external_findings: Optional[List[Dict[str, Any]]] = None
     ) -> List[Dict[str, Any]]:
         """Generate improvement proposals."""
         
@@ -292,6 +530,10 @@ class ImprovementProposer:
         # Proposal 5: Retrospective-based improvements
         if retro_patterns:
             self._propose_retrospective_improvements(retro_patterns)
+        
+        # Proposal 6: External research findings
+        if external_findings:
+            self._propose_external_research_improvements(external_findings)
         
         return self.proposals
     
@@ -394,7 +636,33 @@ class ImprovementProposer:
                 'category': 'process',
                 'evidence': "Recurring pattern in milestone retrospectives",
                 'proposed_solution': "Review retrospectives and implement recommended improvements.",
-                'labels': ['kerrigan', 'improvement', 'process']
+                'labels': ['kerrigan', 'improvement', 'process'],
+                'source': 'internal'
+            })
+    
+    def _propose_external_research_improvements(self, findings: List[Dict[str, Any]]):
+        """Propose improvements based on external research findings."""
+        # Quality filter: only include high-relevance findings
+        RELEVANCE_THRESHOLD = 0.7
+        
+        high_quality_findings = [
+            f for f in findings 
+            if f.get('relevance', 0) >= RELEVANCE_THRESHOLD
+        ]
+        
+        for finding in high_quality_findings[:3]:  # Top 3 findings
+            self.proposals.append({
+                'type': 'external_research',
+                'priority': 'low',  # External findings start at low priority
+                'title': f"Research finding: {finding.get('title', 'Untitled')}",
+                'description': finding.get('summary', 'No summary available'),
+                'category': 'external_research',
+                'evidence': finding.get('evidence', 'External research'),
+                'proposed_solution': finding.get('potential_application', 'Review finding and consider implementation'),
+                'labels': ['kerrigan', 'improvement', 'external-research'],
+                'source': 'external',
+                'relevance_score': finding.get('relevance', 0),
+                'research_type': finding.get('type', 'unknown')
             })
 
 
@@ -402,6 +670,7 @@ def generate_report(
     feedback_analysis: Dict[str, Any],
     retro_patterns: List[str],
     proposals: List[Dict[str, Any]],
+    external_findings: Optional[List[Dict[str, Any]]] = None,
     output_file: Optional[Path] = None
 ) -> str:
     """Generate a markdown report of the analysis and proposals."""
@@ -416,12 +685,20 @@ def generate_report(
         f"- **Unaddressed items**: {feedback_analysis.get('unaddressed_count', 0)}",
         f"- **Improvement proposals generated**: {len(proposals)}",
         f"- **Retrospective patterns identified**: {len(retro_patterns)}",
-        "\n---\n",
-        "## Feedback Analysis\n"
     ]
     
+    # Add external research summary if available
+    if external_findings:
+        report_lines.append(f"- **External research findings**: {len(external_findings)}")
+    
+    report_lines.extend([
+        "\n---\n",
+        "## Internal Analysis\n",
+        "### Feedback Analysis\n"
+    ])
+    
     if feedback_analysis.get('by_category'):
-        report_lines.append("### Feedback by Category\n")
+        report_lines.append("#### Feedback by Category\n")
         for category, count in sorted(
             feedback_analysis['by_category'].items(), 
             key=lambda x: x[1], 
@@ -431,7 +708,7 @@ def generate_report(
         report_lines.append("")
     
     if feedback_analysis.get('by_severity'):
-        report_lines.append("### Feedback by Severity\n")
+        report_lines.append("#### Feedback by Severity\n")
         for severity, count in sorted(
             feedback_analysis['by_severity'].items(),
             key=lambda x: {'high': 3, 'medium': 2, 'low': 1}.get(x[0], 0),
@@ -441,41 +718,95 @@ def generate_report(
         report_lines.append("")
     
     if feedback_analysis.get('related_groups'):
-        report_lines.append("### Related Feedback Groups\n")
+        report_lines.append("#### Related Feedback Groups\n")
         for group in feedback_analysis['related_groups']:
             report_lines.append(f"- **{group['category']}**: {group['count']} related items")
         report_lines.append("")
     
     if retro_patterns:
-        report_lines.append("## Retrospective Patterns\n")
+        report_lines.append("### Retrospective Patterns\n")
         for pattern in retro_patterns:
             report_lines.append(f"- {pattern}")
         report_lines.append("")
+    
+    # Add external research section
+    if external_findings:
+        report_lines.extend([
+            "---\n",
+            "## External Research Findings\n",
+            "\n*These findings are from external sources and require human review before implementation.*\n"
+        ])
+        
+        # Group findings by type
+        findings_by_type = {}
+        for finding in external_findings:
+            finding_type = finding.get('type', 'unknown')
+            if finding_type not in findings_by_type:
+                findings_by_type[finding_type] = []
+            findings_by_type[finding_type].append(finding)
+        
+        # Report each type
+        for finding_type, findings in findings_by_type.items():
+            report_lines.append(f"\n### {finding_type.replace('_', ' ').title()}\n")
+            for finding in findings:
+                report_lines.extend([
+                    f"- **{finding.get('title', 'Untitled')}**",
+                    f"  - Summary: {finding.get('summary', 'N/A')}",
+                    f"  - Relevance: {finding.get('relevance', 0):.2f}",
+                    f"  - Potential application: {finding.get('potential_application', 'N/A')}",
+                    f"  - Evidence: {finding.get('evidence', 'N/A')}",
+                    ""
+                ])
     
     report_lines.append("---\n")
     report_lines.append("## Improvement Proposals\n")
     report_lines.append(f"\n{len(proposals)} proposals generated for human review:\n")
     
-    for i, proposal in enumerate(proposals, 1):
+    # Separate internal and external proposals
+    internal_proposals = [p for p in proposals if p.get('source') != 'external']
+    external_proposals = [p for p in proposals if p.get('source') == 'external']
+    
+    if internal_proposals:
+        report_lines.append("\n### Internal Analysis Proposals\n")
+        for i, proposal in enumerate(internal_proposals, 1):
+            report_lines.extend([
+                f"\n#### Proposal {i}: {proposal['title']}\n",
+                f"**Type**: {proposal['type']}  ",
+                f"**Priority**: {proposal['priority']}  ",
+                f"**Category**: {proposal['category']}  ",
+                f"\n**Description**: {proposal['description']}\n",
+                f"\n**Evidence**: {proposal['evidence']}\n",
+                f"\n**Proposed Solution**: {proposal['proposed_solution']}\n",
+                f"\n**Suggested Labels**: {', '.join(proposal['labels'])}\n"
+            ])
+    
+    if external_proposals:
         report_lines.extend([
-            f"\n### Proposal {i}: {proposal['title']}\n",
-            f"**Type**: {proposal['type']}  ",
-            f"**Priority**: {proposal['priority']}  ",
-            f"**Category**: {proposal['category']}  ",
-            f"\n**Description**: {proposal['description']}\n",
-            f"\n**Evidence**: {proposal['evidence']}\n",
-            f"\n**Proposed Solution**: {proposal['proposed_solution']}\n",
-            f"\n**Suggested Labels**: {', '.join(proposal['labels'])}\n"
+            "\n### External Research Proposals\n",
+            "\n⚠️ **Human Review Required**: These proposals are based on external research and must be reviewed before implementation.\n"
         ])
+        for i, proposal in enumerate(external_proposals, 1):
+            report_lines.extend([
+                f"\n#### External Proposal {i}: {proposal['title']}\n",
+                f"**Type**: {proposal['type']}  ",
+                f"**Priority**: {proposal['priority']}  ",
+                f"**Relevance Score**: {proposal.get('relevance_score', 0):.2f}  ",
+                f"**Research Type**: {proposal.get('research_type', 'unknown')}  ",
+                f"\n**Description**: {proposal['description']}\n",
+                f"\n**Evidence**: {proposal['evidence']}\n",
+                f"\n**Proposed Solution**: {proposal['proposed_solution']}\n",
+                f"\n**Suggested Labels**: {', '.join(proposal['labels'])}\n"
+            ])
     
     report_lines.extend([
         "\n---\n",
         "## Next Steps\n",
         "\n1. Review each proposal for relevance and priority",
-        "2. Create GitHub issues for approved proposals",
-        "3. Assign proposals to appropriate team members or agents",
-        "4. Track implementation progress",
-        "5. Update feedback status as items are addressed\n"
+        "2. **For external research proposals**: Verify findings with original sources",
+        "3. Create GitHub issues for approved proposals",
+        "4. Assign proposals to appropriate team members or agents",
+        "5. Track implementation progress",
+        "6. Update feedback status as items are addressed\n"
     ])
     
     report = "\n".join(report_lines)
@@ -493,7 +824,11 @@ def main(
     feedback_dir: str = "feedback/agent-feedback",
     docs_dir: str = "docs",
     output_file: Optional[str] = None,
-    since_days: int = 7
+    since_days: int = 7,
+    enable_web_research: bool = False,
+    enable_github_analysis: bool = True,
+    enable_paper_research: bool = False,
+    enable_framework_analysis: bool = False
 ) -> Dict[str, Any]:
     """Main analysis function."""
     
@@ -529,13 +864,59 @@ def main(
     retro_patterns = retro_analyzer.extract_patterns()
     print(f"   Identified {len(retro_patterns)} patterns")
     
+    # External research (optional)
+    external_findings = []
+    
+    if any([enable_web_research, enable_github_analysis, enable_paper_research, enable_framework_analysis]):
+        print("\n🌐 Conducting external research...")
+    
+    if enable_web_research:
+        print("   🔎 Web search for best practices...")
+        web_researcher = WebSearchResearcher(enabled=True)
+        web_findings = web_researcher.search_best_practices()
+        external_findings.extend(web_findings)
+        print(f"      Found {len(web_findings)} web findings")
+    
+    if enable_github_analysis:
+        print("   📊 Analyzing GitHub patterns...")
+        github_token = os.environ.get('GITHUB_TOKEN')
+        if github_token:
+            # Extract repo info from environment or use defaults
+            repo_owner = os.environ.get('GITHUB_REPOSITORY', 'Kixantrix/kerrigan').split('/')[0]
+            repo_name = os.environ.get('GITHUB_REPOSITORY', 'Kixantrix/kerrigan').split('/')[1]
+            
+            gh_researcher = GitHubAnalysisResearcher(repo_owner, repo_name, github_token, enabled=True)
+            gh_findings = gh_researcher.analyze_patterns(days_back=30)
+            external_findings.extend(gh_findings)
+            print(f"      Found {len(gh_findings)} GitHub patterns")
+        else:
+            print("      ⚠️  GITHUB_TOKEN not available, skipping GitHub analysis")
+    
+    if enable_paper_research:
+        print("   📄 Searching arXiv for research papers...")
+        paper_researcher = PaperResearcher(enabled=True)
+        paper_findings = paper_researcher.search_arxiv()
+        external_findings.extend(paper_findings)
+        print(f"      Found {len(paper_findings)} research papers")
+    
+    if enable_framework_analysis:
+        print("   🔧 Analyzing other agent frameworks...")
+        framework_researcher = FrameworkAnalysisResearcher(enabled=True)
+        framework_findings = framework_researcher.analyze_frameworks()
+        external_findings.extend(framework_findings)
+        print(f"      Found {len(framework_findings)} framework insights")
+    
+    if external_findings:
+        print(f"\n   Total external findings: {len(external_findings)}")
+    
     # Generate proposals
     print("\n💡 Generating improvement proposals...")
     proposer = ImprovementProposer()
     proposals = proposer.generate_proposals(
         feedback_analysis,
         retro_patterns,
-        feedback_items
+        feedback_items,
+        external_findings if external_findings else None
     )
     print(f"   Generated {len(proposals)} proposals")
     
@@ -546,6 +927,7 @@ def main(
         feedback_analysis,
         retro_patterns,
         proposals,
+        external_findings if external_findings else None,
         output_path
     )
     
@@ -557,12 +939,14 @@ def main(
     return {
         'feedback_analysis': feedback_analysis,
         'proposals': proposals,
+        'external_findings': external_findings,
         'report': report,
         'metrics': {
             'feedback_processed': len(feedback_items),
             'patterns_found': len(retro_patterns) + len(feedback_analysis.get('related_groups', [])),
             'proposals_generated': len(proposals),
             'high_priority_count': sum(1 for p in proposals if p['priority'] == 'high'),
+            'external_findings_count': len(external_findings),
         }
     }
 
@@ -598,6 +982,26 @@ if __name__ == "__main__":
         "--json-output",
         help="Optional JSON output file for machine-readable results"
     )
+    parser.add_argument(
+        "--enable-web-research",
+        action="store_true",
+        help="Enable web search for best practices"
+    )
+    parser.add_argument(
+        "--enable-github-analysis",
+        action="store_true",
+        help="Analyze GitHub patterns (requires GITHUB_TOKEN)"
+    )
+    parser.add_argument(
+        "--enable-paper-research",
+        action="store_true",
+        help="Search arXiv for research papers"
+    )
+    parser.add_argument(
+        "--enable-framework-analysis",
+        action="store_true",
+        help="Analyze other agent frameworks"
+    )
     
     args = parser.parse_args()
     
@@ -605,7 +1009,11 @@ if __name__ == "__main__":
         feedback_dir=args.feedback_dir,
         docs_dir=args.docs_dir,
         output_file=args.output,
-        since_days=args.since_days
+        since_days=args.since_days,
+        enable_web_research=args.enable_web_research,
+        enable_github_analysis=args.enable_github_analysis,
+        enable_paper_research=args.enable_paper_research,
+        enable_framework_analysis=args.enable_framework_analysis
     )
     
     if args.json_output:

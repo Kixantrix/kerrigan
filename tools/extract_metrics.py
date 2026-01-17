@@ -16,6 +16,7 @@ if __name__ == "__main__":
         print(f"patterns_count={metrics['patterns_found']}")
         print(f"proposals_count={metrics['proposals_generated']}")
         print(f"high_priority={metrics['high_priority_count']}")
+        print(f"external_findings={metrics.get('external_findings_count', 0)}")
         
     except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
         print(f"Error extracting metrics: {e}", file=sys.stderr)
