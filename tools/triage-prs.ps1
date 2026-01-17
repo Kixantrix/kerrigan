@@ -31,15 +31,15 @@ param(
     [switch]$DryRun
 )
 
-Write-Host "" -ForegroundColor Cyan
+Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "PR Triage Dashboard - Kerrigan" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "" -ForegroundColor Cyan
+Write-Host ""
 
 if ($DryRun) {
     Write-Host "DRY RUN MODE - No actions will be taken" -ForegroundColor Magenta
-    Write-Host "" -ForegroundColor Magenta
+    Write-Host ""
 }
 
 # Fetch all open PRs with detailed information
@@ -74,7 +74,7 @@ if ($prs.Count -eq 0) {
 }
 
 Write-Host "Found $($prs.Count) open PR(s)" -ForegroundColor Cyan
-Write-Host "" -ForegroundColor Cyan
+Write-Host ""
 
 # Categorize PRs
 $readyForReview = @()
@@ -173,7 +173,7 @@ if ($withCiFailures.Count -gt 0) {
         Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
         Write-Host "    Actions:" -ForegroundColor Yellow
         Write-Host "      gh pr checks $($pr.number)  # View check details" -ForegroundColor Cyan
-        Write-Host "      gh pr comment $($pr.number) --body 'CI is failing. Please review and fix.'  # Notify author" -ForegroundColor Cyan
+        Write-Host "      gh pr comment $($pr.number) --body `"CI is failing. Please review and fix.`"  # Notify author" -ForegroundColor Cyan
         Write-Host ""
     }
 }
@@ -187,7 +187,7 @@ if ($withConflicts.Count -gt 0) {
         Write-Host "    Author: $($pr.author.login)" -ForegroundColor Gray
         Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
         Write-Host "    Actions:" -ForegroundColor Yellow
-        Write-Host "      gh pr comment $($pr.number) --body 'This PR has merge conflicts. Please rebase on main.'  # Notify author" -ForegroundColor Cyan
+        Write-Host "      gh pr comment $($pr.number) --body `"This PR has merge conflicts. Please rebase on main.`"  # Notify author" -ForegroundColor Cyan
         Write-Host ""
     }
 }
@@ -203,7 +203,7 @@ if ($stalledDrafts.Count -gt 0) {
         Write-Host "    Last updated: $hours hours ago" -ForegroundColor Gray
         Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
         Write-Host "    Actions:" -ForegroundColor Yellow
-        Write-Host "      gh pr comment $($pr.number) --body '@copilot Please continue work on this PR.'  # Restart agent" -ForegroundColor Cyan
+        Write-Host "      gh pr comment $($pr.number) --body `"@copilot Please continue work on this PR.`"  # Restart agent" -ForegroundColor Cyan
         Write-Host ""
     }
 }
@@ -244,7 +244,7 @@ if ($ShowAll -and $otherPrs.Count -gt 0) {
 }
 
 # Summary
-Write-Host "" -ForegroundColor Cyan
+Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "SUMMARY" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
@@ -277,4 +277,4 @@ if ($readyForReview.Count -gt 0) {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "" -ForegroundColor Cyan
+Write-Host ""
