@@ -155,9 +155,75 @@ Milestones must end with green CI.
 
 **Rollback**: None (documentation improvements)
 
-## Future (post-v1)
-- Status dashboard (web UI for visibility)
-- Cost tracking across projects
+## Milestone 7: Advanced features and scaling
+**Status**: 🔄 Planning (current)
+
+**Goal**: Take Kerrigan from single-repository agent swarm to enterprise-ready platform with multi-repo orchestration, workflow optimization, and comprehensive visibility/analytics.
+
+**Split into 3 phases**:
+- **7a**: Multi-repo support + CLI tool foundation (8 weeks starting Q1 2026, approximately Jan-Feb 2026)
+- **7b**: Status dashboard + basic cost tracking (8 weeks following 7a, approximately Mar-Apr 2026)
+- **7c**: Advanced coordination + cost analytics + optimization (8 weeks following 7b, approximately May-Jun 2026)
+
+**Key features**:
+- Multi-repository project coordination
+- CLI tool for workflow automation (`kerrigan init`, `status`, `invoke`)
+- Prompt loading via URL (reduce copy-paste)
+- Web dashboard for project visibility and monitoring
+- Task dependency management and parallel agent work
+- Cost tracking, estimation, and optimization
+- Prompt optimization (TL;DR summaries, modular composition)
+
+**Deliverable**: Teams manage work across multiple repos with automated tooling and real-time visibility ✅
+
+**Key Metrics**:
+- Multi-repo support adopted by 3+ teams
+- CLI tool used in 50%+ of projects
+- Workflow time reduced 30% via automation
+- Dashboard accessed 10+ times/week per team
+- Cost tracking enables 50% reduction in budget overruns
+
+**Dependencies**: Milestones 1-6 (complete), optionally 3-4 for enhanced status tracking
+
+**Rollback**: All features additive; old projects work unchanged. Can disable individual features:
+- Multi-repo: Projects continue in single-repo mode
+- CLI: Manual workflow remains supported
+- Dashboard: CLI provides same data, GitHub API as fallback
+- Cost tracking: Optional; can be fully disabled
+
+**Tasks**: See Milestone 7 sections in `specs/projects/kerrigan/milestone-7-tasks.md` for complete breakdown (60+ tasks across 3 phases)
+
+**Risks and Mitigations**:
+1. **Multi-repo complexity**: Start with 2-repo examples, limit to 5 repos max, require explicit dependencies
+2. **Scope creep**: Split into 3 sub-milestones, time-box to 3 months each, defer nice-to-haves
+3. **Breaking changes**: All features additive, version markers for opt-in, parallel testing against M1-6
+4. **Dashboard as SPOF**: Read-only view of Git state, CLI provides same data, fallback to GitHub UI
+5. **Cost tracking overhead**: Opt-in by default, async logging, focus on project-level budgets
+
+**Success Criteria**:
+- [ ] Multi-repo project spec schema defined and validated
+- [ ] CLI tool (init, status, invoke) working cross-platform
+- [ ] Prompts accessible via stable URLs with versioning
+- [ ] Dashboard displays projects, status, CI results, costs
+- [ ] Task dependencies enforced by CI
+- [ ] Cost estimation and budget alerts functional
+- [ ] Example multi-repo project completes spec → deploy cycle
+- [ ] 30% reduction in manual workflow steps measured
+- [ ] Agent feedback 80%+ positive on M7 features
+- [ ] All Milestone 1-6 projects continue working unchanged
+
+**Related Documents**:
+- `specs/projects/kerrigan/milestone-7-spec.md` - Detailed specification
+- `specs/projects/kerrigan/milestone-7-tasks.md` - Actionable task breakdown
+- `docs/milestone-6-retrospective.md` - Learnings that informed M7 planning
+
+## Future (post-v2)
+
+**Note**: Milestone 7 (phases 7a, 7b, 7c) collectively represents the v2.0 release of Kerrigan. The items below are considerations for v3+ and beyond.
+
 - Advanced quality metrics (test coverage, cyclomatic complexity)
 - Integration with external spec tools (e.g., Spec Kit)
-- Multi-repo support (orchestrating across services)
+- Agent self-improvement (learning from feedback history)
+- Template customization for different project types
+- Security audit trails and compliance reporting
+- Integration with external tools (Slack, monitoring, etc.)
