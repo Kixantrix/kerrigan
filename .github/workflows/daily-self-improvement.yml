@@ -16,6 +16,26 @@ on:
         required: false
         type: boolean
         default: false
+      enable_web_research:
+        description: 'Enable web search for best practices'
+        required: false
+        type: boolean
+        default: false
+      enable_github_analysis:
+        description: 'Analyze GitHub patterns'
+        required: false
+        type: boolean
+        default: true
+      enable_paper_research:
+        description: 'Search arXiv for papers'
+        required: false
+        type: boolean
+        default: false
+      enable_framework_analysis:
+        description: 'Analyze other frameworks'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -46,12 +66,34 @@ jobs:
           SINCE_DAYS="${{ github.event.inputs.since_days || '7' }}"
           
           echo "Running analysis for last ${SINCE_DAYS} days..."
-          python tools/self_improvement_analyzer.py \
+          
+          # Build command with optional research flags
+          CMD="python tools/self_improvement_analyzer.py \
             --feedback-dir feedback/agent-feedback \
             --docs-dir docs \
             --output self-improvement-report.md \
             --since-days ${SINCE_DAYS} \
-            --json-output analysis-results.json
+            --json-output analysis-results.json"
+          
+          # Add research flags if enabled
+          if [ "${{ github.event.inputs.enable_web_research }}" = "true" ]; then
+            CMD="$CMD --enable-web-research"
+          fi
+          
+          if [ "${{ github.event.inputs.enable_github_analysis }}" = "true" ]; then
+            CMD="$CMD --enable-github-analysis"
+          fi
+          
+          if [ "${{ github.event.inputs.enable_paper_research }}" = "true" ]; then
+            CMD="$CMD --enable-paper-research"
+          fi
+          
+          if [ "${{ github.event.inputs.enable_framework_analysis }}" = "true" ]; then
+            CMD="$CMD --enable-framework-analysis"
+          fi
+          
+          # Run the analysis
+          eval $CMD
           
           echo "Analysis complete!"
           
@@ -59,6 +101,8 @@ jobs:
           if [ -f analysis-results.json ]; then
             python tools/extract_metrics.py >> $GITHUB_OUTPUT
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload analysis report
         uses: actions/upload-artifact@v4
@@ -210,6 +254,7 @@ jobs:
               `- **Patterns found**: ${{ steps.analysis.outputs.patterns_count || 'N/A' }}`,
               `- **Proposals generated**: ${{ steps.analysis.outputs.proposals_count || 'N/A' }}`,
               `- **High priority**: ${{ steps.analysis.outputs.high_priority || 'N/A' }}`,
+              `- **External findings**: ${{ steps.analysis.outputs.external_findings || '0' }}`,
               '',
               '## Report Preview',
               '',
