@@ -87,6 +87,9 @@
   --z-index-fixed: 1030;
   --z-index-modal: 1050;
   --z-index-tooltip: 1070;
+  
+  /* Layout */
+  --layout-max-width: 1400px;
 }
 
 /* Dark Theme */

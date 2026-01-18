@@ -3,10 +3,16 @@
 (function() {
   'use strict';
 
+  // Get layout max-width from CSS custom property
+  const getMaxWidth = () => {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue('--layout-max-width').trim();
+  };
+
   const viewportSizes = {
     mobile: { width: '375px', label: 'Mobile (375px)' },
     tablet: { width: '768px', label: 'Tablet (768px)' },
-    desktop: { width: '1200px', label: 'Desktop (1200px)' }
+    desktop: { width: '', label: 'Desktop (1200px)' } // Empty width means use max-width
   };
 
   let currentViewport = 'desktop';
@@ -47,8 +53,9 @@
         transition: all 0.3s ease;
       `;
     } else {
+      const maxWidth = getMaxWidth();
       mainContent.style.cssText = `
-        max-width: 1400px;
+        max-width: ${maxWidth};
         border: none;
       `;
     }

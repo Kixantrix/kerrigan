@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px;
+  max-width: var(--layout-max-width);
   margin: 0 auto;
   padding: var(--spacing-md) var(--spacing-lg);
 }
@@ -115,7 +115,7 @@
 
 /* Main Content */
 .playground-content {
-  max-width: 1400px;
+  max-width: var(--layout-max-width);
   margin: 0 auto;
   padding: var(--spacing-2xl) var(--spacing-lg);
 }
