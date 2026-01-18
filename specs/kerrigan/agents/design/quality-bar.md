@@ -88,9 +88,10 @@ A design system is complete when:
 - ✅ Visual regression test markers are included
 
 **Playground file size limits:**
-- index.html: < 1000 lines (split into sections if needed)
-- styles.css: < 2000 lines (use CSS variables for tokens)
-- components.js: < 1000 lines (vanilla JS, no framework dependencies)
+- index.html: < 200KB (split into sections if needed)
+- styles.css: < 100KB (use CSS variables for tokens)
+- components.js: < 100KB (vanilla JS, no framework dependencies)
+- Total playground size: < 500KB
 
 ## Integration Guide Standards
 

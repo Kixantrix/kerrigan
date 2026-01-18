@@ -166,12 +166,14 @@ index.html
 
 **React:**
 ```jsx
-import tokens from './design-system/tokens.yaml';
+// With build-time YAML to JSON conversion
+import tokens from './design-system/tokens.json';
 const Button = ({ children }) => (
   <button style={{ backgroundColor: tokens.colors.primary }}>
     {children}
   </button>
 );
+// Or use js-yaml library: import yaml from 'js-yaml';
 ```
 
 **CSS Variables:**
@@ -226,7 +228,11 @@ const Button = ({ children }) => (
 - Con: Requires parsing step to use in web projects
 - Con: Not natively supported in browsers
 
-**Mitigation**: Provide CSS variable conversion example in integration.md
+**Mitigation**: Provide specific conversion examples in integration.md:
+- CSS variables generation script
+- JSON export for JavaScript consumption
+- Framework-specific token import patterns (React useState, Vue ref, etc.)
+- Build-time vs runtime token parsing strategies
 
 ### Tradeoff 3: Comprehensive component library vs. minimal set
 **Decision**: Provide comprehensive library (20-30 components)

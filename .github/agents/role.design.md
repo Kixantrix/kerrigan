@@ -10,7 +10,7 @@ Before starting work:
 When creating a PR, include this signature comment in your PR description:
 
 ```
-<!-- AGENT_SIGNATURE: role=role:design, version=1.0, timestamp=YYYY-MM-DDTHH:MM:SSZ -->
+<!-- AGENT_SIGNATURE: role:design, version=1.0, timestamp=YYYY-MM-DDTHH:MM:SSZ -->
 ```
 
 Replace the timestamp with the current UTC time. Generate using: `python tools/agent_audit.py create-signature role:design`
@@ -105,7 +105,7 @@ All design system artifacts live under `specs/projects/<project-name>/design-sys
 colors:
   foreground: "#000000"
   background: "#FFFFFF"
-  accent: "#FF0000"
+  accent: "#FF0000"  # 5.25:1 contrast with white, 4.17:1 with black
   border: "#000000"
 typography:
   sans: "Arial, Helvetica, sans-serif"

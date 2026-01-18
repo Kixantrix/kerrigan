@@ -54,7 +54,7 @@ This document defines test scenarios to validate Design Agent behavior and outpu
 
 **Given** any project requiring a design system
 **When** Design Agent completes its work
-**Then** design-system/ directory exists under specs/projects/<project>/
+**Then** design-system/ directory exists under specs/projects/<project-name>/
 **And** philosophy.md exists and includes design principles, target audience, rationale
 **And** tokens.yaml exists and includes colors, typography, spacing, shadows, borders
 **And** components.md exists and includes base components, layouts, navigation, forms

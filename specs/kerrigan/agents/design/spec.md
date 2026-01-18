@@ -82,7 +82,7 @@ Define a specialized agent role that creates modular, replaceable design systems
 ## Success metrics
 
 - 100% of UI projects have design-system/ directory with all required artifacts
-- Design systems can be swapped by changing 5 lines in architecture.md (design system reference)
+- Design systems can be swapped with minimal configuration changes in architecture.md (< 10 lines)
 - Playgrounds demonstrate all components without requiring npm/build tools
 - All design systems meet WCAG 2.1 AA color contrast requirements (verified in playground)
 - SWE Agents report design specifications are sufficient for implementation (qualitative feedback)
