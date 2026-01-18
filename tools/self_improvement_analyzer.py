@@ -17,8 +17,6 @@ import json
 import os
 import re
 import sys
-import urllib.request
-import urllib.parse
 from collections import defaultdict, Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -30,6 +28,14 @@ try:
 except ImportError:
     print("Error: PyYAML is required. Install with: pip install pyyaml", file=sys.stderr)
     sys.exit(1)
+
+# Import research modules
+from research import (
+    GitHubAnalysisResearcher,
+    WebSearchResearcher,
+    PaperResearcher,
+    FrameworkAnalysisResearcher
+)
 
 # Common keywords for pattern detection across feedback and retrospectives
 PATTERN_KEYWORDS = [
@@ -258,246 +264,6 @@ class RetrospectiveAnalyzer:
                 patterns.append(f"Recurring theme: {keyword}")
         
         return patterns
-
-
-class WebSearchResearcher:
-    """Researches AI agent best practices through web search."""
-    
-    def __init__(self, enabled: bool = True):
-        self.enabled = enabled
-        self.findings: List[Dict[str, Any]] = []
-    
-    def search_best_practices(self) -> List[Dict[str, Any]]:
-        """Search for AI agent best practices.
-        
-        Note: This is a placeholder implementation. In production, this would:
-        - Use a web search API (Bing, Google, etc.)
-        - Parse and extract relevant articles
-        - Score by relevance and recency
-        
-        For now, returns simulated findings for testing.
-        """
-        if not self.enabled:
-            return []
-        
-        # Placeholder findings - in production, would use actual web search
-        print("   📡 Web search capability available (placeholder mode)")
-        print("   Note: Web search requires API keys - currently returning template findings")
-        
-        # Return empty for now - this prevents noise without actual implementation
-        return []
-    
-    def evaluate_relevance(self, finding: Dict[str, Any]) -> float:
-        """Calculate relevance score for a finding."""
-        score = 0.0
-        
-        # Check for agent-related keywords
-        keywords = ['agent', 'autonomous', 'ai', 'llm', 'orchestration', 'workflow']
-        title = finding.get('title', '').lower()
-        summary = finding.get('summary', '').lower()
-        
-        for keyword in keywords:
-            if keyword in title:
-                score += 0.2
-            if keyword in summary:
-                score += 0.1
-        
-        return min(score, 1.0)
-
-
-class GitHubAnalysisResearcher:
-    """Analyzes GitHub patterns in Kerrigan repository."""
-    
-    def __init__(self, repo_owner: str, repo_name: str, github_token: Optional[str], enabled: bool = True):
-        self.repo_owner = repo_owner
-        self.repo_name = repo_name
-        self.github_token = github_token
-        self.enabled = enabled
-        self.findings: List[Dict[str, Any]] = []
-    
-    def analyze_patterns(self, days_back: int = 30) -> List[Dict[str, Any]]:
-        """Analyze issue and PR patterns."""
-        if not self.enabled or not self.github_token:
-            return []
-        
-        try:
-            findings = []
-            
-            # Analyze PR success rates
-            pr_data = self._fetch_prs(days_back)
-            if pr_data:
-                pr_finding = self._analyze_pr_patterns(pr_data)
-                if pr_finding:
-                    findings.append(pr_finding)
-            
-            # Analyze issue patterns
-            issue_data = self._fetch_issues(days_back)
-            if issue_data:
-                issue_finding = self._analyze_issue_patterns(issue_data)
-                if issue_finding:
-                    findings.append(issue_finding)
-            
-            self.findings = findings
-            return findings
-            
-        except Exception as e:
-            print(f"   ⚠️  GitHub analysis error: {e}")
-            return []
-    
-    def _fetch_prs(self, days_back: int) -> List[Dict[str, Any]]:
-        """Fetch pull requests from GitHub API."""
-        since = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
-        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/pulls?state=all&since={since}&per_page=100"
-        
-        try:
-            req = urllib.request.Request(url)
-            req.add_header("Authorization", f"Bearer {self.github_token}")
-            req.add_header("Accept", "application/vnd.github.v3+json")
-            
-            # Security: Use context manager and timeout
-            with urllib.request.urlopen(req, timeout=10) as response:
-                return json.loads(response.read().decode())
-        except Exception as e:
-            print(f"   ⚠️  Failed to fetch PRs: {e}")
-            return []
-    
-    def _fetch_issues(self, days_back: int) -> List[Dict[str, Any]]:
-        """Fetch issues from GitHub API."""
-        since = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
-        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/issues?state=all&since={since}&per_page=100"
-        
-        try:
-            req = urllib.request.Request(url)
-            req.add_header("Authorization", f"Bearer {self.github_token}")
-            req.add_header("Accept", "application/vnd.github.v3+json")
-            
-            # Security: Use context manager and timeout
-            with urllib.request.urlopen(req, timeout=10) as response:
-                data = json.loads(response.read().decode())
-                # Validate response structure before filtering
-                if not isinstance(data, list):
-                    print(f"   ⚠️  Unexpected API response format")
-                    return []
-                # Filter out PRs (they show up in issues endpoint too)
-                return [item for item in data if isinstance(item, dict) and 'pull_request' not in item]
-        except Exception as e:
-            print(f"   ⚠️  Failed to fetch issues: {e}")
-            return []
-    
-    def _analyze_pr_patterns(self, prs: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-        """Analyze PR patterns for insights."""
-        if not prs:
-            return None
-        
-        total = len(prs)
-        merged = sum(1 for pr in prs if pr.get('merged_at'))
-        closed_unmerged = sum(1 for pr in prs if pr.get('state') == 'closed' and not pr.get('merged_at'))
-        
-        merge_rate = (merged / total * 100) if total > 0 else 0
-        
-        # Only report if merge rate is concerning
-        if merge_rate < 70 and total >= 5:
-            return {
-                'type': 'github_pattern',
-                'title': f'PR merge rate is {merge_rate:.1f}%',
-                'summary': f'Out of {total} PRs in the last 30 days, {merged} were merged and {closed_unmerged} were closed without merging.',
-                'relevance': 0.8,
-                'potential_application': 'Consider improving PR quality checks or agent validation before submission.',
-                'evidence': f'{total} PRs analyzed',
-                'metrics': {
-                    'total_prs': total,
-                    'merged': merged,
-                    'closed_unmerged': closed_unmerged,
-                    'merge_rate': merge_rate
-                }
-            }
-        
-        return None
-    
-    def _analyze_issue_patterns(self, issues: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-        """Analyze issue patterns for insights."""
-        if not issues:
-            return None
-        
-        # Analyze labels
-        label_counts = Counter()
-        for issue in issues:
-            for label in issue.get('labels', []):
-                label_counts[label.get('name', '')] += 1
-        
-        # Identify most common issues
-        if label_counts:
-            most_common = label_counts.most_common(3)
-            return {
-                'type': 'github_pattern',
-                'title': f'Most common issue types: {", ".join(l for l, c in most_common)}',
-                'summary': f'Analysis of {len(issues)} issues shows concentration in: {", ".join(f"{l} ({c})" for l, c in most_common)}',
-                'relevance': 0.7,
-                'potential_application': 'Focus self-improvement efforts on these common issue categories.',
-                'evidence': f'{len(issues)} issues analyzed',
-                'metrics': {
-                    'total_issues': len(issues),
-                    'top_labels': dict(most_common)
-                }
-            }
-        
-        return None
-
-
-class PaperResearcher:
-    """Researches autonomous agent papers on arXiv."""
-    
-    def __init__(self, enabled: bool = False):
-        self.enabled = enabled
-        self.findings: List[Dict[str, Any]] = []
-    
-    def search_arxiv(self, max_results: int = 5) -> List[Dict[str, Any]]:
-        """Search arXiv for autonomous agent research.
-        
-        Note: This is a placeholder implementation. In production, this would:
-        - Query arXiv API for recent papers
-        - Filter by relevance to autonomous agents
-        - Extract key insights
-        
-        For now, returns simulated findings for testing.
-        """
-        if not self.enabled:
-            return []
-        
-        # Placeholder - would use arXiv API in production
-        print("   📚 arXiv search capability available (placeholder mode)")
-        print("   Note: arXiv search currently returning template findings")
-        
-        # Return empty for now
-        return []
-
-
-class FrameworkAnalysisResearcher:
-    """Analyzes other agent frameworks for best practices."""
-    
-    def __init__(self, enabled: bool = True):
-        self.enabled = enabled
-        self.findings: List[Dict[str, Any]] = []
-    
-    def analyze_frameworks(self) -> List[Dict[str, Any]]:
-        """Analyze popular agent frameworks.
-        
-        Note: This is a placeholder implementation. In production, this would:
-        - Query GitHub API for popular agent frameworks
-        - Analyze their architectures and patterns
-        - Identify features Kerrigan could adopt
-        
-        For now, returns simulated findings for testing.
-        """
-        if not self.enabled:
-            return []
-        
-        # Placeholder - would analyze real frameworks in production
-        print("   🔍 Framework analysis capability available (placeholder mode)")
-        print("   Note: Framework analysis currently returning template findings")
-        
-        # Return empty for now
-        return []
 
 
 class ImprovementProposer:

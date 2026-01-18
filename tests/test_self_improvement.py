@@ -16,6 +16,8 @@ from self_improvement_analyzer import (
     FeedbackAnalyzer,
     RetrospectiveAnalyzer,
     ImprovementProposer,
+)
+from research import (
     WebSearchResearcher,
     GitHubAnalysisResearcher,
     PaperResearcher,
