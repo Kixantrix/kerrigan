@@ -1,0 +1,144 @@
+/* Design Tokens - CSS Custom Properties */
+
+:root {
+  /* Colors - Primary */
+  --color-primary: #0066cc;
+  --color-primary-hover: #0052a3;
+  --color-primary-light: #e6f2ff;
+  
+  /* Colors - Secondary */
+  --color-secondary: #6c757d;
+  --color-secondary-hover: #565e64;
+  --color-secondary-light: #f1f3f5;
+  
+  /* Colors - Semantic */
+  --color-success: #28a745;
+  --color-success-light: #d4edda;
+  --color-warning: #ffc107;
+  --color-warning-light: #fff3cd;
+  --color-danger: #dc3545;
+  --color-danger-light: #f8d7da;
+  --color-info: #17a2b8;
+  --color-info-light: #d1ecf1;
+  
+  /* Colors - Neutrals */
+  --color-background: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-border: #dee2e6;
+  --color-text: #212529;
+  --color-text-muted: #6c757d;
+  
+  /* Typography - Font Families */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  
+  /* Typography - Font Sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px */
+  --font-size-2xl: 2rem;      /* 32px */
+  
+  /* Typography - Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Typography - Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* Spacing Scale */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.375rem;  /* 6px */
+  --radius-lg: 0.5rem;    /* 8px */
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+  
+  /* Z-index */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal: 1050;
+  --z-index-tooltip: 1070;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Colors - Primary */
+  --color-primary: #3399ff;
+  --color-primary-hover: #1a8cff;
+  --color-primary-light: #1a3a52;
+  
+  /* Colors - Secondary */
+  --color-secondary: #8b95a1;
+  --color-secondary-hover: #a5adb8;
+  --color-secondary-light: #2a2e33;
+  
+  /* Colors - Semantic */
+  --color-success: #48d164;
+  --color-success-light: #1e3a25;
+  --color-warning: #ffca28;
+  --color-warning-light: #3d3320;
+  --color-danger: #ff5252;
+  --color-danger-light: #3d2022;
+  --color-info: #26c6da;
+  --color-info-light: #1e3439;
+  
+  /* Colors - Neutrals */
+  --color-background: #1a1a1a;
+  --color-surface: #2d2d2d;
+  --color-border: #404040;
+  --color-text: #f0f0f0;
+  --color-text-muted: #a0a0a0;
+  
+  /* Shadows (darker for dark theme) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+/* Smooth theme transitions */
+*,
+*::before,
+*::after {
+  transition: background-color var(--transition-base), 
+              border-color var(--transition-base), 
+              color var(--transition-base);
+}
