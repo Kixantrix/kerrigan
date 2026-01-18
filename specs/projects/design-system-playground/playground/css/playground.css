@@ -393,7 +393,7 @@
 
 .viewport-btn.active {
   background-color: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-white);
   border-color: var(--color-primary);
 }
 
