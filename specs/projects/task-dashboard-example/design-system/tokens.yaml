@@ -1,0 +1,117 @@
+# Design Tokens: Technical Precision Design System
+
+colors:
+  # Primary palette (terminal-inspired)
+  primary: "#00FF41"          # Terminal green - high energy accent
+  primary-dim: "#00CC34"      # Dimmed for hover states
+  
+  # Background layers
+  background: "#0D1117"       # Base background (GitHub dark)
+  surface: "#161B22"          # Elevated surface (cards, panels)
+  surface-hover: "#1C2128"    # Surface hover state
+  
+  # Text hierarchy
+  text-primary: "#C9D1D9"     # Primary text (high contrast)
+  text-secondary: "#8B949E"   # Secondary text (muted)
+  text-tertiary: "#6E7681"    # Tertiary text (very muted)
+  text-inverse: "#0D1117"     # Text on light backgrounds
+  
+  # Borders
+  border: "#30363D"           # Default border
+  border-hover: "#484F58"     # Border hover state
+  border-focus: "#00FF41"     # Focus ring color
+  
+  # Semantic colors
+  success: "#3FB950"          # Success state (green)
+  success-bg: "#1B2B22"       # Success background
+  
+  warning: "#D29922"          # Warning state (yellow)
+  warning-bg: "#2B2418"       # Warning background
+  
+  error: "#F85149"            # Error state (red)
+  error-bg: "#2C1A1A"         # Error background
+  
+  info: "#58A6FF"             # Info state (blue)
+  info-bg: "#1A2332"          # Info background
+
+typography:
+  # Font families
+  font-mono: "'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace"
+  font-system: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', 'Arial', sans-serif"
+  
+  # Type scale (in pixels)
+  scale:
+    xs: 12     # Captions, labels
+    sm: 14     # Body text, table data
+    base: 16   # Base size
+    lg: 20     # Subheadings
+    xl: 24     # Headings
+    xxl: 32    # Page titles
+  
+  # Font weights
+  weight:
+    regular: 400
+    bold: 600
+  
+  # Line heights
+  line-height:
+    tight: 1.2    # Headings
+    normal: 1.5   # Body text
+    relaxed: 1.6  # Comfortable reading
+
+spacing:
+  # Base unit: 4px
+  xs: 4       # 4px
+  sm: 8       # 8px
+  md: 16      # 16px
+  lg: 24      # 24px
+  xl: 32      # 32px
+  xxl: 48     # 48px
+  xxxl: 64    # 64px
+
+sizing:
+  # Common element sizes
+  input-height: 32          # Standard input height
+  button-height: 32         # Standard button height
+  row-height: 40            # Table row height
+  row-height-compact: 32    # Compact table row
+  header-height: 56         # Page header height
+  sidebar-width: 240        # Sidebar width
+
+border-radius:
+  none: 0           # No radius (default)
+  sm: 3             # Small radius (buttons, inputs)
+  md: 6             # Medium radius (cards)
+
+shadows:
+  # Minimal shadow usage for technical aesthetic
+  none: "none"
+  sm: "0 1px 3px rgba(0, 0, 0, 0.3)"          # Subtle depth
+  md: "0 2px 8px rgba(0, 0, 0, 0.4)"          # Moderate depth
+  focus: "0 0 0 2px #00FF41"                   # Focus ring
+
+transitions:
+  # Fast transitions for responsive feel
+  fast: "150ms ease-in-out"
+  none: "none"
+
+breakpoints:
+  mobile: 320      # Mobile devices
+  tablet: 768      # Tablets
+  desktop: 1024    # Desktop
+  wide: 1440       # Wide screens
+
+z-index:
+  # Stacking order
+  base: 0
+  dropdown: 100
+  sticky: 200
+  modal-backdrop: 300
+  modal: 400
+  tooltip: 500
+  toast: 600
+
+opacity:
+  disabled: 0.5
+  hover: 0.8
+  muted: 0.6

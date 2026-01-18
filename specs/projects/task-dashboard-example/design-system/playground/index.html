@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technical Precision Design System - Component Playground</title>
+  <link rel="stylesheet" href="components.css">
+</head>
+<body>
+  <header class="playground-header">
+    <h1 class="playground-title">Technical Precision Design System</h1>
+    <p class="playground-subtitle">Component Playground - Task Management Dashboard</p>
+  </header>
+
+  <main class="playground-main">
+    <!-- Token Visualization Section -->
+    <section class="playground-section">
+      <h2 class="section-title">Design Tokens</h2>
+      
+      <h3 class="section-subtitle">Color Palette</h3>
+      <div class="token-grid">
+        <div class="token-item">
+          <div class="color-swatch" style="background-color: #00FF41;"></div>
+          <div class="token-label">Primary</div>
+          <div class="token-value">#00FF41</div>
+        </div>
+        <div class="token-item">
+          <div class="color-swatch" style="background-color: #0D1117;"></div>
+          <div class="token-label">Background</div>
+          <div class="token-value">#0D1117</div>
+        </div>
+        <div class="token-item">
+          <div class="color-swatch" style="background-color: #161B22;"></div>
+          <div class="token-label">Surface</div>
+          <div class="token-value">#161B22</div>
+        </div>
+        <div class="token-item">
+          <div class="color-swatch" style="background-color: #C9D1D9;"></div>
+          <div class="token-label">Text Primary</div>
+          <div class="token-value">#C9D1D9</div>
+        </div>
+        <div class="token-item">
+          <div class="color-swatch" style="background-color: #3FB950;"></div>
+          <div class="token-label">Success</div>
+          <div class="token-value">#3FB950</div>
+        </div>
+        <div class="token-item">
+          <div class="color-swatch" style="background-color: #D29922;"></div>
+          <div class="token-label">Warning</div>
+          <div class="token-value">#D29922</div>
+        </div>
+        <div class="token-item">
+          <div class="color-swatch" style="background-color: #F85149;"></div>
+          <div class="token-label">Error</div>
+          <div class="token-value">#F85149</div>
+        </div>
+      </div>
+
+      <h3 class="section-subtitle">Typography Scale</h3>
+      <div class="typography-scale">
+        <div class="type-sample" style="font-size: 12px;">12px - XS: Captions, labels</div>
+        <div class="type-sample" style="font-size: 14px;">14px - SM: Body text, table data</div>
+        <div class="type-sample" style="font-size: 16px;">16px - Base: Standard body</div>
+        <div class="type-sample" style="font-size: 20px;">20px - LG: Subheadings</div>
+        <div class="type-sample" style="font-size: 24px;">24px - XL: Headings</div>
+        <div class="type-sample" style="font-size: 32px;">32px - XXL: Page titles</div>
+      </div>
+
+      <h3 class="section-subtitle">Spacing Scale</h3>
+      <div class="spacing-scale">
+        <div class="spacing-item"><div class="spacing-box" style="width: 4px;"></div> 4px - XS</div>
+        <div class="spacing-item"><div class="spacing-box" style="width: 8px;"></div> 8px - SM</div>
+        <div class="spacing-item"><div class="spacing-box" style="width: 16px;"></div> 16px - MD</div>
+        <div class="spacing-item"><div class="spacing-box" style="width: 24px;"></div> 24px - LG</div>
+        <div class="spacing-item"><div class="spacing-box" style="width: 32px;"></div> 32px - XL</div>
+        <div class="spacing-item"><div class="spacing-box" style="width: 48px;"></div> 48px - XXL</div>
+      </div>
+    </section>
+
+    <!-- MetricCard Component -->
+    <section class="playground-section">
+      <h2 class="section-title">MetricCard Component</h2>
+      <div class="component-showcase">
+        <article class="metric-card" aria-label="Active tasks: 247, up 12% from last week">
+          <div class="metric-card__label">Active Tasks</div>
+          <div class="metric-card__value">247</div>
+          <div class="metric-card__trend metric-card__trend--up">
+            <span class="metric-card__trend-icon">▲</span>
+            <span class="metric-card__trend-text">+12%</span>
+          </div>
+        </article>
+
+        <article class="metric-card" aria-label="Completed this week: 89, down 5% from last week">
+          <div class="metric-card__label">Completed This Week</div>
+          <div class="metric-card__value">89</div>
+          <div class="metric-card__trend metric-card__trend--down">
+            <span class="metric-card__trend-icon">▼</span>
+            <span class="metric-card__trend-text">-5%</span>
+          </div>
+        </article>
+
+        <article class="metric-card" aria-label="Average completion time: 3.2 days">
+          <div class="metric-card__label">Avg Completion Time</div>
+          <div class="metric-card__value">3.2d</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- StatusBadge Component -->
+    <section class="playground-section">
+      <h2 class="section-title">StatusBadge Component</h2>
+      <div class="component-showcase">
+        <span class="status-badge status-badge--todo" role="status" aria-label="Task status: To Do">
+          <span class="status-badge__dot"></span>
+          todo
+        </span>
+        <span class="status-badge status-badge--in-progress" role="status" aria-label="Task status: In Progress">
+          <span class="status-badge__dot"></span>
+          in-progress
+        </span>
+        <span class="status-badge status-badge--done" role="status" aria-label="Task status: Done">
+          <span class="status-badge__dot"></span>
+          done
+        </span>
+        <span class="status-badge status-badge--blocked" role="status" aria-label="Task status: Blocked">
+          <span class="status-badge__dot"></span>
+          blocked
+        </span>
+      </div>
+    </section>
+
+    <!-- TaskRow Component -->
+    <section class="playground-section">
+      <h2 class="section-title">TaskRow Component</h2>
+      <div class="component-showcase component-showcase--vertical">
+        <div class="task-row" role="row" tabindex="0">
+          <input type="checkbox" class="task-row__checkbox" id="task-123" aria-label="Select task: Fix login bug" />
+          <label class="task-row__content" for="task-123">
+            <div class="task-row__primary">
+              <span class="task-row__id">[TASK-123]</span>
+              <span class="task-row__title">Fix login bug</span>
+              <span class="status-badge status-badge--in-progress">
+                <span class="status-badge__dot"></span>
+                in-progress
+              </span>
+              <span class="task-row__assignee" title="Alice">👤</span>
+            </div>
+            <div class="task-row__secondary">
+              due: 2026-01-20
+            </div>
+          </label>
+        </div>
+
+        <div class="task-row" role="row" tabindex="0">
+          <input type="checkbox" class="task-row__checkbox" id="task-124" aria-label="Select task: Update documentation" />
+          <label class="task-row__content" for="task-124">
+            <div class="task-row__primary">
+              <span class="task-row__id">[TASK-124]</span>
+              <span class="task-row__title">Update documentation</span>
+              <span class="status-badge status-badge--todo">
+                <span class="status-badge__dot"></span>
+                todo
+              </span>
+              <span class="task-row__assignee" title="Bob">👤</span>
+            </div>
+            <div class="task-row__secondary">
+              due: 2026-01-22
+            </div>
+          </label>
+        </div>
+
+        <div class="task-row" role="row" tabindex="0">
+          <input type="checkbox" class="task-row__checkbox" id="task-125" checked aria-label="Select task: Deploy to production" />
+          <label class="task-row__content" for="task-125">
+            <div class="task-row__primary">
+              <span class="task-row__id">[TASK-125]</span>
+              <span class="task-row__title">Deploy to production</span>
+              <span class="status-badge status-badge--done">
+                <span class="status-badge__dot"></span>
+                done
+              </span>
+              <span class="task-row__assignee" title="Charlie">👤</span>
+            </div>
+            <div class="task-row__secondary">
+              due: 2026-01-18
+            </div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- DataTable Component -->
+    <section class="playground-section">
+      <h2 class="section-title">DataTable Component</h2>
+      <div class="component-showcase">
+        <div class="data-table" role="table" aria-label="Task list">
+          <div class="data-table__header" role="rowgroup">
+            <div class="data-table__row" role="row">
+              <div class="data-table__cell data-table__cell--header" role="columnheader" aria-sort="none" data-column="id">
+                Task ID
+              </div>
+              <div class="data-table__cell data-table__cell--header" role="columnheader" aria-sort="none" data-column="title">
+                Title
+              </div>
+              <div class="data-table__cell data-table__cell--header" role="columnheader" aria-sort="none" data-column="status">
+                Status
+              </div>
+              <div class="data-table__cell data-table__cell--header" role="columnheader" aria-sort="none" data-column="assignee">
+                Assignee
+              </div>
+              <div class="data-table__cell data-table__cell--header" role="columnheader" aria-sort="none" data-column="due">
+                Due Date
+              </div>
+            </div>
+          </div>
+          <div class="data-table__body" role="rowgroup" id="table-body">
+            <!-- Rows will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CommandBar Component -->
+    <section class="playground-section">
+      <h2 class="section-title">CommandBar Component</h2>
+      <p class="section-description">Press <kbd>⌘K</kbd> (Mac) or <kbd>Ctrl+K</kbd> (Windows/Linux) to open</p>
+      <button class="demo-button" id="open-command-bar">Open Command Bar</button>
+    </section>
+  </main>
+
+  <!-- CommandBar (hidden by default) -->
+  <div class="command-bar" id="command-bar" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="command-bar__backdrop"></div>
+    <div class="command-bar__container">
+      <input
+        type="text"
+        class="command-bar__input"
+        id="command-input"
+        placeholder="⌘ Search or type command..."
+        role="combobox"
+        aria-expanded="false"
+        aria-autocomplete="list"
+        aria-controls="command-list"
+      />
+      <ul class="command-bar__list" id="command-list" role="listbox">
+        <li class="command-bar__item" role="option" tabindex="-1" data-command="new-task">
+          <span class="command-bar__item-label">> New Task</span>
+          <span class="command-bar__item-shortcut">⌘N</span>
+        </li>
+        <li class="command-bar__item" role="option" tabindex="-1" data-command="filter">
+          <span class="command-bar__item-label">> Filter by Status</span>
+          <span class="command-bar__item-shortcut">⌘F</span>
+        </li>
+        <li class="command-bar__item" role="option" tabindex="-1" data-command="export">
+          <span class="command-bar__item-label">> Export Data</span>
+          <span class="command-bar__item-shortcut">⌘E</span>
+        </li>
+        <li class="command-bar__item" role="option" tabindex="-1" data-command="settings">
+          <span class="command-bar__item-label">> Settings</span>
+          <span class="command-bar__item-shortcut">⌘,</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="playground-footer">
+    <p>Technical Precision Design System © 2026 - Built for developers, by developers</p>
+  </footer>
+
+  <script src="demo-data.js"></script>
+</body>
+</html>
