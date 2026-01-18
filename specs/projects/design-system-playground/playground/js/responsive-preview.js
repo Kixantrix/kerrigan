@@ -39,14 +39,18 @@
     
     // Apply visual indicator (max-width to main content)
     if (viewport === 'mobile' || viewport === 'tablet') {
-      mainContent.style.maxWidth = size.width;
-      mainContent.style.marginLeft = 'auto';
-      mainContent.style.marginRight = 'auto';
-      mainContent.style.border = '1px solid var(--color-border)';
-      mainContent.style.transition = 'all 0.3s ease';
+      mainContent.style.cssText = `
+        max-width: ${size.width};
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid var(--color-border);
+        transition: all 0.3s ease;
+      `;
     } else {
-      mainContent.style.maxWidth = '1400px';
-      mainContent.style.border = 'none';
+      mainContent.style.cssText = `
+        max-width: 1400px;
+        border: none;
+      `;
     }
   }
 

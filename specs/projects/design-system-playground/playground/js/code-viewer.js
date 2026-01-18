@@ -74,12 +74,13 @@
     const text = code.textContent;
     
     try {
-      // Modern clipboard API
+      // Modern clipboard API (requires HTTPS or localhost)
+      // For HTTP development, the fallback method will be used automatically
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
         showCopySuccess(button);
       } else {
-        // Fallback for older browsers or non-secure contexts
+        // Fallback for older browsers or non-secure contexts (HTTP)
         fallbackCopyToClipboard(text);
         showCopySuccess(button);
       }

@@ -26,7 +26,7 @@
       const sectionTop = section.offsetTop;
       const sectionHeight = section.clientHeight;
       
-      if (window.pageYOffset >= sectionTop - 100) {
+      if (window.scrollY >= sectionTop - 100) {
         currentSection = section.getAttribute('id');
       }
     });

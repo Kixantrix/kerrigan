@@ -29,7 +29,7 @@
 }
 
 .btn-primary {
-  color: #ffffff;
+  color: var(--color-white);
   background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
@@ -173,7 +173,7 @@ textarea.input {
 }
 
 .badge-primary {
-  color: #ffffff;
+  color: var(--color-white);
   background-color: var(--color-primary);
 }
 
@@ -183,17 +183,17 @@ textarea.input {
 }
 
 .badge-success {
-  color: #ffffff;
+  color: var(--color-white);
   background-color: var(--color-success);
 }
 
 .badge-warning {
-  color: #000000;
+  color: var(--color-black);
   background-color: var(--color-warning);
 }
 
 .badge-danger {
-  color: #ffffff;
+  color: var(--color-white);
   background-color: var(--color-danger);
 }
 
