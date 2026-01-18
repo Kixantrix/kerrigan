@@ -10,7 +10,7 @@ This guide explains how to assign work to Kerrigan agents using GitHub's label-b
 
 ### 1. Agent Roles Are Labels, Not Accounts
 
-Kerrigan's agents (Spec, Architect, SWE, Testing, Security, Deployment, Debugging) are defined as prompts in `.github/agents/`. They are **not** GitHub user accounts or bot accounts, so you cannot:
+Kerrigan's agents (Spec, Architect, SWE, Testing, Security, Deployment, Debugging, Design, Triage) are defined as prompts in `.github/agents/`. They are **not** GitHub user accounts or bot accounts, so you cannot:
 - ❌ @mention them (e.g., `@kerrigan-swe`)
 - ❌ Directly assign them to issues
 - ❌ Add them as PR reviewers
@@ -28,6 +28,7 @@ Instead, use **role labels** to indicate which agent role should handle the work
 | `role:security` | Security Agent | Security review and hardening |
 | `role:deployment` | Deployment Agent | Production readiness and operations |
 | `role:debugging` | Debugging Agent | Bug investigation and fixes |
+| `role:design` | Design Agent | Create design systems and UI component libraries |
 | `role:triage` | Triage Agent | PR review, CI management, merge workflow |
 
 ### 3. Automated Assignment Workflow
