@@ -301,7 +301,7 @@ class CustomPlugin(KerriganPlugin):
     
     @click.command()
     @click.argument('action')
-    def custom_command(action):
+    def custom_command(self, action):
         """Custom organization command."""
         click.echo(f"Running custom action: {action}")
     
