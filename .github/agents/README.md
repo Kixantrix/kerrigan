@@ -22,6 +22,7 @@ These agents execute the main workflow from specification to deployment:
 |-------|------|----------------------|---------------|
 | **Spec Agent** | `role.spec.md` | Define project goals and acceptance criteria | spec.md, acceptance-tests.md |
 | **Architect Agent** | `role.architect.md` | Design system and create implementation roadmap | architecture.md, plan.md, tasks.md, test-plan.md |
+| **Design Agent** | `role.design.md` | Create and refine design systems interactively | design-system/, tokens/, components/, playground/ |
 | **SWE Agent** | `role.swe.md` | Implement features with tests | Code, tests, linting config |
 | **Testing Agent** | `role.testing.md` | Strengthen test coverage and reliability | Enhanced tests, test-plan.md updates |
 | **Debugging Agent** | `role.debugging.md` | Investigate failures and fix bugs | Bug fixes, regression tests |

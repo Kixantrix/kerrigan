@@ -1,6 +1,6 @@
 # Agent Role Specifications
 
-This directory contains comprehensive specifications for each of the 7 core agent roles in the Kerrigan multi-agent system.
+This directory contains comprehensive specifications for each of the 8 core agent roles in the Kerrigan multi-agent system.
 
 ## Purpose
 
@@ -38,35 +38,42 @@ specs/kerrigan/agents/<agent-name>/
 
 **Quality Focus**: Incrementality, feasibility, completeness
 
-### 3. SWE Agent (`swe/`)
+### 3. Design Agent (`design/`)
+**Purpose**: Create and refine design systems through interactive collaboration with users, proposing design philosophies and iterating on components based on feedback.
+
+**Key Artifacts**: `design-system/`, `tokens/`, `components/`, `playground/`, design feedback files
+
+**Quality Focus**: WCAG AA accessibility, user feedback responsiveness, design consistency
+
+### 4. SWE Agent (`swe/`)
 **Purpose**: Implement software incrementally with TDD, maintaining high code quality and green CI.
 
 **Key Artifacts**: Code, tests, linting config, documentation
 
 **Quality Focus**: Test coverage, code quality, maintainability
 
-### 4. Testing Agent (`testing/`)
+### 5. Testing Agent (`testing/`)
 **Purpose**: Strengthen test infrastructure, increase coverage, eliminate flaky tests, improve test quality.
 
 **Key Artifacts**: Enhanced tests, test infrastructure, `test-plan.md` updates
 
 **Quality Focus**: Coverage (>80%), reliability (<1% flaky), speed, clarity
 
-### 5. Debugging Agent (`debugging/`)
+### 6. Debugging Agent (`debugging/`)
 **Purpose**: Investigate failures, identify root causes, create fixes with regression tests, prevent recurrence.
 
 **Key Artifacts**: Reproduction steps, fix with regression test, runbook updates
 
 **Quality Focus**: Root cause identification, minimal fixes, prevention
 
-### 6. Deployment Agent (`deployment/`)
+### 7. Deployment Agent (`deployment/`)
 **Purpose**: Make deployable projects operationally ready for production.
 
 **Key Artifacts**: `runbook.md`, `cost-plan.md`, CI/CD pipelines
 
 **Quality Focus**: Operational readiness, cost awareness, reliability
 
-### 7. Security Agent (`security/`)
+### 8. Security Agent (`security/`)
 **Purpose**: Identify and prevent common security issues early in development.
 
 **Key Artifacts**: Security notes in `architecture.md` and `runbook.md`, CI security checks
