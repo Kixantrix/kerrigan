@@ -19,7 +19,7 @@ import sys
 import yaml
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple, Dict, Any, Optional
+from typing import List, Dict, Any, Optional
 
 ROOT = Path(__file__).resolve().parents[2]
 SPECS_DIR = ROOT / "specs" / "projects"
@@ -145,6 +145,8 @@ def parse_yaml_frontmatter(text: str) -> Optional[Dict[str, Any]]:
     
     yaml_content = match.group(1)
     try:
+        # Note: yaml.safe_load returns None for empty frontmatter (just --- ---),
+        # which is treated the same as no frontmatter
         return yaml.safe_load(yaml_content)
     except yaml.YAMLError as e:
         # Log YAML parsing errors for debugging
@@ -205,6 +207,13 @@ def validate_multi_repo_spec(spec_path: Path, project_name: str) -> None:
         url = repo["url"]
         role = repo["role"]
         
+        # Validate that name and url are strings before using them in string operations
+        if not isinstance(name, str):
+            fail(f"Project '{project_name}' spec.md: Repository name at index {idx} must be a string")
+        
+        if not isinstance(url, str):
+            fail(f"Project '{project_name}' spec.md: Repository URL at index {idx} must be a string")
+        
         # Validate name format (alphanumeric, hyphens, underscores)
         if not re.match(r'^[a-zA-Z0-9_-]+$', name):
             fail(f"Project '{project_name}' spec.md: Repository name '{name}' must contain only alphanumeric characters, hyphens, and underscores")
@@ -250,13 +259,22 @@ def validate_cross_repo_references(project_dir: Path, project_name: str) -> None
     if not repos:
         return
     
-    # Build set of valid repository names
-    valid_repo_names = {repo["name"] for repo in repos if isinstance(repo, dict) and "name" in repo}
+    # Build set of valid repository names.
+    # Note: validate_multi_repo_spec is expected to enforce repository structure,
+    # but this logic is intentionally defensive in case malformed entries appear here.
+    valid_repo_names = set()
+    for repo in repos:
+        if not isinstance(repo, dict):
+            continue
+        name = repo.get("name")
+        if isinstance(name, str) and name:
+            valid_repo_names.add(name)
     
     # Pattern to match repo:path references
     # Matches: reponame:path/to/file.md or (see reponame:path) or [text](reponame:path)
-    # Path component allows alphanumeric, underscore, forward slash, dot, and hyphen
-    ref_pattern = r'\b([a-zA-Z0-9_-]+):([a-zA-Z0-9_/.-]+)'
+    # Path component allows alphanumeric, underscore, forward slash, dot, hash, and hyphen
+    # Hash (#) is included to support fragment identifiers (e.g., api:spec.md#versioning)
+    ref_pattern = r'\b([a-zA-Z0-9_-]+):([a-zA-Z0-9_/.#-]+)'
     
     # Check all markdown files in the project
     for md_file in project_dir.glob("*.md"):

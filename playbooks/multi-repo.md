@@ -481,7 +481,7 @@ org/app-two             (Application using library)
 - Maximum 5 repositories per project
 - All repositories must be in same GitHub organization
 - Uniform permission model (same access for all repos)
-- No automated validation of cross-repo references
+- Basic automated validation of cross-repo reference syntax (repository name validation only; file existence checks are future work)
 - No dependency version tracking (manual documentation only)
 
 ### Manual workarounds

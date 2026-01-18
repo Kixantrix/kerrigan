@@ -352,11 +352,11 @@ See `playbooks/multi-repo.md` for detailed agent coordination workflows.
 - Maximum 5 repositories per project
 - All repositories must be in same GitHub organization
 - Uniform permission model (same access for all repos)
-- No automated validation of cross-repo references (manual check required)
+- Basic automated validation of cross-repo reference syntax (repository name validation only; file existence checks are future work)
 - No dependency version tracking (manual documentation only)
 
 **Future enhancements** (Milestone 7b+):
-- Cross-repo reference validation in CI
+- Enhanced cross-repo reference validation in CI (including file existence and integrity checks)
 - Dependency graph visualization
 - Cross-repo status dashboard
 - Automated synchronization checks
