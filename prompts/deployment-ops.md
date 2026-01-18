@@ -8,6 +8,7 @@ variables:
   - PROJECT_NAME
   - REPO_NAME
   - ENVIRONMENT
+  - VERSION
 tags:
   - deployment
   - operations
