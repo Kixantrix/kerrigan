@@ -96,7 +96,7 @@ kerrigan config init                        # Initialize config file interactive
 
 #### Command Naming Conventions
 
-1. **Verb-noun pattern**: `kerrigan <verb> <noun>` (e.g., `list repos`, `check status`)
+1. **Noun-verb pattern**: `kerrigan <noun> <verb>` (e.g., `kerrigan repos list`, `kerrigan handoff check`)
 2. **Group commands**: Related commands under subcommand groups (e.g., `repos list`, `repos sync`)
 3. **Consistent flags**:
    - `--help, -h`: Show help
@@ -393,7 +393,7 @@ tools/cli/kerrigan-cli/
 **Core dependencies**:
 - `click>=8.0`: CLI framework
 - `pyyaml>=6.0`: Config file parsing
-- `requests>=2.31`: HTTP client for GitHub API
+- `requests>=2.32.0`: HTTP client for GitHub API (security patches)
 - `rich>=13.0`: Rich terminal output (optional, for enhanced UX)
 - `pygments>=2.15`: Syntax highlighting (optional)
 
