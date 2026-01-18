@@ -56,6 +56,11 @@ For each project under `specs/projects/<project-name>/`:
    - Enables pause/resume control for human oversight
    - See schema below
 
+10) `design-system/` (optional, for projects with UI components)
+    - Complete design system with visual philosophy and components
+    - Modular and replaceable via architecture.md configuration
+    - See structure below
+
 ## status.json schema
 
 The `status.json` file provides runtime control over agent workflow. It is optional but recommended for multi-agent projects requiring human oversight.
@@ -89,6 +94,68 @@ The `status.json` file provides runtime control over agent workflow. It is optio
 - If status=blocked or on-hold, agents MUST NOT proceed
 - Agents SHOULD update last_updated when changing phases
 - Agents MAY add notes but MUST NOT change status from active to blocked
+
+## design-system/ structure
+
+The `design-system/` directory contains a complete, modular design system that can be versioned and swapped independently of business logic.
+
+**Location**: `specs/projects/<project-name>/design-system/`
+
+**Structure**:
+```
+design-system/
+  philosophy.md          # Design principles, rationale, target audience, visual tone
+  tokens.yaml           # Colors, typography, spacing, shadows, borders, animations
+  components.md         # Component specifications with states and behaviors
+  playground/           # Interactive testing and demonstration
+    index.html          # Standalone demo showcasing all components
+    styles.css          # Complete design system CSS implementation
+    components.js       # Component interactions and demonstrations
+  integration.md        # Setup instructions, framework guides, customization
+  a11y-checklist.md     # WCAG compliance, keyboard navigation, screen reader support
+```
+
+**Required files**:
+- `philosophy.md` - Documents the design vision and rationale
+- `tokens.yaml` - Core design tokens (colors, typography, spacing, etc.)
+- `components.md` - Component library specifications
+- `playground/index.html` - Working demonstration of the design system
+- `integration.md` - How to use the design system in projects
+- `a11y-checklist.md` - Accessibility requirements and compliance
+
+**Integration with other artifacts**:
+
+**In spec.md**:
+- Reference design philosophy for user experience goals
+- Include visual requirements in acceptance criteria
+- Specify target audience to inform design direction
+
+**In architecture.md**:
+- Specify which design system to use
+- Configure design system version and customizations
+- Example:
+  ```yaml
+  design:
+    system: minimal-brutalist  # or warm-humanist, technical-precision
+    version: 1.2.0
+    customizations:
+      primary_color: "#0066CC"
+      font_family: "system-ui"
+  ```
+
+**Modularity requirements**:
+- Design systems MUST be self-contained (all assets in design-system/)
+- Design systems MUST be replaceable (projects can swap via architecture.md)
+- Design systems MUST be framework-agnostic (work with vanilla JS, React, Vue, etc.)
+- Design systems MUST be versioned (semantic versioning: major.minor.patch)
+- Playgrounds MUST work standalone (no complex build dependencies)
+
+**Design Agent behavior**:
+- Design Agent creates complete design-system/ directory
+- Collaborates with Spec Agent on design requirements
+- Ensures accessibility standards are met
+- Builds working playgrounds for testing
+- Documents integration for different frameworks
 
 ## Kerrigan-wide artifacts
 - `specs/constitution.md` governs all work.
