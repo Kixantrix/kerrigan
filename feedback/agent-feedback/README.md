@@ -33,11 +33,18 @@ See `TEMPLATE.yaml` for the complete feedback template with all fields explained
 
 ## Review Process
 
-Kerrigan reviews this directory regularly and:
-1. Triages and prioritizes feedback
-2. Creates issues for significant items
-3. Implements improvements
-4. Moves processed feedback to `../processed/` with status updates
+The daily self-improvement workflow (runs at 2 AM UTC) automatically:
+1. Analyzes feedback from the last 7 days
+2. Identifies patterns and generates proposals
+3. Creates GitHub issues for high/medium priority items
+4. Creates daily summary issue with metrics
+
+**Note on file lifecycle:**
+- Files remain in this directory indefinitely
+- The analyzer uses `--since-days 7` to skip old feedback automatically
+- No automatic archival - files naturally "age out" of analysis
+- Optional: Manually move files to `../processed/` for explicit archival
+- Recommended: Periodically delete files >30 days old to keep directory manageable
 
 ## Full Documentation
 
