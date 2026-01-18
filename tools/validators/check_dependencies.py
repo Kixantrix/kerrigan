@@ -20,6 +20,13 @@ from typing import Dict, List, Set, Tuple
 ROOT = Path(__file__).resolve().parents[2]
 SPECS_DIR = ROOT / "specs" / "projects"
 
+# Task section names to recognize
+TASK_SECTIONS = ["Done when", "Links", "Status", "Dependencies", "Blocks"]
+
+# Directories to exclude from validation
+EXCLUDED_DIRS = ["_template", "_archive", "tests", "test", "test-project", 
+                 "pause-resume-demo"]
+
 
 @dataclass
 class Dependency:
@@ -197,7 +204,7 @@ def extract_tasks_from_file(tasks_file: Path) -> List[Task]:
             continue
         
         # Check for other sections (Done when, Links, etc.)
-        if re.match(r'^\s*-\s*(Done when|Links|Status):', line):
+        if any(re.match(rf'^\s*-\s*{section}:', line) for section in TASK_SECTIONS):
             in_dependencies = False
             in_blocks = False
             continue
@@ -258,13 +265,13 @@ def detect_cycles(graph: Dict[str, List[str]]) -> List[List[str]]:
     def dfs(node: str) -> bool:
         if color.get(node, WHITE) == GRAY:
             # Found a cycle
-            try:
+            if node in path:
                 cycle_start = path.index(node)
                 cycle = path[cycle_start:] + [node]
                 cycles.append(cycle)
-            except ValueError:
-                # Node not in path (shouldn't happen)
-                pass
+            else:
+                # Unexpected: node marked GRAY but not in path
+                warn(f"Unexpected cycle detection state for node {node}")
             return True
         
         if color.get(node, WHITE) == BLACK:
@@ -331,11 +338,8 @@ def project_folders() -> List[Path]:
     if not SPECS_DIR.exists():
         return []
     
-    # Exclude test directories and special folders
-    excluded = ["_template", "_archive", "tests", "test", "test-project", 
-                "pause-resume-demo"]
     return [p for p in SPECS_DIR.iterdir() 
-            if p.is_dir() and p.name not in excluded]
+            if p.is_dir() and p.name not in EXCLUDED_DIRS]
 
 
 def main() -> None:

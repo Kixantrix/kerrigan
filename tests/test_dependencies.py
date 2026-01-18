@@ -5,8 +5,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-# Add parent directory to path to import the validator
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "validators"))
+# Import validator module
+REPO_ROOT = Path(__file__).resolve().parents[1]
+VALIDATOR_PATH = REPO_ROOT / "tools" / "validators"
+if str(VALIDATOR_PATH) not in sys.path:
+    sys.path.insert(0, str(VALIDATOR_PATH))
 
 from check_dependencies import (
     Dependency,
