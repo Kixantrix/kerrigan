@@ -77,6 +77,6 @@ def validate(project_name, validate_all):
             click.echo("✗ Validation failed", err=True)
             raise click.Abort()
     
-    except Exception as e:
+    except (subprocess.SubprocessError, FileNotFoundError, OSError) as e:
         click.echo(f"Error running validator: {e}", err=True)
         raise click.Abort()

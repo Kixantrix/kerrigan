@@ -176,7 +176,17 @@ def sync_repos(project_name, dry_run):
             
             if path:
                 # Local path relative to root
-                repo_path = root / path / 'specs' / 'projects' / project_name
+                target_repo_root = root / path
+                
+                # Check if the target repository exists
+                if not target_repo_root.exists():
+                    if dry_run:
+                        click.echo(f"  - {owner}/{name} ({path}) - target path not found")
+                    else:
+                        click.echo(f"  ⊘ {owner}/{name} - path not found: {path}")
+                    continue
+                
+                repo_path = target_repo_root / 'specs' / 'projects' / project_name
                 repo_status = repo_path / 'status.json'
                 
                 if dry_run:
@@ -186,15 +196,13 @@ def sync_repos(project_name, dry_run):
                     else:
                         click.echo(f"    Would create {repo_status.relative_to(root)}")
                 else:
-                    if repo_path.parent.exists():
-                        repo_path.mkdir(parents=True, exist_ok=True)
-                        with open(repo_status, 'w') as f:
-                            json.dump(primary_status, f, indent=2)
-                            f.write('\n')
-                        click.echo(f"  ✓ {owner}/{name} ({path})")
-                        synced_count += 1
-                    else:
-                        click.echo(f"  ⊘ {owner}/{name} - path not found: {path}")
+                    # Ensure parent directories exist
+                    repo_path.mkdir(parents=True, exist_ok=True)
+                    with open(repo_status, 'w') as f:
+                        json.dump(primary_status, f, indent=2)
+                        f.write('\n')
+                    click.echo(f"  ✓ {owner}/{name} ({path})")
+                    synced_count += 1
             else:
                 click.echo(f"  ⊘ {owner}/{name} - no local path configured")
     
