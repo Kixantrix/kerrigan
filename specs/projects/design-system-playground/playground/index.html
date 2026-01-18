@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System Playground</title>
+  <meta name="description" content="Interactive playground for exploring design system components and tokens">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/playground.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="playground-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <h1 class="nav-title">Design System Playground</h1>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation menu">
+        <span class="hamburger"></span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#tokens" class="nav-link">Tokens</a></li>
+        <li><a href="#components" class="nav-link">Components</a></li>
+        <li><a href="#patterns" class="nav-link">Patterns</a></li>
+      </ul>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+        <span class="theme-icon">🌙</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="playground-content">
+    <!-- Tokens Section -->
+    <section id="tokens" class="section">
+      <div class="section-header">
+        <h2>Design Tokens</h2>
+        <p>Foundational design values used throughout the system</p>
+      </div>
+
+      <!-- Colors -->
+      <div class="subsection">
+        <h3>Colors</h3>
+        <div class="token-grid">
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-primary);"></div>
+            <div class="token-info">
+              <span class="token-name">Primary</span>
+              <code class="token-value">--color-primary</code>
+              <span class="token-hex">#0066cc</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-secondary);"></div>
+            <div class="token-info">
+              <span class="token-name">Secondary</span>
+              <code class="token-value">--color-secondary</code>
+              <span class="token-hex">#6c757d</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-success);"></div>
+            <div class="token-info">
+              <span class="token-name">Success</span>
+              <code class="token-value">--color-success</code>
+              <span class="token-hex">#28a745</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-warning);"></div>
+            <div class="token-info">
+              <span class="token-name">Warning</span>
+              <code class="token-value">--color-warning</code>
+              <span class="token-hex">#ffc107</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-danger);"></div>
+            <div class="token-info">
+              <span class="token-name">Danger</span>
+              <code class="token-value">--color-danger</code>
+              <span class="token-hex">#dc3545</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-background);"></div>
+            <div class="token-info">
+              <span class="token-name">Background</span>
+              <code class="token-value">--color-background</code>
+              <span class="token-hex">#ffffff</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-surface);"></div>
+            <div class="token-info">
+              <span class="token-name">Surface</span>
+              <code class="token-value">--color-surface</code>
+              <span class="token-hex">#f8f9fa</span>
+            </div>
+          </div>
+          <div class="token-card">
+            <div class="token-swatch" style="background: var(--color-text);"></div>
+            <div class="token-info">
+              <span class="token-name">Text</span>
+              <code class="token-value">--color-text</code>
+              <span class="token-hex">#212529</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typography -->
+      <div class="subsection">
+        <h3>Typography</h3>
+        <div class="typography-scale">
+          <div class="typography-sample" style="font-size: var(--font-size-xs);">
+            <span class="type-label">Extra Small</span>
+            <span class="type-value">--font-size-xs (0.75rem / 12px)</span>
+            <p class="type-example">The quick brown fox jumps over the lazy dog</p>
+          </div>
+          <div class="typography-sample" style="font-size: var(--font-size-sm);">
+            <span class="type-label">Small</span>
+            <span class="type-value">--font-size-sm (0.875rem / 14px)</span>
+            <p class="type-example">The quick brown fox jumps over the lazy dog</p>
+          </div>
+          <div class="typography-sample" style="font-size: var(--font-size-base);">
+            <span class="type-label">Base</span>
+            <span class="type-value">--font-size-base (1rem / 16px)</span>
+            <p class="type-example">The quick brown fox jumps over the lazy dog</p>
+          </div>
+          <div class="typography-sample" style="font-size: var(--font-size-lg);">
+            <span class="type-label">Large</span>
+            <span class="type-value">--font-size-lg (1.25rem / 20px)</span>
+            <p class="type-example">The quick brown fox jumps over the lazy dog</p>
+          </div>
+          <div class="typography-sample" style="font-size: var(--font-size-xl);">
+            <span class="type-label">Extra Large</span>
+            <span class="type-value">--font-size-xl (1.5rem / 24px)</span>
+            <p class="type-example">The quick brown fox jumps over the lazy dog</p>
+          </div>
+          <div class="typography-sample" style="font-size: var(--font-size-2xl);">
+            <span class="type-label">2X Large</span>
+            <span class="type-value">--font-size-2xl (2rem / 32px)</span>
+            <p class="type-example">The quick brown fox jumps</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacing -->
+      <div class="subsection">
+        <h3>Spacing</h3>
+        <div class="spacing-scale">
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--spacing-xs); height: var(--spacing-xs);"></div>
+            <span class="spacing-label">XS: --spacing-xs (0.25rem / 4px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--spacing-sm); height: var(--spacing-sm);"></div>
+            <span class="spacing-label">SM: --spacing-sm (0.5rem / 8px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--spacing-md); height: var(--spacing-md);"></div>
+            <span class="spacing-label">MD: --spacing-md (1rem / 16px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--spacing-lg); height: var(--spacing-lg);"></div>
+            <span class="spacing-label">LG: --spacing-lg (1.5rem / 24px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--spacing-xl); height: var(--spacing-xl);"></div>
+            <span class="spacing-label">XL: --spacing-xl (2rem / 32px)</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--spacing-2xl); height: var(--spacing-2xl);"></div>
+            <span class="spacing-label">2XL: --spacing-2xl (3rem / 48px)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Components Section -->
+    <section id="components" class="section">
+      <div class="section-header">
+        <h2>Components</h2>
+        <p>Reusable UI components with state variations</p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="component-card">
+        <h3>Buttons</h3>
+        <p>Interactive buttons with various styles and states</p>
+        <div class="component-preview">
+          <button class="btn btn-primary">Primary Button</button>
+          <button class="btn btn-secondary">Secondary Button</button>
+          <button class="btn btn-ghost">Ghost Button</button>
+          <button class="btn btn-primary" disabled>Disabled Button</button>
+        </div>
+        <div class="component-states">
+          <span class="state-label">States: default, hover, focus, disabled</span>
+        </div>
+        <button class="code-toggle" data-target="button-code">View Code</button>
+        <pre class="component-code" id="button-code" style="display: none;"><code>&lt;button class="btn btn-primary"&gt;Primary Button&lt;/button&gt;
+&lt;button class="btn btn-secondary"&gt;Secondary Button&lt;/button&gt;
+&lt;button class="btn btn-ghost"&gt;Ghost Button&lt;/button&gt;
+&lt;button class="btn btn-primary" disabled&gt;Disabled Button&lt;/button&gt;</code></pre>
+      </div>
+
+      <!-- Input Fields -->
+      <div class="component-card">
+        <h3>Input Fields</h3>
+        <p>Text input fields for user data entry</p>
+        <div class="component-preview">
+          <div class="form-group">
+            <label for="input-default">Default Input</label>
+            <input type="text" id="input-default" class="input" placeholder="Enter text...">
+          </div>
+          <div class="form-group">
+            <label for="input-error">Error State</label>
+            <input type="text" id="input-error" class="input input-error" value="Invalid input">
+            <span class="input-help error">This field has an error</span>
+          </div>
+          <div class="form-group">
+            <label for="input-disabled">Disabled Input</label>
+            <input type="text" id="input-disabled" class="input" disabled value="Disabled">
+          </div>
+        </div>
+        <button class="code-toggle" data-target="input-code">View Code</button>
+        <pre class="component-code" id="input-code" style="display: none;"><code>&lt;div class="form-group"&gt;
+  &lt;label for="input-default"&gt;Default Input&lt;/label&gt;
+  &lt;input type="text" id="input-default" class="input" placeholder="Enter text..."&gt;
+&lt;/div&gt;
+
+&lt;div class="form-group"&gt;
+  &lt;label for="input-error"&gt;Error State&lt;/label&gt;
+  &lt;input type="text" id="input-error" class="input input-error" value="Invalid input"&gt;
+  &lt;span class="input-help error"&gt;This field has an error&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+
+      <!-- Cards -->
+      <div class="component-card">
+        <h3>Cards</h3>
+        <p>Container components for grouping related content</p>
+        <div class="component-preview">
+          <div class="card">
+            <div class="card-header">
+              <h4>Card Title</h4>
+            </div>
+            <div class="card-body">
+              <p>This is a basic card component with a header and body. Cards are useful for organizing content into distinct sections.</p>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-primary">Action</button>
+              <button class="btn btn-ghost">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <button class="code-toggle" data-target="card-code">View Code</button>
+        <pre class="component-code" id="card-code" style="display: none;"><code>&lt;div class="card"&gt;
+  &lt;div class="card-header"&gt;
+    &lt;h4&gt;Card Title&lt;/h4&gt;
+  &lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;p&gt;Card content goes here...&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="card-footer"&gt;
+    &lt;button class="btn btn-primary"&gt;Action&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+
+      <!-- Badges -->
+      <div class="component-card">
+        <h3>Badges</h3>
+        <p>Small labels for highlighting status or count</p>
+        <div class="component-preview">
+          <span class="badge badge-primary">Primary</span>
+          <span class="badge badge-success">Success</span>
+          <span class="badge badge-warning">Warning</span>
+          <span class="badge badge-danger">Danger</span>
+          <span class="badge badge-secondary">Secondary</span>
+        </div>
+        <button class="code-toggle" data-target="badge-code">View Code</button>
+        <pre class="component-code" id="badge-code" style="display: none;"><code>&lt;span class="badge badge-primary"&gt;Primary&lt;/span&gt;
+&lt;span class="badge badge-success"&gt;Success&lt;/span&gt;
+&lt;span class="badge badge-warning"&gt;Warning&lt;/span&gt;
+&lt;span class="badge badge-danger"&gt;Danger&lt;/span&gt;</code></pre>
+      </div>
+
+      <!-- Alerts -->
+      <div class="component-card">
+        <h3>Alerts</h3>
+        <p>Notification messages for user feedback</p>
+        <div class="component-preview">
+          <div class="alert alert-success">
+            <strong>Success!</strong> Your action was completed successfully.
+          </div>
+          <div class="alert alert-warning">
+            <strong>Warning!</strong> Please review the information carefully.
+          </div>
+          <div class="alert alert-danger">
+            <strong>Error!</strong> Something went wrong. Please try again.
+          </div>
+          <div class="alert alert-info">
+            <strong>Info:</strong> Here's some helpful information.
+          </div>
+        </div>
+        <button class="code-toggle" data-target="alert-code">View Code</button>
+        <pre class="component-code" id="alert-code" style="display: none;"><code>&lt;div class="alert alert-success"&gt;
+  &lt;strong&gt;Success!&lt;/strong&gt; Your action was completed.
+&lt;/div&gt;
+
+&lt;div class="alert alert-warning"&gt;
+  &lt;strong&gt;Warning!&lt;/strong&gt; Please review carefully.
+&lt;/div&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- Patterns Section -->
+    <section id="patterns" class="section">
+      <div class="section-header">
+        <h2>Patterns</h2>
+        <p>Common UI patterns combining multiple components</p>
+      </div>
+
+      <div class="component-card">
+        <h3>Form Pattern</h3>
+        <p>Standard form layout with validation</p>
+        <div class="component-preview">
+          <form class="form-pattern">
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" class="input" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" class="input" placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" class="input" rows="4" placeholder="Your message..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Submit</button>
+              <button type="button" class="btn btn-ghost">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sidebar Panel -->
+  <aside class="playground-panel" id="playground-panel">
+    <div class="panel-header">
+      <h3>Responsive Preview</h3>
+    </div>
+    <div class="panel-content">
+      <div class="viewport-controls">
+        <button class="viewport-btn active" data-viewport="desktop" aria-label="Desktop view">
+          🖥️ Desktop
+        </button>
+        <button class="viewport-btn" data-viewport="tablet" aria-label="Tablet view">
+          📱 Tablet
+        </button>
+        <button class="viewport-btn" data-viewport="mobile" aria-label="Mobile view">
+          📱 Mobile
+        </button>
+      </div>
+      <div class="viewport-info">
+        <p>Current viewport: <strong id="current-viewport">Desktop (1200px)</strong></p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Scripts -->
+  <script src="js/theme-toggle.js"></script>
+  <script src="js/responsive-preview.js"></script>
+  <script src="js/code-viewer.js"></script>
+  <script src="js/navigation.js"></script>
+</body>
+</html>
