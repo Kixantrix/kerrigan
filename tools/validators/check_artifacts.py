@@ -147,6 +147,8 @@ def parse_yaml_frontmatter(text: str) -> Optional[Dict[str, Any]]:
     try:
         return yaml.safe_load(yaml_content)
     except yaml.YAMLError as e:
+        # Log YAML parsing errors for debugging
+        warn(f"Failed to parse YAML frontmatter: {e}")
         return None
 
 def validate_multi_repo_spec(spec_path: Path, project_name: str) -> None:
@@ -253,7 +255,7 @@ def validate_cross_repo_references(project_dir: Path, project_name: str) -> None
     
     # Pattern to match repo:path references
     # Matches: reponame:path/to/file.md or (see reponame:path) or [text](reponame:path)
-    ref_pattern = r'\b([a-zA-Z0-9_-]+):([a-zA-Z0-9_/.\-]+)'
+    ref_pattern = r'\b([a-zA-Z0-9_-]+):([a-zA-Z0-9_/.\\-]+)'
     
     # Check all markdown files in the project
     for md_file in project_dir.glob("*.md"):
