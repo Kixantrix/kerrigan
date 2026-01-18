@@ -146,7 +146,7 @@ The feedback loop closes when the user confirms the design meets their needs, do
 
 ## Related Documentation
 
-- `specs/kerrigan/080-agent-feedback.md` - Overall feedback system
-- `feedback/README.md` - General feedback overview
-- `.github/agents/role.design.md` - Design agent prompt (when created)
-- `playbooks/design-iteration.md` - Design iteration workflow (when created)
+- `../../specs/kerrigan/080-agent-feedback.md` - Overall feedback system
+- `../README.md` - General feedback overview
+- `../../.github/agents/role.design.md` - Design agent prompt
+- `../../playbooks/design-iteration.md` - Design iteration workflow

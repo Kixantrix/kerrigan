@@ -434,10 +434,10 @@ Before launching playground:
 
 ## Related Documentation
 
-- `playbooks/design-iteration.md` - Workflow using playground
-- `feedback/design-feedback/README.md` - Feedback system
-- `specs/kerrigan/agents/design/spec.md` - Design Agent spec
-- `.github/agents/role.design.md` - Design Agent prompt
+- `../playbooks/design-iteration.md` - Workflow using playground
+- `../feedback/design-feedback/README.md` - Feedback system
+- `../specs/kerrigan/agents/design/spec.md` - Design Agent spec
+- `../.github/agents/role.design.md` - Design Agent prompt
 
 ## Future Enhancements
 

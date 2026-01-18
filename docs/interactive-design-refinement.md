@@ -306,7 +306,7 @@ See [docs/playground-infrastructure.md](playground-infrastructure.md) for planne
 ## Related Documentation
 
 ### Core Documents
-- [Design Agent Prompt](.github/agents/role.design.md)
+- [Design Agent Prompt](../.github/agents/role.design.md)
 - [Design Agent Spec](../specs/kerrigan/agents/design/spec.md)
 - [Design Iteration Playbook](../playbooks/design-iteration.md)
 - [Playground Infrastructure](playground-infrastructure.md)

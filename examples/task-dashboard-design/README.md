@@ -229,10 +229,10 @@ examples/task-dashboard-design/
 
 ## Related Files
 
-- **Feedback**: `feedback/design-feedback/2026-01-17-task-dashboard-button-feedback.yaml`
-- **Playbook**: `playbooks/design-iteration.md`
-- **Agent Spec**: `specs/kerrigan/agents/design/spec.md`
-- **Agent Prompt**: `.github/agents/role.design.md`
+- **Feedback**: `../../feedback/design-feedback/2026-01-17-task-dashboard-button-feedback.yaml`
+- **Playbook**: `../../playbooks/design-iteration.md`
+- **Agent Spec**: `../../specs/kerrigan/agents/design/spec.md`
+- **Agent Prompt**: `../../.github/agents/role.design.md`
 
 ## Next Steps
 

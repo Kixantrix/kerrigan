@@ -450,10 +450,10 @@ See these example feedback files for patterns:
 
 ## Related Documentation
 
-- `feedback/design-feedback/README.md` - Feedback system overview
-- `specs/kerrigan/agents/design/spec.md` - Design Agent specification
-- `.github/agents/role.design.md` - Design Agent prompt
-- `feedback/design-feedback/TEMPLATE.yaml` - Feedback template
+- `../feedback/design-feedback/README.md` - Feedback system overview
+- `../specs/kerrigan/agents/design/spec.md` - Design Agent specification
+- `../.github/agents/role.design.md` - Design Agent prompt
+- `../feedback/design-feedback/TEMPLATE.yaml` - Feedback template
 
 ---
 
