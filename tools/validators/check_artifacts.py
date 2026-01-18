@@ -255,7 +255,8 @@ def validate_cross_repo_references(project_dir: Path, project_name: str) -> None
     
     # Pattern to match repo:path references
     # Matches: reponame:path/to/file.md or (see reponame:path) or [text](reponame:path)
-    ref_pattern = r'\b([a-zA-Z0-9_-]+):([a-zA-Z0-9_/.\\-]+)'
+    # Path component allows alphanumeric, underscore, forward slash, dot, and hyphen
+    ref_pattern = r'\b([a-zA-Z0-9_-]+):([a-zA-Z0-9_/.-]+)'
     
     # Check all markdown files in the project
     for md_file in project_dir.glob("*.md"):
