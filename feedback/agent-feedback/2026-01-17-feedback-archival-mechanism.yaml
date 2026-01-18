@@ -1,0 +1,196 @@
+agent: kerrigan
+date: 2026-01-17
+severity: low
+category: process-gap
+context:
+  task: "Review agent feedback processing workflow"
+  related_files:
+    - .github/workflows/daily-self-improvement.yml
+    - tools/self_improvement_analyzer.py
+    - feedback/agent-feedback/
+    - feedback/processed/
+
+observation: |
+  The feedback/ directory has a processed/ subdirectory, but the daily self-improvement
+  workflow doesn't move analyzed feedback files there after processing.
+  
+  **Current state:**
+  - feedback/agent-feedback/ contains all feedback (9 files currently)
+  - feedback/processed/ exists but only has 1 old file from 2026-01-15
+  - Workflow analyzes feedback but leaves files in agent-feedback/
+  - No automated archival mechanism
+  
+  **What happens:**
+  1. Feedback files created in feedback/agent-feedback/
+  2. Daily workflow analyzes them (--since-days 7)
+  3. Issues created from analysis
+  4. Feedback files remain in agent-feedback/ indefinitely
+  
+  **Expected behavior (implied by folder structure):**
+  - Analyzed feedback should move to processed/
+  - Keeps agent-feedback/ folder current and focused
+  - Clear which feedback has been incorporated
+  
+  **However:** The --since-days filter already handles this by date-based filtering.
+  Old feedback (>7 days) won't be re-analyzed even if it stays in agent-feedback/.
+
+pattern: |
+  **Two approaches to feedback lifecycle:**
+  
+  **Option 1: Move to processed/ (traditional archive)**
+  ```
+  feedback/agent-feedback/
+    2026-01-17-*.yaml     # Current feedback
+  
+  feedback/processed/
+    2026-01-15/
+      2026-01-15-*.yaml   # Archived by analysis date
+    2026-01-18/
+      2026-01-17-*.yaml   # Analyzed on 2026-01-18
+  ```
+  
+  Pros:
+  - Clear what's been processed
+  - agent-feedback/ stays clean and focused
+  - Easy to see what was analyzed when
+  
+  Cons:
+  - Requires workflow write permissions
+  - Complexity (what if analysis fails partway?)
+  - Lose chronological view in one place
+  
+  **Option 2: Date-based filtering (current approach)**
+  ```
+  feedback/agent-feedback/
+    2026-01-15-*.yaml     # Old, won't be re-analyzed (>7 days)
+    2026-01-17-*.yaml     # Current, analyzed daily
+    2026-01-20-*.yaml     # Future feedback
+  ```
+  
+  Pros:
+  - Simple - no file moves needed
+  - Chronological view in one place
+  - --since-days handles staleness automatically
+  - No workflow permissions needed
+  
+  Cons:
+  - Folder grows over time (needs periodic cleanup)
+  - Not immediately clear which feedback generated which issues
+  
+  **Current implementation: Option 2, but folder structure implies Option 1**
+
+recommendation: |
+  **Decision needed:** Choose between two approaches:
+  
+  **A. Keep current date-based approach (simpler):**
+  
+  1. **Remove processed/ folder or document its purpose:**
+     - If keeping: Add README explaining it's for manual archival only
+     - If removing: Delete and document that feedback stays in agent-feedback/
+  
+  2. **Add periodic cleanup:**
+     - Manual or scheduled: Delete feedback >30 days old
+     - Keeps folder manageable
+     - Retention aligns with artifact retention (30 days)
+  
+  3. **Update documentation:**
+     - Clarify feedback lifecycle in feedback/agent-feedback/README.md
+     - Document that date-based filtering handles staleness
+     - No automatic archival expected
+  
+  **B. Implement automatic archival to processed/:**
+  
+  1. **Add to daily-self-improvement.yml after analysis:**
+     
+     ```yaml
+     - name: Archive processed feedback
+       if: steps.analysis.outputs.feedback_count > 0
+       run: |
+         DATE=$(date +%Y-%m-%d)
+         mkdir -p feedback/processed/${DATE}
+         
+         # Move files analyzed this run (based on --since-days)
+         SINCE_DATE=$(date -d "7 days ago" +%Y-%m-%d)
+         find feedback/agent-feedback -name "${SINCE_DATE}*.yaml" -type f \
+           -exec mv {} feedback/processed/${DATE}/ \;
+         
+         git config user.name "kerrigan-bot"
+         git config user.email "kerrigan-bot@users.noreply.github.com"
+         git add feedback/
+         git commit -m "Archive processed feedback from ${DATE}" || true
+         git push
+       env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     ```
+  
+  2. **Update workflow permissions:**
+     ```yaml
+     permissions:
+       contents: write  # Need write to move files
+       issues: write
+     ```
+  
+  3. **Handle edge cases:**
+     - What if feedback spans multiple days in one analysis?
+     - What if analysis fails after moving some files?
+     - Should feedback be copied or moved?
+  
+  **My recommendation: Option A (keep date-based, remove/document processed/)**
+  
+  Reasoning:
+  - Simpler implementation (no workflow changes needed)
+  - Date-based filtering already works perfectly
+  - Less complexity = fewer failure modes
+  - Periodic cleanup (manual or automated) keeps folder manageable
+  - Issues already link to analysis date, providing traceability
+
+evidence: |
+  **Current feedback/ structure:**
+  ```
+  feedback/
+    agent-feedback/
+      2026-01-17-67-draft-pr-ci-triggering.yaml
+      2026-01-17-71-powershell-unicode-compatibility.yaml
+      2026-01-17-71-triage-role-success.yaml
+      2026-01-17-74-quality-bar-label-override.yaml
+      2026-01-17-88-phased-issue-creation-strategy.yaml
+      2026-01-17-88-proactive-label-creation.yaml
+      2026-01-17-copilot-reviewer-feedback-workflow.yaml
+      2026-01-17-triage-script-coverage-gaps.yaml
+      2026-01-17-self-improvement-report-visibility.yaml
+      README.md
+      TEMPLATE.yaml
+    processed/
+      2026-01-15-42-heading-names.yaml  # Only 1 file, manually placed?
+      README.md
+  ```
+  
+  **Latest workflow run (2026-01-18):**
+  - Analyzed 6 feedback items (2026-01-17 files)
+  - Created 3 issues (#89, #90, #91)
+  - Did NOT move any files to processed/
+  - Files remain in agent-feedback/
+  
+  **Workflow analyzer call:**
+  ```bash
+  python tools/self_improvement_analyzer.py \
+    --feedback-dir feedback/agent-feedback \
+    --since-days 7 \
+    ...
+  ```
+  
+  The `--since-days 7` filter means:
+  - 2026-01-17 files: Analyzed ✓
+  - 2026-01-15 files: Too old, skipped
+  - 2026-01-10 files: Too old, skipped
+  
+  Date-based filtering prevents re-analysis without needing to move files.
+  
+  **Question:** Is processed/ folder:
+  - Intended for automation (not implemented)?
+  - For manual archival only?
+  - Legacy from earlier design?
+  - Future enhancement placeholder?
+
+impact: low
+actionable: true
