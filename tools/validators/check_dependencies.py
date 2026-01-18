@@ -287,22 +287,6 @@ def detect_cycles(graph: Dict[str, List[str]]) -> List[List[str]]:
     return cycles
 
 
-def validate_syntax(tasks: List[Task], project_name: str) -> bool:
-    """Validate dependency syntax for all tasks."""
-    has_errors = False
-    
-    for task in tasks:
-        for dep in task.dependencies + task.blocks:
-            # All dependencies should have been parsed successfully
-            # (parse_dependency returns None for invalid syntax)
-            if not dep:
-                has_errors = True
-                fail(f"Project '{project_name}' task '{task.title}' (line {task.line_num}): "
-                     f"Invalid dependency syntax: {dep.raw}")
-    
-    return not has_errors
-
-
 def validate_cycles(tasks: List[Task], project_name: str) -> bool:
     """Validate no circular dependencies exist."""
     if not tasks:
@@ -335,11 +319,7 @@ def validate_project_dependencies(project_dir: Path) -> bool:
     if not tasks:
         return True  # No tasks with dependencies
     
-    # Validate syntax
-    if not validate_syntax(tasks, project_name):
-        return False
-    
-    # Validate no cycles
+    # Validate no cycles (syntax is validated during parsing)
     if not validate_cycles(tasks, project_name):
         return False
     
