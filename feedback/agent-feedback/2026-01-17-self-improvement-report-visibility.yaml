@@ -1,0 +1,244 @@
+agent: kerrigan
+date: 2026-01-17
+severity: medium
+category: process-gap
+context:
+  task: "Review daily self-improvement workflow outputs"
+  related_files:
+    - .github/workflows/daily-self-improvement.yml
+    - tools/self_improvement_analyzer.py
+  related_issues:
+    - 89
+    - 90
+    - 91
+
+observation: |
+  The daily self-improvement workflow successfully runs at 2 AM UTC and produces
+  valuable analysis artifacts, but these artifacts are not accessible in the repository:
+  
+  **What the workflow produces:**
+  1. `self-improvement-report.md` - Full analysis report with findings and recommendations
+  2. `analysis-results.json` - Structured data with metrics and proposals
+  3. GitHub issues for high/medium priority proposals (automatic)
+  
+  **Current state:**
+  - Reports uploaded as GitHub Actions artifacts (30-day retention)
+  - Not committed to repository
+  - Not visible in project structure
+  - Must download artifact ZIP from Actions UI to view
+  
+  **Workflow created 3 issues from today's run:**
+  - Issue #89: Fix PowerShell 5.1 Unicode parsing
+  - Issue #90: Expand agent tooling capabilities
+  - Issue #91: Improve triage agent prompt and guidelines
+  
+  But the full analysis report that generated these issues is not accessible
+  without navigating to GitHub Actions → Workflow Runs → Download Artifact.
+
+pattern: |
+  **Self-improvement loop visibility gap:**
+  
+  ```
+  Feedback created → Daily workflow runs → Analysis generated → Issues created
+                                              ↓
+                                    [HIDDEN IN ARTIFACTS]
+                                              ↓
+                              Report not in repo structure
+  ```
+  
+  **Missing from project structure:**
+  
+  ```
+  feedback/
+    agent-feedback/           # ✅ Input visible
+      2026-01-17-*.yaml       # ✅ 8 feedback files today
+    processed/                # ❌ No processed files
+    analysis-reports/         # ❌ Does not exist
+      2026-01-18-report.md    # ❌ Report hidden in artifacts
+      2026-01-18-results.json # ❌ Data hidden in artifacts
+  ```
+  
+  **What should happen:**
+  
+  1. **Commit reports to repository:**
+     - Create `feedback/analysis-reports/` directory
+     - Store each day's report: `YYYY-MM-DD-analysis.md`
+     - Store each day's JSON: `YYYY-MM-DD-results.json`
+     - Commit with automated message
+  
+  2. **Archive processed feedback:**
+     - Move analyzed feedback to `feedback/processed/YYYY-MM-DD/`
+     - Keeps agent-feedback/ directory clean
+     - Preserves feedback history
+  
+  3. **Update project structure:**
+     - Add to workspace structure in docs
+     - Make reports discoverable via README link
+     - Track analysis trends over time
+
+recommendation: |
+  **For Kerrigan (system maintainer):**
+  
+  1. **Modify daily-self-improvement.yml to commit reports:**
+  
+     Add after "Run self-improvement analysis" step:
+     
+     ```yaml
+     - name: Commit analysis report to repository
+       run: |
+         # Create reports directory if it doesn't exist
+         mkdir -p feedback/analysis-reports
+         mkdir -p feedback/processed/$(date +%Y-%m-%d)
+         
+         # Copy report and results
+         DATE=$(date +%Y-%m-%d)
+         cp self-improvement-report.md feedback/analysis-reports/${DATE}-analysis.md
+         cp analysis-results.json feedback/analysis-reports/${DATE}-results.json
+         
+         # Archive processed feedback (optional - only files analyzed)
+         # This step would need logic to identify which feedback was processed
+         
+         # Configure git
+         git config user.name "kerrigan-bot"
+         git config user.email "kerrigan-bot@users.noreply.github.com"
+         
+         # Commit if changes exist
+         git add feedback/analysis-reports/
+         if git diff --staged --quiet; then
+           echo "No changes to commit"
+         else
+           git commit -m "Add self-improvement analysis report for ${DATE}
+           
+           - Feedback processed: ${{ steps.analysis.outputs.feedback_count }}
+           - Patterns found: ${{ steps.analysis.outputs.patterns_count }}
+           - Proposals generated: ${{ steps.analysis.outputs.proposals_count }}
+           - Issues created: [will be filled by workflow]"
+           
+           git push
+         fi
+       env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     ```
+  
+  2. **Update workflow permissions:**
+  
+     Change:
+     ```yaml
+     permissions:
+       contents: read
+       issues: write
+     ```
+     
+     To:
+     ```yaml
+     permissions:
+       contents: write  # Changed to write
+       issues: write
+     ```
+  
+  3. **Create feedback/analysis-reports/ directory structure:**
+  
+     ```
+     feedback/
+       agent-feedback/        # Active feedback awaiting analysis
+         README.md
+         TEMPLATE.yaml
+       analysis-reports/      # Historical analysis output (NEW)
+         README.md            # Explains report format
+         2026-01-18-analysis.md
+         2026-01-18-results.json
+       processed/             # Archived feedback (NEW)
+         2026-01-18/
+           # Feedback files that were analyzed
+     ```
+  
+  4. **Update documentation:**
+  
+     - Add analysis-reports/ to workspace structure docs
+     - Link from README.md to latest analysis report
+     - Document in playbooks/automation.md
+     - Add to specs/kerrigan/070-automation-contracts.md
+  
+  5. **Add .gitignore exception if needed:**
+  
+     Ensure analysis reports are not ignored:
+     ```gitignore
+     # Don't ignore analysis reports
+     !feedback/analysis-reports/*.md
+     !feedback/analysis-reports/*.json
+     ```
+  
+  **Benefits:**
+  
+  - Reports visible in repository alongside feedback
+  - Historical analysis trends trackable via git history
+  - Easy to reference in issues/PRs
+  - No artifact download needed
+  - Full transparency into self-improvement loop
+  - Processed feedback can be archived automatically
+
+evidence: |
+  **Latest workflow run (2026-01-18 03:47 UTC):**
+  
+  Analysis successful:
+  - Feedback processed: 6 items
+  - Patterns found: 1
+  - Proposals generated: 4
+  - High priority: 1
+  - Issues created: 3 (#89, #90, #91)
+  
+  **Artifacts produced:**
+  - self-improvement-report.md (4.8 KB)
+  - analysis-results.json
+  - Uploaded to Actions artifacts (ID: 5166886638)
+  - Retention: 30 days
+  
+  **Visibility problem:**
+  - Cannot access report without:
+    1. Navigate to Actions tab
+    2. Find "Daily Self-Improvement Analysis #2"
+    3. Scroll to artifacts section
+    4. Download self-improvement-report.zip
+    5. Extract and read
+  
+  - Not discoverable from repository browser
+  - Not linkable in issues/comments
+  - Lost after 30 days
+  
+  **Current workflow excerpt:**
+  ```yaml
+  - name: Upload analysis report
+    uses: actions/upload-artifact@v4
+    with:
+      name: self-improvement-report
+      path: |
+        self-improvement-report.md
+        analysis-results.json
+      retention-days: 30
+  ```
+  
+  **What's missing:** No step to commit these files back to the repository.
+  
+  **Comparison to other systems:**
+  - CI artifacts: Temporary build outputs (appropriate for artifacts)
+  - Analysis reports: Historical documentation (should be in repo)
+  - Similar to how test reports or coverage reports should be committed
+  
+  **Git history would show:**
+  ```
+  commit abc123
+  Author: kerrigan-bot
+  Date: 2026-01-18
+  
+  Add self-improvement analysis report for 2026-01-18
+  
+  - Feedback processed: 6
+  - Patterns found: 1
+  - Proposals generated: 4
+  - Issues created: 3
+  
+  [In diff: new files in feedback/analysis-reports/]
+  ```
+
+impact: medium
+actionable: true
