@@ -7,7 +7,8 @@
     "role:testing": [],
     "role:security": [],
     "role:deployment": [],
-    "role:debugging": []
+    "role:debugging": [],
+    "role:design": []
   },
   "default_reviewers": [],
   "auto_assign_on_label": true,

@@ -30,6 +30,7 @@ Instead, use **role labels** to indicate which agent role should handle the work
 | `role:debugging` | Debugging Agent | Bug investigation and fixes |
 | `role:design` | Design Agent | Create design systems and UI component libraries |
 | `role:triage` | Triage Agent | PR review, CI management, merge workflow |
+| `role:design` | Design Agent | Create design systems and visual specifications |
 
 ### 3. Automated Assignment Workflow
 
