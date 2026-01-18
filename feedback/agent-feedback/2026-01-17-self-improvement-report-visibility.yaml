@@ -79,103 +79,114 @@ pattern: |
 recommendation: |
   **For Kerrigan (system maintainer):**
   
-  1. **Modify daily-self-improvement.yml to commit reports:**
+  **Simpler approach: Create daily summary issue instead of committing reports**
   
-     Add after "Run self-improvement analysis" step:
+  The workflow already creates individual issues for actionable proposals (high/medium priority).
+  Instead of committing full reports, add ONE daily summary issue that links to artifacts.
+  
+  1. **Add daily summary issue creation to workflow:**
+  
+     Add after "Create improvement proposal issues" step:
      
      ```yaml
-     - name: Commit analysis report to repository
-       run: |
-         # Create reports directory if it doesn't exist
-         mkdir -p feedback/analysis-reports
-         mkdir -p feedback/processed/$(date +%Y-%m-%d)
-         
-         # Copy report and results
-         DATE=$(date +%Y-%m-%d)
-         cp self-improvement-report.md feedback/analysis-reports/${DATE}-analysis.md
-         cp analysis-results.json feedback/analysis-reports/${DATE}-results.json
-         
-         # Archive processed feedback (optional - only files analyzed)
-         # This step would need logic to identify which feedback was processed
-         
-         # Configure git
-         git config user.name "kerrigan-bot"
-         git config user.email "kerrigan-bot@users.noreply.github.com"
-         
-         # Commit if changes exist
-         git add feedback/analysis-reports/
-         if git diff --staged --quiet; then
-           echo "No changes to commit"
-         else
-           git commit -m "Add self-improvement analysis report for ${DATE}
+     - name: Create daily summary issue
+       if: steps.analysis.outputs.feedback_count > 0
+       uses: actions/github-script@v7
+       with:
+         script: |
+           const fs = require('fs');
+           const results = JSON.parse(fs.readFileSync('analysis-results.json', 'utf8'));
+           const date = new Date().toISOString().split('T')[0];
            
-           - Feedback processed: ${{ steps.analysis.outputs.feedback_count }}
-           - Patterns found: ${{ steps.analysis.outputs.patterns_count }}
-           - Proposals generated: ${{ steps.analysis.outputs.proposals_count }}
-           - Issues created: [will be filled by workflow]"
+           // Build issues created list from previous step
+           const issuesCreated = results.proposals
+             .filter(p => p.priority === 'high' || p.priority === 'medium')
+             .map(p => `- ${p.title}`)
+             .join('\n');
            
-           git push
-         fi
-       env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+           const body = `## Self-Improvement Analysis for ${date}
+           
+           ### Metrics
+           - **Feedback processed**: ${{ steps.analysis.outputs.feedback_count }}
+           - **Patterns found**: ${{ steps.analysis.outputs.patterns_count }}
+           - **Proposals generated**: ${{ steps.analysis.outputs.proposals_count }}
+           - **High priority**: ${{ steps.analysis.outputs.high_priority }}
+           
+           ### Issues Created
+           ${issuesCreated || 'No new issues created (low priority proposals only)'}
+           
+           ### Full Report
+           📎 [Download full analysis report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+           
+           The complete report with all proposals, evidence, and pattern analysis is available in the workflow artifacts (30-day retention).
+           
+           ---
+           *Automated by daily-self-improvement workflow*`;
+           
+           await github.rest.issues.create({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             title: `[Daily Analysis] Self-Improvement Summary ${date}`,
+             body: body,
+             labels: ['kerrigan', 'meta', 'daily-summary']
+           });
      ```
   
-  2. **Update workflow permissions:**
+  2. **Create labels if they don't exist:**
   
-     Change:
-     ```yaml
-     permissions:
-       contents: read
-       issues: write
+     ```bash
+     gh label create "meta" --description "Meta issues about the system itself" --color "000000"
+     gh label create "daily-summary" --description "Daily self-improvement summaries" --color "0E8A16"
      ```
+  
+  3. **Allow manual trigger by Kerrigan:**
+  
+     The workflow already has `workflow_dispatch` trigger. Kerrigan can run:
      
-     To:
-     ```yaml
-     permissions:
-       contents: write  # Changed to write
-       issues: write
+     ```powershell
+     gh workflow run daily-self-improvement.yml \
+       --field since_days=1 \
+       --field create_issues=true
      ```
   
-  3. **Create feedback/analysis-reports/ directory structure:**
+  4. **Close old summary issues automatically (optional):**
   
-     ```
-     feedback/
-       agent-feedback/        # Active feedback awaiting analysis
-         README.md
-         TEMPLATE.yaml
-       analysis-reports/      # Historical analysis output (NEW)
-         README.md            # Explains report format
-         2026-01-18-analysis.md
-         2026-01-18-results.json
-       processed/             # Archived feedback (NEW)
-         2026-01-18/
-           # Feedback files that were analyzed
-     ```
-  
-  4. **Update documentation:**
-  
-     - Add analysis-reports/ to workspace structure docs
-     - Link from README.md to latest analysis report
-     - Document in playbooks/automation.md
-     - Add to specs/kerrigan/070-automation-contracts.md
-  
-  5. **Add .gitignore exception if needed:**
-  
-     Ensure analysis reports are not ignored:
-     ```gitignore
-     # Don't ignore analysis reports
-     !feedback/analysis-reports/*.md
-     !feedback/analysis-reports/*.json
+     Add to summary issue creation:
+     
+     ```javascript
+     // Close yesterday's summary issue to reduce noise
+     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+     const oldIssues = await github.rest.issues.listForRepo({
+       owner: context.repo.owner,
+       repo: context.repo.repo,
+       state: 'open',
+       labels: 'daily-summary',
+       per_page: 100
+     });
+     
+     for (const issue of oldIssues.data) {
+       if (issue.title.includes(yesterday)) {
+         await github.rest.issues.update({
+           owner: context.repo.owner,
+           repo: context.repo.repo,
+           issue_number: issue.number,
+           state: 'closed',
+           state_reason: 'completed'
+         });
+       }
+     }
      ```
   
-  **Benefits:**
+  **Benefits of this approach:**
   
-  - Reports visible in repository alongside feedback
-  - Historical analysis trends trackable via git history
-  - Easy to reference in issues/PRs
-  - No artifact download needed
-  - Full transparency into self-improvement loop
-  - Processed feedback can be archived automatically
+  - ✅ No duplicate storage (artifacts + issues instead of artifacts + issues + commits)
+  - ✅ Summary issue provides visibility and metrics
+  - ✅ Full report still accessible via artifact link
+  - ✅ Individual actionable issues created automatically
+  - ✅ No extra repository commits needed
+  - ✅ Kerrigan can trigger manually when needed
+  - ✅ Simpler implementation (no git configuration needed)
+  - ✅ Old summaries can be auto-closed to reduce noise
 
 evidence: |
   **Latest workflow run (2026-01-18 03:47 UTC):**
