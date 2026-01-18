@@ -309,6 +309,43 @@ Infrastructure: [infra:terraform/README.md](infra:terraform/README.md)
 - Disaster recovery: [infra:docs/dr-plan.md](infra:docs/dr-plan.md)
 ```
 
+### Agent behavior with multi-repo projects
+
+Agents working on multi-repository projects MUST:
+
+**Discovery**:
+- Check spec.md for `repositories` field in YAML frontmatter
+- Identify all repositories involved in the project
+- Understand which repository contains which artifacts
+
+**Navigation**:
+- Parse `repo:path` references to locate artifacts
+- Clone or access repositories as needed
+- Follow cross-repo links when reading documentation
+
+**Coordination**:
+- Document handoffs to other repositories in tasks.md
+- Update status.json when work moves between repositories
+- Reference cross-repo artifacts using consistent syntax
+
+**Validation**:
+- Verify repository names match the repositories array
+- Check that cross-repo references use correct syntax
+- Confirm access permissions to all repositories
+
+**Communication**:
+- Mention cross-repo dependencies in PR descriptions
+- Link to artifacts in other repositories when relevant
+- Update handoff documentation when passing work between repos
+
+Agents SHOULD:
+- Prefer linking to artifacts over duplicating content across repos
+- Document cross-repo dependencies explicitly
+- Use semantic versioning when specifying dependencies
+- Test cross-repo integrations before marking work complete
+
+See `playbooks/multi-repo.md` for detailed agent coordination workflows.
+
 ### Limitations and future work
 
 **Current limitations** (Milestone 7a):
