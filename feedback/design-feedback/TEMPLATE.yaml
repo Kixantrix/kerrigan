@@ -1,0 +1,124 @@
+# Design Feedback Template
+
+# Copy this template to create new design feedback entries.
+#
+# Filename convention: `YYYY-MM-DD-<project>-<component>-feedback.yaml`
+#
+# Example: `2026-01-17-task-dashboard-button-feedback.yaml`
+
+# REQUIRED FIELDS
+timestamp: "2026-01-17T10:00:00Z"       # ISO 8601 timestamp
+project: "project-name"                  # Project name (e.g., "task-dashboard-example")
+design_system: "system-name"            # Design system name (e.g., "technical-precision")
+component: "component-name"             # Component name (e.g., "button", "all", "tokens")
+feedback_type: "refinement"             # philosophy|refinement|token_adjustment|component_addition|accessibility|comparison|usability
+
+# User's feedback in natural language
+user_comment: |
+  Describe what you'd like to change or improve.
+  Be specific and explain your reasoning.
+  
+  Examples:
+  - "The primary button feels too bright. Can we reduce saturation by 20%?"
+  - "Need more padding on buttons - they feel cramped"
+  - "This color doesn't meet WCAG contrast requirements"
+  - "The technical-precision philosophy aligns better with our brand"
+
+# CURRENT STATE
+# Describe what currently exists
+current_state:
+  # For token changes
+  token: "color.primary"                # Token name if applicable
+  value: "#00FF41"                      # Current value
+  
+  # For component changes
+  component_properties:                 # Current component properties
+    padding: "8px 16px"
+    font_size: "14px"
+  
+  # For philosophy selection
+  philosophy_options:                   # List of options shown
+    - "minimalist-modern"
+    - "technical-precision"
+    - "warm-approachable"
+  
+  # Additional context
+  notes: |
+    Any additional context about current state
+
+# REQUESTED CHANGE
+# Describe what you want to see
+requested_change:
+  # For token changes
+  token: "color.primary"                # Token to change
+  value: "#00CC34"                      # Requested new value
+  
+  # For component changes
+  component_properties:                 # Requested component properties
+    padding: "12px 24px"
+    font_size: "14px"
+  
+  # For philosophy selection
+  selected_philosophy: "technical-precision"
+  
+  # Additional requests
+  additional:
+    - "Increase button padding"
+    - "Ensure WCAG AA compliance"
+  
+  # Rationale
+  reason: |
+    Explain why you want this change
+
+# DESIGN AGENT RESPONSE
+# Agent fills this section when processing feedback
+agent_response: |
+  Agent's response to feedback.
+  - What was changed
+  - Why it was changed
+  - Impact on other components
+  - Any concerns or trade-offs
+  - Questions for the user (if clarification needed)
+
+# METADATA
+iteration: 1                            # Iteration number (starts at 1)
+status: "new"                          # new|in_progress|implemented|approved|declined|needs_clarification
+
+# Previous iterations (for tracking design evolution)
+previous_iterations: []
+# Example:
+# - iteration: 1
+#   timestamp: "2026-01-17T10:00:00Z"
+#   changes: "Initial feedback"
+#   status: "implemented"
+
+# Related files and artifacts
+related_files:
+  - "path/to/design/system/file"
+  - "path/to/component/file"
+
+# Links to playground or visual examples
+playground_url: ""                      # URL to playground with this design
+screenshots: []                         # URLs or paths to screenshots
+# Example:
+# - "screenshots/before.png"
+# - "screenshots/after.png"
+
+# Accessibility and quality checks
+accessibility_notes: |
+  Any accessibility considerations or WCAG compliance notes
+
+validation_results:                     # Automated validation results
+  contrast_ratio: ""                    # e.g., "4.5:1" for WCAG AA
+  token_consistency: ""                 # e.g., "all tokens valid"
+  component_consistency: ""             # e.g., "matches design system"
+
+# Collaboration notes
+collaborators: []                       # Other users involved
+# Example:
+# - name: "jane@example.com"
+#   role: "Designer"
+
+# Additional notes
+notes: |
+  Any other relevant information, context, or discussion points
