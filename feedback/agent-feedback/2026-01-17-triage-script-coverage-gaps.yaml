@@ -1,0 +1,177 @@
+agent: kerrigan
+date: 2026-01-17
+severity: medium
+category: tooling
+context:
+  task: "Triage session with issue assignment and PR review"
+  related_issues:
+    - 75
+    - 76
+    - 77
+    - 78
+    - 79
+    - 81
+    - 82
+    - 83
+    - 84
+    - 85
+    - 86
+    - 87
+  related_prs:
+    - 92
+    - 93
+    - 94
+    - 95
+    - 96
+    - 97
+    - 98
+    - 99
+    - 100
+    - 101
+    - 102
+    - 103
+  related_files:
+    - tools/triage-prs.ps1
+    - tools/review-prs.ps1
+    - tools/show-issues.ps1
+
+observation: |
+  During this triage session, I handled 12 issues and 12 PRs but frequently bypassed
+  the triage scripts in favor of direct gh CLI commands. While the scripts provide
+  good overview/dashboard functionality, they don't cover all triage workflows.
+  
+  **What I used scripts for:**
+  - triage-prs.ps1: PR overview dashboard (3 times)
+  - Good for: Understanding current state, categorizing PRs
+  
+  **What I used manual gh CLI for:**
+  1. Bulk issue assignment (12 issues)
+     ```powershell
+     foreach ($issue in $issues) {
+       gh issue edit $issue --add-assignee "@copilot" --remove-assignee "@me"
+     }
+     ```
+  
+  2. Agent role assignment via comments (12 issues)
+     ```powershell
+     gh issue comment $issue --body "@role.spec Please work on..."
+     ```
+  
+  3. Bulk PR status changes (12 PRs from draft to ready)
+     ```powershell
+     foreach ($pr in $prs) { gh pr ready $pr }
+     ```
+  
+  4. Custom issue queries
+     ```powershell
+     gh issue list --label "agent:go" --json number,title,labels,assignees
+     ```
+  
+  5. Individual PR reviews
+     ```powershell
+     gh pr view 97
+     gh pr diff 97
+     ```
+
+pattern: |
+  **Current script coverage gaps:**
+  
+  1. **Bulk operations not scripted:**
+     - No script for bulk issue assignment
+     - No script for bulk PR state changes (draft→ready, ready→draft)
+     - No script for bulk PR approvals
+  
+  2. **Agent assignment workflow missing:**
+     - No script to assign issues to @copilot by role label
+     - Manual commenting and reassignment required
+  
+  3. **PR review workflow incomplete:**
+     - triage-prs.ps1 shows what needs review but doesn't facilitate review
+     - review-prs.ps1 exists but wasn't used (need to check why)
+     - No workflow for: view PR → check changes → approve → merge
+  
+  4. **Scripts are informational, not actionable:**
+     - Dashboard scripts show state but don't enable actions
+     - Every action requires dropping to gh CLI
+     - No "review next PR" command
+  
+  **Why manual gh CLI was preferred:**
+  - Batch operations (12 items) needed loops
+  - Precise control over what data to query
+  - Flexibility to customize commands
+  - Direct execution without script layer
+
+recommendation: |
+  **For Kerrigan (system maintainer):**
+  
+  1. **Create tools/assign-issues.ps1:**
+     ```powershell
+     # Assign agent:go issues to @copilot based on role labels
+     ./tools/assign-issues.ps1 --label "agent:go" --assignee "@copilot"
+     ```
+  
+  2. **Create tools/bulk-pr.ps1:**
+     ```powershell
+     # Bulk PR operations
+     ./tools/bulk-pr.ps1 --mark-ready 92..103
+     ./tools/bulk-pr.ps1 --close 92,93,94
+     ./tools/bulk-pr.ps1 --approve 92..103 --merge
+     ```
+  
+  3. **Enhance triage-prs.ps1 with actions:**
+     - Add --review flag to start interactive review workflow
+     - Add --mark-ready flag to convert draft PRs
+     - Add --approve-all flag for passing PRs
+  
+  4. **Create interactive review workflow:**
+     ```powershell
+     ./tools/review-next.ps1
+     # Shows PR → Shows diff → Prompts for action (approve/changes/skip/quit)
+     # Loops through all ready PRs
+     ```
+  
+  5. **Document triage workflow scripts:**
+     - Update playbooks/pr-review.md with script usage
+     - Add examples to tools/README.md
+     - Create triage cheat sheet
+  
+  **For Triage agent:**
+  - When scripts exist, prefer them over manual gh CLI
+  - When script gaps exist, document in feedback
+  - Consider trade-offs: scripts for common workflows, gh CLI for custom queries
+  - Use scripts to establish patterns, then request enhancements
+
+evidence: |
+  This triage session operations breakdown:
+  
+  **Script usage:**
+  - triage-prs.ps1: 3 times (initial check, after marking ready, final check)
+  - show-issues.ps1: 0 times (used gh issue list instead)
+  - review-prs.ps1: 0 times (used gh pr view instead)
+  
+  **Manual gh CLI usage:**
+  - gh issue list: 3 times (custom queries for agent:go, role labels)
+  - gh issue comment: 12 times (assign to agents)
+  - gh issue edit: 12 times (reassign to @copilot)
+  - gh pr ready: 12 times (mark PRs ready)
+  - gh pr view: 3 times (review individual PRs)
+  - gh pr list: 2 times (check PR status)
+  - gh label create: 2 times (create missing labels)
+  
+  **Operations that could be scripted:**
+  1. Assign all agent:go issues to @copilot: 12 commands → 1 script call
+  2. Mark all draft PRs ready: 12 commands → 1 script call with range
+  3. Review PRs systematically: Manual loop → interactive script
+  
+  **Reasons review-prs.ps1 wasn't used:**
+  - Uncertainty about what it does (need better docs)
+  - Habit of using gh pr view directly
+  - Unknown if it supports batch operations
+  
+  **Time impact:**
+  - Manual operations took ~5 minutes for 24 bulk actions
+  - Scripts could reduce to ~30 seconds
+  - More importantly: reduces cognitive load and errors
+
+impact: medium
+actionable: true
