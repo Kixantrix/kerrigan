@@ -78,7 +78,7 @@ These labels are used for assigning work to specific agent roles:
 - **`role:design`** (color: `#E99695`, soft pink/coral)
   - Assigns issue to Design agent
   - Creates design systems, components, and visual specifications
-  - See: `.github/agents/role.design.md`
+  - Agent definition: `.github/agents/role.design.md` (to be created in Kixantrix/kerrigan#76)
 
 ### Project Labels (optional but recommended)
 
