@@ -9,7 +9,7 @@ The architecture consists of three main layers:
 2. **Playground Implementation**: Working HTML/CSS/JS examples of all components
 3. **Integration Examples**: Demonstration of how to reference and use the design system in specs
 
-## Key Components
+## Components & interfaces
 
 ### 1. Design System Documentation Layer
 
@@ -208,7 +208,7 @@ specs/projects/task-dashboard-example/
         └── demo-data.js            # Interactive functionality
 ```
 
-## Security & Privacy Notes
+## Security & privacy notes
 
 ### Security Considerations
 

@@ -91,7 +91,7 @@ Playground: Open `specs/projects/task-dashboard-example/design-system/playground
 - **Copy-paste ready**: All component code must be usable as-is
 - **Self-contained**: Playground must work by opening HTML file directly
 
-## Acceptance Criteria
+## Acceptance criteria
 
 ### Design System Documentation
 - ✅ philosophy.md exists with design principles and rationale
