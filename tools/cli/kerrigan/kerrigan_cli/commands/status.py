@@ -96,7 +96,7 @@ def _display_project_status(project_dir: Path, compact: bool = False):
             try:
                 dt = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
                 time_ago = _format_time_ago(dt)
-            except:
+            except (ValueError, TypeError):
                 time_ago = last_updated
         else:
             time_ago = 'unknown'

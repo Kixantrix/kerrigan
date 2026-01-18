@@ -1,6 +1,5 @@
 """Tests for status command."""
 
-import pytest
 from click.testing import CliRunner
 from kerrigan_cli.commands.status import status
 

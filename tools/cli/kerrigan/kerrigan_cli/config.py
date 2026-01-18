@@ -39,8 +39,11 @@ class Config:
                     break
         
         if config_file and config_file.exists():
-            with open(config_file, 'r') as f:
-                self.data = yaml.safe_load(f) or {}
+            try:
+                with open(config_file, 'r') as f:
+                    self.data = yaml.safe_load(f) or {}
+            except (yaml.YAMLError, IOError) as e:
+                raise ValueError(f"Failed to load config file: {e}")
         
         # Override with environment variables
         if os.getenv('GITHUB_TOKEN'):

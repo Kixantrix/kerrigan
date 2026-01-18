@@ -1,6 +1,5 @@
 """Tests for CLI entry point."""
 
-import pytest
 from click.testing import CliRunner
 from kerrigan_cli.cli import cli
 

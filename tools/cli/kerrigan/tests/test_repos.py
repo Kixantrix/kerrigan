@@ -1,6 +1,5 @@
 """Tests for repos command."""
 
-import pytest
 from click.testing import CliRunner
 from kerrigan_cli.commands.repos import repos
 

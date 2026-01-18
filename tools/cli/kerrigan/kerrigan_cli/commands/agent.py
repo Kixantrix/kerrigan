@@ -56,7 +56,7 @@ def agent(role, list_roles, show, copy):
                     if first_line.startswith('#'):
                         description = first_line.lstrip('#').strip()
                         click.echo(f"    {description}")
-            except:
+            except (IOError, OSError):
                 pass
         
         click.echo(f"\nUsage: kerrigan agent <role> --show")

@@ -150,8 +150,12 @@ def sync_repos(project_name, dry_run):
         click.echo(f"Error: No status.json found in primary project", err=True)
         raise click.Abort()
     
-    with open(status_file, 'r') as f:
-        primary_status = json.load(f)
+    try:
+        with open(status_file, 'r') as f:
+            primary_status = json.load(f)
+    except json.JSONDecodeError:
+        click.echo(f"Error: Invalid status.json format in primary project", err=True)
+        raise click.Abort()
     
     click.echo(f"Syncing status from {project_name}:")
     click.echo(f"  Status: {primary_status.get('status')}")
@@ -182,7 +186,7 @@ def sync_repos(project_name, dry_run):
                     else:
                         click.echo(f"    Would create {repo_status.relative_to(root)}")
                 else:
-                    if repo_path.exists():
+                    if repo_path.parent.exists():
                         repo_path.mkdir(parents=True, exist_ok=True)
                         with open(repo_status, 'w') as f:
                             json.dump(primary_status, f, indent=2)
