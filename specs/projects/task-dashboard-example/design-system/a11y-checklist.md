@@ -90,7 +90,7 @@ This checklist ensures all components meet WCAG 2.1 AA standards minimum. Use th
 
 #### StatusBadge
 - [ ] `role="status"` for live updates
-- [ ] `aria-label` with full status text (e.g., "Task status: In Progress")
+- [ ] `aria-label` with full status text (e.g., "Task status: in-progress")
 
 #### MetricCard
 - [ ] `aria-label` with complete context (e.g., "Active tasks: 247, up 12% from last week")

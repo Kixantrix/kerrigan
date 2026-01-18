@@ -441,7 +441,16 @@ body {
   color: var(--color-text-tertiary);
 }
 
+/* Selected state using :has() - modern browsers only */
 .task-row:has(.task-row__checkbox:checked) {
+  background-color: rgba(0, 255, 65, 0.05);
+  border-color: var(--color-primary);
+}
+
+/* Fallback class for environments without :has() support.
+   JavaScript toggles this class on .task-row when its
+   .task-row__checkbox is checked to achieve the same effect. */
+.task-row--selected {
   background-color: rgba(0, 255, 65, 0.05);
   border-color: var(--color-primary);
 }
@@ -589,7 +598,8 @@ body {
 }
 
 .command-bar__item:hover,
-.command-bar__item:focus {
+.command-bar__item:focus,
+.command-bar__item--focused {
   background-color: var(--color-surface-hover);
   outline: none;
 }

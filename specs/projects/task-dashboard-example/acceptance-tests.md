@@ -245,7 +245,7 @@ These tests verify that the example design system demonstrates the design agent 
 **Given**: The playground CSS and JavaScript  
 **When**: I review the code  
 **Then**: It should:
-- Have clear class names following BEM or similar convention
+- Have clear class names following the BEM (Block__Element--Modifier) convention consistently
 - Include comments for complex logic
 - Use consistent formatting
 - Be organized logically (tokens → base → components)

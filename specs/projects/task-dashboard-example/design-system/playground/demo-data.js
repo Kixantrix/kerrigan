@@ -255,10 +255,10 @@ function initCommandBar() {
 function updateFocusedCommand(commands) {
   commands.forEach((cmd, index) => {
     if (index === focusedCommandIndex) {
-      cmd.style.backgroundColor = 'var(--color-surface-hover)';
+      cmd.classList.add('command-bar__item--focused');
       cmd.scrollIntoView({ block: 'nearest' });
     } else {
-      cmd.style.backgroundColor = '';
+      cmd.classList.remove('command-bar__item--focused');
     }
   });
 }
@@ -269,11 +269,9 @@ function initTaskRows() {
     checkbox.addEventListener('change', (e) => {
       const row = e.target.closest('.task-row');
       if (e.target.checked) {
-        row.style.backgroundColor = 'rgba(0, 255, 65, 0.05)';
-        row.style.borderColor = 'var(--color-primary)';
+        row.classList.add('task-row--selected');
       } else {
-        row.style.backgroundColor = '';
-        row.style.borderColor = '';
+        row.classList.remove('task-row--selected');
       }
     });
   });

@@ -196,7 +196,7 @@ Each component is implemented as HTML + CSS. See the playground for complete exa
   todo
 </span>
 
-<span class="status-badge status-badge--in-progress" role="status" aria-label="Task status: In Progress">
+<span class="status-badge status-badge--in-progress" role="status" aria-label="Task status: in-progress">
   <span class="status-badge__dot"></span>
   in-progress
 </span>
