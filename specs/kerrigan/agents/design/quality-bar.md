@@ -200,7 +200,7 @@ Before submitting design system work, verify:
 - [ ] All color combinations pass contrast checks
 - [ ] Playground demonstrates keyboard navigation
 - [ ] System version number is specified
-- [ ] Architecture.md example shows how to reference the system
+- [ ] architecture.md example shows how to reference the system
 
 ## Success Indicators
 

@@ -105,7 +105,7 @@ All design system artifacts live under `specs/projects/<project-name>/design-sys
 colors:
   foreground: "#000000"
   background: "#FFFFFF"
-  accent: "#FF0000"  # 5.25:1 contrast with white, 4.17:1 with black
+  accent: "#FF0000"  # ≈4.0:1 contrast with white, ≈5.25:1 with black
   border: "#000000"
 typography:
   sans: "Arial, Helvetica, sans-serif"
@@ -210,18 +210,18 @@ When collaborating with users:
 The Design Agent collaborates with the Spec Agent on:
 
 1. **Design Requirements Discovery**
-   - Spec agent documents user needs and target audience
-   - Design agent translates these into appropriate visual philosophy
+   - Spec Agent documents user needs and target audience
+   - Design Agent translates these into appropriate visual philosophy
    - Design system philosophy.md references relevant spec.md sections
 
 2. **Component Specifications**
-   - Spec agent defines functional requirements for UI components
-   - Design agent creates visual specifications and interaction patterns
+   - Spec Agent defines functional requirements for UI components
+   - Design Agent creates visual specifications and interaction patterns
    - Both agents align on component behavior and states
 
 3. **Accessibility Requirements**
-   - Spec agent includes accessibility acceptance criteria
-   - Design agent implements WCAG-compliant design patterns
+   - Spec Agent includes accessibility acceptance criteria
+   - Design Agent implements WCAG-compliant design patterns
    - Both agents ensure inclusive design from the start
 
 ## System Modularity & Replaceability
