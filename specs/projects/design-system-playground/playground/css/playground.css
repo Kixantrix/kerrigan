@@ -337,6 +337,39 @@
   background-color: var(--color-primary-light);
 }
 
+/* Copy Button Styles */
+.copy-btn {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-white);
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.copy-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.copy-btn:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.copy-btn--success {
+  background-color: var(--color-success);
+}
+
+.copy-btn--error {
+  background-color: var(--color-danger);
+}
+
 /* Sidebar Panel */
 .playground-panel {
   position: fixed;

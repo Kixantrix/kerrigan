@@ -3,6 +3,20 @@
 (function() {
   'use strict';
 
+  // Constants
+  const NAV_SCROLL_OFFSET = 100; // Offset in pixels to account for sticky nav height
+  const HASH_SCROLL_DELAY = 100; // Delay in ms for hash navigation to complete before scrolling
+  
+  // Throttle helper for scroll events
+  let scrollThrottleTimer;
+  const throttle = (callback, delay) => {
+    if (scrollThrottleTimer) return;
+    scrollThrottleTimer = setTimeout(() => {
+      callback();
+      scrollThrottleTimer = null;
+    }, delay);
+  };
+
   // Smooth scroll to sections
   function scrollToSection(sectionId) {
     const section = document.querySelector(sectionId);
@@ -24,9 +38,8 @@
     
     sections.forEach(section => {
       const sectionTop = section.offsetTop;
-      const sectionHeight = section.clientHeight;
       
-      if (window.scrollY >= sectionTop - 100) {
+      if (window.scrollY >= sectionTop - NAV_SCROLL_OFFSET) {
         currentSection = section.getAttribute('id');
       }
     });
@@ -51,7 +64,10 @@
     const navLinks = document.getElementById('nav-links');
     const menuToggle = document.getElementById('mobile-menu-toggle');
     
-    if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+    // Only close if menu is open
+    if (navLinks.classList.contains('open') && 
+        !navLinks.contains(event.target) && 
+        !menuToggle.contains(event.target)) {
       navLinks.classList.remove('open');
     }
   }
@@ -85,8 +101,10 @@
     // Close mobile menu when clicking outside
     document.addEventListener('click', closeMobileMenuOnClickOutside);
     
-    // Update active link on scroll
-    window.addEventListener('scroll', updateActiveLink);
+    // Update active link on scroll with throttling for performance
+    window.addEventListener('scroll', () => {
+      throttle(updateActiveLink, 100);
+    });
     
     // Initial active link update
     updateActiveLink();
@@ -95,7 +113,7 @@
     if (window.location.hash) {
       setTimeout(() => {
         scrollToSection(window.location.hash);
-      }, 100);
+      }, HASH_SCROLL_DELAY);
     }
   }
 

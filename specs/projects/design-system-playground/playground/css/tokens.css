@@ -90,6 +90,8 @@
   
   /* Layout */
   --layout-max-width: 1400px;
+  --viewport-mobile-width: 375px;
+  --viewport-tablet-width: 768px;
 }
 
 /* Dark Theme */
@@ -160,10 +162,22 @@ body {
   border-width: 0;
 }
 
-/* Smooth theme transitions */
-*,
-*::before,
-*::after {
+/* Smooth theme transitions - scoped to common UI elements for performance */
+body,
+button,
+input,
+select,
+textarea,
+a,
+[role="button"],
+.playground-nav,
+.playground-content,
+.component-card,
+.card,
+.badge,
+.alert,
+.btn,
+.input {
   transition: background-color var(--transition-base), 
               border-color var(--transition-base), 
               color var(--transition-base);

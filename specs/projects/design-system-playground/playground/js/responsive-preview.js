@@ -9,9 +9,21 @@
       .getPropertyValue('--layout-max-width').trim();
   };
 
+  // Get viewport width from CSS custom property with a fallback
+  const getViewportWidth = (varName, fallback) => {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue(varName)
+      .trim();
+    return value || fallback;
+  };
+
+  // Define viewport sizes - read from CSS tokens if available
+  const mobileWidth = getViewportWidth('--viewport-mobile-width', '375px');
+  const tabletWidth = getViewportWidth('--viewport-tablet-width', '768px');
+
   const viewportSizes = {
-    mobile: { width: '375px', label: 'Mobile (375px)' },
-    tablet: { width: '768px', label: 'Tablet (768px)' },
+    mobile: { width: mobileWidth, label: `Mobile (${mobileWidth})` },
+    tablet: { width: tabletWidth, label: `Tablet (${tabletWidth})` },
     desktop: { width: '', label: 'Desktop (1200px)' } // Empty width means use max-width
   };
 
@@ -43,21 +55,20 @@
       viewportInfo.textContent = size.label;
     }
     
-    // Apply visual indicator (max-width to main content)
+    // Apply visual indicator by setting individual style properties
     if (viewport === 'mobile' || viewport === 'tablet') {
-      mainContent.style.cssText = `
-        max-width: ${size.width};
-        margin-left: auto;
-        margin-right: auto;
-        border: 1px solid var(--color-border);
-        transition: all 0.3s ease;
-      `;
+      mainContent.style.maxWidth = size.width;
+      mainContent.style.marginLeft = 'auto';
+      mainContent.style.marginRight = 'auto';
+      mainContent.style.border = '1px solid var(--color-border)';
+      mainContent.style.transition = 'all var(--transition-base) ease';
     } else {
       const maxWidth = getMaxWidth();
-      mainContent.style.cssText = `
-        max-width: ${maxWidth};
-        border: none;
-      `;
+      mainContent.style.maxWidth = maxWidth;
+      mainContent.style.marginLeft = '';
+      mainContent.style.marginRight = '';
+      mainContent.style.border = 'none';
+      mainContent.style.transition = '';
     }
   }
 

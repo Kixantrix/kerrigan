@@ -46,6 +46,8 @@
 
   // Announce theme change for accessibility
   function announceThemeChange(theme) {
+    const ANNOUNCEMENT_REMOVAL_DELAY = 1000; // Time in ms before removing announcement from DOM
+    
     const announcement = document.createElement('div');
     announcement.setAttribute('role', 'status');
     announcement.setAttribute('aria-live', 'polite');
@@ -56,7 +58,7 @@
     // Remove announcement after brief delay
     setTimeout(() => {
       document.body.removeChild(announcement);
-    }, 1000);
+    }, ANNOUNCEMENT_REMOVAL_DELAY);
   }
 
   // Initialize theme on page load

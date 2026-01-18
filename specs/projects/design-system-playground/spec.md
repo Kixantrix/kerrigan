@@ -47,21 +47,21 @@ Build the technical foundation for design system playgrounds - interactive web e
 ## Acceptance criteria
 
 ### Functional
-- [ ] Component gallery displays all available components
-- [ ] Token visualization shows colors, typography, and spacing
-- [ ] Dark/light mode toggle switches theme across all components
-- [ ] Responsive preview shows components at mobile, tablet, and desktop sizes
-- [ ] State variations are visible for interactive components
-- [ ] Code viewer shows HTML/CSS for each component
-- [ ] Navigation works between sections (tokens, components, patterns)
+- [x] Component gallery displays all available components
+- [x] Token visualization shows colors, typography, and spacing
+- [x] Dark/light mode toggle switches theme across all components
+- [x] Responsive preview shows components at mobile, tablet, and desktop sizes
+- [x] State variations are visible for interactive components
+- [x] Code viewer shows HTML/CSS for each component
+- [x] Navigation works between sections (tokens, components, patterns)
 
 ### Non-functional
-- [ ] Page loads in < 2 seconds on standard connection
-- [ ] All interactive elements are keyboard accessible
-- [ ] Color contrast meets WCAG AA standards
-- [ ] Works on latest versions of Chrome, Firefox, Safari, Edge
-- [ ] No console errors or warnings
-- [ ] Code is well-structured and maintainable
+- [x] Page loads in < 2 seconds on standard connection
+- [x] All interactive elements are keyboard accessible
+- [x] Color contrast meets WCAG AA standards
+- [x] Works on latest versions of Chrome, Firefox, Safari, Edge
+- [x] No console errors or warnings
+- [x] Code is well-structured and maintainable
 
 ## Out of scope for initial implementation
 - Live code editing (CodeMirror/Monaco integration)

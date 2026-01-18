@@ -3,6 +3,9 @@
 (function() {
   'use strict';
 
+  // Constants
+  const FEEDBACK_TIMEOUT = 2000; // Time in ms to display copy feedback before reverting
+
   // Toggle code visibility
   function toggleCode(button) {
     const targetId = button.dataset.target;
@@ -23,6 +26,12 @@
       
       // Add copy button if not already present
       addCopyButton(codeBlock);
+      
+      // Move focus to the copy button for keyboard accessibility
+      const copyBtn = codeBlock.querySelector('.copy-btn');
+      if (copyBtn) {
+        copyBtn.focus();
+      }
     }
   }
 
@@ -35,27 +44,6 @@
     copyBtn.className = 'copy-btn';
     copyBtn.textContent = 'Copy';
     copyBtn.setAttribute('aria-label', 'Copy code to clipboard');
-    copyBtn.style.cssText = `
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      padding: 4px 12px;
-      font-size: 12px;
-      background-color: var(--color-primary);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    `;
-    
-    copyBtn.addEventListener('mouseenter', () => {
-      copyBtn.style.backgroundColor = 'var(--color-primary-hover)';
-    });
-    
-    copyBtn.addEventListener('mouseleave', () => {
-      copyBtn.style.backgroundColor = 'var(--color-primary)';
-    });
     
     copyBtn.addEventListener('click', () => {
       copyCode(codeBlock, copyBtn);
@@ -111,24 +99,24 @@
   function showCopySuccess(button) {
     const originalText = button.textContent;
     button.textContent = 'Copied!';
-    button.style.backgroundColor = 'var(--color-success)';
+    button.classList.add('copy-btn--success');
     
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.backgroundColor = 'var(--color-primary)';
-    }, 2000);
+      button.classList.remove('copy-btn--success');
+    }, FEEDBACK_TIMEOUT);
   }
 
   // Show error feedback
   function showCopyError(button) {
     const originalText = button.textContent;
     button.textContent = 'Failed';
-    button.style.backgroundColor = 'var(--color-danger)';
+    button.classList.add('copy-btn--error');
     
     setTimeout(() => {
       button.textContent = originalText;
-      button.style.backgroundColor = 'var(--color-primary)';
-    }, 2000);
+      button.classList.remove('copy-btn--error');
+    }, FEEDBACK_TIMEOUT);
   }
 
   // Initialize code viewer
