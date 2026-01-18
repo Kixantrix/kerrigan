@@ -1,0 +1,102 @@
+# Kerrigan CLI
+
+Command-line tool for Kerrigan project management and multi-repo operations.
+
+## Installation
+
+### From source
+
+```bash
+cd tools/cli/kerrigan
+pip install -e .
+```
+
+### With clipboard support
+
+```bash
+pip install -e ".[clipboard]"
+```
+
+## Usage
+
+### Initialize a new project
+
+```bash
+kerrigan init my-project
+kerrigan init my-api --template hello-api
+```
+
+### Check project status
+
+```bash
+kerrigan status my-project
+kerrigan status --all
+```
+
+### Validate project structure
+
+```bash
+kerrigan validate my-project
+kerrigan validate --all
+```
+
+### Multi-repository operations
+
+```bash
+# List repositories in a project
+kerrigan repos list my-multi-repo-project
+
+# Sync status across repositories
+kerrigan repos sync my-multi-repo-project
+kerrigan repos sync my-multi-repo-project --dry-run
+```
+
+### Agent invocation
+
+```bash
+# List available agent roles
+kerrigan agent --list
+
+# Show agent prompt
+kerrigan agent spec --show
+
+# Copy agent prompt to clipboard
+kerrigan agent swe --copy
+```
+
+## Configuration
+
+Kerrigan CLI can be configured via:
+
+1. `.kerriganrc` in current directory
+2. `~/.kerriganrc` in home directory
+3. `~/.config/kerrigan/config.yaml`
+
+Example configuration:
+
+```yaml
+github_token: ghp_xxxxxxxxxxxxx
+default_template: _template
+```
+
+## Requirements
+
+- Python 3.8 or higher
+- click >= 8.0
+- pyyaml >= 6.0
+
+Optional:
+- pyperclip >= 1.8.0 (for clipboard support)
+
+## Development
+
+### Running tests
+
+```bash
+pip install -e ".[dev]"
+pytest
+```
+
+## License
+
+MIT
