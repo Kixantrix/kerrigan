@@ -58,6 +58,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 
 ### Getting Started
 - **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
+- **[CLI Reference](docs/cli-reference.md)**: Command-line tool for project management
 - **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
 - **[Project Directory](docs/project-directory.md)**: Overview of all projects and their status
 - **[Agent Auditing](docs/agent-auditing.md)**: Verify agents are using their specific prompts
@@ -118,13 +119,17 @@ See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed conf
 
 | Task | Command/Location |
 |------|------------------|
-| Start new project | `cp -r specs/projects/_template/ specs/projects/<name>/` |
+| Start new project | `kerrigan init <name>` or `cp -r specs/projects/_template/ specs/projects/<name>/` |
+| Check project status | `kerrigan status <name>` or `kerrigan status --all` |
 | Enable agent work | Add `agent:go` label to GitHub issue |
 | Pause project | Create `status.json` with `"status": "blocked"` |
-| Invoke agent | Copy prompt from `.github/agents/role.*.md` |
-| Validate locally | `python tools/validators/check_artifacts.py` |
+| Invoke agent | `kerrigan agent <role> --show` or copy prompt from `.github/agents/role.*.md` |
+| Validate locally | `kerrigan validate` or `python tools/validators/check_artifacts.py` |
+| Multi-repo operations | `kerrigan repos list/sync <project>` |
 | Bootstrap environment | `bash tools/bootstrap.sh` |
 | Check CI | View GitHub Actions tab |
+
+**CLI Installation**: `cd tools/cli/kerrigan && pip install -e .` (see [CLI Reference](docs/cli-reference.md))
 
 ---
 
