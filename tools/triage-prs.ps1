@@ -127,8 +127,9 @@ foreach ($pr in $prs) {
         if ($LASTEXITCODE -eq 0) {
             try {
                 $comments = $commentsJson | ConvertFrom-Json
+                # Filter for known Copilot bot usernames (exact matches)
                 $copilotComments = $comments | Where-Object { 
-                    $_.user.login -eq "Copilot" -or $_.user.login -like "*copilot*"
+                    $_.user.login -eq "Copilot" -or $_.user.login -eq "github-actions[bot]"
                 }
                 $reviewCommentCount = $copilotComments.Count
             } catch {

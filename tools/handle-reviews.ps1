@@ -87,9 +87,9 @@ foreach ($pr in $prs) {
         try {
             $comments = $commentsJson | ConvertFrom-Json
             
-            # Filter for Copilot reviewer comments
+            # Filter for known Copilot bot usernames (exact matches)
             $copilotComments = $comments | Where-Object { 
-                $_.user.login -eq "Copilot" -or $_.user.login -like "*copilot*"
+                $_.user.login -eq "Copilot" -or $_.user.login -eq "github-actions[bot]"
             }
             
             if ($copilotComments.Count -ge $Threshold) {
@@ -126,7 +126,7 @@ foreach ($pr in $prsWithFeedback) {
         
         if (-not $DryRun) {
             try {
-                gh pr comment $pr.number --body "@copilot Please address all review comments from the Copilot reviewer." 2>&1 | Out-Null
+                gh pr comment $pr.number --body "@copilot Please address all review comments." 2>&1 | Out-Null
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "    ✅ Comment added successfully" -ForegroundColor Green
                 } else {
