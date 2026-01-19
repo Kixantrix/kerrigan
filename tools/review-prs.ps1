@@ -1,11 +1,36 @@
 #!/usr/bin/env pwsh
 #Requires -Version 5.1
-# Systematic PR Review Script
-# Goes through all open PRs and manages Copilot reviews
-#
-# .NOTES
-#     Requires PowerShell 5.1 or later for compatibility.
-#
+<#
+.SYNOPSIS
+    Systematic PR Review Script - Goes through all open PRs and manages Copilot reviews
+
+.DESCRIPTION
+    This script manages Copilot reviews on all open pull requests by:
+    - Adding Copilot as a reviewer if not already assigned
+    - Checking review status and reporting on PRs ready to merge
+    - Posting comments to notify @copilot when changes are requested
+
+.PARAMETER DryRun
+    Show what would happen without making changes
+
+.PARAMETER MarkReadyForReview
+    Convert draft PRs to ready for review
+
+.EXAMPLE
+    .\tools\review-prs.ps1
+    Add Copilot as reviewer to PRs without review
+
+.EXAMPLE
+    .\tools\review-prs.ps1 -DryRun
+    Preview what would be done without making changes
+
+.EXAMPLE
+    .\tools\review-prs.ps1 -MarkReadyForReview
+    Mark draft PRs as ready and add Copilot as reviewer
+
+.NOTES
+    Requires PowerShell 5.1 or later for compatibility.
+#>
 param(
     [switch]$DryRun,
     [switch]$MarkReadyForReview
