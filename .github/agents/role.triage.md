@@ -406,7 +406,9 @@ gh pr reopen <PR#>
 
 1. **Assign multiple issues to @copilot:**
    ```powershell
-   $issues = 10..20  # Replace with actual issue numbers
+   # Range syntax: Use X..Y for consecutive numbers
+   # Get issue numbers from: gh issue list or ./tools/triage-prs.ps1
+   $issues = 10..20
    foreach ($issue in $issues) {
        gh issue edit $issue --add-assignee "@copilot"
    }
@@ -414,7 +416,8 @@ gh pr reopen <PR#>
 
 2. **Mark multiple PRs as ready:**
    ```powershell
-   $prs = 10..15  # Replace with actual PR numbers
+   # Range syntax for consecutive PRs
+   $prs = 10..15
    foreach ($pr in $prs) {
        gh pr ready $pr
    }
@@ -422,7 +425,8 @@ gh pr reopen <PR#>
 
 3. **Comment on PRs with review feedback:**
    ```powershell
-   $prs = 10,11,12,13,14,15  # Replace with actual PR numbers
+   # List syntax: Use explicit list for non-consecutive numbers
+   $prs = 10,11,12,13,14,15
    foreach ($pr in $prs) {
        gh pr comment $pr --body "@copilot Please address review comments"
    }
