@@ -20,7 +20,7 @@ Every PowerShell script MUST include:
 2. **Version check** at the beginning of script execution:
    ```powershell
    # Check PowerShell version
-   if ($PSVersionTable.PSVersion.Major -lt 5) {
+   if ($PSVersionTable.PSVersion.Major -lt 5 -or ($PSVersionTable.PSVersion.Major -eq 5 -and $PSVersionTable.PSVersion.Minor -lt 1)) {
        Write-Error "This script requires PowerShell 5.1 or later. Current version: $($PSVersionTable.PSVersion)"
        exit 1
    }
