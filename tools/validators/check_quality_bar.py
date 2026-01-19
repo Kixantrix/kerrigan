@@ -85,16 +85,16 @@ def has_override_label(pr_number: str) -> bool:
     
     url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
     req = Request(url, headers={
-        'Authorization': f'token {token}',
+        'Authorization': f'Bearer {token}',
         'Accept': 'application/vnd.github.v3+json'
     })
     
     try:
         with urlopen(req, timeout=10) as response:
             data = json.loads(response.read().decode('utf-8'))
-            labels = [label['name'] for label in data.get('labels', [])]
+            labels = [label['name'] for label in data['labels']]
             return 'allow:large-file' in labels
-    except (URLError, HTTPError, json.JSONDecodeError, KeyError, Exception):
+    except (URLError, HTTPError, json.JSONDecodeError, KeyError):
         # Fail gracefully - don't block CI if API call fails
         return False
 
