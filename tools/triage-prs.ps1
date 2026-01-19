@@ -231,7 +231,7 @@ if ($withReviewFeedback.Count -gt 0) {
         Write-Host ""
     }
     Write-Host "    Bulk action:" -ForegroundColor Yellow
-    Write-Host "      .\tools\handle-reviews.ps1 --assign-fixes  # Assign all at once" -ForegroundColor Cyan
+    Write-Host "      .\tools\handle-reviews.ps1 -AssignFixes  # Assign all at once" -ForegroundColor Cyan
     Write-Host ""
 }
 

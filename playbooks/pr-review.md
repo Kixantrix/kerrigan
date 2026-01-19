@@ -50,7 +50,7 @@ gh pr view <PR#>
 gh pr comment <PR#> --body "@copilot Please address all review comments"
 
 # Or use bulk tool
-.\tools\handle-reviews.ps1 --assign-fixes
+.\tools\handle-reviews.ps1 -AssignFixes
 ```
 
 **For nice-to-have feedback:**
