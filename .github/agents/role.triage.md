@@ -406,7 +406,7 @@ gh pr reopen <PR#>
 
 1. **Assign multiple issues to @copilot:**
    ```powershell
-   $issues = 75..87
+   $issues = 10..20  # Replace with actual issue numbers
    foreach ($issue in $issues) {
        gh issue edit $issue --add-assignee "@copilot"
    }
@@ -414,7 +414,7 @@ gh pr reopen <PR#>
 
 2. **Mark multiple PRs as ready:**
    ```powershell
-   $prs = 92..103
+   $prs = 10..15  # Replace with actual PR numbers
    foreach ($pr in $prs) {
        gh pr ready $pr
    }
@@ -422,7 +422,7 @@ gh pr reopen <PR#>
 
 3. **Comment on PRs with review feedback:**
    ```powershell
-   $prs = 93,94,95,96,97,98,99,100,101,103
+   $prs = 10,11,12,13,14,15  # Replace with actual PR numbers
    foreach ($pr in $prs) {
        gh pr comment $pr --body "@copilot Please address review comments"
    }
