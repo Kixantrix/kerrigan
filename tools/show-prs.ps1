@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Display open pull requests with their status and details in a formatted table.
@@ -20,6 +21,9 @@
 .EXAMPLE
     .\tools\show-prs.ps1 -State all -Limit 50
     Shows all PRs (open, closed, merged), up to 50
+
+.NOTES
+    Requires PowerShell 5.1 or later for compatibility.
 #>
 
 param(
@@ -28,6 +32,12 @@ param(
     
     [int]$Limit = 20
 )
+
+# Check PowerShell version
+if ($PSVersionTable.PSVersion.Major -lt 5) {
+    Write-Error "This script requires PowerShell 5.1 or later. Current version: $($PSVersionTable.PSVersion)"
+    exit 1
+}
 
 # Fetch PRs from GitHub
 Write-Host "Fetching $State pull requests..." -ForegroundColor Cyan
@@ -45,28 +55,28 @@ $formatted = $prs | ForEach-Object {
     $isBot = $_.author.is_bot
     $authorName = $_.author.login
     
-    # Status indicator
-    $status = if ($_.isDraft) { '📝' }
-              elseif ($_.mergeable -eq 'CONFLICTING') { '⚠️' }
-              elseif ($_.mergeable -eq 'MERGEABLE' -and $reviewCount -gt 0) { '✅' }
-              elseif ($_.mergeable -eq 'MERGEABLE') { '🟢' }
-              else { '❓' }
+    # Status indicator (using ASCII for PowerShell 5.1 compatibility)
+    $status = if ($_.isDraft) { '[DRAFT]' }
+              elseif ($_.mergeable -eq 'CONFLICTING') { '[WARN]' }
+              elseif ($_.mergeable -eq 'MERGEABLE' -and $reviewCount -gt 0) { '[OK]' }
+              elseif ($_.mergeable -eq 'MERGEABLE') { '[READY]' }
+              else { '[?]' }
     
     # Author indicator
-    $author = if ($isBot) { "🤖 $authorName" } else { $authorName }
+    $author = if ($isBot) { "[BOT] $authorName" } else { $authorName }
     
     [PSCustomObject]@{
         ' ' = $status
         '#' = $_.number
         Title = $_.title
         Author = $author
-        Draft = if ($_.isDraft) { 'Yes' } else { '—' }
-        Reviews = if ($reviewCount -gt 0) { $reviewCount } else { '—' }
+        Draft = if ($_.isDraft) { 'Yes' } else { '-' }
+        Reviews = if ($reviewCount -gt 0) { $reviewCount } else { '-' }
         Mergeable = switch ($_.mergeable) {
-            'MERGEABLE' { '✓' }
-            'CONFLICTING' { '✗ Conflict' }
+            'MERGEABLE' { 'Yes' }
+            'CONFLICTING' { 'Conflict' }
             'UNKNOWN' { '?' }
-            default { '—' }
+            default { '-' }
         }
         Updated = (Get-Date $_.updatedAt).ToString('MMM dd HH:mm')
     }
@@ -97,10 +107,10 @@ Write-Host "  Bot PRs: $botPRs" -ForegroundColor Gray
 
 # Legend
 Write-Host "`nStatus Legend:" -ForegroundColor Cyan
-Write-Host "  📝 Draft" -ForegroundColor Gray
-Write-Host "  🟢 Ready to review" -ForegroundColor Gray
-Write-Host "  ✅ Reviewed and mergeable" -ForegroundColor Gray
-Write-Host "  ⚠️  Has conflicts" -ForegroundColor Gray
-Write-Host "  ❓ Status unknown" -ForegroundColor Gray
+Write-Host "  [DRAFT]  Draft PR" -ForegroundColor Gray
+Write-Host "  [READY]  Ready to review" -ForegroundColor Gray
+Write-Host "  [OK]     Reviewed and mergeable" -ForegroundColor Gray
+Write-Host "  [WARN]   Has conflicts" -ForegroundColor Gray
+Write-Host "  [?]      Status unknown" -ForegroundColor Gray
 
 Write-Host ""

@@ -1,9 +1,21 @@
-﻿# Systematic PR Review Script
+#!/usr/bin/env pwsh
+#Requires -Version 5.1
+# Systematic PR Review Script
 # Goes through all open PRs and manages Copilot reviews
+#
+# .NOTES
+#     Requires PowerShell 5.1 or later for compatibility.
+#
 param(
     [switch]$DryRun,
     [switch]$MarkReadyForReview
 )
+
+# Check PowerShell version
+if ($PSVersionTable.PSVersion.Major -lt 5) {
+    Write-Error "This script requires PowerShell 5.1 or later. Current version: $($PSVersionTable.PSVersion)"
+    exit 1
+}
 
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "Systematic PR Review - Kerrigan" -ForegroundColor Cyan
