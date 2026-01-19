@@ -10,6 +10,7 @@ Before you begin, ensure you have:
 - **Git**: Installed and configured on your machine
 - **AI Agent Access**: GitHub Copilot or similar AI coding assistant
 - **Python 3.8+**: For running validators (optional but recommended)
+- **PowerShell 5.1+**: For local automation scripts (PowerShell 7+ recommended)
 
 ## Step 1: Fork or Use the Template
 
