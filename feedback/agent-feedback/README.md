@@ -42,9 +42,9 @@ The daily self-improvement workflow (runs at 2 AM UTC) automatically:
 **Note on file lifecycle:**
 - Files remain in this directory indefinitely
 - The analyzer uses `--since-days 7` to skip old feedback automatically
-- No automatic archival - files naturally "age out" of analysis
-- Optional: Manually move files to `../processed/` for explicit archival
+- No automatic archival - files naturally "age out" of analysis after 7 days
 - Recommended: Periodically delete files >30 days old to keep directory manageable
+- Retention aligns with workflow artifact retention (30 days)
 
 ## Full Documentation
 

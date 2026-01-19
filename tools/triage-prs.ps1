@@ -82,6 +82,7 @@ $withCiFailures = @()
 $withConflicts = @()
 $stalledDrafts = @()
 $mergeReady = @()
+$withReviewFeedback = @()
 $otherPrs = @()
 
 $now = Get-Date
@@ -119,14 +120,32 @@ foreach ($pr in $prs) {
         }
     }
     
+    # Check for Copilot review comments (only for non-draft PRs)
+    $reviewCommentCount = 0
+    if (-not $pr.isDraft) {
+        $commentsJson = gh api "/repos/{owner}/{repo}/pulls/$($pr.number)/comments" 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            try {
+                $comments = $commentsJson | ConvertFrom-Json
+                $copilotComments = $comments | Where-Object { 
+                    $_.user.login -eq "Copilot" -or $_.user.login -like "*copilot*"
+                }
+                $reviewCommentCount = $copilotComments.Count
+            } catch {
+                # Silently ignore parsing errors
+            }
+        }
+    }
+    
     # Parse timestamps
     $updatedAt = [DateTime]::Parse($pr.updatedAt)
     $createdAt = [DateTime]::Parse($pr.createdAt)
     $hoursSinceUpdate = ($now - $updatedAt).TotalHours
     
-    # Add CI status and staleness to PR object
+    # Add CI status, staleness, and review feedback to PR object
     $pr | Add-Member -NotePropertyName "ciStatus" -NotePropertyValue $ciStatus -Force
     $pr | Add-Member -NotePropertyName "hoursSinceUpdate" -NotePropertyValue $hoursSinceUpdate -Force
+    $pr | Add-Member -NotePropertyName "reviewCommentCount" -NotePropertyValue $reviewCommentCount -Force
     
     # Categorize the PR
     if ($pr.isDraft) {
@@ -137,6 +156,8 @@ foreach ($pr in $prs) {
         $withConflicts += $pr
     } elseif ($ciStatus -eq "failing") {
         $withCiFailures += $pr
+    } elseif ($reviewCommentCount -gt 0) {
+        $withReviewFeedback += $pr
     } elseif ($pr.reviewDecision -eq "APPROVED" -and $ciPassing -and $pr.mergeable -eq "MERGEABLE") {
         $mergeReady += $pr
     } elseif (-not $pr.isDraft) {
@@ -192,7 +213,28 @@ if ($withConflicts.Count -gt 0) {
     }
 }
 
-# 4. Stalled Draft PRs (>24 hours)
+# 4. PRs with Review Feedback
+if ($withReviewFeedback.Count -gt 0) {
+    Write-Host "[FEEDBACK] COPILOT REVIEW COMMENTS ($($withReviewFeedback.Count))" -ForegroundColor Magenta
+    Write-Host "========================================" -ForegroundColor Magenta
+    # Sort by review comment count (descending)
+    $withReviewFeedback = $withReviewFeedback | Sort-Object -Property reviewCommentCount -Descending
+    foreach ($pr in $withReviewFeedback) {
+        Write-Host "  #$($pr.number): $($pr.title)" -ForegroundColor White
+        Write-Host "    Author: $($pr.author.login)" -ForegroundColor Gray
+        Write-Host "    Review comments: $($pr.reviewCommentCount) from Copilot reviewer" -ForegroundColor Gray
+        Write-Host "    URL: $($pr.url)" -ForegroundColor Gray
+        Write-Host "    Actions:" -ForegroundColor Yellow
+        Write-Host "      gh pr view $($pr.number)  # View PR and review comments" -ForegroundColor Cyan
+        Write-Host "      gh pr comment $($pr.number) --body '@copilot Please address review comments'  # Assign fixes" -ForegroundColor Cyan
+        Write-Host ""
+    }
+    Write-Host "    Bulk action:" -ForegroundColor Yellow
+    Write-Host "      .\tools\handle-reviews.ps1 --assign-fixes  # Assign all at once" -ForegroundColor Cyan
+    Write-Host ""
+}
+
+# 5. Stalled Draft PRs (>24 hours)
 if ($stalledDrafts.Count -gt 0) {
     Write-Host "[PAUSE] STALLED DRAFTS ($($stalledDrafts.Count))" -ForegroundColor Magenta
     Write-Host "========================================" -ForegroundColor Magenta
@@ -208,7 +250,7 @@ if ($stalledDrafts.Count -gt 0) {
     }
 }
 
-# 5. Ready for Review PRs
+# 6. Ready for Review PRs
 if ($readyForReview.Count -gt 0) {
     Write-Host "[REVIEW] READY FOR REVIEW ($($readyForReview.Count))" -ForegroundColor Blue
     Write-Host "========================================" -ForegroundColor Blue
@@ -230,7 +272,7 @@ if ($readyForReview.Count -gt 0) {
     }
 }
 
-# 6. Other PRs (if ShowAll flag is set)
+# 7. Other PRs (if ShowAll flag is set)
 if ($ShowAll -and $otherPrs.Count -gt 0) {
     Write-Host "[OTHER] OTHER PRs ($($otherPrs.Count))" -ForegroundColor Gray
     Write-Host "========================================" -ForegroundColor Gray
@@ -251,6 +293,7 @@ Write-Host "Total PRs: $($prs.Count)" -ForegroundColor White
 Write-Host "  [OK] Merge ready: $($mergeReady.Count)" -ForegroundColor Green
 Write-Host "  [!!] CI failures: $($withCiFailures.Count)" -ForegroundColor Red
 Write-Host "  [WARN] Merge conflicts: $($withConflicts.Count)" -ForegroundColor Yellow
+Write-Host "  [FEEDBACK] Review comments: $($withReviewFeedback.Count)" -ForegroundColor Magenta
 Write-Host "  [PAUSE] Stalled drafts: $($stalledDrafts.Count)" -ForegroundColor Magenta
 Write-Host "  [REVIEW] Ready for review: $($readyForReview.Count)" -ForegroundColor Blue
 Write-Host "  [OTHER] Other: $($otherPrs.Count)" -ForegroundColor Gray
@@ -267,11 +310,14 @@ if ($withCiFailures.Count -gt 0) {
 if ($withConflicts.Count -gt 0) {
     Write-Host "  3. Notify authors about merge conflicts" -ForegroundColor Yellow
 }
+if ($withReviewFeedback.Count -gt 0) {
+    Write-Host "  4. Assign fixes for Copilot review feedback" -ForegroundColor Magenta
+}
 if ($stalledDrafts.Count -gt 0) {
-    Write-Host "  4. Restart stalled draft PRs" -ForegroundColor Magenta
+    Write-Host "  5. Restart stalled draft PRs" -ForegroundColor Magenta
 }
 if ($readyForReview.Count -gt 0) {
-    Write-Host "  5. Review and approve ready PRs" -ForegroundColor Blue
+    Write-Host "  6. Review and approve ready PRs" -ForegroundColor Blue
 }
 
 Write-Host ""

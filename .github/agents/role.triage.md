@@ -61,6 +61,40 @@ You are responsible for managing the PR pipeline: reviewing incoming PRs, checki
 - Monitor agent progress and identify blockers
 - Escalate issues that require manual intervention
 
+### 5.1. Copilot PR Reviewer Feedback Management
+
+When Copilot pull-request-reviewer (the automated code reviewer) leaves feedback on PRs:
+
+1. **Detect reviews with feedback:**
+   - Check for comments from Copilot reviewers on ready PRs
+   - Categorize by severity (critical/important/nice-to-have)
+
+2. **Critical feedback (must fix before merge):**
+   - Missing functional tests
+   - Security vulnerabilities
+   - Breaking changes
+   → Comment: "@copilot Please address critical review comments"
+   → Wait for fixes before approval
+
+3. **Important feedback (should fix):**
+   - Missing file encoding
+   - Imports in wrong location
+   - Unused imports
+   - Best practice violations
+   → Comment: "@copilot Please address review comments"
+   → Verify fixes before approval
+
+4. **Nice-to-have feedback:**
+   - Style suggestions
+   - Minor optimizations
+   → Consider creating follow-up issues instead
+   → Don't block PR merge
+
+5. **Bulk feedback handling:**
+   - Use `tools/handle-reviews.ps1` to detect PRs with review feedback
+   - Comment on all PRs with feedback requiring fixes
+   - Monitor for updates and re-review
+
 ### 6. Follow-up Issue Creation
 - Create follow-up issues for gaps identified during review
 - Assign appropriate role labels (role:swe, role:architect, etc.)
@@ -93,6 +127,7 @@ This script shows:
 ### Supporting Scripts
 - `show-issues.ps1` - View all open issues with labels and assignments
 - `review-prs.ps1` - Systematic PR review adding Copilot as reviewer
+- `handle-reviews.ps1` - Detect and assign fixes for Copilot reviewer feedback
 - Validators in `tools/validators/` - Run quality checks locally
 
 ## Standard Review Cycle

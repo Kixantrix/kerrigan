@@ -229,6 +229,65 @@ jobs:
             console.log(`   Created: ${created} issues`);
             console.log(`   Skipped: ${skipped} (similar issues exist)`);
 
+      - name: Create daily summary issue
+        if: github.event.inputs.create_issues == 'true' || github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const date = new Date().toISOString().split('T')[0];
+            
+            // Load analysis results
+            const resultsPath = 'analysis-results.json';
+            if (!fs.existsSync(resultsPath)) {
+              console.log('❌ Analysis results not found, skipping summary issue');
+              return;
+            }
+            
+            const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+            const proposals = results.proposals || [];
+            
+            // Build list of created issues
+            const highMediumProposals = proposals.filter(p => 
+              p.priority === 'high' || p.priority === 'medium'
+            );
+            
+            const issuesList = highMediumProposals.length > 0
+              ? highMediumProposals.map(p => `- ${p.title} (${p.priority})`).join('\n')
+              : 'No new issues created (low priority proposals only)';
+            
+            const body = `## Self-Improvement Analysis for ${date}
+            
+            ### Metrics
+            - **Feedback processed**: ${{ steps.analysis.outputs.feedback_count || 'N/A' }}
+            - **Patterns found**: ${{ steps.analysis.outputs.patterns_count || 'N/A' }}
+            - **Proposals generated**: ${{ steps.analysis.outputs.proposals_count || 'N/A' }}
+            - **High priority**: ${{ steps.analysis.outputs.high_priority || '0' }}
+            
+            ### Issues Created
+            ${issuesList}
+            
+            ### Full Report
+            📎 [Download full analysis report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            
+            The complete report with all proposals, evidence, and pattern analysis is available in the workflow artifacts (30-day retention).
+            
+            ---
+            *Automated by daily-self-improvement workflow*`;
+            
+            try {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Daily Analysis Summary ${date}`,
+                body: body,
+                labels: ['kerrigan', 'meta', 'daily-summary']
+              });
+              console.log(`✅ Created daily summary issue`);
+            } catch (error) {
+              console.log(`❌ Failed to create summary issue: ${error.message}`);
+            }
+
       - name: Post summary
         if: always()
         uses: actions/github-script@v7
