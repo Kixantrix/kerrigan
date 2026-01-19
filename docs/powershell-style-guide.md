@@ -34,8 +34,8 @@ PowerShell 5.1 has known issues with multi-byte Unicode characters (emojis, box-
 - Use ASCII alternatives in string literals and script content
 
 **DON'T:**
-- Avoid Unicode emojis in string literals: ❌ 🟢🔴⚠️⏸️📋📝
-- Avoid Unicode box-drawing characters in string literals: ❌ ━┃┏┓
+- Avoid Unicode emojis in string literals (green circle, red circle, warning sign, pause button, clipboard, memo)
+- Avoid Unicode box-drawing characters in string literals (heavy horizontal line, vertical line, corners)
 - Don't use multi-byte UTF-8 characters in script source code
 
 ### Output vs Script Content

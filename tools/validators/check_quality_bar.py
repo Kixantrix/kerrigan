@@ -86,7 +86,7 @@ def has_override_label(pr_number: str) -> bool:
     url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
     req = Request(url, headers={
         'Authorization': f'Bearer {token}',
-        'Accept': 'application/vnd.github.v3+json'
+        'Accept': 'application/vnd.github+json'
     })
     
     try:
