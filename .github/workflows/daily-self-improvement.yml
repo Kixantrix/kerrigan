@@ -262,23 +262,23 @@ jobs:
               : 'No new issues created (low priority proposals only)';
             
             const body = `## Self-Improvement Analysis for ${date}
-            
-            ### Metrics
-            - **Feedback processed**: ${process.env.FEEDBACK_COUNT}
-            - **Patterns found**: ${process.env.PATTERNS_COUNT}
-            - **Proposals generated**: ${process.env.PROPOSALS_COUNT}
-            - **High priority**: ${process.env.HIGH_PRIORITY}
-            
-            ### Issues Created
-            ${issuesList}
-            
-            ### Full Report
-            📎 [Download full analysis report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
-            
-            The complete report with all proposals, evidence, and pattern analysis is available in the workflow artifacts (30-day retention).
-            
-            ---
-            *Automated by daily-self-improvement workflow*`;
+
+### Metrics
+- **Feedback processed**: ${process.env.FEEDBACK_COUNT}
+- **Patterns found**: ${process.env.PATTERNS_COUNT}
+- **Proposals generated**: ${process.env.PROPOSALS_COUNT}
+- **High priority**: ${process.env.HIGH_PRIORITY}
+
+### Issues Created
+${issuesList}
+
+### Full Report
+📎 [Download full analysis report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+
+The complete report with all proposals, evidence, and pattern analysis is available in the workflow artifacts (30-day retention).
+
+---
+*Automated by daily-self-improvement workflow*`;
             
             try {
               await github.rest.issues.create({

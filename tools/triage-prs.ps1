@@ -129,7 +129,7 @@ foreach ($pr in $prs) {
                 $comments = $commentsJson | ConvertFrom-Json
                 # Filter for known Copilot bot usernames (exact matches)
                 $copilotComments = $comments | Where-Object { 
-                    $_.user.login -eq "Copilot" -or $_.user.login -eq "github-actions[bot]"
+                    $_.user.login -eq "github-copilot[bot]" -or $_.user.login -eq "github-actions[bot]"
                 }
                 $reviewCommentCount = $copilotComments.Count
             } catch {
