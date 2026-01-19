@@ -80,7 +80,7 @@ $prsWithFeedback = @()
 
 foreach ($pr in $prs) {
     # Get review comments for this PR
-    # Note: This gets review comments (comments on code), not general PR comments
+    # Note: {owner} and {repo} are automatically expanded by gh CLI
     $commentsJson = gh api "/repos/{owner}/{repo}/pulls/$($pr.number)/comments" 2>&1
     
     if ($LASTEXITCODE -eq 0) {

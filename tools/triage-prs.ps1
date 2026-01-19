@@ -123,6 +123,7 @@ foreach ($pr in $prs) {
     # Check for Copilot review comments (only for non-draft PRs)
     $reviewCommentCount = 0
     if (-not $pr.isDraft) {
+        # Note: {owner} and {repo} are automatically expanded by gh CLI
         $commentsJson = gh api "/repos/{owner}/{repo}/pulls/$($pr.number)/comments" 2>&1
         if ($LASTEXITCODE -eq 0) {
             try {
