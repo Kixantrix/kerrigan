@@ -1,0 +1,67 @@
+# Agent Feedback - Git Rebase Interactive Mode Stall
+
+# REQUIRED FIELDS
+timestamp: "2026-01-18T15:30:00Z"
+issue_number: 96
+agent_role: "triage"
+category: "tool_limitation"
+severity: "high"
+title: "Git rebase --continue enters interactive editor mode causing agent to stall"
+
+# REQUIRED: Detailed description
+description: |
+  When performing manual git rebases to resolve merge conflicts, running 
+  `git rebase --continue` without setting GIT_EDITOR caused the agent to 
+  enter interactive editing mode (nano/vi), which completely stalled execution.
+  
+  What I expected:
+  - `git rebase --continue` to use default commit messages and continue
+  
+  What happened:
+  - Terminal entered interactive editor (nano) waiting for user input
+  - Agent could not send input or escape from editor mode
+  - Entire rebase workflow blocked until user intervention
+  
+  Impact:
+  - HIGH: Complete workflow stall requiring user to abort and restart
+  - Manual rebases cannot complete autonomously
+  - Lost progress and had to clean up .git/rebase-merge manually
+
+# OPTIONAL FIELDS
+related_files:
+  - ".github/agents/role.triage.md"
+
+context: |
+  During triage of PRs #96, #98, #101 which had merge conflicts after batch 
+  merging 9 other PRs. Copilot agents successfully rebased locally but couldn't 
+  force-push due to sandbox limitations. Switched to manual rebase workflow.
+  
+  First attempt entered nano editor during `git rebase --continue` and stalled.
+  User noticed the issue and pointed out I was in interactive mode.
+
+proposed_solution: |
+  ALWAYS set GIT_EDITOR environment variable before git rebase operations:
+  
+  ```powershell
+  $env:GIT_EDITOR = 'true'; git rebase --continue
+  ```
+  
+  The 'true' command immediately exits with success, causing git to use 
+  default commit messages without entering an editor.
+  
+  This should be documented in:
+  1. Triage agent prompt (manual rebase section)
+  2. General git operation guidelines
+  3. Any automation scripts that perform rebases
+  
+  Alternative approaches:
+  - Use `git rebase --continue --no-edit` (not available in all git versions)
+  - Use `GIT_EDITOR=true` prefix for all interactive git commands
+  - Set globally: `git config --global core.editor "true"`
+
+# METADATA
+status: "new"
+reviewed_by: ""
+reviewed_date: ""
+implementation_pr: null
+notes: ""
