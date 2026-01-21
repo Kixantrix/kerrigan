@@ -277,10 +277,11 @@ GIT_EDITOR='true' git rebase origin/main
 
 - [Triage Playbook](../playbooks/triage.md) - Includes rebase workflows
 - [Triage Agent Prompt](../.github/agents/role.triage.md) - Manual rebase section
-- [Agent Feedback](../feedback/agent-feedback/2026-01-18-96-git-rebase-interactive-mode.yaml) - Original issue report
+- [Agent Feedback: Git Rebase Interactive Mode](../feedback/agent-feedback/2026-01-18-96-git-rebase-interactive-mode.yaml) - Original issue report that led to this document
 
 ## Feedback
 
 If you encounter issues with git operations or discover additional patterns:
-- Submit feedback via `feedback/agent-feedback/TEMPLATE.yaml`
-- See [Agent Feedback Specification](../specs/kerrigan/080-agent-feedback.md)
+- Submit feedback using the template at `feedback/agent-feedback/TEMPLATE.yaml`
+- Follow the naming convention: `YYYY-MM-DD-<issue-number>-<short-slug>.yaml`
+- See [Agent Feedback Specification](../specs/kerrigan/080-agent-feedback.md) for complete details
