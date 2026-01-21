@@ -195,9 +195,16 @@ This script shows:
    # Rebase on main
    git rebase main
    
+   # If conflicts occur, resolve them and continue:
+   # IMPORTANT: Always set GIT_EDITOR='true' to avoid entering interactive editor mode
+   git add .
+   GIT_EDITOR='true' git rebase --continue
+   
    # Force push
    git push --force-with-lease
    ```
+   
+   **Critical Note on git rebase:** Always set `GIT_EDITOR='true'` before running `git rebase --continue`. This prevents the agent from entering interactive editor mode (nano/vi) which causes complete workflow stalls. The `true` command exits immediately with success, allowing git to use default commit messages without requiring user input.
 
 ## Quality Standards
 
@@ -341,6 +348,7 @@ Discovered during review of PR #<PR_NUMBER>: <brief description>
 - [Autonomy Modes](../../playbooks/autonomy-modes.md) - Agent workflow control
 - [Agent Assignment](../../docs/agent-assignment.md) - Role label usage
 - [Triage Playbook](../../playbooks/triage.md) - Detailed triage workflows and runbook
+- [Git Best Practices](../../docs/git-best-practices.md) - Preventing interactive editor stalls and git operation guidelines
 
 ## Agent Feedback
 
