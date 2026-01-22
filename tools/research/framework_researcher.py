@@ -127,7 +127,17 @@ class FrameworkAnalysisResearcher(BaseResearcher):
             
             with urllib.request.urlopen(req, timeout=10) as response:
                 return json.loads(response.read().decode())
-        except Exception:
+        except urllib.error.HTTPError as e:
+            print(f"      ⚠️  HTTP error fetching {owner}/{repo}: {e.code} {e.reason}")
+            return None
+        except urllib.error.URLError as e:
+            print(f"      ⚠️  URL error fetching {owner}/{repo}: {e.reason}")
+            return None
+        except json.JSONDecodeError as e:
+            print(f"      ⚠️  JSON decode error for {owner}/{repo}: {e}")
+            return None
+        except Exception as e:
+            print(f"      ⚠️  Unexpected error fetching {owner}/{repo}: {e}")
             return None
     
     def _extract_features(self, description: str, topics: List[str], framework_name: str) -> Optional[Dict[str, str]]:

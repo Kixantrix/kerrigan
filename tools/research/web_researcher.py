@@ -96,10 +96,11 @@ class WebSearchResearcher(BaseResearcher):
         return filtered_findings
     
     def _perform_search(self, query: str) -> List[Dict[str, Any]]:
-        """Perform a web search using the web_search MCP tool.
+        """Perform a web search by generating findings from known best practices.
         
-        Note: This uses subprocess to call the web_search tool since
-        we're in a Python script context, not the agent context.
+        This implementation uses knowledge-based findings rather than external APIs,
+        providing value without requiring API keys. The findings are based on
+        well-established patterns from the agent framework ecosystem.
         
         Args:
             query: Search query string
@@ -107,9 +108,8 @@ class WebSearchResearcher(BaseResearcher):
         Returns:
             List of findings from the search
         """
-        # Since we can't directly call MCP tools from Python scripts,
-        # we'll use a simpler approach: search for known best practices
-        # This is a practical implementation that doesn't require external APIs
+        # Create findings based on known best practices
+        # This is a pragmatic approach that provides value without requiring API keys
         findings = []
         
         # Create synthetic findings based on known best practices
@@ -196,13 +196,17 @@ class WebSearchResearcher(BaseResearcher):
     def _hash_query(self, query: str) -> str:
         """Generate a hash for a query to use as cache key.
         
+        Uses SHA-256 for cache key generation. While cryptographic strength
+        is not required for caching, SHA-256 is widely available and provides
+        good collision resistance.
+        
         Args:
             query: Search query string
             
         Returns:
-            Hash string
+            Hash string (hex digest)
         """
-        return hashlib.md5(query.encode('utf-8')).hexdigest()
+        return hashlib.sha256(query.encode('utf-8')).hexdigest()
     
     def _deduplicate_findings(self, findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Remove duplicate findings based on title similarity.
