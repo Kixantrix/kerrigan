@@ -107,50 +107,28 @@ fi
 
 git checkout -b template/minimal
 
-# Remove investigation artifacts
-for file in "${INVESTIGATION_ARTIFACTS[@]}"; do
-  if [ -e "$file" ]; then
-    git rm -rf "$file"
-    echo "Removed: $file"
-  fi
-done
+echo "Removing investigation artifacts..."
+remove_files "${INVESTIGATION_ARTIFACTS[@]}"
 
-# Remove agent feedback files (keep TEMPLATE.yaml)
-for file in "${AGENT_FEEDBACK_FILES[@]}"; do
-  if [ -e "$file" ]; then
-    git rm -f "$file"
-    echo "Removed: $file"
-  fi
-done
+echo "Removing agent feedback files..."
+remove_files "${AGENT_FEEDBACK_FILES[@]}"
 
-# Remove meta-project specs
-for dir in "${META_PROJECT_SPECS[@]}"; do
-  if [ -d "$dir" ]; then
-    git rm -rf "$dir"
-    echo "Removed: $dir"
-  fi
-done
+echo "Removing meta-project specs..."
+remove_files "${META_PROJECT_SPECS[@]}"
 
-# Remove ALL examples
+echo "Removing ALL examples..."
 if [ -d "examples" ]; then
-  git rm -rf examples
-  echo "Removed: examples/"
+    git rm -rf examples 2>/dev/null || true
+    echo "  ✓ Removed: examples/"
 fi
 
-# Remove ALL example project specs (keep _template and _archive)
-for dir in "${SPEC_PROJECTS_TO_REMOVE[@]}"; do
-  if [ -d "$dir" ]; then
-    git rm -rf "$dir"
-    echo "Removed: $dir"
-  fi
-done
-
-# Also remove hello-swarm and hello-api from specs/projects for minimal
+echo "Removing example project specs..."
+remove_files "${SPEC_PROJECTS_TO_REMOVE[@]}"
 for project in "hello-swarm" "hello-api"; do
-  if [ -d "specs/projects/$project" ]; then
-    git rm -rf "specs/projects/$project"
-    echo "Removed: specs/projects/$project"
-  fi
+    if [ -d "specs/projects/$project" ]; then
+        git rm -rf "specs/projects/$project" 2>/dev/null || true
+        echo "  ✓ Removed: specs/projects/$project"
+    fi
 done
 
 # Create a minimal examples README
@@ -274,45 +252,20 @@ fi
 
 git checkout -b template/with-examples
 
-# Remove investigation artifacts
-for file in "${INVESTIGATION_ARTIFACTS[@]}"; do
-  if [ -e "$file" ]; then
-    git rm -rf "$file"
-    echo "Removed: $file"
-  fi
-done
+echo "Removing investigation artifacts..."
+remove_files "${INVESTIGATION_ARTIFACTS[@]}"
 
-# Remove agent feedback files
-for file in "${AGENT_FEEDBACK_FILES[@]}"; do
-  if [ -e "$file" ]; then
-    git rm -f "$file"
-    echo "Removed: $file"
-  fi
-done
+echo "Removing agent feedback files..."
+remove_files "${AGENT_FEEDBACK_FILES[@]}"
 
-# Remove meta-project specs
-for dir in "${META_PROJECT_SPECS[@]}"; do
-  if [ -d "$dir" ]; then
-    git rm -rf "$dir"
-    echo "Removed: $dir"
-  fi
-done
+echo "Removing meta-project specs..."
+remove_files "${META_PROJECT_SPECS[@]}"
 
-# Remove non-essential examples (keep hello-swarm and hello-api)
-for dir in "${EXAMPLE_PROJECTS_TO_REMOVE[@]}"; do
-  if [ -e "$dir" ]; then
-    git rm -rf "$dir"
-    echo "Removed: $dir"
-  fi
-done
+echo "Removing non-essential examples (keeping hello-swarm and hello-api)..."
+remove_files "${EXAMPLE_PROJECTS_TO_REMOVE[@]}"
 
-# Remove non-essential spec projects (keep hello-swarm and hello-api)
-for dir in "${SPEC_PROJECTS_TO_REMOVE[@]}"; do
-  if [ -d "$dir" ]; then
-    git rm -rf "$dir"
-    echo "Removed: $dir"
-  fi
-done
+echo "Removing non-essential spec projects..."
+remove_files "${SPEC_PROJECTS_TO_REMOVE[@]}"
 
 # Update examples README
 cat > examples/README.md << 'EXEOF'
@@ -435,28 +388,14 @@ fi
 
 git checkout -b template/enterprise
 
-# Remove only investigation artifacts and agent feedback
-for file in "${INVESTIGATION_ARTIFACTS[@]}"; do
-  if [ -e "$file" ]; then
-    git rm -rf "$file"
-    echo "Removed: $file"
-  fi
-done
+echo "Removing investigation artifacts..."
+remove_files "${INVESTIGATION_ARTIFACTS[@]}"
 
-for file in "${AGENT_FEEDBACK_FILES[@]}"; do
-  if [ -e "$file" ]; then
-    git rm -f "$file"
-    echo "Removed: $file"
-  fi
-done
+echo "Removing agent feedback files..."
+remove_files "${AGENT_FEEDBACK_FILES[@]}"
 
-# Remove meta-project specs
-for dir in "${META_PROJECT_SPECS[@]}"; do
-  if [ -d "$dir" ]; then
-    git rm -rf "$dir"
-    echo "Removed: $dir"
-  fi
-done
+echo "Removing meta-project specs..."
+remove_files "${META_PROJECT_SPECS[@]}"
 
 # Update README for enterprise template
 cat > README.md << 'READMEEOF'
