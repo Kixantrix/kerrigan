@@ -238,11 +238,16 @@ git rebase origin/main
 # Resolve conflicts (if any)
 # Edit files, then:
 git add .
-git rebase --continue
+
+# CRITICAL: Always set GIT_EDITOR='true' to prevent entering interactive editor mode
+# This avoids agent stalls caused by nano/vi waiting for input
+GIT_EDITOR='true' git rebase --continue
 
 # Force push
 git push --force-with-lease
 ```
+
+**Important Note:** Always use `GIT_EDITOR='true'` before `git rebase --continue` to prevent the agent from entering interactive editor mode (nano/vi), which causes complete workflow stalls. The `true` command exits immediately, allowing git to use default commit messages.
 
 ### 6. Restart Stalled Agents
 
@@ -261,6 +266,12 @@ gh pr view <PR#>
 # May need manual rebase if agent hit sandboxing limits
 gh pr checkout <PR#>
 git rebase origin/main
+
+# If there are conflicts, resolve them and continue:
+git add .
+# CRITICAL: Always use GIT_EDITOR='true' to prevent interactive editor stalls
+GIT_EDITOR='true' git rebase --continue
+
 git push --force-with-lease
 
 # Comment again
@@ -646,3 +657,4 @@ When to escalate to project maintainer:
 - [Agent Assignment](../docs/agent-assignment.md) - Role label usage
 - [GitHub Labels](../docs/github-labels.md) - Label definitions
 - [Quality Bar](../specs/kerrigan/030-quality-bar.md) - Quality standards
+- [Git Best Practices](../docs/git-best-practices.md) - Preventing interactive editor stalls and git operation guidelines
