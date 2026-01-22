@@ -24,6 +24,10 @@ tools/.audit/
 self-improvement-report.md
 analysis-results.json
 
+# Research cache (external research findings)
+.research_cache/
+.test_research_cache/
+
 # Prompt URL cache (see specs/kerrigan/040-toolchain-and-ops.md)
 .kerrigan/
 prompt-cache/
