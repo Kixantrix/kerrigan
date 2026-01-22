@@ -32,7 +32,7 @@ specs/projects/design-system-playground/
 └── runbook.md             # Usage and deployment guide
 ```
 
-## Component Architecture
+## Components & interfaces
 
 ### 1. Navigation Bar
 - Fixed header with playground branding
@@ -121,6 +121,13 @@ CSS custom properties enable theme switching:
 - Safari 14+
 - Edge 90+
 
+## Tradeoffs
+
+- **Vanilla JS vs Framework**: Chose vanilla JavaScript for simplicity and no build step, at the cost of some developer convenience
+- **Static vs Dynamic**: Static hosting simplifies deployment but limits dynamic content generation
+- **No syntax highlighting library**: Keeps bundle minimal but code display is less readable
+- **LocalStorage only**: Simple persistence but no cross-device sync
+
 ## Extensibility
 
 - Component catalog can be extended by adding new sections
@@ -128,9 +135,10 @@ CSS custom properties enable theme switching:
 - Theme system can support more than 2 themes
 - Code viewer can be enhanced with syntax highlighting libraries
 
-## Security
+## Security & privacy notes
 
 - No user input processing (static content)
 - No external data fetching
 - No cookies or tracking
 - Safe to deploy as static files
+- Theme preference stored only in browser localStorage
