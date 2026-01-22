@@ -35,6 +35,16 @@ Implement one milestone at a time following the project plan. Keep PRs small and
 
 These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
 
+## Relevant Skills
+
+Review these skills to understand Kerrigan patterns and standards:
+
+- **[Artifact Contracts](../../skills/meta/artifact-contracts.md)** - Required file structure and validation rules
+- **[Agent Handoffs](../../skills/meta/agent-handoffs.md)** - How to consume architect artifacts and prepare for testing agent
+- **[Quality Bar](../../skills/meta/quality-bar.md)** - File size limits, testing standards, code quality requirements
+
+These skills provide quick reference material for common patterns. Reference them as needed during implementation.
+
 ## Core Principles
 
 1. **Link to project context**: Reference the project folder and specific milestone/task

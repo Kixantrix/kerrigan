@@ -30,6 +30,16 @@ Read the project spec folder and design the system architecture and implementati
 
 These specifications define your quality standards and expected behaviors. **Review them to ensure compliance.**
 
+## Relevant Skills
+
+Review these skills to understand Kerrigan patterns and standards:
+
+- **[Artifact Contracts](../../skills/meta/artifact-contracts.md)** - Required file structure, naming conventions, and validation rules
+- **[Agent Handoffs](../../skills/meta/agent-handoffs.md)** - How to consume spec artifacts and prepare for SWE agent
+- **[Quality Bar](../../skills/meta/quality-bar.md)** - Quality standards for architecture and task planning
+
+These skills provide quick reference material for common patterns. Reference them as needed during architecture design.
+
 ## Required Deliverables
 
 1. **`architecture.md`** with these exact sections (case-sensitive):

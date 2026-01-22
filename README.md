@@ -60,6 +60,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
 - **[CLI Reference](docs/cli-reference.md)**: Command-line tool for project management
 - **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
+- **[Skills Library](skills/README.md)**: Reusable knowledge and patterns for agents
 - **[Project Directory](docs/project-directory.md)**: Overview of all projects and their status
 - **[Agent Auditing](docs/agent-auditing.md)**: Verify agents are using their specific prompts
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
@@ -145,6 +146,10 @@ kerrigan/
 │   ├── setup.md            # Step-by-step setup guide
 │   └── FAQ.md              # Frequently asked questions
 ├── playbooks/               # Process guides (kickoff, handoffs, autonomy modes)
+├── skills/                  # Reusable knowledge and patterns for agents
+│   ├── meta/               # Kerrigan-specific skills (artifacts, handoffs, quality)
+│   ├── testing/            # Universal testing patterns
+│   └── architecture/       # Architecture and design patterns
 ├── specs/
 │   ├── constitution.md      # Core principles
 │   ├── kerrigan/           # Meta-specs (how Kerrigan works)
