@@ -87,16 +87,17 @@ proposed_solution: |
   ```
 
 # METADATA (leave blank for new feedback)
-status: "open"
+status: "implemented"
 reviewed_by: "copilot"
 reviewed_date: "2026-01-22"
-implementation_pr: null
+implementation_pr: "copilot/audit-feedback-files-status"
 notes: |
-  Audited 2026-01-22: The ready_for_review trigger has NOT been added to workflow files.
-  Checked .github/workflows/ci.yml and it still only has: opened, synchronize, reopened.
-  This remains an open issue that should be addressed.
+  Audited 2026-01-22: The ready_for_review trigger has NOW been added to workflow files.
   
-  Recommended action: Add ready_for_review to pull_request types in all workflow files:
-  - .github/workflows/ci.yml
-  - .github/workflows/agent-gates.yml
-  - .github/workflows/agent-spec-compliance.yml
+  IMPLEMENTED 2026-01-22: Added ready_for_review to pull_request types in:
+  - .github/workflows/ci.yml (line 5)
+  - .github/workflows/agent-gates.yml (line 5)
+  - .github/workflows/agent-spec-compliance.yml (line 5)
+  
+  This resolves the issue where converting draft PRs to ready for review didn't
+  trigger CI checks. The workaround (close and reopen) is no longer needed.
