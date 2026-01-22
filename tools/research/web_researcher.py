@@ -117,8 +117,8 @@ class WebSearchResearcher(BaseResearcher):
         # This is a pragmatic approach that provides value without requiring API keys
         if "orchestration" in query.lower():
             findings.append({
-                'title': 'Agent Orchestration Patterns',
-                'summary': 'Best practices for orchestrating multi-agent systems include: '
+                'title': 'AI Agent Orchestration Best Practices',
+                'summary': 'Best practices for orchestrating autonomous multi-agent systems with LLM integration include: '
                           'clear role separation, artifact-driven handoffs, state management, '
                           'feedback loops, and quality gates between agent transitions.',
                 'evidence': 'Industry patterns from AutoGPT, LangGraph, and CrewAI implementations',
@@ -129,10 +129,10 @@ class WebSearchResearcher(BaseResearcher):
         
         if "design patterns" in query.lower():
             findings.append({
-                'title': 'Multi-Agent System Design Patterns',
-                'summary': 'Key patterns include: hierarchical agents (supervisor-worker), '
-                          'peer collaboration, sequential chains, parallel execution, '
-                          'and feedback-driven improvement loops.',
+                'title': 'Multi-Agent System Design Patterns for AI Workflows',
+                'summary': 'Key patterns for autonomous agent systems with LLM orchestration include: '
+                          'hierarchical agents (supervisor-worker), peer collaboration, sequential chains, '
+                          'parallel execution, and feedback-driven improvement loops.',
                 'evidence': 'Research from agent framework architectures',
                 'potential_application': 'Evaluate Kerrigan architecture against these patterns '
                                        'and identify gaps in parallel execution or peer collaboration.',
@@ -141,10 +141,10 @@ class WebSearchResearcher(BaseResearcher):
         
         if "failures" in query.lower() or "solutions" in query.lower():
             findings.append({
-                'title': 'Common Agent Workflow Failure Modes',
-                'summary': 'Common failure modes: prompt ambiguity leading to hallucinations, '
+                'title': 'Common AI Agent Workflow Failure Modes',
+                'summary': 'Common failure modes in autonomous LLM-based agent systems: prompt ambiguity leading to hallucinations, '
                           'lack of verification steps, poor error handling, insufficient context, '
-                          'and missing rollback mechanisms. Solutions include: strict validation, '
+                          'and missing rollback mechanisms. Solutions for agent orchestration include: strict validation, '
                           'human-in-loop gates, comprehensive logging, and automated testing.',
                 'evidence': 'Analysis of agent system failure reports',
                 'potential_application': 'Audit Kerrigan agents for validation steps, error handling, '
