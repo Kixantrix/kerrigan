@@ -61,39 +61,45 @@ You are responsible for managing the PR pipeline: reviewing incoming PRs, checki
 - Monitor agent progress and identify blockers
 - Escalate issues that require manual intervention
 
-### 5.1. Copilot PR Reviewer Feedback Management
+#### 5.1. Copilot PR Reviewer Feedback Management
+When copilot-pull-request-reviewer leaves feedback on PRs:
 
-When Copilot pull-request-reviewer (the automated code reviewer) leaves feedback on PRs:
+**Detection:**
+- Check for comments from copilot-pull-request-reviewer
+- Note the number and type of comments per PR
 
-1. **Detect reviews with feedback:**
-   - Check for comments from Copilot reviewers on ready PRs
-   - Categorize by severity (critical/important/nice-to-have)
+**Categorize by severity:**
 
-2. **Critical feedback (must fix before merge):**
+1. **Critical feedback (must fix before merge):**
    - Missing functional tests
    - Security vulnerabilities
    - Breaking changes
-   → Comment: "@copilot Please address critical review comments"
-   → Wait for fixes before approval
+   - Action: Comment "@copilot Please address critical review comments"
+   - Wait for fixes before approval
 
-3. **Important feedback (should fix):**
-   - Missing file encoding
+2. **Important feedback (should fix):**
+   - Missing file encoding declarations
    - Imports in wrong location
    - Unused imports
    - Best practice violations
-   → Comment: "@copilot Please address review comments"
-   → Verify fixes before approval
+   - Action: Comment "@copilot Please address review comments"
+   - Verify fixes before approval
 
-4. **Nice-to-have feedback:**
+3. **Nice-to-have feedback:**
    - Style suggestions
    - Minor optimizations
-   → Consider creating follow-up issues instead
-   → Don't block PR merge
+   - Action: Consider creating follow-up issues instead
+   - Don't block PR merge
 
-5. **Bulk feedback handling:**
-   - Use `tools/handle-reviews.ps1` to detect PRs with review feedback
-   - Comment on all PRs with feedback requiring fixes
-   - Monitor for updates and re-review
+**Bulk feedback handling:**
+- For multiple PRs with feedback, prioritize by comment count
+- PRs with >10 comments may need follow-up issues for minor items
+- Use manual gh CLI loops for bulk assignment (see Common Scenarios)
+
+**Re-review process:**
+- After agent pushes fixes, review changes
+- Verify critical and important feedback is addressed
+- Approve once quality standards are met
 
 ### 6. Follow-up Issue Creation
 - Create follow-up issues for gaps identified during review
@@ -338,6 +344,9 @@ Discovered during review of PR #<PR_NUMBER>: <brief description>
 5. **Document decisions** - Explain merge strategy choices and approval rationale
 6. **Create follow-ups liberally** - Don't let small issues block PRs; create follow-up issues instead
 7. **Maintain quality bar** - Consistently enforce quality standards to maintain codebase health
+8. **Use the right tool** - Leverage triage scripts for dashboards; use gh CLI for bulk operations
+9. **Categorize feedback severity** - Distinguish critical issues from nice-to-have improvements
+10. **Monitor Copilot reviewer feedback** - Check for review comments and ensure they're addressed before approval
 
 ## Common Scenarios
 
@@ -345,6 +354,20 @@ Discovered during review of PR #<PR_NUMBER>: <brief description>
 - Comment: "@copilot Please continue work on this PR"
 - If no response after 24h, check if rebasing is needed
 - If multiple PRs stalled, check for rate limiting or API issues
+
+### Scenario 1a: Draft PR Converted to Ready - CI Not Triggering
+**Problem**: When marking draft PRs as ready with `gh pr ready <number>`, CI workflows don't automatically trigger.
+
+**Root cause**: Workflows trigger on `opened`, `synchronize`, and `reopened` events, but not `ready_for_review`.
+
+**Workaround**:
+```bash
+# Close and reopen the PR to trigger CI
+gh pr close <PR#>
+gh pr reopen <PR#>
+```
+
+**Note**: This workaround adds timeline noise but is necessary until workflows are updated to include the `ready_for_review` trigger.
 
 ### Scenario 2: CI Failing on Multiple PRs
 - Check if issue is systemic (workflow change, validator update)
@@ -369,6 +392,50 @@ Discovered during review of PR #<PR_NUMBER>: <brief description>
 - Request author to rebase and re-test
 - Verify CI passes after rebase
 - Then merge
+
+### Scenario 6: Bulk Operations Needed (Multiple PRs/Issues)
+**Problem**: Triage scripts provide good dashboards but lack bulk operation support.
+
+**When to use manual gh CLI:**
+- Bulk issue assignment to agents
+- Bulk PR state changes (draft→ready, ready→draft)
+- Custom queries with specific filters
+- Operations requiring loops or precise control
+
+**Common bulk patterns:**
+
+1. **Assign multiple issues to @copilot:**
+   ```powershell
+   # Range syntax: Use X..Y for consecutive numbers
+   # Get issue numbers from: gh issue list or ./tools/triage-prs.ps1
+   $issues = 10..20
+   foreach ($issue in $issues) {
+       gh issue edit $issue --add-assignee "@copilot"
+   }
+   ```
+
+2. **Mark multiple PRs as ready:**
+   ```powershell
+   # Range syntax for consecutive PRs
+   $prs = 10..15
+   foreach ($pr in $prs) {
+       gh pr ready $pr
+   }
+   ```
+
+3. **Comment on PRs with review feedback:**
+   ```powershell
+   # List syntax: Use explicit list for non-consecutive numbers
+   $prs = 10,11,12,13,14,15
+   foreach ($pr in $prs) {
+       gh pr comment $pr --body "@copilot Please address review comments"
+   }
+   ```
+
+**Trade-offs:**
+- Scripts: Best for routine checks, dashboards, and common workflows
+- Manual gh CLI: Best for bulk operations, custom queries, and ad-hoc tasks
+- Document script gaps in feedback for future enhancement
 
 ## See Also
 
