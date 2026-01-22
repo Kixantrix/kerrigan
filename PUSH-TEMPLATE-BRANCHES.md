@@ -4,10 +4,16 @@ The template branches have been created locally but need to be pushed to GitHub.
 
 ## Current Status
 
-✅ The following branches exist locally:
-- `template/minimal`
-- `template/with-examples`
-- `template/enterprise`
+✅ The following branches exist locally and are ready to push:
+- `template/minimal` - Core framework only (0 examples)
+- `template/with-examples` - Core + 2 examples (hello-swarm, hello-api)
+- `template/enterprise` - Core + all 9 examples
+
+✅ All branches verified:
+- Investigation artifacts removed (MILESTONE-*.md, etc.)
+- Agent feedback history removed (except TEMPLATE.yaml)
+- Meta-project specs removed (specs/kerrigan/agents/, specs/projects/kerrigan/)
+- Appropriate examples included per template level
 
 ## Required Action
 
