@@ -115,6 +115,13 @@ This script:
 - Provides: Full user permissions
 - Use case: Local automation scripts, not CI/CD
 
+**PowerShell Version Requirements** (for local scripts):
+- ⚠️ Minimum: PowerShell 5.1
+- ✅ Recommended: PowerShell 7+
+- Known issues: PowerShell 5.1 has Unicode parsing limitations
+- All scripts include `#Requires -Version 5.1` directive
+- See: `docs/powershell-style-guide.md` for compatibility guidelines
+
 **GitHub App Authentication** (advanced):
 - ⚠️ Complex setup, not yet implemented
 - Could provide elevated permissions

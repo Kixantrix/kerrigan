@@ -31,6 +31,8 @@ jobs:
           python tools/validators/show_status.py
 
       - name: Run validators
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           python tools/validators/check_artifacts.py
           python tools/validators/check_quality_bar.py
