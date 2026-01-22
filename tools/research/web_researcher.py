@@ -5,8 +5,6 @@ This module researches AI agent best practices through web search.
 
 import hashlib
 import json
-import os
-import subprocess
 import time
 from pathlib import Path
 from typing import Any, Dict, List
@@ -108,8 +106,6 @@ class WebSearchResearcher(BaseResearcher):
         Returns:
             List of findings from the search
         """
-        # Create findings based on known best practices
-        # This is a pragmatic approach that provides value without requiring API keys
         findings = []
         
         # Create synthetic findings based on known best practices
