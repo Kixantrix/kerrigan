@@ -11,6 +11,57 @@ Preferred:
 - Clear commit messages
 - Screenshots/logs for UX changes (when applicable)
 
+## Handling Copilot PR Reviewer Feedback
+
+When the Copilot pull-request-reviewer bot leaves feedback on PRs:
+
+### Detection
+Check for review comments from Copilot reviewers:
+```bash
+# View all review comments
+gh pr view <PR#>
+
+# List PRs with review feedback
+.\tools\handle-reviews.ps1
+```
+
+### Categorization
+
+**Critical feedback (must fix before merge):**
+- Missing functional tests
+- Security vulnerabilities
+- Breaking changes
+
+**Important feedback (should fix):**
+- Missing file encoding
+- Imports in wrong location
+- Unused imports
+- Best practice violations
+
+**Nice-to-have feedback:**
+- Style suggestions
+- Minor optimizations
+
+### Actions
+
+**For critical/important feedback:**
+```bash
+# Assign agent to fix
+gh pr comment <PR#> --body "@copilot Please address all review comments"
+
+# Or use bulk tool
+.\tools\handle-reviews.ps1 -AssignFixes
+```
+
+**For nice-to-have feedback:**
+- Consider creating follow-up issues
+- Don't block PR merge
+
+**Verification:**
+- Monitor for new commits addressing feedback
+- Re-review after fixes
+- Merge when addressed or create follow-up issues
+
 ## Agent Spec Compliance
 
 PRs created by agents are subject to additional compliance checks to ensure agents follow their specifications:

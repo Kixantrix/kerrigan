@@ -11,13 +11,15 @@ The feedback system enables agents to report friction points, unclear instructio
 ```
 feedback/
 ├── README.md                    # This file
-├── agent-feedback/              # Active feedback submissions
+├── agent-feedback/              # Feedback submissions
 │   ├── README.md               # Submission guidelines
-│   └── TEMPLATE.yaml           # Feedback template
-└── processed/                   # Archived processed feedback
-    ├── README.md               # Archive documentation
-    └── *.yaml                  # Processed feedback files
+│   ├── TEMPLATE.yaml           # Feedback template
+│   └── *.yaml                  # Feedback files (all periods)
+└── design-feedback/             # Design-specific feedback
+    └── *.yaml                  # Design feedback files
 ```
+
+**Note:** Feedback files remain in `agent-feedback/` indefinitely. The daily self-improvement workflow uses date-based filtering (`--since-days 7`) to automatically skip older feedback during analysis. Files older than 30 days should be periodically deleted to keep the directory manageable.
 
 ## Quick Start
 
@@ -42,9 +44,9 @@ feedback/
 
 2. **Review and triage**: Follow `playbooks/feedback-review.md`
 
-3. **Take action**: Update prompts, contracts, or playbooks
+3. **Take action**: Update prompts, contracts, or playbooks based on analysis
 
-4. **Archive**: Move processed feedback to `processed/` with status updates
+4. **Monitor automated workflow**: Daily self-improvement workflow creates issues for high/medium priority items
 
 ## Feedback Categories
 
