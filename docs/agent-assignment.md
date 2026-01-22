@@ -112,7 +112,7 @@ The `triage_mappings` section enables **reverse assignment**: when specified use
 
 **Example:**
 ```bash
-gh issue edit 123 --add-assignee copilot
+gh issue edit 123 --add-assignee "@copilot"
 # Automatically adds role:swe label
 ```
 
@@ -172,7 +172,7 @@ gh issue edit 123 --add-assignee alice
 When copilot is assigned, role labels are automatically added:
 ```bash
 # Create issue and assign copilot
-gh issue create --title "Fix login bug" --assignee copilot
+gh issue create --title "Fix login bug" --assignee "@copilot"
 
 # Result: Automatically adds role:swe label
 # This indicates which agent prompt should be used
