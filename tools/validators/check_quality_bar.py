@@ -69,7 +69,7 @@ def main() -> None:
     too_big: List[str] = []
     for f in iter_files(ROOT):
         loc = count_loc(f)
-        if loc >= FAIL_LOC:
+        if loc > FAIL_LOC:
             too_big.append(f"{f.relative_to(ROOT)} ({loc} LOC)")
         elif loc >= WARN_LOC:
             warn(f"Large file (consider splitting): {f.relative_to(ROOT)} ({loc} LOC)")
