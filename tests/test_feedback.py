@@ -69,7 +69,7 @@ class TestFeedbackTemplate(unittest.TestCase):
 
     def test_template_contains_required_fields(self):
         """Test that template documents all required fields"""
-        with open(self.template_path, 'r') as f:
+        with open(self.template_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         required_fields = [
@@ -88,7 +88,7 @@ class TestFeedbackTemplate(unittest.TestCase):
 
     def test_template_documents_categories(self):
         """Test that template documents all feedback categories"""
-        with open(self.template_path, 'r') as f:
+        with open(self.template_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         categories = [
@@ -107,7 +107,7 @@ class TestFeedbackTemplate(unittest.TestCase):
 
     def test_template_documents_severities(self):
         """Test that template documents all severity levels"""
-        with open(self.template_path, 'r') as f:
+        with open(self.template_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         severities = ["low", "medium", "high"]
@@ -118,7 +118,7 @@ class TestFeedbackTemplate(unittest.TestCase):
 
     def test_template_documents_statuses(self):
         """Test that template documents all status values"""
-        with open(self.template_path, 'r') as f:
+        with open(self.template_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         statuses = ["new", "reviewed", "implemented", "wont_fix"]
@@ -163,7 +163,7 @@ class TestFeedbackFiles(unittest.TestCase):
         
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
-                with open(feedback_file, 'r') as f:
+                with open(feedback_file, "r", encoding="utf-8") as f:
                     try:
                         yaml.safe_load(f)
                     except yaml.YAMLError as e:
@@ -182,7 +182,7 @@ class TestFeedbackFiles(unittest.TestCase):
 
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
-                with open(feedback_file, 'r') as f:
+                with open(feedback_file, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                 
                 # Check that either old or new schema fields are present
@@ -203,7 +203,7 @@ class TestFeedbackFiles(unittest.TestCase):
         
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
-                with open(feedback_file, 'r') as f:
+                with open(feedback_file, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                 
                 # Support both old schema (agent) and new schema (agent_role)
@@ -219,7 +219,7 @@ class TestFeedbackFiles(unittest.TestCase):
         
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
-                with open(feedback_file, 'r') as f:
+                with open(feedback_file, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                 
                 if "category" in data:
@@ -233,7 +233,7 @@ class TestFeedbackFiles(unittest.TestCase):
         
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
-                with open(feedback_file, 'r') as f:
+                with open(feedback_file, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                 
                 if "severity" in data:
@@ -246,7 +246,7 @@ class TestFeedbackFiles(unittest.TestCase):
         
         for feedback_file in processed_files:
             with self.subTest(file=feedback_file.name):
-                with open(feedback_file, 'r') as f:
+                with open(feedback_file, "r", encoding="utf-8") as f:
                     data = yaml.safe_load(f)
                 
                 self.assertIn("status", data,
@@ -288,7 +288,7 @@ class TestAgentPromptFeedbackSections(unittest.TestCase):
 
         for prompt_file in role_prompts:
             with self.subTest(file=prompt_file.name):
-                with open(prompt_file, 'r') as f:
+                with open(prompt_file, "r", encoding="utf-8") as f:
                     content = f.read()
                 
                 # Check for feedback mention (case-insensitive)
@@ -302,7 +302,7 @@ class TestAgentPromptFeedbackSections(unittest.TestCase):
         """Test that Kerrigan prompt mentions feedback processing responsibility"""
         kerrigan_prompt = self.agents_dir / "kerrigan.swarm-shaper.md"
         
-        with open(kerrigan_prompt, 'r') as f:
+        with open(kerrigan_prompt, "r", encoding="utf-8") as f:
             content = f.read().lower()
         
         self.assertIn("feedback", content,
@@ -322,7 +322,7 @@ class TestDocumentationReferences(unittest.TestCase):
         """Test that README mentions agent feedback"""
         readme = self.repo_root / "README.md"
         
-        with open(readme, 'r') as f:
+        with open(readme, "r", encoding="utf-8") as f:
             content = f.read()
         
         self.assertIn("080-agent-feedback.md", content,
@@ -332,7 +332,7 @@ class TestDocumentationReferences(unittest.TestCase):
         """Test that agents README mentions feedback"""
         agents_readme = self.repo_root / ".github" / "agents" / "README.md"
         
-        with open(agents_readme, 'r') as f:
+        with open(agents_readme, "r", encoding="utf-8") as f:
             content = f.read()
         
         self.assertIn("Agent Feedback", content,
@@ -344,7 +344,7 @@ class TestDocumentationReferences(unittest.TestCase):
         """Test that handoffs playbook mentions feedback"""
         handoffs = self.repo_root / "playbooks" / "handoffs.md"
         
-        with open(handoffs, 'r') as f:
+        with open(handoffs, "r", encoding="utf-8") as f:
             content = f.read()
         
         self.assertIn("feedback", content.lower(),

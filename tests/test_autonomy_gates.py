@@ -17,7 +17,7 @@ class TestAutonomyGatesWorkflow(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_workflow_exists(self):
         """Test that agent-gates.yml workflow exists"""
@@ -51,7 +51,7 @@ class TestOnDemandMode(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_checks_for_agent_go_label(self):
         """Test that workflow checks for agent:go label"""
@@ -106,7 +106,7 @@ class TestSprintMode(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_checks_for_agent_sprint_label(self):
         """Test that workflow checks for agent:sprint label"""
@@ -145,7 +145,7 @@ class TestOverrideMode(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_checks_for_autonomy_override_label(self):
         """Test that workflow checks for autonomy:override label"""
@@ -179,7 +179,7 @@ class TestFallbackMode(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_checks_pr_labels_when_no_issues(self):
         """Test that workflow checks PR labels when no linked issues found"""
@@ -212,7 +212,7 @@ class TestEdgeCases(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_handles_issue_fetch_errors(self):
         """Test that workflow handles errors when fetching issue data"""
@@ -267,7 +267,7 @@ class TestLabelCombinations(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_override_has_highest_priority(self):
         """Test that autonomy:override has highest priority"""
@@ -305,8 +305,8 @@ class TestDocumentationAlignment(unittest.TestCase):
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
         self.playbook_path = repo_root / "playbooks" / "autonomy-modes.md"
-        self.workflow_content = self.workflow_path.read_text()
-        self.playbook_content = self.playbook_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
+        self.playbook_content = self.playbook_path.read_text(encoding="utf-8")
 
     def test_playbook_documents_all_modes(self):
         """Test that playbook documents all three autonomy modes"""
@@ -346,7 +346,7 @@ class TestWorkflowLogging(unittest.TestCase):
         """Set up workflow path"""
         repo_root = Path(__file__).resolve().parent.parent
         self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-        self.workflow_content = self.workflow_path.read_text()
+        self.workflow_content = self.workflow_path.read_text(encoding="utf-8")
 
     def test_logs_pr_information(self):
         """Test that workflow logs PR number and title"""

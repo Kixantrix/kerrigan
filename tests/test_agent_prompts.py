@@ -27,7 +27,7 @@ class TestAgentPromptStructure(unittest.TestCase):
         """Test that all agent prompts check status.json before starting work"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Check for status.json checking instructions
                 self.assertIn("status.json", content,
@@ -45,7 +45,7 @@ class TestAgentPromptStructure(unittest.TestCase):
         """Test that all agent prompts clearly define their role"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should have a "Your Role" or "Role" section
                 self.assertTrue(
@@ -57,7 +57,7 @@ class TestAgentPromptStructure(unittest.TestCase):
         """Test that all agent prompts specify deliverables or outputs"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should mention deliverables, outputs, or artifacts
                 has_deliverables = any(term in content for term in [
@@ -76,7 +76,7 @@ class TestAgentPromptStructure(unittest.TestCase):
         """Test that all agent prompts include guidelines or principles"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should have guidelines, principles, standards, workflow, or checklist section
                 has_guidance = any(term in content for term in [
@@ -96,7 +96,7 @@ class TestAgentPromptStructure(unittest.TestCase):
         """Test that all agent prompts use markdown format"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should have markdown headers (anywhere in the document)
                 self.assertRegex(content, r'##?\s+\w+', 
@@ -117,7 +117,7 @@ class TestAgentPromptContent(unittest.TestCase):
         if not spec_prompt.exists():
             self.skipTest("Spec agent prompt not found")
         
-        content = spec_prompt.read_text()
+        content = spec_prompt.read_text(encoding="utf-8")
         
         # Check for required spec.md sections
         required_sections = [
@@ -141,7 +141,7 @@ class TestAgentPromptContent(unittest.TestCase):
         if not swe_prompt.exists():
             self.skipTest("SWE agent prompt not found")
         
-        content = swe_prompt.read_text()
+        content = swe_prompt.read_text(encoding="utf-8")
         
         # Should emphasize testing
         test_keywords = ["test", "Test", "testing", "TDD"]
@@ -160,7 +160,7 @@ class TestAgentPromptContent(unittest.TestCase):
         if not architect_prompt.exists():
             self.skipTest("Architect agent prompt not found")
         
-        content = architect_prompt.read_text()
+        content = architect_prompt.read_text(encoding="utf-8")
         
         # Should mention key deliverables
         deliverables = ["architecture.md", "plan.md"]
@@ -175,7 +175,7 @@ class TestAgentPromptContent(unittest.TestCase):
         if not testing_prompt.exists():
             self.skipTest("Testing agent prompt not found")
         
-        content = testing_prompt.read_text()
+        content = testing_prompt.read_text(encoding="utf-8")
         
         # Should mention coverage
         self.assertIn("coverage", content.lower(),
@@ -198,7 +198,7 @@ class TestAgentPromptArtifactAlignment(unittest.TestCase):
         if not self.artifact_contract.exists():
             self.fail("Artifact contract document not found")
         
-        self.contract_content = self.artifact_contract.read_text()
+        self.contract_content = self.artifact_contract.read_text(encoding="utf-8")
 
     def test_spec_agent_deliverables_match_contract(self):
         """Test that spec agent deliverables match artifact contract"""
@@ -206,7 +206,7 @@ class TestAgentPromptArtifactAlignment(unittest.TestCase):
         if not spec_prompt.exists():
             self.skipTest("Spec agent prompt not found")
         
-        content = spec_prompt.read_text()
+        content = spec_prompt.read_text(encoding="utf-8")
         
         # From artifact contract: spec agent should produce spec.md and acceptance-tests.md
         self.assertIn("spec.md", content,
@@ -220,7 +220,7 @@ class TestAgentPromptArtifactAlignment(unittest.TestCase):
         if not architect_prompt.exists():
             self.skipTest("Architect agent prompt not found")
         
-        content = architect_prompt.read_text()
+        content = architect_prompt.read_text(encoding="utf-8")
         
         # From artifact contract: architect should produce architecture.md, plan.md, tasks.md, test-plan.md
         # Testing core deliverables that are always required
@@ -236,7 +236,7 @@ class TestAgentPromptArtifactAlignment(unittest.TestCase):
         if not deploy_prompt.exists():
             self.skipTest("Deployment agent prompt not found")
         
-        content = deploy_prompt.read_text()
+        content = deploy_prompt.read_text(encoding="utf-8")
         
         # From artifact contract: deployment agent should produce runbook.md
         self.assertIn("runbook.md", content,
@@ -256,7 +256,7 @@ class TestAgentPromptExamples(unittest.TestCase):
         """Test that agent prompts include examples or common patterns"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should have examples, patterns, or common sections
                 has_examples = any(term in content for term in [
@@ -275,7 +275,7 @@ class TestAgentPromptExamples(unittest.TestCase):
         """Test that agent prompts warn about common mistakes"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should mention mistakes, avoid, or common errors
                 has_warnings = any(term in content for term in [
@@ -307,7 +307,7 @@ class TestAgentPromptConsistency(unittest.TestCase):
         
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should use consistent naming
                 self.assertRegex(content, status_check_pattern,
@@ -317,7 +317,7 @@ class TestAgentPromptConsistency(unittest.TestCase):
         """Test that all agents clearly identify their role at the start"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 lines = content.split('\n')
                 
                 # First few lines should identify the agent role
@@ -384,7 +384,7 @@ class TestAgentPromptCompleteness(unittest.TestCase):
         if not readme.exists():
             self.skipTest("README not found")
         
-        readme_content = readme.read_text()
+        readme_content = readme.read_text(encoding="utf-8")
         role_prompts = list(self.agents_dir.glob("role.*.md"))
         
         for prompt_file in role_prompts:
@@ -412,7 +412,7 @@ class TestAgentSignatureInPrompts(unittest.TestCase):
         """Test that all agent prompts include agent signature section"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should have an "Agent Signature" section
                 self.assertIn("Agent Signature", content,
@@ -422,7 +422,7 @@ class TestAgentSignatureInPrompts(unittest.TestCase):
         """Test that all agent prompts mention AGENT_SIGNATURE format"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should mention the signature comment format
                 self.assertIn("AGENT_SIGNATURE", content,
@@ -432,7 +432,7 @@ class TestAgentSignatureInPrompts(unittest.TestCase):
         """Test that agent prompts reference their correct role in signature examples"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Extract expected role from filename (e.g., role.spec.md -> role:spec)
                 role_name = prompt_file.stem.replace('role.', '')
@@ -450,7 +450,7 @@ class TestAgentSignatureInPrompts(unittest.TestCase):
         """Test that agent prompts mention the agent_audit.py tool"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
-                content = prompt_file.read_text()
+                content = prompt_file.read_text(encoding="utf-8")
                 
                 # Should mention the audit tool for generating signatures
                 self.assertIn("agent_audit.py", content,

@@ -56,7 +56,7 @@ class FeedbackAnalyzer:
         
         for feedback_file in feedback_files:
             try:
-                with open(feedback_file, 'r') as f:
+                with open(feedback_file, "r", encoding="utf-8") as f:
                     content = f.read()
                     # Skip template file
                     if 'TEMPLATE' in feedback_file.name or 'Copy this template' in content:
@@ -209,7 +209,7 @@ class RetrospectiveAnalyzer:
         
         for retro_file in retro_files:
             try:
-                with open(retro_file, 'r') as f:
+                with open(retro_file, "r", encoding="utf-8") as f:
                     content = f.read()
                     
                     # Extract key sections

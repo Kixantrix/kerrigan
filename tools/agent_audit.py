@@ -92,7 +92,7 @@ class AuditLog:
     def _load(self) -> None:
         """Load existing audit log."""
         try:
-            with open(self.log_path, 'r') as f:
+            with open(self.log_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 self.entries = data.get('entries', [])
         except (json.JSONDecodeError, IOError) as e:
@@ -321,7 +321,7 @@ def check_spec_references(repo_root: Path = None) -> tuple[bool, List[str]]:
             issues.append(f"Agent role file not found: {role_path}")
             continue
         
-        role_content = role_path.read_text()
+        role_content = role_path.read_text(encoding="utf-8")
         
         # Check if the role file references its spec files
         expected_references = [
@@ -499,7 +499,7 @@ if __name__ == "__main__":
             print(f"Error: File not found: {pr_body_file}")
             sys.exit(1)
         
-        pr_body = pr_body_file.read_text()
+        pr_body = pr_body_file.read_text(encoding="utf-8")
         is_valid, errors = validate_pr_signature(pr_body)
         
         if is_valid:
@@ -558,7 +558,7 @@ if __name__ == "__main__":
         if len(sys.argv) > 3:
             pr_body_file = Path(sys.argv[3])
             if pr_body_file.exists():
-                pr_body = pr_body_file.read_text()
+                pr_body = pr_body_file.read_text(encoding="utf-8")
             else:
                 print(f"Warning: PR body file not found: {pr_body_file}")
         

@@ -16,7 +16,7 @@ class TestReviewersConfig(unittest.TestCase):
         config_path = repo_root / ".github" / "automation" / "reviewers.json"
         
         try:
-            self.config = json.loads(config_path.read_text())
+            self.config = json.loads(config_path.read_text(encoding="utf-8"))
         except FileNotFoundError:
             self.fail(f"Configuration file not found: {config_path}")
         except json.JSONDecodeError as e:
@@ -88,7 +88,7 @@ class TestTasksFormat(unittest.TestCase):
         pattern = re.compile(r'<!--\s*AUTO-ISSUE:\s*(.+?)\s*-->')
         
         for tasks_file in self.tasks_files:
-            content = tasks_file.read_text()
+            content = tasks_file.read_text(encoding="utf-8")
             markers = pattern.findall(content)
             
             for marker in markers:
@@ -101,7 +101,7 @@ class TestTasksFormat(unittest.TestCase):
         import re
         
         for tasks_file in self.tasks_files:
-            content = tasks_file.read_text()
+            content = tasks_file.read_text(encoding="utf-8")
             
             # Find all tasks with AUTO-ISSUE markers
             # Matches task body until next task header, separator, or end of file
@@ -159,7 +159,7 @@ class TestWorkflowsExist(unittest.TestCase):
         
         for workflow_file in self.workflows_dir.glob("*.yml"):
             with self.subTest(workflow=workflow_file.name):
-                content = workflow_file.read_text()
+                content = workflow_file.read_text(encoding="utf-8")
                 try:
                     yaml.safe_load(content)
                 except yaml.YAMLError as e:
@@ -192,7 +192,7 @@ class TestIssueTemplates(unittest.TestCase):
         import re
         
         for template_file in self.templates_dir.glob("agent_task_*.md"):
-            content = template_file.read_text()
+            content = template_file.read_text(encoding="utf-8")
             
             # Check for YAML frontmatter
             self.assertTrue(content.startswith("---"), 
@@ -214,7 +214,7 @@ class TestIssueTemplates(unittest.TestCase):
         for template_name, expected_label in role_label_map.items():
             template_path = self.templates_dir / template_name
             if template_path.exists():
-                content = template_path.read_text()
+                content = template_path.read_text(encoding="utf-8")
                 self.assertIn(expected_label, content, 
                     f"{template_name} missing {expected_label} label")
 
@@ -228,7 +228,7 @@ class TestAutoTriageConfig(unittest.TestCase):
         config_path = repo_root / ".github" / "automation" / "reviewers.json"
         
         try:
-            self.config = json.loads(config_path.read_text())
+            self.config = json.loads(config_path.read_text(encoding="utf-8"))
         except FileNotFoundError:
             self.fail(f"Configuration file not found: {config_path}")
         except json.JSONDecodeError as e:
@@ -310,7 +310,7 @@ class TestAutoTriageWorkflow(unittest.TestCase):
         except ImportError:
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
-        content = yaml.safe_load(self.workflow_path.read_text())
+        content = yaml.safe_load(self.workflow_path.read_text(encoding="utf-8"))
         trigger_key = self._get_workflow_trigger_key(content)
         self.assertIn(trigger_key, content)
         self.assertIn("issues", content[trigger_key])
@@ -323,7 +323,7 @@ class TestAutoTriageWorkflow(unittest.TestCase):
         except ImportError:
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
-        content = yaml.safe_load(self.workflow_path.read_text())
+        content = yaml.safe_load(self.workflow_path.read_text(encoding="utf-8"))
         job = content["jobs"]["auto_triage"]
         
         self.assertIn("permissions", job)
@@ -345,18 +345,18 @@ class TestSprintModeAutomation(unittest.TestCase):
 
     def test_workflow_checks_sprint_label(self):
         """Test that workflow checks for agent:sprint label"""
-        content = self.workflow_path.read_text()
+        content = self.workflow_path.read_text(encoding="utf-8")
         self.assertIn("agent:sprint", content, "Workflow should check for agent:sprint label")
 
     def test_workflow_auto_applies_agent_go(self):
         """Test that workflow auto-applies agent:go label in sprint mode"""
-        content = self.workflow_path.read_text()
+        content = self.workflow_path.read_text(encoding="utf-8")
         self.assertIn("agent:go", content, "Workflow should handle agent:go label")
         self.assertIn("addLabels", content, "Workflow should add labels")
 
     def test_workflow_handles_linked_issues(self):
         """Test that workflow detects linked issues from PR body"""
-        content = self.workflow_path.read_text()
+        content = self.workflow_path.read_text(encoding="utf-8")
         # Check for common linking keywords
         linking_keywords = ["Fixes", "Closes", "Resolves", "close", "fix", "resolve"]
         found_keywords = sum(1 for keyword in linking_keywords if keyword in content)
@@ -392,7 +392,7 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
         except ImportError:
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
-        content = yaml.safe_load(self.workflow_path.read_text())
+        content = yaml.safe_load(self.workflow_path.read_text(encoding="utf-8"))
         trigger_key = self._get_workflow_trigger_key(content)
         self.assertIn(trigger_key, content)
         self.assertIn("push", content[trigger_key])
@@ -409,7 +409,7 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
         except ImportError:
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
-        content = yaml.safe_load(self.workflow_path.read_text())
+        content = yaml.safe_load(self.workflow_path.read_text(encoding="utf-8"))
         trigger_key = self._get_workflow_trigger_key(content)
         self.assertIn("workflow_dispatch", content[trigger_key])
 
@@ -420,7 +420,7 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
         except ImportError:
             self.skipTest("PyYAML not installed, skipping YAML validation")
         
-        content = yaml.safe_load(self.workflow_path.read_text())
+        content = yaml.safe_load(self.workflow_path.read_text(encoding="utf-8"))
         trigger_key = self._get_workflow_trigger_key(content)
         if "workflow_dispatch" in content[trigger_key] and "inputs" in content[trigger_key]["workflow_dispatch"]:
             inputs = content[trigger_key]["workflow_dispatch"]["inputs"]
@@ -428,12 +428,12 @@ class TestIssueGenerationWorkflow(unittest.TestCase):
 
     def test_workflow_parses_auto_issue_markers(self):
         """Test that workflow logic parses AUTO-ISSUE markers"""
-        content = self.workflow_path.read_text()
+        content = self.workflow_path.read_text(encoding="utf-8")
         self.assertIn("AUTO-ISSUE", content, "Workflow should parse AUTO-ISSUE markers")
 
     def test_workflow_checks_for_duplicates(self):
         """Test that workflow checks for duplicate issues"""
-        content = self.workflow_path.read_text()
+        content = self.workflow_path.read_text(encoding="utf-8")
         self.assertIn("alreadyExists", content, "Workflow should check for duplicate issues")
 
 
@@ -458,7 +458,7 @@ class TestWorkflowIntegration(unittest.TestCase):
         for workflow_name in workflow_files:
             workflow_path = self.workflows_dir / workflow_name
             if workflow_path.exists():
-                content = workflow_path.read_text()
+                content = workflow_path.read_text(encoding="utf-8")
                 self.assertIn(config_path_pattern, content, 
                     f"{workflow_name} should use consistent config path")
 
@@ -481,7 +481,7 @@ class TestWorkflowIntegration(unittest.TestCase):
             workflow_path = self.workflows_dir / workflow_name
             if workflow_path.exists():
                 with self.subTest(workflow=workflow_name):
-                    content = yaml.safe_load(workflow_path.read_text())
+                    content = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
                     # Check that at least one job has permissions
                     has_permissions = False
                     for job in content["jobs"].values():
@@ -503,7 +503,7 @@ class TestWorkflowIntegration(unittest.TestCase):
             workflow_path = self.workflows_dir / workflow_name
             if workflow_path.exists():
                 with self.subTest(workflow=workflow_name):
-                    content = workflow_path.read_text()
+                    content = workflow_path.read_text(encoding="utf-8")
                     # Check for error handling
                     self.assertIn("catch", content, 
                         f"{workflow_name} should have error handling")
@@ -518,7 +518,7 @@ class TestEdgeCases(unittest.TestCase):
         """Load configuration"""
         repo_root = Path(__file__).resolve().parent.parent
         config_path = repo_root / ".github" / "automation" / "reviewers.json"
-        self.config = json.loads(config_path.read_text())
+        self.config = json.loads(config_path.read_text(encoding="utf-8"))
 
     def test_empty_role_mappings_handled(self):
         """Test that empty role mappings are valid"""

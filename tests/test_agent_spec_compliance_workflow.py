@@ -28,7 +28,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
     def test_workflow_yaml_is_valid(self):
         """Test that the workflow YAML is valid."""
         try:
-            with open(self.workflow_path, 'r') as f:
+            with open(self.workflow_path, "r", encoding="utf-8") as f:
                 workflow = yaml.safe_load(f)
             
             self.assertIsNotNone(workflow, "Workflow YAML should parse successfully")
@@ -44,7 +44,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
 
     def test_workflow_has_required_jobs(self):
         """Test that the workflow has the required jobs."""
-        with open(self.workflow_path, 'r') as f:
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
         
         jobs = workflow.get('jobs', {})
@@ -65,7 +65,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
 
     def test_workflow_triggers_on_pr_events(self):
         """Test that the workflow triggers on pull request events."""
-        with open(self.workflow_path, 'r') as f:
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
         
         # YAML parses 'on:' as boolean True
@@ -85,7 +85,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
 
     def test_workflow_triggers_on_relevant_paths(self):
         """Test that the workflow triggers on relevant file changes."""
-        with open(self.workflow_path, 'r') as f:
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
         
         # YAML parses 'on:' as boolean True
@@ -116,7 +116,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
 
     def test_spec_reference_job_uses_python(self):
         """Test that spec reference job uses Python."""
-        with open(self.workflow_path, 'r') as f:
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
         
         job = workflow['jobs']['check-spec-references']
@@ -135,7 +135,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
 
     def test_spec_reference_job_runs_check_command(self):
         """Test that spec reference job runs the check-spec-references command."""
-        with open(self.workflow_path, 'r') as f:
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
         
         job = workflow['jobs']['check-spec-references']
@@ -156,7 +156,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
 
     def test_compliance_job_checks_agent_signature(self):
         """Test that compliance job checks for agent signature."""
-        with open(self.workflow_path, 'r') as f:
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
         
         job = workflow['jobs']['check-agent-pr-compliance']
@@ -172,7 +172,7 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
 
     def test_compliance_job_validates_spec_compliance(self):
         """Test that compliance job validates spec compliance."""
-        with open(self.workflow_path, 'r') as f:
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
         
         job = workflow['jobs']['check-agent-pr-compliance']
