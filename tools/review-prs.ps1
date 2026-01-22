@@ -1,9 +1,46 @@
-﻿# Systematic PR Review Script
-# Goes through all open PRs and manages Copilot reviews
+#!/usr/bin/env pwsh
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+    Systematic PR Review Script - Goes through all open PRs and manages Copilot reviews
+
+.DESCRIPTION
+    This script manages Copilot reviews on all open pull requests by:
+    - Adding Copilot as a reviewer if not already assigned
+    - Checking review status and reporting on PRs ready to merge
+    - Posting comments to notify @copilot when changes are requested
+
+.PARAMETER DryRun
+    Show what would happen without making changes
+
+.PARAMETER MarkReadyForReview
+    Convert draft PRs to ready for review
+
+.EXAMPLE
+    .\tools\review-prs.ps1
+    Add Copilot as reviewer to PRs without review
+
+.EXAMPLE
+    .\tools\review-prs.ps1 -DryRun
+    Preview what would be done without making changes
+
+.EXAMPLE
+    .\tools\review-prs.ps1 -MarkReadyForReview
+    Mark draft PRs as ready and add Copilot as reviewer
+
+.NOTES
+    Requires PowerShell 5.1 or later for compatibility.
+#>
 param(
     [switch]$DryRun,
     [switch]$MarkReadyForReview
 )
+
+# Check PowerShell version
+if ($PSVersionTable.PSVersion.Major -lt 5 -or ($PSVersionTable.PSVersion.Major -eq 5 -and $PSVersionTable.PSVersion.Minor -lt 1)) {
+    Write-Error "This script requires PowerShell 5.1 or later. Current version: $($PSVersionTable.PSVersion)"
+    exit 1
+}
 
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "Systematic PR Review - Kerrigan" -ForegroundColor Cyan

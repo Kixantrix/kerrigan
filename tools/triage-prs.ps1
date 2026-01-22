@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     PR Triage Dashboard - Shows PRs needing attention and provides quick actions
@@ -24,12 +25,21 @@
 .EXAMPLE
     .\tools\triage-prs.ps1 -ShowAll
     Shows all open PRs with their status
+
+.NOTES
+    Requires PowerShell 5.1 or later for compatibility.
 #>
 
 param(
     [switch]$ShowAll,
     [switch]$DryRun
 )
+
+# Check PowerShell version
+if ($PSVersionTable.PSVersion.Major -lt 5 -or ($PSVersionTable.PSVersion.Major -eq 5 -and $PSVersionTable.PSVersion.Minor -lt 1)) {
+    Write-Error "This script requires PowerShell 5.1 or later. Current version: $($PSVersionTable.PSVersion)"
+    exit 1
+}
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan

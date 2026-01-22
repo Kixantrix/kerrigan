@@ -1,4 +1,20 @@
-# PR Review Script
+# PR and Issue Management Scripts
+
+Scripts for managing pull requests and issues in the Kerrigan repository.
+
+## Requirements
+
+- **PowerShell 5.1 or later** - All scripts are compatible with both PowerShell 5.1 (Windows PowerShell) and PowerShell 7+ (PowerShell Core)
+- **GitHub CLI (`gh`)** - Must be installed and authenticated (`gh auth login`)
+
+### Installing PowerShell
+
+- **Windows**: PowerShell 5.1 is pre-installed. For PowerShell 7+, see [PowerShell installation guide](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows)
+- **macOS/Linux**: Install PowerShell 7+ from [PowerShell installation guide](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
+
+## Scripts
+
+### PR Review Script (review-prs.ps1)
 
 Systematic script for managing Copilot reviews on open pull requests.
 
@@ -32,7 +48,13 @@ Systematic script for managing Copilot reviews on open pull requests.
 
 ## Workflow
 
-Run this script periodically to:
+Run these scripts to manage your PRs and issues:
+
+1. **Triage PRs**: `.\tools\triage-prs.ps1` - See what needs attention
+2. **Review PRs**: `.\tools\review-prs.ps1` - Add Copilot as reviewer
+3. **View Details**: `.\tools\show-prs.ps1` or `.\tools\show-issues.ps1` - Formatted tables
+
+Run the review script periodically to:
 - Ensure all PRs have Copilot assigned for review
 - Check which PRs are ready to merge
 - Ping @copilot on PRs with requested changes
@@ -42,10 +64,81 @@ Run this script periodically to:
 - `-DryRun`: Show what would happen without making changes
 - `-MarkReadyForReview`: Convert draft PRs to ready for review
 
-## Requirements
+### PR Triage Dashboard (triage-prs.ps1)
 
-- GitHub CLI (`gh`) must be installed and authenticated
-- Repository must have "Copilot" as a valid reviewer
+Main triage workflow script for viewing PRs by category and suggested actions.
+
+**Usage:**
+```powershell
+.\tools\triage-prs.ps1              # Show PRs needing attention
+.\tools\triage-prs.ps1 -ShowAll     # Show all PRs
+.\tools\triage-prs.ps1 -DryRun      # Preview without actions
+```
+
+**Parameters:**
+- `-ShowAll`: Show all PRs regardless of status
+- `-DryRun`: Show what would be done without taking any actions
+
+### Show PRs (show-prs.ps1)
+
+Display open pull requests in a formatted table.
+
+**Usage:**
+```powershell
+.\tools\show-prs.ps1                     # Show open PRs
+.\tools\show-prs.ps1 -State all -Limit 50  # Show all PRs
+```
+
+**Parameters:**
+- `-State`: PR state to filter by (open, closed, merged, all). Default: open
+- `-Limit`: Maximum number of PRs to display. Default: 20
+
+### Show Issues (show-issues.ps1)
+
+Display open issues in a formatted table.
+
+**Usage:**
+```powershell
+.\tools\show-issues.ps1                      # Show open issues
+.\tools\show-issues.ps1 -State all -Limit 50   # Show all issues
+```
+
+**Parameters:**
+- `-State`: Issue state to filter by (open, closed, all). Default: open
+- `-Limit`: Maximum number of issues to display. Default: 20
+
+## Style Guidelines
+
+All PowerShell scripts follow the [PowerShell Style Guide](../docs/powershell-style-guide.md) which ensures:
+- Compatibility with PowerShell 5.1 and later
+- ASCII-only characters (no Unicode emojis or box-drawing characters)
+- Clear version requirements and error messages
+
+## Troubleshooting
+
+### "string terminator missing" error
+
+If you encounter this error on PowerShell 5.1, the script may contain Unicode characters. All scripts in this repository have been updated to use ASCII-only characters for compatibility.
+
+### PowerShell version check fails
+
+If the script reports an incompatible PowerShell version:
+- On Windows: Update to PowerShell 5.1 or later
+- On macOS/Linux: Install PowerShell 7+
+- Check your version: `$PSVersionTable.PSVersion`
+
+### GitHub CLI errors
+
+If you see errors about `gh` command:
+- Install GitHub CLI: https://cli.github.com/
+- Authenticate: `gh auth login`
+- Verify: `gh auth status`
+
+## Related Documentation
+
+- [PowerShell Style Guide](../docs/powershell-style-guide.md) - Coding standards for PowerShell scripts
+- [Automation Limits](../docs/automation-limits.md) - What can be automated
+- [PR Review Playbook](../playbooks/pr-review.md) - Human review guidelines
 
 ## Example Output
 
