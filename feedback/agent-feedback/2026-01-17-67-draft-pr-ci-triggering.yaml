@@ -87,8 +87,16 @@ proposed_solution: |
   ```
 
 # METADATA (leave blank for new feedback)
-status: "new"
-reviewed_by: ""
-reviewed_date: ""
+status: "open"
+reviewed_by: "copilot"
+reviewed_date: "2026-01-22"
 implementation_pr: null
-notes: ""
+notes: |
+  Audited 2026-01-22: The ready_for_review trigger has NOT been added to workflow files.
+  Checked .github/workflows/ci.yml and it still only has: opened, synchronize, reopened.
+  This remains an open issue that should be addressed.
+  
+  Recommended action: Add ready_for_review to pull_request types in all workflow files:
+  - .github/workflows/ci.yml
+  - .github/workflows/agent-gates.yml
+  - .github/workflows/agent-spec-compliance.yml
