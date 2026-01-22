@@ -499,7 +499,11 @@ echo "Template branches created successfully!"
 echo "============================================"
 echo ""
 echo "Created branches:"
-git branch -a | grep template || echo "No template branches found"
+if git branch -a | grep -q template; then
+    git branch -a | grep template
+else
+    echo "No template branches found"
+fi
 echo ""
 echo "To push these branches to GitHub:"
 echo "  git push -u origin template/minimal"
@@ -510,4 +514,3 @@ echo ""
 # Return to original branch
 git checkout "$ORIGINAL_BRANCH"
 echo "Returned to branch: $ORIGINAL_BRANCH"
-
