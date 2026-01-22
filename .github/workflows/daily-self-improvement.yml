@@ -2,8 +2,8 @@ name: Daily Self-Improvement Analysis
 
 on:
   schedule:
-    # Run daily at 2:00 AM UTC
-    - cron: '0 2 * * *'
+    # Run daily at 2:00 AM PST (10:00 AM UTC)
+    - cron: '0 10 * * *'
   workflow_dispatch:
     inputs:
       since_days:
@@ -62,10 +62,20 @@ jobs:
 
       - name: Run self-improvement analysis
         id: analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           SINCE_DAYS="${{ github.event.inputs.since_days || '7' }}"
           
+          # For scheduled runs, use sensible defaults (inputs are empty)
+          # For workflow_dispatch, use the provided inputs
+          ENABLE_GITHUB="${{ github.event.inputs.enable_github_analysis || 'true' }}"
+          ENABLE_WEB="${{ github.event.inputs.enable_web_research || 'false' }}"
+          ENABLE_PAPER="${{ github.event.inputs.enable_paper_research || 'false' }}"
+          ENABLE_FRAMEWORK="${{ github.event.inputs.enable_framework_analysis || 'false' }}"
+          
           echo "Running analysis for last ${SINCE_DAYS} days..."
+          echo "GitHub analysis: ${ENABLE_GITHUB}"
           
           # Build command with optional research flags
           CMD="python tools/self_improvement_analyzer.py \
@@ -75,20 +85,20 @@ jobs:
             --since-days ${SINCE_DAYS} \
             --json-output analysis-results.json"
           
-          # Add research flags if enabled
-          if [ "${{ github.event.inputs.enable_web_research }}" = "true" ]; then
+          # Add research flags if enabled (using variables that have defaults for scheduled runs)
+          if [ "${ENABLE_WEB}" = "true" ]; then
             CMD="$CMD --enable-web-research"
           fi
           
-          if [ "${{ github.event.inputs.enable_github_analysis }}" = "true" ]; then
+          if [ "${ENABLE_GITHUB}" = "true" ]; then
             CMD="$CMD --enable-github-analysis"
           fi
           
-          if [ "${{ github.event.inputs.enable_paper_research }}" = "true" ]; then
+          if [ "${ENABLE_PAPER}" = "true" ]; then
             CMD="$CMD --enable-paper-research"
           fi
           
-          if [ "${{ github.event.inputs.enable_framework_analysis }}" = "true" ]; then
+          if [ "${ENABLE_FRAMEWORK}" = "true" ]; then
             CMD="$CMD --enable-framework-analysis"
           fi
           
