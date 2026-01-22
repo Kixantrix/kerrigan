@@ -44,8 +44,13 @@ class WebSearchResearcher(BaseResearcher):
         findings = []
         
         # Define focused search queries for agent best practices
+        # Note: Using current year dynamically for queries, though knowledge-based
+        # findings don't require it since they're based on established patterns
+        from datetime import datetime
+        current_year = datetime.now().year
+        
         queries = [
-            "AI agent orchestration best practices 2024",
+            f"AI agent orchestration best practices {current_year}",
             "multi-agent system design patterns",
             "autonomous agent workflow failures and solutions"
         ]
@@ -236,8 +241,6 @@ class WebSearchResearcher(BaseResearcher):
         Returns:
             Relevance score from 0.0 to 1.0
         """
-        score = 0.0
-        
         # Check for agent-related keywords
         keywords = ['agent', 'autonomous', 'ai', 'llm', 'orchestration', 'workflow']
         title = finding.get('title', '').lower()
@@ -251,7 +254,7 @@ class WebSearchResearcher(BaseResearcher):
                 found_keywords.add(keyword)
         
         # Score based on number of unique keywords found
-        # Each keyword contributes 0.15 to the score (max 1.0 with 7 keywords)
-        score = len(found_keywords) * 0.15
+        # Each keyword contributes equally to reach max score of 1.0
+        score = len(found_keywords) / len(keywords) if keywords else 0.0
         
         return min(score, 1.0)
