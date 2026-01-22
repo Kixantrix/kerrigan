@@ -1,8 +1,30 @@
 #!/bin/bash
+# Script to create template branches for Kerrigan
+# This script creates three template branches with different levels of content:
+# - template/minimal: Core framework only
+# - template/with-examples: Core + 2 curated examples
+# - template/enterprise: Core + all examples minus investigation artifacts
+
 set -e
 
-REPO_DIR="/home/runner/work/kerrigan/kerrigan"
+# Determine repository directory dynamically
+REPO_DIR="$(git rev-parse --show-toplevel)"
 cd "$REPO_DIR"
+
+echo "Creating Kerrigan template branches..."
+echo "Working directory: $REPO_DIR"
+echo ""
+
+# Check if we're in a git repository
+if [ ! -d ".git" ]; then
+    echo "Error: Not in a git repository"
+    exit 1
+fi
+
+# Get the current branch to return to later
+ORIGINAL_BRANCH=$(git branch --show-current)
+echo "Current branch: $ORIGINAL_BRANCH"
+echo ""
 
 # Files/dirs to remove for ALL templates (investigation artifacts)
 INVESTIGATION_ARTIFACTS=(
@@ -59,12 +81,30 @@ SPEC_PROJECTS_TO_REMOVE=(
   "specs/projects/validator-enhancement"
 )
 
-echo "Repository status before creating templates:"
-git status
+# Function to remove files safely
+remove_files() {
+    local files=("$@")
+    for file in "${files[@]}"; do
+        if [ -e "$file" ]; then
+            git rm -rf "$file" 2>/dev/null || true
+            echo "  ✓ Removed: $file"
+        fi
+    done
+}
 
+# ============================================
+# Create template/minimal branch
+# ============================================
 echo "============================================"
 echo "Creating template/minimal branch..."
 echo "============================================"
+
+# Check if branch exists and delete it
+if git show-ref --verify --quiet refs/heads/template/minimal; then
+    echo "Branch template/minimal already exists. Deleting..."
+    git branch -D template/minimal
+fi
+
 git checkout -b template/minimal
 
 # Remove investigation artifacts
@@ -213,12 +253,25 @@ MIT License - See [LICENSE](LICENSE) for details.
 READMEEOF
 git add README.md
 
-git commit -m "Create template/minimal branch with core framework only"
+git commit -m "Create template/minimal branch with core framework only" || echo "Nothing to commit"
 
+echo "✓ template/minimal created"
+echo ""
+
+# ============================================
+# Create template/with-examples branch
+# ============================================
 echo "============================================"
 echo "Creating template/with-examples branch..."
 echo "============================================"
-git checkout copilot/create-clean-template-branches
+
+git checkout "$ORIGINAL_BRANCH"
+
+if git show-ref --verify --quiet refs/heads/template/with-examples; then
+    echo "Branch template/with-examples already exists. Deleting..."
+    git branch -D template/with-examples
+fi
+
 git checkout -b template/with-examples
 
 # Remove investigation artifacts
@@ -361,12 +414,25 @@ MIT License - See [LICENSE](LICENSE) for details.
 READMEEOF
 git add README.md
 
-git commit -m "Create template/with-examples branch with core + curated examples"
+git commit -m "Create template/with-examples branch with core + curated examples" || echo "Nothing to commit"
 
+echo "✓ template/with-examples created"
+echo ""
+
+# ============================================
+# Create template/enterprise branch
+# ============================================
 echo "============================================"
 echo "Creating template/enterprise branch..."
 echo "============================================"
-git checkout copilot/create-clean-template-branches
+
+git checkout "$ORIGINAL_BRANCH"
+
+if git show-ref --verify --quiet refs/heads/template/enterprise; then
+    echo "Branch template/enterprise already exists. Deleting..."
+    git branch -D template/enterprise
+fi
+
 git checkout -b template/enterprise
 
 # Remove only investigation artifacts and agent feedback
@@ -481,17 +547,28 @@ MIT License - See [LICENSE](LICENSE) for details.
 READMEEOF
 git add README.md
 
-git commit -m "Create template/enterprise branch with full tooling minus investigation artifacts"
+git commit -m "Create template/enterprise branch with full tooling minus investigation artifacts" || echo "Nothing to commit"
 
-echo "============================================"
-echo "Pushing all template branches..."
-echo "============================================"
-git push -u origin template/minimal
-git push -u origin template/with-examples
-git push -u origin template/enterprise
+echo "✓ template/enterprise created"
+echo ""
 
+# ============================================
+# Summary
+# ============================================
 echo "============================================"
 echo "Template branches created successfully!"
 echo "============================================"
-git branch -a | grep template
+echo ""
+echo "Created branches:"
+git branch -a | grep template || echo "No template branches found"
+echo ""
+echo "To push these branches to GitHub:"
+echo "  git push -u origin template/minimal"
+echo "  git push -u origin template/with-examples"
+echo "  git push -u origin template/enterprise"
+echo ""
+
+# Return to original branch
+git checkout "$ORIGINAL_BRANCH"
+echo "Returned to branch: $ORIGINAL_BRANCH"
 
