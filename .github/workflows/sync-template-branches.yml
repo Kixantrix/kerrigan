@@ -1,0 +1,64 @@
+name: Sync Template Branches
+
+# This workflow syncs template branches when changes are merged to main
+# It ensures template branches stay up-to-date with core framework changes
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+  # Uncomment to auto-sync on push to main:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - '.github/agents/**'
+  #     - '.github/workflows/**'
+  #     - 'specs/constitution.md'
+  #     - 'specs/kerrigan/0*.md'
+  #     - 'tools/validators/**'
+  #     - 'docs/setup.md'
+  #     - 'docs/FAQ.md'
+  #     - 'docs/architecture.md'
+  #     - 'playbooks/**'
+
+permissions:
+  contents: write  # Needed to push branches
+
+jobs:
+  sync-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for branch operations
+          
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Create template branches
+        run: |
+          chmod +x ./scripts/create-template-branches.sh
+          ./scripts/create-template-branches.sh
+          
+      - name: Push template branches
+        run: |
+          # Push each template branch
+          git push -f origin template/minimal
+          git push -f origin template/with-examples
+          git push -f origin template/enterprise
+          
+      - name: Create summary
+        run: |
+          echo "## Template Branches Synced" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following template branches have been updated from main:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ template/minimal" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ template/with-examples" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ template/enterprise" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View the branches:" >> $GITHUB_STEP_SUMMARY
+          echo "- [template/minimal](https://github.com/${{ github.repository }}/tree/template/minimal)" >> $GITHUB_STEP_SUMMARY
+          echo "- [template/with-examples](https://github.com/${{ github.repository }}/tree/template/with-examples)" >> $GITHUB_STEP_SUMMARY
+          echo "- [template/enterprise](https://github.com/${{ github.repository }}/tree/template/enterprise)" >> $GITHUB_STEP_SUMMARY
