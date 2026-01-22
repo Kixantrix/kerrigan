@@ -43,7 +43,6 @@ PATTERN_KEYWORDS = [
     'workflow', 'automation', 'quality', 'handoff', 'artifact'
 ]
 
-
 class FeedbackAnalyzer:
     """Analyzes agent feedback files."""
     
@@ -781,9 +780,9 @@ if __name__ == "__main__":
         action="store_true",
         help="Analyze other agent frameworks"
     )
-    
+
     args = parser.parse_args()
-    
+
     results = main(
         feedback_dir=args.feedback_dir,
         docs_dir=args.docs_dir,
