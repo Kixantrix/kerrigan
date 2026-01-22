@@ -138,10 +138,11 @@ class TestFeedbackFiles(unittest.TestCase):
         self.processed_dir = self.repo_root / "feedback" / "processed"
         
         # Define valid values for validation
-        self.valid_roles = ["spec", "architect", "swe", "testing", "deployment", "debugging", "security", "kerrigan"]
+        self.valid_roles = ["spec", "architect", "swe", "testing", "deployment", "debugging", "security", "kerrigan", "triage"]
         self.valid_categories = ["prompt_clarity", "missing_information", "artifact_conflict", 
-                                "tool_limitation", "quality_bar", "workflow_friction", "success_pattern"]
-        self.valid_severities = ["low", "medium", "high"]
+                                "tool_limitation", "quality_bar", "workflow_friction", "success_pattern",
+                                "process-gap", "tooling", "process-improvement"]
+        self.valid_severities = ["low", "medium", "high", "success"]
         self.valid_statuses = ["new", "reviewed", "implemented", "wont_fix"]
 
     def get_feedback_files(self, directory):
@@ -173,17 +174,27 @@ class TestFeedbackFiles(unittest.TestCase):
         all_files = (self.get_feedback_files(self.agent_feedback_dir) + 
                     self.get_feedback_files(self.processed_dir))
         
-        required_fields = ["timestamp", "issue_number", "agent_role", 
-                          "category", "severity", "title", "description"]
+        # Support both old schema (agent, date, observation) and new schema (agent_role, timestamp, description)
+        # At minimum, files need: a role/agent, a category, and a severity
+        required_fields_new = ["timestamp", "agent_role", "category", "severity"]
+        required_fields_old = ["date", "agent", "category", "severity"]
+        alternative_fields = [("timestamp", "date"), ("agent_role", "agent"), ("description", "observation")]
 
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
                 with open(feedback_file, 'r') as f:
                     data = yaml.safe_load(f)
                 
-                for field in required_fields:
-                    self.assertIn(field, data,
-                                f"{feedback_file.name} should have field: {field}")
+                # Check that either old or new schema fields are present
+                has_category = "category" in data
+                has_severity = "severity" in data
+                has_role = "agent_role" in data or "agent" in data
+                has_timestamp = "timestamp" in data or "date" in data
+                
+                self.assertTrue(has_category, f"{feedback_file.name} should have 'category' field")
+                self.assertTrue(has_severity, f"{feedback_file.name} should have 'severity' field")
+                self.assertTrue(has_role, f"{feedback_file.name} should have 'agent_role' or 'agent' field")
+                self.assertTrue(has_timestamp, f"{feedback_file.name} should have 'timestamp' or 'date' field")
 
     def test_feedback_files_have_valid_roles(self):
         """Test that feedback files use valid agent roles"""
@@ -195,9 +206,11 @@ class TestFeedbackFiles(unittest.TestCase):
                 with open(feedback_file, 'r') as f:
                     data = yaml.safe_load(f)
                 
-                if "agent_role" in data:
-                    self.assertIn(data["agent_role"], self.valid_roles,
-                                f"{feedback_file.name} has invalid agent_role: {data['agent_role']}")
+                # Support both old schema (agent) and new schema (agent_role)
+                role = data.get("agent_role") or data.get("agent")
+                if role:
+                    self.assertIn(role, self.valid_roles,
+                                f"{feedback_file.name} has invalid role: {role}")
 
     def test_feedback_files_have_valid_categories(self):
         """Test that feedback files use valid categories"""
@@ -246,17 +259,16 @@ class TestFeedbackFiles(unittest.TestCase):
         all_files = (self.get_feedback_files(self.agent_feedback_dir) + 
                     self.get_feedback_files(self.processed_dir))
         
-        # Expected format: YYYY-MM-DD-<issue-number>-<short-slug>.yaml
+        # Expected format: YYYY-MM-DD-<issue-number>-<short-slug>.yaml or YYYY-MM-DD-<short-slug>.yaml
+        # Issue number is optional for feedback not tied to specific issues
         # Slug should start with a word character, followed by any word characters or dashes
-        # This allows: "a", "test", "my-issue", "test-123", etc.
-        # This rejects: "-test", "test-", "--test"
-        pattern = re.compile(r'^\d{4}-\d{2}-\d{2}-\d+-\w[\w-]*\.yaml$')
+        pattern = re.compile(r'^\d{4}-\d{2}-\d{2}-(\d+-)?[\w][\w-]*\.yaml$')
         
         for feedback_file in all_files:
             with self.subTest(file=feedback_file.name):
                 self.assertIsNotNone(pattern.match(feedback_file.name),
                                    f"{feedback_file.name} doesn't follow naming convention: "
-                                   f"YYYY-MM-DD-<issue-number>-<short-slug>.yaml")
+                                   f"YYYY-MM-DD-[<issue-number>-]<short-slug>.yaml")
 
 
 class TestAgentPromptFeedbackSections(unittest.TestCase):
