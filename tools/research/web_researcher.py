@@ -225,7 +225,17 @@ class WebSearchResearcher(BaseResearcher):
         return unique_findings
     
     def evaluate_relevance(self, finding: Dict[str, Any]) -> float:
-        """Calculate relevance score for a finding."""
+        """Calculate relevance score for a finding.
+        
+        Scores findings based on presence of agent-related keywords.
+        Uses a set to track which keywords are found to avoid double-counting.
+        
+        Args:
+            finding: Finding dictionary with title and summary
+            
+        Returns:
+            Relevance score from 0.0 to 1.0
+        """
         score = 0.0
         
         # Check for agent-related keywords
@@ -233,10 +243,15 @@ class WebSearchResearcher(BaseResearcher):
         title = finding.get('title', '').lower()
         summary = finding.get('summary', '').lower()
         
+        # Track which keywords are found to avoid double-counting
+        found_keywords = set()
+        
         for keyword in keywords:
-            if keyword in title:
-                score += 0.2
-            if keyword in summary:
-                score += 0.1
+            if keyword in title or keyword in summary:
+                found_keywords.add(keyword)
+        
+        # Score based on number of unique keywords found
+        # Each keyword contributes 0.15 to the score (max 1.0 with 7 keywords)
+        score = len(found_keywords) * 0.15
         
         return min(score, 1.0)
