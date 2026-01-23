@@ -679,7 +679,7 @@ def main(
     
     if enable_framework_analysis:
         print("   🔧 Analyzing other agent frameworks...")
-        framework_researcher = FrameworkAnalysisResearcher(enabled=True)
+        framework_researcher = FrameworkAnalysisResearcher(enabled=True, github_token=os.environ.get('GITHUB_TOKEN'))
         framework_findings = framework_researcher.analyze_frameworks()
         external_findings.extend(framework_findings)
         print(f"      Found {len(framework_findings)} framework insights")

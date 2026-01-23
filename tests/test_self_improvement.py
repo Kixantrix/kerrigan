@@ -4,6 +4,7 @@ Tests for self-improvement analysis system.
 This module validates the self-improvement analyzer including external research capabilities.
 """
 
+import json
 import unittest
 import sys
 from pathlib import Path
@@ -167,6 +168,22 @@ class TestWebSearchResearcher(unittest.TestCase):
         findings = researcher.search_best_practices()
         self.assertEqual(len(findings), 0)
 
+    def test_search_returns_findings(self):
+        """Test that web search returns findings"""
+        researcher = WebSearchResearcher(enabled=True, cache_dir="/tmp/.test_research_cache")
+        findings = researcher.search_best_practices()
+        
+        # Should return some findings
+        self.assertIsInstance(findings, list)
+        
+        # Findings should have required fields
+        for finding in findings:
+            self.assertIn('title', finding)
+            self.assertIn('summary', finding)
+            self.assertIn('evidence', finding)
+            self.assertIn('potential_application', finding)
+            self.assertIn('relevance', finding)
+
     def test_evaluate_relevance(self):
         """Test relevance evaluation"""
         researcher = WebSearchResearcher(enabled=True)
@@ -248,6 +265,33 @@ class TestFrameworkAnalysisResearcher(unittest.TestCase):
         researcher = FrameworkAnalysisResearcher(enabled=False)
         findings = researcher.analyze_frameworks()
         self.assertEqual(len(findings), 0)
+    
+    @patch('urllib.request.urlopen')
+    def test_framework_analysis_with_token(self, mock_urlopen):
+        """Test framework analysis with GitHub token"""
+        # Mock API response
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps({
+            'description': 'An autonomous AI agent platform',
+            'topics': ['ai', 'agent', 'automation'],
+            'stargazers_count': 1000
+        }).encode()
+        mock_response.__enter__ = MagicMock(return_value=mock_response)
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_urlopen.return_value = mock_response
+        
+        researcher = FrameworkAnalysisResearcher(enabled=True, github_token="test_token")
+        findings = researcher.analyze_frameworks()
+        
+        # Should return findings
+        self.assertIsInstance(findings, list)
+        
+        # Findings should have required structure
+        for finding in findings:
+            self.assertIn('title', finding)
+            self.assertIn('summary', finding)
+            self.assertIn('evidence', finding)
+            self.assertIn('potential_application', finding)
 
 
 class TestSafetyGates(unittest.TestCase):
