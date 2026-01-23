@@ -2,8 +2,13 @@
 title: Quality Bar
 version: 1.0.0
 source: Kerrigan (original)
+quality_tier: 1
+last_reviewed: 2026-01-23
 last_updated: 2026-01-22
+reviewed_by: kerrigan-maintainers
 license: MIT
+tags: [quality, standards, testing, code-review]
+applies_to: [all]
 ---
 
 # Quality Bar

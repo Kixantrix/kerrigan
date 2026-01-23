@@ -8,6 +8,53 @@ Skills are structured markdown files that provide procedural knowledge, best pra
 
 Skills are inspired by the [skills.sh](https://skills.sh/) ecosystem but customized for Kerrigan's artifact-driven, stack-agnostic workflow.
 
+## Quick Start
+
+### For Universal Skills (All Projects)
+
+All agents should reference core Kerrigan skills:
+- **[artifact-contracts.md](meta/artifact-contracts.md)** - Required file structures and validation
+- **[agent-handoffs.md](meta/agent-handoffs.md)** - Workflow patterns between agents
+- **[quality-bar.md](meta/quality-bar.md)** - Quality standards and testing
+
+### For Project-Specific Skills
+
+1. **Create skills config** in your project:
+```bash
+cp skills/skills.json.template specs/projects/<project>/skills.json
+```
+
+2. **Add tech-stack skills** based on your project:
+```json
+{
+  "stack_skills": [
+    "stacks/python/testing-pytest",
+    "stacks/typescript/type-safety"
+  ]
+}
+```
+
+3. **Reference in agent work** - agents automatically see configured skills.
+
+## Skills Registry System
+
+**See [SKILLS-REGISTRY.md](SKILLS-REGISTRY.md) for complete documentation on:**
+- Quality tiers and provenance tracking
+- Project-specific skills configuration
+- Auto-detection of tech stacks
+- Skills discovery and search
+- Quality review process
+
+### Quality Tiers
+
+Skills are categorized by quality and source:
+
+- **Tier 1 (✓✓✓)**: Core Kerrigan patterns - highest quality, stable
+- **Tier 2 (✓✓)**: Curated community patterns - vetted and adapted
+- **Tier 3 (✓)**: Experimental/project-specific - use with caution
+
+All skills include metadata showing source, quality tier, and review status.
+
 ## When to Use Skills
 
 **Agents:** Reference skills when you need guidance on:
@@ -20,25 +67,42 @@ Skills are inspired by the [skills.sh](https://skills.sh/) ecosystem but customi
 
 ## Skill Categories
 
-### Meta Skills (`skills/meta/`)
+### Meta Skills (`skills/meta/`) - Tier 1
 
-Kerrigan-specific patterns for the agent workflow:
+Core Kerrigan-specific patterns for the agent workflow:
 
 - **artifact-contracts.md** - Required artifacts, structure, and validation rules
-- **agent-handoffs.md** - How to pass work between agent roles
+- **agent-handoffs.md** - How to pass work between agent roles  
 - **quality-bar.md** - Quality standards and enforcement mechanisms
 
-### Testing Skills (`skills/testing/`)
+### Stack Skills (`skills/stacks/`) - Tier 2
 
-Universal testing patterns applicable to any stack:
+Tech-stack-specific patterns curated from community sources:
 
-- Coming soon: test-patterns.md, tdd-workflow.md
+**Python:**
+- **testing-pytest.md** - Testing patterns with pytest
 
-### Architecture Skills (`skills/architecture/`)
+**TypeScript:**
+- **type-safety.md** - Type safety patterns and best practices
 
-General architecture and design patterns:
+**React:**
+- **component-patterns.md** - Component design and hooks patterns
 
-- Coming soon: decision-records.md, system-boundaries.md
+More stacks coming soon (Go, Rust, etc.)
+
+### Testing Skills (`skills/testing/`) - Tier 2
+
+Universal testing patterns applicable to any stack (coming soon):
+- test-organization.md
+- tdd-workflow.md
+- coverage-strategies.md
+
+### Architecture Skills (`skills/architecture/`) - Tier 2
+
+General architecture and design patterns (coming soon):
+- decision-records.md
+- system-boundaries.md
+- api-design.md
 
 ## How to Reference Skills
 
@@ -177,11 +241,14 @@ npx skills add kixantrix/kerrigan
 
 ## Current Skills
 
-| Skill | Category | Version | Status |
-|-------|----------|---------|--------|
-| artifact-contracts.md | meta | 1.0.0 | Active |
-| agent-handoffs.md | meta | 1.0.0 | Active |
-| quality-bar.md | meta | 1.0.0 | Active |
+| Skill | Category | Quality Tier | Version | Status |
+|-------|----------|--------------|---------|--------|
+| artifact-contracts.md | meta | 1 (Core) | 1.0.0 | Active |
+| agent-handoffs.md | meta | 1 (Core) | 1.0.0 | Active |
+| quality-bar.md | meta | 1 (Core) | 1.0.0 | Active |
+| testing-pytest.md | stacks/python | 2 (Curated) | 1.0.0 | Active |
+| type-safety.md | stacks/typescript | 2 (Curated) | 1.0.0 | Active |
+| component-patterns.md | stacks/react | 2 (Curated) | 1.0.0 | Active |
 
 ## Roadmap
 

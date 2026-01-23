@@ -1,0 +1,19 @@
+{
+  "$schema": "https://kerrigan.dev/schemas/skills-config.json",
+  "version": "1.0",
+  "description": "Skills configuration for projects. This file specifies which skills agents should reference.",
+  "universal_skills": [
+    "meta/artifact-contracts",
+    "meta/agent-handoffs",
+    "meta/quality-bar"
+  ],
+  "stack_skills": [],
+  "project_skills": [],
+  "auto_detect": true,
+  "comments": {
+    "universal_skills": "Core Kerrigan skills - always loaded",
+    "stack_skills": "Tech-stack-specific skills (e.g., stacks/python/testing-pytest)",
+    "project_skills": "Custom skills in project directory (e.g., custom/api-conventions)",
+    "auto_detect": "If true, system suggests skills based on detected tech stack"
+  }
+}
