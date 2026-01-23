@@ -14,9 +14,22 @@ This repo is intentionally **stack-agnostic**. It focuses on:
 
 ## 🚀 5-Minute Quickstart
 
-**New to Kerrigan?** Get started fast:
+**New to Kerrigan?** Choose your starting point:
 
-1. **Clone or use as template**: [Use this template](https://github.com/Kixantrix/kerrigan/generate) to create your own repository
+### 📋 Choose a Template
+
+Kerrigan offers different templates for different needs:
+
+- **🎯 [template/minimal](../../tree/template/minimal)** - Quick start with core framework only
+- **📚 [template/with-examples](../../tree/template/with-examples)** - Core + 2 curated examples  
+- **🏢 [template/enterprise](../../tree/template/enterprise)** - Full tooling + all examples
+- **🔬 main** - Complete reference (including development history)
+
+See **[TEMPLATE-BRANCHES.md](TEMPLATE-BRANCHES.md)** for detailed comparison and usage instructions.
+
+### ⚡ Quick Setup
+
+1. **Clone or use as template**: [Use this template](https://github.com/Kixantrix/kerrigan/generate) and choose your branch
 2. **Create GitHub labels**: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file`, plus role labels like `role:swe`, `role:spec` ([detailed instructions](docs/setup.md#step-2-set-up-github-labels))
 3. **Create an issue** with your project idea and add the `agent:go` label
 4. **Add role label** to assign work (e.g., `role:swe` for implementation tasks) — see [Agent Assignment Guide](docs/agent-assignment.md)

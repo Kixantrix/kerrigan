@@ -12,14 +12,46 @@ Before you begin, ensure you have:
 - **Python 3.8+**: For running validators (optional but recommended)
 - **PowerShell 5.1+**: For local automation scripts (PowerShell 7+ recommended)
 
-## Step 1: Fork or Use the Template
+## Step 1: Choose Your Template and Create Repository
+
+Kerrigan offers different templates for different needs. Choose the one that fits your experience level and project requirements:
+
+### 📋 Template Options
+
+See **[TEMPLATE-BRANCHES.md](../TEMPLATE-BRANCHES.md)** for a detailed comparison. Quick summary:
+
+- **🎯 template/minimal** - Core framework only (best for beginners)
+- **📚 template/with-examples** - Core + 2 curated examples (best for learning)
+- **🏢 template/enterprise** - Full tooling + all examples (best for teams)
+- **🔬 main** - Complete reference including development history
 
 ### Option A: Use as Template (Recommended for New Projects)
-1. Navigate to the Kerrigan repository on GitHub
+
+1. Navigate to https://github.com/Kixantrix/kerrigan
 2. Click **"Use this template"** → **"Create a new repository"**
 3. Name your repository (e.g., `my-project-swarm`)
 4. Choose visibility (public or private)
 5. Click **"Create repository"**
+6. **Choose your template branch**:
+   ```bash
+   git clone https://github.com/yourusername/my-project-swarm.git
+   cd my-project-swarm
+   
+   # For minimal template (recommended for first-time users)
+   git checkout template/minimal
+   git checkout -b main
+   git push origin main
+   
+   # Or for with-examples
+   git checkout template/with-examples
+   git checkout -b main
+   git push origin main
+   
+   # Or for enterprise
+   git checkout template/enterprise
+   git checkout -b main
+   git push origin main
+   ```
 
 ### Option B: Clone Existing Repository
 ```bash
