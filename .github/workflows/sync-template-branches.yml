@@ -5,20 +5,19 @@ name: Sync Template Branches
 
 on:
   workflow_dispatch:  # Allow manual triggering
-  # Uncomment to auto-sync on push to main:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - '.github/agents/**'
-  #     - '.github/workflows/**'
-  #     - 'specs/constitution.md'
-  #     - 'specs/kerrigan/0*.md'
-  #     - 'tools/validators/**'
-  #     - 'docs/setup.md'
-  #     - 'docs/FAQ.md'
-  #     - 'docs/architecture.md'
-  #     - 'playbooks/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/agents/**'
+      - '.github/workflows/**'
+      - 'specs/constitution.md'
+      - 'specs/kerrigan/0*.md'
+      - 'tools/validators/**'
+      - 'docs/setup.md'
+      - 'docs/FAQ.md'
+      - 'docs/architecture.md'
+      - 'playbooks/**'
 
 permissions:
   contents: write  # Needed to push branches
