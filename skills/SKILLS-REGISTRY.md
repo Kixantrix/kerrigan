@@ -195,12 +195,109 @@ Fork a community skill and adapt:
 
 ### Adding Tier 2 Skills (Curated Community)
 
-1. **Identify source**: Find high-quality community skill (skills.sh, official docs)
-2. **Review content**: Ensure it's accurate, relevant, well-structured
-3. **Adapt for Kerrigan**: Make stack-agnostic where possible, align with constitution
-4. **Add metadata**: Include source_url, quality_tier: 2, reviewed_by
-5. **Test**: Validate with sample project
-6. **Submit PR**: Include provenance information in PR description
+**IMPORTANT**: Tier 2 skills must be manually curated from actual sources by a human reviewer. Do not use AI-generated content claiming to be "adapted" from a source.
+
+#### Verification Checklist
+
+Before adding a Tier 2 skill, verify:
+
+- [ ] **Source is accessible**: The source_url points to a real, publicly accessible resource
+- [ ] **Content matches source**: The skill content is actually derived from the source material
+- [ ] **Human reviewed**: A human reviewer has personally verified the skill against the source
+- [ ] **Properly attributed**: Source URL and attribution are clearly stated in metadata
+- [ ] **License compatible**: Source license permits adaptation (check and document)
+- [ ] **Kerrigan-aligned**: Adapted content aligns with Kerrigan's constitution and principles
+- [ ] **Quality vetted**: Source is from a reputable origin (official docs, skills.sh verified, industry standard)
+
+#### Process for Adding Tier 2 Skills
+
+1. **Identify authoritative source**: Find high-quality community resource
+   - Official documentation (e.g., pytest docs, React docs, TypeScript handbook)
+   - Verified skills.sh skills with good reputation
+   - Well-established industry guides (e.g., OWASP, Google style guides)
+
+2. **Manual curation**: Human reviewer reads and adapts the content
+   - Read the source material thoroughly
+   - Extract relevant patterns and best practices
+   - Adapt for Kerrigan's stack-agnostic approach when needed
+   - Simplify and focus on actionable guidance
+
+3. **Document provenance**: Complete all metadata fields
+   ```yaml
+   ---
+   title: Skill Name
+   version: 1.0.0
+   source: Community (adapted)
+   source_url: https://exact-source-url.com
+   quality_tier: 2
+   last_reviewed: 2026-01-23
+   last_updated: 2026-01-23
+   reviewed_by: your-github-username
+   license: MIT
+   tags: [relevant, keywords]
+   applies_to: [relevant-stacks]
+   ---
+   ```
+
+4. **Add attribution in content**: Include note at top of skill
+   ```markdown
+   # Skill Name
+   
+   *Adapted from [Source Name](source_url) and reviewed by [reviewer] on [date].*
+   ```
+
+5. **Test with sample project**: Validate skill is useful and accurate
+   - Apply skill guidance to a real project
+   - Verify patterns work as described
+   - Check that examples are correct
+
+6. **Submit PR with evidence**: Include in PR description
+   - Link to source material
+   - Explanation of what was adapted and why
+   - Confirmation that human reviewer verified content
+   - Screenshots or examples showing skill in use
+
+#### Example: Proper Tier 2 Skill Addition
+
+**Good (Human-curated from actual source):**
+```yaml
+---
+title: Python Testing with Pytest
+version: 1.0.0
+source: Community (adapted)
+source_url: https://docs.pytest.org/en/stable/getting-started.html
+quality_tier: 2
+last_reviewed: 2026-01-23
+last_updated: 2026-01-23
+reviewed_by: jane-doe
+license: MIT
+tags: [python, testing, pytest]
+applies_to: [python]
+---
+
+# Python Testing with Pytest
+
+*Adapted from [pytest documentation](https://docs.pytest.org/) and reviewed by jane-doe on 2026-01-23.*
+
+[Content that was actually read from pytest docs and manually curated...]
+```
+
+**Bad (AI-generated claiming to be adapted):**
+```yaml
+---
+title: Python Testing with Pytest
+version: 1.0.0
+source: Community (adapted)  # ❌ WRONG - not actually adapted
+source_url: https://docs.pytest.org/
+quality_tier: 2  # ❌ WRONG - should be Tier 3 or not exist
+```
+
+If you want to create a skill based on general knowledge without manually curating from a specific source, use Tier 3:
+```yaml
+---
+source: AI-generated (unverified)
+quality_tier: 3
+```
 
 ### Reviewing Existing Skills
 
@@ -231,7 +328,9 @@ applies_to: [all]
 ---
 ```
 
-### Example 2: Tier 2 (Curated Community)
+### Example 2: Tier 2 (Curated Community) - ILLUSTRATIVE ONLY
+
+**Note**: This is an example of what a proper Tier 2 skill looks like. No Tier 2 skills currently exist in the repository - they must be manually curated following the verification process above.
 
 ```yaml
 ---
@@ -240,9 +339,9 @@ version: 1.0.0
 source: Community (adapted)
 source_url: https://github.com/vercel-labs/agent-skills/react-best-practices
 quality_tier: 2
-last_reviewed: 2026-01-22
-last_updated: 2026-01-22
-reviewed_by: kerrigan-swe-team
+last_reviewed: 2026-01-23
+last_updated: 2026-01-23
+reviewed_by: jane-reviewer
 license: MIT
 tags: [react, components, frontend]
 applies_to: [react, typescript, javascript]
@@ -250,9 +349,9 @@ applies_to: [react, typescript, javascript]
 
 # React Component Patterns
 
-*Adapted from Vercel's React Best Practices with Kerrigan-specific conventions.*
+*Manually adapted from Vercel's React Best Practices by jane-reviewer on 2026-01-23.*
 
-[Content...]
+[Content that was actually curated from the source...]
 ```
 
 ### Example 3: Tier 3 (Project-Specific)

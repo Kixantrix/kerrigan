@@ -2,6 +2,8 @@
 
 This example demonstrates how to configure and use project-specific skills in a Python API project.
 
+**Note**: This example shows the configuration structure. Stack-specific skills (like `stacks/python/testing-pytest`) will be available once they are manually curated from authoritative sources following the process in SKILLS-REGISTRY.md.
+
 ## Project Structure
 
 ```
@@ -28,7 +30,8 @@ specs/projects/my-python-api/
     "meta/quality-bar"
   ],
   "stack_skills": [
-    "stacks/python/testing-pytest"
+    # Future: Add manually curated stack skills here when available
+    # "stacks/python/testing-pytest"
   ],
   "project_skills": [
     "skills/api-conventions"
@@ -118,18 +121,17 @@ Universal (all projects):
 - [Agent Handoffs](../../skills/meta/agent-handoffs.md)
 - [Quality Bar](../../skills/meta/quality-bar.md)
 
-Stack-specific (this project uses Python):
-- [Python Testing with Pytest](../../skills/stacks/python/testing-pytest.md)
-
 Project-specific:
 - [API Error Response Format](skills/api-conventions.md)
 ```
 
+**Note**: Stack-specific skills will appear here once they are properly curated from authoritative sources.
+
 ### Auto-Detected
 
 System detects:
-- `pyproject.toml` → suggests Python skills
-- `fastapi` in dependencies → suggests API patterns
+- `pyproject.toml` → suggests Python skills (when available)
+- `fastapi` in dependencies → suggests API patterns (when available)
 - Existing `skills.json` → loads configured skills
 
 ## Step 4: Agent Uses Skills in Work
@@ -141,7 +143,6 @@ Add user validation endpoint
 Implemented per:
 - tasks.md (Task 2.3)
 - architecture.md (User Service component)
-- skills/stacks/python/testing-pytest.md (test structure)
 - skills/api-conventions.md (error response format)
 
 Tests cover happy path and validation errors.
@@ -151,7 +152,6 @@ Tests cover happy path and validation errors.
 ```markdown
 ## Changes
 - Added POST /users endpoint with validation
-- Tests using pytest with AAA pattern (per skills/stacks/python/testing-pytest.md)
 - Error responses follow project conventions (per skills/api-conventions.md)
 
 ## Tests
@@ -193,9 +193,10 @@ All tests pass: `pytest tests/`
   "version": "1.0",
   "universal_skills": ["meta/artifact-contracts", "meta/agent-handoffs", "meta/quality-bar"],
   "stack_skills": [
-    "stacks/python/testing-pytest",
-    "stacks/typescript/type-safety",
-    "stacks/react/component-patterns"
+    # Future: Add when properly curated
+    # "stacks/python/testing-pytest",
+    # "stacks/typescript/type-safety",
+    # "stacks/react/component-patterns"
   ],
   "auto_detect": true
 }

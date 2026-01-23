@@ -77,32 +77,19 @@ Core Kerrigan-specific patterns for the agent workflow:
 
 ### Stack Skills (`skills/stacks/`) - Tier 2
 
-Tech-stack-specific patterns curated from community sources:
+Tech-stack-specific patterns curated from authoritative sources.
 
-**Python:**
-- **testing-pytest.md** - Testing patterns with pytest
+**Currently empty** - Tier 2 skills must be manually curated by human reviewers from actual sources. See [SKILLS-REGISTRY.md](SKILLS-REGISTRY.md) for the complete process on how to properly add Tier 2 skills with verification.
 
-**TypeScript:**
-- **type-safety.md** - Type safety patterns and best practices
-
-**React:**
-- **component-patterns.md** - Component design and hooks patterns
-
-More stacks coming soon (Go, Rust, etc.)
+**To add stack skills**: Follow the verification checklist in SKILLS-REGISTRY.md to ensure skills are truly adapted from authoritative sources (official docs, verified skills.sh resources).
 
 ### Testing Skills (`skills/testing/`) - Tier 2
 
-Universal testing patterns applicable to any stack (coming soon):
-- test-organization.md
-- tdd-workflow.md
-- coverage-strategies.md
+Universal testing patterns applicable to any stack (not yet added).
 
 ### Architecture Skills (`skills/architecture/`) - Tier 2
 
-General architecture and design patterns (coming soon):
-- decision-records.md
-- system-boundaries.md
-- api-design.md
+General architecture and design patterns (not yet added).
 
 ## How to Reference Skills
 
@@ -246,9 +233,8 @@ npx skills add kixantrix/kerrigan
 | artifact-contracts.md | meta | 1 (Core) | 1.0.0 | Active |
 | agent-handoffs.md | meta | 1 (Core) | 1.0.0 | Active |
 | quality-bar.md | meta | 1 (Core) | 1.0.0 | Active |
-| testing-pytest.md | stacks/python | 2 (Curated) | 1.0.0 | Active |
-| type-safety.md | stacks/typescript | 2 (Curated) | 1.0.0 | Active |
-| component-patterns.md | stacks/react | 2 (Curated) | 1.0.0 | Active |
+
+**Note**: Stack-specific skills (Tier 2) will be added through manual curation from authoritative sources. See [SKILLS-REGISTRY.md](SKILLS-REGISTRY.md#adding-tier-2-skills-curated-community) for the verification process.
 
 ## Roadmap
 
