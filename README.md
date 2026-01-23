@@ -65,6 +65,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[FAQ](docs/FAQ.md)**: Answers to common questions
 - **[Architecture](docs/architecture.md)**: System design and workflow visualization
 - **[Self-Assembly Guide](docs/self-assembly.md)**: Technical reference for replicating Kerrigan
+- **[CHANGELOG](CHANGELOG.md)**: Version history and release notes
 
 ### Process & Workflow
 - **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
