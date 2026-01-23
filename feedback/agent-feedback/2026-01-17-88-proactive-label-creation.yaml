@@ -81,3 +81,18 @@ evidence: |
 
 impact: medium
 actionable: true
+
+# METADATA
+status: "open"
+reviewed_by: "copilot"
+reviewed_date: "2026-01-22"
+implementation_pr: null
+notes: |
+  Audited 2026-01-22: This tooling gap remains relevant. No script has been
+  created to proactively check and create labels before issue creation.
+  
+  The recommendation to create tools/init-labels.ps1 or add label checking
+  to existing scripts has not been implemented yet.
+  
+  This is a quality-of-life improvement that would reduce friction but is
+  not critical. Marked as open with low priority.

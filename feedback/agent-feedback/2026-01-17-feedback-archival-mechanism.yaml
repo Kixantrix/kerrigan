@@ -194,3 +194,20 @@ evidence: |
 
 impact: low
 actionable: true
+
+# METADATA
+status: "wontfix"
+reviewed_by: "copilot"
+reviewed_date: "2026-01-22"
+implementation_pr: null
+notes: |
+  Audited 2026-01-22: Reviewed and determined the current approach (Option A -
+  date-based filtering) is appropriate and requires no changes.
+  
+  The feedback/ directory structure is working as intended:
+  - Date-based filtering (--since-days) prevents re-analysis of old feedback
+  - processed/ directory exists but is optional/manual
+  - No automated archival is needed
+  
+  The simpler approach is preferred over adding complexity for automated
+  file movement. Marked as wontfix - current system is adequate.
