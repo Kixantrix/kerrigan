@@ -19,7 +19,16 @@ This document analyzes the limits of automation in the Issues → PRs → Issues
 - Final PR approval and merge decisions
 - Security-sensitive operations
 
-**Key Finding**: GitHub Actions can automate issue management and workflow orchestration, but **GitHub Copilot cannot be directly triggered or invoked from GitHub Actions**. This requires a human with a GitHub account and Copilot access to work locally or through the web interface.
+**Key Finding (Updated January 2026)**: GitHub Actions can automate issue management and workflow orchestration. The new **GitHub Copilot SDK** (technical preview) now enables programmatic access to Copilot's agentic runtime via Node.js, Python, Go, and .NET, **but full CI/CD automation remains limited** due to authentication constraints and the lack of robust non-interactive mode in Copilot CLI.
+
+**Current State**:
+- ✅ SDK provides programmatic API for local development and automation tools
+- ✅ MCP (Model Context Protocol) enables custom tool and context integration
+- ⚠️ CLI lacks non-interactive mode needed for headless CI/CD execution
+- ⚠️ Authentication models (OAuth, API key) not designed for GitHub Actions `GITHUB_TOKEN`
+- ❌ Direct invocation from GitHub Actions still not feasible without significant workarounds
+
+**Recommended Approach**: Use SDK for local automation and custom MCP servers to enhance Copilot with Kerrigan context, rather than attempting full CI/CD integration. See [Copilot SDK Integration Spec](../specs/projects/copilot-sdk-integration/spec.md) for full investigation.
 
 ---
 
@@ -91,6 +100,55 @@ This script:
 - Reports PR status for human triage
 
 **Recommendation**: Run this script manually or schedule it locally (not in GitHub Actions) since it requires authenticated GitHub CLI access.
+
+---
+
+### 2a. GitHub Copilot SDK and MCP (New as of January 2026)
+
+**GitHub Copilot SDK**: Technical preview offering programmatic access to Copilot
+
+**Capabilities**:
+- ✅ Agentic execution loop (planning, tool invocation, multi-turn sessions)
+- ✅ Custom tool registration via Model Context Protocol (MCP)
+- ✅ Support for Node.js, Python, Go, .NET
+- ✅ Session management and streaming responses
+- ✅ Choice of models per session
+
+**Integration Opportunities for Kerrigan**:
+1. **Custom MCP Servers**: Inject Kerrigan specs, playbooks, conventions into Copilot sessions
+2. **Role-Specific Extensions**: Build tools for spec writer, architect, SWE, testing agents
+3. **Knowledge Base**: Index documentation for automatic context retrieval
+4. **Local Automation**: SDK-based scripts for code generation and task automation
+
+**Limitations for CI/CD**:
+- ❌ CLI lacks robust non-interactive mode
+- ❌ User approvals required for many operations
+- ❌ Authentication via OAuth/API key (not GitHub Actions `GITHUB_TOKEN`)
+- ⚠️ Better suited for local development tools than CI/CD pipelines
+
+**Recommended Usage**:
+- **Do**: Build MCP servers for Kerrigan-specific context and tools
+- **Do**: Use SDK for local automation scripts and developer productivity
+- **Don't**: Attempt full GitHub Actions integration (not yet feasible)
+- **Don't**: Rely on SDK for security-critical code generation without review
+
+**Documentation**: See [Copilot SDK Integration Spec](../specs/projects/copilot-sdk-integration/spec.md) for full investigation and implementation plan.
+
+**Pricing**:
+- Pro tier: $10/month (300 premium requests/month)
+- Pro+ tier: $39/month (1,500 premium requests/month)
+- Business tier: $19/user/month (300 premium requests/user/month)
+- Enterprise tier: $39/user/month (1,000 premium requests/user/month)
+- Overage: $0.04/premium request
+
+**Security Considerations**:
+- Always review Copilot-generated code before committing
+- Use secret scanning to prevent credential leaks
+- Run automated security scans (CodeQL, Dependabot)
+- Verify package recommendations before installation
+- Use Business/Enterprise tiers for IP indemnification and privacy controls
+
+**Status**: Research complete (January 2026), implementation planning for Q1-Q2 2026 with phased approach starting with MCP servers.
 
 ---
 
