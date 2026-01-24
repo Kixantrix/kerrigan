@@ -36,9 +36,9 @@ This document presents findings from investigating the newly announced GitHub Co
 
 The Kerrigan system has a documented automation gap in `docs/automation-limits.md`:
 
-> **Key Finding**: GitHub Actions can automate issue management and workflow orchestration, but **GitHub Copilot cannot be directly triggered or invoked from GitHub Actions**.
+> **Previous Finding (Pre-SDK)**: GitHub Actions can automate issue management and workflow orchestration, but GitHub Copilot cannot be directly triggered or invoked from GitHub Actions.
 
-The new Copilot SDK and CLI (announced January 14, 2026) may address some of these limitations while opening new opportunities beyond basic automation.
+The new Copilot SDK and CLI (announced January 14, 2026) address some of these limitations through programmatic API access, though full CI/CD automation remains challenging. The SDK opens significant new opportunities for context injection and custom tool development beyond basic automation.
 
 ---
 
@@ -782,10 +782,12 @@ git-secrets --scan
 
 ### 9.1 Changes to `docs/automation-limits.md`
 
-**Current Statement** (Line 22):
+**Update Applied**: The "Key Finding" section in `docs/automation-limits.md` has been updated to reflect the new SDK capabilities.
+
+**Previous Statement**:
 > **Key Finding**: GitHub Actions can automate issue management and workflow orchestration, but **GitHub Copilot cannot be directly triggered or invoked from GitHub Actions**.
 
-**Proposed Update**:
+**Updated Statement**:
 > **Key Finding (Updated January 2026)**: GitHub Actions can automate issue management and workflow orchestration. The new **GitHub Copilot SDK** (technical preview) now enables programmatic access to Copilot's agentic runtime via Node.js, Python, Go, and .NET, **but full CI/CD automation remains limited** due to authentication constraints and the lack of robust non-interactive mode in Copilot CLI. 
 >
 > **Current State**: 
@@ -797,7 +799,7 @@ git-secrets --scan
 >
 > **Recommended Approach**: Use SDK for local automation and custom MCP servers to enhance Copilot with Kerrigan context, rather than attempting full CI/CD integration.
 
-**Add New Section** (After current section on Copilot Integration):
+**New Section Added** (After Copilot Integration section):
 
 ```markdown
 ### 2a. GitHub Copilot SDK and MCP (New as of January 2026)
