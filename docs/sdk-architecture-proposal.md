@@ -1,7 +1,7 @@
 # Kerrigan SDK Architecture Proposal
 
 **Version**: 1.0  
-**Date**: January 2026  
+**Date**: January 24, 2026  
 **Status**: Proposal  
 
 ---
