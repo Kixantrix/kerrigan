@@ -104,8 +104,8 @@ def check_test_claims(pr_body_text, changed_test_files):
     
     # Check for vague claims without specifics
     vague_patterns = [
-        r'all\s+tests?\s+pass(?:ing)?(?!\s+\()',  # "all tests pass" without count
-        r'tests?\s+pass(?!ing\s+\()',  # "tests pass" without details
+        r'all\s+tests?\s+pass(?:ing)?(?!\s*\()',  # "all tests pass" without count in parens
+        r'tests?\s+pass(?:ing)?(?!\s*\()',  # "tests pass" without details in parens
         r'test\s+coverage\s+added',  # "test coverage added" without specifics
     ]
     
@@ -129,9 +129,10 @@ def check_test_claims(pr_body_text, changed_test_files):
             )
     
     # Check for specific fabricated patterns
+    # Note: Issue #133 identified "39 tests" as a known fabricated number
     fabricated_patterns = [
         (r'\ball\s+tests?\s+pass(?:ing)?\s+\(\s*39\s+tests?\s*\)', '39 tests'),
-        (r'\b39\s+tests?\b', '39 tests (known fabricated number from issue #133)'),
+        (r'\b39\s+tests?\b', '39 tests (identified in issue #133 as fabricated)'),
     ]
     
     for pattern, description in fabricated_patterns:
