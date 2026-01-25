@@ -54,8 +54,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 # Check PowerShell version
-if ($PSVersionTable.PSVersion.Major -lt 5 -or 
-    ($PSVersionTable.PSVersion.Major -eq 5 -and $PSVersionTable.PSVersion.Minor -lt 1)) {
+if ($PSVersionTable.PSVersion -lt [Version]"5.1") {
     Write-Error "This script requires PowerShell 5.1 or later"
     exit 1
 }
@@ -74,16 +73,20 @@ function Write-ColorOutput {
 
 # Detect Kerrigan version
 function Get-KerriganVersion {
-    # Try git describe first
-    $gitVersion = git describe --tags --always 2>$null
-    if ($LASTEXITCODE -eq 0 -and $gitVersion) {
-        return $gitVersion
-    }
-    
-    # Try git rev-parse
-    $gitCommit = git rev-parse --short HEAD 2>$null
-    if ($LASTEXITCODE -eq 0 -and $gitCommit) {
-        return $gitCommit
+    try {
+        # Try git describe first
+        $gitVersion = git describe --tags --always 2>$null
+        if ($LASTEXITCODE -eq 0 -and $gitVersion) {
+            return $gitVersion
+        }
+        
+        # Try git rev-parse
+        $gitCommit = git rev-parse --short HEAD 2>$null
+        if ($LASTEXITCODE -eq 0 -and $gitCommit) {
+            return $gitCommit
+        }
+    } catch {
+        # Git command failed, return unknown
     }
     
     return "unknown"
@@ -91,19 +94,23 @@ function Get-KerriganVersion {
 
 # Get repo information
 function Get-RepoInfo {
-    $repoUrl = git config --get remote.origin.url 2>$null
-    if ($LASTEXITCODE -eq 0 -and $repoUrl) {
-        # Clean up the URL
-        $repoUrl = $repoUrl -replace "\.git$", ""
-        
-        # Extract repo name
-        if ($repoUrl -match "/([^/]+/[^/]+)$") {
-            $repoName = $Matches[1] -replace "\.git$", ""
-            return @{
-                Name = $repoName.Split('/')[-1]
-                Url = $repoUrl
+    try {
+        $repoUrl = git config --get remote.origin.url 2>$null
+        if ($LASTEXITCODE -eq 0 -and $repoUrl) {
+            # Clean up the URL
+            $repoUrl = $repoUrl -replace "\.git$", ""
+            
+            # Extract repo name
+            if ($repoUrl -match "/([^/]+/[^/]+)$") {
+                $repoName = $Matches[1] -replace "\.git$", ""
+                return @{
+                    Name = $repoName.Split('/')[-1]
+                    Url = $repoUrl
+                }
             }
         }
+    } catch {
+        # Git command failed
     }
     
     return @{
@@ -218,12 +225,15 @@ do {
     $impactChoice = Read-Host "Enter number (1-4)"
 } while ($impactChoice -notmatch "^[1-4]$")
 
-$impact = switch ($impactChoice) {
-    "1" { "Blocking" }
-    "2" { "High" }
-    "3" { "Medium" }
-    "4" { "Low" }
+$impactMapping = @{
+    "1" = @{ Name = "Blocking"; Description = "Cannot proceed without fix" }
+    "2" = @{ Name = "High"; Description = "Significant friction or workaround needed" }
+    "3" = @{ Name = "Medium"; Description = "Noticeable inconvenience" }
+    "4" = @{ Name = "Low"; Description = "Minor improvement" }
 }
+
+$impact = $impactMapping[$impactChoice].Name
+$impactDescription = $impactMapping[$impactChoice].Description
 
 # Suggested solution
 Write-ColorOutput "`nDo you have a suggested solution? (optional)" "Yellow"
@@ -284,12 +294,7 @@ $feedbackDetail
 
 ## Impact
 
-**$impact** - $(switch ($impact) {
-    "Blocking" { "Cannot proceed without fix" }
-    "High" { "Significant friction or workaround needed" }
-    "Medium" { "Noticeable inconvenience" }
-    "Low" { "Minor improvement" }
-})
+**$impact** - $impactDescription
 
 "@
 
@@ -332,7 +337,9 @@ if ($DryRun) {
 
 # Save to file option
 if ($SaveOnly) {
-    $filename = "satellite-feedback-$timestamp-$($title -replace '[^a-zA-Z0-9]', '-').md"
+    # Sanitize title for filename - replace non-alphanumeric with single dash
+    $sanitizedTitle = $title -replace '[^a-zA-Z0-9]+', '-' -replace '^-+|-+$', ''
+    $filename = "satellite-feedback-$timestamp-$sanitizedTitle.md"
     $filepath = Join-Path $PWD $filename
     
     $fileContent = @"
@@ -395,29 +402,38 @@ try {
         "--label", $labelString
     )
     
-    $result = & gh @ghArgs 2>&1
-    
-    if ($LASTEXITCODE -ne 0) {
-        Write-ColorOutput "Failed to create issue: $result" "Red"
+    try {
+        $result = & gh @ghArgs 2>&1
+        
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorOutput "Failed to create issue: $result" "Red"
+            Write-ColorOutput ""
+            Write-ColorOutput "You can try:" "Yellow"
+            Write-ColorOutput "  1. Check you're authenticated with: gh auth status" "White"
+            Write-ColorOutput "  2. Re-run with -SaveOnly to save as file instead" "White"
+            exit 1
+        }
+        
+        # Extract issue URL
+        $issueUrl = $result | Select-Object -Last 1
+        
+        Write-ColorOutput "`n========================================" "Green"
+        Write-ColorOutput "Success!" "Green"
+        Write-ColorOutput "========================================" "Green"
+        Write-ColorOutput "Feedback submitted successfully!" "Green"
+        Write-ColorOutput ""
+        Write-ColorOutput "Issue created: $issueUrl" "Cyan"
+        Write-ColorOutput ""
+        Write-ColorOutput "Thank you for contributing to Kerrigan!" "White"
+        Write-ColorOutput "Your feedback helps improve the framework for everyone." "White"
+    } catch {
+        Write-ColorOutput "Error creating issue: $($_.Exception.Message)" "Red"
         Write-ColorOutput ""
         Write-ColorOutput "You can try:" "Yellow"
         Write-ColorOutput "  1. Check you're authenticated with: gh auth status" "White"
         Write-ColorOutput "  2. Re-run with -SaveOnly to save as file instead" "White"
         exit 1
     }
-    
-    # Extract issue URL
-    $issueUrl = $result | Select-Object -Last 1
-    
-    Write-ColorOutput "`n========================================" "Green"
-    Write-ColorOutput "Success!" "Green"
-    Write-ColorOutput "========================================" "Green"
-    Write-ColorOutput "Feedback submitted successfully!" "Green"
-    Write-ColorOutput ""
-    Write-ColorOutput "Issue created: $issueUrl" "Cyan"
-    Write-ColorOutput ""
-    Write-ColorOutput "Thank you for contributing to Kerrigan!" "White"
-    Write-ColorOutput "Your feedback helps improve the framework for everyone." "White"
     
 } finally {
     # Cleanup temp file
