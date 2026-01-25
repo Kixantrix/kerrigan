@@ -67,13 +67,6 @@ $ComponentPaths = @{
     "tools" = @("tools")
 }
 
-# Excluded files from upgrade (project-specific customizations)
-$ExcludePatterns = @(
-    "kerrigan-version.json",
-    "**/TEMPLATE.yaml",
-    ".github/workflows/custom-*.yml"
-)
-
 function Get-CurrentVersion {
     $versionFile = "kerrigan-version.json"
     if (Test-Path $versionFile) {
@@ -180,7 +173,12 @@ function Show-ComponentDiff {
     foreach ($path in $Paths) {
         if (Test-Path $path) {
             # Show diff for this path
-            $diff = git diff HEAD..$UpstreamRef -- $path
+            $diff = git diff HEAD..$UpstreamRef -- $path 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "Failed to get diff for path $path. Error: $diff"
+                exit 1
+            }
+            
             if ($diff) {
                 $hasDiff = $true
                 Write-Host "`nChanges in $path`:" -ForegroundColor Cyan
