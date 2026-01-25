@@ -88,7 +88,13 @@ ${error}
 `;
 
     if (logs && logs.length > 0) {
-      body += `\n**Recent logs**:\n\n\`\`\`\n${logs.slice(-10).join('\n')}\n\`\`\`\n`;
+      // Sanitize logs before including in issue comment
+      const sanitizedLogs = logs
+        .slice(-10)
+        .map(log => this.sanitizeLogEntry(log))
+        .join('\n');
+      
+      body += `\n**Recent logs**:\n\n\`\`\`\n${sanitizedLogs}\n\`\`\`\n`;
     }
 
     body += `\n---\n\n**Retry Instructions**:\n`;
@@ -97,6 +103,23 @@ ${error}
     body += `3. Remove and re-add the \`agent:go\` label to retry\n`;
 
     await this.postComment(body);
+  }
+
+  /**
+   * Sanitize log entry to remove sensitive information
+   */
+  private sanitizeLogEntry(log: string): string {
+    // Remove potential tokens (strings starting with ghp_, ghs_, etc.)
+    let sanitized = log.replace(/gh[a-z]_[A-Za-z0-9_]+/g, '[REDACTED]');
+    
+    // Remove potential file paths that might expose system information
+    sanitized = sanitized.replace(/\/home\/[^\s]+/g, '[PATH]');
+    sanitized = sanitized.replace(/[A-Z]:\\[^\s]+/g, '[PATH]');
+    
+    // Remove potential private keys
+    sanitized = sanitized.replace(/-----BEGIN [A-Z ]+-----[\s\S]+?-----END [A-Z ]+-----/g, '[KEY]');
+    
+    return sanitized;
   }
 
   /**

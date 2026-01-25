@@ -100,6 +100,12 @@ export class SDKAgentService {
         throw new Error('SDK client validation failed');
       }
 
+      // Get repository default branch
+      const { data: repository } = await octokit.repos.get({
+        owner,
+        repo,
+      });
+
       // Prepare agent context
       const context: AgentContext = {
         issue: {
@@ -111,7 +117,7 @@ export class SDKAgentService {
         repository: {
           owner,
           name: repo,
-          defaultBranch: 'main', // TODO: Get from repository
+          defaultBranch: repository.default_branch,
         },
         role: role.name,
         artifacts: {},

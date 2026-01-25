@@ -102,7 +102,9 @@ export class PRCreator {
     body += `## Changes\n\n`;
     
     if (checklist.length > 0) {
-      body += checklist.map(item => `- [ ] ${item}`).join('\n');
+      // Sanitize checklist items to prevent markdown injection
+      const sanitizedChecklist = checklist.map(item => this.sanitizeChecklistItem(item));
+      body += sanitizedChecklist.map(item => `- [ ] ${item}`).join('\n');
       body += '\n\n';
     }
     
@@ -115,6 +117,17 @@ export class PRCreator {
     body += `Closes #${issueNumber}\n`;
     
     return body;
+  }
+
+  /**
+   * Sanitize checklist item to prevent markdown injection
+   */
+  private static sanitizeChecklistItem(item: string): string {
+    // Remove dangerous markdown patterns
+    return item
+      .replace(/[`*_[\]()]/g, '') // Remove markdown formatting characters
+      .replace(/https?:\/\/[^\s]+/g, '[URL]') // Replace URLs with placeholder
+      .substring(0, 100); // Limit length
   }
 
   /**

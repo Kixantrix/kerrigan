@@ -3,8 +3,7 @@
  * Interface with GitHub Copilot SDK
  * 
  * NOTE: This is a placeholder implementation since the actual Copilot SDK
- * integration details are not yet available. This demonstrates the structure
- * and can be updated when PR #127's implementation is available.
+ * integration details are not yet available from PR #127.
  */
 
 import { Octokit } from '@octokit/rest';
@@ -12,7 +11,26 @@ import { AgentContext, AgentResult } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class SDKClient {
+/**
+ * Interface for SDK client behavior.
+ * This documents the expected contract for SDK integration.
+ */
+export interface ISDKClient {
+  /**
+   * Execute agent with SDK
+   * @param context Agent execution context
+   * @returns Result of agent execution
+   */
+  executeAgent(context: AgentContext): Promise<AgentResult>;
+
+  /**
+   * Validate SDK prerequisites
+   * @returns True if SDK is ready to use
+   */
+  validate(): Promise<boolean>;
+}
+
+export class SDKClient implements ISDKClient {
   private octokit: Octokit;
   private token: string;
   private repoPath: string;
@@ -26,8 +44,7 @@ export class SDKClient {
   /**
    * Execute agent with SDK
    * 
-   * This is a placeholder that demonstrates the structure.
-   * Actual implementation will use Copilot SDK once available.
+   * TODO: Replace with actual Copilot SDK integration from PR #127
    */
   async executeAgent(context: AgentContext): Promise<AgentResult> {
     console.log('🤖 Executing agent with SDK...');
@@ -35,17 +52,7 @@ export class SDKClient {
     console.log(`  Issue: #${context.issue.number} - ${context.issue.title}`);
 
     try {
-      // TODO: Replace with actual Copilot SDK integration
-      // Expected flow:
-      // 1. Initialize SDK client with token
-      // 2. Load agent prompt from file
-      // 3. Inject context (issue, artifacts, repository info)
-      // 4. Execute SDK with timeout
-      // 5. Collect generated code/changes
-      // 6. Validate outputs
-      // 7. Return results
-
-      // For now, return a placeholder result
+      // Placeholder result until PR #127 SDK integration is available
       const result: AgentResult = {
         success: false,
         error: 'SDK integration not yet implemented - awaiting PR #127 merge',
