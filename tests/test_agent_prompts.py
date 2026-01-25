@@ -446,7 +446,7 @@ class TestAgentSignatureInPrompts(unittest.TestCase):
                     self.assertIn(expected_role, signature_section,
                         f"{prompt_file.name} signature section should reference {expected_role}")
 
-    def test_all_agents_mention_audit_tool(self):
+    def test_agents_mention_audit_tool(self):
         """Test that agent prompts mention the agent_audit.py tool"""
         for prompt_file in self.role_prompts:
             with self.subTest(agent=prompt_file.name):
@@ -455,6 +455,109 @@ class TestAgentSignatureInPrompts(unittest.TestCase):
                 # Should mention the audit tool for generating signatures
                 self.assertIn("agent_audit.py", content,
                     f"{prompt_file.name} should mention agent_audit.py tool")
+
+
+class TestTriageAgentRoleBoundaries(unittest.TestCase):
+    """Test that triage agent prompt enforces strict role boundaries"""
+
+    def setUp(self):
+        """Load triage analysis prompt"""
+        repo_root = Path(__file__).resolve().parent.parent
+        self.triage_prompt_path = repo_root / "prompts" / "triage-analysis.md"
+        
+        if not self.triage_prompt_path.exists():
+            self.fail("Triage analysis prompt not found at prompts/triage-analysis.md")
+        
+        self.triage_content = self.triage_prompt_path.read_text(encoding="utf-8")
+
+    def test_triage_forbids_direct_implementation(self):
+        """Test that triage prompt explicitly forbids direct implementation"""
+        # Should explicitly forbid implementing fixes
+        self.assertIn("Do NOT implement", self.triage_content,
+            "Triage prompt must explicitly forbid implementing fixes")
+        
+        # Should forbid making code changes
+        self.assertIn("Do NOT make code changes", self.triage_content,
+            "Triage prompt must forbid making code changes")
+
+    def test_triage_forbids_committing_code(self):
+        """Test that triage prompt forbids committing code"""
+        self.assertIn("Do NOT commit code", self.triage_content,
+            "Triage prompt must forbid committing code")
+
+    def test_triage_emphasizes_delegation_to_swe(self):
+        """Test that triage prompt emphasizes delegation to @role.swe"""
+        # Should mention delegating to @role.swe multiple times
+        delegate_count = self.triage_content.lower().count("delegate")
+        self.assertGreaterEqual(delegate_count, 5,
+            "Triage prompt should emphasize delegation (at least 5 mentions)")
+        
+        # Should specifically mention @role.swe
+        self.assertIn("@role.swe", self.triage_content,
+            "Triage prompt must mention delegating to @role.swe")
+
+    def test_triage_has_role_boundary_violations_section(self):
+        """Test that triage prompt has a section on role boundary violations"""
+        self.assertIn("Role Boundary", self.triage_content,
+            "Triage prompt must have a 'Role Boundary' section")
+        
+        # Should mark this as critical
+        self.assertIn("CRITICAL", self.triage_content,
+            "Triage prompt should mark role boundaries as CRITICAL")
+
+    def test_triage_explains_why_delegation_matters(self):
+        """Test that triage prompt explains why delegation is important"""
+        # Should explain the "why" behind delegation
+        keywords = ["quality", "Quality", "responsibility", "workflow", "process"]
+        has_explanation = any(keyword in self.triage_content for keyword in keywords)
+        
+        self.assertTrue(has_explanation,
+            "Triage prompt should explain why delegation matters")
+
+    def test_triage_has_delegation_decision_matrix(self):
+        """Test that triage prompt includes delegation decision criteria"""
+        self.assertIn("Delegation", self.triage_content,
+            "Triage prompt should include delegation guidance")
+        
+        # Should have clear scenarios for when to delegate vs escalate
+        self.assertIn("Delegate", self.triage_content,
+            "Triage prompt should describe when to delegate")
+        self.assertIn("Escalate", self.triage_content,
+            "Triage prompt should describe when to escalate")
+
+    def test_triage_defines_analysis_only_role(self):
+        """Test that triage prompt defines triage as analysis-only role"""
+        # Should explicitly state triage is analysis only
+        self.assertIn("analysis", self.triage_content.lower(),
+            "Triage prompt must define role as analysis")
+        
+        # Should emphasize this in the mission statement
+        lines = self.triage_content.split('\n')
+        mission_section = []
+        in_mission = False
+        for line in lines:
+            if "## Your Mission" in line:
+                in_mission = True
+            elif line.startswith("##") and in_mission:
+                break
+            elif in_mission:
+                mission_section.append(line)
+        
+        mission_text = '\n'.join(mission_section)
+        self.assertIn("analysis", mission_text.lower(),
+            "Triage mission must emphasize analysis role")
+
+    def test_triage_uses_strong_anti_pattern_markers(self):
+        """Test that triage prompt uses strong visual markers for anti-patterns"""
+        # Should use strong visual markers like ❌ or ⛔
+        has_markers = "❌" in self.triage_content or "⛔" in self.triage_content
+        self.assertTrue(has_markers,
+            "Triage prompt should use strong visual markers (❌ or ⛔) for anti-patterns")
+        
+        # Should use bold or emphasis for critical instructions
+        has_emphasis = "**NEVER" in self.triage_content or "**Do NOT" in self.triage_content
+        self.assertTrue(has_emphasis,
+            "Triage prompt should use bold emphasis for critical anti-patterns")
 
 
 if __name__ == "__main__":
