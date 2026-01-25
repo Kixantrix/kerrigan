@@ -71,6 +71,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 
 ### Getting Started
 - **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
+- **[GitHub Security Setup](docs/github-security-setup.md)**: Configure repository security settings
 - **[CLI Reference](docs/cli-reference.md)**: Command-line tool for project management
 - **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
 - **[Project Directory](docs/project-directory.md)**: Overview of all projects and their status

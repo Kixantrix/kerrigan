@@ -1,0 +1,31 @@
+# Code Owners - Automatic Review Assignments
+#
+# This file defines code ownership and automatic review assignments.
+# Users or teams mentioned here will automatically be requested for review
+# when someone opens a pull request that modifies matching files.
+#
+# Syntax: <pattern> @username @org/team
+# Patterns follow .gitignore rules (glob patterns)
+# Later matches override earlier ones
+
+# Repository Owner - Default for everything
+* @Kixantrix
+
+# Core Framework and Workflows
+/.github/workflows/ @Kixantrix
+/.github/agents/ @Kixantrix
+/tools/validators/ @Kixantrix
+
+# Documentation
+/docs/ @Kixantrix
+/playbooks/ @Kixantrix
+/specs/ @Kixantrix
+README.md @Kixantrix
+SECURITY.md @Kixantrix
+
+# Configuration Files
+.editorconfig @Kixantrix
+.gitignore @Kixantrix
+
+# Examples (can be more lenient for community contributions)
+/examples/ @Kixantrix
