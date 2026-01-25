@@ -11,6 +11,7 @@ permissions:
 jobs:
   trigger_dependents:
     runs-on: ubuntu-latest
+    # Only trigger for issues closed as completed (not "not planned")
     if: ${{ github.event.issue.state_reason == 'completed' }}
     steps:
       - name: Auto-trigger dependent issues when parent closes
@@ -24,36 +25,39 @@ jobs:
             
             // Search for issues that list this as a dependency
             // Common patterns: "Depends on #123", "Blocked by #123", "After #123"
-            const searchPatterns = [
-              `depends on #${closedIssue.number}`,
-              `blocked by #${closedIssue.number}`,
-              `after #${closedIssue.number}`,
-              `requires #${closedIssue.number}`,
-              `prerequisite #${closedIssue.number}`
-            ];
+            // Combine patterns to reduce API calls (rate limit: 30 requests/min)
+            const searchQuery = `is:issue is:open repo:${context.repo.owner}/${context.repo.repo} "${closedIssue.number}" (depends OR blocked OR after OR requires OR prerequisite)`;
             
             let dependentIssues = [];
             
-            // Search for each pattern
-            for (const pattern of searchPatterns) {
-              try {
-                const { data: results } = await github.rest.search.issuesAndPullRequests({
-                  q: `"${pattern}" is:issue is:open repo:${context.repo.owner}/${context.repo.repo}`,
-                  per_page: 100
-                });
-                
-                // Add to dependentIssues if not already there
-                for (const issue of results.items) {
-                  if (!dependentIssues.find(i => i.number === issue.number)) {
-                    dependentIssues.push(issue);
-                  }
-                }
-              } catch (error) {
-                console.log(`⚠️  Error searching for "${pattern}":`, error.message);
-              }
+            try {
+              const { data: results } = await github.rest.search.issuesAndPullRequests({
+                q: searchQuery,
+                per_page: 100
+              });
+              
+              console.log(`Found ${results.items.length} potential dependent issue(s)`);
+              
+              // Filter to only issues that actually reference this issue number with dependency keywords
+              const issueNumber = closedIssue.number;
+              const dependencyPatterns = [
+                new RegExp(`depends\\s+on\\s+#${issueNumber}\\b`, 'i'),
+                new RegExp(`blocked\\s+by\\s+#${issueNumber}\\b`, 'i'),
+                new RegExp(`after\\s+#${issueNumber}\\b`, 'i'),
+                new RegExp(`requires\\s+#${issueNumber}\\b`, 'i'),
+                new RegExp(`prerequisite\\s+#${issueNumber}\\b`, 'i')
+              ];
+              
+              dependentIssues = results.items.filter(issue => {
+                const body = issue.body || '';
+                return dependencyPatterns.some(pattern => pattern.test(body));
+              });
+              
+              console.log(`Filtered to ${dependentIssues.length} actual dependent issue(s)`);
+            } catch (error) {
+              console.log('⚠️  Error searching for dependent issues:', error.message);
+              console.log('This may occur due to API rate limits or access restrictions');
             }
-            
-            console.log(`Found ${dependentIssues.length} dependent issue(s)`);
             
             if (dependentIssues.length === 0) {
               console.log('✗ No dependent issues found - nothing to trigger');

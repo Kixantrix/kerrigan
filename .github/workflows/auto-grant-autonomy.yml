@@ -53,7 +53,7 @@ jobs:
             
             // Define criteria for auto-granting agent:go
             let shouldGrant = false;
-            let reason = '';
+            let reasons = [];
             
             // Criterion 1: Issue has role label
             const roleLabels = ['role:spec', 'role:architect', 'role:swe', 'role:testing', 
@@ -62,26 +62,26 @@ jobs:
             
             if (hasRoleLabel) {
               shouldGrant = true;
-              reason = 'Issue has role label (auto-triaged)';
+              reasons.push('Issue has role label (auto-triaged)');
             }
             
             // Criterion 2: Issue created by trusted user (if configured)
             const trustedUsers = config.trusted_users || [];
             if (trustedUsers.includes(issue.user.login)) {
               shouldGrant = true;
-              reason = 'Issue created by trusted user: ' + issue.user.login;
+              reasons.push('Issue created by trusted user: ' + issue.user.login);
             }
             
             // Criterion 3: Issue has kerrigan label (project-related)
             if (issueLabels.includes('kerrigan')) {
               shouldGrant = true;
-              reason = 'Issue has kerrigan project label';
+              reasons.push('Issue has kerrigan project label');
             }
             
             // Criterion 4: Issue has tier:auto label
             if (issueLabels.includes('tier:auto')) {
               shouldGrant = true;
-              reason = 'Issue has tier:auto label (no gates required)';
+              reasons.push('Issue has tier:auto label (no gates required)');
             }
             
             if (!shouldGrant) {
@@ -94,7 +94,8 @@ jobs:
               return;
             }
             
-            // Grant autonomy
+            // Grant autonomy - use most specific reason
+            const reason = reasons.join('; ');
             console.log(`✅ Granting autonomy: ${reason}`);
             
             try {
@@ -113,7 +114,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
-                  body: `🤖 **Autonomy granted automatically**\n\nReason: ${reason}\n\nThis issue now has the \`agent:go\` label, allowing agents to work on it autonomously. See [Autonomy Modes](../playbooks/autonomy-modes.md) for details.`
+                  body: `🤖 **Autonomy granted automatically**\n\nReason: ${reason}\n\nThis issue now has the \`agent:go\` label, allowing agents to work on it autonomously. See the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/playbooks/autonomy-modes.md) for details.`
                 });
               }
             } catch (error) {
