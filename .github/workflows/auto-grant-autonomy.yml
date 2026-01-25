@@ -2,9 +2,9 @@ name: Auto-Grant Autonomy
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened]
 
-# Prevent duplicate runs when issue is opened with labels
+# Prevent duplicate runs
 concurrency:
   group: auto-grant-${{ github.event.issue.number }}
   cancel-in-progress: true
@@ -16,8 +16,6 @@ permissions:
 jobs:
   auto_grant:
     runs-on: ubuntu-latest
-    # Skip if this is a 'labeled' event for agent:go (we add it ourselves)
-    if: ${{ !(github.event.action == 'labeled' && github.event.label.name == 'agent:go') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
