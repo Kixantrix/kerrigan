@@ -11,7 +11,7 @@ We take the security of Kerrigan seriously. If you discover a security vulnerabi
 Instead, please report security issues privately using one of these methods:
 
 1. **GitHub Security Advisories** (Preferred)
-   - Navigate to the [Security tab](https://github.com/Kixantrix/kerrigan/security/advisories)
+   - Navigate to the Security tab of the repository
    - Click "Report a vulnerability"
    - Provide detailed information about the vulnerability
 

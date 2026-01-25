@@ -6,6 +6,8 @@ This guide provides step-by-step instructions for configuring security settings 
 
 The following security features should be enabled for this public repository but **cannot be configured through code**. They require manual configuration by a repository administrator through GitHub's web interface.
 
+**Prerequisites**: You must have **repository administrator** permissions to configure these security settings.
+
 ## 🔐 Required Security Settings
 
 ### 1. Enable Secret Scanning
