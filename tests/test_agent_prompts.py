@@ -532,20 +532,19 @@ class TestTriageAgentRoleBoundaries(unittest.TestCase):
             "Triage prompt must define role as analysis")
         
         # Should emphasize this in the mission statement
-        lines = self.triage_content.split('\n')
-        mission_section = []
-        in_mission = False
-        for line in lines:
-            if "## Your Mission" in line:
-                in_mission = True
-            elif line.startswith("##") and in_mission:
-                break
-            elif in_mission:
-                mission_section.append(line)
-        
-        mission_text = '\n'.join(mission_section)
-        self.assertIn("analysis", mission_text.lower(),
-            "Triage mission must emphasize analysis role")
+        # Find the mission section using regex for any markdown header level
+        mission_match = re.search(r'^#{1,6}\s+Your Mission\s*$', self.triage_content, re.MULTILINE)
+        if mission_match:
+            # Get content after mission header until next header of same or higher level
+            mission_start = mission_match.end()
+            next_header = re.search(r'^#{1,6}\s+', self.triage_content[mission_start:], re.MULTILINE)
+            if next_header:
+                mission_text = self.triage_content[mission_start:mission_start + next_header.start()]
+            else:
+                mission_text = self.triage_content[mission_start:]
+            
+            self.assertIn("analysis", mission_text.lower(),
+                "Triage mission must emphasize analysis role")
 
     def test_triage_uses_strong_anti_pattern_markers(self):
         """Test that triage prompt uses strong visual markers for anti-patterns"""
