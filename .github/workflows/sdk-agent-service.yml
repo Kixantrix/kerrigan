@@ -1,0 +1,68 @@
+name: SDK Agent Service
+
+# Trigger on issue events
+on:
+  issues:
+    types: [labeled, assigned]
+
+# Permissions required for the service
+permissions:
+  issues: write
+  pull-requests: write
+  contents: write
+  metadata: read
+
+jobs:
+  invoke-sdk-agent:
+    name: Invoke SDK Agent
+    runs-on: ubuntu-latest
+    
+    # Only run if the issue has autonomy gate labels
+    if: |
+      contains(github.event.issue.labels.*.name, 'agent:go') ||
+      contains(github.event.issue.labels.*.name, 'agent:sprint') ||
+      contains(github.event.issue.labels.*.name, 'autonomy:override')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: services/sdk-agent/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd services/sdk-agent
+          npm ci
+      
+      - name: Build TypeScript
+        run: |
+          cd services/sdk-agent
+          npm run build
+      
+      - name: Run SDK Agent Service
+        env:
+          GITHUB_APP_ID: ${{ secrets.SDK_AGENT_APP_ID }}
+          GITHUB_APP_PRIVATE_KEY: ${{ secrets.SDK_AGENT_PRIVATE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LOG_LEVEL: info
+        run: |
+          cd services/sdk-agent
+          npm start -- \
+            --event-type "${{ github.event_name }}" \
+            --issue-number "${{ github.event.issue.number }}" \
+            --repository "${{ github.repository }}"
+      
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-agent-logs-${{ github.event.issue.number }}
+          path: services/sdk-agent/logs/
+          retention-days: 7
