@@ -163,13 +163,13 @@ try {
         # Extract issue number from URL
         if ($issueUrl -match "/issues/(\d+)$") {
             $issueNumber = $Matches[1]
-            Write-Host "Assigning @copilot to issue #$issueNumber..." -ForegroundColor Cyan
+            Write-Host "Assigning `@copilot to issue #$issueNumber..." -ForegroundColor Cyan
             
             $assignResult = & gh issue edit $issueNumber --add-assignee "@copilot" 2>&1
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "✓ @copilot assigned successfully" -ForegroundColor Green
+                Write-Host "✓ `@copilot assigned successfully" -ForegroundColor Green
             } else {
-                Write-Warning "Failed to assign @copilot: $assignResult"
+                Write-Warning "Failed to assign `@copilot: $assignResult"
             }
         }
     }
