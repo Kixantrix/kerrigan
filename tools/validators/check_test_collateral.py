@@ -137,8 +137,8 @@ def should_exclude(file_path: str, exclude_patterns: List[str]) -> bool:
 def find_mapping_for_file(file_path: str, mappings: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """Find the test mapping entry for a given source file."""
     for mapping in mappings:
-        source_pattern = mapping.get('source', '')
-        if matches_pattern(file_path, source_pattern):
+        source_pattern = mapping.get('source')
+        if source_pattern and matches_pattern(file_path, source_pattern):
             return mapping
     return None
 
@@ -163,7 +163,8 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
     manual_tests = []
     
     # Track which source files and test files were changed
-    source_files_changed = set()
+    # Store mappings to avoid redundant lookups
+    source_files_with_mappings = {}  # file -> mapping dict
     test_files_changed = set()
     
     for file_path in changed_files:
@@ -176,17 +177,13 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
         if is_test_file:
             test_files_changed.add(file_path)
         
-        # Find mapping for this file
+        # Find mapping for this file and store it
         mapping = find_mapping_for_file(file_path, mappings)
         if mapping:
-            source_files_changed.add(file_path)
+            source_files_with_mappings[file_path] = mapping
     
     # For each changed source file, check if its tests were updated
-    for source_file in source_files_changed:
-        mapping = find_mapping_for_file(source_file, mappings)
-        if not mapping:
-            continue
-        
+    for source_file, mapping in source_files_with_mappings.items():
         test_files = mapping.get('tests')
         manual_test = mapping.get('manual_test_required', False)
         notes = mapping.get('notes', '')
@@ -228,8 +225,8 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
                 issues.append(message)
     
     # Print results
-    if source_files_changed:
-        print(f"📝 Found {len(source_files_changed)} source file(s) with test mappings changed")
+    if source_files_with_mappings:
+        print(f"📝 Found {len(source_files_with_mappings)} source file(s) with test mappings changed")
         print(f"✅ Found {len(test_files_changed)} test file(s) changed")
     
     if manual_tests:
@@ -250,13 +247,13 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
         print("\n💡 Please update the corresponding test files or update .github/test-mapping.yml")
         return 1
     
-    if manual_tests and not source_files_changed and not test_files_changed:
+    if manual_tests and not source_files_with_mappings and not test_files_changed:
         # Only manual tests, with no other changes detected
         return 2
     
-    if not source_files_changed and not changed_files:
+    if not source_files_with_mappings and not changed_files:
         print("ℹ️  No source files changed that require test updates")
-    elif not source_files_changed:
+    elif not source_files_with_mappings:
         print("ℹ️  No source files with test mappings were changed")
     else:
         print(f"\n✅ All source changes have corresponding test updates or are marked for manual testing")
