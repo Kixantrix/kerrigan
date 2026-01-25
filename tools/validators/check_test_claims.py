@@ -133,6 +133,7 @@ def check_test_claims(pr_body_text, changed_test_files):
     
     # Check for specific fabricated patterns
     # Note: Issue #133 identified "39 tests" as a known fabricated number
+    # To add more patterns in the future, add entries to this list
     fabricated_patterns = [
         (r'\ball\s+tests?\s+pass(?:ing)?\s+\(\s*39\s+tests?\s*\)', '39 tests'),
         (r'\b39\s+tests?\b', '39 tests (identified in issue #133 as fabricated)'),
@@ -245,7 +246,7 @@ def main():
     if args.pr_body:
         pr_body_path = Path(args.pr_body)
         if pr_body_path.exists():
-            pr_body_text = pr_body_path.read_text()
+            pr_body_text = pr_body_path.read_text(encoding='utf-8')
     
     # Run checks
     warnings, errors = check_test_claims(pr_body_text, changed_test_files)
