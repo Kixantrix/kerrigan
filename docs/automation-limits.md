@@ -2,6 +2,8 @@
 
 This document analyzes the limits of automation in the Issues → PRs → Issues workflow and documents what can be automated within GitHub constraints.
 
+> **🆕 UPDATE (January 2026)**: The GitHub Copilot SDK now enables autonomous triggering that was previously impossible. See [SDK Investigation Report](./sdk-investigation.md) for complete analysis.
+
 ## Executive Summary
 
 **What CAN be automated** (✅ Implemented):
@@ -11,15 +13,25 @@ This document analyzes the limits of automation in the Issues → PRs → Issues
 - PR status checks and gates
 - Issue triaging based on assignments
 
-**What REQUIRES human intervention** (⚠️ Fundamental limits):
-- Triggering GitHub Copilot to work on issues
-- Local development environment setup
-- GitHub account authentication for Copilot
-- Code generation and PR creation (requires local execution)
+**What CAN NOW be automated with SDK** (🆕 New capability):
+- ✅ Autonomous triggering of Copilot agents (via webhook + SDK)
+- ✅ Service account authentication (via GitHub App tokens)
+- ✅ Issue → Agent → PR workflow without human intervention
+- ✅ Multi-repo support from central service
+- See [SDK Investigation](./sdk-investigation.md) for details
+
+**What STILL REQUIRES human intervention** (⚠️ Intentional limits):
 - Final PR approval and merge decisions
 - Security-sensitive operations
+- Strategic decisions and architecture choices
 
-**Key Finding**: GitHub Actions can automate issue management and workflow orchestration, but **GitHub Copilot cannot be directly triggered or invoked from GitHub Actions**. This requires a human with a GitHub account and Copilot access to work locally or through the web interface.
+**Key Finding**: GitHub Actions can automate issue management and workflow orchestration. **Previously, GitHub Copilot could not be triggered programmatically**. This required a human with a GitHub account and Copilot access to work locally or through the web interface.
+
+**🆕 NEW: With the GitHub Copilot SDK (2026)**, autonomous triggering is now possible using:
+- GitHub App tokens for authentication (bypasses user OAuth requirement)
+- Webhook-driven agent triggering
+- External service running SDK
+- See [SDK Investigation Report](./sdk-investigation.md) and [Architecture Proposal](./sdk-architecture-proposal.md) for implementation details.
 
 ---
 
@@ -56,27 +68,41 @@ on:
 
 **GitHub Copilot Execution Model**:
 
-GitHub Copilot operates in two modes:
+GitHub Copilot operates in multiple modes:
 1. **IDE Integration** (VS Code, JetBrains, etc.) - Requires local environment
 2. **Copilot in GitHub** (PR reviews, issue responses) - Web-based, triggered by @-mentions
+3. **🆕 Copilot SDK** (Programmatic access) - Can be triggered via external services
 
-**What CANNOT be automated**:
-- ❌ Starting a Copilot coding session from Actions
-- ❌ Triggering Copilot to create PRs automatically
+**What CANNOT be automated from GitHub Actions**:
+- ❌ Starting a Copilot coding session directly from Actions
+- ❌ Using `GITHUB_TOKEN` to authenticate Copilot
 - ❌ Invoking Copilot IDE features via CI/CD
-- ❌ Scheduling Copilot work programmatically
+- ❌ Running SDK within Actions context
 
-**What CAN be semi-automated**:
+**What CAN be semi-automated (current approach)**:
 - ✅ Request Copilot PR reviews via `gh pr edit --add-reviewer Copilot`
 - ✅ @-mention @copilot in comments to trigger responses
 - ✅ Use PR review script to systematically request Copilot reviews
 - ✅ Auto-assign role labels that signal which agent should work
 
-**Why**: GitHub Copilot requires:
+**🆕 What CAN NOW be fully automated (with SDK)**:
+- ✅ Autonomous triggering via webhooks + external service
+- ✅ Service account authentication via GitHub App tokens
+- ✅ Issue → Agent → PR workflow without human
+- ✅ Central service managing multiple repositories
+- See [SDK Investigation](./sdk-investigation.md) for implementation details
+
+**Previous Limitation**: GitHub Copilot required:
 - Authenticated GitHub user session (cannot use `GITHUB_TOKEN`)
 - Local development environment for code generation
 - Interactive session for agent work
 - Human-in-the-loop for safety and quality control
+
+**🆕 New Capability with SDK**:
+- GitHub App installation tokens work with SDK (bypasses user OAuth)
+- External service can run 24/7 without human interaction
+- Webhook-driven triggering (instant response to events)
+- See [Architecture Proposal](./sdk-architecture-proposal.md) for design
 
 **Workaround**: The `tools/review-prs.ps1` script provides semi-automation:
 ```powershell
@@ -758,16 +784,41 @@ Kerrigan implements **maximum safe automation** within GitHub constraints:
 
 ### Key Insight
 
-The limitation is not GitHub Actions capability, but the **fundamental architecture of GitHub Copilot**:
-- Copilot is designed as a **user-facing tool**, not a service API
-- This is intentional for safety, quality, and user control
-- Attempting workarounds would violate terms of service and create security risks
+**Previous understanding** (Pre-2026): The limitation was the **fundamental architecture of GitHub Copilot**:
+- Copilot was designed as a **user-facing tool**, not a service API
+- This was intentional for safety, quality, and user control
+- No programmatic access existed
+
+**🆕 Current understanding** (2026+): The **GitHub Copilot SDK changes everything**:
+- SDK provides official programmatic access to Copilot's agentic capabilities
+- GitHub App tokens enable service-account-style authentication
+- Webhook + SDK pattern enables autonomous triggering
+- External service architecture solves multi-repo problem
+- See [SDK Investigation](./sdk-investigation.md) for complete analysis
 
 ### Recommendation
 
-**Current implementation is optimal.** The boundary between automated and manual is exactly where it should be:
-- Automate: Orchestration, routing, validation, status tracking
-- Human: Strategy, code generation (via Copilot), approval, security
+**Current implementation (GitHub Actions only) is optimal for**:
+- Single-repo setup with existing workflows
+- Organizations not ready for external service hosting
+- Teams comfortable with semi-manual triggering
+
+**🆕 SDK-based implementation is recommended for**:
+- Organizations wanting fully autonomous agent triggering
+- Multi-repo deployments with minimal per-repo setup
+- Teams ready to host external service (Railway, AWS, Azure)
+- Use cases requiring 24/7 agent availability
+
+**Hybrid approach (recommended for Kerrigan itself)**:
+- Keep current GitHub Actions for CI/validation/gates
+- Add SDK service for autonomous triggering
+- Gradually migrate based on proven value
+- See [Architecture Proposal](./sdk-architecture-proposal.md) for details
+
+The boundary between automated and manual:
+- **Automate with Actions**: Orchestration, routing, validation, status tracking
+- **🆕 Automate with SDK**: Agent triggering, code generation, PR creation
+- **Keep human**: Strategic decisions, final approval, security-sensitive operations
 
 This balance provides:
 - ✅ Maximum efficiency (reduce manual toil)
@@ -786,6 +837,9 @@ This balance provides:
 
 ## References
 
+- **🆕 SDK Investigation**: [docs/sdk-investigation.md](./sdk-investigation.md) - Complete analysis of autonomous triggering with Copilot SDK
+- **🆕 Architecture Proposal**: [docs/sdk-architecture-proposal.md](./sdk-architecture-proposal.md) - Proposed architecture for SDK integration
+- **🆕 Setup Guide**: [docs/sdk-setup-guide.md](./sdk-setup-guide.md) - Step-by-step implementation guide
 - **Automation Setup**: [.github/automation/README.md](../.github/automation/README.md)
 - **Automation Playbook**: [playbooks/automation.md](../playbooks/automation.md)
 - **Autonomy Modes**: [playbooks/autonomy-modes.md](../playbooks/autonomy-modes.md)
@@ -796,3 +850,4 @@ This balance provides:
 - **Agent Assignment**: [docs/agent-assignment.md](./agent-assignment.md)
 - **GitHub Actions Docs**: https://docs.github.com/en/actions
 - **GitHub Copilot Docs**: https://docs.github.com/en/copilot
+- **GitHub Copilot SDK**: https://github.com/github/copilot-sdk
