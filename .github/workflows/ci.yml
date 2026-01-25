@@ -38,6 +38,14 @@ jobs:
           python tools/validators/check_quality_bar.py
           python tools/validators/check_dependencies.py
 
+      - name: Check test collateral
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          # Fetch the base branch to compare changes
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          python tools/validators/check_test_collateral.py
+
       - name: Validate PR documentation
         if: github.event_name == 'pull_request'
         continue-on-error: true
