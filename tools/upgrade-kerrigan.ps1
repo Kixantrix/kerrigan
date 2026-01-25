@@ -112,13 +112,26 @@ function Add-UpstreamRemote {
     param([string]$Repo)
     
     # Check if upstream remote exists
-    $remotes = git remote
+    $remotes = git remote 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to list git remotes. Please ensure you're in a git repository."
+        exit 1
+    }
+    
     if ($remotes -notcontains "kerrigan-upstream") {
         Write-Host "Adding upstream remote: $Repo" -ForegroundColor Cyan
-        git remote add kerrigan-upstream $Repo
+        git remote add kerrigan-upstream $Repo 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to add upstream remote. Please check the repository URL."
+            exit 1
+        }
     } else {
         Write-Host "Updating upstream remote URL: $Repo" -ForegroundColor Cyan
-        git remote set-url kerrigan-upstream $Repo
+        git remote set-url kerrigan-upstream $Repo 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to update upstream remote URL."
+            exit 1
+        }
     }
 }
 
@@ -197,10 +210,11 @@ function Update-Component {
     foreach ($path in $Paths) {
         if (Test-Path $path) {
             Write-Host "  Checking out $path from upstream..." -ForegroundColor Gray
-            git checkout $UpstreamRef -- $path
+            $output = git checkout $UpstreamRef -- $path 2>&1
             
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "Failed to checkout $path"
+                Write-Error "Failed to checkout $path from $UpstreamRef. Error: $output"
+                exit 1
             }
         } else {
             Write-Host "  Path $path does not exist, skipping" -ForegroundColor Gray
@@ -325,7 +339,12 @@ foreach ($component in $componentsToUpgrade) {
             $changedComponents += $component
         }
     } else {
-        $diffOutput = git diff --name-only HEAD..$upstreamRef -- $paths
+        $diffOutput = git diff --name-only HEAD..$upstreamRef -- $paths 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to get diff for component $component. Error: $diffOutput"
+            exit 1
+        }
+        
         if ($diffOutput) {
             $hasChanges = $true
             $changedComponents += $component
