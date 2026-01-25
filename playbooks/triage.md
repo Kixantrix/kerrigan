@@ -282,7 +282,7 @@ gh pr comment <PR#> --body "## Manual Testing Results
 - [Results observed]
 - [Link to workflow run/screenshot if applicable]
 
-Manual testing complete. Adding \`tested:manual\` label."
+Manual testing complete. Adding `tested:manual` label."
 ```
 
 Then update labels:

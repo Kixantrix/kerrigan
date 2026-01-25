@@ -365,7 +365,7 @@ When a local agent (e.g., Kerrigan in VS Code) reviews a PR:
 ### Detection
 Check for "Manual Testing Required" section in PR description:
 ```regex
-### Manual Testing Required\n.*\[[ x]\]
+### Manual Testing Required\n.*\[[x ]\]
 ```
 
 ### Prompt User

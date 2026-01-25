@@ -35,7 +35,7 @@ These labels control when agents are allowed to work on issues and PRs:
 
 - **`needs:manual-testing`** (color: `#EDEDED`, light gray)
   - PR requires human verification before merge
-  - Applied when functionality cannot be fully automated tested
+  - Applied when functionality cannot be fully automatically tested
   - See: `playbooks/manual-testing.md`
 
 - **`tested:manual`** (color: `#0E8A16`, green)
