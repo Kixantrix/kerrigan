@@ -99,6 +99,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Artifact Contracts](specs/kerrigan/020-artifact-contracts.md)**: Required files and structure
 - **[Quality Bar](specs/kerrigan/030-quality-bar.md)**: Quality standards and enforcement
 - **[Agent Feedback](specs/kerrigan/080-agent-feedback.md)**: Continuous improvement mechanism
+- **[Satellite Feedback](feedback/satellite/README.md)**: Contribute feedback from your Kerrigan installation
 - **[External Research Workflow](docs/external-research-workflow.md)**: Using external research for self-improvement
 
 ### Agent Roles
@@ -204,3 +205,14 @@ MIT (see `LICENSE`).
 - **Questions?** Check the [FAQ](docs/FAQ.md)
 - **Issues?** Open a GitHub issue
 - **Want to understand the system?** Read the [Architecture](docs/architecture.md)
+
+## 🤝 Contributing Feedback
+
+Using Kerrigan in your project? **Your feedback helps make it better for everyone!**
+
+- **Found a bug?** Report it via our [satellite feedback system](feedback/satellite/README.md)
+- **Have an improvement idea?** Share it using `./tools/feedback-to-kerrigan.ps1`
+- **Discovered a useful pattern?** We'd love to hear about it!
+- **Questions or suggestions?** Create an issue with the `satellite-feedback` label
+
+See [feedback/satellite/README.md](feedback/satellite/README.md) for detailed submission options.
