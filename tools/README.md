@@ -107,6 +107,68 @@ Display open issues in a formatted table.
 - `-State`: Issue state to filter by (open, closed, all). Default: open
 - `-Limit`: Maximum number of issues to display. Default: 20
 
+### Create Issue (create-issue.ps1)
+
+Create a GitHub issue from a markdown file or inline content. Supports YAML frontmatter for metadata.
+
+**Usage:**
+```powershell
+# From inline content
+.\tools\create-issue.ps1 -Title "Fix bug" -Body "Description" -Labels "bug,role:swe"
+
+# From markdown file (title extracted from first # heading)
+.\tools\create-issue.ps1 -BodyFile "./my-issue.md" -Labels "enhancement"
+
+# Assign @copilot automatically
+.\tools\create-issue.ps1 -BodyFile "./issue.md" -AssignCopilot
+
+# Preview without creating
+.\tools\create-issue.ps1 -BodyFile "./issue.md" -DryRun
+```
+
+**Parameters:**
+- `-Title`: Issue title (optional if body has # heading)
+- `-Body`: Issue body text
+- `-BodyFile`: Path to markdown file with issue body
+- `-Labels`: Comma-separated labels
+- `-AssignCopilot`: Assign @copilot and add agent:go label
+- `-DryRun`: Preview without creating
+
+**Frontmatter support:**
+```markdown
+---
+title: My Issue Title
+labels: bug,role:swe,kerrigan
+---
+Issue body starts here...
+```
+
+### Batch Create Issues (batch-create-issues.ps1)
+
+Process multiple markdown files from a staging directory and create issues.
+
+**Usage:**
+```powershell
+# Process all .md files in ./temp-issues/
+.\tools\batch-create-issues.ps1 -AssignCopilot
+
+# Custom input directory
+.\tools\batch-create-issues.ps1 -InputDir "./my-issues" -AssignCopilot
+
+# Preview without creating
+.\tools\batch-create-issues.ps1 -DryRun
+
+# Delete files after creation (default: move to processed/)
+.\tools\batch-create-issues.ps1 -DeleteAfter
+```
+
+**Parameters:**
+- `-InputDir`: Directory with markdown files (default: ./temp-issues)
+- `-Pattern`: File pattern to match (default: *.md)
+- `-AssignCopilot`: Assign @copilot to all issues
+- `-DeleteAfter`: Delete files after creation (default: move to processed/)
+- `-DryRun`: Preview without creating
+
 ## Style Guidelines
 
 All PowerShell scripts follow the [PowerShell Style Guide](../docs/powershell-style-guide.md) which ensures:
