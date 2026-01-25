@@ -19,11 +19,16 @@
   },
   "auto_triage_on_assign": true,
   "comment_on_triage": true,
+  "auto_grant_autonomy": true,
+  "comment_on_auto_grant": true,
+  "trusted_users": [],
   "_usage_notes": {
     "description": "Agent roles work via labels, not @mentions. Apply role labels to issues/PRs to trigger automated assignment.",
     "example_user": "role:swe assigns to usernames listed in role_mappings['role:swe']",
     "example_team": "Use 'team:engineering' format to assign to a GitHub team",
     "triage": "When copilot is assigned, role:swe label is automatically added",
-    "disable": "Set auto_assign_on_label or auto_triage_on_assign to false to disable respective automation"
+    "auto_grant": "Issues with role labels, tier:auto, kerrigan label, or from trusted users automatically get agent:go",
+    "trusted_users": "Add GitHub usernames to trusted_users array to auto-grant agent:go to their issues",
+    "disable": "Set auto_assign_on_label, auto_triage_on_assign, or auto_grant_autonomy to false to disable respective automation"
   }
 }
