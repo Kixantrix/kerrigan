@@ -1,0 +1,121 @@
+name: Auto-Trigger Dependent Issues
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  trigger_dependents:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.state_reason == 'completed' }}
+    steps:
+      - name: Auto-trigger dependent issues when parent closes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const closedIssue = context.payload.issue;
+            
+            console.log('🔍 Issue #' + closedIssue.number + ' was closed as completed');
+            console.log('Title:', closedIssue.title);
+            
+            // Search for issues that list this as a dependency
+            // Common patterns: "Depends on #123", "Blocked by #123", "After #123"
+            const searchPatterns = [
+              `depends on #${closedIssue.number}`,
+              `blocked by #${closedIssue.number}`,
+              `after #${closedIssue.number}`,
+              `requires #${closedIssue.number}`,
+              `prerequisite #${closedIssue.number}`
+            ];
+            
+            let dependentIssues = [];
+            
+            // Search for each pattern
+            for (const pattern of searchPatterns) {
+              try {
+                const { data: results } = await github.rest.search.issuesAndPullRequests({
+                  q: `"${pattern}" is:issue is:open repo:${context.repo.owner}/${context.repo.repo}`,
+                  per_page: 100
+                });
+                
+                // Add to dependentIssues if not already there
+                for (const issue of results.items) {
+                  if (!dependentIssues.find(i => i.number === issue.number)) {
+                    dependentIssues.push(issue);
+                  }
+                }
+              } catch (error) {
+                console.log(`⚠️  Error searching for "${pattern}":`, error.message);
+              }
+            }
+            
+            console.log(`Found ${dependentIssues.length} dependent issue(s)`);
+            
+            if (dependentIssues.length === 0) {
+              console.log('✗ No dependent issues found - nothing to trigger');
+              return;
+            }
+            
+            // Process each dependent issue
+            for (const issue of dependentIssues) {
+              console.log(`\n📋 Processing dependent issue #${issue.number}: ${issue.title}`);
+              
+              const issueLabels = issue.labels.map(l => l.name);
+              
+              // Check if issue already has agent:go
+              if (issueLabels.includes('agent:go')) {
+                console.log('   ✓ Already has agent:go label - skipping');
+                continue;
+              }
+              
+              // Check if issue has agent:sprint
+              if (issueLabels.includes('agent:sprint')) {
+                console.log('   ✓ Already has agent:sprint label - skipping');
+                continue;
+              }
+              
+              // Check if issue has label:blocked
+              const wasBlocked = issueLabels.includes('blocked');
+              
+              // Add agent:go label
+              console.log('   ✅ Adding agent:go label to unblock work');
+              
+              try {
+                // Remove blocked label if present
+                if (wasBlocked) {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    name: 'blocked'
+                  });
+                  console.log('   ✅ Removed blocked label');
+                }
+                
+                // Add agent:go label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['agent:go']
+                });
+                
+                console.log('   ✅ Added agent:go label');
+                
+                // Post a comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `🤖 **Dependency resolved - work can begin**\n\nThis issue was blocked by #${closedIssue.number}, which has now been completed. The \`agent:go\` label has been automatically added.\n\nWork may now begin on this issue.`
+                });
+                
+                console.log('   ✅ Notification comment posted');
+              } catch (error) {
+                console.log('   ⚠️  Failed to trigger dependent issue:', error.message);
+              }
+            }

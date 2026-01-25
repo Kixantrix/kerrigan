@@ -1,0 +1,88 @@
+name: Auto-Ready PR
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  mark_ready:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Auto-mark PR ready for review when CI passes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            
+            console.log('🔍 CI workflow completed successfully');
+            console.log('Workflow run ID:', run.id);
+            console.log('Head branch:', run.head_branch);
+            
+            // Get associated pull requests
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${run.head_branch}`,
+              state: 'open'
+            });
+            
+            if (pullRequests.length === 0) {
+              console.log('✗ No open PRs found for this branch');
+              return;
+            }
+            
+            for (const pr of pullRequests) {
+              console.log(`\n📋 Processing PR #${pr.number}: ${pr.title}`);
+              console.log(`   Draft: ${pr.draft}`);
+              console.log(`   State: ${pr.state}`);
+              
+              // Only mark draft PRs as ready
+              if (!pr.draft) {
+                console.log('   ✓ PR is already ready for review - skipping');
+                continue;
+              }
+              
+              // Check if PR has agent:go label (indicates autonomous work)
+              const prLabels = pr.labels.map(l => l.name);
+              const hasAgentGo = prLabels.includes('agent:go');
+              
+              console.log(`   Agent:go label: ${hasAgentGo ? 'YES' : 'NO'}`);
+              
+              if (!hasAgentGo) {
+                console.log('   ✗ PR does not have agent:go label - skipping auto-ready');
+                continue;
+              }
+              
+              // Mark PR as ready for review
+              console.log('   ✅ Marking PR as ready for review');
+              
+              try {
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  draft: false
+                });
+                
+                console.log('   ✅ PR marked as ready for review');
+                
+                // Post a comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: `🤖 **Automatically marked as ready for review**\n\nCI checks have passed and this PR has the \`agent:go\` label, indicating autonomous work. The PR is now ready for review.\n\nReviewers will be assigned based on role labels if configured.`
+                });
+                
+                console.log('   ✅ Notification comment posted');
+              } catch (error) {
+                console.log('   ⚠️  Failed to mark PR as ready:', error.message);
+              }
+            }

@@ -31,6 +31,34 @@ These labels control when agents are allowed to work on issues and PRs:
   - Use sparingly, only when justified
   - See: `specs/kerrigan/030-quality-bar.md`
 
+### Tier Labels (Autonomy Level)
+
+These labels define the level of autonomy and gating for issues:
+
+- **`tier:auto`** (color: `#28A745`, bright green)
+  - Fully autonomous - no manual gates required
+  - Issues automatically get `agent:go` when created
+  - Work proceeds without human intervention until completion
+  - Use for: low-risk tasks, routine maintenance, documentation
+
+- **`tier:standard`** (color: `#FFA500`, orange)
+  - Standard workflow - acceptance gate only
+  - Human reviews and approves final PR before merge
+  - Agent works autonomously but waits for approval
+  - Default for most issues (if no tier specified)
+
+- **`tier:strategic`** (color: `#DC143C`, crimson)
+  - High-touch - direction and acceptance gates
+  - Human provides strategic direction during work
+  - Agent pauses for directional input when needed
+  - Human reviews and approves before merge
+  - Use for: complex features, architectural changes, risky operations
+
+- **`blocked`** (color: `#E99695`, soft coral)
+  - Issue is blocked and cannot proceed
+  - Removed automatically when dependencies resolve
+  - Manual label for issues with external blockers
+
 ### Role Assignment Labels
 
 These labels are used for assigning work to specific agent roles:
@@ -98,6 +126,12 @@ gh label create "autonomy:override" --color "D93F0B" --description "Human overri
 
 # Quality control
 gh label create "allow:large-file" --color "C5DEF5" --description "Bypass 800 LOC quality bar check"
+
+# Tier labels (autonomy level)
+gh label create "tier:auto" --color "28A745" --description "Fully autonomous - no manual gates"
+gh label create "tier:standard" --color "FFA500" --description "Standard workflow - acceptance gate only"
+gh label create "tier:strategic" --color "DC143C" --description "High-touch - direction and acceptance gates"
+gh label create "blocked" --color "E99695" --description "Issue is blocked and cannot proceed"
 
 # Role assignment
 gh label create "role:spec" --color "5319E7" --description "Assign to Spec agent"

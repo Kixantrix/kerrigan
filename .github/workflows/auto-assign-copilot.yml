@@ -1,0 +1,62 @@
+name: Auto-Assign Copilot
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  assign_copilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-assign Copilot when agent:go label is added
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const label = context.payload.label;
+            
+            console.log('🔍 Checking if Copilot should be assigned to issue #' + issue.number);
+            console.log('Label added:', label.name);
+            
+            // Only trigger when agent:go label is added
+            if (label.name !== 'agent:go') {
+              console.log('✗ Label is not agent:go - skipping');
+              return;
+            }
+            
+            // Check if Copilot is already assigned
+            const currentAssignees = issue.assignees.map(a => a.login);
+            if (currentAssignees.includes('copilot')) {
+              console.log('✓ Copilot is already assigned - skipping');
+              return;
+            }
+            
+            console.log('✅ Assigning Copilot to issue');
+            
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                assignees: ['copilot']
+              });
+              
+              console.log('✅ Copilot assigned successfully');
+              
+              // Post a comment to notify Copilot
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `@copilot This issue has been granted autonomy with the \`agent:go\` label. You may begin work on this issue.\n\nSee [Autonomy Modes](../playbooks/autonomy-modes.md) for details on autonomous workflow.`
+              });
+              
+              console.log('✅ Notification comment posted');
+            } catch (error) {
+              console.log('⚠️  Failed to assign Copilot:', error.message);
+              console.log('Note: Copilot must be a valid user with repository access');
+            }

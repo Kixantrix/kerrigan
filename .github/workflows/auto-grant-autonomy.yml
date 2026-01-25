@@ -1,0 +1,121 @@
+name: Auto-Grant Autonomy
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  auto_grant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auto-apply agent:go label when appropriate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const issueLabels = issue.labels.map(l => l.name);
+            
+            console.log('🔍 Checking if issue #' + issue.number + ' should get agent:go label');
+            console.log('Issue Labels:', issueLabels.join(', ') || '(none)');
+            console.log('Issue Author:', issue.user.login);
+            
+            // Skip if already has agent:go or agent:sprint
+            if (issueLabels.includes('agent:go') || issueLabels.includes('agent:sprint')) {
+              console.log('✓ Issue already has autonomy grant - skipping');
+              return;
+            }
+            
+            // Load configuration
+            const fs = require('fs');
+            let config;
+            try {
+              const configPath = '.github/automation/reviewers.json';
+              const configContent = fs.readFileSync(configPath, 'utf8');
+              config = JSON.parse(configContent);
+            } catch (error) {
+              console.log('⚠️  Could not load reviewers.json config:', error.message);
+              console.log('Skipping auto-grant');
+              return;
+            }
+            
+            // Check if auto-grant is enabled (default to false for safety)
+            if (!config.auto_grant_autonomy) {
+              console.log('ℹ️  Auto-grant autonomy is disabled in config');
+              return;
+            }
+            
+            // Define criteria for auto-granting agent:go
+            let shouldGrant = false;
+            let reason = '';
+            
+            // Criterion 1: Issue has role label
+            const roleLabels = ['role:spec', 'role:architect', 'role:swe', 'role:testing', 
+                              'role:security', 'role:deployment', 'role:debugging', 'role:design'];
+            const hasRoleLabel = issueLabels.some(label => roleLabels.includes(label));
+            
+            if (hasRoleLabel) {
+              shouldGrant = true;
+              reason = 'Issue has role label (auto-triaged)';
+            }
+            
+            // Criterion 2: Issue created by trusted user (if configured)
+            const trustedUsers = config.trusted_users || [];
+            if (trustedUsers.includes(issue.user.login)) {
+              shouldGrant = true;
+              reason = 'Issue created by trusted user: ' + issue.user.login;
+            }
+            
+            // Criterion 3: Issue has kerrigan label (project-related)
+            if (issueLabels.includes('kerrigan')) {
+              shouldGrant = true;
+              reason = 'Issue has kerrigan project label';
+            }
+            
+            // Criterion 4: Issue has tier:auto label
+            if (issueLabels.includes('tier:auto')) {
+              shouldGrant = true;
+              reason = 'Issue has tier:auto label (no gates required)';
+            }
+            
+            if (!shouldGrant) {
+              console.log('✗ Issue does not meet criteria for auto-grant');
+              console.log('Criteria checked:');
+              console.log('  - Role labels:', hasRoleLabel ? 'YES' : 'no');
+              console.log('  - Trusted user:', trustedUsers.includes(issue.user.login) ? 'YES' : 'no');
+              console.log('  - Kerrigan label:', issueLabels.includes('kerrigan') ? 'YES' : 'no');
+              console.log('  - Tier auto:', issueLabels.includes('tier:auto') ? 'YES' : 'no');
+              return;
+            }
+            
+            // Grant autonomy
+            console.log(`✅ Granting autonomy: ${reason}`);
+            
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['agent:go']
+              });
+              
+              console.log('✅ Added agent:go label');
+              
+              // Post comment if configured
+              if (config.comment_on_auto_grant) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `🤖 **Autonomy granted automatically**\n\nReason: ${reason}\n\nThis issue now has the \`agent:go\` label, allowing agents to work on it autonomously. See [Autonomy Modes](../playbooks/autonomy-modes.md) for details.`
+                });
+              }
+            } catch (error) {
+              console.log('⚠️  Failed to add agent:go label:', error.message);
+            }
