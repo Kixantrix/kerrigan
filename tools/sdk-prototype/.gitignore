@@ -1,0 +1,12 @@
+# Environment variables
+.env
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Private keys
+*.pem
+
+# Test outputs
+test-output/

@@ -1,0 +1,23 @@
+{
+  "name": "kerrigan-sdk-prototype",
+  "version": "1.0.0",
+  "description": "Prototype to validate GitHub App token authentication with Copilot SDK",
+  "type": "module",
+  "main": "test-auth.js",
+  "scripts": {
+    "test": "node test-auth.js"
+  },
+  "keywords": [
+    "github",
+    "copilot",
+    "sdk",
+    "prototype"
+  ],
+  "author": "Kerrigan",
+  "license": "MIT",
+  "dependencies": {
+    "@github/copilot-sdk": "^1.0.0",
+    "octokit": "^3.1.0",
+    "dotenv": "^16.0.0"
+  }
+}
