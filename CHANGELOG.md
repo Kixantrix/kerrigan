@@ -71,6 +71,39 @@ See [docs/setup.md](docs/setup.md) for detailed instructions.
 
 ## [Unreleased]
 
+### Added
+- **Version tracking system**: `kerrigan-version.json` manifest tracks installed version and component versions
+- **Upgrade automation**: `tools/upgrade-kerrigan.ps1` PowerShell script for selective component upgrades
+- **Upgrade playbook**: Comprehensive guide for upgrading satellite installations (`playbooks/upgrade-satellite.md`)
+
+### Features
+
+#### Version Manifest (`kerrigan-version.json`)
+- Track main version and individual component versions (workflows, prompts, validators, skills, playbooks, tools)
+- Record installation date and last update timestamp
+- Link to upstream repository for easy reference
+
+#### Upgrade Script (`tools/upgrade-kerrigan.ps1`)
+- Selective component upgrades (choose which components to update)
+- Dry-run mode to preview changes without applying
+- Show-diff mode for detailed change visualization
+- Automatic version manifest updates
+- Conflict detection and clean working directory validation
+- Preserves project-specific customizations
+
+#### Upgrade Process
+- Automated fetching from upstream Kerrigan repository
+- Component-based upgrade strategy (workflows, prompts, validators, skills, playbooks, tools)
+- Multiple upgrade methods: automated script, manual cherry-pick, template branch merge
+- Post-upgrade validation checklist
+- Rollback procedures documented
+
+### Documentation
+- Added comprehensive upgrade playbook with examples and troubleshooting
+- Component-specific upgrade notes for workflows, prompts, and validators
+- Breaking change handling guide
+- Conflict resolution strategies
+
 ### Planned
 - See open issues for upcoming features
 
