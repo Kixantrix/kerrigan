@@ -35,7 +35,8 @@ def get_changed_test_files(base_ref='main', head_ref='HEAD'):
             check=True
         )
         
-        changed_files = result.stdout.strip().split('\n')
+        # Handle empty output
+        changed_files = result.stdout.strip().split('\n') if result.stdout.strip() else []
         
         # Filter for test files
         test_files = [
@@ -62,12 +63,13 @@ def count_test_functions_in_file(filepath):
             content = f.read()
         
         # Count test functions (Python, JavaScript, Go, etc.)
+        # Use more specific patterns to avoid double-counting
         patterns = [
             r'^\s*def test_',     # Python
             r'^\s*func Test',      # Go
             r'^\s*it\s*\(',       # JavaScript/Jest
             r'^\s*test\s*\(',     # JavaScript/Jest
-            r'^\s*@Test',          # Java/JUnit
+            r'^\s*@Test\s*\n\s*(?:public|private|protected)',  # Java/JUnit
         ]
         
         count = 0
@@ -103,9 +105,10 @@ def check_test_claims(pr_body_text, changed_test_files):
                 found_claims.append((int(match), description))
     
     # Check for vague claims without specifics
+    # These patterns look for test claims without specific details in parentheses
     vague_patterns = [
-        r'all\s+tests?\s+pass(?:ing)?(?!\s*\()',  # "all tests pass" without count in parens
-        r'tests?\s+pass(?:ing)?(?!\s*\()',  # "tests pass" without details in parens
+        r'all\s+tests?\s+pass(?:ing)?(?!\s*\(\s*\d+)',  # "all tests pass" without count
+        r'tests?\s+pass(?:ing)?(?!\s*\(\s*\d+)',  # "tests pass" without count
         r'test\s+coverage\s+added',  # "test coverage added" without specifics
     ]
     
