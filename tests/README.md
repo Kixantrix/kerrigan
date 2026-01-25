@@ -76,6 +76,24 @@ Validates the agent feedback backchannel system configuration and feedback files
 - `TestAgentPromptFeedbackSections`: Ensures agent prompts mention feedback mechanism
 - `TestDocumentationReferences`: Validates key documents reference feedback system
 
+### Test Collateral Tests (`test_test_collateral.py`)
+
+Validates the test collateral enforcement system that links source files to their tests.
+
+**Test Classes:**
+- `TestTestMappingFile`: Validates .github/test-mapping.yml structure and content
+  - Ensures all validators have test mappings
+  - Validates mapping file schema
+  - Checks expected source files are mapped
+- `TestValidatorScript`: Tests the check_test_collateral.py validator script
+  - Tests pattern matching logic
+  - Tests file exclusion logic
+  - Validates script is executable
+- `TestValidatorIntegration`: Integration tests for the validator
+  - Tests loading and parsing test mappings
+  - Tests detecting changed files
+  - Tests validation logic for various scenarios
+
 ### Validator Tests (`validators/`)
 
 Tests for specific validator modules:
@@ -162,7 +180,12 @@ if __name__ == "__main__":
 - **Agent Feedback Tests**: 21 tests across 5 test classes
 - **Validator Tests**: 17 tests for status.json validation
 - **Pause/Resume Tests**: 9 tests for status tracking workflow
-- **Total**: 185 tests
+- **Test Collateral Tests**: 26 tests across 3 test classes
+- **Agent Audit Tests**: 30 tests across 6 test classes
+- **Self-Improvement Tests**: 12 tests for self-improvement analyzer
+- **Spec Compliance Tests**: 9 tests for agent spec compliance workflow
+- **Dependencies Tests**: 14 tests for dependency validation
+- **Total**: 252 tests
 
 ### Coverage Goals
 - ✅ All agent prompts validated for structure and content
@@ -170,6 +193,8 @@ if __name__ == "__main__":
 - ✅ Agent feedback system fully validated
 - ✅ Status.json schema fully validated
 - ✅ Autonomy gate enforcement fully tested (Milestone 4)
+- ✅ Test collateral enforcement fully tested
+- ✅ Agent audit tool fully tested
 - 🔄 Future: Add tests for artifact validators
 - 🔄 Future: Add tests for quality bar checker
 
