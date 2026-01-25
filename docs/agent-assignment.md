@@ -15,6 +15,12 @@ Kerrigan's agents (Spec, Architect, SWE, Testing, Security, Deployment, Debuggin
 - ❌ Directly assign them to issues
 - ❌ Add them as PR reviewers
 
+**Exception**: GitHub Copilot (`@copilot`) is a special user account that can be:
+- ✅ Assigned to issues to trigger work
+- ✅ @mentioned in PR comments to request actions
+
+See the "Triggering Copilot" section below for details.
+
 ### 2. Assignment Via Labels
 
 Instead, use **role labels** to indicate which agent role should handle the work:
@@ -115,6 +121,67 @@ The `triage_mappings` section enables **reverse assignment**: when specified use
 gh issue edit 123 --add-assignee "@copilot"
 # Automatically adds role:swe label
 ```
+
+## Triggering Copilot
+
+GitHub Copilot is triggered differently depending on whether you're working with issues or PRs.
+
+### On Issues: Use Assignment
+
+To assign Copilot to work on an issue:
+
+```bash
+# Command line
+gh issue edit <number> --add-assignee "@copilot"
+
+# Or create and assign in one step
+gh issue create --title "Fix login bug" \
+  --body "Details..." \
+  --assignee "@copilot"
+```
+
+**Via GitHub API:**
+```json
+POST /repos/:owner/:repo/issues/:number/assignees
+{
+  "assignees": ["@copilot"]
+}
+```
+
+**Critical**: The @ symbol is required. Using `copilot` (without @) will fail silently.
+
+### On PRs: Use @Mention in Comments
+
+To request Copilot review or work on a PR:
+
+```bash
+gh pr comment <number> --body "@copilot please address the review feedback"
+gh pr comment <number> --body "@copilot please review this implementation"
+gh pr comment <number> --body "@copilot please continue work on this PR"
+```
+
+### Why the Difference?
+
+- **Issues**: GitHub Copilot monitors issue **assignments** to detect new work
+- **PRs**: GitHub Copilot monitors PR **comments** for @mentions to respond to requests
+
+### Common Mistakes
+
+- ❌ Using @mention in issue comments → Doesn't trigger Copilot work
+- ❌ Assigning `copilot` without @ → Fails silently
+- ❌ Trying to assign Copilot to PRs → Use comments instead
+- ✅ Assign with @ for issues, @mention in comments for PRs
+
+### Auto-Triage Integration
+
+When `@copilot` is assigned to an issue, the auto-triage workflow automatically adds appropriate role labels based on `triage_mappings` in `reviewers.json`:
+
+```json
+{
+  "triage_mappings": {
+    "copilot": ["role:swe"]
+  }
+}
 
 ### Disabling Automation
 

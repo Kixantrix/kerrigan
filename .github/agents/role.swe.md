@@ -220,6 +220,33 @@ If asked to "demonstrate", "show", or "exercise" features:
 
 See `docs/pr-documentation-guidelines.md` for complete standards.
 
+## Triggering Other Agents
+
+If you need to hand off work to another agent or create follow-up issues:
+
+### For Issues (assign to trigger work)
+```bash
+# Assign Copilot to work on an issue
+gh issue edit <number> --add-assignee "@copilot"
+
+# Or via GitHub API
+# assignees: ['@copilot']
+```
+
+**Important**: The @ symbol is required. Using `copilot` without @ will fail silently.
+
+### For PRs (use @mention in comments)
+```bash
+# Request Copilot review or work on a PR
+gh pr comment <number> --body "@copilot please address the review feedback"
+```
+
+**Remember the distinction**:
+- **Issues**: Copilot is triggered by **assignment** using `@copilot`
+- **PRs**: Copilot is triggered by **@mention** in comments
+
+**Common mistake**: Using @mentions in issue comments - this does NOT trigger Copilot work on issues.
+
 ## Agent Feedback
 
 If you encounter unclear instructions, missing information, or friction points while working:

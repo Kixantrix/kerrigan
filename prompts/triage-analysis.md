@@ -166,6 +166,24 @@ Status: needs-info / ready / blocked / in-progress
 - `good-first-issue` - Suitable for newcomers
 - `help-wanted` - Community contributions welcome
 
+**Triggering Copilot Work on Issues**:
+
+To assign Copilot to work on an issue, use assignment (not @mention):
+```bash
+gh issue edit <number> --add-assignee "@copilot"
+```
+
+**Important**: The @ symbol is required when assigning. Using `copilot` without @ will fail silently.
+
+**Via API**:
+```json
+{
+  "assignees": ["@copilot"]
+}
+```
+
+**Note**: @mentions do NOT trigger Copilot work on issues - they only work in PR comments.
+
 ### Step 7: Create Triage Summary
 
 Add a comment to the issue with your triage analysis:

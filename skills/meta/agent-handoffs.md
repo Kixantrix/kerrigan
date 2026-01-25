@@ -268,6 +268,39 @@ Following security patterns from architecture.md section "Security Consideration
 
 ## Handoff Communication
 
+### Triggering Copilot Work
+
+**Critical distinction** - different methods for issues vs PRs:
+
+#### On Issues (use assignment)
+```bash
+# Assign Copilot to work on an issue
+gh issue edit <number> --add-assignee "@copilot"
+
+# Or via API
+# POST /repos/:owner/:repo/issues/:number/assignees
+# { "assignees": ["@copilot"] }
+```
+
+**Important**: The @ symbol is required. Using `copilot` (without @) will fail silently.
+
+#### On PRs (use @mention in comments)
+```bash
+# Request Copilot to review or work on a PR
+gh pr comment <number> --body "@copilot please address the review feedback"
+gh pr comment <number> --body "@copilot please review this implementation"
+```
+
+**Why the difference?**
+- **Issues**: GitHub Copilot monitors issue assignments to detect new work
+- **PRs**: GitHub Copilot monitors PR comments for @mentions to respond to requests
+
+**Common mistakes to avoid**:
+- ❌ Using @mention in issue comments (doesn't trigger work)
+- ❌ Assigning `copilot` without @ symbol (fails silently)
+- ❌ Trying to assign Copilot to PRs (use comments instead)
+- ✅ Assign with @ for issues, @mention in comments for PRs
+
 ### In Commits
 ```bash
 git commit -m "Add User model per architecture.md component design"
