@@ -129,7 +129,7 @@ async function getInstallationToken() {
     });
     
     logSuccess('Installation token obtained');
-    logInfo(`Token: ${token.substring(0, 20)}...`);
+    logInfo(`Token type: ${token.startsWith('ghs_') ? 'Installation token' : 'Unknown'}`);
     logInfo(`Token length: ${token.length} characters`);
     
     return token;
@@ -250,7 +250,8 @@ async function sendTestPrompt(client) {
     logInfo(`Session ID: ${session.id || 'unknown'}`);
     
     logInfo('Sending prompt...');
-    const prompt = 'Create a file called test.txt with the content "Hello World from Kerrigan SDK Prototype"';
+    // Safe test prompt - creates file in a test directory to avoid pollution
+    const prompt = 'Create a file called .kerrigan-sdk-test.txt in a test-sdk-validation directory with the content "Hello World from Kerrigan SDK Prototype - Safe to delete". This is a validation test file.';
     
     const response = await session.send({ prompt });
     

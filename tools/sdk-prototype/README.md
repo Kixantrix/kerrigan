@@ -2,6 +2,8 @@
 
 **Purpose**: Validate the key assumption that GitHub App installation tokens can authenticate the Copilot SDK for headless operation.
 
+**⚠️ Testing Safety**: This prototype creates a test file in `test-sdk-validation/.kerrigan-sdk-test.txt` to validate git operations. The file is clearly marked as safe to delete and is created in a separate directory to avoid pollution of your main codebase.
+
 ## What This Tests
 
 This prototype answers the critical question:
