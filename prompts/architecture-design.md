@@ -207,6 +207,16 @@ After completing architecture.md:
    - Link spec.md, architecture.md, plan.md, tasks.md
    - Highlight any critical decisions or constraints
 
+**To assign Copilot to start implementation work**:
+```bash
+gh issue create --title "Implement <project>" \
+  --body "See architecture artifacts..." \
+  --label "role:swe" \
+  --assignee "@copilot"
+```
+
+**Note**: Use `--add-assignee "@copilot"` (with @) to trigger Copilot work on issues. @mentions in issue comments do not trigger work.
+
 4. **Pre-implementation checklist**:
    - [ ] All required artifacts created
    - [ ] Spec requirements fully addressed
