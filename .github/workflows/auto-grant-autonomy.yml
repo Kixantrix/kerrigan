@@ -114,7 +114,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
-                  body: `🤖 **Autonomy granted automatically**\n\nReason: ${reason}\n\nThis issue now has the \`agent:go\` label, allowing agents to work on it autonomously. See the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/playbooks/autonomy-modes.md) for details.`
+                  body: `🤖 **Autonomy granted automatically**\n\nReason: ${reason}\n\nThis issue now has the \`agent:go\` label, allowing agents to work on it autonomously. See the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${context.payload.repository.default_branch}/playbooks/autonomy-modes.md) for details.`
                 });
               }
             } catch (error) {

@@ -66,7 +66,7 @@ gh pr merge <pr-number> --auto --rebase
 
 ### Via Workflow Automation
 
-You can create a workflow to auto-enable auto-merge for PRs with certain labels:
+GitHub's REST API doesn't directly support enabling auto-merge. This must be done via the web UI, CLI, or GraphQL API. Here's an example using GraphQL:
 
 ```yaml
 name: Enable Auto-Merge
@@ -83,15 +83,30 @@ jobs:
       - name: Enable auto-merge
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            await github.rest.pulls.updateBranch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number
+            const mutation = `
+              mutation($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
+                enablePullRequestAutoMerge(input: {
+                  pullRequestId: $pullRequestId,
+                  mergeMethod: $mergeMethod
+                }) {
+                  pullRequest {
+                    autoMergeRequest {
+                      enabledAt
+                    }
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              pullRequestId: context.payload.pull_request.node_id,
+              mergeMethod: 'SQUASH'
             });
 ```
 
-**Note**: This requires a GitHub token with appropriate permissions.
+**Note**: This requires a GitHub token with appropriate permissions and the repository must have auto-merge enabled in settings.
 
 ## Integration with Kerrigan Workflow
 

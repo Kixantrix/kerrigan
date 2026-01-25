@@ -27,25 +27,25 @@ jobs:
             
             // Get associated pull requests
             // Note: For PRs from forks, the head format is 'fork-owner:branch-name'
-            // We need to search both formats
-            const headRef = `${context.repo.owner}:${run.head_branch}`;
+            // For same-repo PRs, the head format is 'repo-owner:branch-name'
             
             let pullRequests = [];
             
             // Try searching with owner:branch format (for same-repo PRs)
             try {
+              const ownerBranchRef = `${context.repo.owner}:${run.head_branch}`;
               const { data: samePRs } = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                head: headRef,
+                head: ownerBranchRef,
                 state: 'open'
               });
               pullRequests = samePRs;
             } catch (error) {
-              console.log('⚠️  Error searching for PRs with owner prefix:', error.message);
+              console.log('⚠️  Error searching for PRs with owner:branch format:', error.message);
             }
             
-            // If no PRs found, try searching all PRs and match by branch name
+            // If no PRs found, try searching all PRs and match by branch name (handles forks)
             if (pullRequests.length === 0) {
               try {
                 const { data: allPRs } = await github.rest.pulls.list({
@@ -53,7 +53,7 @@ jobs:
                   repo: context.repo.repo,
                   state: 'open'
                 });
-                // Match PRs by branch name (handles forks)
+                // Match PRs by branch name only (handles forks where owner differs)
                 pullRequests = allPRs.filter(pr => pr.head.ref === run.head_branch);
               } catch (error) {
                 console.log('⚠️  Error searching all PRs:', error.message);

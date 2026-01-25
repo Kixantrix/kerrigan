@@ -24,9 +24,9 @@ jobs:
             console.log('Title:', closedIssue.title);
             
             // Search for issues that list this as a dependency
-            // Common patterns: "Depends on #123", "Blocked by #123", "After #123"
+            // Use more specific patterns to avoid false positives
             // Combine patterns to reduce API calls (rate limit: 30 requests/min)
-            const searchQuery = `is:issue is:open repo:${context.repo.owner}/${context.repo.repo} "${closedIssue.number}" (depends OR blocked OR after OR requires OR prerequisite)`;
+            const searchQuery = `is:issue is:open repo:${context.repo.owner}/${context.repo.repo} "#${closedIssue.number}"`;
             
             let dependentIssues = [];
             
@@ -36,16 +36,17 @@ jobs:
                 per_page: 100
               });
               
-              console.log(`Found ${results.items.length} potential dependent issue(s)`);
+              console.log(`Found ${results.items.length} issue(s) mentioning #${closedIssue.number}`);
               
-              // Filter to only issues that actually reference this issue number with dependency keywords
+              // Filter to only issues that actually reference this issue number with specific dependency keywords
               const issueNumber = closedIssue.number;
               const dependencyPatterns = [
                 new RegExp(`depends\\s+on\\s+#${issueNumber}\\b`, 'i'),
                 new RegExp(`blocked\\s+by\\s+#${issueNumber}\\b`, 'i'),
                 new RegExp(`after\\s+#${issueNumber}\\b`, 'i'),
-                new RegExp(`requires\\s+#${issueNumber}\\b`, 'i'),
-                new RegExp(`prerequisite\\s+#${issueNumber}\\b`, 'i')
+                new RegExp(`requires?\\s+#${issueNumber}\\b`, 'i'),
+                new RegExp(`prerequisite\\s+#${issueNumber}\\b`, 'i'),
+                new RegExp(`waiting\\s+(?:on|for)\\s+#${issueNumber}\\b`, 'i')
               ];
               
               dependentIssues = results.items.filter(issue => {
@@ -53,7 +54,7 @@ jobs:
                 return dependencyPatterns.some(pattern => pattern.test(body));
               });
               
-              console.log(`Filtered to ${dependentIssues.length} actual dependent issue(s)`);
+              console.log(`Filtered to ${dependentIssues.length} actual dependent issue(s) with explicit dependency keywords`);
             } catch (error) {
               console.log('⚠️  Error searching for dependent issues:', error.message);
               console.log('This may occur due to API rate limits or access restrictions');
