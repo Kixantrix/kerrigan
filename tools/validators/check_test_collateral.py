@@ -198,7 +198,7 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
             test_files = [test_files]
         
         # Check if any of the corresponding test files were changed
-        # Pre-compile a set of changed test files for O(1) lookup
+        # Use the set of changed test files for O(1) exact match lookup
         test_updated = False
         for test_pattern in test_files:
             # Check exact match first (O(1))
