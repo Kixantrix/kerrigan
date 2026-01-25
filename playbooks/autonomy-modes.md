@@ -2,6 +2,30 @@
 
 Goal: allow agents to open PRs directly when helpful, while retaining an easy "pause / on-demand" switch.
 
+## What's New: Streamlined Autonomous Workflow
+
+**Version 3.0**: Kerrigan now includes extensive automation to reduce manual gates:
+
+### Auto-Autonomy Grants
+- **Auto-label `agent:go`**: Issues with role labels, `tier:auto`, `kerrigan`, or from trusted users automatically receive `agent:go`
+- **Auto-assign Copilot**: When `agent:go` is added, Copilot is automatically assigned to the issue
+- **Configuration**: Enable/disable in `.github/automation/reviewers.json` with `auto_grant_autonomy: true`
+
+### Auto-PR Workflow
+- **Auto-ready PRs**: Draft PRs with `agent:go` label automatically marked ready when CI passes
+- **Auto-assign reviewers**: Reviewers assigned based on role labels (existing feature)
+- **Auto-merge support**: Repository can be configured to auto-merge after approval (see `docs/auto-merge-setup.md`)
+
+### Dependency Management
+- **Auto-trigger dependents**: When an issue closes, dependent issues (marked with "Depends on #N") automatically receive `agent:go`
+- **Auto-remove blocked**: `blocked` label removed when dependencies resolve
+
+### Tier System
+Issues can be labeled with tier levels to indicate autonomy expectations:
+- **`tier:auto`**: Fully autonomous, no manual gates, auto-merges (after approval)
+- **`tier:standard`**: Standard workflow, acceptance gate only (default)
+- **`tier:strategic`**: High-touch, direction + acceptance gates
+
 ## Automation Features
 
 **New in v2**: Kerrigan now includes automation workflows to reduce manual intervention:
