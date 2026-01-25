@@ -122,11 +122,12 @@ async function getInstallationToken() {
       privateKey: privateKey
     });
     
-    // Get installation access token
+    // Get installation access token using the correct Octokit v5 API
     logInfo('Requesting installation access token...');
-    const { token } = await app.getInstallationAccessToken({
-      installationId: parseInt(CONFIG.installationId)
-    });
+    const octokit = await app.getInstallationOctokit(parseInt(CONFIG.installationId));
+    
+    // Get the token from the octokit auth
+    const { token } = await octokit.auth({ type: 'installation' });
     
     logSuccess('Installation token obtained');
     logInfo(`Token type: ${token.startsWith('ghs_') ? 'Installation token' : 'Unknown'}`);

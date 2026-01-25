@@ -16,7 +16,7 @@
   "author": "Kerrigan",
   "license": "MIT",
   "dependencies": {
-    "@github/copilot-sdk": "^1.0.0",
+    "@github/copilot-sdk": "^0.1.18",
     "octokit": "^3.1.0",
     "dotenv": "^16.0.0"
   }
