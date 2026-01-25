@@ -1,5 +1,7 @@
 # Kerrigan
 
+[![CI](https://github.com/Kixantrix/kerrigan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kixantrix/kerrigan/actions/workflows/ci.yml)
+
 Kerrigan is a repo template for defining and evolving a **swarm of agents** that completes software projects the way *you* want them completed—without you having to be “the glue”.
 
 This repo is intentionally **stack-agnostic**. It focuses on:
