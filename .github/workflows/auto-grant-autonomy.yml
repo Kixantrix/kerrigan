@@ -126,16 +126,19 @@ jobs:
                 });
               }
               
-              // Also notify Copilot to start work (Copilot is triggered via @mention, not assignment)
-              // The @copilot mention in a comment triggers the Copilot agent to begin work
-              console.log('✅ Notifying Copilot to start work');
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: `@copilot This issue has been granted autonomy with the \`agent:go\` label. You may begin work on this issue.\n\nSee the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${defaultBranch}/playbooks/autonomy-modes.md) for details on autonomous workflow.`
-              });
-              console.log('✅ Copilot notification posted');
+              // Assign @copilot to start work (Copilot is triggered via assignment on issues)
+              console.log('✅ Assigning @copilot to issue');
+              try {
+                await github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  assignees: ['@copilot']
+                });
+                console.log('✅ @copilot assigned successfully');
+              } catch (assignError) {
+                console.log('⚠️  Failed to assign @copilot:', assignError.message);
+              }
             } catch (error) {
               console.log('⚠️  Failed to add agent:go label:', error.message);
             }
