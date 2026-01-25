@@ -15,11 +15,10 @@ Exit codes:
 from __future__ import annotations
 
 import fnmatch
-import os
 import subprocess
 import sys
 import yaml
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import List, Dict, Any, Optional, Set
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -108,7 +107,6 @@ def matches_pattern(file_path: str, pattern: str) -> bool:
     Check if a file path matches a glob pattern.
     Supports both simple patterns and ** for recursive matching.
     """
-    from pathlib import PurePath
     try:
         # PurePath.match() handles glob patterns including **
         if PurePath(file_path).match(pattern):
@@ -253,7 +251,7 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
         return 1
     
     if manual_tests and not source_files_changed and not test_files_changed:
-        # Only manual tests, no actual source/test changes
+        # Only manual tests, with no other changes detected
         return 2
     
     if not source_files_changed and not changed_files:
