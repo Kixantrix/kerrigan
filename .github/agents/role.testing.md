@@ -68,6 +68,37 @@ These specifications define your quality standards and expected behaviors. **Rev
 - [ ] Document complex test scenarios
 - [ ] Update test-plan.md with current coverage metrics
 
+## Honest Test Reporting Requirements
+
+**CRITICAL**: When documenting test improvements in PRs, be factually accurate:
+
+✅ **DO:**
+- Report actual test counts: "Increased from 226 to 245 tests (added 19 new tests)"
+- Cite specific test files: "Added tests in tests/unit/test_auth.py (lines 45-89)"
+- Show real coverage numbers: "Coverage increased from 67% to 82%"
+- Reference actual test runner output
+- Be specific about what was tested: "Added edge case tests for null input handling"
+
+❌ **DON'T:**
+- Fabricate test counts or coverage percentages
+- Claim tests exist when they weren't added
+- Use vague language without specifics
+- Misrepresent the scope of testing performed
+
+**Example - Good Test Report:**
+```markdown
+## Test Coverage Improvements
+- Added 15 new unit tests across 3 files:
+  - tests/unit/test_auth.py: 8 tests for JWT validation
+  - tests/unit/test_api.py: 5 tests for error handling
+  - tests/integration/test_flow.py: 2 tests for end-to-end flows
+- Coverage: 67% → 82% (15% increase)
+- All 241 tests pass (226 existing + 15 new)
+- Test run: `Ran 241 tests in 2.3s - OK`
+```
+
+This ensures reviewers can verify your claims and trust the testing quality.
+
 ## Example Test Improvements
 
 ### Before (weak test):
