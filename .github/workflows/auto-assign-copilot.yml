@@ -47,12 +47,14 @@ jobs:
               
               console.log('✅ Copilot assigned successfully');
               
+              const defaultBranch = context.payload.repository?.default_branch || 'main';
+              
               // Post a comment to notify Copilot
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: `@copilot This issue has been granted autonomy with the \`agent:go\` label. You may begin work on this issue.\n\nSee the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${context.payload.repository.default_branch}/playbooks/autonomy-modes.md) for details on autonomous workflow.`
+                body: `@copilot This issue has been granted autonomy with the \`agent:go\` label. You may begin work on this issue.\n\nSee the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${defaultBranch}/playbooks/autonomy-modes.md) for details on autonomous workflow.`
               });
               
               console.log('✅ Notification comment posted');

@@ -120,33 +120,35 @@ If you have GitHub CLI installed, you can create all required labels with:
 
 ```bash
 # Autonomy control labels
-gh label create "agent:go" --color "0E8A16" --description "Grants agents permission to work on this issue/PR"
-gh label create "agent:sprint" --color "FBCA04" --description "Sprint tracking issue - PRs auto-get agent:go"
-gh label create "autonomy:override" --color "D93F0B" --description "Human override to bypass autonomy gates"
+gh label create "agent:go" --color "0E8A16" --description "Grants agents permission to work on this issue/PR" || echo "Label agent:go already exists"
+gh label create "agent:sprint" --color "FBCA04" --description "Sprint tracking issue - PRs auto-get agent:go" || echo "Label agent:sprint already exists"
+gh label create "autonomy:override" --color "D93F0B" --description "Human override to bypass autonomy gates" || echo "Label autonomy:override already exists"
 
 # Quality control
-gh label create "allow:large-file" --color "C5DEF5" --description "Bypass 800 LOC quality bar check"
+gh label create "allow:large-file" --color "C5DEF5" --description "Bypass 800 LOC quality bar check" || echo "Label allow:large-file already exists"
 
 # Tier labels (autonomy level)
-gh label create "tier:auto" --color "28A745" --description "Fully autonomous - no manual gates"
-gh label create "tier:standard" --color "FFA500" --description "Standard workflow - acceptance gate only"
-gh label create "tier:strategic" --color "DC143C" --description "High-touch - direction and acceptance gates"
-gh label create "blocked" --color "E99695" --description "Issue is blocked and cannot proceed"
+gh label create "tier:auto" --color "28A745" --description "Fully autonomous - no manual gates" || echo "Label tier:auto already exists"
+gh label create "tier:standard" --color "FFA500" --description "Standard workflow - acceptance gate only" || echo "Label tier:standard already exists"
+gh label create "tier:strategic" --color "DC143C" --description "High-touch - direction and acceptance gates" || echo "Label tier:strategic already exists"
+gh label create "blocked" --color "E99695" --description "Issue is blocked and cannot proceed" || echo "Label blocked already exists"
 
 # Role assignment
-gh label create "role:spec" --color "5319E7" --description "Assign to Spec agent"
-gh label create "role:architect" --color "1D76DB" --description "Assign to Architect agent"
-gh label create "role:swe" --color "006B75" --description "Assign to SWE agent"
-gh label create "role:testing" --color "7057FF" --description "Assign to Testing agent"
-gh label create "role:debugging" --color "D93F0B" --description "Assign to Debugging agent"
-gh label create "role:security" --color "B60205" --description "Assign to Security agent"
-gh label create "role:deployment" --color "0E8A16" --description "Assign to Deployment agent"
-gh label create "role:triage" --color "FBCA04" --description "Assign to Triage agent"
-gh label create "role:design" --color "E99695" --description "Assign to Design agent"
+gh label create "role:spec" --color "5319E7" --description "Assign to Spec agent" || echo "Label role:spec already exists"
+gh label create "role:architect" --color "1D76DB" --description "Assign to Architect agent" || echo "Label role:architect already exists"
+gh label create "role:swe" --color "006B75" --description "Assign to SWE agent" || echo "Label role:swe already exists"
+gh label create "role:testing" --color "7057FF" --description "Assign to Testing agent" || echo "Label role:testing already exists"
+gh label create "role:debugging" --color "D93F0B" --description "Assign to Debugging agent" || echo "Label role:debugging already exists"
+gh label create "role:security" --color "B60205" --description "Assign to Security agent" || echo "Label role:security already exists"
+gh label create "role:deployment" --color "0E8A16" --description "Assign to Deployment agent" || echo "Label role:deployment already exists"
+gh label create "role:triage" --color "FBCA04" --description "Assign to Triage agent" || echo "Label role:triage already exists"
+gh label create "role:design" --color "E99695" --description "Assign to Design agent" || echo "Label role:design already exists"
 
 # Optional project label
-gh label create "kerrigan" --color "000000" --description "Kerrigan system meta-work"
+gh label create "kerrigan" --color "000000" --description "Kerrigan system meta-work" || echo "Label kerrigan already exists"
 ```
+
+**Note**: The `|| echo` fallback ensures the script continues even if labels already exist.
 
 ## Creating Labels via GitHub Web UI
 

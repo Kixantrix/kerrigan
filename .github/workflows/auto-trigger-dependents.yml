@@ -38,7 +38,7 @@ jobs:
               
               console.log(`Found ${results.items.length} issue(s) mentioning #${closedIssue.number}`);
               
-              // Filter to only issues that actually reference this issue number with specific dependency keywords
+              // Pre-compile dependency patterns for efficiency
               const issueNumber = closedIssue.number;
               const dependencyPatterns = [
                 new RegExp(`depends\\s+on\\s+#${issueNumber}\\b`, 'i'),
@@ -49,6 +49,7 @@ jobs:
                 new RegExp(`waiting\\s+(?:on|for)\\s+#${issueNumber}\\b`, 'i')
               ];
               
+              // Filter to only issues that actually reference this issue number with specific dependency keywords
               dependentIssues = results.items.filter(issue => {
                 const body = issue.body || '';
                 return dependencyPatterns.some(pattern => pattern.test(body));
@@ -116,7 +117,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
-                  body: `🤖 **Dependency resolved - work can begin**\n\nThis issue was blocked by #${closedIssue.number}, which has now been completed. The \`agent:go\` label has been automatically added.\n\nWork may now begin on this issue.`
+                  body: `🤖 **Dependency resolved - work can begin**\n\nThis issue was blocked by #${closedIssue.number}, which has now been completed. The \`agent:go\` label has been automatically added, allowing work to proceed.`
                 });
                 
                 console.log('   ✅ Notification comment posted');

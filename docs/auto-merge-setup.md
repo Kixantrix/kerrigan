@@ -38,7 +38,11 @@ Auto-merge works best with branch protection rules:
    - ✅ **Require status checks to pass before merging**
      - Add required checks: `Agent Gates`, `CI / validate`
    - ✅ **Require conversation resolution before merging**
-   - ⚠️ Do **NOT** enable "Require branches to be up to date" (blocks autonomous work)
+   - ⚠️ **Do NOT enable "Require branches to be up to date"** 
+     - This blocks autonomous work by requiring manual updates
+     - **Security trade-off**: May allow merging with stale base branch
+     - **Mitigation**: Rely on CI checks to catch integration issues
+     - Alternative: Use auto-update branches feature instead
 4. Click **Create** or **Save changes**
 
 ## Using Auto-Merge on Pull Requests

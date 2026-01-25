@@ -26,6 +26,9 @@ jobs:
             console.log('Head branch:', run.head_branch);
             
             // Get associated pull requests
+            // Two-step search strategy:
+            // 1. Try owner:branch format (works for same-repo PRs)
+            // 2. Fallback to branch name match (handles forks where owner differs)
             // Note: For PRs from forks, the head format is 'fork-owner:branch-name'
             // For same-repo PRs, the head format is 'repo-owner:branch-name'
             

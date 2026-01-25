@@ -108,13 +108,15 @@ jobs:
               
               console.log('✅ Added agent:go label');
               
+              const defaultBranch = context.payload.repository?.default_branch || 'main';
+              
               // Post comment if configured
               if (config.comment_on_auto_grant) {
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
-                  body: `🤖 **Autonomy granted automatically**\n\nReason: ${reason}\n\nThis issue now has the \`agent:go\` label, allowing agents to work on it autonomously. See the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${context.payload.repository.default_branch}/playbooks/autonomy-modes.md) for details.`
+                  body: `🤖 **Autonomy granted automatically**\n\nReason: ${reason}\n\nThis issue now has the \`agent:go\` label, allowing agents to work on it autonomously. See the [Autonomy Modes playbook](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/${defaultBranch}/playbooks/autonomy-modes.md) for details.`
                 });
               }
             } catch (error) {
