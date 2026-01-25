@@ -48,10 +48,26 @@ def get_changed_files() -> Set[str]:
     """
     changed_files = set()
     
-    # Try to get PR changes (compare with origin/main)
+    # Try to determine the default branch dynamically
+    default_branch = "main"
     try:
         result = subprocess.run(
-            ["git", "diff", "--name-only", "origin/main...HEAD"],
+            ["git", "symbolic-ref", "refs/remotes/origin/HEAD"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        if result.stdout.strip():
+            # Extract branch name from refs/remotes/origin/HEAD -> refs/remotes/origin/main
+            default_branch = result.stdout.strip().split('/')[-1]
+    except subprocess.CalledProcessError:
+        # Fallback to main if we can't determine
+        pass
+    
+    # Try to get PR changes (compare with origin/<default_branch>)
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", f"origin/{default_branch}...HEAD"],
             capture_output=True,
             text=True,
             check=True
@@ -88,20 +104,24 @@ def get_changed_files() -> Set[str]:
 
 
 def matches_pattern(file_path: str, pattern: str) -> bool:
-    """Check if a file path matches a glob pattern."""
-    # Use Path.match for better glob support including **
+    """
+    Check if a file path matches a glob pattern.
+    Supports both simple patterns and ** for recursive matching.
+    """
     from pathlib import PurePath
     try:
-        # PurePath.match works from the right side, so we need to check if it matches
+        # PurePath.match() handles glob patterns including **
         if PurePath(file_path).match(pattern):
             return True
-        # Also check if the pattern matches by treating it as a complete pattern
-        # For patterns like "docs/**/*", check if file starts with base dir
+        # For patterns like "dir/**/*", also check if file is under that directory
+        # This handles edge cases where PurePath.match might not catch everything
         if '**' in pattern:
-            # Extract base directory from pattern
-            base_dir = pattern.split('**')[0].rstrip('/')
-            if base_dir and file_path.startswith(base_dir):
-                return True
+            # Extract base directory from pattern (e.g., "docs/**/*" -> "docs/")
+            parts = pattern.split('**')
+            if parts[0]:
+                base_dir = parts[0].rstrip('/')
+                if file_path.startswith(base_dir + '/'):
+                    return True
         return False
     except (ValueError, TypeError):
         # Fallback to fnmatch for simple patterns
@@ -137,6 +157,7 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
     mappings = mapping_config.get('mappings', [])
     config = mapping_config.get('config', {})
     exclude_patterns = config.get('exclude_patterns', [])
+    test_file_patterns = config.get('test_file_patterns', ['tests/test_*.py'])
     warn_only = config.get('warn_only', False)
     
     issues = []
@@ -152,8 +173,9 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
         if should_exclude(file_path, exclude_patterns):
             continue
         
-        # Check if this is a test file
-        if file_path.startswith('tests/test_'):
+        # Check if this is a test file using configured patterns
+        is_test_file = any(matches_pattern(file_path, pattern) for pattern in test_file_patterns)
+        if is_test_file:
             test_files_changed.add(file_path)
         
         # Find mapping for this file
@@ -181,16 +203,20 @@ def check_test_collateral(changed_files: Set[str], mapping_config: Dict[str, Any
             test_files = [test_files]
         
         # Check if any of the corresponding test files were changed
+        # Pre-compile a set of changed test files for O(1) lookup
         test_updated = False
         for test_pattern in test_files:
-            # Check if test file matches changed files
+            # Check exact match first (O(1))
             if test_pattern in test_files_changed:
                 test_updated = True
                 break
-            # Also check glob patterns
-            for changed_test in test_files_changed:
-                if matches_pattern(changed_test, test_pattern):
-                    test_updated = True
+            # Check pattern matches (only if pattern contains wildcards)
+            if '*' in test_pattern or '?' in test_pattern:
+                for changed_test in test_files_changed:
+                    if matches_pattern(changed_test, test_pattern):
+                        test_updated = True
+                        break
+                if test_updated:
                     break
         
         if not test_updated:

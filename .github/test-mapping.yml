@@ -95,6 +95,10 @@ config:
   # If true, warn but don't fail when source changes without test updates
   warn_only: false
   
+  # Pattern to identify test files (used to track which tests changed)
+  test_file_patterns:
+    - "tests/test_*.py"
+  
   # Ignore these patterns when checking for changes
   exclude_patterns:
     - "*.md"           # Documentation changes

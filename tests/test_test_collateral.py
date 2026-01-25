@@ -132,15 +132,16 @@ class TestTestMappingFile(unittest.TestCase):
             validator_files = [f.name for f in validators_dir.glob("*.py")]
             mapped_sources = [entry['source'] for entry in self.mapping['mappings']]
             
+            # Import the pattern matching function for proper validation
+            import sys
+            sys.path.insert(0, str(repo_root / "tools" / "validators"))
+            from check_test_collateral import matches_pattern
+            
             for validator in validator_files:
                 validator_path = f"tools/validators/{validator}"
                 with self.subTest(validator=validator):
-                    # Check if validator is in the mappings
-                    found = any(
-                        validator_path == source or 
-                        validator_path.startswith(source.replace("*", ""))
-                        for source in mapped_sources
-                    )
+                    # Check if validator is in the mappings using proper pattern matching
+                    found = any(matches_pattern(validator_path, source) for source in mapped_sources)
                     self.assertTrue(found,
                                   f"Validator '{validator}' should have test mapping")
 
