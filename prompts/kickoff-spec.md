@@ -131,6 +131,26 @@ After completing the specification:
 3. Tag issue with `@role.architect` for next phase
 4. Summarize key decisions and open questions in the issue
 
+## Triggering Copilot on Follow-up Issues
+
+If you need to create follow-up issues and assign Copilot to work on them:
+
+**For Issues** (assign to trigger work):
+```bash
+gh issue edit <number> --add-assignee "@copilot"
+```
+
+**Important**: Use assignment with the @ symbol, not @mentions. @mentions in issue comments do not trigger Copilot work.
+
+**For PRs** (use @mention in comments):
+```bash
+gh pr comment <number> --body "@copilot please review this architecture"
+```
+
+**Remember**: 
+- **Issues**: Assignment (`--add-assignee "@copilot"`)
+- **PRs**: @mention in comments (`@copilot <request>`)
+
 ---
 
 Generated at: {TIMESTAMP}

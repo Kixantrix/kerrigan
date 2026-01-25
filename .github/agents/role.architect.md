@@ -136,6 +136,36 @@ If asked to create an "example" architecture or demonstrate planning features:
 
 See `docs/pr-documentation-guidelines.md` for complete standards.
 
+## Triggering Other Agents
+
+When creating implementation issues or handing off work:
+
+### For Issues (assign to trigger work)
+```bash
+# Assign Copilot to work on an issue
+gh issue edit <number> --add-assignee "@copilot"
+
+# Or create and assign in one command
+gh issue create --title "Implement milestone 1" \
+  --body "See plan.md" \
+  --label "role:swe" \
+  --assignee "@copilot"
+```
+
+**Critical**: The @ symbol is required. Using `copilot` without @ will fail silently.
+
+### For PRs (use @mention in comments)
+```bash
+# Request Copilot review or work on a PR
+gh pr comment <number> --body "@copilot please review this architecture"
+```
+
+**Key distinction**:
+- **Issues**: Triggered by **assignment** (`--add-assignee "@copilot"`)
+- **PRs**: Triggered by **@mention** in comments (`@copilot <request>`)
+
+**Anti-pattern**: Don't use @mentions in issue comments - they don't trigger Copilot work.
+
 ## Agent Feedback
 
 If you encounter unclear instructions, missing information, or friction points while working:

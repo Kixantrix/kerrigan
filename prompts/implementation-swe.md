@@ -197,12 +197,30 @@ If you encounter ambiguity or blockers:
 3. Create issue tagged `@role.architect` or `@role.spec`
 4. Don't make assumptions—ask!
 
+**To assign clarification work to Copilot**:
+```bash
+gh issue create --title "Clarify <specific question>" \
+  --label "role:architect" \
+  --assignee "@copilot"
+```
+
+**Note**: Copilot is triggered by assignment on issues (`--assignee "@copilot"` with @), not by @mentions in issue comments.
+
 ### Ready for Testing Phase
 After implementation milestone complete:
 1. Ensure all tests passing
 2. Update status.json: `current_phase: "implementation"` → `"testing"`
 3. Create handoff issue for `@role.testing`
 4. Document any known issues or limitations
+
+**To assign Copilot to testing work**:
+```bash
+gh issue create --title "Enhance test coverage for <project>" \
+  --label "role:testing" \
+  --assignee "@copilot"
+```
+
+**Important**: Use `--assignee "@copilot"` (with @) for issues. For PR feedback, use `@copilot` mentions in comments instead.
 
 ### Ready for Deployment
 After testing phase complete:
