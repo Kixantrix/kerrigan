@@ -209,7 +209,105 @@ Check back after CI completes:
 gh pr checks <PR#>
 ```
 
-### 5. Handle Merge Conflicts
+### 5. Handle Manual Testing Requirements
+
+Some PRs require manual verification that cannot be automated. Look for the `needs:manual-testing` label or "Manual Testing Required" section in the PR description.
+
+#### Step 1: Identify Manual Testing Requirements
+
+Check the PR's Testing Classification section:
+```bash
+gh pr view <PR#>
+```
+
+Look for:
+- "Manual Testing Required" section with specific test cases
+- `needs:manual-testing` label
+
+#### Step 2: Verify Testing Instructions Are Clear
+
+Manual testing requirements should include:
+- Clear description of what to test
+- How to trigger the test scenario
+- Expected outcome
+- How to verify success
+
+If instructions are unclear:
+```bash
+gh pr comment <PR#> --body "Please clarify manual testing requirements:
+- What specific behavior should I test?
+- How do I trigger this scenario?
+- What is the expected outcome?
+
+See playbooks/manual-testing.md for guidance."
+```
+
+#### Step 3: Perform Manual Testing
+
+Follow the testing instructions provided in the PR. Common scenarios:
+
+**For GitHub Actions workflows:**
+```bash
+# View workflow runs
+gh run list --workflow=workflow-name.yml
+
+# Trigger workflow manually (if supported)
+gh workflow run workflow-name.yml
+
+# Monitor execution
+gh run watch
+
+# View logs
+gh run view <RUN_ID> --log
+```
+
+**For UI changes:**
+- Check screenshots provided in PR
+- Test locally if changes are significant
+- Verify responsive behavior if applicable
+
+**For API integrations:**
+- Review test environment setup
+- Verify test results documented in PR
+- Check for proper error handling
+
+#### Step 4: Document Test Results
+
+After completing manual testing, add a comment documenting results:
+```bash
+gh pr comment <PR#> --body "## Manual Testing Results
+
+✅ **[Test scenario name]** - Tested successfully
+- [Specific steps taken]
+- [Results observed]
+- [Link to workflow run/screenshot if applicable]
+
+Manual testing complete. Adding `tested:manual` label."
+```
+
+Then update labels:
+```bash
+# Add tested:manual label
+gh pr edit <PR#> --add-label "tested:manual"
+
+# Remove needs:manual-testing label
+gh pr edit <PR#> --remove-label "needs:manual-testing"
+```
+
+#### Step 5: Proceed with Review
+
+Once manual testing is complete and documented:
+- Continue with normal PR review process
+- Approve if all other checks pass
+- Merge when ready
+
+**Important:** Do not merge PRs with `needs:manual-testing` label unless:
+- Manual testing completed and documented, OR
+- Cannot-test justification is acceptable with mitigation plan
+
+See `playbooks/manual-testing.md` for complete manual testing guidelines.
+
+### 6. Handle Merge Conflicts
 
 For PRs with merge conflicts:
 
@@ -249,7 +347,7 @@ git push --force-with-lease
 
 **Important Note:** Always use `GIT_EDITOR='true'` before `git rebase --continue` to prevent the agent from entering interactive editor mode (nano/vi), which causes complete workflow stalls. The `true` command exits immediately, allowing git to use default commit messages.
 
-### 6. Restart Stalled Agents
+### 7. Restart Stalled Agents
 
 For draft PRs with no activity for >24 hours:
 
@@ -278,7 +376,7 @@ git push --force-with-lease
 gh pr comment <PR#> --body "@copilot Please continue. I've rebased this PR on main."
 ```
 
-### 7. Create Follow-up Issues
+### 8. Create Follow-up Issues
 
 When you identify gaps or improvements during review that shouldn't block the PR:
 
@@ -413,6 +511,9 @@ Before approving any PR, verify:
 - [ ] Integration tests if applicable
 - [ ] Edge cases covered
 - [ ] Manual verification performed (if applicable)
+- [ ] Manual testing documented if required (see `playbooks/manual-testing.md`)
+- [ ] `needs:manual-testing` label applied if manual testing required
+- [ ] `tested:manual` label added if manual testing completed
 
 ### Documentation
 - [ ] README updated if needed

@@ -67,6 +67,26 @@ These specifications define your quality standards and expected behaviors. **Rev
 - [ ] Ensure clear failure messages (what failed and why)
 - [ ] Document complex test scenarios
 - [ ] Update test-plan.md with current coverage metrics
+- [ ] Update .github/test-mapping.yml with new test mappings
+
+## Test Collateral Mapping
+
+The repository uses `.github/test-mapping.yml` to track which source files have corresponding test files. As the testing agent, you should:
+
+1. **Review test mappings**: Check test-mapping.yml to understand source-to-test relationships
+2. **Add missing mappings**: When adding tests for previously untested files, update the mapping
+3. **Identify gaps**: Look for source files without test mappings and prioritize adding tests
+4. **Verify mappings are current**: Ensure mapped test files actually test the source files they're mapped to
+5. **Mark manual test requirements**: For files that can't be unit tested (e.g., workflows), mark `manual_test_required: true`
+
+**Example mapping entry:**
+```yaml
+- source: "tools/new_validator.py"
+  tests: "tests/test_new_validator.py"
+  notes: "Validator tests cover happy path and error cases"
+```
+
+CI will check that PRs modifying source files also update their corresponding tests. This helps prevent regressions and ensures test coverage grows with the codebase.
 
 ## Honest Test Reporting Requirements
 

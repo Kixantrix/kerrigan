@@ -14,6 +14,27 @@ Scripts for managing pull requests and issues in the Kerrigan repository.
 
 ## Scripts
 
+### Upgrade Kerrigan (upgrade-kerrigan.ps1)
+
+Upgrade Kerrigan components from the main repository to get latest improvements.
+
+**Usage:**
+```powershell
+# Preview what would change
+.\tools\upgrade-kerrigan.ps1 -DryRun
+
+# Show detailed diff
+.\tools\upgrade-kerrigan.ps1 -ShowDiff
+
+# Upgrade specific components
+.\tools\upgrade-kerrigan.ps1 -Components workflows,prompts
+
+# Upgrade all components
+.\tools\upgrade-kerrigan.ps1 -Components all
+```
+
+**See also**: [playbooks/upgrade-satellite.md](../playbooks/upgrade-satellite.md) for complete upgrade guide.
+
 ### PR Review Script (review-prs.ps1)
 
 Systematic script for managing Copilot reviews on open pull requests.
@@ -168,6 +189,42 @@ Process multiple markdown files from a staging directory and create issues.
 - `-AssignCopilot`: Assign @copilot to all issues
 - `-DeleteAfter`: Delete files after creation (default: move to processed/)
 - `-DryRun`: Preview without creating
+
+### Satellite Feedback Script (feedback-to-kerrigan.ps1)
+
+Submit feedback from a satellite Kerrigan installation (your repo using Kerrigan) to the main repository. Helps improve Kerrigan for everyone!
+
+**Usage:**
+```powershell
+# Interactive mode (recommended)
+.\tools\feedback-to-kerrigan.ps1
+
+# Pre-select category
+.\tools\feedback-to-kerrigan.ps1 -Category bug
+
+# Save as file without creating issue
+.\tools\feedback-to-kerrigan.ps1 -SaveOnly
+
+# Preview what would be created
+.\tools\feedback-to-kerrigan.ps1 -DryRun
+```
+
+**Parameters:**
+- `-Category`: Type of feedback (bug, enhancement, pattern, question)
+- `-SaveOnly`: Save as markdown file without creating GitHub issue
+- `-DryRun`: Preview without creating
+- `-MainRepo`: Target repository (default: Kixantrix/kerrigan)
+
+**What it does:**
+1. Collects feedback from you interactively
+2. Auto-detects your Kerrigan version
+3. Categorizes feedback (bug, enhancement, pattern, question)
+4. Creates GitHub issue in main Kerrigan repo (with your permission)
+5. Or saves as markdown file for manual submission
+
+**Privacy:** You can submit feedback anonymously or include your repo information.
+
+See [feedback/satellite/README.md](../feedback/satellite/README.md) for more about the satellite feedback system.
 
 ## Style Guidelines
 
