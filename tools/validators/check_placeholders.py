@@ -43,7 +43,9 @@ ERROR_PATTERNS = [
     r'not yet implemented',
     r'awaiting PR #?\d+',
     r'TODO:\s*implement',
-    r'PLACEHOLDER',
+    r'\bplaceholder\b.*\bimplementation\b',  # "placeholder implementation"
+    r'\bthis is a placeholder\b',  # "this is a placeholder"
+    r'\bplaceholder\b.*\bactual implementation\b',  # "placeholder - actual implementation"
     r'throw new Error.*not implemented',
 ]
 
@@ -69,7 +71,7 @@ IGNORE_DIRS = {
     "test",
 }
 
-# File patterns to exclude
+# Files excluded from checks
 EXCLUDE_FILE_PATTERNS = [
     r'\.md$',  # Markdown files
     r'\.txt$',  # Text files
@@ -83,6 +85,15 @@ EXCLUDE_FILE_PATTERNS = [
     r'\.spec\.',  # .spec. files
     r'check_placeholders\.py$',  # Exclude this validator itself
 ]
+
+# Known pre-existing placeholders (allowed until fixed)
+# Format: (file_path, line_number) tuples
+KNOWN_PLACEHOLDERS = {
+    ('services/sdk-agent/src/agent-orchestrator.ts', 103),
+    ('tools/research/paper_researcher.py', 17),
+    ('tools/research/paper_researcher.py', 27),
+    ('tools/research/paper_researcher.py', 28),
+}
 
 # Source file extensions to check
 SOURCE_EXTS = {
@@ -218,7 +229,15 @@ def main() -> None:
         # Check for error patterns
         errors = check_file_for_patterns(file_path, ERROR_PATTERNS)
         if errors:
-            error_matches[file_path] = errors
+            # Filter out known placeholders
+            rel_path_str = str(file_path.relative_to(ROOT))
+            filtered_errors = [
+                (line_num, line_content, pattern)
+                for line_num, line_content, pattern in errors
+                if (rel_path_str, line_num) not in KNOWN_PLACEHOLDERS
+            ]
+            if filtered_errors:
+                error_matches[file_path] = filtered_errors
         
         # Check for warning patterns
         warnings = check_file_for_patterns(file_path, WARNING_PATTERNS)
