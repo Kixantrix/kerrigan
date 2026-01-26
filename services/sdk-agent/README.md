@@ -128,11 +128,6 @@ Common errors and solutions:
 - Verify write permissions on the repository
 - Ensure no existing PR for the same issue
 
-### SDK Integration Not Implemented
-- This is expected until PR #127 is merged
-- The service structure is ready; SDK calls are placeholders
-- See `src/sdk-client.ts` for implementation details
-
 ## File Structure
 
 ```
@@ -142,7 +137,7 @@ services/sdk-agent/
 │   ├── types.ts                # TypeScript type definitions
 │   ├── github-app-auth.ts      # GitHub App authentication
 │   ├── agent-orchestrator.ts   # Role routing and autonomy gates
-│   ├── sdk-client.ts           # Copilot SDK wrapper (placeholder)
+│   ├── sdk-client.ts           # Copilot SDK wrapper
 │   ├── pr-creator.ts           # Pull request creation
 │   └── status-reporter.ts      # Issue status comments
 ├── tests/                      # Unit tests
@@ -233,13 +228,12 @@ Monitor the service through:
 
 ### SDK errors
 
-1. Currently expected - SDK integration pending PR #127
-2. Check logs for specific error messages
-3. Verify Copilot API availability
+1. Check logs for specific error messages
+2. Verify Copilot API availability
 
 ## Future Enhancements
 
-- [ ] Full Copilot SDK integration (pending PR #127)
+- [x] Full Copilot SDK integration
 - [ ] Support for custom agent prompts
 - [ ] Enhanced context injection (specs, architecture)
 - [ ] Multi-repository orchestration
@@ -265,5 +259,5 @@ For issues or questions:
 
 ---
 
-**Status**: ⚠️ Placeholder Implementation - Awaiting SDK Integration (PR #127)
-**Last Updated**: 2026-01-25
+**Status**: ✅ SDK Integration Complete
+**Last Updated**: 2026-01-26
