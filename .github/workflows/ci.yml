@@ -35,10 +35,13 @@ jobs:
       - name: Run validators
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           python tools/validators/check_artifacts.py
           python tools/validators/check_quality_bar.py
           python tools/validators/check_dependencies.py
+          python tools/validators/check_placeholders.py
 
       - name: Check test collateral
         if: github.event_name == 'pull_request'
