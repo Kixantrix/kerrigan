@@ -64,6 +64,7 @@ export interface AgentContext {
 
 export interface AgentResult {
   success: boolean;
+  output?: string;
   prNumber?: number;
   branchName?: string;
   error?: string;
