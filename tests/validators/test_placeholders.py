@@ -66,8 +66,10 @@ class TestPlaceholderValidation(unittest.TestCase):
         content = "// This is a PLACEHOLDER implementation"
         file_path = self.write_test_file(content)
         matches = check_file_for_patterns(file_path, ERROR_PATTERNS)
-        self.assertEqual(len(matches), 1)
-        self.assertIn("PLACEHOLDER", matches[0][2])
+        # Should match multiple placeholder patterns (this is a placeholder, placeholder implementation)
+        self.assertGreaterEqual(len(matches), 1)
+        # Check that at least one match contains "placeholder"
+        self.assertTrue(any("placeholder" in match[2].lower() for match in matches))
 
     def test_error_pattern_throw_not_implemented(self):
         """Test detection of 'throw new Error.*not implemented' pattern"""
@@ -177,7 +179,16 @@ class TestPlaceholderValidation(unittest.TestCase):
         content = "// This is a placeholder implementation"
         file_path = self.write_test_file(content)
         matches = check_file_for_patterns(file_path, ERROR_PATTERNS)
-        self.assertEqual(len(matches), 1)
+        # Should match at least one pattern (may match multiple overlapping patterns)
+        self.assertGreaterEqual(len(matches), 1)
+
+    def test_no_false_positive_on_replace_with_placeholder(self):
+        """Test that 'Replace X with placeholder' comments don't trigger false positives"""
+        content = ".replace(/https?:\\/\\/[^\\s]+/g, '[URL]') // Replace URLs with placeholder"
+        file_path = self.write_test_file(content)
+        matches = check_file_for_patterns(file_path, ERROR_PATTERNS)
+        # Should not match - this is describing what code does, not a placeholder implementation
+        self.assertEqual(len(matches), 0)
 
     def test_no_false_positives_on_clean_code(self):
         """Test that clean code produces no matches"""
