@@ -31,6 +31,18 @@ These labels control when agents are allowed to work on issues and PRs:
   - Use sparingly, only when justified
   - See: `specs/kerrigan/030-quality-bar.md`
 
+### Testing Status Labels
+
+- **`needs:manual-testing`** (color: `#EDEDED`, light gray)
+  - PR requires human verification before merge
+  - Applied when functionality cannot be fully automatically tested
+  - See: `playbooks/manual-testing.md`
+
+- **`tested:manual`** (color: `#0E8A16`, green)
+  - Human confirmed manual testing complete
+  - Applied after manual testing documented in PR
+  - See: `playbooks/manual-testing.md`
+
 ### Tier Labels (Autonomy Level)
 
 These labels define the level of autonomy and gating for issues:
@@ -126,6 +138,10 @@ gh label create "autonomy:override" --color "D93F0B" --description "Human overri
 
 # Quality control
 gh label create "allow:large-file" --color "C5DEF5" --description "Bypass 800 LOC quality bar check" || echo "Label allow:large-file already exists"
+
+# Testing status
+gh label create "needs:manual-testing" --color "EDEDED" --description "PR requires human verification" || echo "Label needs:manual-testing already exists"
+gh label create "tested:manual" --color "0E8A16" --description "Manual testing complete" || echo "Label tested:manual already exists"
 
 # Tier labels (autonomy level)
 gh label create "tier:auto" --color "28A745" --description "Fully autonomous - no manual gates" || echo "Label tier:auto already exists"
