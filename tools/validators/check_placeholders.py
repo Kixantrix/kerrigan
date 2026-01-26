@@ -171,6 +171,10 @@ def has_override_label(pr_number: str) -> bool:
     if not pr_number:
         return False
     
+    # Validate PR number is numeric to prevent URL injection
+    if not pr_number.isdigit():
+        return False
+    
     token = os.environ.get('GITHUB_TOKEN')
     repo = os.environ.get('GITHUB_REPOSITORY')
     
