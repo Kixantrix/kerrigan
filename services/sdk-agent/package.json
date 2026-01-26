@@ -21,6 +21,7 @@
   "author": "Kerrigan Project",
   "license": "MIT",
   "dependencies": {
+    "@github/copilot-cli-sdk": "^1.0.0",
     "@octokit/rest": "^20.0.2",
     "@octokit/auth-app": "^6.0.3",
     "dotenv": "^16.3.1"
