@@ -84,6 +84,10 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Self-Assembly Guide](docs/self-assembly.md)**: Technical reference for replicating Kerrigan
 - **[CHANGELOG](CHANGELOG.md)**: Version history and release notes
 
+### Maintenance
+- **[Upgrade Guide](playbooks/upgrade-satellite.md)**: Upgrade satellite installations with latest Kerrigan improvements
+- **[Version Tracking](kerrigan-version.json)**: Track installed version and components
+
 ### Process & Workflow
 - **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
 - **[Project Lifecycle](playbooks/project-lifecycle.md)**: Managing projects from active to completed/archived

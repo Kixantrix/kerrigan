@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "installed": "2026-01-21",
+  "components": {
+    "workflows": "1.0.0",
+    "prompts": "1.0.0",
+    "validators": "1.0.0",
+    "skills": "1.0.0",
+    "playbooks": "1.0.0",
+    "tools": "1.0.0"
+  },
+  "upstream": {
+    "repository": "https://github.com/Kixantrix/kerrigan",
+    "branch": "main"
+  }
+}
