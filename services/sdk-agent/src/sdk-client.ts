@@ -1,11 +1,9 @@
 /**
  * SDK Client Wrapper
  * Interface with GitHub Copilot SDK
- * 
- * NOTE: This is a placeholder implementation since the actual Copilot SDK
- * integration details are not yet available from PR #127.
  */
 
+import { CopilotClient } from '@github/copilot-cli-sdk';
 import { Octokit } from '@octokit/rest';
 import { AgentContext, AgentResult } from './types';
 import * as fs from 'fs';
@@ -34,6 +32,7 @@ export class SDKClient implements ISDKClient {
   private octokit: Octokit;
   private token: string;
   private repoPath: string;
+  private copilotClient?: CopilotClient;
 
   constructor(octokit: Octokit, token: string, repoPath: string = process.cwd()) {
     this.octokit = octokit;
@@ -43,8 +42,6 @@ export class SDKClient implements ISDKClient {
 
   /**
    * Execute agent with SDK
-   * 
-   * TODO: Replace with actual Copilot SDK integration from PR #127
    */
   async executeAgent(context: AgentContext): Promise<AgentResult> {
     console.log('🤖 Executing agent with SDK...');
@@ -52,26 +49,91 @@ export class SDKClient implements ISDKClient {
     console.log(`  Issue: #${context.issue.number} - ${context.issue.title}`);
 
     try {
-      // Placeholder result until PR #127 SDK integration is available
-      const result: AgentResult = {
-        success: false,
-        error: 'SDK integration not yet implemented - awaiting PR #127 merge',
+      // Initialize Copilot SDK client
+      this.copilotClient = new CopilotClient();
+      await this.copilotClient.start();
+      
+      console.log('✅ Copilot SDK client started');
+
+      // Create SDK session with configured model
+      const session = await this.copilotClient.createSession({
+        model: 'gpt-5.2-codex',  // or configured model
+      });
+
+      console.log('✅ SDK session created');
+
+      // Build prompt with full context
+      const prompt = this.buildPrompt(context);
+
+      // Execute agent with SDK
+      const response = await session.send({
+        prompt,
+      });
+
+      console.log('✅ SDK execution completed');
+
+      // Stop the SDK client
+      await this.copilotClient.stop();
+      this.copilotClient = undefined;
+
+      return {
+        success: true,
+        output: response.content,
         logs: [
           'SDK client initialized',
-          'Agent context prepared',
-          'Waiting for Copilot SDK integration',
+          'Session created successfully',
+          'Agent executed with SDK',
+          'Response received',
+          'SDK execution completed',
         ],
       };
-
-      return result;
     } catch (error: any) {
       console.error('❌ SDK execution failed:', error);
+      
+      // Cleanup on error
+      if (this.copilotClient) {
+        try {
+          await this.copilotClient.stop();
+        } catch (stopError) {
+          console.error('Error stopping SDK client:', stopError);
+        }
+        this.copilotClient = undefined;
+      }
+
       return {
         success: false,
         error: error.message || 'Unknown SDK error',
-        logs: ['SDK execution failed'],
+        logs: ['SDK execution failed', `Error: ${error.message}`],
       };
     }
+  }
+
+  /**
+   * Build prompt from agent context
+   */
+  private buildPrompt(context: AgentContext): string {
+    let prompt = context.prompt;
+
+    // Append issue context
+    prompt += `\n\n## Issue Context\n`;
+    prompt += `Issue #${context.issue.number}: ${context.issue.title}\n`;
+    prompt += `\n${context.issue.body}\n`;
+
+    // Append artifacts if available
+    if (context.artifacts.constitution) {
+      prompt += `\n## Constitution\n${context.artifacts.constitution}\n`;
+    }
+    if (context.artifacts.spec) {
+      prompt += `\n## Specification\n${context.artifacts.spec}\n`;
+    }
+    if (context.artifacts.architecture) {
+      prompt += `\n## Architecture\n${context.artifacts.architecture}\n`;
+    }
+    if (context.artifacts.plan) {
+      prompt += `\n## Implementation Plan\n${context.artifacts.plan}\n`;
+    }
+
+    return prompt;
   }
 
   /**
