@@ -67,6 +67,20 @@ Follow this order:
 5. **Run tests frequently** during development
 6. **Fix failing tests immediately** before moving to next task
 
+## Test Collateral Requirements
+
+Before completing a PR, ensure test collateral is properly maintained:
+
+1. **Check test mappings**: Review `.github/test-mapping.yml` to see if modified files have corresponding tests
+2. **Run corresponding tests**: Execute the specific tests for files you changed (don't just run all tests)
+3. **Update tests if behavior changed**: Modify existing tests when implementation changes
+4. **Add tests for new functionality**: Create new test cases for new features
+5. **Update test mappings**: If you add new source files, add them to test-mapping.yml with their test files
+
+**CI will check** that source file changes have corresponding test updates. Files marked with `manual_test_required: true` in test-mapping.yml will trigger warnings but won't fail the build.
+
+**Example**: If you modify `tools/validators/check_artifacts.py`, you must also update `tests/test_automation.py` or add a note about why tests don't need updating.
+
 ## Code Quality Standards
 
 - **Run linting tools** and fix all issues before committing

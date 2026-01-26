@@ -1,0 +1,115 @@
+# Test Mapping Configuration
+# Maps source files to their corresponding test files
+# Used by CI to ensure test collateral is updated when source code changes
+
+# Format:
+# mappings:
+#   - source: "path/to/source/**/*.py"  # Glob pattern for source files
+#     tests: "path/to/tests/test_*.py"   # Corresponding test file(s)
+#     manual_test_required: false        # Optional: if true, warns but doesn't fail
+#     notes: "Optional notes"             # Optional: additional context
+
+mappings:
+  # Tools - Python utilities
+  - source: "tools/agent_audit.py"
+    tests: "tests/test_agent_audit.py"
+    notes: "Agent audit tool and its tests"
+
+  - source: "tools/self_improvement_analyzer.py"
+    tests: "tests/test_self_improvement.py"
+    notes: "Self-improvement analyzer and its tests"
+
+  - source: "tools/extract_metrics.py"
+    tests: null
+    manual_test_required: true
+    notes: "Simple metrics extraction script, manual verification needed"
+
+  # Validators - Critical validation tools
+  - source: "tools/validators/check_artifacts.py"
+    tests: "tests/test_automation.py"
+    notes: "Artifact validator tested in automation test suite"
+
+  - source: "tools/validators/check_quality_bar.py"
+    tests: "tests/test_automation.py"
+    notes: "Quality bar validator tested in automation test suite"
+
+  - source: "tools/validators/check_dependencies.py"
+    tests: "tests/test_dependencies.py"
+    notes: "Dependency validator and its tests"
+
+  - source: "tools/validators/check_pr_documentation.py"
+    tests: null
+    manual_test_required: true
+    notes: "PR documentation validator, needs integration testing"
+
+  - source: "tools/validators/check_agent_signature.py"
+    tests: null
+    manual_test_required: true
+    notes: "Agent signature validator, manual verification needed"
+
+  - source: "tools/validators/show_status.py"
+    tests: null
+    manual_test_required: true
+    notes: "Status display utility, no unit tests needed"
+
+  - source: "tools/validators/check_test_collateral.py"
+    tests: "tests/test_test_collateral.py"
+    notes: "Test collateral validator and its tests"
+
+  # GitHub Workflows - Configuration files
+  - source: ".github/workflows/*.yml"
+    tests: null
+    manual_test_required: true
+    notes: "Workflow files require manual verification and integration testing"
+
+  - source: ".github/workflows/agent-gates.yml"
+    tests: "tests/test_autonomy_gates.py"
+    notes: "Agent gates workflow has specific test coverage"
+
+  - source: ".github/workflows/agent-spec-compliance.yml"
+    tests: "tests/test_agent_spec_compliance_workflow.py"
+    notes: "Agent spec compliance workflow has specific test coverage"
+
+  # Agent Prompts - Agent configuration
+  - source: ".github/agents/*.md"
+    tests: "tests/test_agent_prompts.py"
+    notes: "All agent prompts validated by test suite"
+
+  # Automation Configuration
+  - source: ".github/automation/reviewers.json"
+    tests: "tests/test_automation.py"
+    notes: "Reviewers config validated by automation tests"
+
+  # Feedback System
+  - source: "feedback/**/*.yml"
+    tests: "tests/test_feedback.py"
+    notes: "Feedback system configuration and files"
+
+  # Test files themselves
+  - source: "tests/test_*.py"
+    tests: null
+    notes: "Test files don't require additional tests"
+
+# Configuration
+config:
+  # If true, warn but don't fail when source changes without test updates
+  warn_only: false
+  
+  # Pattern to identify test files (used to track which tests changed)
+  test_file_patterns:
+    - "tests/test_*.py"
+  
+  # Ignore these patterns when checking for changes
+  exclude_patterns:
+    - "*.md"           # Documentation changes
+    - "*.txt"          # Text files
+    - "*.json"         # Most JSON config files (except specific mappings above)
+    - ".gitignore"     # Git configuration
+    - "LICENSE"        # License file
+    - "CHANGELOG.md"   # Changelog
+    - "examples/**/*"  # Example files
+    - "docs/**/*"      # Documentation
+    - "scripts/**/*"   # Build/deployment scripts
+    - ".github/ISSUE_TEMPLATE/**/*"  # Issue templates
+    - ".github/PULL_REQUEST_TEMPLATE.md"  # PR template
+    - ".github/CODEOWNERS"  # CODEOWNERS file
