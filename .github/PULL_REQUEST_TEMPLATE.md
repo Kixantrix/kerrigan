@@ -45,9 +45,6 @@ Why is this change needed?
 ## Checklist
 - [ ] CI is green
 - [ ] Tests added/updated (or justified)
-  - If tests added: Cite specific test files and counts
-  - If no tests added: Explain why (e.g., "Documentation only", "Requires manual OAuth flow")
-  - Report actual test counts from test runner output
 - [ ] Manual testing completed (if required)
 - [ ] Docs updated (spec/plan/runbook as needed)
 - [ ] No unnecessary large files or monoliths
@@ -55,16 +52,18 @@ Why is this change needed?
 
 ## Testing Details
 
+When documenting testing, be specific and factually accurate. **Do NOT fabricate test counts.**
+
 ### Automated Tests
-<!-- Be specific and factually accurate about testing. Do NOT fabricate test counts. -->
 
 **Tests Added:**
 <!-- Example: "Added 5 new tests in tests/test_auth.py (lines 34-67)" -->
 <!-- Or: "No new tests added - changes are documentation only" -->
 
 **Test Results:**
-<!-- Example: "All 236 tests pass - Ran 236 tests in 0.4s" -->
+<!-- Example: "All 270 tests pass - Ran 270 tests in 0.4s" -->
 <!-- Include actual output from test runner -->
+<!-- Cite specific test files and line numbers when claiming tests were added -->
 
 ### Manual Testing
 <!-- If applicable, describe manual testing performed -->

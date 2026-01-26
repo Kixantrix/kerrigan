@@ -2,8 +2,6 @@
 """Tests for check_test_claims validator."""
 
 import unittest
-import tempfile
-from pathlib import Path
 import sys
 import os
 
@@ -28,7 +26,7 @@ class TestCheckTestClaims(unittest.TestCase):
         warnings, errors = check_test_claims(pr_body, [])
         
         # Should warn about vague claim
-        self.assertTrue(len(warnings) > 0)
+        self.assertGreater(len(warnings), 0)
         self.assertTrue(any('vague' in w.lower() for w in warnings))
     
     def test_detects_fabricated_39_tests(self):
@@ -43,7 +41,7 @@ class TestCheckTestClaims(unittest.TestCase):
         warnings, errors = check_test_claims(pr_body, [])
         
         # Should error on this specific fabricated number
-        self.assertTrue(len(errors) > 0)
+        self.assertGreater(len(errors), 0)
         self.assertTrue(any('39 tests' in e for e in errors))
     
     def test_detects_test_claims_without_file_changes(self):
@@ -61,7 +59,7 @@ class TestCheckTestClaims(unittest.TestCase):
         warnings, errors = check_test_claims(pr_body, changed_files)
         
         # Should error because claims tests but no test files
-        self.assertTrue(len(errors) > 0)
+        self.assertGreater(len(errors), 0)
         self.assertTrue(any('no test files' in e.lower() for e in errors))
     
     def test_accepts_honest_reporting_no_tests(self):
@@ -116,7 +114,7 @@ class TestCheckTestClaims(unittest.TestCase):
         warnings, errors = check_test_claims(pr_body, changed_files)
         
         # Should warn about missing test runner output
-        self.assertTrue(len(warnings) > 0)
+        self.assertGreater(len(warnings), 0)
         self.assertTrue(any('runner output' in w.lower() for w in warnings))
     
     def test_recognizes_testing_section(self):

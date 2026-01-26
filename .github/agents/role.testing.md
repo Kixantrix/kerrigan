@@ -93,7 +93,7 @@ CI will check that PRs modifying source files also update their corresponding te
 **CRITICAL**: When documenting test improvements in PRs, be factually accurate:
 
 ✅ **DO:**
-- Report actual test counts: "Increased from 226 to 245 tests (added 19 new tests)"
+- Report actual test counts: "Increased from 270 to 289 tests (added 19 new tests)"
 - Cite specific test files: "Added tests in tests/unit/test_auth.py (lines 45-89)"
 - Show real coverage numbers: "Coverage increased from 67% to 82%"
 - Reference actual test runner output
@@ -113,8 +113,8 @@ CI will check that PRs modifying source files also update their corresponding te
   - tests/unit/test_api.py: 5 tests for error handling
   - tests/integration/test_flow.py: 2 tests for end-to-end flows
 - Coverage: 67% → 82% (15% increase)
-- All 241 tests pass (226 existing + 15 new)
-- Test run: `Ran 241 tests in 2.3s - OK`
+- All 285 tests pass (270 existing + 15 new)
+- Test run: `Ran 285 tests in 2.3s - OK`
 ```
 
 This ensures reviewers can verify your claims and trust the testing quality.

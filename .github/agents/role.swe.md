@@ -67,6 +67,20 @@ Follow this order:
 5. **Run tests frequently** during development
 6. **Fix failing tests immediately** before moving to next task
 
+## Test Collateral Requirements
+
+Before completing a PR, ensure test collateral is properly maintained:
+
+1. **Check test mappings**: Review `.github/test-mapping.yml` to see if modified files have corresponding tests
+2. **Run corresponding tests**: Execute the specific tests for files you changed (don't just run all tests)
+3. **Update tests if behavior changed**: Modify existing tests when implementation changes
+4. **Add tests for new functionality**: Create new test cases for new features
+5. **Update test mappings**: If you add new source files, add them to test-mapping.yml with their test files
+
+**CI will check** that source file changes have corresponding test updates. Files marked with `manual_test_required: true` in test-mapping.yml will trigger warnings but won't fail the build.
+
+**Example**: If you modify `tools/validators/check_artifacts.py`, you must also update `tests/test_automation.py` or add a note about why tests don't need updating.
+
 ### Testing Requirements for PRs
 
 **CRITICAL**: When documenting test results in PRs, you MUST be factually accurate:
@@ -74,7 +88,7 @@ Follow this order:
 ✅ **DO:**
 - State if you added new tests: "Added 5 new tests in tests/test_auth.py"
 - Cite specific test files and line numbers
-- Use precise language: "Existing 236 tests still pass" or "All 236 tests pass"
+- Use precise language: "Existing 270 tests still pass" or "All 270 tests pass"
 - Report actual test counts from test runner output
 - If no tests added, say: "No new tests added - existing tests validate changes"
 - If something cannot be tested, explain why: "Manual testing only - requires OAuth flow"
@@ -90,33 +104,19 @@ Follow this order:
 ```markdown
 ## Testing
 - Added 8 new unit tests in tests/unit/test_validator.py
-- All 244 tests pass (236 existing + 8 new)
-- Test run output: `Ran 244 tests in 0.4s - OK`
+- All 278 tests pass (270 existing + 8 new)
+- Test run output: `Ran 278 tests in 0.4s - OK`
 ```
 
 **Example - Honest Reporting Without New Tests:**
 ```markdown
 ## Testing
 - No new tests added (changes are to documentation only)
-- Existing 236 tests still pass
+- Existing 270 tests still pass
 - Validated changes manually by reviewing rendered docs
 ```
 
 This ensures reviewers can trust your test claims and verify coverage.
-
-## Test Collateral Requirements
-
-Before completing a PR, ensure test collateral is properly maintained:
-
-1. **Check test mappings**: Review `.github/test-mapping.yml` to see if modified files have corresponding tests
-2. **Run corresponding tests**: Execute the specific tests for files you changed (don't just run all tests)
-3. **Update tests if behavior changed**: Modify existing tests when implementation changes
-4. **Add tests for new functionality**: Create new test cases for new features
-5. **Update test mappings**: If you add new source files, add them to test-mapping.yml with their test files
-
-**CI will check** that source file changes have corresponding test updates. Files marked with `manual_test_required: true` in test-mapping.yml will trigger warnings but won't fail the build.
-
-**Example**: If you modify `tools/validators/check_artifacts.py`, you must also update `tests/test_automation.py` or add a note about why tests don't need updating.
 
 ## Code Quality Standards
 

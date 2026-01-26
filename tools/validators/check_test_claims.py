@@ -18,7 +18,6 @@ Exit codes:
 
 import re
 import sys
-import os
 import argparse
 import subprocess
 from pathlib import Path
@@ -54,33 +53,6 @@ def get_changed_test_files(base_ref='main', head_ref='HEAD'):
     except subprocess.CalledProcessError as e:
         print(f"Warning: Could not determine changed files: {e}", file=sys.stderr)
         return None
-
-
-def count_test_functions_in_file(filepath):
-    """Count test functions in a given file."""
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Count test functions (Python, JavaScript, Go, etc.)
-        # Use more specific patterns to avoid double-counting
-        patterns = [
-            r'^\s*def test_',     # Python
-            r'^\s*func Test',      # Go
-            r'^\s*it\s*\(',       # JavaScript/Jest
-            r'^\s*test\s*\(',     # JavaScript/Jest
-            r'^\s*@Test\s*\n\s*(?:public|private|protected)',  # Java/JUnit
-        ]
-        
-        count = 0
-        for pattern in patterns:
-            matches = re.findall(pattern, content, re.MULTILINE)
-            count += len(matches)
-        
-        return count
-    except Exception as e:
-        print(f"Warning: Could not count tests in {filepath}: {e}", file=sys.stderr)
-        return 0
 
 
 def check_test_claims(pr_body_text, changed_test_files):
@@ -128,7 +100,7 @@ def check_test_claims(pr_body_text, changed_test_files):
                 "🚨 PR claims to have tests or test results, but no test files were added or modified. "
                 "This may indicate fabricated test claims. Either:\n"
                 "   1. Add the actual test files, or\n"
-                "   2. Clarify that no new tests were added (e.g., 'Existing tests still pass')"
+                "   2. Clarify that no new tests were added with a specific statement (e.g., 'No new tests added - existing 270 tests still pass')"
             )
     
     # Check for specific fabricated patterns
