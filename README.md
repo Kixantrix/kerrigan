@@ -1,223 +1,70 @@
-# Kerrigan
+# Kerrigan (With Examples Template)
 
-[![CI](https://github.com/Kixantrix/kerrigan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kixantrix/kerrigan/actions/workflows/ci.yml)
+This is the **with-examples template** of Kerrigan - a repo template for defining and evolving a **swarm of agents** that completes software projects the way *you* want them completed—without you having to be "the glue".
 
-Kerrigan is a repo template for defining and evolving a **swarm of agents** that completes software projects the way *you* want them completed—without you having to be “the glue”.
+This template includes:
+- ✅ Core framework specs (constitution, agent archetypes, contracts)
+- ✅ Agent prompts (`.github/agents/`)
+- ✅ CI/CD workflows (`.github/workflows/`)
+- ✅ Essential tools (validators, scripts)
+- ✅ Documentation (setup, FAQ, architecture)
+- ✅ Playbooks for common workflows
+- ✅ **2 curated examples** (hello-swarm, hello-api)
 
-This repo is intentionally **stack-agnostic**. It focuses on:
-- a repeatable spec-driven workflow,
-- artifact contracts between roles,
-- a strict quality bar from day one,
-- and optional autonomy controls for agent-driven PRs.
+This template **excludes**:
+- ❌ Additional examples (for all examples, see [template/enterprise](../../tree/template/enterprise))
+- ❌ Investigation artifacts and milestone documents
+- ❌ Development history
 
-> Practical intent: agents should be able to pick up this repo, find what they need within ~100 lines, and reliably produce high-quality, reviewable PRs.
+**Need more?** See [TEMPLATE-BRANCHES.md](TEMPLATE-BRANCHES.md) for other templates.
 
 ---
 
-## 🚀 5-Minute Quickstart
+## 🚀 Quick Start
 
-**New to Kerrigan?** Choose your starting point:
-
-### 📋 Choose a Template
-
-Kerrigan offers different templates for different needs:
-
-- **🎯 [template/minimal](../../tree/template/minimal)** - Quick start with core framework only
-- **📚 [template/with-examples](../../tree/template/with-examples)** - Core + 2 curated examples  
-- **🏢 [template/enterprise](../../tree/template/enterprise)** - Full tooling + all examples
-- **🔬 main** - Complete reference (including development history)
-
-See **[TEMPLATE-BRANCHES.md](TEMPLATE-BRANCHES.md)** for detailed comparison and usage instructions.
-
-### ⚡ Quick Setup
-
-1. **Clone or use as template**: [Use this template](https://github.com/Kixantrix/kerrigan/generate) and choose your branch
-2. **Create GitHub labels**: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file`, plus role labels like `role:swe`, `role:spec` ([detailed instructions](docs/setup.md#step-2-set-up-github-labels))
+1. **Study the examples**: Check out `examples/hello-swarm` and `examples/hello-api`
+2. **Create GitHub labels**: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file`, plus role labels
 3. **Create an issue** with your project idea and add the `agent:go` label
-4. **Add role label** to assign work (e.g., `role:swe` for implementation tasks) — see [Agent Assignment Guide](docs/agent-assignment.md)
-5. **Copy agent prompts** from `.github/agents/` to your AI assistant (GitHub Copilot, Claude, etc.)
-6. **Let agents build**: Spec → Architecture → Implementation → Testing → Deploy
-
-**CI automatically enforces**:
-- Required artifacts and structure
-- Quality bar (max 800 LOC per file)
-- Autonomy gates (label-based control)
+4. **Add role label** to assign work (e.g., `role:swe`)
+5. **Copy agent prompts** from `.github/agents/` to your AI assistant
+6. **Let agents build**: Spec → Architecture → Implementation → Testing
 
 📖 **Full setup guide**: [docs/setup.md](docs/setup.md)
 
-**Automation** (optional): Configure auto-assignment of reviewers, auto-generation of issues, and more. See [.github/automation/README.md](.github/automation/README.md) and [playbooks/automation.md](playbooks/automation.md) for setup.
-
 ---
 
-## 📐 Architecture
-
-Kerrigan orchestrates specialized agents through an artifact-driven workflow:
+## 📐 How It Works
 
 ```
-Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → Deploy → PR → Review → Merge
+Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → Deploy
          ↑ Labels              ↓ Artifacts
          ↑ status.json         ↓ Validated by CI
 ```
 
-**Visual diagram**: See [docs/architecture.md](docs/architecture.md) for complete workflow and component details.
-
-**Key principles**:
-- **Artifact-driven**: All work captured in repo files (specs, code, tests, runbooks)
-- **Quality from day one**: No prototype mode—tests and structure from the start
-- **Human-in-loop**: Humans decide strategy, agents execute details
-- **Stack-agnostic**: Works with any language, framework, or toolchain
+See [docs/architecture.md](docs/architecture.md) for complete details.
 
 ---
 
 ## 📚 Documentation
 
-### Getting Started
-- **[Setup Guide](docs/setup.md)**: Step-by-step walkthrough for first-time setup
-- **[GitHub Security Setup](docs/github-security-setup.md)**: Configure repository security settings
-- **[CLI Reference](docs/cli-reference.md)**: Command-line tool for project management
-- **[Agent Assignment](docs/agent-assignment.md)**: How to assign work to agents via labels
-- **[Skills Library](skills/README.md)**: Reusable knowledge and patterns for agents
-- **[Project Directory](docs/project-directory.md)**: Overview of all projects and their status
-- **[Agent Auditing](docs/agent-auditing.md)**: Verify agents are using their specific prompts
-- **[FAQ](docs/FAQ.md)**: Answers to common questions
-- **[Architecture](docs/architecture.md)**: System design and workflow visualization
-- **[Self-Assembly Guide](docs/self-assembly.md)**: Technical reference for replicating Kerrigan
-- **[CHANGELOG](CHANGELOG.md)**: Version history and release notes
-
-### Maintenance
-- **[Upgrade Guide](playbooks/upgrade-satellite.md)**: Upgrade satellite installations with latest Kerrigan improvements
-- **[Version Tracking](kerrigan-version.json)**: Track installed version and components
-
-### Process & Workflow
-- **[Kickoff Playbook](playbooks/kickoff.md)**: How to start a new project
-- **[Project Lifecycle](playbooks/project-lifecycle.md)**: Managing projects from active to completed/archived
-- **[Autonomy Modes](playbooks/autonomy-modes.md)**: Control when agents can work
-- **[Handoffs](playbooks/handoffs.md)**: How agents pass work between phases
-- **[PR Review](playbooks/pr-review.md)**: Human review guidelines
-- **[Manual Testing](playbooks/manual-testing.md)**: Guidelines for testing that requires human verification
-- **[PR Documentation Guidelines](docs/pr-documentation-guidelines.md)**: Standards for accurate, factual documentation
-- **[Replication Guide](playbooks/replication-guide.md)**: Set up Kerrigan in new repositories
-- **[Automation Limits](docs/automation-limits.md)**: What can be automated vs. requires human intervention
-
-### Specifications
-- **[Constitution](specs/constitution.md)**: Non-negotiable principles
-- **[Artifact Contracts](specs/kerrigan/020-artifact-contracts.md)**: Required files and structure
-- **[Quality Bar](specs/kerrigan/030-quality-bar.md)**: Quality standards and enforcement
-- **[Agent Feedback](specs/kerrigan/080-agent-feedback.md)**: Continuous improvement mechanism
-- **[Satellite Feedback](feedback/satellite/README.md)**: Contribute feedback from your Kerrigan installation
-- **[External Research Workflow](docs/external-research-workflow.md)**: Using external research for self-improvement
-
-### Agent Roles
-- **[Agent README](.github/agents/README.md)**: Overview of all agent types
-- **Individual prompts**: See `.github/agents/role.*.md` for each specialized agent
+- [Setup Guide](docs/setup.md) - Step-by-step walkthrough
+- [Agent Assignment](docs/agent-assignment.md) - How to assign work via labels
+- [FAQ](docs/FAQ.md) - Common questions
+- [Architecture](docs/architecture.md) - System design
 
 ---
 
-## 🎯 Autonomy Control
+## 📋 Templates
 
-Kerrigan gives you fine-grained control over when agents can work:
+- **🎯 [template/minimal](../../tree/template/minimal)** - Quick start
+- **📚 template/with-examples** (this branch) - With curated examples
+- **🏢 [template/enterprise](../../tree/template/enterprise)** - Full-featured
+- **🔬 [main](../../tree/main)** - Complete reference
 
-**Autonomy gates**: PRs require `agent:go` or `agent:sprint` label on linked issues, or `autonomy:override` label on the PR itself. This ensures human control over when agents can work.
-
-**Three autonomy modes supported**:
-- **On-demand**: PRs require `agent:go` label on linked issues (recommended)
-- **Sprint**: PRs linked to `agent:sprint` issues auto-receive `agent:go` label
-- **Override**: `autonomy:override` label on PR bypasses all gates (human approval)
-
-**Status tracking**: Use `status.json` to pause/resume work:
-```json
-{"status": "blocked", "blocked_reason": "Awaiting security review"}
-```
-
-**Limitations & Workarounds**:
-- **API rate limits**: If GitHub API rate limits are hit, add labels directly to PRs as fallback
-- **Private/cross-repo issues**: Cannot check labels on issues in other repos—use direct PR labels instead
-- **Label propagation delay**: GitHub Actions may take a few seconds to trigger after label changes
-- **Manual fallback**: If automation fails, use manual PR review and approval process
-
-See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed configuration options and troubleshooting.
+See [TEMPLATE-BRANCHES.md](TEMPLATE-BRANCHES.md) for details.
 
 ---
 
-## 📋 Quick Reference
+## 📄 License
 
-| Task | Command/Location |
-|------|------------------|
-| Start new project | `kerrigan init <name>` or `cp -r specs/projects/_template/ specs/projects/<name>/` |
-| Check project status | `kerrigan status <name>` or `kerrigan status --all` |
-| Enable agent work | Add `agent:go` label to GitHub issue |
-| Pause project | Create `status.json` with `"status": "blocked"` |
-| Invoke agent | `kerrigan agent <role> --show` or copy prompt from `.github/agents/role.*.md` |
-| Validate locally | `kerrigan validate` or `python tools/validators/check_artifacts.py` |
-| Multi-repo operations | `kerrigan repos list/sync <project>` |
-| Bootstrap environment | `bash tools/bootstrap.sh` |
-| Check CI | View GitHub Actions tab |
-
-**CLI Installation**: `cd tools/cli/kerrigan && pip install -e .` (see [CLI Reference](docs/cli-reference.md))
-
----
-
-## 🗂️ Repository Structure
-
-```
-kerrigan/
-├── .github/
-│   ├── agents/              # Agent role prompts (Spec, Architect, SWE, etc.)
-│   └── workflows/           # CI configuration (validators, autonomy gates)
-├── docs/                    # Comprehensive documentation
-│   ├── architecture.md      # System design and workflow diagram
-│   ├── setup.md            # Step-by-step setup guide
-│   └── FAQ.md              # Frequently asked questions
-├── playbooks/               # Process guides (kickoff, handoffs, autonomy modes)
-├── skills/                  # Reusable knowledge and patterns for agents
-│   ├── meta/               # Kerrigan-specific skills (artifacts, handoffs, quality)
-│   ├── testing/            # Universal testing patterns
-│   └── architecture/       # Architecture and design patterns
-├── specs/
-│   ├── constitution.md      # Core principles
-│   ├── kerrigan/           # Meta-specs (how Kerrigan works)
-│   └── projects/           # Your projects go here
-│       ├── _template/      # Template for new projects
-│       └── <project>/      # Individual project artifacts
-├── tools/
-│   └── validators/         # Artifact validation scripts
-└── examples/               # Complete example projects
-```
-
----
-
-## 🤝 Contributing
-
-Kerrigan is designed to be customized! Feel free to:
-- Fork and adapt for your workflow
-- Add custom validators or agent roles
-- Improve documentation
-- Share examples and learnings
-
-See examples in `examples/` and specifications in `specs/kerrigan/` for how the system works.
-
----
-
-## 📜 License
-
-MIT (see `LICENSE`).
-
----
-
-## 🙋 Need Help?
-
-- **First time?** Start with the [Setup Guide](docs/setup.md)
-- **Questions?** Check the [FAQ](docs/FAQ.md)
-- **Issues?** Open a GitHub issue
-- **Want to understand the system?** Read the [Architecture](docs/architecture.md)
-
-## 🤝 Contributing Feedback
-
-Using Kerrigan in your project? **Your feedback helps make it better for everyone!**
-
-- **Found a bug?** Report it via our [satellite feedback system](feedback/satellite/README.md)
-- **Have an improvement idea?** Share it using `./tools/feedback-to-kerrigan.ps1`
-- **Discovered a useful pattern?** We'd love to hear about it!
-- **Questions or suggestions?** Create an issue with the `satellite-feedback` label
-
-See [feedback/satellite/README.md](feedback/satellite/README.md) for detailed submission options.
+MIT License - See [LICENSE](LICENSE) for details.
