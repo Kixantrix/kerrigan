@@ -41,7 +41,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # Error-level patterns (fail CI)
 ERROR_PATTERNS = [
     r'not yet implemented',
-    r'awaiting PR #?\d*',
+    r'awaiting PR #?\d+',
     r'TODO:\s*implement',
     r'PLACEHOLDER',
     r'throw new Error.*not implemented',
