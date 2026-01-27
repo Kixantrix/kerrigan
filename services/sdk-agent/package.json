@@ -21,12 +21,12 @@
   "author": "Kerrigan Project",
   "license": "MIT",
   "dependencies": {
-    "@octokit/rest": "^20.0.2",
     "@octokit/auth-app": "^6.0.3",
+    "@octokit/rest": "^20.0.2",
     "dotenv": "^16.3.1"
   },
   "optionalDependencies": {
-    "@github/copilot-cli-sdk": "^1.0.0"
+    "@github/copilot-sdk": "^0.1.18"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",

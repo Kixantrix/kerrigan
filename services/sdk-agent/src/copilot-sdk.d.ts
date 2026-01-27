@@ -1,11 +1,11 @@
 /**
- * Type definitions for @github/copilot-cli-sdk
+ * Type definitions for @github/copilot-sdk
  * 
- * These types define the expected interface for the GitHub Copilot CLI SDK.
- * Package: @github/copilot-cli-sdk
+ * These types define the expected interface for the GitHub Copilot SDK.
+ * Package: @github/copilot-sdk
  */
 
-declare module '@github/copilot-cli-sdk' {
+declare module '@github/copilot-sdk' {
   /**
    * Session configuration options
    */

@@ -16,8 +16,8 @@ const mockCreateSession = jest.fn().mockResolvedValue({
   send: mockSend,
 });
 
-// Mock the @github/copilot-cli-sdk module
-jest.mock('@github/copilot-cli-sdk', () => {
+// Mock the @github/copilot-sdk module
+jest.mock('@github/copilot-sdk', () => {
   return {
     CopilotClient: jest.fn().mockImplementation(() => {
       return {

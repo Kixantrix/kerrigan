@@ -3,7 +3,9 @@
  * Interface with GitHub Copilot SDK
  */
 
-import { CopilotClient } from '@github/copilot-cli-sdk';
+// Dynamic import for ESM-only SDK package
+type CopilotClientType = import('@github/copilot-sdk').CopilotClient;
+
 import { Octokit } from '@octokit/rest';
 import { AgentContext, AgentResult } from './types';
 import * as fs from 'fs';
@@ -32,7 +34,7 @@ export class SDKClient implements ISDKClient {
   private octokit: Octokit;
   private token: string;
   private repoPath: string;
-  private copilotClient?: CopilotClient;
+  private copilotClient?: CopilotClientType;
 
   constructor(octokit: Octokit, token: string, repoPath: string = process.cwd()) {
     this.octokit = octokit;
@@ -49,6 +51,11 @@ export class SDKClient implements ISDKClient {
     console.log(`  Issue: #${context.issue.number} - ${context.issue.title}`);
 
     try {
+      // Dynamic import for ESM-only SDK package
+      // Use Function constructor to prevent TypeScript from converting import() to require()
+      const dynamicImport = new Function('specifier', 'return import(specifier)');
+      const { CopilotClient } = await dynamicImport('@github/copilot-sdk');
+      
       // Initialize Copilot SDK client
       this.copilotClient = new CopilotClient();
       await this.copilotClient.start();
@@ -199,9 +206,10 @@ export class SDKClient implements ISDKClient {
         return false;
       }
 
-      // Check repository access
-      const user = await this.octokit.users.getAuthenticated();
-      console.log(`✅ Authenticated as: ${user.data.login}`);
+      // Check token works by making a simple API call
+      // For GitHub App installation tokens, we verify we can access the repo
+      const rateLimit = await this.octokit.rateLimit.get();
+      console.log(`✅ Token valid - Rate limit remaining: ${rateLimit.data.rate.remaining}`);
       
       return true;
     } catch (error) {
