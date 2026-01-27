@@ -368,7 +368,16 @@ async function runTest() {
       logInfo('✅ Autonomous agent triggering IS POSSIBLE');
       logInfo('');
       logSuccess('The SDK architecture proposal is VALIDATED');
+      
+      // Clean up SDK client
+      if (client && typeof client.stop === 'function') {
+        logInfo('Cleaning up SDK client...');
+        await client.stop();
+      }
     }
+    
+    // Exit successfully
+    process.exit(0);
     
   } catch (error) {
     log('\n═══════════════════════════════════════════════════════', 'red');
