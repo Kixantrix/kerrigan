@@ -49,3 +49,23 @@ Why is this change needed?
 - [ ] Docs updated (spec/plan/runbook as needed)
 - [ ] No unnecessary large files or monoliths
 - [ ] Secrets not committed
+
+## Testing Details
+
+When documenting testing, be specific and factually accurate. **Do NOT fabricate test counts.**
+
+### Automated Tests
+
+**Tests Added:**
+<!-- Example: "Added 5 new tests in tests/test_auth.py (lines 34-67)" -->
+<!-- Or: "No new tests added - changes are documentation only" -->
+
+**Test Results:**
+<!-- Example: "All 270 tests pass - Ran 270 tests in 0.4s" -->
+<!-- Include actual output from test runner -->
+<!-- Cite specific test files and line numbers when claiming tests were added -->
+
+### Manual Testing
+<!-- If applicable, describe manual testing performed -->
+<!-- Example: "Manually verified authentication flow with OAuth provider" -->
+<!-- Or: "No manual testing required" -->
