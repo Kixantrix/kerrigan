@@ -2,6 +2,8 @@
 
 This document analyzes the limits of automation in the Issues → PRs → Issues workflow and documents what can be automated within GitHub constraints.
 
+> **📋 Update (2026-01)**: The GitHub Copilot SDK has been investigated as a potential path to automation. Finding: The SDK is a wrapper around the Copilot CLI and still requires user authentication, not service accounts. See [Copilot SDK Research Findings](../specs/projects/copilot-sdk-integration/research-findings.md) for full analysis.
+
 ## Executive Summary
 
 **What CAN be automated** (✅ Implemented):
