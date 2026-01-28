@@ -136,4 +136,72 @@ export class PRCreator {
   static generateBranchName(issueNumber: number, role: string): string {
     return `sdk-agent/${role}/issue-${issueNumber}`;
   }
+
+  /**
+   * Commit a file to a branch
+   */
+  async commitFile(
+    owner: string,
+    repo: string,
+    branchName: string,
+    filePath: string,
+    content: string,
+    message: string
+  ): Promise<void> {
+    // Get the current commit SHA for the branch
+    const { data: ref } = await this.octokit.git.getRef({
+      owner,
+      repo,
+      ref: `heads/${branchName}`,
+    });
+
+    // Get the tree SHA
+    const { data: commit } = await this.octokit.git.getCommit({
+      owner,
+      repo,
+      commit_sha: ref.object.sha,
+    });
+
+    // Create a blob for the file content
+    const { data: blob } = await this.octokit.git.createBlob({
+      owner,
+      repo,
+      content: Buffer.from(content).toString('base64'),
+      encoding: 'base64',
+    });
+
+    // Create a new tree with the file
+    const { data: newTree } = await this.octokit.git.createTree({
+      owner,
+      repo,
+      base_tree: commit.tree.sha,
+      tree: [
+        {
+          path: filePath,
+          mode: '100644',
+          type: 'blob',
+          sha: blob.sha,
+        },
+      ],
+    });
+
+    // Create a new commit
+    const { data: newCommit } = await this.octokit.git.createCommit({
+      owner,
+      repo,
+      message,
+      tree: newTree.sha,
+      parents: [ref.object.sha],
+    });
+
+    // Update the branch reference
+    await this.octokit.git.updateRef({
+      owner,
+      repo,
+      ref: `heads/${branchName}`,
+      sha: newCommit.sha,
+    });
+
+    console.log(`✅ Committed file: ${filePath}`);
+  }
 }

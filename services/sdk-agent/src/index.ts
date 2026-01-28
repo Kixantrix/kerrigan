@@ -139,6 +139,28 @@ export class SDKAgentService {
       const prCreator = new PRCreator(octokit);
       
       const branchName = PRCreator.generateBranchName(issueNumber, role.name);
+      
+      // Get default branch
+      const { data: repoData } = await octokit.repos.get({ owner, repo });
+      const baseBranch = repoData.default_branch;
+      
+      // Create branch first
+      await prCreator.createBranch(owner, repo, branchName, baseBranch);
+      
+      // Commit the agent's response as a research document
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const outputPath = `docs/research/issue-${issueNumber}-${role.name}-${timestamp}.md`;
+      const outputContent = `# Agent Response: Issue #${issueNumber}\n\n**Role**: ${role.description}\n**Generated**: ${new Date().toISOString()}\n\n---\n\n${result.output}`;
+      
+      await prCreator.commitFile(
+        owner,
+        repo,
+        branchName,
+        outputPath,
+        outputContent,
+        `docs: add ${role.name} agent research for issue #${issueNumber}`
+      );
+      
       const prTitle = `${role.description}: ${issue.title}`;
       const prBody = PRCreator.generatePRBody(
         issueNumber,

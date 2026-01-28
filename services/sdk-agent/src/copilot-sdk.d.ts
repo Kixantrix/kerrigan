@@ -16,23 +16,27 @@ declare module '@github/copilot-sdk' {
   }
 
   /**
-   * Message to send to the SDK
+   * Message options for sending to the SDK
    */
-  export interface Message {
+  export interface MessageOptions {
     prompt: string;
-    context?: Record<string, any>;
+    attachments?: Array<{type: string; path?: string; content?: string}>;
   }
 
   /**
-   * Response from the SDK
+   * Assistant message event data
    */
-  export interface Response {
+  export interface AssistantMessageData {
     content: string;
-    usage?: {
-      promptTokens: number;
-      completionTokens: number;
-      totalTokens: number;
-    };
+    role: string;
+  }
+
+  /**
+   * Assistant message event
+   */
+  export interface AssistantMessageEvent {
+    type: 'assistant.message';
+    data: AssistantMessageData;
   }
 
   /**
@@ -40,20 +44,41 @@ declare module '@github/copilot-sdk' {
    */
   export interface Session {
     /**
-     * Send a message to the SDK and get a response
+     * Send a message to the SDK
      */
-    send(message: Message): Promise<Response>;
+    send(options: MessageOptions): Promise<string>;
     
     /**
-     * Close the session
+     * Send a message and wait for completion
      */
-    close?(): Promise<void>;
+    sendAndWait(options: MessageOptions, timeout?: number): Promise<AssistantMessageEvent | undefined>;
+    
+    /**
+     * Subscribe to session events
+     */
+    on(handler: (event: any) => void): void;
+    
+    /**
+     * Destroy the session
+     */
+    destroy(): Promise<void>;
+  }
+
+  /**
+   * Client options
+   */
+  export interface CopilotClientOptions {
+    logLevel?: string;
+    cliPath?: string;
+    autoStart?: boolean;
   }
 
   /**
    * Main Copilot SDK Client
    */
   export class CopilotClient {
+    constructor(options?: CopilotClientOptions);
+    
     /**
      * Start the Copilot client
      */

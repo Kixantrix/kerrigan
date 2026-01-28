@@ -56,36 +56,76 @@ export class SDKClient implements ISDKClient {
       const dynamicImport = new Function('specifier', 'return import(specifier)');
       const { CopilotClient } = await dynamicImport('@github/copilot-sdk');
       
+      // Set the GitHub token for SDK authentication
+      process.env.COPILOT_GITHUB_TOKEN = this.token;
+      
       // Initialize Copilot SDK client
-      this.copilotClient = new CopilotClient();
-      await this.copilotClient.start();
+      const client = new CopilotClient({
+        logLevel: 'info',
+      });
+      this.copilotClient = client;
+      await client.start();
       
       console.log('✅ Copilot SDK client started');
 
       // Create SDK session with configured model
-      const session = await this.copilotClient.createSession({
-        model: 'gpt-5.2-codex',  // or configured model
+      const session = await client.createSession({
+        model: 'gpt-4o',  // Use standard model
       });
 
       console.log('✅ SDK session created');
 
       // Build prompt with full context
       const prompt = this.buildPrompt(context);
+      console.log('📝 Sending prompt to Copilot...');
+      console.log(`   Prompt length: ${prompt.length} characters`);
 
-      // Execute agent with SDK
-      const response = await session.send({
-        prompt,
+      // Collect responses from assistant messages
+      let collectedContent = '';
+      
+      // Subscribe to session events for debugging and collecting content
+      session.on((event: any) => {
+        console.log(`📨 SDK Event: ${event.type}`);
+        if (event.type === 'assistant.message') {
+          const content = event.data?.content || '';
+          if (content.length > 0) {
+            collectedContent += content + '\n\n';
+            console.log(`   Content preview: ${content.substring(0, 100)}...`);
+          }
+        } else if (event.type === 'error') {
+          console.error(`   Error: ${JSON.stringify(event.data)}`);
+        }
       });
 
-      console.log('✅ SDK execution completed');
+      // Use sendAndWait for proper async handling (3 minute timeout)
+      // If it times out, we'll use whatever content we collected
+      let response: any;
+      try {
+        response = await session.sendAndWait({
+          prompt,
+        }, 180000);
+      } catch (timeoutError: any) {
+        if (timeoutError.message?.includes('Timeout')) {
+          console.log('⚠️  Session timed out, using collected content');
+        } else {
+          throw timeoutError;
+        }
+      }
 
+      const responseContent = response?.data?.content || collectedContent || 'No response received';
+      console.log('✅ SDK execution completed');
+      console.log(`📄 Response length: ${responseContent.length} characters`);
+
+      // Clean up session
+      await session.destroy();
+      
       // Stop the SDK client
-      await this.copilotClient.stop();
+      await client.stop();
       this.copilotClient = undefined;
 
       return {
         success: true,
-        output: response.content,
+        output: responseContent,
         logs: [
           'SDK client initialized',
           'Session created successfully',
