@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  runner:
+    build:
+      context: ../..
+      dockerfile: infrastructure/runner/Dockerfile
+    container_name: kerrigan-runner
+    restart: unless-stopped
+    
+    environment:
+      # Required: Get token from GitHub Settings > Actions > Runners > New
+      # Or via API: gh api repos/Kixantrix/kerrigan/actions/runners/registration-token
+      RUNNER_TOKEN: ${RUNNER_TOKEN:?Please set RUNNER_TOKEN environment variable}
+      
+      # Optional configuration
+      RUNNER_NAME: ${RUNNER_NAME:-kerrigan-runner}
+      RUNNER_LABELS: ${RUNNER_LABELS:-self-hosted,copilot-enabled,sdk-agent}
+      RUNNER_GROUP: ${RUNNER_GROUP:-}
+      GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-https://github.com/Kixantrix/kerrigan}
+    
+    volumes:
+      # Persistent storage for authentication
+      - runner-gh-auth:/home/runner/.config/gh
+      - runner-copilot-auth:/home/runner/.copilot
+      
+      # Work directory for Actions workflows
+      - runner-work:/home/runner/actions-runner/_work
+      
+      # Logs
+      - runner-logs:/home/runner/logs
+    
+    # Network configuration
+    networks:
+      - runner-network
+    
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "Runner.Listener"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  runner-gh-auth:
+    driver: local
+  runner-copilot-auth:
+    driver: local
+  runner-work:
+    driver: local
+  runner-logs:
+    driver: local
+
+networks:
+  runner-network:
+    driver: bridge

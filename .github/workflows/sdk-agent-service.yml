@@ -15,7 +15,8 @@ permissions:
 jobs:
   invoke-sdk-agent:
     name: Invoke SDK Agent
-    runs-on: ubuntu-latest
+    # Use self-hosted runner with Copilot CLI if available, fallback to GitHub-hosted
+    runs-on: ${{ github.event.issue.labels.*.name contains 'use-self-hosted' && 'self-hosted' || 'ubuntu-latest' }}
     
     # Only run if the issue has autonomy gate labels
     if: |
@@ -24,6 +25,44 @@ jobs:
       contains(github.event.issue.labels.*.name, 'autonomy:override')
     
     steps:
+      # Health check for self-hosted runner (runs only on self-hosted)
+      - name: Health Check (Self-Hosted Only)
+        if: runner.environment == 'self-hosted'
+        run: |
+          echo "Running health check on self-hosted runner..."
+          
+          # Check if health check script exists
+          if [ -f "$HOME/scripts/health-check.sh" ]; then
+            bash "$HOME/scripts/health-check.sh" || {
+              echo "::warning::Health check failed, but continuing workflow"
+              exit 0
+            }
+          else
+            echo "::notice::Health check script not found, skipping"
+          fi
+          
+          # Verify Copilot CLI is available and authenticated
+          if command -v gh &> /dev/null; then
+            echo "✓ GitHub CLI is installed"
+            
+            if gh auth status &> /dev/null; then
+              echo "✓ GitHub CLI is authenticated"
+            else
+              echo "::error::GitHub CLI is not authenticated"
+              exit 1
+            fi
+            
+            if gh extension list 2>/dev/null | grep -q "github/gh-copilot"; then
+              echo "✓ Copilot CLI extension is installed"
+            else
+              echo "::error::Copilot CLI extension is not installed"
+              exit 1
+            fi
+          else
+            echo "::error::GitHub CLI is not installed"
+            exit 1
+          fi
+      
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -58,6 +97,22 @@ jobs:
             --event-type "${{ github.event_name }}" \
             --issue-number "${{ github.event.issue.number }}" \
             --repository "${{ github.repository }}"
+        continue-on-error: false
+      
+      # Handle authentication failures gracefully
+      - name: Handle Auth Failure
+        if: failure() && runner.environment == 'self-hosted'
+        run: |
+          echo "::error::SDK Agent failed. If this is an authentication issue, please check:"
+          echo "  1. GitHub CLI authentication: gh auth status"
+          echo "  2. Copilot CLI authentication: gh copilot suggest 'test'"
+          echo "  3. Run health check: bash \$HOME/scripts/health-check.sh"
+          echo "  4. Check auth refresh logs: cat /var/log/kerrigan-runner-auth.log"
+          echo ""
+          echo "To re-authenticate:"
+          echo "  1. SSH into runner host"
+          echo "  2. Run: gh auth login"
+          echo "  3. Follow OAuth flow"
       
       - name: Upload logs on failure
         if: failure()
