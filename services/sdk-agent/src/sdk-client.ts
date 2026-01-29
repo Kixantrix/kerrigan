@@ -10,6 +10,8 @@ import { Octokit } from '@octokit/rest';
 import { AgentContext, AgentResult } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getAgentConfig } from './agents';
+import { loadPrompt, buildSystemMessage } from './agents/prompt-loader';
 
 /**
  * Interface for SDK client behavior.
@@ -68,9 +70,29 @@ export class SDKClient implements ISDKClient {
       
       console.log('✅ Copilot SDK client started');
 
-      // Create SDK session with configured model
+      // Get agent configuration for this role
+      const agentConfig = getAgentConfig(context.role);
+      console.log(`📋 Agent config: ${agentConfig?.displayName || 'default'}`);
+
+      // Load prompt and build system message
+      let systemMessageContent: string | undefined;
+      if (agentConfig) {
+        const promptContent = loadPrompt(agentConfig.promptFile, this.repoPath);
+        systemMessageContent = buildSystemMessage(
+          context.role,
+          promptContent,
+          context.artifacts.constitution
+        );
+        console.log(`📝 System message prepared (${systemMessageContent.length} chars)`);
+      }
+
+      // Create SDK session with agent configuration
       const session = await client.createSession({
-        model: 'gpt-4o',  // Use standard model
+        model: 'gpt-4o',
+        systemMessage: systemMessageContent ? {
+          content: systemMessageContent,
+        } : undefined,
+        tools: agentConfig?.tools || [],
       });
 
       console.log('✅ SDK session created');

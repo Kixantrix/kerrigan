@@ -6,6 +6,48 @@
  */
 
 declare module '@github/copilot-sdk' {
+  import { z } from 'zod';
+
+  /**
+   * System message configuration
+   */
+  export interface SystemMessage {
+    content: string;
+    role?: string;
+  }
+
+  /**
+   * Custom agent configuration
+   */
+  export interface CustomAgent {
+    name: string;
+    displayName: string;
+    description: string;
+    prompt: string;
+  }
+
+  /**
+   * Tool definition
+   */
+  export interface Tool<T extends z.ZodTypeAny = z.ZodTypeAny> {
+    name: string;
+    description: string;
+    parameters: T;
+    handler: (params: z.infer<T>) => Promise<any> | any;
+  }
+
+  /**
+   * Define a tool for SDK agents
+   */
+  export function defineTool<T extends z.ZodTypeAny>(
+    name: string,
+    config: {
+      description: string;
+      parameters: T;
+      handler: (params: z.infer<T>) => Promise<any> | any;
+    }
+  ): Tool<T>;
+
   /**
    * Session configuration options
    */
@@ -13,6 +55,9 @@ declare module '@github/copilot-sdk' {
     model?: string;
     temperature?: number;
     maxTokens?: number;
+    systemMessage?: SystemMessage;
+    customAgents?: CustomAgent[];
+    tools?: Tool[];
   }
 
   /**
