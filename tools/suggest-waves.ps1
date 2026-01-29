@@ -9,19 +9,16 @@
     
     Prediction strategies:
     1. Scan issue descriptions for file/directory mentions
-    2. Check linked specs for "Files to Modify" sections
-    3. Use role labels to predict common file patterns
-    4. Apply historical patterns
-
-.PARAMETER DryRun
-    Show wave suggestions without applying labels (default: true)
+    2. Use role labels to predict common file patterns
+    3. Apply predefined common patterns based on keywords
+    4. Extract explicit file paths from issue text
 
 .PARAMETER Apply
-    Apply suggested wave labels to issues
+    Apply suggested wave labels to issues (default: false, dry run mode)
 
 .EXAMPLE
     ./tools/suggest-waves.ps1
-    Shows wave suggestions without applying labels
+    Shows wave suggestions without applying labels (dry run mode)
 
 .EXAMPLE
     ./tools/suggest-waves.ps1 -Apply
@@ -206,8 +203,9 @@ while ($assignedIssues.Count -lt $issueData.Count) {
     $waveAssignments[$currentWave] = $waveIssues
     $currentWave++
     
-    if ($currentWave -gt 10) {
-        Write-Warning "Too many waves detected. Manual review recommended."
+    if ($currentWave -gt 5) {
+        Write-Warning "More than 5 waves detected. Consider reviewing overlap predictions."
+        Write-Warning "Only waves 1-5 have predefined labels. Additional waves require manual label creation."
         break
     }
 }
@@ -228,6 +226,10 @@ if ($Apply) {
     
     foreach ($wave in $waveAssignments.Keys | Sort-Object) {
         foreach ($issueNum in $waveAssignments[$wave]) {
+            if ($wave -gt 5) {
+                Write-Warning "  ! Skipping wave:$wave for issue #$issueNum (no predefined label, max is wave:5)"
+                continue
+            }
             try {
                 gh issue edit $issueNum --add-label "wave:$wave"
                 Write-Success "  ✓ Added wave:$wave to issue #$issueNum"
@@ -254,4 +256,4 @@ Write-Host "3. Assign only wave:1 issues: gh issue edit <number> --add-assignee 
 Write-Host "4. Monitor wave:1 PRs through merge"
 Write-Host "5. After wave:1 merges, assign wave:2"
 Write-Host ""
-Write-Host "See playbooks/triage.md#wave-based-assignment for detailed guidance."
+Write-Host "See playbooks/triage.md#wave-based-issue-assignment-strategy for detailed guidance."

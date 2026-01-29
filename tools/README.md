@@ -174,7 +174,7 @@ Wave 2 (2 issues):
 4. Monitor wave:1 through merge
 5. Assign wave:2 after wave:1 completes
 
-**See also:** [playbooks/triage.md#wave-based-assignment](../playbooks/triage.md) for complete wave-based assignment guide.
+**See also:** [playbooks/triage.md#wave-based-issue-assignment-strategy](../playbooks/triage.md#wave-based-issue-assignment-strategy) for complete wave-based assignment guide.
 
 ### Create Issue (create-issue.ps1)
 

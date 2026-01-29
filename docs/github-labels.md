@@ -50,27 +50,27 @@ These labels implement wave-based assignment to minimize merge conflicts:
 - **`wave:1`** (color: `#1E90FF`, dodger blue)
   - First wave - independent issues with no file overlap
   - Assigned first and given priority for completion
-  - See: `playbooks/triage.md#wave-based-assignment`
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
 
 - **`wave:2`** (color: `#4169E1`, royal blue)
   - Second wave - issues that may depend on or overlap with wave:1
   - Assigned after wave:1 issues are merged
-  - See: `playbooks/triage.md#wave-based-assignment`
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
 
 - **`wave:3`** (color: `#0000CD`, medium blue)
   - Third wave - issues dependent on earlier waves
   - Assigned after wave:2 issues are merged
-  - See: `playbooks/triage.md#wave-based-assignment`
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
 
 - **`wave:4`** (color: `#00008B`, dark blue)
   - Fourth wave - additional dependent issues
   - Assigned after wave:3 issues are merged
-  - See: `playbooks/triage.md#wave-based-assignment`
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
 
 - **`wave:5`** (color: `#000080`, navy)
   - Fifth wave - final dependent issues
   - Assigned after wave:4 issues are merged
-  - See: `playbooks/triage.md#wave-based-assignment`
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
 
 ### Tier Labels (Autonomy Level)
 

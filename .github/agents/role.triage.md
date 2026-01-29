@@ -184,7 +184,7 @@ gh issue list --label "wave:1" --state open  # Verify empty
 foreach ($i in $wave2) { gh issue edit $i --add-assignee "@copilot" }
 ```
 
-See `playbooks/triage.md#wave-based-assignment` for detailed guidance.
+See `playbooks/triage.md#wave-based-issue-assignment-strategy` for detailed guidance.
 
 ## Workflow Scripts
 
