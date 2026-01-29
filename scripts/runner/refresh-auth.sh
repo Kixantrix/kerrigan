@@ -188,7 +188,7 @@ backup_auth_cache() {
     
     # Keep only last 7 backups
     if [ -d "$backup_dir" ]; then
-        ls -t "$backup_dir" | tail -n +8 | xargs -I {} rm -rf "$backup_dir/{}" 2>/dev/null || true
+        cd "$backup_dir" && ls -t | tail -n +8 | xargs -r rm -rf
     fi
 }
 

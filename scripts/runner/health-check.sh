@@ -16,6 +16,7 @@ set -euo pipefail
 # Configuration
 LOG_FILE="/var/log/kerrigan-runner-health.log"
 RUNNER_DIR="${RUNNER_DIR:-$HOME/actions-runner}"
+# ALERT_ON_FAILURE must be exactly "true" (lowercase) to trigger alerts
 ALERT_ON_FAILURE="${ALERT_ON_FAILURE:-true}"
 MIN_DISK_PERCENT="${MIN_DISK_PERCENT:-20}"
 
@@ -75,8 +76,8 @@ check_runner_service() {
                 fi
             else
                 log_warning "Runner service not found (may be running interactively)"
-                # Check if runner process is running
-                if pgrep -f "Runner.Listener" > /dev/null; then
+                # Check if runner process is running (use more specific pattern)
+                if pgrep -f "Runner.Listener" > /dev/null && pgrep -f "actions-runner" > /dev/null; then
                     log_success "Runner process is running"
                     return 0
                 else
@@ -85,8 +86,8 @@ check_runner_service() {
                 fi
             fi
         else
-            # No systemctl, check process directly
-            if pgrep -f "Runner.Listener" > /dev/null; then
+            # No systemctl, check process directly (use more specific pattern)
+            if pgrep -f "Runner.Listener" > /dev/null && pgrep -f "actions-runner" > /dev/null; then
                 log_success "Runner process is running"
                 return 0
             else

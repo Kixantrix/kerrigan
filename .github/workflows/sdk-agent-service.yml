@@ -16,7 +16,7 @@ jobs:
   invoke-sdk-agent:
     name: Invoke SDK Agent
     # Use self-hosted runner with Copilot CLI if available, fallback to GitHub-hosted
-    runs-on: ${{ github.event.issue.labels.*.name contains 'use-self-hosted' && 'self-hosted' || 'ubuntu-latest' }}
+    runs-on: ${{ contains(github.event.issue.labels.*.name, 'use-self-hosted') && 'self-hosted' || 'ubuntu-latest' }}
     
     # Only run if the issue has autonomy gate labels
     if: |
@@ -27,7 +27,7 @@ jobs:
     steps:
       # Health check for self-hosted runner (runs only on self-hosted)
       - name: Health Check (Self-Hosted Only)
-        if: runner.environment == 'self-hosted'
+        if: contains(github.event.issue.labels.*.name, 'use-self-hosted')
         run: |
           echo "Running health check on self-hosted runner..."
           
@@ -97,11 +97,10 @@ jobs:
             --event-type "${{ github.event_name }}" \
             --issue-number "${{ github.event.issue.number }}" \
             --repository "${{ github.repository }}"
-        continue-on-error: false
       
       # Handle authentication failures gracefully
       - name: Handle Auth Failure
-        if: failure() && runner.environment == 'self-hosted'
+        if: failure() && contains(github.event.issue.labels.*.name, 'use-self-hosted')
         run: |
           echo "::error::SDK Agent failed. If this is an authentication issue, please check:"
           echo "  1. GitHub CLI authentication: gh auth status"

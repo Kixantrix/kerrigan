@@ -62,7 +62,8 @@ WORKDIR /home/runner
 RUN gh extension install github/gh-copilot
 
 # Download and extract GitHub Actions runner
-ARG RUNNER_VERSION=2.311.0
+# Default to 2.314.1 (released Jan 2025), but can be overridden at build time
+ARG RUNNER_VERSION=2.314.1
 RUN mkdir -p /home/runner/actions-runner && \
     cd /home/runner/actions-runner && \
     curl -o actions-runner-linux-x64.tar.gz -L \

@@ -51,16 +51,15 @@ if [ -f ".runner" ]; then
 else
     echo "Configuring runner..."
     
-    # Build configuration command
-    CONFIG_CMD="./config.sh --url $GITHUB_REPOSITORY --token $RUNNER_TOKEN --name $RUNNER_NAME --labels $RUNNER_LABELS --work $RUNNER_WORK_DIR --unattended --replace"
-    
-    # Add runner group if specified
-    if [ -n "$RUNNER_GROUP" ]; then
-        CONFIG_CMD="$CONFIG_CMD --runnergroup $RUNNER_GROUP"
-    fi
-    
-    # Run configuration
-    eval $CONFIG_CMD
+    # Build and run configuration command
+    ./config.sh --url "$GITHUB_REPOSITORY" \
+        --token "$RUNNER_TOKEN" \
+        --name "$RUNNER_NAME" \
+        --labels "$RUNNER_LABELS" \
+        --work "$RUNNER_WORK_DIR" \
+        --unattended \
+        --replace \
+        ${RUNNER_GROUP:+--runnergroup "$RUNNER_GROUP"}
     
     echo "Runner configured successfully"
 fi
