@@ -81,8 +81,8 @@ def ensure_sections(p: Path, headings: List[str], doc_name: str) -> None:
 def project_folders() -> List[Path]:
     if not SPECS_DIR.exists():
         return []
-    # Exclude test directories and special folders
-    excluded = ["_template", "_archive", "tests", "test", "test-project", "pause-resume-demo"]
+    # Exclude test directories, special folders, and investigation/research projects
+    excluded = ["_template", "_archive", "tests", "test", "test-project", "pause-resume-demo", "copilot-sdk-integration"]
     return [p for p in SPECS_DIR.iterdir() if p.is_dir() and p.name not in excluded]
 
 def is_deployable(project_dir: Path) -> bool:
