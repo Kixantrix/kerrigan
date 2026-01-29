@@ -128,6 +128,54 @@ Display open issues in a formatted table.
 - `-State`: Issue state to filter by (open, closed, all). Default: open
 - `-Limit`: Maximum number of issues to display. Default: 20
 
+### Suggest Wave Groupings (suggest-waves.ps1)
+
+Analyze open issues and suggest wave groupings based on predicted file overlap. Helps minimize merge conflicts when assigning multiple issues to agents.
+
+**Usage:**
+```powershell
+# Preview wave suggestions (dry run)
+.\tools\suggest-waves.ps1
+
+# Apply suggested wave labels
+.\tools\suggest-waves.ps1 -Apply
+```
+
+**What it does:**
+1. Fetches open issues with `agent:go` label
+2. Predicts which files each issue will modify based on:
+   - Issue descriptions and titles
+   - Role labels (role:triage, role:swe, etc.)
+   - Common patterns (workflows, validators, documentation)
+   - Explicit file mentions
+3. Groups issues into waves to avoid file conflicts
+4. Suggests wave assignments (wave:1, wave:2, etc.)
+5. Optionally applies wave labels to issues
+
+**Parameters:**
+- `-Apply`: Apply suggested wave labels to issues (default: dry run only)
+
+**Example output:**
+```
+Wave 1 (3 issues):
+  #159 - Update CI workflow
+  #162 - Add documentation
+  #165 - Create new validator
+
+Wave 2 (2 issues):
+  #160 - Update triage playbook
+  #161 - Fix workflow permissions
+```
+
+**Next steps after running:**
+1. Review wave suggestions
+2. Manually adjust if needed: `gh issue edit <number> --add-label 'wave:N'`
+3. Assign only wave:1 issues to @copilot
+4. Monitor wave:1 through merge
+5. Assign wave:2 after wave:1 completes
+
+**See also:** [playbooks/triage.md#wave-based-assignment](../playbooks/triage.md) for complete wave-based assignment guide.
+
 ### Create Issue (create-issue.ps1)
 
 Create a GitHub issue from a markdown file or inline content. Supports YAML frontmatter for metadata.

@@ -751,6 +751,361 @@ When to escalate to project maintainer:
 - Need for architectural decisions
 - Conflict between agents or PRs
 
+## Wave-Based Issue Assignment Strategy
+
+### Overview
+
+Wave-based assignment minimizes merge conflicts when multiple Copilot agents work in parallel by grouping issues based on file overlap and assigning them sequentially.
+
+### The Problem
+
+When agents work on multiple issues simultaneously:
+- **Parallel branches** often conflict with each other
+- **Rebase overhead** - Triage must manually resolve conflicts
+- **Wasted work** - Changes sometimes get overwritten or duplicated
+- **CI retriggers** - Each rebase requires close/reopen to trigger CI
+- **Stale context** - Agents work against outdated main branch
+
+### The Solution
+
+**Wave-based assignment** groups issues by predicted file overlap and assigns one wave at a time:
+
+1. **Wave 1**: Independent issues (no file overlap with other issues)
+2. **Wave 2**: Issues that may overlap with Wave 1
+3. **Wave 3**: Issues dependent on earlier waves
+4. **Wave 4+**: Additional dependent issues
+
+### Wave Assignment Process
+
+#### Step 1: Analyze Open Issues
+
+Review all open issues that are ready for assignment (`agent:go` or sprint issues):
+
+```bash
+# View all open issues
+./tools/show-issues.ps1
+
+# Or use GitHub CLI
+gh issue list --state open --label "agent:go"
+```
+
+#### Step 2: Predict File Overlap
+
+Analyze each issue to predict which files will be modified:
+
+**Sources for prediction:**
+- **Specs/tasks**: Look at "Files to Modify" sections in linked specs
+- **Issue description**: Mentions of specific files, directories, or components
+- **Historical data**: Similar issues in the past touched which files?
+- **Common patterns**:
+  - Workflow changes → `.github/workflows/`, `.github/test-mapping.yml`
+  - Documentation → `docs/`, `playbooks/`, `README.md`
+  - Core infrastructure → `tools/`, `scripts/`
+  - Tests → `tests/`, test files in relevant areas
+
+**Example analysis:**
+- Issue #159: "Update CI workflow" → likely touches `.github/workflows/ci.yml`
+- Issue #160: "Add validation script" → likely touches `tools/validators/`
+- Issue #161: "Update workflow permissions" → likely touches `.github/workflows/ci.yml`
+
+In this case, #159 and #161 have file overlap (both touch ci.yml), so they should be in different waves.
+
+#### Step 3: Group Issues into Waves
+
+**Wave 1 criteria** (assign first):
+- No predicted file overlap with any other open issue
+- Independent changes that won't conflict
+- Quick wins that can merge fast
+- Documentation-only changes (usually safe)
+
+**Wave 2+ criteria** (assign after previous wave merges):
+- Predicted file overlap with Wave 1 issues
+- Dependent on Wave 1 changes
+- Touch high-conflict areas (workflows, shared configs)
+
+**Grouping guidelines:**
+- Keep wave size manageable (3-7 issues per wave)
+- Prioritize high-value issues in earlier waves
+- Group related issues together when they don't conflict
+- Consider issue complexity (mix quick and complex issues)
+
+#### Step 4: Apply Wave Labels
+
+Label issues with their wave assignment:
+
+```bash
+# Wave 1 (independent issues)
+gh issue edit 159 --add-label "wave:1"
+gh issue edit 162 --add-label "wave:1"
+gh issue edit 165 --add-label "wave:1"
+
+# Wave 2 (overlap with Wave 1 or dependent)
+gh issue edit 160 --add-label "wave:2"
+gh issue edit 161 --add-label "wave:2"
+gh issue edit 163 --add-label "wave:2"
+
+# Wave 3 (dependent on Wave 2)
+gh issue edit 164 --add-label "wave:3"
+```
+
+Or use PowerShell for batch assignment:
+
+```powershell
+# Wave 1
+$wave1 = 159,162,165
+foreach ($issue in $wave1) {
+    gh issue edit $issue --add-label "wave:1"
+}
+
+# Wave 2
+$wave2 = 160,161,163
+foreach ($issue in $wave2) {
+    gh issue edit $issue --add-label "wave:2"
+}
+```
+
+#### Step 5: Assign Wave 1 to Agents
+
+Only assign Wave 1 issues initially:
+
+```bash
+# Assign Wave 1 issues to @copilot
+gh issue edit 159 --add-assignee "@copilot"
+gh issue edit 162 --add-assignee "@copilot"
+gh issue edit 165 --add-assignee "@copilot"
+```
+
+Or in bulk:
+
+```powershell
+$wave1 = 159,162,165
+foreach ($issue in $wave1) {
+    gh issue edit $issue --add-assignee "@copilot"
+}
+```
+
+**Important**: Do NOT assign Wave 2+ issues yet. They will be assigned after Wave 1 merges.
+
+#### Step 6: Monitor Wave 1 Progress
+
+Track Wave 1 PRs through to merge:
+
+```powershell
+# Check PR status
+./tools/triage-prs.ps1
+
+# View Wave 1 issues
+gh issue list --label "wave:1"
+```
+
+Review, approve, and merge Wave 1 PRs as they complete. Follow standard triage workflows.
+
+#### Step 7: Assign Next Wave
+
+**Only after all Wave 1 PRs are merged**, assign Wave 2:
+
+```bash
+# Check Wave 1 status (should all be closed)
+gh issue list --label "wave:1" --state open
+
+# If all closed, assign Wave 2
+gh issue edit 160 --add-assignee "@copilot"
+gh issue edit 161 --add-assignee "@copilot"
+gh issue edit 163 --add-assignee "@copilot"
+```
+
+Repeat this process for each subsequent wave.
+
+### Wave Assignment Decision Tree
+
+```
+Open Issues Ready for Assignment
+  │
+  ├─ Analyze file overlap
+  │   └─ Predict which files each issue will modify
+  │
+  ├─ Group into waves
+  │   ├─ Wave 1: No overlap, independent
+  │   ├─ Wave 2: Overlaps with Wave 1
+  │   └─ Wave 3+: Dependent on earlier waves
+  │
+  ├─ Label issues with wave:N
+  │
+  ├─ Assign Wave 1 only
+  │   └─ Add assignee @copilot
+  │
+  ├─ Monitor Wave 1
+  │   ├─ Review PRs
+  │   ├─ Approve quality work
+  │   └─ Merge when ready
+  │
+  ├─ Wave 1 complete? (all PRs merged)
+  │   ├─ Yes → Assign Wave 2
+  │   └─ No → Continue monitoring
+  │
+  └─ Repeat for each wave
+```
+
+### File Overlap Detection Strategies
+
+#### Strategy 1: Explicit Spec Analysis (Most Reliable)
+
+Check linked spec documents for "Files to Modify" or similar sections:
+
+```bash
+# View issue and linked specs
+gh issue view <NUMBER>
+
+# Check project folder
+ls specs/projects/<project-name>/
+cat specs/projects/<project-name>/tasks.md
+```
+
+Look for explicit file listings in specs.
+
+#### Strategy 2: Issue Description Keywords
+
+Scan issue descriptions for file/directory mentions:
+- Direct file paths: `.github/workflows/ci.yml`
+- Directory mentions: "in the `tools/validators/` directory"
+- Component names: "update the triage script" → `tools/triage-prs.ps1`
+
+#### Strategy 3: Historical Pattern Matching
+
+Use past issues as reference:
+- Similar issue type → likely similar files
+- Same role label → often touches same areas
+- Workflow changes → almost always touch `.github/workflows/`
+
+**Common patterns:**
+- `role:triage` → `playbooks/triage.md`, `.github/agents/role.triage.md`
+- `role:swe` + "CI" → `.github/workflows/`, `.github/test-mapping.yml`
+- "documentation" → `docs/`, `playbooks/`, `README.md`
+- "validator" → `tools/validators/`
+- "label" → `docs/github-labels.md`
+
+#### Strategy 4: Conservative Grouping
+
+When in doubt:
+- Put potential overlaps in different waves
+- Err on the side of more waves (safer)
+- Group only when confident no overlap exists
+
+### Trade-offs and Considerations
+
+| Factor | Serial | Wave-based | Parallel |
+|--------|--------|------------|----------|
+| Conflicts | None | Minimal | Many |
+| Throughput | Low | Medium | High (theoretical) |
+| Triage overhead | Low | Low-Medium | High |
+| Forward progress | Slow | Good | Fast (when no conflicts) |
+| Complexity | Simple | Moderate | Simple but messy |
+
+**When to use wave-based:**
+- Multiple issues ready for assignment
+- Issues touch common areas (workflows, configs, docs)
+- Previous parallel work caused conflicts
+- Want predictable progress without rebase overhead
+
+**When to use parallel (skip waves):**
+- Issues touch completely different subsystems
+- All issues are documentation-only
+- Very small changes unlikely to conflict
+- Time pressure and willing to risk conflicts
+
+**When to use serial (one at a time):**
+- High-risk changes (major refactors, breaking changes)
+- Complex dependencies between issues
+- Learning period (understanding what conflicts arise)
+
+### Best Practices
+
+1. **Start conservative** - Use smaller waves initially, expand as you learn patterns
+2. **Document predictions** - Note why you grouped issues in specific waves (helps future learning)
+3. **Monitor actual conflicts** - Track which issues actually conflicted to improve predictions
+4. **Balance wave size** - 3-7 issues per wave is usually optimal
+5. **Prioritize within waves** - High-value issues earlier
+6. **Update assignments proactively** - Assign next wave as soon as previous merges
+7. **Communicate wave status** - Let stakeholders know which wave is active
+8. **Use labels consistently** - Always label waves even if assignment is immediate
+
+### Common Scenarios
+
+#### Scenario 1: Wave 1 Has Stalled PR
+
+**Problem**: One Wave 1 PR is stalled, others have merged
+
+**Solution**:
+- Don't block Wave 2 on one stalled PR
+- If stalled PR has no overlap with Wave 2, proceed with Wave 2
+- If overlap exists, either:
+  - Wait and restart the stalled agent, OR
+  - Close stalled PR, create follow-up issue, assign to later wave
+
+#### Scenario 2: Urgent Issue Needs Immediate Assignment
+
+**Problem**: Critical issue arises mid-wave
+
+**Solution**:
+- Assess file overlap with current wave
+- If no overlap: Assign immediately (don't wait for wave)
+- If overlap: Either:
+  - Rush-merge blocking PRs in current wave, OR
+  - Assign to human for immediate fix
+
+#### Scenario 3: Wave 1 PR Conflicts with Wave 2 PR
+
+**Problem**: Despite predictions, Wave 1 and Wave 2 PRs conflict
+
+**Solution**:
+- This shouldn't happen if waves assigned correctly
+- Review: Was file prediction wrong?
+- Learn: Update prediction strategy
+- Fix: Rebase Wave 2 PR after Wave 1 merges
+
+#### Scenario 4: Too Many Issues for Wave System
+
+**Problem**: 20+ issues ready for assignment
+
+**Solution**:
+- Group into 3-5 waves
+- Assign Wave 1-2 immediately (if no overlap between them)
+- Queue remaining waves
+- Consider parallel execution of non-overlapping waves
+
+### Wave Management Script (Optional)
+
+For automated wave management, consider creating `tools/manage-waves.ps1`:
+
+```powershell
+# Pseudocode for wave management script
+# Check Wave N status
+$waveN_issues = gh issue list --label "wave:$N" --state open --json number
+
+# If wave empty, assign next wave
+if ($waveN_issues.Count -eq 0) {
+    $nextWave = $N + 1
+    $nextWaveIssues = gh issue list --label "wave:$nextWave" --state open --json number
+    foreach ($issue in $nextWaveIssues) {
+        gh issue edit $issue.number --add-assignee "@copilot"
+    }
+}
+```
+
+### Metrics to Track
+
+**Wave effectiveness:**
+- Conflicts per wave (goal: 0-1 per wave)
+- Time to complete wave (goal: track and optimize)
+- Wave size vs completion time (find optimal size)
+- Prediction accuracy (predicted overlap vs actual conflicts)
+
+**Process metrics:**
+- Issues assigned per week (with vs without waves)
+- PRs merged per week (with vs without waves)
+- Average time to merge (with vs without waves)
+- Rebase overhead (conflicts resolved manually)
+
 ## See Also
 
 - [PR Review Playbook](pr-review.md) - Human review guidelines
