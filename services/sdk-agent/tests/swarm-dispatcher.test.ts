@@ -9,13 +9,14 @@ import { Octokit } from '@octokit/rest';
 // Mock the SDK
 const mockStart = jest.fn().mockResolvedValue(undefined);
 const mockStop = jest.fn().mockResolvedValue(undefined);
-const mockSend = jest.fn().mockResolvedValue(undefined);
+const mockSend = jest.fn().mockResolvedValue(undefined); // send() now resolves
 const mockOn = jest.fn();
 const mockCreateSession = jest.fn().mockResolvedValue({
   send: mockSend,
   on: mockOn,
 });
 
+// Mock the dynamic import
 jest.mock('@github/copilot-sdk', () => {
   return {
     CopilotClient: jest.fn().mockImplementation(() => {
@@ -27,6 +28,17 @@ jest.mock('@github/copilot-sdk', () => {
     }),
   };
 }, { virtual: true });
+
+// Mock the Function constructor used for dynamic imports  
+const originalFunction = global.Function;
+(global as any).Function = jest.fn().mockImplementation((...args: any[]) => {
+  const code = args[0];
+  const body = args[1];
+  if (code === 'specifier' && body === 'return import(specifier)') {
+    return () => Promise.resolve(require('@github/copilot-sdk'));
+  }
+  return new originalFunction(...args);
+});
 
 describe('SwarmDispatcher', () => {
   let mockOctokit: jest.Mocked<Octokit>;

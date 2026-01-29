@@ -65,10 +65,13 @@ export class CompletionHandler {
       }
     } catch (error: any) {
       console.error(`❌ Error handling event: ${error.message}`);
-      await this.handleError({
-        ...event,
-        data: { error: error.message },
-      });
+      // Log the error but don't call handleError to avoid infinite recursion
+      // Instead, directly update the session state
+      this.sessionManager.updateSessionState(
+        event.sessionId,
+        SessionState.FAILED,
+        `Event handler error: ${error.message}`
+      );
     }
   }
 

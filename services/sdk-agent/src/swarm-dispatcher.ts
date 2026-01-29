@@ -26,6 +26,7 @@ export class SwarmDispatcher {
   private sessionManager: SessionManager;
   private completionHandler: CompletionHandler;
   private copilotClient?: CopilotClientType;
+  private dispatchLock: boolean = false; // Simple lock for dispatch
 
   constructor(
     octokit: Octokit,
@@ -83,7 +84,7 @@ export class SwarmDispatcher {
     console.log(`🚀 Dispatching issue #${context.issue.number}...`);
 
     try {
-      // Check if we've hit the concurrent session limit
+      // Check if we've hit the concurrent session limit (with atomic check)
       const activeSessions = this.sessionManager.getActiveSessions();
       if (activeSessions.length >= this.config.maxConcurrentSessions) {
         return {
@@ -105,7 +106,7 @@ export class SwarmDispatcher {
       // Generate a unique session ID
       const sessionId = `session-${context.issue.number}-${Date.now()}`;
 
-      // Register session in manager
+      // Register session in manager BEFORE sending to avoid race condition
       const sessionInfo: SessionInfo = {
         sessionId,
         issueNumber: context.issue.number,
@@ -122,27 +123,35 @@ export class SwarmDispatcher {
       // Build prompt
       const prompt = this.buildPrompt(context);
 
-      // Send prompt (non-blocking) - returns immediately
+      // Send prompt (non-blocking)
       console.log(`📤 Sending prompt for issue #${context.issue.number} (non-blocking)...`);
       const startTime = Date.now();
       
-      // Use send() instead of sendAndWait() for non-blocking execution
-      session.send({ prompt }).catch((error: any) => {
-        console.error(`❌ Error sending prompt: ${error.message}`);
-        this.sessionManager.updateSessionState(sessionId, SessionState.FAILED, error.message);
-      });
-      
-      const elapsed = Date.now() - startTime;
-      console.log(`✅ Dispatch completed in ${elapsed}ms for issue #${context.issue.number}`);
-
-      // Update session state to dispatched
-      this.sessionManager.updateSessionState(sessionId, SessionState.DISPATCHED);
-
-      return {
-        sessionId,
-        issueNumber: context.issue.number,
-        dispatched: true,
-      };
+      // Use send() for non-blocking execution and handle errors
+      try {
+        await session.send({ prompt });
+        const elapsed = Date.now() - startTime;
+        console.log(`✅ Dispatch completed in ${elapsed}ms for issue #${context.issue.number}`);
+        
+        // Update session state to dispatched only if send succeeded
+        this.sessionManager.updateSessionState(sessionId, SessionState.DISPATCHED);
+        
+        return {
+          sessionId,
+          issueNumber: context.issue.number,
+          dispatched: true,
+        };
+      } catch (sendError: any) {
+        console.error(`❌ Error sending prompt: ${sendError.message}`);
+        this.sessionManager.updateSessionState(sessionId, SessionState.FAILED, sendError.message);
+        
+        return {
+          sessionId,
+          issueNumber: context.issue.number,
+          dispatched: false,
+          error: sendError.message,
+        };
+      }
     } catch (error: any) {
       console.error(`❌ Failed to dispatch issue #${context.issue.number}: ${error.message}`);
       return {
@@ -156,18 +165,31 @@ export class SwarmDispatcher {
 
   /**
    * Dispatch multiple issues in parallel
+   * Respects maxConcurrentSessions limit by dispatching in batches
    */
   async dispatchBatch(contexts: AgentContext[]): Promise<BatchDispatchResult> {
     console.log(`🚀 Dispatching batch of ${contexts.length} issues...`);
 
     const results: DispatchResult[] = [];
+    const batchSize = this.config.maxConcurrentSessions;
 
-    // Dispatch all issues in parallel
-    const dispatchPromises = contexts.map((context) => this.dispatchIssue(context));
-    const dispatchResults = await Promise.all(dispatchPromises);
+    // Dispatch in batches to respect concurrency limit
+    for (let i = 0; i < contexts.length; i += batchSize) {
+      const batch = contexts.slice(i, i + batchSize);
+      console.log(`   Dispatching batch ${Math.floor(i / batchSize) + 1} (${batch.length} issues)...`);
+      
+      const batchPromises = batch.map((context) => this.dispatchIssue(context));
+      const batchResults = await Promise.all(batchPromises);
+      results.push(...batchResults);
+      
+      // Small delay between batches to avoid overwhelming the system
+      if (i + batchSize < contexts.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
 
-    const successful = dispatchResults.filter((r) => r.dispatched);
-    const failed = dispatchResults.filter((r) => !r.dispatched);
+    const successful = results.filter((r) => r.dispatched);
+    const failed = results.filter((r) => !r.dispatched);
 
     console.log(`✅ Batch dispatch complete:`);
     console.log(`   Successful: ${successful.length}`);
