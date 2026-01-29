@@ -88,6 +88,37 @@ The repository uses `.github/test-mapping.yml` to track which source files have 
 
 CI will check that PRs modifying source files also update their corresponding tests. This helps prevent regressions and ensures test coverage grows with the codebase.
 
+## Honest Test Reporting Requirements
+
+**CRITICAL**: When documenting test improvements in PRs, be factually accurate:
+
+✅ **DO:**
+- Report actual test counts: "Increased from 270 to 289 tests (added 19 new tests)"
+- Cite specific test files: "Added tests in tests/unit/test_auth.py (lines 45-89)"
+- Show real coverage numbers: "Coverage increased from 67% to 82%"
+- Reference actual test runner output
+- Be specific about what was tested: "Added edge case tests for null input handling"
+
+❌ **DON'T:**
+- Fabricate test counts or coverage percentages
+- Claim tests exist when they weren't added
+- Use vague language without specifics
+- Misrepresent the scope of testing performed
+
+**Example - Good Test Report:**
+```markdown
+## Test Coverage Improvements
+- Added 15 new unit tests across 3 files:
+  - tests/unit/test_auth.py: 8 tests for JWT validation
+  - tests/unit/test_api.py: 5 tests for error handling
+  - tests/integration/test_flow.py: 2 tests for end-to-end flows
+- Coverage: 67% → 82% (15% increase)
+- All 285 tests pass (270 existing + 15 new)
+- Test run: `Ran 285 tests in 2.3s - OK`
+```
+
+This ensures reviewers can verify your claims and trust the testing quality.
+
 ## Example Test Improvements
 
 ### Before (weak test):

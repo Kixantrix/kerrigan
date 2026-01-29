@@ -154,6 +154,65 @@ Future validators may check:
 - [Agent Specs](../specs/kerrigan/agents/) - Quality standards per agent
 - [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md) - Required deliverables
 
+## Test Reporting Standards
+
+**CRITICAL**: Test claims in PRs must be factually accurate and verifiable.
+
+### Requirements
+
+When documenting testing in PRs:
+
+✅ **DO:**
+- State specific test files added: "Added 5 new tests in tests/test_auth.py"
+- Report actual test counts: "All 226 tests pass" or "All 231 tests pass (226 existing + 5 new)"
+- Include test runner output: "Ran 226 tests in 0.4s - OK"
+- Be explicit when no tests added: "No new tests added - documentation only"
+- Explain why tests can't be added if applicable: "Manual testing only - requires OAuth"
+
+❌ **DON'T:**
+- Fabricate test counts or invent numbers
+- Use vague language: "All tests passing" without specifics
+- Claim tests were added when no test files changed
+- Report test numbers that don't match actual test runner output
+
+### Examples
+
+**✅ Good - Specific and Verifiable:**
+```markdown
+## Testing
+- Added 8 new unit tests in tests/unit/test_validator.py (lines 45-123)
+- All 234 tests pass (226 existing + 8 new)
+- Test run output:
+  ```
+  Ran 234 tests in 0.4s
+  OK
+  ```
+```
+
+**✅ Good - Honest Reporting Without New Tests:**
+```markdown
+## Testing
+- No new tests added (changes are to documentation only)
+- Existing 226 tests still pass
+- Validated changes manually by reviewing rendered documentation
+```
+
+**❌ Bad - Vague and Unverifiable:**
+```markdown
+## Testing
+All tests passing (39 tests)
+```
+
+### CI Validation
+
+The repository includes a validator (`tools/validators/check_test_claims.py`) that checks for:
+1. Test claims without corresponding test file changes
+2. Vague test claims lacking specifics
+3. Known fabricated test numbers (e.g., "39 tests")
+4. Missing test runner output
+
+This validator runs automatically on PRs to help catch misleading claims early.
+
 ## Questions?
 
 If unsure whether something is appropriate:

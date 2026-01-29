@@ -81,6 +81,43 @@ Before completing a PR, ensure test collateral is properly maintained:
 
 **Example**: If you modify `tools/validators/check_artifacts.py`, you must also update `tests/test_automation.py` or add a note about why tests don't need updating.
 
+### Testing Requirements for PRs
+
+**CRITICAL**: When documenting test results in PRs, you MUST be factually accurate:
+
+✅ **DO:**
+- State if you added new tests: "Added 5 new tests in tests/test_auth.py"
+- Cite specific test files and line numbers
+- Use precise language: "Existing 270 tests still pass" or "All 270 tests pass"
+- Report actual test counts from test runner output
+- If no tests added, say: "No new tests added - existing tests validate changes"
+- If something cannot be tested, explain why: "Manual testing only - requires OAuth flow"
+
+❌ **DON'T:**
+- Claim test coverage that doesn't exist
+- Invent test numbers or fabricate test counts
+- Use vague language like "All tests passing" without specifics
+- Say "tests added" if you didn't actually add test files
+- Claim tests exist when they don't
+
+**Example - Good Test Reporting:**
+```markdown
+## Testing
+- Added 8 new unit tests in tests/unit/test_validator.py
+- All 278 tests pass (270 existing + 8 new)
+- Test run output: `Ran 278 tests in 0.4s - OK`
+```
+
+**Example - Honest Reporting Without New Tests:**
+```markdown
+## Testing
+- No new tests added (changes are to documentation only)
+- Existing 270 tests still pass
+- Validated changes manually by reviewing rendered docs
+```
+
+This ensures reviewers can trust your test claims and verify coverage.
+
 ## Code Quality Standards
 
 - **Run linting tools** and fix all issues before committing

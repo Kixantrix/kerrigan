@@ -52,6 +52,14 @@ Before starting, read:
 - **E2E tests**: For critical user flows
 - **Edge cases**: Test error conditions, boundaries, invalid inputs
 
+**CRITICAL - Honest Test Reporting:**
+When documenting test results in PRs:
+- ✅ Report actual test counts: "All 226 tests pass" or "All 231 tests pass (226 + 5 new)"
+- ✅ Cite specific test files: "Added tests in tests/test_auth.py"
+- ✅ Include test runner output
+- ❌ Never fabricate test numbers
+- ❌ Never claim tests exist when they don't
+
 ### Security
 - **Input validation**: Never trust user input
 - **Output encoding**: Prevent injection attacks

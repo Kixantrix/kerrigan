@@ -56,6 +56,14 @@ mappings:
     tests: "tests/test_test_collateral.py"
     notes: "Test collateral validator and its tests"
 
+  - source: "tools/validators/check_test_claims.py"
+    tests: "tests/test_test_claims_validator.py"
+    notes: "Test claims validator to prevent fabricated test results"
+
+  - source: "tools/validators/check_placeholders.py"
+    tests: "tests/validators/test_placeholders.py"
+    notes: "Placeholder implementation validator and its tests"
+
   # GitHub Workflows - Configuration files
   - source: ".github/workflows/*.yml"
     tests: null
