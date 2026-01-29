@@ -232,7 +232,8 @@ if ($Apply) {
                 gh issue edit $issueNum --add-label "wave:$wave"
                 Write-Success "  ✓ Added wave:$wave to issue #$issueNum"
             } catch {
-                Write-Warning "  ✗ Failed to label issue #$issueNum: $_"
+                $errorMsg = $_.Exception.Message
+                Write-Warning "  ✗ Failed to label issue #${issueNum}: $errorMsg"
             }
         }
     }
