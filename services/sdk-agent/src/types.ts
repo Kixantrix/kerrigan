@@ -95,3 +95,59 @@ export interface StatusUpdate {
   prNumber?: number;
   error?: string;
 }
+
+/**
+ * Session state for tracking execution status
+ */
+export enum SessionState {
+  CREATED = 'created',
+  DISPATCHED = 'dispatched',
+  RUNNING = 'running',
+  IDLE = 'idle',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+}
+
+/**
+ * Session information for tracking
+ */
+export interface SessionInfo {
+  sessionId: string;
+  issueNumber: number;
+  issueContext: AgentContext;
+  state: SessionState;
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt?: Date;
+  error?: string;
+  prNumber?: number;
+}
+
+/**
+ * Configuration for SwarmDispatcher
+ */
+export interface SwarmDispatcherConfig {
+  maxConcurrentSessions: number;
+  sessionTimeoutMs: number;
+  retryAttempts: number;
+  retryDelayMs: number;
+}
+
+/**
+ * Dispatch result containing session ID
+ */
+export interface DispatchResult {
+  sessionId: string;
+  issueNumber: number;
+  dispatched: boolean;
+  error?: string;
+}
+
+/**
+ * Batch dispatch result
+ */
+export interface BatchDispatchResult {
+  successful: DispatchResult[];
+  failed: DispatchResult[];
+  total: number;
+}
