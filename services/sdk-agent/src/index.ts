@@ -16,6 +16,14 @@ import { AgentContext, ServiceConfig } from './types';
 // Load environment variables
 dotenv.config();
 
+// Export main classes for external use
+export { SwarmDispatcher } from './swarm-dispatcher';
+export { SessionManager } from './session-manager';
+export { CompletionHandler } from './completion-handler';
+export { SDKClient } from './sdk-client';
+export { AgentOrchestrator } from './agent-orchestrator';
+export * from './types';
+
 export class SDKAgentService {
   private config: ServiceConfig;
   private githubAuth: GitHubAppAuth;
