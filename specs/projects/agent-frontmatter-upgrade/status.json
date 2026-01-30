@@ -1,0 +1,9 @@
+{
+  "status": "active",
+  "current_milestone": 1,
+  "created": "2026-01-29",
+  "updated": "2026-01-29",
+  "assignee": null,
+  "blocked_reason": null,
+  "notes": "Initial spec created - ready for implementation"
+}
