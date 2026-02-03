@@ -89,9 +89,10 @@ declare module '@github/copilot-sdk' {
    */
   export interface Session {
     /**
-     * Send a message to the SDK
+     * Send a message to the SDK (non-blocking)
+     * Returns immediately without waiting for response
      */
-    send(options: MessageOptions): Promise<string>;
+    send(options: MessageOptions): Promise<void>;
     
     /**
      * Send a message and wait for completion

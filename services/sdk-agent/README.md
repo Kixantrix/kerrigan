@@ -12,6 +12,18 @@ The SDK Agent Service is triggered automatically when issues are labeled with `a
 4. Creates a pull request with the results
 5. Posts status updates to the issue
 
+## New: Async Swarm Dispatcher
+
+The service now includes an **async swarm dispatcher** that enables parallel processing of multiple issues:
+
+- **Non-blocking dispatch**: Issues are dispatched in ~6ms each
+- **Parallel execution**: Multiple sessions run simultaneously
+- **Event-driven completion**: PRs created automatically when sessions complete
+- **Configurable concurrency**: Control max parallel sessions
+- **State persistence**: Sessions tracked and recoverable
+
+📚 **[View full documentation →](./ASYNC-SWARM-DISPATCHER.md)**
+
 ## Architecture
 
 ```
@@ -138,9 +150,18 @@ services/sdk-agent/
 │   ├── github-app-auth.ts      # GitHub App authentication
 │   ├── agent-orchestrator.ts   # Role routing and autonomy gates
 │   ├── sdk-client.ts           # Copilot SDK wrapper
+│   ├── swarm-dispatcher.ts     # Async parallel issue dispatcher
+│   ├── session-manager.ts      # Session lifecycle management
+│   ├── completion-handler.ts   # Event handling and PR creation
 │   ├── pr-creator.ts           # Pull request creation
 │   └── status-reporter.ts      # Issue status comments
 ├── tests/                      # Unit tests
+│   ├── swarm-dispatcher.test.ts
+│   ├── session-manager.test.ts
+│   └── completion-handler.test.ts
+├── examples/                   # Example scripts
+│   └── swarm-dispatcher-demo.js
+├── ASYNC-SWARM-DISPATCHER.md   # Async dispatcher documentation
 ├── package.json                # Dependencies and scripts
 ├── tsconfig.json               # TypeScript configuration
 ├── .env.example                # Example environment variables
