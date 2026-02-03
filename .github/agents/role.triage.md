@@ -106,12 +106,85 @@ When copilot-pull-request-reviewer leaves feedback on PRs:
 - Assign appropriate role labels (role:swe, role:architect, etc.)
 - Add agent:go label if ready for immediate work
 - Link follow-up issues to the original PR
+- Consider wave labels if creating multiple follow-up issues
 
 ### 7. Pipeline Health Monitoring
 - Maintain visibility into PR pipeline status
 - Identify bottlenecks and blockers
 - Report on PRs needing attention
 - Track merge-ready PRs
+
+### 8. Wave-Based Issue Assignment (Conflict Prevention)
+
+When assigning multiple issues to agents:
+
+**Why waves matter:**
+- Prevents merge conflicts from parallel development
+- Reduces rebase overhead and CI retriggers
+- Ensures agents work against current main branch
+- Minimizes wasted work from conflicting changes
+
+**Wave assignment process:**
+
+1. **Analyze file overlap** - Predict which files each issue will touch:
+   - Check "Files to Modify" in linked specs
+   - Scan issue descriptions for file/path mentions
+   - Use historical patterns (similar issues → similar files)
+   - Common patterns:
+     - Workflow changes → `.github/workflows/`, `.github/test-mapping.yml`
+     - Documentation → `docs/`, `playbooks/`, `README.md`
+     - Validators → `tools/validators/`
+     - Triage → `playbooks/triage.md`, `.github/agents/role.triage.md`
+
+2. **Group into waves** - Label issues based on overlap:
+   - **wave:1** - Independent issues (no file overlap)
+   - **wave:2** - May overlap with wave:1 or dependent on it
+   - **wave:3+** - Dependent on earlier waves
+
+3. **Assign one wave at a time**:
+   ```bash
+   # Apply wave labels first
+   gh issue edit <issue> --add-label "wave:1"
+   
+   # Then assign only wave:1
+   gh issue edit <issue> --add-assignee "@copilot"
+   
+   # Wait for wave:1 PRs to merge before assigning wave:2
+   ```
+
+4. **Monitor wave completion** - Track wave PRs through merge
+5. **Assign next wave** - Only after current wave fully merges
+
+**When to use waves:**
+- Multiple issues touching same/nearby files
+- Workflow or configuration changes
+- Previous parallel assignments caused conflicts
+- Want predictable progress without rebase overhead
+
+**When to skip waves (parallel assignment):**
+- Issues touch completely different subsystems
+- All documentation-only changes
+- Very small, low-risk changes
+- Confident no file overlap exists
+
+**Bulk wave assignment example:**
+```powershell
+# Analyze and group issues
+# Wave 1: Independent
+$wave1 = 159,162,165
+foreach ($i in $wave1) { gh issue edit $i --add-label "wave:1" }
+foreach ($i in $wave1) { gh issue edit $i --add-assignee "@copilot" }
+
+# Wave 2: Label but don't assign yet
+$wave2 = 160,161,163
+foreach ($i in $wave2) { gh issue edit $i --add-label "wave:2" }
+
+# After wave:1 merges, assign wave:2
+gh issue list --label "wave:1" --state open  # Verify empty
+foreach ($i in $wave2) { gh issue edit $i --add-assignee "@copilot" }
+```
+
+See `playbooks/triage.md#wave-based-issue-assignment-strategy` for detailed guidance.
 
 ## Workflow Scripts
 

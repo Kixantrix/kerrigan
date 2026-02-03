@@ -43,6 +43,35 @@ These labels control when agents are allowed to work on issues and PRs:
   - Applied after manual testing documented in PR
   - See: `playbooks/manual-testing.md`
 
+### Wave Assignment Labels
+
+These labels implement wave-based assignment to minimize merge conflicts:
+
+- **`wave:1`** (color: `#1E90FF`, dodger blue)
+  - First wave - independent issues with no file overlap
+  - Assigned first and given priority for completion
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
+
+- **`wave:2`** (color: `#4169E1`, royal blue)
+  - Second wave - issues that may depend on or overlap with wave:1
+  - Assigned after wave:1 issues are merged
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
+
+- **`wave:3`** (color: `#0000CD`, medium blue)
+  - Third wave - issues dependent on earlier waves
+  - Assigned after wave:2 issues are merged
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
+
+- **`wave:4`** (color: `#00008B`, dark blue)
+  - Fourth wave - additional dependent issues
+  - Assigned after wave:3 issues are merged
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
+
+- **`wave:5`** (color: `#000080`, navy)
+  - Fifth wave - final dependent issues
+  - Assigned after wave:4 issues are merged
+  - See: `playbooks/triage.md#wave-based-issue-assignment-strategy`
+
 ### Tier Labels (Autonomy Level)
 
 These labels define the level of autonomy and gating for issues:
@@ -142,6 +171,13 @@ gh label create "allow:large-file" --color "C5DEF5" --description "Bypass 800 LO
 # Testing status
 gh label create "needs:manual-testing" --color "EDEDED" --description "PR requires human verification" || echo "Label needs:manual-testing already exists"
 gh label create "tested:manual" --color "0E8A16" --description "Manual testing complete" || echo "Label tested:manual already exists"
+
+# Wave assignment (for minimizing merge conflicts)
+gh label create "wave:1" --color "1E90FF" --description "Wave 1 - independent issues (no file overlap)" || echo "Label wave:1 already exists"
+gh label create "wave:2" --color "4169E1" --description "Wave 2 - may overlap with wave:1" || echo "Label wave:2 already exists"
+gh label create "wave:3" --color "0000CD" --description "Wave 3 - dependent on earlier waves" || echo "Label wave:3 already exists"
+gh label create "wave:4" --color "00008B" --description "Wave 4 - additional dependent issues" || echo "Label wave:4 already exists"
+gh label create "wave:5" --color "000080" --description "Wave 5 - final dependent issues" || echo "Label wave:5 already exists"
 
 # Tier labels (autonomy level)
 gh label create "tier:auto" --color "28A745" --description "Fully autonomous - no manual gates" || echo "Label tier:auto already exists"
