@@ -169,10 +169,12 @@ export class CompletionHandler {
         baseBranch
       );
 
-      // Create a placeholder commit (actual implementation would use agent output)
+      // STUB: Creates a minimal commit to demonstrate PR creation flow.
+      // Will be replaced with actual agent output when SDK event handling is complete.
+      // Tracked in: https://github.com/Kixantrix/kerrigan/issues/159
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const outputPath = `docs/research/issue-${issueNumber}-${role}-${timestamp}.md`;
-      const outputContent = `# Agent Response: Issue #${issueNumber}\n\n**Role**: ${role}\n**Generated**: ${new Date().toISOString()}\n**Session**: ${sessionId}\n\n---\n\n[Agent output placeholder - implementation would include actual response]`;
+      const outputContent = `# Agent Response: Issue #${issueNumber}\n\n**Role**: ${role}\n**Generated**: ${new Date().toISOString()}\n**Session**: ${sessionId}\n\n---\n\n[Agent output will be captured from SDK session events]`;
 
       await this.prCreator.commitFile(
         repository.owner,
