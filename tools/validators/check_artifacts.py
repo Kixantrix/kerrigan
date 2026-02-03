@@ -82,7 +82,7 @@ def project_folders() -> List[Path]:
     if not SPECS_DIR.exists():
         return []
     # Exclude test directories, special folders, and investigation/research projects
-    excluded = ["_template", "_archive", "tests", "test", "test-project", "pause-resume-demo", "copilot-sdk-integration"]
+    excluded = ["_template", "_archive", "tests", "test", "test-project", "pause-resume-demo", "copilot-sdk-integration", "agent-frontmatter-upgrade"]
     return [p for p in SPECS_DIR.iterdir() if p.is_dir() and p.name not in excluded]
 
 def is_deployable(project_dir: Path) -> bool:
