@@ -278,9 +278,9 @@ def generate_agent_checklist(agent_role: str) -> str:
     )
 
 
-def check_spec_references(repo_root: Path = None) -> tuple[bool, List[str]]:
+def check_agent_profiles(repo_root: Path = None) -> tuple[bool, List[str]]:
     """
-    Check that v2 agent profiles exist and reference key specs.
+    Check that v2 agent profiles exist and have valid frontmatter.
     
     Args:
         repo_root: Path to repository root (defaults to current directory)
@@ -346,7 +346,7 @@ def validate_spec_compliance(agent_role: str, pr_body: str = None, repo_root: Pa
     issues = []
     
     # Check that agent prompt references its spec
-    valid_refs, ref_issues = check_spec_references(repo_root)
+    valid_refs, ref_issues = check_agent_profiles(repo_root)
     if not valid_refs:
         issues.extend(ref_issues)
     
@@ -509,7 +509,7 @@ if __name__ == "__main__":
         repo_root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path.cwd()
         
         print("Checking if agent prompts reference their specifications...")
-        is_valid, issues = check_spec_references(repo_root)
+        is_valid, issues = check_agent_profiles(repo_root)
         
         if is_valid:
             print("✅ All agent prompts properly reference their specifications")

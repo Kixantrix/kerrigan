@@ -38,8 +38,10 @@ Copy-Item -Recurse -Force `
     (Join-Path $tmpDir '.github/agents'), `
     (Join-Path $tmpDir '.github/skills'), `
     (Join-Path $tmpDir '.github/copilot-instructions.md'), `
+    (Join-Path $tmpDir 'specs/kerrigan-v2'), `
     (Join-Path $tmpDir 'scripts/mirror-agents.ps1'), `
-    (Join-Path $tmpDir 'tools/validators/agents_md.py') `
+    (Join-Path $tmpDir 'tools/validators/agents_md.py'), `
+    (Join-Path $tmpDir 'tools/pr_comments.py') `
     .
 Remove-Item -Recurse -Force $tmpDir
 

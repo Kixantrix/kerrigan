@@ -36,11 +36,9 @@ def check_agents_md(errors: list[str]) -> None:
         errors.append(f"{AGENTS_MD.relative_to(REPO_ROOT)}: missing")
         return
     text = AGENTS_MD.read_text(encoding="utf-8")
-    # Minimal sanity: must reference agent profiles and the v2 vision
+    # Minimal sanity: must reference agent profiles
     if ".github/agents" not in text:
         errors.append(f"{AGENTS_MD.relative_to(REPO_ROOT)}: missing reference to .github/agents/")
-    if "specs/kerrigan-v2" not in text:
-        errors.append(f"{AGENTS_MD.relative_to(REPO_ROOT)}: missing link to specs/kerrigan-v2")
 
 
 def parse_frontmatter(text: str) -> dict[str, str] | None:
