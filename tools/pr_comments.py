@@ -9,7 +9,6 @@ Requires: gh CLI authenticated.
 import json
 import subprocess
 import sys
-from pathlib import Path
 
 
 def get_repo_slug() -> str:
@@ -22,30 +21,45 @@ def get_repo_slug() -> str:
 
 
 def get_review_comments(pr_number: int) -> list[dict]:
-    """Fetch all review comments for a PR."""
+    """Fetch all review comments for a PR (handles pagination)."""
     slug = get_repo_slug()
     result = subprocess.run(
-        ["gh", "api", f"repos/{slug}/pulls/{pr_number}/comments"],
+        ["gh", "api", "--paginate", f"repos/{slug}/pulls/{pr_number}/comments"],
         capture_output=True, text=True, encoding="utf-8", check=True,
     )
     return json.loads(result.stdout)
 
 
+def _fetch_all_threads(owner: str, name: str, pr_number: int) -> list[dict]:
+    """Fetch all review threads via GraphQL with cursor pagination."""
+    all_threads: list[dict] = []
+    cursor = None
+    while True:
+        after = f', after: "{cursor}"' if cursor else ""
+        query = (
+            '{ repository(owner: "' + owner + '", name: "' + name + '") '
+            '{ pullRequest(number: ' + str(pr_number) + ') '
+            '{ reviewThreads(first: 50' + after + ') { pageInfo { hasNextPage endCursor } '
+            'nodes { id isResolved '
+            'comments(first: 1) { nodes { id } } } } } } }'
+        )
+        result = subprocess.run(
+            ["gh", "api", "graphql", "-f", f"query={query}"],
+            capture_output=True, text=True, encoding="utf-8", check=True,
+        )
+        data = json.loads(result.stdout)
+        page = data["data"]["repository"]["pullRequest"]["reviewThreads"]
+        all_threads.extend(page["nodes"])
+        if not page["pageInfo"]["hasNextPage"]:
+            break
+        cursor = page["pageInfo"]["endCursor"]
+    return all_threads
+
+
 def get_unresolved_thread_ids(pr_number: int, slug: str) -> set[str]:
     """Get IDs of unresolved review threads via GraphQL."""
     owner, name = slug.split("/")
-    query = (
-        '{ repository(owner: "' + owner + '", name: "' + name + '") '
-        '{ pullRequest(number: ' + str(pr_number) + ') '
-        '{ reviewThreads(first: 50) { nodes { id isResolved '
-        'comments(first: 1) { nodes { id } } } } } } }'
-    )
-    result = subprocess.run(
-        ["gh", "api", "graphql", "-f", f"query={query}"],
-        capture_output=True, text=True, encoding="utf-8", check=True,
-    )
-    data = json.loads(result.stdout)
-    threads = data["data"]["repository"]["pullRequest"]["reviewThreads"]["nodes"]
+    threads = _fetch_all_threads(owner, name, pr_number)
     unresolved_comment_ids = set()
     for t in threads:
         if not t["isResolved"]:
@@ -58,17 +72,7 @@ def resolve_threads(pr_number: int) -> int:
     """Resolve all unresolved review threads. Returns count resolved."""
     slug = get_repo_slug()
     owner, name = slug.split("/")
-    query = (
-        '{ repository(owner: "' + owner + '", name: "' + name + '") '
-        '{ pullRequest(number: ' + str(pr_number) + ') '
-        '{ reviewThreads(first: 50) { nodes { id isResolved } } } } }'
-    )
-    result = subprocess.run(
-        ["gh", "api", "graphql", "-f", f"query={query}"],
-        capture_output=True, text=True, encoding="utf-8", check=True,
-    )
-    data = json.loads(result.stdout)
-    threads = data["data"]["repository"]["pullRequest"]["reviewThreads"]["nodes"]
+    threads = _fetch_all_threads(owner, name, pr_number)
     count = 0
     for t in threads:
         if not t["isResolved"]:

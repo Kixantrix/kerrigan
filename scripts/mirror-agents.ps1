@@ -26,8 +26,9 @@ if (Test-Path $target) {
         Write-Host "Already linked: $target -> $($item.Target)"
         exit 0
     } else {
-        Write-Error "Target exists and is not a link: $target. Move or delete it first."
-        exit 1
+        # Real directory (e.g. from a fresh git clone) — remove and replace with link
+        Write-Host "Replacing existing directory with link: $target"
+        Remove-Item -Recurse -Force $target
     }
 }
 

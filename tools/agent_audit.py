@@ -278,7 +278,7 @@ def generate_agent_checklist(agent_role: str) -> str:
     )
 
 
-def check_agent_profiles(repo_root: Path = None) -> tuple[bool, List[str]]:
+def check_agent_profiles(repo_root: Path | None = None) -> tuple[bool, List[str]]:
     """
     Check that v2 agent profiles exist and have valid frontmatter.
     
@@ -300,6 +300,7 @@ def check_agent_profiles(repo_root: Path = None) -> tuple[bool, List[str]]:
     
     # v2 profiles that must exist
     required_profiles = ["local.md", "cloud.md", "kerrigan.md"]
+    frontmatter_re = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
     
     for profile in required_profiles:
         profile_path = agents_dir / profile
@@ -308,12 +309,14 @@ def check_agent_profiles(repo_root: Path = None) -> tuple[bool, List[str]]:
             continue
         
         content = profile_path.read_text(encoding="utf-8")
-        
-        # All profiles must have YAML frontmatter with name and description
-        if not content.startswith("---"):
+        m = frontmatter_re.match(content)
+        if not m:
             issues.append(f"{profile} missing YAML frontmatter")
-        if "description:" not in content:
-            issues.append(f"{profile} missing description field")
+            continue
+        
+        fm_text = m.group(1)
+        if "description:" not in fm_text:
+            issues.append(f"{profile} missing description field in frontmatter")
     
     # AGENTS.md must exist at repo root
     agents_md = repo_root / "AGENTS.md"
