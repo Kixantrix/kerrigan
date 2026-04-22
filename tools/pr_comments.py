@@ -41,7 +41,7 @@ def _fetch_all_threads(owner: str, name: str, pr_number: int) -> list[dict]:
             '{ pullRequest(number: ' + str(pr_number) + ') '
             '{ reviewThreads(first: 50' + after + ') { pageInfo { hasNextPage endCursor } '
             'nodes { id isResolved '
-            'comments(first: 1) { nodes { id } } } } } } }'
+            'comments(first: 100) { nodes { id } } } } } } }'
         )
         result = subprocess.run(
             ["gh", "api", "graphql", "-f", f"query={query}"],
