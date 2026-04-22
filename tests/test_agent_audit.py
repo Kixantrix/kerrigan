@@ -240,8 +240,8 @@ class TestGenerateAgentChecklist(unittest.TestCase):
         self.assertIn("role:unknown", checklist)
 
 
-class TestCheckSpecReferences(unittest.TestCase):
-    """Test spec reference checking."""
+class TestCheckAgentProfiles(unittest.TestCase):
+    """Test v2 agent profile validation."""
 
     def test_check_agent_profiles_in_actual_repo(self):
         """Test checking agent profiles in actual repository."""

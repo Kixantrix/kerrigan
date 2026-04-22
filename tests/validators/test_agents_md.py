@@ -2,7 +2,6 @@
 """Tests for the agents_md validator."""
 
 import tempfile
-import textwrap
 import unittest
 from pathlib import Path
 

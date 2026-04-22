@@ -282,6 +282,9 @@ def check_agent_profiles(repo_root: Path | None = None) -> tuple[bool, List[str]
     """
     Check that v2 agent profiles exist and have valid frontmatter.
     
+    Delegates to tools/validators/agents_md.py for the actual validation,
+    ensuring a single source of truth for frontmatter parsing.
+    
     Args:
         repo_root: Path to repository root (defaults to current directory)
     
@@ -300,23 +303,36 @@ def check_agent_profiles(repo_root: Path | None = None) -> tuple[bool, List[str]
     
     # v2 profiles that must exist
     required_profiles = ["local.md", "cloud.md", "kerrigan.md"]
-    frontmatter_re = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
     
-    for profile in required_profiles:
-        profile_path = agents_dir / profile
-        if not profile_path.exists():
-            issues.append(f"Required v2 profile not found: {profile}")
-            continue
-        
-        content = profile_path.read_text(encoding="utf-8")
-        m = frontmatter_re.match(content)
-        if not m:
-            issues.append(f"{profile} missing YAML frontmatter")
-            continue
-        
-        fm_text = m.group(1)
-        if "description:" not in fm_text:
-            issues.append(f"{profile} missing description field in frontmatter")
+    # Try to use the canonical validator for frontmatter parsing
+    validator_path = repo_root / "tools" / "validators" / "agents_md.py"
+    if validator_path.exists():
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("agents_md", validator_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        for profile in required_profiles:
+            profile_path = agents_dir / profile
+            if not profile_path.exists():
+                issues.append(f"Required v2 profile not found: {profile}")
+                continue
+            mod.check_agent_profile(profile_path, issues)
+    else:
+        # Fallback: basic check when validator isn't available
+        frontmatter_re = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
+        for profile in required_profiles:
+            profile_path = agents_dir / profile
+            if not profile_path.exists():
+                issues.append(f"Required v2 profile not found: {profile}")
+                continue
+            content = profile_path.read_text(encoding="utf-8")
+            m = frontmatter_re.match(content)
+            if not m:
+                issues.append(f"{profile} missing YAML frontmatter")
+                continue
+            fm_text = m.group(1)
+            if "description:" not in fm_text:
+                issues.append(f"{profile} missing description field in frontmatter")
     
     # AGENTS.md must exist at repo root
     agents_md = repo_root / "AGENTS.md"
@@ -328,12 +344,12 @@ def check_agent_profiles(repo_root: Path | None = None) -> tuple[bool, List[str]
 
 def validate_spec_compliance(agent_role: str, pr_body: str = None, repo_root: Path = None) -> tuple[bool, List[str]]:
     """
-    Validate that an agent is complying with its specification.
+    Validate that an agent is complying with its profile and conventions.
     
     This checks:
-    1. Agent signature is present and valid
-    2. Agent checklist items are addressed (if present in PR body)
-    3. References to spec are present in PR body (encourages spec review)
+    1. v2 agent profiles exist with valid frontmatter
+    2. Agent signature is present and valid (if PR body provided)
+    3. Signature role matches expected role
     
     Args:
         agent_role: Role identifier (e.g., "role:swe")
