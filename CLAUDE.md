@@ -7,4 +7,5 @@ Claude Code: when starting a session in this repo, read [AGENTS.md](./AGENTS.md)
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
+at `.specify/` and the feature plan at `plan.md` (if present).
 <!-- SPECKIT END -->

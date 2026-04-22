@@ -30,18 +30,25 @@ uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 specify init . --ai copilot --ai claude
 
 # 2. Add kerrigan v2 layer (placeholder — real command lands in Phase 1)
-git clone https://github.com/Kixantrix/kerrigan --depth 1 /tmp/kerrigan
+$tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) 'kerrigan'
+git clone https://github.com/Kixantrix/kerrigan --depth 1 $tmpDir
 Copy-Item -Recurse -Force `
-    /tmp/kerrigan/AGENTS.md, `
-    /tmp/kerrigan/CLAUDE.md, `
-    /tmp/kerrigan/.github/agents, `
-    /tmp/kerrigan/.github/skills, `
-    /tmp/kerrigan/.github/copilot-instructions.md, `
-    /tmp/kerrigan/scripts/mirror-agents.ps1, `
-    /tmp/kerrigan/tools/validators/agents_md.py `
+    (Join-Path $tmpDir 'AGENTS.md'), `
+    (Join-Path $tmpDir 'CLAUDE.md'), `
+    (Join-Path $tmpDir '.github/agents'), `
+    (Join-Path $tmpDir '.github/skills'), `
+    (Join-Path $tmpDir '.github/copilot-instructions.md'), `
+    (Join-Path $tmpDir 'scripts/mirror-agents.ps1'), `
+    (Join-Path $tmpDir 'tools/validators/agents_md.py') `
     .
+Remove-Item -Recurse -Force $tmpDir
 
 # 3. Mirror agents into .claude/ for Claude Code
+# If specify init created .claude/agents/ as a real directory, remove it first
+if (Test-Path '.claude/agents' -PathType Container) {
+    $item = Get-Item '.claude/agents' -Force
+    if (-not $item.LinkType) { Remove-Item -Recurse -Force '.claude/agents' }
+}
 pwsh scripts/mirror-agents.ps1
 
 # Sanity check

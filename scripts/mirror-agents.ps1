@@ -1,6 +1,7 @@
 # scripts/mirror-agents.ps1
 # Mirrors .github/agents/ into .claude/agents/ so Claude Code sees the same files.
-# Uses directory junctions on Windows (no admin required for same-volume junctions).
+# Windows: directory junction (no admin required for same-volume junctions).
+# POSIX (macOS/Linux): symbolic link.
 # Run from the repo root.
 
 $ErrorActionPreference = 'Stop'
@@ -30,5 +31,10 @@ if (Test-Path $target) {
     }
 }
 
-New-Item -ItemType Junction -Path $target -Value $source | Out-Null
-Write-Host "Created junction: $target -> $source"
+if ($IsWindows -or $env:OS -eq 'Windows_NT') {
+    New-Item -ItemType Junction -Path $target -Value $source | Out-Null
+    Write-Host "Created junction: $target -> $source"
+} else {
+    New-Item -ItemType SymbolicLink -Path $target -Value $source | Out-Null
+    Write-Host "Created symlink: $target -> $source"
+}

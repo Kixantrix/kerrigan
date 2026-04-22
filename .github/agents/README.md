@@ -17,26 +17,13 @@ Kerrigan-specific capability-manifest fields (`role`, `needs`, `verifies_before_
 
 ## Mirroring to `.claude/agents/`
 
-Claude Code looks in `.claude/agents/` by default. `scripts/mirror-agents.ps1` creates directory junctions (Windows) or symlinks (POSIX) so both locations resolve to the same files.
+Claude Code looks in `.claude/agents/` by default. `scripts/mirror-agents.ps1` creates a directory junction on Windows; on POSIX use `ln -s .github/agents .claude/agents`.
 
 ## See also
 
 - [../../AGENTS.md](../../AGENTS.md) — canonical entry point
 - [../../specs/kerrigan-v2/000-vision.md](../../specs/kerrigan-v2/000-vision.md) — why two profiles
 - [../skills/](../skills/) — skills profiles preload
-# Agent Role Prompts
-
-This directory contains prompts for specialized AI agents that collaborate to deliver software projects.
-
-## Agent Assignment via Labels
-
-**Important**: Agents are not GitHub user accounts. To assign work to an agent role:
-
-1. Apply a **role label** to the issue (e.g., `role:swe`, `role:spec`)
-2. Automation assigns configured GitHub users (see `.github/automation/reviewers.json`)
-3. Assigned users copy the agent prompt and execute it using their AI assistant
-
-📖 **Full guide**: [Agent Assignment Pattern](../../docs/agent-assignment.md)
 
 ## Available Agents
 

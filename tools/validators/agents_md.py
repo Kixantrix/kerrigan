@@ -28,7 +28,7 @@ SPECKIT_AGENT_REQUIRED = ("description",)
 SKIP_DIRS = {"_legacy", "adapters"}
 SKIP_FILES = {"README.md"}
 
-FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
+FRONTMATTER_RE = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
 
 
 def check_agents_md(errors: list[str]) -> None:
