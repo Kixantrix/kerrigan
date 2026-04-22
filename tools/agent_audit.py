@@ -280,7 +280,7 @@ def generate_agent_checklist(agent_role: str) -> str:
 
 def check_spec_references(repo_root: Path = None) -> tuple[bool, List[str]]:
     """
-    Check if all agent prompts reference their specification files.
+    Check that v2 agent profiles exist and reference key specs.
     
     Args:
         repo_root: Path to repository root (defaults to current directory)
@@ -293,59 +293,32 @@ def check_spec_references(repo_root: Path = None) -> tuple[bool, List[str]]:
     
     issues = []
     agents_dir = repo_root / ".github" / "agents"
-    specs_dir = repo_root / "specs" / "kerrigan" / "agents"
     
     if not agents_dir.exists():
-        issues.append(f"Agent prompts directory not found: {agents_dir}")
+        issues.append(f"Agent profiles directory not found: {agents_dir}")
         return False, issues
     
-    if not specs_dir.exists():
-        issues.append(f"Agent specs directory not found: {specs_dir}")
-        return False, issues
+    # v2 profiles that must exist
+    required_profiles = ["local.md", "cloud.md", "kerrigan.md"]
     
-    # Map of agent role files to their spec directories
-    agent_specs = {
-        "role.architect.md": "architect",
-        "role.debugging.md": "debugging",
-        "role.deployment.md": "deployment",
-        "role.security.md": "security",
-        "role.spec.md": "spec",
-        "role.swe.md": "swe",
-        "role.testing.md": "testing",
-    }
-    
-    for role_file, spec_name in agent_specs.items():
-        role_path = agents_dir / role_file
-        
-        if not role_path.exists():
-            issues.append(f"Agent role file not found: {role_path}")
+    for profile in required_profiles:
+        profile_path = agents_dir / profile
+        if not profile_path.exists():
+            issues.append(f"Required v2 profile not found: {profile}")
             continue
         
-        role_content = role_path.read_text(encoding="utf-8")
+        content = profile_path.read_text(encoding="utf-8")
         
-        # Check if the role file references its spec files
-        expected_references = [
-            f"specs/kerrigan/agents/{spec_name}/spec.md",
-            f"specs/kerrigan/agents/{spec_name}/quality-bar.md",
-            f"specs/kerrigan/agents/{spec_name}/architecture.md",
-            f"specs/kerrigan/agents/{spec_name}/acceptance-tests.md",
-        ]
-        
-        missing_refs = []
-        for ref in expected_references:
-            if ref not in role_content:
-                missing_refs.append(ref)
-        
-        if missing_refs:
-            issues.append(
-                f"Agent {role_file} missing references to: {', '.join(missing_refs)}"
-            )
-        
-        # Check if the spec files actually exist
-        for ref in expected_references:
-            spec_path = repo_root / ref
-            if not spec_path.exists():
-                issues.append(f"Referenced spec file does not exist: {ref}")
+        # All profiles must have YAML frontmatter with name and description
+        if not content.startswith("---"):
+            issues.append(f"{profile} missing YAML frontmatter")
+        if "description:" not in content:
+            issues.append(f"{profile} missing description field")
+    
+    # AGENTS.md must exist at repo root
+    agents_md = repo_root / "AGENTS.md"
+    if not agents_md.exists():
+        issues.append("AGENTS.md not found at repository root")
     
     return len(issues) == 0, issues
 

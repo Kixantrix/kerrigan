@@ -245,12 +245,11 @@ class TestCheckSpecReferences(unittest.TestCase):
 
     def test_check_spec_references_in_actual_repo(self):
         """Test checking spec references in actual repository."""
-        # Get the repository root (3 levels up from tests/)
         repo_root = Path(__file__).resolve().parent.parent
         
         is_valid, issues = check_spec_references(repo_root)
         
-        # Should be valid since we just added the references
+        # Should be valid: v2 profiles exist with frontmatter
         self.assertTrue(is_valid, f"Spec references validation failed: {issues}")
         self.assertEqual(len(issues), 0)
 
