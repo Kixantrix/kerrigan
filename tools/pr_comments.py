@@ -37,14 +37,18 @@ def _fetch_all_threads(owner: str, name: str, pr_number: int) -> list[dict]:
     while True:
         after = f', after: "{cursor}"' if cursor else ""
         query = (
-            '{ repository(owner: "' + owner + '", name: "' + name + '") '
+            'query($owner: String!, $name: String!) '
+            '{ repository(owner: $owner, name: $name) '
             '{ pullRequest(number: ' + str(pr_number) + ') '
             '{ reviewThreads(first: 50' + after + ') { pageInfo { hasNextPage endCursor } '
             'nodes { id isResolved '
             'comments(first: 100) { nodes { id } } } } } } }'
         )
         result = subprocess.run(
-            ["gh", "api", "graphql", "-f", f"query={query}"],
+            ["gh", "api", "graphql",
+             "-f", f"query={query}",
+             "-f", f"owner={owner}",
+             "-f", f"name={name}"],
             capture_output=True, text=True, encoding="utf-8", check=True,
         )
         data = json.loads(result.stdout)
@@ -77,12 +81,13 @@ def resolve_threads(pr_number: int) -> int:
     for t in threads:
         if not t["isResolved"]:
             mutation = (
-                'mutation { resolveReviewThread(input: {threadId: "'
-                + t["id"]
-                + '"}) { thread { id isResolved } } }'
+                'mutation($threadId: ID!) { resolveReviewThread(input: {threadId: $threadId})'
+                ' { thread { id isResolved } } }'
             )
             subprocess.run(
-                ["gh", "api", "graphql", "-f", f"query={mutation}"],
+                ["gh", "api", "graphql",
+                 "-f", f"query={mutation}",
+                 "-f", f"threadId={t['id']}"],
                 capture_output=True, text=True, encoding="utf-8", check=True,
             )
             count += 1
