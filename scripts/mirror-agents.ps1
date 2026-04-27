@@ -7,8 +7,8 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$source = Join-Path $repoRoot '.github' 'agents'
-$target = Join-Path $repoRoot '.claude' 'agents'
+$source = Join-Path (Join-Path $repoRoot '.github') 'agents'
+$target = Join-Path (Join-Path $repoRoot '.claude') 'agents'
 $claudeDir = Join-Path $repoRoot '.claude'
 
 if (-not (Test-Path $source)) {
