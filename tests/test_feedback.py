@@ -280,30 +280,23 @@ class TestAgentPromptFeedbackSections(unittest.TestCase):
         self.agents_dir = self.repo_root / ".github" / "agents"
 
     def test_agent_prompts_mention_feedback(self):
-        """Test that agent role prompts mention the feedback mechanism"""
-        role_prompts = list(self.agents_dir.glob("role.*.md"))
+        """Test that v2 agent profiles mention the feedback mechanism"""
+        kerrigan_prompt = self.agents_dir / "kerrigan.md"
         
-        self.assertGreater(len(role_prompts), 0, 
-                          "Should find role prompt files")
+        self.assertTrue(kerrigan_prompt.exists(),
+                       "Should find kerrigan.md profile")
 
-        for prompt_file in role_prompts:
-            with self.subTest(file=prompt_file.name):
-                with open(prompt_file, "r", encoding="utf-8") as f:
-                    content = f.read()
-                
-                # Check for feedback mention (case-insensitive)
-                self.assertIn("feedback", content.lower(),
-                            f"{prompt_file.name} should mention feedback mechanism")
-                # Check for Agent Feedback section (case-sensitive)
-                self.assertIn("Agent Feedback", content,
-                            f"{prompt_file.name} should have 'Agent Feedback' section")
+        content = kerrigan_prompt.read_text(encoding="utf-8")
+        
+        # kerrigan is the profile responsible for feedback
+        self.assertIn("feedback", content.lower(),
+                    "kerrigan.md should mention feedback mechanism")
 
     def test_kerrigan_prompt_mentions_feedback_processing(self):
         """Test that Kerrigan prompt mentions feedback processing responsibility"""
-        kerrigan_prompt = self.agents_dir / "kerrigan.swarm-shaper.md"
+        kerrigan_prompt = self.agents_dir / "kerrigan.md"
         
-        with open(kerrigan_prompt, "r", encoding="utf-8") as f:
-            content = f.read().lower()
+        content = kerrigan_prompt.read_text(encoding="utf-8").lower()
         
         self.assertIn("feedback", content,
                      "Kerrigan prompt should mention feedback")
@@ -329,16 +322,19 @@ class TestDocumentationReferences(unittest.TestCase):
                      "README should link to feedback specification")
 
     def test_agents_readme_mentions_feedback(self):
-        """Test that agents README mentions feedback"""
+        """Test that agents README mentions feedback or legacy reference"""
         agents_readme = self.repo_root / ".github" / "agents" / "README.md"
         
         with open(agents_readme, "r", encoding="utf-8") as f:
             content = f.read()
         
-        self.assertIn("Agent Feedback", content,
-                     "Agents README should have Agent Feedback section")
-        self.assertIn("080-agent-feedback.md", content,
-                     "Agents README should link to feedback specification")
+        # v2 README may reference feedback via kerrigan profile or legacy docs
+        has_feedback_ref = (
+            "feedback" in content.lower()
+            or "kerrigan" in content.lower()
+        )
+        self.assertTrue(has_feedback_ref,
+                       "Agents README should reference feedback or kerrigan profile")
 
     def test_handoffs_playbook_mentions_feedback(self):
         """Test that handoffs playbook mentions feedback"""

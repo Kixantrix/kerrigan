@@ -1,0 +1,128 @@
+# AGENTS.md
+
+> Canonical entry point for every AI agent in this repo.
+> Standard: [agents.md](https://agents.md) (Agentic AI Foundation / Linux Foundation).
+> Lifecycle: [GitHub Spec Kit](https://github.com/github/spec-kit).
+> Read this file first. Everything else is linked from here.
+
+## What this repo is
+
+**Kerrigan** is a stack-agnostic coding-swarm harness built **on top of** GitHub Spec Kit. Spec Kit provides the lifecycle (`constitution → specify → plan → tasks → implement`); Kerrigan adds the delegation + verification glue on top:
+
+- 2 agent profiles (`local`, `cloud`) + thin adapters for built-in sub-agents
+- Local→cloud routing rubric (by capability, not role)
+- Conflict prediction before parallel cloud dispatch
+- Briefing-packet compression to cut dispatch tokens
+- Distributed verification (cloud self-test → CI → spec-kit verify → Copilot review → human)
+- Structured blocks, capability manifests, smoke-test mandate, budget surfacing
+
+Current milestone: **[v2 rollout](specs/kerrigan-v2/010-phases.md)** — Phase 0 in progress.
+
+## How to start
+
+Pick an agent profile and talk to it in natural language. Selection happens by *who you're chatting with*, not by labels.
+
+| When you want to | Talk to | Where |
+|---|---|---|
+| Plan, research, dispatch work, make decisions | `local` | VS Code chat · Claude Code · Copilot CLI · github.com (mobile) |
+| Implement one task slice, open one PR | `cloud` | GitHub Copilot cloud agent (default) · Claude Code team session |
+| Shape the harness itself (this file, validators, workflows) | `kerrigan` | Claude Code · VS Code chat |
+
+Agent profiles: [`.github/agents/`](./.github/agents/). The same files are loaded by GH Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) and by Claude Code (mirrored into `.claude/agents/`).
+
+Built-in sub-agents you can delegate to from `local` (thin adapters in [`.github/agents/adapters/`](./.github/agents/adapters/)):
+
+- Claude Code `Explore` — read-only code exploration (Haiku; fast, cheap).
+- Claude Code `Plan` mode — planning without edits.
+- GitHub Copilot code-review agent — automatic PR review.
+- GitHub Copilot coding agent — cloud PR execution (the `cloud` profile targets this).
+
+## Spec Kit commands (primary UX)
+
+Once Spec Kit is installed ([playbook](playbooks/v2-bootstrap.md)), the standard slash commands are:
+
+- `/speckit.constitution` — project principles
+- `/speckit.specify` — what to build (skip for small work; see `spec-kit-tinyspec`)
+- `/speckit.plan` — how to build (living artifact; primary)
+- `/speckit.tasks` — actionable tasks
+- `/speckit.analyze` — cross-artifact consistency
+- `/speckit.taskstoissues` — convert tasks to GH issues (dispatch entry point)
+- `/speckit.implement` — execute (cloud profile's main command)
+
+Kerrigan adds:
+
+- `/kerrigan.dispatch` — wraps `taskstoissues` with conflict-prediction + briefing-packet generation (Phase 1).
+
+## Principles
+
+See [`specs/constitution.md`](./specs/constitution.md) for the full list. Short version:
+
+1. Artifact-driven — work lives in repo files.
+2. Small, reviewable increments — one task, one PR.
+3. Tests included — every AC maps to an automated test.
+4. Stack-agnostic — no mandatory language/framework.
+5. Agent clarity — agents cite the rule they followed; humans decide ambiguities.
+6. Human-in-loop for decisions; agents-in-loop for execution.
+
+## Project conventions
+
+- **Spec-kit artifacts** live in `.specify/` and per-feature folders under that. Don't hand-edit `.specify/` templates; use presets.
+- **Living docs:** `plan.md` (always), `tasks.md` (always). `spec.md` is optional — use `spec-kit-tinyspec` for small work.
+- **Acceptance criteria → tests**: enforced by `spec-kit-verify` + `spec-kit-verify-tasks` (Phase 2).
+- **Smoke test** (`scripts/smoke.sh` / `.ps1`): required for every deployable project. Gates PR merge.
+- **Blocks** are structured: a blocked agent writes `.specify/blocks/<task-id>.yaml` and stops. The `local` profile surfaces blocks; unrelated tasks keep moving.
+- **Waves**: the `local` profile computes parallel-safe waves before dispatch (`.specify/waves.yaml`) via `kerrigan-conflict-predictor` (Phase 1).
+
+## Skills
+
+Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [agent-skills](https://github.com/agentskills/agentskills) spec). Agent profiles preload skills by ID in their frontmatter. Stack-specific skills live in [`skills/stacks/`](./skills/stacks/).
+
+## Labels (v2)
+
+Four total, not fifteen:
+
+- `agent:go` — you have autonomy; proceed.
+- `agent:wait` — blocked on human; stop.
+- `agent:local` — requires the human's machine (device I/O, OS-specific, paid secret).
+- `autonomy:override` — human override for a gate that would otherwise block.
+
+v1 labels are being phased out in Phase 4 of the v2 rollout; during transition both may appear.
+
+## Runtimes
+
+- **Primary cloud delegate:** GitHub Copilot cloud agent (one issue → one ephemeral container → one branch → one PR).
+- **Primary local runtime:** Claude Code (`isolation: worktree` built-in, rich hook/memory model).
+- **Pluggable:** anything that reads `AGENTS.md` (Codex, Cursor, Jules, Aider, Amp, Junie, Kilo Code, Warp, Goose, Gemini CLI, Factory, Phoenix, …).
+
+Platform-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) redirect here rather than duplicate content.
+
+## Validation & CI
+
+- `kerrigan check` (Phase 1+) runs all validators locally. Today: see [`tools/validators/`](./tools/validators/).
+- Required PR checks: validators + unit/integration tests + smoke (where declared) + spec-kit verify chain (Phase 2) + Copilot review.
+- Branch protection (Phase 2+): `verify` workflow must be green to merge.
+
+## Where things live
+
+| Purpose | Path |
+|---|---|
+| Agent profiles | `.github/agents/` (+ `.claude/agents/` mirror) |
+| Skills | `.github/skills/`, `skills/` |
+| Spec-kit state | `.specify/` |
+| Meta-specs (why Kerrigan works) | `specs/kerrigan-v2/` (v1 history in `specs/kerrigan/`) |
+| Project work | `specs/projects/<name>/` |
+| Examples | `examples/` |
+| Validators | `tools/validators/` |
+| CI workflows | `.github/workflows/` |
+| Playbooks | `playbooks/` |
+| Feedback from agents in the field | `feedback/` |
+
+## Monorepo / subprojects
+
+Subprojects with their own conventions may include a nested `AGENTS.md`. Agents use the closest one (standard `AGENTS.md` nesting rule).
+
+## Contributing
+
+**Humans:** Start with [`README.md`](./README.md), then [`specs/kerrigan-v2/000-vision.md`](./specs/kerrigan-v2/000-vision.md). Feedback from agents goes in [`feedback/agent-feedback/`](./feedback/agent-feedback/).
+
+**Agents:** Read this file, then the closest nested `AGENTS.md`, then your briefing packet (your primary brief — don't re-derive from the whole repo). If blocked, write `.specify/blocks/<task-id>.yaml` and stop.

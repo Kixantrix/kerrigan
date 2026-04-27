@@ -15,7 +15,7 @@ from agent_audit import (
     AuditLog,
     validate_pr_signature,
     generate_agent_checklist,
-    check_spec_references,
+    check_agent_profiles,
     validate_spec_compliance,
     check_quality_bar_compliance,
 )
@@ -240,26 +240,25 @@ class TestGenerateAgentChecklist(unittest.TestCase):
         self.assertIn("role:unknown", checklist)
 
 
-class TestCheckSpecReferences(unittest.TestCase):
-    """Test spec reference checking."""
+class TestCheckAgentProfiles(unittest.TestCase):
+    """Test v2 agent profile validation."""
 
-    def test_check_spec_references_in_actual_repo(self):
-        """Test checking spec references in actual repository."""
-        # Get the repository root (3 levels up from tests/)
+    def test_check_agent_profiles_in_actual_repo(self):
+        """Test checking agent profiles in actual repository."""
         repo_root = Path(__file__).resolve().parent.parent
         
-        is_valid, issues = check_spec_references(repo_root)
+        is_valid, issues = check_agent_profiles(repo_root)
         
-        # Should be valid since we just added the references
-        self.assertTrue(is_valid, f"Spec references validation failed: {issues}")
+        # Should be valid: v2 profiles exist with frontmatter
+        self.assertTrue(is_valid, f"Agent profile validation failed: {issues}")
         self.assertEqual(len(issues), 0)
 
-    def test_check_spec_references_missing_directory(self):
+    def test_check_agent_profiles_missing_directory(self):
         """Test behavior when directories are missing."""
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             
-            is_valid, issues = check_spec_references(temp_path)
+            is_valid, issues = check_agent_profiles(temp_path)
             
             self.assertFalse(is_valid)
             self.assertGreater(len(issues), 0)

@@ -278,9 +278,12 @@ def generate_agent_checklist(agent_role: str) -> str:
     )
 
 
-def check_spec_references(repo_root: Path = None) -> tuple[bool, List[str]]:
+def check_agent_profiles(repo_root: Path | None = None) -> tuple[bool, List[str]]:
     """
-    Check if all agent prompts reference their specification files.
+    Check that v2 agent profiles exist and have valid frontmatter.
+    
+    Delegates to tools/validators/agents_md.py for the actual validation,
+    ensuring a single source of truth for frontmatter parsing.
     
     Args:
         repo_root: Path to repository root (defaults to current directory)
@@ -293,71 +296,63 @@ def check_spec_references(repo_root: Path = None) -> tuple[bool, List[str]]:
     
     issues = []
     agents_dir = repo_root / ".github" / "agents"
-    specs_dir = repo_root / "specs" / "kerrigan" / "agents"
     
     if not agents_dir.exists():
-        issues.append(f"Agent prompts directory not found: {agents_dir}")
+        issues.append(f"Agent profiles directory not found: {agents_dir}")
         return False, issues
     
-    if not specs_dir.exists():
-        issues.append(f"Agent specs directory not found: {specs_dir}")
-        return False, issues
+    # v2 profiles that must exist
+    required_profiles = ["local.md", "cloud.md", "kerrigan.md"]
     
-    # Map of agent role files to their spec directories
-    agent_specs = {
-        "role.architect.md": "architect",
-        "role.debugging.md": "debugging",
-        "role.deployment.md": "deployment",
-        "role.security.md": "security",
-        "role.spec.md": "spec",
-        "role.swe.md": "swe",
-        "role.testing.md": "testing",
-    }
+    # Try to use the canonical validator for frontmatter parsing
+    validator_path = repo_root / "tools" / "validators" / "agents_md.py"
+    if validator_path.exists():
+        import importlib.util
+        mod_spec = importlib.util.spec_from_file_location("agents_md", validator_path)
+        if mod_spec is not None and mod_spec.loader is not None:
+            mod = importlib.util.module_from_spec(mod_spec)
+            mod_spec.loader.exec_module(mod)
+            for profile in required_profiles:
+                profile_path = agents_dir / profile
+                if not profile_path.exists():
+                    issues.append(f"Required v2 profile not found: {profile}")
+                    continue
+                mod.check_agent_profile(profile_path, issues)
+        else:
+            issues.append("Could not load agents_md validator module")
+    else:
+        # Fallback: basic check when validator isn't available
+        frontmatter_re = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
+        for profile in required_profiles:
+            profile_path = agents_dir / profile
+            if not profile_path.exists():
+                issues.append(f"Required v2 profile not found: {profile}")
+                continue
+            content = profile_path.read_text(encoding="utf-8")
+            m = frontmatter_re.match(content)
+            if not m:
+                issues.append(f"{profile} missing YAML frontmatter")
+                continue
+            fm_text = m.group(1)
+            if "description:" not in fm_text:
+                issues.append(f"{profile} missing description field in frontmatter")
     
-    for role_file, spec_name in agent_specs.items():
-        role_path = agents_dir / role_file
-        
-        if not role_path.exists():
-            issues.append(f"Agent role file not found: {role_path}")
-            continue
-        
-        role_content = role_path.read_text(encoding="utf-8")
-        
-        # Check if the role file references its spec files
-        expected_references = [
-            f"specs/kerrigan/agents/{spec_name}/spec.md",
-            f"specs/kerrigan/agents/{spec_name}/quality-bar.md",
-            f"specs/kerrigan/agents/{spec_name}/architecture.md",
-            f"specs/kerrigan/agents/{spec_name}/acceptance-tests.md",
-        ]
-        
-        missing_refs = []
-        for ref in expected_references:
-            if ref not in role_content:
-                missing_refs.append(ref)
-        
-        if missing_refs:
-            issues.append(
-                f"Agent {role_file} missing references to: {', '.join(missing_refs)}"
-            )
-        
-        # Check if the spec files actually exist
-        for ref in expected_references:
-            spec_path = repo_root / ref
-            if not spec_path.exists():
-                issues.append(f"Referenced spec file does not exist: {ref}")
+    # AGENTS.md must exist at repo root
+    agents_md = repo_root / "AGENTS.md"
+    if not agents_md.exists():
+        issues.append("AGENTS.md not found at repository root")
     
     return len(issues) == 0, issues
 
 
 def validate_spec_compliance(agent_role: str, pr_body: str = None, repo_root: Path = None) -> tuple[bool, List[str]]:
     """
-    Validate that an agent is complying with its specification.
+    Validate that an agent is complying with its profile and conventions.
     
     This checks:
-    1. Agent signature is present and valid
-    2. Agent checklist items are addressed (if present in PR body)
-    3. References to spec are present in PR body (encourages spec review)
+    1. v2 agent profiles exist with valid frontmatter
+    2. Agent signature is present and valid (if PR body provided)
+    3. Signature role matches expected role
     
     Args:
         agent_role: Role identifier (e.g., "role:swe")
@@ -373,7 +368,7 @@ def validate_spec_compliance(agent_role: str, pr_body: str = None, repo_root: Pa
     issues = []
     
     # Check that agent prompt references its spec
-    valid_refs, ref_issues = check_spec_references(repo_root)
+    valid_refs, ref_issues = check_agent_profiles(repo_root)
     if not valid_refs:
         issues.extend(ref_issues)
     
@@ -536,7 +531,7 @@ if __name__ == "__main__":
         repo_root = Path(sys.argv[2]) if len(sys.argv) > 2 else Path.cwd()
         
         print("Checking if agent prompts reference their specifications...")
-        is_valid, issues = check_spec_references(repo_root)
+        is_valid, issues = check_agent_profiles(repo_root)
         
         if is_valid:
             print("✅ All agent prompts properly reference their specifications")
