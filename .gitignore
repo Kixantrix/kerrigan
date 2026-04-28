@@ -31,3 +31,4 @@ analysis-results.json
 # Prompt URL cache (see specs/kerrigan/040-toolchain-and-ops.md)
 .kerrigan/
 prompt-cache/
+.coverage
