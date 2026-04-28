@@ -1,0 +1,45 @@
+name: kerrigan
+version: "1.0.0"
+description: >
+  Opinionated spec-kit preset for the Kerrigan swarm harness.
+  Overrides plan, tasks, and PR body templates with kerrigan-specific
+  sections (delegation, waves, budget, file globs, routing rules).
+  Stack-agnostic — no language or framework assumptions.
+
+author: kerrigan
+license: MIT
+
+# Templates this preset overrides in .specify/templates/
+templates:
+  - source: plan-template.md
+    target: plan-template.md
+  - source: tasks-template.md
+    target: tasks-template.md
+  - source: pr-body-template.md
+    target: pr-body-template.md
+
+# Spec-kit extensions bundled by this preset (applied on `specify preset add kerrigan`)
+extensions:
+  - name: spec-kit-worktree-parallel
+    description: Worktree isolation for parallel cloud tasks.
+  - name: spec-kit-pr-bridge
+    description: Generates PR bodies directly from spec artifacts.
+  - name: spec-kit-checkpoint
+    description: Mid-implementation commits to prevent giant end-of-task diffs.
+  - name: spec-kit-tinyspec
+    description: Lightweight single-file workflow for small work (avoids spec-rot).
+  - name: spec-kit-brownfield
+    description: Satellite bootstrap helper for adopting kerrigan in existing repos.
+
+# How to apply
+# ------------
+# New repo:
+#   specify init --here --ai copilot --ai claude
+#   specify preset add kerrigan
+#
+# Existing repo:
+#   specify preset add kerrigan
+#
+# Manual (without the CLI):
+#   Copy plan-template.md, tasks-template.md, pr-body-template.md
+#   into .specify/templates/, overwriting the defaults.
