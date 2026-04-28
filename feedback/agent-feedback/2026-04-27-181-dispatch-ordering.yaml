@@ -1,0 +1,103 @@
+timestamp: "2026-04-27T06:00:00Z"
+issue_number: 181
+agent_role: "kerrigan"
+category: "workflow_friction"
+severity: "high"
+title: "Dispatch from non-main branch causes cloud agents to recreate read-only dependencies"
+
+description: |
+  When the local profile dispatched Phase 1 issues #171-176 from
+  branch `feat/v2-phase1-preset-and-extensions`, the cloud agent forked
+  each PR from `main` (its default base). Issue #176 listed
+  `tools/create_issues.py` as a read-only dependency, but that file only
+  existed on the unmerged dispatch branch — not on main.
+
+  The cloud agent could not see the file, treated it as missing, and
+  reimplemented it from scratch with a divergent API (`issues:` key vs
+  `tasks:` key, different `--filter` semantics, 195 LOC vs 130 LOC).
+
+  Result: PR #181 had to be closed; #176 reopened and redispatched after
+  the dispatch infra was merged to main first.
+
+  Cost: one wasted cloud session (~395 LOC of throwaway code), one extra
+  merge cycle, manual branch ordering reasoning by the human.
+
+related_files:
+  - "tools/create_issues.py"
+  - "specs/kerrigan-v2/phase1-tasks.yaml"
+  - ".github/skills/briefing-packet/SKILL.md"
+
+related_artifacts:
+  - "phase1-tasks.yaml"
+
+context: |
+  This is a generalizable problem, not a one-off. Any time the local
+  profile dispatches a wave of tasks where some tasks depend on artifacts
+  created by other tasks in the same wave (or by uncommitted local work),
+  the cloud agents will silently fork from main and miss the dependency.
+
+  Related symptoms observed in the same wave:
+  - PRs #177 and #181 committed `.coverage` test artifacts. They added
+    `.coverage` to `.gitignore` after the fact but didn't `git rm --cached`
+    the file. Suggests no pre-commit hook or template `.gitignore` baseline
+    in cloud containers.
+
+proposed_solution: |
+  Three concrete changes, ordered by leverage:
+
+  1. **Briefing-packet schema: explicit `base_branch` and `prereq_artifacts`.**
+     Add required fields to briefing packets:
+     - `base_branch: <ref>` — the branch the cloud agent should fork from.
+       Default: `main`. Override per task when dispatching from a feature
+       branch with uncommitted dependencies.
+     - `prereq_artifacts: [{path, source_branch, source_pr}]` — explicit
+       list of files the task depends on but won't modify, with the branch
+       or PR they live on. Cloud agent reads this and either checks out
+       the source ref or refuses to start with a block.
+
+     Update `.github/skills/briefing-packet/SKILL.md` and the
+     `briefing_generator.py` (issue #172) accordingly.
+
+  2. **Dispatch ordering: `kerrigan-conflict-predictor` (#171) must
+     compute artifact-creation dependencies, not just file-overlap
+     conflicts.** Currently it predicts which tasks can run in parallel
+     (no shared files). It should also detect which tasks consume files
+     produced by other tasks and emit them in dependency order.
+
+     Output schema addition to `.specify/waves.yaml`:
+     ```yaml
+     waves:
+       - wave: 1
+         tasks: [T-001, T-003]
+       - wave: 2
+         tasks: [T-002]
+         depends_on_artifacts_from: [T-001]
+     ```
+
+  3. **Pre-dispatch local check: refuse to dispatch a task whose
+     `prereq_artifacts` aren't on the base_branch yet.** The
+     `/kerrigan.dispatch` slash command (#175) should run this check
+     before calling `gh issue create`. Either:
+     - Hold the task until the prereq lands (recommended), or
+     - Override base_branch to the feature branch where the prereq lives.
+
+  Bonus (lower leverage):
+
+  4. **Cloud container baseline `.gitignore`.** Add `.coverage`,
+     `.pytest_cache/`, `__pycache__/`, `htmlcov/` to a repo-level
+     `.gitignore` template that cloud containers seed before starting.
+     Prevents the `.coverage` artifact problem.
+
+  5. **Briefing should cite skills/SKILL.md by ID, and cloud agent
+     should be required to acknowledge them in the PR description.**
+     Forces the skills system to actually be used end-to-end, not just
+     mentioned.
+
+status: "new"
+reviewed_by: ""
+reviewed_date: ""
+implementation_pr: null
+notes: |
+  Tracked via Phase 1 issue #171 (conflict-predictor) and #172 (briefing-generator)
+  which are the natural homes for fixes 1-3. Add fix 4 as a separate small task
+  during Phase 1 cleanup.
