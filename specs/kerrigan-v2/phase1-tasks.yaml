@@ -1,0 +1,172 @@
+tasks:
+  - id: T-P1-001
+    title: "feat: kerrigan-conflict-predictor — parallel-safe wave computation"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `tools/conflict_predictor.py` — a Python module that reads tasks.md,
+      extracts file globs per task, and computes parallel-safe execution waves.
+
+      ## Acceptance Criteria
+      - AC-1: Python module at `tools/conflict_predictor.py` parses tasks.md markdown
+      - AC-2: Each task's `touch` file globs are extracted and compared pairwise
+      - AC-3: Overlapping file globs → sequential waves; non-overlapping → parallel
+      - AC-4: Output to `.specify/waves.yaml`: `{ waves: [{ wave: 1, tasks: [T-001, T-002] }] }`
+      - AC-5: CLI: `python tools/conflict_predictor.py [--tasks path/to/tasks.md]`
+      - AC-6: Unit tests at `tests/test_conflict_predictor.py` with 80%+ coverage
+      - AC-7: Edge cases: no tasks, single task, all-conflicting, no file globs
+
+      ## Scope
+      - Touch: `tools/conflict_predictor.py`, `tests/test_conflict_predictor.py`
+      - Read-only: `specs/kerrigan-v2/010-phases.md`, `.specify/templates/tasks-template.md`
+      - Out of scope: `/kerrigan.dispatch` integration, briefing generation
+
+      ## Prior Decisions
+      - Python only, no framework deps beyond stdlib + PyYAML
+      - File glob comparison via `fnmatch`
+      - Output YAML for spec-kit convention
+
+      ## Routing
+      R-cloud-default — standard code change, no local-only capabilities.
+
+  - id: T-P1-002
+    title: "feat: kerrigan-briefing — generate dispatch briefing packets per task"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `tools/briefing_generator.py` — reads plan.md + tasks.md + skills list,
+      generates `.specify/briefings/<task-id>.md` per task using the briefing-packet
+      skill template.
+
+      ## Acceptance Criteria
+      - AC-1: Python module at `tools/briefing_generator.py`
+      - AC-2: Reads `plan.md` and `tasks.md` from cwd or `--plan`/`--tasks` flags
+      - AC-3: Each task gets a briefing at `.specify/briefings/<task-id>.md`
+      - AC-4: Briefing follows the format in `.github/skills/briefing-packet/SKILL.md`
+      - AC-5: Includes: objective, ACs, scope, prior decisions, skills, test commands, routing rule, budget
+      - AC-6: `--task T-001` flag to generate a single briefing
+      - AC-7: Unit tests at `tests/test_briefing_generator.py` with 80%+ coverage
+
+      ## Scope
+      - Touch: `tools/briefing_generator.py`, `tests/test_briefing_generator.py`
+      - Read-only: `.github/skills/briefing-packet/SKILL.md`, `.specify/templates/tasks-template.md`
+      - Out of scope: conflict prediction, CLI wrapper, GH issue attachment
+
+      ## Prior Decisions
+      - Python only, stdlib + PyYAML
+      - Briefing format matches `.github/skills/briefing-packet/SKILL.md` exactly
+      - Default budget: max_turns=40, max_premium_requests=25 (overridable)
+
+      ## Routing
+      R-cloud-default — standard code change, no local-only capabilities.
+
+  - id: T-P1-003
+    title: "feat: kerrigan check CLI — unified validator runner"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Add a `check` command to the existing kerrigan CLI (`tools/cli/kerrigan/`)
+      that runs all validators + `specify check` (if installed) in one invocation.
+
+      ## Acceptance Criteria
+      - AC-1: `kerrigan check` command added to `tools/cli/kerrigan/kerrigan_cli/commands/`
+      - AC-2: Runs `tools/validators/agents_md.py` (exit code propagated)
+      - AC-3: Runs `tools/validators/check_artifacts.py` if present (exit code propagated)
+      - AC-4: Runs `specify check` if the `specify` CLI is on PATH (skip gracefully if not)
+      - AC-5: Summary output: N validators passed, M failed
+      - AC-6: `--verbose` flag shows per-validator output
+      - AC-7: Tests at `tools/cli/kerrigan/tests/test_check.py`
+
+      ## Scope
+      - Touch: `tools/cli/kerrigan/kerrigan_cli/commands/check.py`, `tools/cli/kerrigan/kerrigan_cli/cli.py`, `tools/cli/kerrigan/tests/test_check.py`
+      - Read-only: `tools/validators/`, existing CLI structure
+      - Out of scope: new validators, kerrigan preset, conflict predictor
+
+      ## Prior Decisions
+      - Existing CLI uses click framework
+      - Validators are Python scripts with exit code 0=pass, 1=fail
+      - `specify check` may not be installed; skip with warning
+
+      ## Routing
+      R-cloud-default — standard code change, no local-only capabilities.
+
+  - id: T-P1-004
+    title: "feat: kerrigan preset — spec-kit preset with opinionated templates"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `preset/kerrigan/` — a spec-kit preset directory containing
+      overridden templates for plan.md, tasks.md, PR body format, and AC format.
+
+      ## Acceptance Criteria
+      - AC-1: `preset/kerrigan/` directory with `preset.yml` manifest
+      - AC-2: Custom `plan-template.md` that includes kerrigan-specific sections (delegation, waves, budget)
+      - AC-3: Custom `tasks-template.md` that includes file-glob `touch`/`read-only` fields per task
+      - AC-4: Custom `pr-body-template.md` with AC checklist, routing rule, and test commands
+      - AC-5: README.md explaining the preset and how to apply it
+      - AC-6: Templates are stack-agnostic (no language/framework assumptions)
+
+      ## Scope
+      - Touch: `preset/kerrigan/` (new directory)
+      - Read-only: `.specify/templates/`, `specs/kerrigan-v2/010-phases.md`
+      - Out of scope: `specify preset add` integration, extensions, CLI changes
+
+      ## Prior Decisions
+      - Spec-kit presets override files in `.specify/templates/`
+      - Terminology stays stack-agnostic
+      - Templates extend (not replace) spec-kit defaults
+
+      ## Routing
+      R-cloud-default — standard template/doc creation, no local-only capabilities.
+
+  - id: T-P1-005
+    title: "feat: /kerrigan.dispatch — slash command wrapping taskstoissues with wave + briefing"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create the `/kerrigan.dispatch` agent prompt/skill that orchestrates:
+      1. Run conflict-predictor → `.specify/waves.yaml`
+      2. Run briefing-generator → `.specify/briefings/*.md`
+      3. Run `/speckit.taskstoissues` with briefing bodies attached
+
+      ## Acceptance Criteria
+      - AC-1: `.github/prompts/kerrigan.dispatch.prompt.md` prompt file
+      - AC-2: `.claude/skills/kerrigan-dispatch/SKILL.md` skill file
+      - AC-3: Skill instructions: run conflict_predictor.py, then briefing_generator.py, then taskstoissues
+      - AC-4: Wave-aware dispatch: issues created wave-by-wave (wave 1 first, wave 2 after wave 1 completes)
+      - AC-5: Each issue body includes the generated briefing packet
+      - AC-6: Errors from sub-tools surface clearly (don't swallow)
+
+      ## Scope
+      - Touch: `.github/prompts/kerrigan.dispatch.prompt.md`, `.claude/skills/kerrigan-dispatch/SKILL.md`
+      - Read-only: `tools/conflict_predictor.py`, `tools/briefing_generator.py`, `.claude/skills/speckit-taskstoissues/`
+      - Out of scope: modifying conflict predictor or briefing generator code
+
+      ## Dependencies
+      - T-P1-001 (conflict predictor)
+      - T-P1-002 (briefing generator)
+
+      ## Routing
+      R-cloud-default — prompt/skill file creation, no local-only capabilities.
+
+  - id: T-P1-006
+    title: "feat: tools/create_issues.py — reusable issue creation from YAML"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Add tests for the new `tools/create_issues.py` tool and register it
+      in the bootstrap playbook.
+
+      ## Acceptance Criteria
+      - AC-1: Unit tests at `tests/test_create_issues.py` with 80%+ coverage
+      - AC-2: Tests cover: YAML parsing, dry-run mode, filter flag, missing file, invalid YAML
+      - AC-3: `tools/create_issues.py` listed in `playbooks/v2-bootstrap.md` copy step
+      - AC-4: `.github/test-mapping.yml` updated with new test mapping
+
+      ## Scope
+      - Touch: `tests/test_create_issues.py`, `playbooks/v2-bootstrap.md`, `.github/test-mapping.yml`
+      - Read-only: `tools/create_issues.py`
+      - Out of scope: modifying create_issues.py itself
+
+      ## Routing
+      R-cloud-default — test creation, no local-only capabilities.
