@@ -41,7 +41,8 @@ Copy-Item -Recurse -Force `
     (Join-Path $tmpDir 'specs/kerrigan-v2'), `
     (Join-Path $tmpDir 'scripts/mirror-agents.ps1'), `
     (Join-Path $tmpDir 'tools/validators/agents_md.py'), `
-    (Join-Path $tmpDir 'tools/pr_comments.py') `
+    (Join-Path $tmpDir 'tools/pr_comments.py'), `
+    (Join-Path $tmpDir 'tools/create_issues.py') `
     .
 Remove-Item -Recurse -Force $tmpDir
 
