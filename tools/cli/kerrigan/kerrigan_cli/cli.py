@@ -2,7 +2,7 @@
 
 import click
 from kerrigan_cli import __version__
-from kerrigan_cli.commands import init, status, validate, repos, agent
+from kerrigan_cli.commands import init, status, validate, repos, agent, check
 
 
 @click.group(invoke_without_command=True)
@@ -17,6 +17,7 @@ def cli(ctx):
       validate   Run artifact validators
       repos      Multi-repository operations
       agent      Invoke agent with role-specific prompt
+      check      Run all validators in one invocation
     """
     ctx.ensure_object(dict)
     
@@ -31,6 +32,7 @@ cli.add_command(status)
 cli.add_command(validate)
 cli.add_command(repos)
 cli.add_command(agent)
+cli.add_command(check)
 
 
 def main():
