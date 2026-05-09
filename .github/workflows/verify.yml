@@ -34,11 +34,8 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          if [[ -f requirements.txt ]]; then
-            pip install -r requirements.txt
-          fi
-          pip install PyYAML click
-          pip install -e tools/cli/kerrigan
+          python -m pip install -r requirements.txt
+          python -m pip install -e tools/cli/kerrigan
 
       - name: Run validators
         run: kerrigan check
@@ -68,10 +65,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          if [[ -f requirements.txt ]]; then
-            pip install -r requirements.txt
-          fi
-          pip install PyYAML click
+          python -m pip install -r requirements.txt
 
       - name: Run smoke test (if present)
         shell: bash
@@ -109,11 +103,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          if [[ -f requirements.txt ]]; then
-            pip install -r requirements.txt
-          fi
-          pip install PyYAML click
-          pip install pytest
+          python -m pip install -r requirements.txt
 
       - name: Run tests (if tests/ exists)
         shell: bash
