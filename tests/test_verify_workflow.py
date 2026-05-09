@@ -48,25 +48,38 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
                 steps = job.get("steps", [])
 
                 resolve_step = next(
-                    step for step in steps if step.get("name") == "Resolve Python version"
+                    (step for step in steps if step.get("name") == "Resolve Python version"),
+                    None,
                 )
+                self.assertIsNotNone(resolve_step, f"{job_name} should resolve the Python version")
                 resolve_script = resolve_step.get("run", "")
                 self.assertIn(".tool-versions", resolve_script)
                 self.assertIn('${version:-3.13}', resolve_script)
 
                 install_step = next(
-                    step for step in steps if step.get("name") == "Install dependencies"
+                    (step for step in steps if step.get("name") == "Install dependencies"),
+                    None,
                 )
+                self.assertIsNotNone(install_step, f"{job_name} should install dependencies")
                 install_script = install_step.get("run", "")
                 self.assertIn("python -m pip install -r requirements.txt", install_script)
                 self.assertNotIn("pip install PyYAML click", install_script)
                 self.assertNotIn("pip install pytest", install_script)
 
-        validators_install = next(
-            step
-            for step in workflow["jobs"]["validators"]["steps"]
-            if step.get("name") == "Install dependencies"
-        ).get("run", "")
+        self.assertIn("validators", workflow["jobs"], "verify workflow should define a validators job")
+        validators_install_step = next(
+            (
+                step
+                for step in workflow["jobs"]["validators"]["steps"]
+                if step.get("name") == "Install dependencies"
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            validators_install_step,
+            "validators job should include an Install dependencies step",
+        )
+        validators_install = validators_install_step.get("run", "")
         self.assertIn("python -m pip install -e tools/cli/kerrigan", validators_install)
 
 
