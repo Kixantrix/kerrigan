@@ -140,7 +140,7 @@ class TestBlockValidator(unittest.TestCase):
         result = subprocess.run(
             [sys.executable, str(script_path), "--blocks-dir", str(self.blocks_dir)],
             capture_output=True,
-            text=True,
+            encoding="utf-8",
             check=False,
         )
 
