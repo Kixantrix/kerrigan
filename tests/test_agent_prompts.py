@@ -160,6 +160,29 @@ class TestCloudProfile(unittest.TestCase):
     def test_cloud_has_pr_template(self):
         self.assertIn("PR body shape", self.content)
 
+    def test_cloud_documents_verification_enforcement(self):
+        self.assertIn("verifies_before_pr:", self.content)
+        self.assertIn("enforce: block_on_unfixable_failure_before_pr", self.content)
+
+    def test_cloud_has_self_verification_protocol_steps(self):
+        self.assertIn("## Self-verification protocol", self.content)
+        self.assertIn("Run unit + integration tests", self.content)
+        self.assertIn("Run smoke test", self.content)
+        self.assertIn("Run lint/type checks", self.content)
+        self.assertIn("If still failing and unfixable in scope, emit a block and stop", self.content)
+
+    def test_cloud_references_test_capability_matrix_rules(self):
+        self.assertIn("cloud_ok | local_required | manual", self.content)
+        self.assertIn("never `@skip` without a reason", self.content)
+
+    def test_cloud_includes_self_test_failure_block_template(self):
+        self.assertIn("### Self-test failure block template", self.content)
+        self.assertIn("reason: test_infrastructure_failure", self.content)
+
+    def test_cloud_pr_template_includes_verification_results(self):
+        self.assertIn("## Self-verification results", self.content)
+        self.assertIn("capability matrix declarations", self.content)
+
 
 class TestKerriganProfile(unittest.TestCase):
     """Test kerrigan (swarm shaper) profile specific requirements"""
