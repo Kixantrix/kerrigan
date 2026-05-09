@@ -24,7 +24,7 @@ def _run_validator(label: str, cmd: list[str], cwd: Path, verbose: bool) -> bool
             cmd,
             cwd=cwd,
             capture_output=True,
-            text=True,
+            encoding="utf-8",
         )
         passed = result.returncode == 0
         status_symbol = "✓" if passed else "✗"
