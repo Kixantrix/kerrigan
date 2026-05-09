@@ -1,0 +1,202 @@
+tasks:
+  - id: T-P2-001
+    title: "feat: verify.yml workflow — unified PR verification gate"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `.github/workflows/verify.yml` — a GitHub Actions workflow that runs
+      on all PRs as a required check. This is the single verification gate that
+      must pass before merge.
+
+      ## Acceptance Criteria
+      - AC-1: `.github/workflows/verify.yml` runs on `pull_request` events to `main`
+      - AC-2: Job 1: runs `kerrigan check` (tools/cli/kerrigan CLI) — validators pass
+      - AC-3: Job 2: runs `scripts/smoke.sh` or `scripts/smoke.ps1` if either exists (skip gracefully if neither)
+      - AC-4: Job 3: runs `python -m pytest tests/ -v` if `tests/` dir exists
+      - AC-5: All jobs must pass for the workflow to succeed
+      - AC-6: Uses `actions/checkout@v4`, `actions/setup-python@v5` with Python 3.13
+      - AC-7: Workflow installs deps from `requirements.txt` if present, plus PyYAML and click
+      - AC-8: Pinned action versions for determinism (no `@latest`)
+
+      ## Scope
+      - Touch: `.github/workflows/verify.yml`
+      - Read-only: `tools/cli/kerrigan/`, `tools/validators/`, `tests/`
+      - Out of scope: branch protection settings (manual), other workflows
+
+      ## Prior Decisions
+      - Single workflow replaces multiple v1 workflows (agent-gates, auto-ready-pr, etc.)
+      - Python 3.13 is the runtime
+      - `kerrigan check` is the validator entry point (added in Phase 1)
+      - Determinism: pin all action versions, use `.tool-versions` if present
+
+      ## Routing
+      R-cloud-default — standard workflow creation.
+
+  - id: T-P2-002
+    title: "feat: smoke test convention — scripts/smoke.sh + smoke.ps1 templates"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `scripts/smoke.sh` and `scripts/smoke.ps1` as the standard smoke
+      test entry points for the kerrigan repo itself. Establish the convention
+      that any deployable project declares a smoke script.
+
+      ## Acceptance Criteria
+      - AC-1: `scripts/smoke.sh` (bash, executable) runs basic repo health checks
+      - AC-2: `scripts/smoke.ps1` (PowerShell) mirrors smoke.sh for Windows
+      - AC-3: Both scripts: exit 0 on success, exit 1 on failure
+      - AC-4: Smoke checks include: Python importable, validators exist, kerrigan CLI loadable, key dirs exist
+      - AC-5: Scripts are idempotent and side-effect-free (read-only checks only)
+      - AC-6: Add smoke test convention docs to `playbooks/v2-bootstrap.md`
+
+      ## Scope
+      - Touch: `scripts/smoke.sh`, `scripts/smoke.ps1`, `playbooks/v2-bootstrap.md`
+      - Read-only: `tools/`, `tests/`
+      - Out of scope: CI workflow (covered by T-P2-001), project-specific smoke scripts
+
+      ## Routing
+      R-cloud-default — standard script creation.
+
+  - id: T-P2-003
+    title: "feat: kerrigan-test-capability-matrix — test routing validator"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create a validator that enforces the test-capability-matrix convention:
+      tests declare `cloud_ok`, `local_required`, or `manual` with a reason.
+      `local_required` must cite an allowlisted capability.
+
+      ## Acceptance Criteria
+      - AC-1: `tools/validators/test_capability_matrix.py` — scans test files for capability markers
+      - AC-2: Marker format: `# capability: cloud_ok` or `# capability: local_required(device-io.usb)` or `# capability: manual(human-judgment)`
+      - AC-3: Tests without a marker default to `cloud_ok` (no failure)
+      - AC-4: `local_required` must cite one of: `device-io.*`, `os.*`, `paid-service.*`, `human-judgment`
+      - AC-5: `local_required` with an unlisted capability → validation failure with clear message
+      - AC-6: CLI: `python tools/validators/test_capability_matrix.py [--test-dir tests/]`
+      - AC-7: Unit tests at `tests/validators/test_capability_matrix.py` with 80%+ coverage
+      - AC-8: Integrated into `kerrigan check` (added to check.py's validator list)
+
+      ## Scope
+      - Touch: `tools/validators/test_capability_matrix.py`, `tests/validators/test_capability_matrix.py`, `tools/cli/kerrigan/kerrigan_cli/commands/check.py`
+      - Read-only: `tools/validators/agents_md.py` (pattern reference)
+      - Out of scope: enforcing markers on existing tests, cloud profile changes
+
+      ## Routing
+      R-cloud-default — standard validator creation.
+
+  - id: T-P2-004
+    title: "feat: update cloud profile — self-test gate before PR creation"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Update `.github/agents/cloud.md` to make the self-verification gate
+      explicit and machine-readable. If self-tests fail and can't be fixed
+      in scope, the cloud agent must emit a block instead of opening a PR.
+
+      ## Acceptance Criteria
+      - AC-1: Cloud profile frontmatter `verifies_before_pr` field documented with enforcement semantics
+      - AC-2: Body section "Self-verification protocol" expanded with step-by-step: run tests → run smoke → run lint → if any fail and unfixable → emit block
+      - AC-3: Block template for self-test failure added to profile body
+      - AC-4: Test-capability-matrix convention referenced: "declare cloud_ok | local_required | manual, never @skip without reason"
+      - AC-5: PR body template updated to include self-verification results section
+
+      ## Scope
+      - Touch: `.github/agents/cloud.md`
+      - Read-only: `.github/skills/block-report/SKILL.md`, `.github/skills/smoke-test/SKILL.md`
+      - Out of scope: local.md changes, kerrigan.md changes
+
+      ## Routing
+      R-cloud-default — profile update, no local-only capabilities.
+
+  - id: T-P2-005
+    title: "feat: update kerrigan preset with spec-kit verify extensions"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Update `preset/kerrigan/preset.yml` to reference the spec-kit verification
+      extensions: `spec-kit-verify`, `spec-kit-verify-tasks`, `spec-kit-ci-guard`,
+      `spec-kit-qa`.
+
+      ## Acceptance Criteria
+      - AC-1: `preset/kerrigan/preset.yml` extensions list includes `spec-kit-verify`, `spec-kit-verify-tasks`, `spec-kit-ci-guard`, `spec-kit-qa`
+      - AC-2: Each extension has a one-line description
+      - AC-3: `preset/kerrigan/README.md` updated to list the new extensions
+      - AC-4: Extensions are listed as "adopted" (not bundled) — they're external spec-kit extensions
+
+      ## Scope
+      - Touch: `preset/kerrigan/preset.yml`, `preset/kerrigan/README.md`
+      - Read-only: `specs/kerrigan-v2/010-phases.md`
+      - Out of scope: implementing the extensions themselves, verify.yml workflow
+
+      ## Routing
+      R-cloud-default — config/doc update.
+
+  - id: T-P2-006
+    title: "feat: .tool-versions + deterministic CI pinning"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Add `.tool-versions` file for deterministic tool pinning. Ensures
+      the same commit tested twice gives identical results.
+
+      ## Acceptance Criteria
+      - AC-1: `.tool-versions` at repo root with `python 3.13.2` pinned
+      - AC-2: `verify.yml` workflow reads `.tool-versions` for Python version (or falls back to 3.13)
+      - AC-3: `requirements.txt` at repo root lists pinned versions of PyYAML, click, pytest
+      - AC-4: CI installs from requirements.txt for reproducibility
+
+      ## Scope
+      - Touch: `.tool-versions`, `requirements.txt`
+      - Read-only: `.github/workflows/verify.yml`
+      - Out of scope: other language runtimes, Docker pinning
+
+      ## Dependencies
+      - T-P2-001 (verify.yml) should exist first for AC-2
+
+      ## Routing
+      R-cloud-default — config file creation.
+
+  - id: T-P2-007
+    title: "feat: AC-to-test traceability example in task-tracker-real"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Add acceptance-criteria-to-test traceability to the `examples/task-tracker-real`
+      project. Demonstrates the convention that every AC maps to an automated test.
+
+      ## Acceptance Criteria
+      - AC-1: `examples/task-tracker-real/acceptance-tests.md` — maps each AC to a test file and function
+      - AC-2: At least 3 existing ACs mapped to their tests with `AC-<id> → tests/<file>::<function>` format
+      - AC-3: Any unmapped AC noted with `TODO: needs test` marker
+      - AC-4: README.md updated to reference the traceability doc
+
+      ## Scope
+      - Touch: `examples/task-tracker-real/acceptance-tests.md`, `examples/task-tracker-real/README.md`
+      - Read-only: `examples/task-tracker-real/tests/`, `examples/task-tracker-real/task_tracker/`
+      - Out of scope: writing new tests, modifying task_tracker code
+
+      ## Routing
+      R-cloud-default — documentation work.
+
+  - id: T-P2-008
+    title: "docs: Copilot code review playbook + repo settings guide"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Document how to enable GitHub Copilot code review on all PRs and
+      add it to the v2 bootstrap playbook.
+
+      ## Acceptance Criteria
+      - AC-1: `playbooks/copilot-review-setup.md` — step-by-step guide to enable Copilot review in repo settings
+      - AC-2: Covers: Settings → Code review → Copilot → Enable for all PRs
+      - AC-3: Documents review comment conventions (how to address, resolve, dismiss)
+      - AC-4: `playbooks/v2-bootstrap.md` updated to reference the new playbook
+      - AC-5: Notes that self-approval is not possible — use `--admin` merge when needed
+
+      ## Scope
+      - Touch: `playbooks/copilot-review-setup.md`, `playbooks/v2-bootstrap.md`
+      - Read-only: `AGENTS.md`
+      - Out of scope: actually changing repo settings (manual step)
+
+      ## Routing
+      R-cloud-default — documentation work.
