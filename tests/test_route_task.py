@@ -2,9 +2,11 @@
 """Unit tests for tools/route_task.py."""
 
 import json
+from io import StringIO
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
@@ -142,12 +144,11 @@ class TestRouteTaskFileAndCli(unittest.TestCase):
             encoding="utf-8",
         )
 
-        rc = main(["--task-file", str(task_file)])
+        with unittest.mock.patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            rc = main(["--task-file", str(task_file)])
         self.assertEqual(rc, 0)
 
-        result = route_task_file(task_file)
-        # Ensure output shape is stable and JSON-serializable
-        payload = json.dumps(result)
+        payload = json.loads(mock_stdout.getvalue().strip())
         self.assertIn("rule", payload)
         self.assertIn("route", payload)
 

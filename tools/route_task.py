@@ -82,7 +82,11 @@ def parse_task_metadata(content: str) -> TaskMetadata:
         tags.extend(_split_csv(fm_tags.group(1)))
 
     # Marker tags in description/body, e.g. [P], [US1]
-    tags.extend(tag.upper() for tag in re.findall(r"\[([^\]]+)\]", content) if tag.strip())
+    tags.extend(
+        tag.upper()
+        for tag in re.findall(r"\[([A-Za-z][A-Za-z0-9_-]{0,31})\]", content)
+        if tag.strip()
+    )
 
     # Stable de-dupe while preserving order
     dedup_tags: list[str] = []
@@ -131,7 +135,7 @@ def decide_route(metadata: TaskMetadata) -> dict[str, str]:
 
     # local_required marker routing signal (prefer capability form first)
     marker_with_capability = re.search(r"local_required\(([^)]*)\)", searchable)
-    marker = marker_with_capability or re.search(r"local_required", searchable)
+    marker_without_capability = re.search(r"local_required", searchable)
 
     # Priority order: R-local.* first
     if _contains_any(
@@ -174,8 +178,8 @@ def decide_route(metadata: TaskMetadata) -> dict[str, str]:
             "route": "local",
         }
 
-    if marker:
-        capability = (marker.group(1) if marker_with_capability else "").strip()
+    if marker_with_capability:
+        capability = marker_with_capability.group(1).strip()
         if capability.startswith("os."):
             return {
                 "rule": "R-local.os-specific",
@@ -194,6 +198,12 @@ def decide_route(metadata: TaskMetadata) -> dict[str, str]:
                 "justification": "local_required marker cites human-judgment capability.",
                 "route": "local",
             }
+        return {
+            "rule": "R-local.device-io",
+            "justification": "local_required marker present in task body.",
+            "route": "local",
+        }
+    if marker_without_capability:
         return {
             "rule": "R-local.device-io",
             "justification": "local_required marker present in task body.",
