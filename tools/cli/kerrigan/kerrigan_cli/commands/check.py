@@ -50,6 +50,7 @@ def check(verbose: bool) -> None:
     Runs:
       - tools/validators/agents_md.py
       - tools/validators/check_artifacts.py (if present)
+      - tools/validators/test_capability_matrix.py (if present)
       - specify check (if specify is on PATH)
 
     Example:
@@ -86,6 +87,19 @@ def check(verbose: bool) -> None:
     if check_artifacts.exists():
         ok = _run_validator(
             "check_artifacts.py", [python, str(check_artifacts)], root, verbose
+        )
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+
+    test_capability_matrix = validators_dir / "test_capability_matrix.py"
+    if test_capability_matrix.exists():
+        ok = _run_validator(
+            "test_capability_matrix.py",
+            [python, str(test_capability_matrix)],
+            root,
+            verbose,
         )
         if ok:
             passed += 1

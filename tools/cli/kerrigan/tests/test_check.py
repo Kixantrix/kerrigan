@@ -94,6 +94,26 @@ def test_check_skips_check_artifacts_when_absent(tmp_path):
     assert "agents_md.py" in str(mock_run.call_args_list[0].args[0])
 
 
+def test_check_runs_test_capability_matrix_when_present(tmp_path):
+    """check calls test_capability_matrix.py when present."""
+    validators = tmp_path / "tools" / "validators"
+    validators.mkdir(parents=True)
+    (validators / "agents_md.py").write_text("# stub")
+    (validators / "test_capability_matrix.py").write_text("# stub")
+
+    runner = CliRunner()
+    with (
+        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
+        patch("kerrigan_cli.commands.check.subprocess.run", _fake_run(0)) as mock_run,
+        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
+    ):
+        result = runner.invoke(check, [])
+
+    assert result.exit_code == 0
+    calls = [c.args[0] for c in mock_run.call_args_list]
+    assert any("test_capability_matrix.py" in str(c) for c in calls)
+
+
 # ---------------------------------------------------------------------------
 # AC-4: specify check optional
 # ---------------------------------------------------------------------------
