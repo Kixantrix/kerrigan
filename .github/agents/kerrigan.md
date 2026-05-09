@@ -12,6 +12,9 @@ skills: [briefing-packet, delegation-rubric, block-report]
 role: meta
 needs: []
 blocks_on: [constitution_violation, breaking_change_without_migration]
+budget:
+  max_turns: 50
+  max_premium_requests: 0
 ---
 
 # kerrigan — Swarm Shaper

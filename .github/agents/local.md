@@ -10,8 +10,11 @@ effort: high
 skills: [briefing-packet, delegation-rubric, block-report]
 # Kerrigan capability manifest:
 role: conductor
-needs: []
+needs: [device-io, os-access, paid-secrets]
 blocks_on: [ambiguous_goal, unresolved_block, out_of_budget]
+budget:
+  max_turns: 30
+  max_premium_requests: 0
 ---
 
 # local — conductor
