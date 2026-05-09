@@ -135,7 +135,9 @@ def decide_route(metadata: TaskMetadata) -> dict[str, str]:
 
     # local_required marker routing signal (prefer capability form first)
     marker_with_capability = re.search(r"local_required\(([^)]*)\)", searchable)
-    marker_without_capability = re.search(r"local_required", searchable)
+    marker_without_capability = (
+        None if marker_with_capability else re.search(r"local_required", searchable)
+    )
 
     # Priority order: R-local.* first
     if _contains_any(
@@ -259,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     decision = route_task_file(task_file)
-    print(json.dumps(decision, ensure_ascii=True))
+    print(json.dumps(decision))
     return 0
 
 
