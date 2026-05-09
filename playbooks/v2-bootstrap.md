@@ -109,8 +109,41 @@ python tools/validators/agents_md.py
 - `kerrigan-conflict-predictor` extension.
 - `kerrigan-briefing` extension.
 - `spec-kit-verify` + `spec-kit-verify-tasks` + `spec-kit-ci-guard` preset defaults.
-- `scripts/smoke.sh` template + CI.
 - 4-label installer script.
+
+## Smoke test convention
+
+Every deployable project should declare a smoke script at `scripts/smoke.sh` (bash)
+and `scripts/smoke.ps1` (PowerShell). These are read-only, idempotent health checks
+that exit 0 on success and 1 on failure.
+
+The kerrigan repo ships templates you can copy and adapt:
+
+```bash
+# Run the kerrigan smoke test (macOS / Linux / WSL)
+bash scripts/smoke.sh
+```
+
+```powershell
+# Run the kerrigan smoke test (Windows / PowerShell 7+)
+pwsh scripts/smoke.ps1
+```
+
+### What the smoke scripts check
+
+| Check | Description |
+|---|---|
+| Python importable | `python3` is on PATH and stdlib modules load |
+| Validators exist | `tools/validators/*.py` scripts are present |
+| Kerrigan CLI loadable | `tools/cli/kerrigan` package can be imported |
+| Key directories | `tools/`, `scripts/`, `.github/agents/`, `specs/`, `playbooks/` exist |
+
+### Convention for your own project
+
+1. Copy `scripts/smoke.sh` and `scripts/smoke.ps1` from kerrigan into your repo.
+2. Replace the checks with ones appropriate for your stack (e.g. `node -e "require('./src')"`, `dotnet build --no-restore`).
+3. Keep checks read-only — no DB writes, no network calls, no side effects.
+4. The scripts must exit 0 on success and 1 on failure (CI-friendly).
 
 ## Troubleshooting
 
