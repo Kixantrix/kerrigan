@@ -1,0 +1,176 @@
+tasks:
+  - id: T-P4-001
+    title: "chore: delete legacy v1 agent profiles"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Remove `.github/agents/_legacy/role.*.md` — the v1 role-based agent
+      profiles that have been superseded by v2's capability-based routing.
+
+      ## Acceptance Criteria
+      - AC-1: `.github/agents/_legacy/` directory deleted (if it exists)
+      - AC-2: All `role.*.md` files removed
+      - AC-3: Any references to legacy profiles removed from docs
+      - AC-4: `kerrigan check` passes after deletion
+
+      ## Scope
+      - Touch: `.github/agents/_legacy/` (delete entire directory)
+      - Read-only: `AGENTS.md`, `.github/agents/` (check for references)
+      - Out of scope: current agent profiles (local.md, cloud.md, kerrigan.md)
+
+      ## Routing
+      R-cloud-default — cleanup work.
+
+  - id: T-P4-002
+    title: "chore: retire v1 workflows replaced by v2"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Delete 5 v1 workflows that have been replaced by v2 infrastructure:
+      `agent-gates.yml`, `auto-grant-autonomy.yml`, `auto-ready-pr.yml`,
+      `auto-trigger-dependents.yml`, `daily-self-improvement.yml`.
+
+      ## Acceptance Criteria
+      - AC-1: `.github/workflows/agent-gates.yml` deleted
+      - AC-2: `.github/workflows/auto-grant-autonomy.yml` deleted
+      - AC-3: `.github/workflows/auto-ready-pr.yml` deleted
+      - AC-4: `.github/workflows/auto-trigger-dependents.yml` deleted
+      - AC-5: `.github/workflows/daily-self-improvement.yml` deleted
+      - AC-6: `kerrigan check` passes after deletion
+      - AC-7: README or playbook updated to note v2 workflow coverage
+
+      ## Scope
+      - Touch: `.github/workflows/agent-gates.yml`, `auto-grant-autonomy.yml`, `auto-ready-pr.yml`, `auto-trigger-dependents.yml`, `daily-self-improvement.yml`
+      - Read-only: `AGENTS.md`, `.github/workflows/verify.yml`
+      - Out of scope: verify.yml, budget-telemetry.yml (these are v2 workflows)
+
+      ## Prior Decisions
+      - `verify.yml` + branch protection replace agent-gates + auto-ready-pr
+      - Wave-based dispatch replaces auto-trigger-dependents
+      - `kerrigan check` cron (when added) replaces daily-self-improvement
+
+      ## Routing
+      R-cloud-default — cleanup work.
+
+  - id: T-P4-003
+    title: "docs: rescope sdk-agent service to optional programmatic dispatch"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Update `services/sdk-agent/README.md` to clarify that spec-kit's
+      `/speckit.taskstoissues` covers the common issue-creation path, and
+      sdk-agent is now for programmatic/API-driven dispatch only.
+
+      ## Acceptance Criteria
+      - AC-1: `services/sdk-agent/README.md` updated with scope clarification
+      - AC-2: Note that `tools/create_issues.py` is the CLI entry point (no server needed)
+      - AC-3: Link to spec-kit taskstoissues skill for the standard workflow
+      - AC-4: Clarify sdk-agent is optional for API/programmatic scenarios
+      - AC-5: Remove any "required" language around sdk-agent
+
+      ## Scope
+      - Touch: `services/sdk-agent/README.md`
+      - Read-only: `tools/create_issues.py`, `.claude/skills/speckit-taskstoissues/`
+      - Out of scope: modifying sdk-agent code itself
+
+      ## Routing
+      R-cloud-default — documentation update.
+
+  - id: T-P4-004
+    title: "feat: label migration script — v1 to v2 label upgrade"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `scripts/migrate-v1-to-v2.ps1` and `scripts/migrate-v1-to-v2.sh`
+      that remove v1 labels and map them to v2 equivalents where applicable.
+
+      ## Acceptance Criteria
+      - AC-1: `scripts/migrate-v1-to-v2.ps1` created (Windows/PowerShell)
+      - AC-2: `scripts/migrate-v1-to-v2.sh` created (Linux/macOS/bash)
+      - AC-3: Removes v1 labels: `role:swe`, `role:architect`, `role:spec`, `role:testing`, `role:debugging`, `role:triage`, `agent:sprint`, `agent:triage`, `agent-ready`
+      - AC-4: Maps `agent-ready` → `agent:go` (if issue is open and unassigned)
+      - AC-5: Dry-run mode: `--dry-run` flag shows what would change without applying
+      - AC-6: Uses `gh` CLI for label operations
+      - AC-7: README or inline comments document the mapping logic
+      - AC-8: Both scripts have identical logic (only syntax differs)
+
+      ## Scope
+      - Touch: `scripts/migrate-v1-to-v2.ps1`, `scripts/migrate-v1-to-v2.sh`
+      - Read-only: `AGENTS.md` (v2 label list), `.github/labels.json` (if exists)
+      - Out of scope: actually running the migration (script creation only)
+
+      ## Routing
+      R-cloud-default — script creation.
+
+  - id: T-P4-005
+    title: "docs: upgrade-to-v2 playbook for satellite repos"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `playbooks/upgrade-to-v2.md` with step-by-step migration guide
+      for `personal-selfhost` and `vhs-video-stack` (and future satellites).
+
+      ## Acceptance Criteria
+      - AC-1: `playbooks/upgrade-to-v2.md` created
+      - AC-2: Checklist format: pre-flight, install v2, migrate labels, retire v1 workflows, test dispatch
+      - AC-3: personal-selfhost section: delete `claude-dispatch.sh` fork, adopt `cloud` profile + Claude Code
+      - AC-4: vhs-video-stack section: migrate batch-merge to wave-based dispatch, use conflict predictor
+      - AC-5: Link to Phase 3 artifacts (delegation rubric, block schema, hooks)
+      - AC-6: Troubleshooting section: common migration issues
+
+      ## Scope
+      - Touch: `playbooks/upgrade-to-v2.md`
+      - Read-only: `AGENTS.md`, `playbooks/v2-bootstrap.md`, `specs/kerrigan-v2/`
+      - Out of scope: actually performing the migration on satellite repos
+
+      ## Routing
+      R-cloud-default — documentation.
+
+  - id: T-P4-006
+    title: "chore: archive v1 specs as historical reference"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Move `specs/kerrigan/000-080*.md` to `specs/kerrigan/_archive-v1/`
+      to preserve v1 history while making v2 the source of truth.
+
+      ## Acceptance Criteria
+      - AC-1: `specs/kerrigan/_archive-v1/` directory created
+      - AC-2: All `specs/kerrigan/000-*.md` through `080-*.md` moved to `_archive-v1/`
+      - AC-3: `specs/kerrigan/_archive-v1/README.md` created with archive notice
+      - AC-4: `specs/kerrigan-v2/` is now the active spec directory
+      - AC-5: `AGENTS.md` or spec index updated to point to v2 specs
+      - AC-6: `kerrigan check` passes after move
+
+      ## Scope
+      - Touch: `specs/kerrigan/` (move files to `_archive-v1/`), `AGENTS.md` (update links)
+      - Read-only: `specs/kerrigan-v2/`
+      - Out of scope: deleting v1 specs (archive only)
+
+      ## Routing
+      R-cloud-default — file reorganization.
+
+  - id: T-P4-007
+    title: "perf: consolidate validators behind kerrigan check"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Ensure all validators run exclusively through `kerrigan check`, with
+      a performance budget of <30s total runtime. Decommission any standalone
+      validator invocations in CI.
+
+      ## Acceptance Criteria
+      - AC-1: All validators in `tools/validators/` are registered in `check.py`
+      - AC-2: No validators are called directly in `.github/workflows/` (only `kerrigan check`)
+      - AC-3: Benchmark: `kerrigan check` completes in <30s on CI (GitHub Actions runner)
+      - AC-4: If over budget, add `--fast` mode that skips heavy validators
+      - AC-5: `verify.yml` workflow uses `kerrigan check` as the single validator entry point
+      - AC-6: README or validator docs list all registered validators
+
+      ## Scope
+      - Touch: `tools/cli/kerrigan/kerrigan_cli/commands/check.py`, `.github/workflows/verify.yml`, `tools/validators/README.md`
+      - Read-only: all validators in `tools/validators/`
+      - Out of scope: writing new validators
+
+      ## Routing
+      R-cloud-default — validator consolidation.
