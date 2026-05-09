@@ -96,6 +96,29 @@ v1 labels are being phased out in Phase 4 of the v2 rollout; during transition b
 
 Platform-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) redirect here rather than duplicate content.
 
+## Auto-mode guidance
+
+Claude Code supports three `permissionMode` values in agent frontmatter. Choose based on the risk profile of the work, not on convenience. `permissionMode` is the machine-readable equivalent — set it in the agent's YAML frontmatter so the decision is auditable and consistent across sessions.
+
+| Project / context | Recommended mode | Reason |
+|---|---|---|
+| Greenfield project (no users yet, no production traffic) | `auto` | No blast radius; fastest iteration; mistakes are cheap to revert. |
+| Sandboxed examples (`examples/`, `docs/`, isolated throwaway repos) | `auto` | Self-contained, no shared state; a bad edit is trivially undone. |
+| Test-only work (adding/updating tests, no production code changed) | `auto` | Tests are reversible; CI will surface any breakage before merge. |
+| Prototype / spike branch (explicitly discardable) | `auto` | Branch is not expected to merge; human reviews before promoting. |
+| Production code (any path that ships to real users) | `acceptEdits` | Human confirms every file write; reduces risk of silent regressions. |
+| Shared infrastructure (CI workflows, branch protection, secrets config) | `acceptEdits` | Mistakes propagate across all contributors and branches instantly. |
+| Security-sensitive work (auth, crypto, permissions, secret handling) | `acceptEdits` | One wrong edit can introduce a vulnerability; confirmation gates are worth the friction. |
+| Any task that `R-local.human-judgment` matches in the delegation rubric | `acceptEdits` (at minimum) | The rubric already identified this task needs human in the loop per step — don't bypass that gate. |
+
+**Defaults in this repo:**
+- `local` profile → `permissionMode: default` (planning/dispatch surface; rarely touches files).
+- `cloud` profile → `permissionMode: acceptEdits` (executor; always touches files but must be confirmed).
+
+**When to consider `auto` for the `cloud` profile:** only when the linked issue is labeled `agent:go` *and* the task's context falls in the `auto`-safe rows above *and* the branch is not `main`. The `autonomy:override` label signals human approval for an exception.
+
+> Cross-reference: for routing decisions (cloud vs local), see `.github/skills/delegation-rubric/SKILL.md`. The `auto`-vs-`acceptEdits` decision is orthogonal — it governs *how much supervision* the agent has once routed, not *where* it runs.
+
 ## Validation & CI
 
 - `kerrigan check` (Phase 1+) runs all validators locally. Today: see [`tools/validators/`](./tools/validators/).
