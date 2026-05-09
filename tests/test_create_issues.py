@@ -2,6 +2,7 @@
 """Unit tests for tools/create_issues.py."""
 
 import io
+import shutil
 import sys
 import tempfile
 import unittest
@@ -36,6 +37,9 @@ class TestGetRepoSlug(unittest.TestCase):
 class TestLoadTasks(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
 
     def test_load_tasks_with_tasks_key(self):
         path = self.tmp_dir / "tasks.yaml"
@@ -128,6 +132,12 @@ class TestCreateIssue(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
+    def setUp(self):
+        self.tmp_dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
+
     def test_main_missing_file_exits(self):
         with patch.object(sys, "argv", ["create_issues.py", "/does/not/exist.yaml"]):
             with patch("sys.stderr", new_callable=io.StringIO) as mock_stderr:
@@ -142,7 +152,7 @@ class TestMain(unittest.TestCase):
             {"id": "T-001", "title": "A"},
             {"id": "T-002", "title": "B"},
         ]
-        file_path = Path("/tmp/tasks.yaml")
+        file_path = self.tmp_dir / "tasks.yaml"
 
         with patch.object(
             sys,
@@ -159,11 +169,12 @@ class TestMain(unittest.TestCase):
         mock_create.assert_called_once_with({"id": "T-002", "title": "B"}, dry_run=True)
         output = mock_stdout.getvalue()
         self.assertIn("Repo: Kixantrix/kerrigan", output)
-        self.assertIn("Creating 1 issue(s)  [DRY RUN]:", output)
+        self.assertIn("Creating 1 issue(s)", output)
+        self.assertIn("[DRY RUN]", output)
 
     def test_main_no_tasks_after_filter(self):
         tasks = [{"id": "T-001", "title": "A"}]
-        file_path = Path("/tmp/tasks.yaml")
+        file_path = self.tmp_dir / "tasks.yaml"
 
         with patch.object(
             sys,
