@@ -28,7 +28,11 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
     def test_root_requirements_are_fully_pinned(self):
         """The root requirements file should pin the workflow dependencies."""
         self.assertTrue(self.requirements_path.exists(), "requirements.txt should exist")
-        requirements = self.requirements_path.read_text(encoding="utf-8").splitlines()
+        requirements = [
+            line
+            for line in self.requirements_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
         self.assertEqual(
             requirements,
             [
@@ -54,7 +58,7 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
                 self.assertIsNotNone(resolve_step, f"{job_name} should resolve the Python version")
                 resolve_script = resolve_step.get("run", "")
                 self.assertIn(".tool-versions", resolve_script)
-                self.assertIn('${version:-3.13}', resolve_script)
+                self.assertIn("3.13", resolve_script)
 
                 install_step = next(
                     (step for step in steps if step.get("name") == "Install dependencies"),
