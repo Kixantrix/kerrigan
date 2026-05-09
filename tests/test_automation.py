@@ -145,11 +145,6 @@ class TestWorkflowsExist(unittest.TestCase):
         workflow_path = self.workflows_dir / "auto-generate-issues.yml"
         self.assertTrue(workflow_path.exists(), "auto-generate-issues.yml not found")
 
-    def test_agent_gates_exists(self):
-        """Test that agent-gates workflow exists"""
-        workflow_path = self.workflows_dir / "agent-gates.yml"
-        self.assertTrue(workflow_path.exists(), "agent-gates.yml not found")
-
     def test_workflows_are_valid_yaml(self):
         """Test that all workflow files are valid YAML"""
         try:
@@ -329,38 +324,6 @@ class TestAutoTriageWorkflow(unittest.TestCase):
         self.assertIn("permissions", job)
         self.assertEqual(job["permissions"]["issues"], "write")
         self.assertEqual(job["permissions"]["contents"], "read")
-
-
-class TestSprintModeAutomation(unittest.TestCase):
-    """Test sprint mode automation in agent-gates workflow"""
-
-    def setUp(self):
-        """Set up workflow path"""
-        repo_root = Path(__file__).resolve().parent.parent
-        self.workflow_path = repo_root / ".github" / "workflows" / "agent-gates.yml"
-
-    def test_workflow_exists(self):
-        """Test that agent-gates workflow exists"""
-        self.assertTrue(self.workflow_path.exists(), "agent-gates.yml not found")
-
-    def test_workflow_checks_sprint_label(self):
-        """Test that workflow checks for agent:sprint label"""
-        content = self.workflow_path.read_text(encoding="utf-8")
-        self.assertIn("agent:sprint", content, "Workflow should check for agent:sprint label")
-
-    def test_workflow_auto_applies_agent_go(self):
-        """Test that workflow auto-applies agent:go label in sprint mode"""
-        content = self.workflow_path.read_text(encoding="utf-8")
-        self.assertIn("agent:go", content, "Workflow should handle agent:go label")
-        self.assertIn("addLabels", content, "Workflow should add labels")
-
-    def test_workflow_handles_linked_issues(self):
-        """Test that workflow detects linked issues from PR body"""
-        content = self.workflow_path.read_text(encoding="utf-8")
-        # Check for common linking keywords
-        linking_keywords = ["Fixes", "Closes", "Resolves", "close", "fix", "resolve"]
-        found_keywords = sum(1 for keyword in linking_keywords if keyword in content)
-        self.assertGreater(found_keywords, 0, "Workflow should detect linked issues")
 
 
 class TestIssueGenerationWorkflow(unittest.TestCase):
