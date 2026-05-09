@@ -29,7 +29,7 @@ These labels control when agents are allowed to work on issues and PRs:
 - **`allow:large-file`** (color: `#C5DEF5`, light blue)
   - Bypasses the 800 LOC quality bar check
   - Use sparingly, only when justified
-  - See: `specs/kerrigan/030-quality-bar.md`
+  - See: `specs/kerrigan/_archive-v1/030-quality-bar.md`
 
 ### Testing Status Labels
 

@@ -34,7 +34,7 @@ Before starting, read:
 2. **specs/projects/{PROJECT_NAME}/architecture.md**: Technical design
 3. **specs/projects/{PROJECT_NAME}/plan.md**: Implementation milestones
 4. **specs/projects/{PROJECT_NAME}/tasks.md**: Specific task breakdown
-5. **specs/kerrigan/030-quality-bar.md**: Quality standards
+5. **specs/kerrigan/_archive-v1/030-quality-bar.md**: Quality standards
 
 ## Implementation Principles
 
@@ -239,7 +239,7 @@ After testing phase complete:
 
 ## Quality Bar Reminder
 
-From `specs/kerrigan/030-quality-bar.md`:
+From `specs/kerrigan/_archive-v1/030-quality-bar.md`:
 
 **Definition of Done**:
 - Satisfies acceptance criteria

@@ -7,7 +7,8 @@ This folder contains the governing documents and specifications for all work don
 | Location | Purpose | Examples |
 |----------|---------|----------|
 | `specs/constitution.md` | Non-negotiable principles for all work | Quality standards, increment size, artifact-driven |
-| `specs/kerrigan/` | Meta-specs about the agent system itself | Agent archetypes, artifact contracts, quality bar |
+| `specs/kerrigan-v2/` | Active meta-specs about the agent system itself | Vision, rollout phases, delegation rubric |
+| `specs/kerrigan/_archive-v1/` | Historical v1 meta-specs kept for reference | Agent archetypes, artifact contracts, quality bar |
 | `specs/projects/<name>/` | Per-project specifications and artifacts | spec.md, architecture.md, plan.md, tasks.md |
 | `.github/agents/` | Agent prompt files for execution | role.swe.md, role.spec.md, role.architect.md |
 | `docs/` | User-facing documentation and guides | setup.md, FAQ.md, architecture.md |
@@ -30,7 +31,7 @@ This folder contains the governing documents and specifications for all work don
 
 **Authority**: This is the ultimate authority. All other specs, meta-specs, and project work must align with these principles.
 
-### Meta-Specs (specs/kerrigan/)
+### Active Meta-Specs (specs/kerrigan-v2/)
 **Purpose**: Specifications about the Kerrigan *system* itself—how the agent swarm operates, what contracts exist between agents, and how quality is enforced.
 
 **What belongs here**:
@@ -41,6 +42,8 @@ This folder contains the governing documents and specifications for all work don
 - Cost guardrails and automation contracts
 
 **Important**: These are specs *about* the system, not specs *for* a project. They define how agents should work together, not what they should build.
+
+**Historical note**: The retired v1 numbered specs live in `specs/kerrigan/_archive-v1/` as historical reference only. `specs/kerrigan-v2/` is the active source of truth.
 
 **Naming convention**: Files are numbered (000, 010, 020, etc.) to indicate reading order and priority.
 
@@ -58,7 +61,7 @@ This folder contains the governing documents and specifications for all work don
 - `acceptance-tests.md` - Acceptance criteria in testable form
 - `status.json` - Current project status (active, blocked, on-hold)
 
-**Special case**: `specs/projects/kerrigan/` contains specs for Kerrigan *as a project* (building the agent swarm system), not about how the system works (that's in `specs/kerrigan/`).
+**Special case**: `specs/projects/kerrigan/` contains specs for Kerrigan *as a project* (building the agent swarm system), not about how the system works (that's in `specs/kerrigan-v2/`).
 
 ### Agent Prompts (.github/agents/)
 **Purpose**: Executable prompts that humans copy into AI assistants to perform specific roles.
@@ -73,7 +76,7 @@ This folder contains the governing documents and specifications for all work don
 - `role.security.md` - Prompt for the Security Agent
 - `kerrigan.swarm-shaper.md` - Prompt for the meta-agent that maintains the system
 
-**Relationship to meta-specs**: Agent prompts *implement* the agent archetypes defined in `specs/kerrigan/010-agent-archetypes.md`. The meta-spec defines *what* each role is responsible for; the prompt defines *how* to execute that role.
+**Relationship to meta-specs**: Active prompts follow the current meta-spec direction in `specs/kerrigan-v2/`. Legacy prompt materials may still reference archived v1 docs in `specs/kerrigan/_archive-v1/`.
 
 ### Documentation (docs/)
 **Purpose**: Human-readable guides, tutorials, and explanations for using the Kerrigan system.
@@ -113,7 +116,7 @@ This folder contains the governing documents and specifications for all work don
                         │ governs
                         ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 2. Meta-Specs (specs/kerrigan/)                                │
+│ 2. Active Meta-Specs (specs/kerrigan-v2/)                 │
 │    "Agents have these roles and responsibilities"              │
 │    "Artifacts must follow these contracts"                     │
 │    "Quality bar is enforced with these metrics"                │
@@ -141,7 +144,7 @@ This is a common source of confusion. Here's the distinction:
 
 ### Kerrigan the System
 - **What it is**: The agent swarm framework itself—roles, contracts, prompts, validators
-- **Where it's defined**: `specs/kerrigan/` (meta-specs) and `.github/agents/` (prompts)
+- **Where it's defined**: `specs/kerrigan-v2/` (active meta-specs), `specs/kerrigan/_archive-v1/` (historical v1), and `.github/agents/` (prompts)
 - **Purpose**: Defines *how* agents collaborate to build *any* project
 - **Examples**: Agent archetypes, artifact contracts, quality bar standards
 
@@ -165,7 +168,7 @@ Is it about fundamental principles that apply to all work?
 └─ NO → Continue
 
 Is it about how the agent system works (roles, contracts, quality)?
-├─ YES → specs/kerrigan/<numbered-file>.md
+├─ YES → specs/kerrigan-v2/<file>.md (or archive under specs/kerrigan/_archive-v1/ when referencing v1 history)
 └─ NO → Continue
 
 Is it an executable prompt for a specific agent role?
@@ -187,10 +190,10 @@ Is it explanatory documentation for humans using the system?
 
 ## Naming Conventions
 
-### Meta-Specs (specs/kerrigan/)
+### Active Meta-Specs (specs/kerrigan-v2/)
 - **Format**: `<number>-<topic>.md`
 - **Numbering**: Use increments of 10 (000, 010, 020) to allow insertion
-- **Example**: `010-agent-archetypes.md`, `020-artifact-contracts.md`
+- **Example**: `000-vision.md`, `010-phases.md`, `050-delegation-rubric.md`
 - **Rationale**: Numbers indicate reading order and priority
 
 ### Project Specs (specs/projects/<project-name>/)
@@ -233,16 +236,16 @@ Is it explanatory documentation for humans using the system?
 **Decision**:
 - Is it a fundamental principle? **No** (too specific)
 - Is it about the agent system? **Yes** (quality bar rule)
-- **Location**: `specs/kerrigan/030-quality-bar.md`
-- **Action**: Add a section or bullet point to the existing quality bar spec
+- **Location**: `specs/kerrigan-v2/`
+- **Action**: Update the relevant active v2 meta-spec, and consult `specs/kerrigan/_archive-v1/030-quality-bar.md` only if you need historical v1 context
 
 ### Example 2: Creating a new agent role
 **Question**: "I want to add a 'UI/UX Agent' that designs user interfaces."
 
 **Decision**:
-- Add role definition to `specs/kerrigan/010-agent-archetypes.md`
+- Add or update the relevant active v2 meta-spec in `specs/kerrigan-v2/`
 - Create prompt file `.github/agents/role.ui-ux.md`
-- Update artifact contracts in `specs/kerrigan/020-artifact-contracts.md` if new artifacts are needed
+- Consult archived v1 docs in `specs/kerrigan/_archive-v1/` only for historical comparison
 
 ### Example 3: Starting a new project
 **Question**: "I want to build a REST API for user management."

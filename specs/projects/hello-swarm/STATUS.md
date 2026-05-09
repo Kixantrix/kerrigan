@@ -28,4 +28,4 @@ Intentionally minimal:
 
 - See `specs/projects/_template/` for the project template
 - See `hello-api` and `hello-cli` for complete validation examples with implementations
-- See artifact contracts in `specs/kerrigan/020-artifact-contracts.md`
+- See artifact contracts in `specs/kerrigan/_archive-v1/020-artifact-contracts.md`

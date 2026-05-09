@@ -88,6 +88,6 @@ This project demonstrates:
 ## References
 - Click framework for CLI: https://click.palletsprojects.com/
 - Similar to hello-cli example but with persistence
-- specs/kerrigan/020-artifact-contracts.md for status.json schema
+- specs/kerrigan/_archive-v1/020-artifact-contracts.md for status.json schema
 - playbooks/autonomy-modes.md for agent:go usage
 

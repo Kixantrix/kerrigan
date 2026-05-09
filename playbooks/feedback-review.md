@@ -67,7 +67,7 @@ For each feedback file, assess:
 ```bash
 # For each file mentioned in related_files
 cat .github/agents/role.swe.md
-cat specs/kerrigan/020-artifact-contracts.md
+cat specs/kerrigan/_archive-v1/020-artifact-contracts.md
 ```
 
 **Check for patterns**:
@@ -477,10 +477,10 @@ Create `tools/feedback/summarize.py` to:
 
 ## Related Documents
 
-- `specs/kerrigan/080-agent-feedback.md`: Complete feedback specification
+- `specs/kerrigan/_archive-v1/080-agent-feedback.md`: Complete feedback specification
 - `feedback/agent-feedback/TEMPLATE.yaml`: Agent feedback template
 - `feedback/satellite/TEMPLATE.md`: Satellite feedback template
 - `feedback/satellite/README.md`: Satellite feedback guide
 - `tools/feedback-to-kerrigan.ps1`: Satellite feedback submission script
 - `playbooks/handoffs.md`: Agent handoff process
-- `specs/kerrigan/010-agent-archetypes.md`: Agent roles
+- `specs/kerrigan/_archive-v1/010-agent-archetypes.md`: Agent roles

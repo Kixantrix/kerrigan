@@ -82,7 +82,7 @@ Each task should be executable and have "done" criteria.
 
 - [x] Task: Design status.json schema
   - Done when: schema documented in artifact contracts
-  - Links: specs/kerrigan/020-artifact-contracts.md
+  - Links: specs/kerrigan/_archive-v1/020-artifact-contracts.md
   - Completed: Schema fully documented (see MILESTONE-3-COMPLETION.md)
 
 - [x] Task: Add status.json validator
@@ -153,7 +153,7 @@ Each task should be executable and have "done" criteria.
 
 - [ ] Task: Add handoff checklist to contracts
   - Done when: artifact contracts include inter-role dependencies
-  - Links: specs/kerrigan/020-artifact-contracts.md
+  - Links: specs/kerrigan/_archive-v1/020-artifact-contracts.md
 
 ## Milestone 6: Documentation polish
 

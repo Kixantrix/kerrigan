@@ -91,7 +91,8 @@ Kerrigan intentionally avoids external Python packages (no pip requirements). Al
 
 **Level 2: Specification Layer**
 - `specs/constitution.md` ← **No dependencies**
-- `specs/kerrigan/*.md` ← Depends on: constitution.md
+- `specs/kerrigan-v2/*.md` ← Depends on: constitution.md
+- `specs/kerrigan/_archive-v1/*.md` ← Historical reference only
 - `specs/projects/_template/*` ← Depends on: constitution.md
 
 **Level 3: Validation Layer**

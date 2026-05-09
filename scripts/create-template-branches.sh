@@ -210,7 +210,7 @@ See [docs/architecture.md](docs/architecture.md) for complete details.
 - [FAQ](docs/FAQ.md) - Common questions
 - [Architecture](docs/architecture.md) - System design
 - [Constitution](specs/constitution.md) - Core principles
-- [Artifact Contracts](specs/kerrigan/020-artifact-contracts.md) - Required files
+- [Artifact Contracts](specs/kerrigan/_archive-v1/020-artifact-contracts.md) - Required files
 
 ---
 
@@ -464,8 +464,8 @@ Comprehensive documentation for all aspects:
 
 ### Specifications
 - [Constitution](specs/constitution.md)
-- [Artifact Contracts](specs/kerrigan/020-artifact-contracts.md)
-- [Quality Bar](specs/kerrigan/030-quality-bar.md)
+- [Artifact Contracts](specs/kerrigan/_archive-v1/020-artifact-contracts.md)
+- [Quality Bar](specs/kerrigan/_archive-v1/030-quality-bar.md)
 
 ---
 

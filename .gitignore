@@ -30,7 +30,7 @@ analysis-results.json
 .research_cache/
 .test_research_cache/
 
-# Prompt URL cache (see specs/kerrigan/040-toolchain-and-ops.md)
+# Prompt URL cache (see specs/kerrigan/_archive-v1/040-toolchain-and-ops.md)
 .kerrigan/
 prompt-cache/
 .coverage

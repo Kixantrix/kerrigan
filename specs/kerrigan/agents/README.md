@@ -172,6 +172,6 @@ To improve agent specifications:
 ## See Also
 
 - **Constitution**: `specs/constitution.md` - Governing principles
-- **Artifact Contracts**: `specs/kerrigan/020-artifact-contracts.md` - Required artifacts
-- **Quality Bar**: `specs/kerrigan/030-quality-bar.md` - System-wide quality standards
+- **Artifact Contracts**: `specs/kerrigan/_archive-v1/020-artifact-contracts.md` - Required artifacts
+- **Quality Bar**: `specs/kerrigan/_archive-v1/030-quality-bar.md` - System-wide quality standards
 - **Agent Prompts**: `.github/agents/` - Operational agent instructions

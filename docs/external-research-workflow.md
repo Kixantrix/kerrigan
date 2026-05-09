@@ -302,7 +302,7 @@ To prevent API abuse:
 
 - [Self-Improvement System Spec](../specs/kerrigan/060-self-improvement.md)
 - [Daily Self-Improvement Workflow](../.github/workflows/daily-self-improvement.yml)
-- [Agent Feedback System](../specs/kerrigan/080-agent-feedback.md)
+- [Agent Feedback System](../specs/kerrigan/_archive-v1/080-agent-feedback.md)
 - [Feedback Review Playbook](./feedback-review.md)
 
 ## Questions?

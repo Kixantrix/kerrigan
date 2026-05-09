@@ -231,7 +231,7 @@ Before handing off to the next agent:
 ### ❌ Missing Required Sections
 **Problem:** Validator fails because spec.md is missing "Acceptance Criteria" heading
 
-**Solution:** Use exact heading names (case-sensitive) from templates. Check specs/kerrigan/020-artifact-contracts.md for full list.
+**Solution:** Use exact heading names (case-sensitive) from templates. Check specs/kerrigan/_archive-v1/020-artifact-contracts.md for full list.
 
 ### ❌ Files > 800 Lines
 **Problem:** Validator rejects 1200-line implementation file
@@ -270,8 +270,8 @@ CI automatically runs validators on all PRs. Fix validation errors before reques
 
 ## References
 
-- [Full Artifact Contracts Spec](../../specs/kerrigan/020-artifact-contracts.md) - Complete specification
-- [Quality Bar Spec](../../specs/kerrigan/030-quality-bar.md) - Quality standards
+- [Full Artifact Contracts Spec](../../specs/kerrigan/_archive-v1/020-artifact-contracts.md) - Complete specification
+- [Quality Bar Spec](../../specs/kerrigan/_archive-v1/030-quality-bar.md) - Quality standards
 - [Example Projects](../../examples/) - See artifact examples
 - [Agent Handoffs Playbook](../../playbooks/handoffs.md) - Detailed handoff process
 

@@ -220,7 +220,7 @@ To add a new example:
 ## Related Documentation
 
 - [Kerrigan README](../README.md) - Main project documentation
-- [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md) - Artifact specifications
+- [Artifact Contracts](../specs/kerrigan/_archive-v1/020-artifact-contracts.md) - Artifact specifications
 - [Milestone 7 Spec](../specs/projects/kerrigan/milestone-7-spec.md) - Multi-repo features
 - [Multi-Repo Walkthrough](MULTI-REPO-WALKTHROUGH.md) - Complete multi-repo guide
 

@@ -132,7 +132,7 @@ Claude Code supports three `permissionMode` values in agent frontmatter. Choose 
 | Agent profiles | `.github/agents/` (+ `.claude/agents/` mirror) |
 | Skills | `.github/skills/`, `skills/` |
 | Spec-kit state | `.specify/` |
-| Meta-specs (why Kerrigan works) | `specs/kerrigan-v2/` (v1 history in `specs/kerrigan/`) |
+| Meta-specs (why Kerrigan works) | `specs/kerrigan-v2/` (v1 history in `specs/kerrigan/_archive-v1/`) |
 | Project work | `specs/projects/<name>/` |
 | Examples | `examples/` |
 | Validators | `tools/validators/` |

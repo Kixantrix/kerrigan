@@ -48,7 +48,7 @@ The daily self-improvement workflow (runs at 2 AM UTC) automatically:
 
 ## Full Documentation
 
-See `specs/kerrigan/080-agent-feedback.md` for complete specification including:
+See `specs/kerrigan/_archive-v1/080-agent-feedback.md` for complete specification including:
 - Detailed field descriptions
 - Category definitions
 - Review criteria

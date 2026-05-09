@@ -568,7 +568,7 @@ Please address these issues and mark ready for review again.
 
 Guidelines:
 - See playbooks/pr-review.md for PR requirements
-- See specs/kerrigan/030-quality-bar.md for quality standards
+- See specs/kerrigan/_archive-v1/030-quality-bar.md for quality standards
 - Run validators locally: python tools/validators/check_quality_bar.py
 ```
 
@@ -1112,5 +1112,5 @@ if ($waveN_issues.Count -eq 0) {
 - [Autonomy Modes](autonomy-modes.md) - Agent workflow control
 - [Agent Assignment](../docs/agent-assignment.md) - Role label usage
 - [GitHub Labels](../docs/github-labels.md) - Label definitions
-- [Quality Bar](../specs/kerrigan/030-quality-bar.md) - Quality standards
+- [Quality Bar](../specs/kerrigan/_archive-v1/030-quality-bar.md) - Quality standards
 - [Git Best Practices](../docs/git-best-practices.md) - Preventing interactive editor stalls and git operation guidelines

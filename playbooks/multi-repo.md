@@ -7,7 +7,7 @@ This playbook guides teams through managing projects that span multiple GitHub r
 **Target audience**: Project leads, architects, and agents working on multi-repository projects.
 
 **Related documents**:
-- `specs/kerrigan/020-artifact-contracts.md` - Multi-repo specification schema
+- `specs/kerrigan/_archive-v1/020-artifact-contracts.md` - Multi-repo specification schema
 - `playbooks/project-lifecycle.md` - General project management
 - `playbooks/handoffs.md` - Agent handoff protocols
 
@@ -508,7 +508,7 @@ grep -r "reponame:" specs/projects/myapp/*.md
 
 ## Examples
 
-See `specs/kerrigan/020-artifact-contracts.md` for detailed examples:
+See `specs/kerrigan/_archive-v1/020-artifact-contracts.md` for detailed examples:
 - Example 1: Two-repository project (API + Frontend)
 - Example 2: Three-repository project (Microservices)
 - Example 3: Infrastructure + Application

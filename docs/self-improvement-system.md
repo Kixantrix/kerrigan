@@ -482,6 +482,6 @@ Potential improvements to the system:
 ## Related Documentation
 
 - `feedback/agent-feedback/README.md`: Feedback submission guidelines
-- `specs/kerrigan/080-agent-feedback.md`: Feedback specification
+- `specs/kerrigan/_archive-v1/080-agent-feedback.md`: Feedback specification
 - `docs/milestone-*-retrospective.md`: Historical retrospectives
 - `.github/workflows/`: Other automation workflows

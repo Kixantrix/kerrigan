@@ -101,9 +101,11 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 
 ### Specifications
 - **[Constitution](specs/constitution.md)**: Non-negotiable principles
-- **[Artifact Contracts](specs/kerrigan/020-artifact-contracts.md)**: Required files and structure
-- **[Quality Bar](specs/kerrigan/030-quality-bar.md)**: Quality standards and enforcement
-- **[Agent Feedback](specs/kerrigan/080-agent-feedback.md)**: Continuous improvement mechanism
+- **[Kerrigan v2 Vision](specs/kerrigan-v2/000-vision.md)**: Active meta-spec source of truth
+- **[Kerrigan v2 Phases](specs/kerrigan-v2/010-phases.md)**: Rollout plan and acceptance targets
+- **[Artifact Contracts](specs/kerrigan/_archive-v1/020-artifact-contracts.md)**: Required files and structure
+- **[Quality Bar](specs/kerrigan/_archive-v1/030-quality-bar.md)**: Quality standards and enforcement
+- **[Agent Feedback](specs/kerrigan/_archive-v1/080-agent-feedback.md)**: Continuous improvement mechanism
 - **[Satellite Feedback](feedback/satellite/README.md)**: Contribute feedback from your Kerrigan installation
 - **[External Research Workflow](docs/external-research-workflow.md)**: Using external research for self-improvement
 
@@ -175,7 +177,8 @@ kerrigan/
 │   └── architecture/       # Architecture and design patterns
 ├── specs/
 │   ├── constitution.md      # Core principles
-│   ├── kerrigan/           # Meta-specs (how Kerrigan works)
+│   ├── kerrigan-v2/        # Active meta-specs (source of truth)
+│   ├── kerrigan/           # Legacy materials + archived v1 specs
 │   └── projects/           # Your projects go here
 │       ├── _template/      # Template for new projects
 │       └── <project>/      # Individual project artifacts
@@ -194,7 +197,7 @@ Kerrigan is designed to be customized! Feel free to:
 - Improve documentation
 - Share examples and learnings
 
-See examples in `examples/` and specifications in `specs/kerrigan/` for how the system works.
+See examples in `examples/`, active meta-specs in `specs/kerrigan-v2/`, and archived v1 history in `specs/kerrigan/_archive-v1/`.
 
 ---
 

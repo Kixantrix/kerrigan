@@ -15,7 +15,7 @@ Enable robust control of agent workflow state through status.json with full paus
 ## Acceptance Criteria - All Met
 
 ### ✅ 1. status.json schema fully documented
-- **Location**: `specs/kerrigan/020-artifact-contracts.md` (lines 59-92)
+- **Location**: `specs/kerrigan/_archive-v1/020-artifact-contracts.md` (lines 59-92)
 - **Content**: Complete schema with all field definitions, valid values, and agent behavior rules
 - **Fields documented**: status, current_phase, last_updated, blocked_reason, notes
 - **Agent behavior rules**: MUST check before work, MUST NOT proceed if blocked/on-hold
@@ -135,7 +135,7 @@ All tests in `tests/validators/test_pause_resume_workflow.py` pass:
 2. `playbooks/handoffs.md` - Expanded status tracking guidance
 
 ### Existing Components Validated
-1. `specs/kerrigan/020-artifact-contracts.md` - Schema documentation
+1. `specs/kerrigan/_archive-v1/020-artifact-contracts.md` - Schema documentation
 2. `tools/validators/check_artifacts.py` - Validator implementation
 3. `.github/agents/role.*.md` - All agent prompts
 4. `tests/validators/test_status_json.py` - Unit tests

@@ -256,7 +256,7 @@ The `auto-generate-issues.yml` workflow provides a complete issue generation loo
 3. ⚠️ Human must add `agent:go` label to enable agent work
 4. ⚠️ Human must assign or trigger Copilot to work on issues
 
-**Self-Chaining Pattern** (Documented in `specs/kerrigan/060-self-chaining-issues.md`):
+**Self-Chaining Pattern** (Documented in `specs/kerrigan/_archive-v1/060-self-chaining-issues.md`):
 
 Issues can include "On Completion" instructions for agents:
 ```markdown
@@ -791,8 +791,8 @@ This balance provides:
 - **Automation Setup**: [.github/automation/README.md](../.github/automation/README.md)
 - **Automation Playbook**: [playbooks/automation.md](../playbooks/automation.md)
 - **Autonomy Modes**: [playbooks/autonomy-modes.md](../playbooks/autonomy-modes.md)
-- **Automation Contracts**: [specs/kerrigan/070-automation-contracts.md](../specs/kerrigan/070-automation-contracts.md)
-- **Self-Chaining Issues**: [specs/kerrigan/060-self-chaining-issues.md](../specs/kerrigan/060-self-chaining-issues.md)
+- **Automation Contracts**: [specs/kerrigan/_archive-v1/070-automation-contracts.md](../specs/kerrigan/_archive-v1/070-automation-contracts.md)
+- **Self-Chaining Issues**: [specs/kerrigan/_archive-v1/060-self-chaining-issues.md](../specs/kerrigan/_archive-v1/060-self-chaining-issues.md)
 - **PR Review Script**: [tools/README.md](../tools/README.md)
 - **Setup Guide**: [docs/setup.md](./setup.md)
 - **Agent Assignment**: [docs/agent-assignment.md](./agent-assignment.md)

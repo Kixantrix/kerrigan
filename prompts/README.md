@@ -432,10 +432,10 @@ All prompts must:
 
 ## Further Reading
 
-- [Prompt URL Loading System Specification](../specs/kerrigan/040-toolchain-and-ops.md#prompt-url-loading-system)
-- [Agent Archetypes](../specs/kerrigan/010-agent-archetypes.md)
-- [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md)
-- [Quality Bar](../specs/kerrigan/030-quality-bar.md)
+- [Prompt URL Loading System Specification](../specs/kerrigan/_archive-v1/040-toolchain-and-ops.md#prompt-url-loading-system)
+- [Agent Archetypes](../specs/kerrigan/_archive-v1/010-agent-archetypes.md)
+- [Artifact Contracts](../specs/kerrigan/_archive-v1/020-artifact-contracts.md)
+- [Quality Bar](../specs/kerrigan/_archive-v1/030-quality-bar.md)
 
 ## Questions?
 

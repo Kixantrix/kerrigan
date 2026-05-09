@@ -68,7 +68,7 @@ Before starting, ensure you have:
 
 ## Output Specification
 
-Create `specs/projects/{PROJECT_NAME}/spec.md` following the artifact contract defined in `specs/kerrigan/020-artifact-contracts.md`:
+Create `specs/projects/{PROJECT_NAME}/spec.md` following the artifact contract defined in `specs/kerrigan/_archive-v1/020-artifact-contracts.md`:
 
 ```markdown
 # Spec: {PROJECT_NAME}

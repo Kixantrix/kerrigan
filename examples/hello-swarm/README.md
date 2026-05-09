@@ -104,4 +104,4 @@ This example lives in `examples/` but follows the same structure as projects in 
 2. Fill in the artifacts following this example's pattern
 3. Add implementation-specific details (architecture, test plans, etc.)
 
-See [specs/kerrigan/020-artifact-contracts.md](../../specs/kerrigan/020-artifact-contracts.md) for the full list of required artifacts.
+See [specs/kerrigan/_archive-v1/020-artifact-contracts.md](../../specs/kerrigan/_archive-v1/020-artifact-contracts.md) for the full list of required artifacts.

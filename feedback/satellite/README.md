@@ -101,7 +101,7 @@ See files in this directory for examples of satellite feedback that has been sub
 
 ## Related Documentation
 
-- **Full specification**: `specs/kerrigan/080-agent-feedback.md`
+- **Full specification**: `specs/kerrigan/_archive-v1/080-agent-feedback.md`
 - **Review process**: `playbooks/feedback-review.md`
 - **Agent feedback system**: `feedback/agent-feedback/` (internal agent feedback)
 - **Feedback script**: `tools/feedback-to-kerrigan.ps1`

@@ -325,7 +325,7 @@ Kerrigan is customizable! You can:
 - Example: Add "design review" phase between Architect and SWE
 
 **Modify artifact requirements**:
-- Edit `specs/kerrigan/020-artifact-contracts.md`
+- Edit `specs/kerrigan/_archive-v1/020-artifact-contracts.md`
 - Update validators to match new requirements
 
 **Adjust quality bar**:
@@ -424,7 +424,7 @@ Consider adding `CONTRIBUTING.md` that references your Kerrigan workflow.
 - **Getting started**: `README.md`, `docs/setup.md`
 - **Architecture**: `docs/architecture.md`
 - **Process**: `playbooks/*.md`
-- **Specifications**: `specs/constitution.md`, `specs/kerrigan/*.md`
+- **Specifications**: `specs/constitution.md`, `specs/kerrigan-v2/*.md`, `specs/kerrigan/_archive-v1/*.md`
 - **Agent roles**: `.github/agents/*.md`
 
 ### I have a question not covered here

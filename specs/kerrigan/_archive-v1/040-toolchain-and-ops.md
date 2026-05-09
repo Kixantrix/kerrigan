@@ -67,7 +67,7 @@ You are the spec agent conducting project kickoff for {PROJECT_NAME}.
 
 ## Your role
 
-Review the requirements and create a comprehensive specification following the artifact contracts defined in specs/kerrigan/020-artifact-contracts.md.
+Review the requirements and create a comprehensive specification following the artifact contracts defined in specs/kerrigan/_archive-v1/020-artifact-contracts.md.
 
 ## Context files required
 

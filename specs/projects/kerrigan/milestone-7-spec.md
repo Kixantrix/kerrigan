@@ -347,4 +347,4 @@ Enable teams to:
 - `specs/projects/kerrigan/architecture.md` - System design
 - `docs/milestone-6-retrospective.md` - Learnings informing this milestone
 - `docs/automation-limits.md` - Constraints on automation
-- `specs/kerrigan/020-artifact-contracts.md` - Existing contracts to extend
+- `specs/kerrigan/_archive-v1/020-artifact-contracts.md` - Existing contracts to extend

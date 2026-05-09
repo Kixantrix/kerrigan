@@ -27,7 +27,7 @@ Design a technical architecture that realizes the specification while adhering t
 You must have access to:
 1. **specs/projects/{PROJECT_NAME}/spec.md**: The approved specification
 2. **constitution.md**: Project principles and constraints
-3. **specs/kerrigan/030-quality-bar.md**: Quality standards to meet
+3. **specs/kerrigan/_archive-v1/030-quality-bar.md**: Quality standards to meet
 
 ## Your Process
 

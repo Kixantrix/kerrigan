@@ -532,4 +532,4 @@ If you encounter issues with this prompt, unclear instructions, or discover bett
 - Describe friction points or successful patterns
 - Help improve the triage workflow for all users
 
-See [specs/kerrigan/080-agent-feedback.md](../../specs/kerrigan/080-agent-feedback.md) for the full specification.
+See [specs/kerrigan/_archive-v1/080-agent-feedback.md](../../specs/kerrigan/_archive-v1/080-agent-feedback.md) for the full specification.

@@ -152,7 +152,7 @@ Future validators may check:
 
 - [Agent Auditing](agent-auditing.md) - How to track which agents did what
 - [Agent Specs](../specs/kerrigan/agents/) - Quality standards per agent
-- [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md) - Required deliverables
+- [Artifact Contracts](../specs/kerrigan/_archive-v1/020-artifact-contracts.md) - Required deliverables
 
 ## Test Reporting Standards
 

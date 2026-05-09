@@ -10,7 +10,7 @@ Each task should be executable and have "done" criteria.
 
 - [ ] Task: Design multi-repo project spec schema
   - Done when: Schema documented in artifact contracts with examples
-  - Links: specs/kerrigan/020-artifact-contracts.md
+  - Links: specs/kerrigan/_archive-v1/020-artifact-contracts.md
   - Details: Add `repositories` array, cross-repo artifact references, dependency syntax
 
 - [ ] Task: Create multi-repo example project
@@ -96,7 +96,7 @@ Each task should be executable and have "done" criteria.
 
 - [ ] Task: Design task dependency syntax
   - Done when: Syntax defined in artifact contracts with examples
-  - Links: specs/kerrigan/020-artifact-contracts.md
+  - Links: specs/kerrigan/_archive-v1/020-artifact-contracts.md
   - Details: YAML frontmatter or separate dependencies.yaml file
 
 - [ ] Task: Implement dependency validator

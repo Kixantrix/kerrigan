@@ -42,7 +42,7 @@ description: |
 # OPTIONAL FIELDS
 related_files:
   - "tools/validators/check_quality_bar.py"
-  - "specs/kerrigan/030-quality-bar.md"
+  - "specs/kerrigan/_archive-v1/030-quality-bar.md"
 
 context: |
   PR #74 was the first case needing legitimate quality bar override.

@@ -235,8 +235,8 @@ Humans can also submit feedback by creating YAML files using the same format. Th
 
 ## Related Documents
 
-- `specs/kerrigan/010-agent-archetypes.md`: Agent roles and responsibilities
-- `specs/kerrigan/020-artifact-contracts.md`: Required artifacts
-- `specs/kerrigan/030-quality-bar.md`: Quality standards
+- `specs/kerrigan/_archive-v1/010-agent-archetypes.md`: Agent roles and responsibilities
+- `specs/kerrigan/_archive-v1/020-artifact-contracts.md`: Required artifacts
+- `specs/kerrigan/_archive-v1/030-quality-bar.md`: Quality standards
 - `playbooks/feedback-review.md`: Detailed review process
 - `feedback/agent-feedback/TEMPLATE.yaml`: Feedback template

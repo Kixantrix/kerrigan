@@ -117,7 +117,7 @@ To disable a workflow:
 
 ## Platform Portability
 
-The automation contracts are documented in `specs/kerrigan/070-automation-contracts.md`.
+The automation contracts are documented in `specs/kerrigan/_archive-v1/070-automation-contracts.md`.
 
 To port to another platform (GitLab, Bitbucket, Azure DevOps):
 1. Keep the same task.md format and role label conventions

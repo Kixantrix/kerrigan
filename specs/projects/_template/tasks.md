@@ -8,7 +8,7 @@ Each task should be executable and have “done” criteria.
 
 ## Task with dependencies (Milestone 7a+)
 
-For projects using task dependency tracking (see specs/kerrigan/020-artifact-contracts.md):
+For projects using task dependency tracking (see specs/kerrigan/_archive-v1/020-artifact-contracts.md):
 
 - [ ] Task: Task description here
   - Done when: Clear completion criteria

@@ -102,7 +102,7 @@ See `feedback/satellite/README.md` for detailed instructions.
 
 ## Documentation
 
-- **Full specification**: `specs/kerrigan/080-agent-feedback.md`
+- **Full specification**: `specs/kerrigan/_archive-v1/080-agent-feedback.md`
 - **Review process**: `playbooks/feedback-review.md`
 - **Agent prompts**: All role prompts include feedback sections
 - **Tests**: `tests/test_feedback.py` validates system structure

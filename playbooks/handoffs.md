@@ -1,7 +1,7 @@
 # Handoffs
 
 Handoffs are file-based. Each stage must produce the artifacts defined in:
-- `specs/kerrigan/020-artifact-contracts.md`
+- `specs/kerrigan/_archive-v1/020-artifact-contracts.md`
 
 ## Workflow Refinements (from hello-api and Milestone 2 validation)
 
@@ -43,7 +43,7 @@ If you encounter friction during handoffs:
 - **Suggest improvements**: What would have made the handoff smoother?
 - **Share successes**: Document patterns that worked well
 
-See `specs/kerrigan/080-agent-feedback.md` for details.
+See `specs/kerrigan/_archive-v1/080-agent-feedback.md` for details.
 
 ### Improved Handoff Checklist
 
@@ -323,7 +323,7 @@ EOF
 python tools/validators/show_status.py
 ```
 
-See `specs/kerrigan/020-artifact-contracts.md` for full status.json schema.
+See `specs/kerrigan/_archive-v1/020-artifact-contracts.md` for full status.json schema.
 
 ## Spec → Architecture
 Required:

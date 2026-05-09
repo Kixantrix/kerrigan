@@ -364,7 +364,7 @@ See `playbooks/multi-repo.md` for detailed agent coordination workflows.
 
 ## Kerrigan-wide artifacts
 - `specs/constitution.md` governs all work.
-- `specs/kerrigan/030-quality-bar.md` defines definition-of-done and heuristics.
+- `specs/kerrigan/_archive-v1/030-quality-bar.md` defines definition-of-done and heuristics.
 
 ## Naming and linking
 - Each PR must link the project folder it advances (e.g., `specs/projects/foo/`).

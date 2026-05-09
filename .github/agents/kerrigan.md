@@ -29,7 +29,7 @@ Keep the system (`AGENTS.md`, `.github/agents/`, `.github/skills/`, `tools/valid
 
 ### 1. Ensure specification coherence
 - Keep `specs/kerrigan-v2/*` and `specs/constitution.md` coherent, complete, minimal.
-- When v2 phases complete, archive retired v1 material under `specs/kerrigan/_archive/`.
+- When v2 phases complete, archive retired v1 material under `specs/kerrigan/_archive-v1/`.
 - Update meta-specs when field feedback reveals workflow gaps.
 
 ### 2. Evolve agent profiles, not roles

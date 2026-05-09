@@ -22,4 +22,4 @@ Files maintain their original naming convention:
 
 - [Agent Feedback README](../agent-feedback/README.md)
 - [Feedback Review Playbook](../../playbooks/feedback-review.md)
-- [Agent Feedback Spec](../../specs/kerrigan/080-agent-feedback.md)
+- [Agent Feedback Spec](../../specs/kerrigan/_archive-v1/080-agent-feedback.md)

@@ -188,4 +188,4 @@ If you encounter unclear instructions, missing information, or friction points w
 
 Your feedback drives continuous improvement of agent prompts and workflows.
 
-See `specs/kerrigan/080-agent-feedback.md` for details.
+See `specs/kerrigan/_archive-v1/080-agent-feedback.md` for details.

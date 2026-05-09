@@ -68,7 +68,7 @@ Create these labels in your repo (Settings → Labels):
 1. Check agent prompt matches role in `.github/agents/role.<name>.md`
 2. Verify agent has access to:
    - Constitution (`specs/constitution.md`)
-   - Artifact contracts (`specs/kerrigan/020-artifact-contracts.md`)
+   - Artifact contracts (`specs/kerrigan/_archive-v1/020-artifact-contracts.md`)
    - Project spec (`specs/projects/<name>/spec.md`)
 3. Provide corrective feedback in PR comments
 4. Update agent prompts if pattern repeats

@@ -284,4 +284,4 @@ GIT_EDITOR='true' git rebase origin/main
 If you encounter issues with git operations or discover additional patterns:
 - Submit feedback using the template at `feedback/agent-feedback/TEMPLATE.yaml`
 - Follow the naming convention: `YYYY-MM-DD-<issue-number>-<short-slug>.yaml`
-- See [Agent Feedback Specification](../specs/kerrigan/080-agent-feedback.md) for complete details
+- See [Agent Feedback Specification](../specs/kerrigan/_archive-v1/080-agent-feedback.md) for complete details
