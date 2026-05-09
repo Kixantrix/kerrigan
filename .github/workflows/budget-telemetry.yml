@@ -12,8 +12,7 @@ on:
       threshold_minutes:
         description: Warning threshold in minutes
         required: false
-        default: "30"
-        type: string
+        type: number
 
 env:
   BUDGET_MINUTES_THRESHOLD: "30"
@@ -49,11 +48,21 @@ jobs:
               return;
             }
 
+            const pullRequest = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber
+            });
+
             const thresholdMinutes = Number(
               process.env.INPUT_THRESHOLD_MINUTES ||
-              process.env.BUDGET_MINUTES_THRESHOLD ||
-              30
+              process.env.BUDGET_MINUTES_THRESHOLD
             );
+
+            if (!Number.isFinite(thresholdMinutes) || thresholdMinutes <= 0) {
+              core.setFailed('Threshold must be a positive number.');
+              return;
+            }
 
             const workflowRuns = await github.paginate(
               github.rest.actions.listWorkflowRunsForRepo,
@@ -61,6 +70,7 @@ jobs:
                 owner,
                 repo,
                 event: 'pull_request',
+                branch: pullRequest.data.head.ref,
                 per_page: 100
               }
             );
