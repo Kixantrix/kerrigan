@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -21,11 +22,20 @@ class ValidatorSpec:
     script_name: str
     label: str
     blocking: bool = True
+    command_builder: Callable[["ValidatorSpec", "CheckContext"], list[str]] | None = None
 
 
 @dataclass(frozen=True)
 class CheckContext:
-    """Runtime context shared across validator invocations."""
+    """Runtime context shared across validator invocations.
+
+    Attributes:
+        python: Python interpreter used to execute validator scripts.
+        root: Repository root that contains ``tools/validators``.
+        pr_body_file: Temporary file containing the PR body when available.
+        test_claims_base_ref: Base git ref passed to ``check_test_claims.py``.
+        test_claims_head_ref: Head git ref passed to ``check_test_claims.py``.
+    """
 
     python: str
     root: Path
@@ -34,19 +44,80 @@ class CheckContext:
     test_claims_head_ref: str = "HEAD"
 
 
+def _script_validator_cmd(spec: ValidatorSpec, context: CheckContext) -> list[str]:
+    """Build the default command for a Python validator script."""
+    validator_path = context.root / "tools" / "validators" / spec.script_name
+    return [context.python, str(validator_path)]
+
+
+def _pr_documentation_cmd(spec: ValidatorSpec, context: CheckContext) -> list[str]:
+    """Build the command for PR documentation validation."""
+    cmd = _script_validator_cmd(spec, context)
+    cmd.extend(["--repo-path", str(context.root)])
+    if context.pr_body_file is not None:
+        cmd.extend(["--pr-body", str(context.pr_body_file)])
+    return cmd
+
+
+def _test_claims_cmd(spec: ValidatorSpec, context: CheckContext) -> list[str]:
+    """Build the command for test-claims validation."""
+    cmd = _script_validator_cmd(spec, context)
+    cmd.extend(
+        [
+            "--base-ref",
+            context.test_claims_base_ref,
+            "--head-ref",
+            context.test_claims_head_ref,
+        ]
+    )
+    if context.pr_body_file is not None:
+        cmd.extend(["--pr-body", str(context.pr_body_file)])
+    return cmd
+
+
 REGISTERED_VALIDATORS: tuple[ValidatorSpec, ...] = (
-    ValidatorSpec("show_status.py", "show_status.py"),
-    ValidatorSpec("agents_md.py", "agents_md.py"),
-    ValidatorSpec("block_validator.py", "block_validator.py"),
-    ValidatorSpec("check_agent_signature.py", "check_agent_signature.py"),
-    ValidatorSpec("check_artifacts.py", "check_artifacts.py"),
-    ValidatorSpec("check_dependencies.py", "check_dependencies.py"),
-    ValidatorSpec("check_placeholders.py", "check_placeholders.py"),
-    ValidatorSpec("check_pr_documentation.py", "check_pr_documentation.py", blocking=False),
-    ValidatorSpec("check_quality_bar.py", "check_quality_bar.py"),
-    ValidatorSpec("check_test_claims.py", "check_test_claims.py"),
-    ValidatorSpec("check_test_collateral.py", "check_test_collateral.py", blocking=False),
-    ValidatorSpec("test_capability_matrix.py", "test_capability_matrix.py"),
+    ValidatorSpec("show_status.py", "show_status.py", command_builder=_script_validator_cmd),
+    ValidatorSpec("agents_md.py", "agents_md.py", command_builder=_script_validator_cmd),
+    ValidatorSpec("block_validator.py", "block_validator.py", command_builder=_script_validator_cmd),
+    ValidatorSpec(
+        "check_agent_signature.py",
+        "check_agent_signature.py",
+        command_builder=_script_validator_cmd,
+    ),
+    ValidatorSpec("check_artifacts.py", "check_artifacts.py", command_builder=_script_validator_cmd),
+    ValidatorSpec(
+        "check_dependencies.py",
+        "check_dependencies.py",
+        command_builder=_script_validator_cmd,
+    ),
+    ValidatorSpec(
+        "check_placeholders.py",
+        "check_placeholders.py",
+        command_builder=_script_validator_cmd,
+    ),
+    ValidatorSpec(
+        "check_pr_documentation.py",
+        "check_pr_documentation.py",
+        blocking=False,
+        command_builder=_pr_documentation_cmd,
+    ),
+    ValidatorSpec("check_quality_bar.py", "check_quality_bar.py", command_builder=_script_validator_cmd),
+    ValidatorSpec(
+        "check_test_claims.py",
+        "check_test_claims.py",
+        command_builder=_test_claims_cmd,
+    ),
+    ValidatorSpec(
+        "check_test_collateral.py",
+        "check_test_collateral.py",
+        blocking=False,
+        command_builder=_script_validator_cmd,
+    ),
+    ValidatorSpec(
+        "test_capability_matrix.py",
+        "test_capability_matrix.py",
+        command_builder=_script_validator_cmd,
+    ),
 )
 
 
@@ -78,6 +149,8 @@ def _load_pr_body_file() -> Path | None:
     if not isinstance(pr_body, str):
         return None
 
+    # ``delete=False`` keeps the file addressable by subprocesses; cleanup happens
+    # in the ``check()`` finally block after validator execution completes.
     with tempfile.NamedTemporaryFile(
         mode="w",
         encoding="utf-8",
@@ -107,28 +180,8 @@ def _build_check_context(root: Path) -> CheckContext:
 
 def _validator_cmd(spec: ValidatorSpec, context: CheckContext) -> list[str]:
     """Return the subprocess command for a registered validator."""
-    validator_path = context.root / "tools" / "validators" / spec.script_name
-
-    if spec.script_name == "check_pr_documentation.py":
-        cmd = [context.python, str(validator_path), "--repo-path", str(context.root)]
-        if context.pr_body_file is not None:
-            cmd.extend(["--pr-body", str(context.pr_body_file)])
-        return cmd
-
-    if spec.script_name == "check_test_claims.py":
-        cmd = [
-            context.python,
-            str(validator_path),
-            "--base-ref",
-            context.test_claims_base_ref,
-            "--head-ref",
-            context.test_claims_head_ref,
-        ]
-        if context.pr_body_file is not None:
-            cmd.extend(["--pr-body", str(context.pr_body_file)])
-        return cmd
-
-    return [context.python, str(validator_path)]
+    builder = spec.command_builder or _script_validator_cmd
+    return builder(spec, context)
 
 
 def _run_validator(
@@ -198,57 +251,58 @@ def check(verbose: bool) -> None:
     failed = 0
     advisory = 0
 
-    click.echo("Running validators...\n")
+    try:
+        click.echo("Running validators...\n")
 
-    registered = {spec.script_name: spec for spec in REGISTERED_VALIDATORS}
-    present_validators = sorted(path.name for path in validators_dir.glob("*.py"))
+        registered = {spec.script_name: spec for spec in REGISTERED_VALIDATORS}
+        present_validators = sorted(path.name for path in validators_dir.glob("*.py"))
 
-    for script_name in sorted(set(present_validators) - set(registered)):
-        click.echo(f"  ✗ {script_name} is not registered in kerrigan check", err=True)
-        failed += 1
-
-    for spec in REGISTERED_VALIDATORS:
-        if spec.script_name not in present_validators:
-            continue
-
-        result = _run_validator(
-            spec.label,
-            _validator_cmd(spec, context),
-            root,
-            verbose,
-            blocking=spec.blocking,
-        )
-
-        if result == "passed":
-            passed += 1
-        elif result == "advisory":
-            advisory += 1
-        else:
+        for script_name in sorted(set(present_validators) - set(registered)):
+            click.echo(f"  ✗ {script_name} is not registered in kerrigan check", err=True)
             failed += 1
 
-    if shutil.which("specify"):
-        result = _run_validator(
-            "specify check",
-            ["specify", "check"],
-            root,
-            verbose,
-            blocking=True,
-        )
-        if result == "passed":
-            passed += 1
+        for spec in REGISTERED_VALIDATORS:
+            if spec.script_name not in present_validators:
+                continue
+
+            result = _run_validator(
+                spec.label,
+                _validator_cmd(spec, context),
+                root,
+                verbose,
+                blocking=spec.blocking,
+            )
+
+            if result == "passed":
+                passed += 1
+            elif result == "advisory":
+                advisory += 1
+            else:
+                failed += 1
+
+        if shutil.which("specify"):
+            result = _run_validator(
+                "specify check",
+                ["specify", "check"],
+                root,
+                verbose,
+                blocking=True,
+            )
+            if result == "passed":
+                passed += 1
+            else:
+                failed += 1
         else:
-            failed += 1
-    else:
-        click.echo("  - specify not found on PATH, skipping")
+            click.echo("  - specify not found on PATH, skipping")
 
-    total = passed + failed + advisory
-    click.echo(
-        f"\n{passed}/{total} validators passed, "
-        f"{advisory}/{total} advisory, {failed}/{total} failed."
-    )
+        total = passed + failed + advisory
+        click.echo(
+            f"\n{passed}/{total} validators passed, "
+            f"{advisory}/{total} advisory, {failed}/{total} failed."
+        )
 
-    if context.pr_body_file is not None:
-        context.pr_body_file.unlink(missing_ok=True)
-
-    if failed:
-        sys.exit(1)
+        if failed:
+            sys.exit(1)
+    finally:
+        if context.pr_body_file is not None:
+            context.pr_body_file.unlink(missing_ok=True)

@@ -93,12 +93,20 @@ def test_check_builds_pr_aware_validator_commands(tmp_path):
     assert result.exit_code == 0
     commands = [call.args[0] for call in mock_run.call_args_list]
 
-    pr_doc_command = next(command for command in commands if "check_pr_documentation.py" in str(command))
+    pr_doc_command = next(
+        (command for command in commands if "check_pr_documentation.py" in str(command)),
+        None,
+    )
+    assert pr_doc_command is not None
     assert "--pr-body" in pr_doc_command
     assert "--repo-path" in pr_doc_command
     assert str(tmp_path) in pr_doc_command
 
-    test_claims_command = next(command for command in commands if "check_test_claims.py" in str(command))
+    test_claims_command = next(
+        (command for command in commands if "check_test_claims.py" in str(command)),
+        None,
+    )
+    assert test_claims_command is not None
     assert "--pr-body" in test_claims_command
     assert "--base-ref" in test_claims_command
     assert "origin/main" in test_claims_command
