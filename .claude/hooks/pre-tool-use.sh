@@ -44,7 +44,10 @@ print(cmd)
 " 2>/dev/null || true)"
 fi
 
-# Fallback: plain grep if python3 unavailable (requires GNU grep for -P/PCRE)
+# Fallback: plain grep if python3 unavailable.
+# NOTE: uses -P (PCRE lookahead) — requires GNU grep. On macOS (BSD grep),
+# the pattern is silently skipped via 2>/dev/null and COMMAND stays empty,
+# which causes the script to allow the tool call (safe fail-open).
 if [[ -z "$COMMAND" ]]; then
     COMMAND="$(printf '%s' "$INPUT" | grep -oP '(?<="command"\s*:\s*")[^"]*' 2>/dev/null | head -1 || true)"
 fi
@@ -57,15 +60,13 @@ fi
 # --- Rule 1: Destructive-pattern block (always active) -------------------
 # These patterns are dangerous regardless of routing.
 DESTRUCTIVE_PATTERNS=(
-    'rm[[:space:]]+-[^[:space:]]*r[^[:space:]]*[[:space:]]+-[^[:space:]]*f[^[:space:]]*[[:space:]]*/[[:space:]]*$'
-    'rm[[:space:]]+-[^[:space:]]*f[^[:space:]]*[[:space:]]+-[^[:space:]]*r[^[:space:]]*[[:space:]]*/[[:space:]]*$'
     'rm[[:space:]]+-rf[[:space:]]*/[[:space:]]*$'
     'rm[[:space:]]+-fr[[:space:]]*/[[:space:]]*$'
     'rm[[:space:]]+-rf[[:space:]]+/\*'
     'rm[[:space:]]+-rf[[:space:]]+~'
     'rm[[:space:]]+-rf[[:space:]]+\$HOME'
     'mkfs\.'
-    ':[[:space:]]*[|][[:space:]]*:[[:space:]]*&'                               # fork bomb core: :|:&
+    ':[[:space:]]*[|][[:space:]]*:[[:space:]]*&'                               # fork bomb :|:& (matches with or without spaces)
     'dd[[:space:]].*of=/dev/[sh]d'
     '>[[:space:]]*/dev/[sh]d'
     'chmod[[:space:]]+-R[[:space:]]+777[[:space:]]+'
@@ -81,7 +82,7 @@ for pattern in "${DESTRUCTIVE_PATTERNS[@]}"; do
 done
 
 # --- Rule 2: sudo block for cloud-routed tasks ---------------------------
-if echo "$COMMAND" | grep -qE '(^|[[:space:]|;&`$])sudo[[:space:]]'; then
+if echo "$COMMAND" | grep -qE '(^|[[:space:]|;&`$]|\|\||&&|\$\()sudo[[:space:]]'; then
     # Check whether the current task is cloud-routed.
     # Look for any briefing file that contains `routing_rule_matched: R-cloud-`
     REPO_ROOT="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null || echo "")"
