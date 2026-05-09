@@ -16,7 +16,7 @@ def cli(ctx):
       status     Show project status
       validate   Run artifact validators
       repos      Multi-repository operations
-      agent      Invoke agent with role-specific prompt
+      agent      Invoke a v2 agent profile
       check      Run all validators in one invocation
     """
     ctx.ensure_object(dict)

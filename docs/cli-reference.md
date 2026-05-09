@@ -244,44 +244,39 @@ kerrigan repos sync my-multi-repo-project --dry-run
 
 ### kerrigan agent
 
-Invoke agents with role-specific prompts.
+Invoke a v2 agent profile.
 
 **Usage:**
 
 ```bash
-kerrigan agent [ROLE] [OPTIONS]
+kerrigan agent [PROFILE] [OPTIONS]
 ```
 
 **Arguments:**
-- `ROLE`: Agent role (spec, swe, architect, testing, etc.)
+- `PROFILE`: Agent profile (`local`, `cloud`, or `kerrigan`)
 
 **Options:**
-- `--list`: List all available agent roles
+- `--list`: List all available agent profiles
 - `--show`: Display the agent prompt
 - `--copy`: Copy prompt to clipboard (requires pyperclip)
 
 **Examples:**
 
 ```bash
-# List available agent roles
+# List available agent profiles
 kerrigan agent --list
 
-# Display the spec agent prompt
-kerrigan agent spec --show
+# Display the local profile
+kerrigan agent local --show
 
-# Copy the SWE agent prompt to clipboard
-kerrigan agent swe --copy
+# Copy the cloud profile to clipboard
+kerrigan agent cloud --copy
 ```
 
-**Available Roles:**
-- `spec`: Specification agent
-- `architect`: Architecture design agent
-- `swe`: Software engineering agent
-- `testing`: Testing agent
-- `deployment`: Deployment agent
-- `security`: Security review agent
-- `debugging`: Debugging agent
-- `triage`: Issue triage agent
+**Available Profiles:**
+- `local`: Plans, decides, and dispatches work
+- `cloud`: Executes one task slice and self-verifies it
+- `kerrigan`: Maintains the harness itself
 
 ## Troubleshooting
 

@@ -54,14 +54,14 @@ kerrigan repos sync my-multi-repo-project --dry-run
 ### Agent invocation
 
 ```bash
-# List available agent roles
+# List available agent profiles
 kerrigan agent --list
 
-# Show agent prompt
-kerrigan agent spec --show
+# Show an agent profile
+kerrigan agent local --show
 
-# Copy agent prompt to clipboard
-kerrigan agent swe --copy
+# Copy an agent profile to clipboard
+kerrigan agent cloud --copy
 ```
 
 ## Configuration

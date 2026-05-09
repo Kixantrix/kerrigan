@@ -66,7 +66,7 @@ function Get-PredictedFiles {
     # Common file patterns
     $patterns = @{
         'workflow|ci\.yml|github.*workflow' = @('.github/workflows/*.yml', '.github/test-mapping.yml')
-        'triage|playbooks/triage' = @('playbooks/triage.md', '.github/agents/role.triage.md')
+        'triage|playbooks/triage' = @('playbooks/triage.md', '.github/agents/local.md')
         'label|github.*label' = @('docs/github-labels.md')
         'validator|tools/validator' = @('tools/validators/*.py')
         'documentation|docs/' = @('docs/*.md')
@@ -89,7 +89,7 @@ function Get-PredictedFiles {
     foreach ($roleLabel in $roleLabels) {
         switch ($roleLabel.name) {
             'role:triage' { 
-                $files += @('playbooks/triage.md', '.github/agents/role.triage.md')
+                $files += @('playbooks/triage.md', '.github/agents/local.md')
             }
             'role:swe' {
                 # SWE touches varied files, hard to predict

@@ -392,7 +392,7 @@ class ImprovementProposer:
                 'description': f"The {agent} agent reported {count} feedback items, indicating potential improvements needed.",
                 'category': 'agent_improvement',
                 'evidence': f"{count} feedback items from {agent} agent",
-                'proposed_solution': f"Review {agent} agent prompt (.github/agents/role.{agent}.md) and enhance based on feedback.",
+                'proposed_solution': "Review the relevant v2 profile or skill in .github/agents/ and enhance it based on feedback.",
                 'labels': ['kerrigan', 'improvement', 'agent-prompt', f"agent:{agent}"]
             })
     
