@@ -1,6 +1,6 @@
 # Playbook: Upgrade a satellite repo to Kerrigan v2
 
-> For `personal-selfhost`, `vhs-video-stack`, and future satellites that still carry v1 dispatch habits.
+> For `personal-selfhost`, `vhs-video-stack`, and other repos that use Kerrigan dispatch conventions while keeping their own product codebase.
 
 Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-bootstrap.md). The goal is to remove v1-only surfaces, adopt the `local` + `cloud` profiles, and prove that dispatch works with v2 primitives only.
 
@@ -13,7 +13,7 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
   - custom dispatch scripts or wrappers
   - v1 labels still used by humans or automation
 - [ ] Make sure the satellite has one human owner who can answer migration blocks during the first dispatch test.
-- [ ] Keep the migration scoped to repo docs, labels, workflows, and agent/runtime setup. Do **not** rewrite project code as part of this playbook.
+- [ ] Keep the migration scoped to repo docs, labels, workflows, and agent/runtime setup. Do **not** rewrite project code as part of this playbook (for example: agent docs and CI wiring are in scope; application features and business logic are not).
 
 ### Satellite notes
 
@@ -34,7 +34,7 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 ### `personal-selfhost`
 
 - [ ] Delete the `claude-dispatch.sh` fork after the standard v2 files are present.
-- [ ] Replace any README or team habit that says "run the forked dispatch script" with "talk to the `local` profile, which dispatches to `cloud` when the delegation rubric allows it."
+- [ ] Replace any README or team habit that says "run the forked dispatch script" with "talk to the `local` profile (for example in Claude Code or VS Code chat), which dispatches to `cloud` when the delegation rubric allows it."
 - [ ] Use Claude Code for local planning and human-in-the-loop steps; use the `cloud` profile for task execution instead of shelling out to a custom dispatch wrapper.
 
 ### `vhs-video-stack`
@@ -119,7 +119,7 @@ Re-run `pwsh scripts/mirror-agents.ps1`, then confirm `.claude/agents/` points a
 Check the [delegation rubric](../specs/kerrigan-v2/050-delegation-rubric.md) and make sure the task description explicitly mentions the required local capability (`device-io.*`, `os.*`, `paid-service.*`, or `human-judgment`).
 
 **A blocked task produced ad-hoc notes instead of a structured block.**  
-Require the agent to emit `.specify/blocks/<task-id>.yaml` that matches the [block schema](../.specify/schemas/block.schema.json) and the [block-report skill](../.github/skills/block-report/SKILL.md).
+Require the agent instructions or review gate to enforce emission of `.specify/blocks/<task-id>.yaml` that matches the [block schema](../.specify/schemas/block.schema.json) and the [block-report skill](../.github/skills/block-report/SKILL.md).
 
 **Parallel dispatch creates merge conflicts.**  
 Do not fall back to batch merge. Re-plan the work as waves and use the conflict predictor before dispatching concurrent tasks.
