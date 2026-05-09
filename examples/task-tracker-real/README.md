@@ -117,6 +117,7 @@ task complete $TASK
 
 ### Workflow Documentation
 - **WORKFLOW-TIMELINE.md** - Actual development timeline with real timestamps
+- **acceptance-tests.md** - Acceptance-criteria-to-test traceability matrix
 - **README.md** - This file
 
 All documentation is in `../../specs/projects/task-tracker-real/`.
@@ -326,4 +327,3 @@ Created as part of the Kerrigan project to demonstrate:
 5. Quality-first development approach
 
 **This is real, not simulated.** Every timestamp, pause, and decision is authentic.
-
