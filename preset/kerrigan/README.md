@@ -15,9 +15,9 @@ to a repo and every subsequent `/speckit.plan`, `/speckit.tasks`, and
 
 All templates are stack-agnostic — no language or framework is assumed.
 
-## Bundled extensions
+## Preset extensions
 
-The preset declares the following spec-kit extensions. They are applied
+The preset declares the following bundled spec-kit extensions. They are applied
 automatically when you run `specify preset add kerrigan`:
 
 | Extension | Purpose |
@@ -27,6 +27,16 @@ automatically when you run `specify preset add kerrigan`:
 | `spec-kit-checkpoint` | Mid-implementation commits (avoids giant end-of-task diffs) |
 | `spec-kit-tinyspec` | Lightweight single-file workflow for small work |
 | `spec-kit-brownfield` | Satellite bootstrap helper |
+
+The preset also adopts the following **external** spec-kit verification extensions
+(adopted, not bundled):
+
+| Extension | Purpose |
+|---|---|
+| `spec-kit-verify` | Acceptance-criteria verification |
+| `spec-kit-verify-tasks` | Task-to-verification coverage checks |
+| `spec-kit-ci-guard` | CI gating policy enforcement |
+| `spec-kit-qa` | Quality-assurance validation checks |
 
 ## How to apply
 

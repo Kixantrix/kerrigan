@@ -18,7 +18,7 @@ templates:
   - source: pr-body-template.md
     target: pr-body-template.md
 
-# Spec-kit extensions bundled by this preset (applied on `specify preset add kerrigan`)
+# Spec-kit extensions configured by this preset (applied on `specify preset add kerrigan`)
 extensions:
   - name: spec-kit-worktree-parallel
     description: Worktree isolation for parallel cloud tasks.
@@ -30,6 +30,14 @@ extensions:
     description: Lightweight single-file workflow for small work (avoids spec-rot).
   - name: spec-kit-brownfield
     description: Satellite bootstrap helper for adopting kerrigan in existing repos.
+  - name: spec-kit-verify
+    description: Adopted external spec-kit extension for acceptance-criteria verification.
+  - name: spec-kit-verify-tasks
+    description: Adopted external spec-kit extension for task-to-verification coverage checks.
+  - name: spec-kit-ci-guard
+    description: Adopted external spec-kit extension for CI gating policy enforcement.
+  - name: spec-kit-qa
+    description: Adopted external spec-kit extension for quality-assurance validation checks.
 
 # How to apply
 # ------------
