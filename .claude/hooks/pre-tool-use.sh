@@ -44,12 +44,9 @@ print(cmd)
 " 2>/dev/null || true)"
 fi
 
-# Fallback: plain grep if python3 unavailable.
-# NOTE: uses -P (PCRE lookahead) — requires GNU grep. On macOS (BSD grep),
-# the pattern is silently skipped via 2>/dev/null and COMMAND stays empty,
-# which causes the script to allow the tool call (safe fail-open).
+# Fallback: sed-based extraction — works on GNU and BSD (macOS) without PCRE.
 if [[ -z "$COMMAND" ]]; then
-    COMMAND="$(printf '%s' "$INPUT" | grep -oP '(?<="command"\s*:\s*")[^"]*' 2>/dev/null | head -1 || true)"
+    COMMAND="$(printf '%s' "$INPUT" | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1 || true)"
 fi
 
 if [[ -z "$COMMAND" ]]; then
@@ -82,6 +79,9 @@ for pattern in "${DESTRUCTIVE_PATTERNS[@]}"; do
 done
 
 # --- Rule 2: sudo block for cloud-routed tasks ---------------------------
+# Detects sudo at the start of a command or after common separators (|, &, ;,
+# ||, &&, $(, backtick). Heredoc/here-string sudo is not checked — that edge
+# case is accepted as low-risk in Claude Code tool contexts.
 if echo "$COMMAND" | grep -qE '(^|[[:space:]|;&`$]|\|\||&&|\$\()sudo[[:space:]]'; then
     # Check whether the current task is cloud-routed.
     # Look for any briefing file that contains `routing_rule_matched: R-cloud-`

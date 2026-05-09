@@ -18,7 +18,7 @@ Code (graceful degradation via environment-variable checks).
 
 | Rule | Pattern | Routing scope |
 |------|---------|---------------|
-| Destructive filesystem | `rm -rf /`, `rm -rf ~`, `rm -rf $HOME`, `dd … of=/dev/sd*`, `mkfs.*`, fork-bomb `:(){ … }` | Always |
+| Destructive filesystem | `rm -rf /`, `rm -rf ~`, `rm -rf $HOME`, `dd … of=/dev/sd*`, `mkfs.*`, fork-bomb `:|:&` | Always |
 | `sudo` | Any command that begins with or pipes into `sudo` | Cloud-routed tasks only |
 
 ### Cloud-routing detection
