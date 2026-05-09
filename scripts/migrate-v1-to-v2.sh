@@ -52,7 +52,7 @@ done
 
 has_label() {
   local needle="$1"
-  shift || true
+  shift
 
   local label
   for label in "$@"; do
@@ -66,7 +66,7 @@ has_label() {
 
 join_by() {
   local separator="$1"
-  shift || true
+  shift
   local first=true
   local item
 
