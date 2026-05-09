@@ -26,72 +26,20 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          pip install pyyaml
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e tools/cli/kerrigan
 
-      - name: Show project status
-        run: |
-          python tools/validators/show_status.py
+      - name: Fetch PR base branch
+        if: github.event_name == 'pull_request'
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}
 
       - name: Run validators
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          python tools/validators/check_artifacts.py
-          python tools/validators/check_quality_bar.py
-          python tools/validators/check_dependencies.py
-          python tools/validators/check_placeholders.py
-
-      - name: Check test collateral
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        run: |
-          # Fetch the base branch to compare changes
-          git fetch origin ${{ github.event.pull_request.base.ref }}
-          python tools/validators/check_test_collateral.py
-
-      - name: Validate PR documentation
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        env:
-          PR_DOC_LARGE_THRESHOLD_KB: 15
-          PR_DOC_RATIO_THRESHOLD: 10
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Create unique temporary file
-          PR_BODY_FILE=$(mktemp)
-          
-          # Fetch PR body from GitHub API and save securely
-          gh pr view '${{ github.event.pull_request.number }}' --json body --jq .body > "$PR_BODY_FILE"
-          
-          # Run validator
-          python tools/validators/check_pr_documentation.py \
-            --pr-body "$PR_BODY_FILE" \
-            --repo-path .
-          
-          # Clean up
-          rm -f "$PR_BODY_FILE"
-
-      - name: Validate test claims
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Create unique temporary file
-          PR_BODY_FILE=$(mktemp)
-          
-          # Fetch PR body from GitHub API and save securely
-          gh pr view '${{ github.event.pull_request.number }}' --json body --jq .body > "$PR_BODY_FILE"
-          
-          # Run test claims validator
-          python tools/validators/check_test_claims.py \
-            --pr-body "$PR_BODY_FILE" \
-            --base-ref origin/${{ github.base_ref }} \
-            --head-ref HEAD
-          
-          # Clean up
-          rm -f "$PR_BODY_FILE"
+        run: kerrigan check
 
       - name: Run tests
         run: |

@@ -16,6 +16,7 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         self.tool_versions_path = self.repo_root / ".tool-versions"
         self.requirements_path = self.repo_root / "requirements.txt"
         self.workflow_path = self.repo_root / ".github" / "workflows" / "verify.yml"
+        self.ci_workflow_path = self.repo_root / ".github" / "workflows" / "ci.yml"
 
     def test_tool_versions_pins_python_3_13_2(self):
         """The repo should pin the CI/runtime Python version."""
@@ -85,6 +86,14 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         )
         validators_install = validators_install_step.get("run", "")
         self.assertIn("python -m pip install -e tools/cli/kerrigan", validators_install)
+
+    def test_validator_workflows_use_kerrigan_check(self):
+        """Validator workflows should use kerrigan check instead of direct scripts."""
+        for workflow_path in [self.workflow_path, self.ci_workflow_path]:
+            with self.subTest(workflow=workflow_path.name):
+                workflow_text = workflow_path.read_text(encoding="utf-8")
+                self.assertIn("kerrigan check", workflow_text)
+                self.assertNotIn("python tools/validators/", workflow_text)
 
 
 if __name__ == "__main__":

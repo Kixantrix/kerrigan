@@ -1,32 +1,27 @@
 """Tests for check command."""
 
-import sys
+import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
 from click.testing import CliRunner
 
-from kerrigan_cli.commands.check import check
+from kerrigan_cli.commands.check import REGISTERED_VALIDATORS, check
 from kerrigan_cli.cli import cli
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _fake_run(returncode: int = 0):
-    """Return a mock for subprocess.run that yields the given returncode."""
-    mock_result = MagicMock()
-    mock_result.returncode = returncode
-    mock_result.stdout = ""
-    mock_result.stderr = ""
-    return MagicMock(return_value=mock_result)
+def _fake_completed_process(returncode: int = 0, stdout: str = "", stderr: str = ""):
+    """Return a completed-process-like mock object."""
+    return MagicMock(returncode=returncode, stdout=stdout, stderr=stderr)
 
 
-# ---------------------------------------------------------------------------
-# Help / registration
-# ---------------------------------------------------------------------------
+def _write_validator_tree(root: Path, names: list[str]) -> Path:
+    """Create a fake validator directory tree."""
+    validators = root / "tools" / "validators"
+    validators.mkdir(parents=True)
+    for name in names:
+        (validators / name).write_text("# stub", encoding="utf-8")
+    return validators
 
 
 def test_check_help():
@@ -34,7 +29,7 @@ def test_check_help():
     runner = CliRunner()
     result = runner.invoke(check, ["--help"])
     assert result.exit_code == 0
-    assert "Run all validators" in result.output
+    assert "Run all registered validators" in result.output
 
 
 def test_check_registered_in_cli():
@@ -45,156 +40,110 @@ def test_check_registered_in_cli():
     assert "check" in result.output
 
 
-# ---------------------------------------------------------------------------
-# AC-2 / AC-3: validators run
-# ---------------------------------------------------------------------------
+def test_check_runs_all_registered_validators(tmp_path):
+    """check runs every validator script found in tools/validators."""
+    validator_names = [spec.script_name for spec in REGISTERED_VALIDATORS]
+    _write_validator_tree(tmp_path, validator_names)
 
-
-def test_check_runs_agents_md_and_check_artifacts(tmp_path):
-    """check calls agents_md.py and check_artifacts.py when both are present."""
-    # Create fake validator tree
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-    (validators / "check_artifacts.py").write_text("# stub")
-
+    mock_run = MagicMock(return_value=_fake_completed_process(0))
     runner = CliRunner()
     with (
         patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
-        patch("kerrigan_cli.commands.check.subprocess.run", _fake_run(0)) as mock_run,
+        patch("kerrigan_cli.commands.check.subprocess.run", mock_run),
         patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
     ):
         result = runner.invoke(check, [])
 
     assert result.exit_code == 0
-    # Two subprocess calls (agents_md + check_artifacts)
-    assert mock_run.call_count == 2
-    calls = [c.args[0] for c in mock_run.call_args_list]
-    assert any("agents_md.py" in str(c) for c in calls)
-    assert any("check_artifacts.py" in str(c) for c in calls)
+    assert mock_run.call_count == len(REGISTERED_VALIDATORS)
+    commands = [call.args[0] for call in mock_run.call_args_list]
+    for validator_name in validator_names:
+        assert any(validator_name in str(command) for command in commands)
 
 
-def test_check_skips_check_artifacts_when_absent(tmp_path):
-    """check skips check_artifacts.py when the file is not present."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-    # check_artifacts.py intentionally NOT created
-
-    runner = CliRunner()
-    with (
-        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
-        patch("kerrigan_cli.commands.check.subprocess.run", _fake_run(0)) as mock_run,
-        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
-    ):
-        result = runner.invoke(check, [])
-
-    assert result.exit_code == 0
-    assert mock_run.call_count == 1
-    assert "agents_md.py" in str(mock_run.call_args_list[0].args[0])
-
-
-def test_check_runs_test_capability_matrix_when_present(tmp_path):
-    """check calls test_capability_matrix.py when present."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-    (validators / "test_capability_matrix.py").write_text("# stub")
-
-    runner = CliRunner()
-    with (
-        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
-        patch("kerrigan_cli.commands.check.subprocess.run", _fake_run(0)) as mock_run,
-        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
-    ):
-        result = runner.invoke(check, [])
-
-    assert result.exit_code == 0
-    calls = [c.args[0] for c in mock_run.call_args_list]
-    assert any("test_capability_matrix.py" in str(c) for c in calls)
-
-
-# ---------------------------------------------------------------------------
-# AC-4: specify check optional
-# ---------------------------------------------------------------------------
-
-
-def test_check_runs_specify_when_on_path(tmp_path):
-    """check includes specify check when specify is on PATH."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-
-    runner = CliRunner()
-    with (
-        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
-        patch("kerrigan_cli.commands.check.subprocess.run", _fake_run(0)) as mock_run,
-        patch("kerrigan_cli.commands.check.shutil.which", return_value="/usr/bin/specify"),
-    ):
-        result = runner.invoke(check, [])
-
-    assert result.exit_code == 0
-    calls = [c.args[0] for c in mock_run.call_args_list]
-    assert any(c == ["specify", "check"] for c in calls)
-
-
-def test_check_skips_specify_when_not_on_path(tmp_path):
-    """check skips specify check when specify is not installed."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-
-    runner = CliRunner()
-    with (
-        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
-        patch("kerrigan_cli.commands.check.subprocess.run", _fake_run(0)) as mock_run,
-        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
-    ):
-        result = runner.invoke(check, [])
-
-    assert result.exit_code == 0
-    calls = [c.args[0] for c in mock_run.call_args_list]
-    assert not any(c == ["specify", "check"] for c in calls)
-    assert "skipping" in result.output
-
-
-# ---------------------------------------------------------------------------
-# AC-5: summary output
-# ---------------------------------------------------------------------------
-
-
-def test_check_summary_all_pass(tmp_path):
-    """Summary reports N/N validators passed when all succeed."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-    (validators / "check_artifacts.py").write_text("# stub")
-
-    runner = CliRunner()
-    with (
-        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
-        patch("kerrigan_cli.commands.check.subprocess.run", _fake_run(0)),
-        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
-    ):
-        result = runner.invoke(check, [])
-
-    assert "2/2 validators passed" in result.output
-    assert "0/2 failed" in result.output
-
-
-def test_check_summary_one_fail(tmp_path):
-    """Summary reports failed count and exits non-zero when a validator fails."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-    (validators / "check_artifacts.py").write_text("# stub")
-
-    # agents_md passes (call 0), check_artifacts fails (call 1)
-    results = [
-        MagicMock(returncode=0, stdout="", stderr=""),
-        MagicMock(returncode=1, stdout="fail output", stderr=""),
+def test_check_builds_pr_aware_validator_commands(tmp_path):
+    """PR-aware validators receive PR body and comparison refs when available."""
+    validator_names = [
+        "show_status.py",
+        "check_pr_documentation.py",
+        "check_test_claims.py",
     ]
-    mock_run = MagicMock(side_effect=results)
+    _write_validator_tree(tmp_path, validator_names)
+
+    event_path = tmp_path / "event.json"
+    event_path.write_text(
+        json.dumps({"pull_request": {"body": "## Testing\nRan 12 tests"}}),
+        encoding="utf-8",
+    )
+
+    mock_run = MagicMock(return_value=_fake_completed_process(0))
+    runner = CliRunner()
+    with (
+        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
+        patch("kerrigan_cli.commands.check.subprocess.run", mock_run),
+        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
+        patch.dict(
+            "os.environ",
+            {"GITHUB_EVENT_PATH": str(event_path), "GITHUB_BASE_REF": "main"},
+            clear=False,
+        ),
+    ):
+        result = runner.invoke(check, [])
+
+    assert result.exit_code == 0
+    commands = [call.args[0] for call in mock_run.call_args_list]
+
+    pr_doc_command = next(command for command in commands if "check_pr_documentation.py" in str(command))
+    assert "--pr-body" in pr_doc_command
+    assert "--repo-path" in pr_doc_command
+    assert str(tmp_path) in pr_doc_command
+
+    test_claims_command = next(command for command in commands if "check_test_claims.py" in str(command))
+    assert "--pr-body" in test_claims_command
+    assert "--base-ref" in test_claims_command
+    assert "origin/main" in test_claims_command
+
+
+def test_check_treats_advisory_validator_as_non_blocking(tmp_path):
+    """Advisory validator failures do not fail the overall check."""
+    _write_validator_tree(
+        tmp_path,
+        ["show_status.py", "check_pr_documentation.py"],
+    )
+
+    mock_run = MagicMock(
+        side_effect=[
+            _fake_completed_process(0),
+            _fake_completed_process(1, stdout="warning"),
+        ]
+    )
+
+    runner = CliRunner()
+    with (
+        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
+        patch("kerrigan_cli.commands.check.subprocess.run", mock_run),
+        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
+    ):
+        result = runner.invoke(check, [])
+
+    assert result.exit_code == 0
+    assert "advisory validator returned non-zero; continuing" in result.output
+    assert "1/2 validators passed, 1/2 advisory, 0/2 failed." in result.output
+
+
+def test_check_fails_on_blocking_validator_error(tmp_path):
+    """Blocking validator failures still fail the command."""
+    _write_validator_tree(
+        tmp_path,
+        ["show_status.py", "check_artifacts.py"],
+    )
+
+    mock_run = MagicMock(
+        side_effect=[
+            _fake_completed_process(0),
+            _fake_completed_process(1, stdout="artifact failure"),
+        ]
+    )
 
     runner = CliRunner()
     with (
@@ -205,23 +154,32 @@ def test_check_summary_one_fail(tmp_path):
         result = runner.invoke(check, [])
 
     assert result.exit_code != 0
-    assert "1/2 validators passed" in result.output
-    assert "1/2 failed" in result.output
+    assert "1/2 validators passed, 0/2 advisory, 1/2 failed." in result.output
 
 
-# ---------------------------------------------------------------------------
-# AC-6: --verbose flag
-# ---------------------------------------------------------------------------
+def test_check_fails_when_validator_script_is_unregistered(tmp_path):
+    """Unknown validator scripts are reported as registration failures."""
+    _write_validator_tree(tmp_path, ["show_status.py", "new_validator.py"])
+
+    mock_run = MagicMock(return_value=_fake_completed_process(0))
+    runner = CliRunner()
+    with (
+        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
+        patch("kerrigan_cli.commands.check.subprocess.run", mock_run),
+        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
+    ):
+        result = runner.invoke(check, [])
+
+    assert result.exit_code != 0
+    assert "new_validator.py is not registered in kerrigan check" in result.output
+    assert "1/2 validators passed, 0/2 advisory, 1/2 failed." in result.output
 
 
 def test_check_verbose_shows_output(tmp_path):
     """--verbose flag displays stdout from each validator."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
+    _write_validator_tree(tmp_path, ["show_status.py"])
 
-    mock_result = MagicMock(returncode=0, stdout="all good\n", stderr="")
-    mock_run = MagicMock(return_value=mock_result)
+    mock_run = MagicMock(return_value=_fake_completed_process(0, stdout="all good\n"))
 
     runner = CliRunner()
     with (
@@ -233,32 +191,6 @@ def test_check_verbose_shows_output(tmp_path):
 
     assert result.exit_code == 0
     assert "all good" in result.output
-
-
-def test_check_no_verbose_hides_passing_output(tmp_path):
-    """Without --verbose, stdout from passing validators is suppressed."""
-    validators = tmp_path / "tools" / "validators"
-    validators.mkdir(parents=True)
-    (validators / "agents_md.py").write_text("# stub")
-
-    mock_result = MagicMock(returncode=0, stdout="quiet output\n", stderr="")
-    mock_run = MagicMock(return_value=mock_result)
-
-    runner = CliRunner()
-    with (
-        patch("kerrigan_cli.commands.check._find_repo_root", return_value=tmp_path),
-        patch("kerrigan_cli.commands.check.subprocess.run", mock_run),
-        patch("kerrigan_cli.commands.check.shutil.which", return_value=None),
-    ):
-        result = runner.invoke(check, [])
-
-    assert result.exit_code == 0
-    assert "quiet output" not in result.output
-
-
-# ---------------------------------------------------------------------------
-# Repo root not found
-# ---------------------------------------------------------------------------
 
 
 def test_check_aborts_when_no_repo_root():

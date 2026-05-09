@@ -148,7 +148,7 @@ See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed conf
 | Enable agent work | Add `agent:go` label to GitHub issue |
 | Pause project | Create `status.json` with `"status": "blocked"` |
 | Invoke agent | `kerrigan agent <role> --show` or copy prompt from `.github/agents/role.*.md` |
-| Validate locally | `kerrigan validate` or `python tools/validators/check_artifacts.py` |
+| Validate locally | `kerrigan check` |
 | Multi-repo operations | `kerrigan repos list/sync <project>` |
 | Bootstrap environment | `bash tools/bootstrap.sh` |
 | Check CI | View GitHub Actions tab |

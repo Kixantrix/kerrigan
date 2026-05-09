@@ -37,7 +37,15 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install -e tools/cli/kerrigan
 
+      - name: Fetch PR base branch
+        shell: bash
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}
+
       - name: Run validators
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: kerrigan check
 
   smoke:
