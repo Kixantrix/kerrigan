@@ -17,7 +17,7 @@ All templates are stack-agnostic — no language or framework is assumed.
 
 ## Preset extensions
 
-The preset declares the following bundled spec-kit extensions. They are applied
+The preset configures the following core spec-kit extensions. They are applied
 automatically when you run `specify preset add kerrigan`:
 
 | Extension | Purpose |
