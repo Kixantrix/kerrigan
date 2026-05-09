@@ -44,9 +44,9 @@ print(cmd)
 " 2>/dev/null || true)"
 fi
 
-# Fallback: plain grep if python3 unavailable
+# Fallback: plain grep if python3 unavailable (requires GNU grep for -P/PCRE)
 if [[ -z "$COMMAND" ]]; then
-    COMMAND="$(printf '%s' "$INPUT" | grep -oP '(?<="command"\s*:\s*")[^"]*' | head -1 || true)"
+    COMMAND="$(printf '%s' "$INPUT" | grep -oP '(?<="command"\s*:\s*")[^"]*' 2>/dev/null | head -1 || true)"
 fi
 
 if [[ -z "$COMMAND" ]]; then
@@ -65,7 +65,7 @@ DESTRUCTIVE_PATTERNS=(
     'rm[[:space:]]+-rf[[:space:]]+~'
     'rm[[:space:]]+-rf[[:space:]]+\$HOME'
     'mkfs\.'
-    ':[[:space:]]*([[:space:]]*)[[:space:]]*{[[:space:]]*:[[:space:]]*|[[:space:]]*&[[:space:]]*}[[:space:]]*;[[:space:]]*:'  # fork bomb :(){ :|:& };:
+    ':[[:space:]]*[|][[:space:]]*:[[:space:]]*&'                               # fork bomb core: :|:&
     'dd[[:space:]].*of=/dev/[sh]d'
     '>[[:space:]]*/dev/[sh]d'
     'chmod[[:space:]]+-R[[:space:]]+777[[:space:]]+'
