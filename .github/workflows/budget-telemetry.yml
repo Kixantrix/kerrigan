@@ -1,0 +1,184 @@
+name: Budget Telemetry
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to update
+        required: true
+        type: number
+      threshold_minutes:
+        description: Warning threshold in minutes
+        required: false
+        type: number
+
+env:
+  BUDGET_MINUTES_THRESHOLD: "30"
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment_budget:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build budget telemetry comment
+        id: build_comment
+        uses: actions/github-script@v7
+        env:
+          INPUT_THRESHOLD_MINUTES: ${{ inputs.threshold_minutes }}
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const prNumber = Number(
+              context.payload.pull_request?.number ||
+              process.env.INPUT_PR_NUMBER ||
+              0
+            );
+
+            if (!prNumber) {
+              core.setFailed('Could not determine pull request number.');
+              return;
+            }
+
+            const pullRequest = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber
+            });
+
+            const thresholdMinutes = Number(
+              process.env.INPUT_THRESHOLD_MINUTES ||
+              process.env.BUDGET_MINUTES_THRESHOLD
+            );
+
+            if (!Number.isFinite(thresholdMinutes) || thresholdMinutes <= 0) {
+              core.setFailed('Threshold must be a positive number.');
+              return;
+            }
+
+            const workflowRuns = await github.paginate(
+              github.rest.actions.listWorkflowRunsForRepo,
+              {
+                owner,
+                repo,
+                event: 'pull_request',
+                branch: pullRequest.data.head.ref,
+                per_page: 100
+              }
+            );
+
+            const runsForPr = workflowRuns.filter((run) => {
+              if (run.id === context.runId) {
+                return false;
+              }
+
+              if (!Array.isArray(run.pull_requests)) {
+                return false;
+              }
+
+              return run.pull_requests.some((pr) => pr.number === prNumber);
+            });
+
+            let totalMinutes = 0;
+            const jobDurations = new Map();
+
+            for (const run of runsForPr) {
+              try {
+                const usage = await github.rest.actions.getWorkflowRunUsage({
+                  owner,
+                  repo,
+                  run_id: run.id
+                });
+
+                const billable = usage.data.billable || {};
+                const runMs = Object.values(billable)
+                  .reduce((sum, entry) => sum + (entry?.total_ms || 0), 0);
+
+                totalMinutes += runMs / 60000;
+              } catch (error) {
+                core.warning(`Failed to fetch usage for run ${run.id}: ${error.message}`);
+              }
+
+              try {
+                const jobs = await github.paginate(
+                  github.rest.actions.listJobsForWorkflowRun,
+                  {
+                    owner,
+                    repo,
+                    run_id: run.id,
+                    per_page: 100
+                  }
+                );
+
+                for (const job of jobs) {
+                  if (!job.started_at || !job.completed_at) {
+                    continue;
+                  }
+
+                  const startedAt = new Date(job.started_at).getTime();
+                  const completedAt = new Date(job.completed_at).getTime();
+                  const durationMinutes = Math.max(0, (completedAt - startedAt) / 60000);
+
+                  const key = `${run.name} / ${job.name}`;
+                  jobDurations.set(key, (jobDurations.get(key) || 0) + durationMinutes);
+                }
+              } catch (error) {
+                core.warning(`Failed to fetch jobs for run ${run.id}: ${error.message}`);
+              }
+            }
+
+            const sortedBreakdown = Array.from(jobDurations.entries())
+              .sort((a, b) => b[1] - a[1]);
+
+            const warning = totalMinutes > thresholdMinutes
+              ? `\n⚠️ **Warning:** Actions minutes (${totalMinutes.toFixed(2)}) exceed the threshold (${thresholdMinutes}).\n`
+              : '\n✅ Actions minutes are within the configured threshold.\n';
+
+            const breakdownTable = sortedBreakdown.length > 0
+              ? [
+                  '| Job | Minutes |',
+                  '| --- | ---: |',
+                  ...sortedBreakdown.map(([name, minutes]) => `| ${name.replace(/\|/g, '\\|')} | ${minutes.toFixed(2)} |`)
+                ].join('\n')
+              : '_No completed jobs found for this PR yet._';
+
+            const commentBody = [
+              '<!-- budget-telemetry-comment -->',
+              '## 💸 PR Budget Telemetry (Advisory)',
+              '',
+              '> Copilot premium request counting is currently unavailable via GitHub API.',
+              '',
+              `- Workflow runs counted: **${runsForPr.length}**`,
+              `- Total Actions minutes: **${totalMinutes.toFixed(2)}**`,
+              `- Warning threshold (minutes): **${thresholdMinutes}**`,
+              warning,
+              '### Per-job breakdown',
+              '',
+              breakdownTable
+            ].join('\n');
+
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('comment_body', commentBody);
+
+      - name: Find existing telemetry comment
+        id: find_comment
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ steps.build_comment.outputs.pr_number }}
+          body-includes: "<!-- budget-telemetry-comment -->"
+
+      - name: Create or update telemetry comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ steps.build_comment.outputs.pr_number }}
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          edit-mode: replace
+          body: ${{ steps.build_comment.outputs.comment_body }}
