@@ -40,8 +40,8 @@ You **MUST** consider user input before proceeding.
 Run the prerequisites check and locate `tasks.md` and `plan.md`:
 
 ```bash
-python .specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks 2>/dev/null \
-  || python .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks 2>/dev/null \
+pwsh -File .specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks 2>/dev/null \
+  || bash .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks 2>/dev/null \
   || echo '{"feature_dir": ".", "tasks": "tasks.md"}'
 ```
 
