@@ -32,6 +32,10 @@ class TestCapabilityMarkerParsing(unittest.TestCase):
         marker = parse_capability_marker("# capability: local_required\n")
         self.assertEqual(marker, ("invalid", "local_required"))
 
+    def test_parse_invalid_manual_marker_without_reason(self):
+        marker = parse_capability_marker("# capability: manual\n")
+        self.assertEqual(marker, ("invalid", "manual"))
+
     def test_parse_missing_marker(self):
         marker = parse_capability_marker("def test_x():\n    assert True\n")
         self.assertIsNone(marker)
@@ -114,6 +118,16 @@ class TestCapabilityMatrixValidation(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn(str(test_file), errors[0])
         self.assertIn("invalid capability marker", errors[0])
+
+    def test_multiple_markers_in_single_file_fails(self):
+        test_file = self.write_test(
+            "test_multiple.py",
+            "# capability: cloud_ok\n# capability: local_required(device-io.usb)\ndef test_multi():\n    assert True\n",
+        )
+        errors = validate_test_capability_matrix(self.test_dir)
+        self.assertEqual(len(errors), 1)
+        self.assertIn(str(test_file), errors[0])
+        self.assertIn("multiple capability markers", errors[0])
 
 
 if __name__ == "__main__":
