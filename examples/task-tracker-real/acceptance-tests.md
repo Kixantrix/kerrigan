@@ -1,6 +1,6 @@
 # Acceptance Criteria → Automated Test Traceability
 
-Source acceptance criteria: `/home/runner/work/kerrigan/kerrigan/specs/projects/task-tracker-real/spec.md`.
+Source acceptance criteria: `../../specs/projects/task-tracker-real/spec.md`.
 
 - AC-1 (User can create, list, update, and delete tasks)
   - `examples/task-tracker-real/tests/test_cli.py::test_add_command`
