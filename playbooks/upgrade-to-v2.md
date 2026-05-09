@@ -95,9 +95,9 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 - **`personal-selfhost`** passes when it completes a task without `claude-dispatch.sh`, using Claude Code locally and the `cloud` profile for remote execution.
 - **`vhs-video-stack`** passes when it dispatches by wave, uses conflict prediction up front, and avoids the old batch-merge/cascade-rebase loop.
 
-## Phase 3 artifacts to keep nearby
+## Key v2 reference documents (Phase 3 artifacts)
 
-These are the v2 references most likely to answer "why did the agent route or block this way?":
+These Phase 3 "trustworthy autonomy" references are the ones most likely to answer "why did the agent route or block this way?":
 
 - [Delegation rubric](../specs/kerrigan-v2/050-delegation-rubric.md) — capability taxonomy and routing rules for `local` vs `cloud`
 - [Block schema](../.specify/schemas/block.schema.json) — machine-readable contract for `.specify/blocks/<task-id>.yaml`
