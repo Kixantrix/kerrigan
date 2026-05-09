@@ -23,6 +23,8 @@ AGENTS_DIR = REPO_ROOT / ".github" / "agents"
 REQUIRED_FRONTMATTER = ("name", "description")
 # Spec-kit extension agents use *.agent.md and only require "description"
 SPECKIT_AGENT_REQUIRED = ("description",)
+# Kerrigan capability manifest fields required in non-spec-kit profiles
+MANIFEST_FIELDS = ("needs", "blocks_on", "budget")
 
 # Directories under .github/agents/ to skip
 SKIP_DIRS = {"_legacy", "adapters"}
@@ -79,6 +81,16 @@ def check_agent_profile(path: Path, errors: list[str]) -> None:
             errors.append(
                 f"{rel}: frontmatter name '{actual_name}' does not match filename '{expected_name}'"
             )
+        # Check capability manifest fields — use raw frontmatter text because values
+        # may span multiple lines (multi-line YAML lists/mappings).
+        m = FRONTMATTER_RE.match(text)
+        if m:
+            fm_text = m.group(1)
+            for key in MANIFEST_FIELDS:
+                if not re.search(rf"^{key}:", fm_text, re.MULTILINE):
+                    errors.append(
+                        f"{rel}: capability manifest missing field '{key}'"
+                    )
 
 
 def iter_agent_profiles() -> list[Path]:

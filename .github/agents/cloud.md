@@ -7,7 +7,7 @@ model: sonnet
 permissionMode: acceptEdits
 isolation: worktree
 effort: high
-skills: [briefing-packet, smoke-test, block-report]
+skills: [briefing-packet, smoke-test, block-report, delegation-rubric]
 # Kerrigan capability manifest:
 role: executor
 needs: [cloud-env]
