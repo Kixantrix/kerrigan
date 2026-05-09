@@ -1,0 +1,190 @@
+tasks:
+  - id: T-P3-001
+    title: "feat: delegation rubric spec — capability taxonomy and routing rules"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `specs/kerrigan-v2/050-delegation-rubric.md` — the formal capability
+      taxonomy and routing rules document. Promotes the existing skill at
+      `.github/skills/delegation-rubric/SKILL.md` into a proper spec with the
+      full taxonomy structure.
+
+      ## Acceptance Criteria
+      - AC-1: `specs/kerrigan-v2/050-delegation-rubric.md` created
+      - AC-2: Capability taxonomy section with categories: `device-io.*`, `os.*`, `paid-service.*`, `human-judgment`, `cloud-env`
+      - AC-3: Each category has: description, match criteria, concrete examples, routing direction
+      - AC-4: Routing rules section mirrors `.github/skills/delegation-rubric/SKILL.md` (R-local.*, R-cloud.*)
+      - AC-5: Citation format section: how agents reference which rule they matched
+      - AC-6: Extension points section: how to add new capabilities and rules
+      - AC-7: Cross-references AGENTS.md and the delegation-rubric skill
+
+      ## Scope
+      - Touch: `specs/kerrigan-v2/050-delegation-rubric.md`
+      - Read-only: `.github/skills/delegation-rubric/SKILL.md`, `AGENTS.md`
+      - Out of scope: modifying the skill itself, modifying agent profiles
+
+      ## Routing
+      R-cloud-default — documentation/spec work.
+
+  - id: T-P3-002
+    title: "feat: kerrigan-route extension — automated cloud/local routing with rule citation"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create `tools/route_task.py` — given a task description and its file scope,
+      decides cloud vs local routing and cites the matched rule. Writes the
+      routing decision into the briefing packet.
+
+      ## Acceptance Criteria
+      - AC-1: `tools/route_task.py` Python module
+      - AC-2: Reads task metadata (description, touch files, read-only files, tags)
+      - AC-3: Applies delegation rubric rules in priority order (R-local.* checked first, then R-cloud-default)
+      - AC-4: Keyword/pattern matching for routing signals: `device-io`, `os-specific`, `paid-secret`, `human-judgment`, `local_required` markers in task body
+      - AC-5: Output: `{rule: "R-cloud-default", justification: "...", route: "cloud"}`
+      - AC-6: CLI: `python tools/route_task.py --task-file .specify/briefings/t-001.md`
+      - AC-7: Integrates with `tools/briefing_generator.py` — can be called to add routing fields
+      - AC-8: Unit tests at `tests/test_route_task.py` with 80%+ coverage
+      - AC-9: Edge cases: no signals found (defaults to cloud), multiple signals (highest-priority wins), explicit override via `routing_override: local` in task
+
+      ## Scope
+      - Touch: `tools/route_task.py`, `tests/test_route_task.py`
+      - Read-only: `.github/skills/delegation-rubric/SKILL.md`, `tools/briefing_generator.py`
+      - Out of scope: modifying briefing_generator.py, modifying conflict_predictor.py
+
+      ## Routing
+      R-cloud-default — standard Python tool creation.
+
+  - id: T-P3-003
+    title: "feat: block schema and validator — structured block emit/resolve"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create the block schema at `.specify/schemas/block.schema.json` and a
+      validator that ensures blocks either resolve or get `block:acknowledged`.
+
+      ## Acceptance Criteria
+      - AC-1: `.specify/schemas/block.schema.json` — JSON Schema for block YAML files
+      - AC-2: Schema fields: `task_id`, `emitted_by`, `emitted_at`, `reason`, `severity`, `summary`, `details`, `decision_needed`, `options`, `recommendation`, `minimum_human_input`
+      - AC-3: `reason` enum: `prereq-missing`, `ambiguous-ac`, `conflicting-decision`, `permission-denied`, `missing-secret`, `local-required`, `out-of-budget`, `self-test-failure`
+      - AC-4: `tools/validators/block_validator.py` — scans `.specify/blocks/*.yaml`, validates against schema
+      - AC-5: Validator checks: unresolved blocks older than 24h get a warning, unresolved blocks without `block:acknowledged` label fail
+      - AC-6: CLI: `python tools/validators/block_validator.py [--blocks-dir .specify/blocks]`
+      - AC-7: Integrated into `kerrigan check` (added to check.py's validator list)
+      - AC-8: Unit tests at `tests/validators/test_block_validator.py` with 80%+ coverage
+
+      ## Scope
+      - Touch: `.specify/schemas/block.schema.json`, `tools/validators/block_validator.py`, `tests/validators/test_block_validator.py`, `tools/cli/kerrigan/kerrigan_cli/commands/check.py`
+      - Read-only: `.claude/skills/kerrigan-dispatch/SKILL.md` (block emit format reference)
+      - Out of scope: modifying dispatch skill, modifying agent profiles
+
+      ## Routing
+      R-cloud-default — schema + validator creation.
+
+  - id: T-P3-004
+    title: "feat: budget telemetry workflow — PR cost comment"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create a GitHub Actions workflow that posts Copilot premium requests
+      and Actions minutes as a sticky PR comment. Over-budget triggers
+      a warning.
+
+      ## Acceptance Criteria
+      - AC-1: `.github/workflows/budget-telemetry.yml` — runs on PR events
+      - AC-2: Collects Actions minutes used by the PR's workflow runs
+      - AC-3: Posts (or updates) a sticky comment on the PR with cost summary
+      - AC-4: If total Actions minutes exceed a configurable threshold (default: 30 min), adds a warning
+      - AC-5: Comment format includes: workflow runs count, total minutes, per-job breakdown
+      - AC-6: Uses `peter-evans/create-or-update-comment` action for sticky comments
+      - AC-7: Configurable threshold via workflow input or env var
+
+      ## Scope
+      - Touch: `.github/workflows/budget-telemetry.yml`
+      - Read-only: `.github/workflows/verify.yml` (reference for workflow structure)
+      - Out of scope: Copilot premium request counting (API not available), actual budget enforcement
+
+      ## Prior Decisions
+      - Copilot premium request counting is not available via GitHub API — only track Actions minutes for now
+      - Budget is advisory (warning comment), not blocking (no PR gate)
+
+      ## Routing
+      R-cloud-default — workflow creation.
+
+  - id: T-P3-005
+    title: "feat: capability manifest fields in agent profiles"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Ensure both agent profiles (local.md and cloud.md) have complete,
+      documented capability manifest fields in their frontmatter:
+      `needs`, `blocks_on`, `budget`.
+
+      ## Acceptance Criteria
+      - AC-1: `.github/agents/local.md` frontmatter has `needs`, `blocks_on`, `budget` fields
+      - AC-2: `.github/agents/cloud.md` frontmatter `needs`, `blocks_on`, `budget` fields verified/updated
+      - AC-3: `needs` lists capabilities the profile requires (e.g., cloud.md: `[cloud-env]`, local.md: `[device-io, os-access, paid-secrets]`)
+      - AC-4: `blocks_on` lists conditions that trigger a block emit
+      - AC-5: `budget` has `max_turns` and `max_premium_requests` with sensible defaults
+      - AC-6: Both profiles reference the delegation rubric spec for routing decisions
+      - AC-7: Validator `tools/validators/agents_md.py` updated to check for manifest fields presence
+
+      ## Scope
+      - Touch: `.github/agents/local.md`, `.github/agents/cloud.md`, `tools/validators/agents_md.py`
+      - Read-only: `specs/kerrigan-v2/050-delegation-rubric.md`, `.github/skills/delegation-rubric/SKILL.md`
+      - Out of scope: kerrigan.md profile, adapter profiles
+
+      ## Dependencies
+      - T-P3-001 (delegation rubric spec should exist for cross-reference)
+
+      ## Routing
+      R-cloud-default — profile + validator update.
+
+  - id: T-P3-006
+    title: "feat: Claude Code hooks — PreToolUse guard + Stop verify chain"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Create Claude Code hook configurations: a PreToolUse hook that rejects
+      dangerous shell commands in cloud-routed tasks, and a Stop hook that
+      runs the verify chain locally.
+
+      ## Acceptance Criteria
+      - AC-1: `.claude/hooks/pre-tool-use.sh` — PreToolUse hook script
+      - AC-2: Rejects `sudo` commands in tasks routed to cloud (checks for `routing_rule_matched: R-cloud-*` in briefing)
+      - AC-3: Rejects `rm -rf /` and other destructive patterns
+      - AC-4: `.claude/hooks/stop-verify.sh` — Stop hook that runs `kerrigan check` before session ends
+      - AC-5: `.claude/settings.local.json` (or equivalent) configures hooks
+      - AC-6: Hooks are no-ops when not running under Claude Code (graceful degradation)
+      - AC-7: README at `.claude/hooks/README.md` documenting hook purpose and configuration
+
+      ## Scope
+      - Touch: `.claude/hooks/pre-tool-use.sh`, `.claude/hooks/stop-verify.sh`, `.claude/hooks/README.md`
+      - Read-only: `AGENTS.md`, `.github/agents/cloud.md`
+      - Out of scope: modifying Claude Code itself, Windows-specific hooks
+
+      ## Routing
+      R-cloud-default — script/config creation.
+
+  - id: T-P3-007
+    title: "docs: auto-mode guidance in AGENTS.md"
+    labels: [agent:go]
+    body: |
+      ## Objective
+      Add a section to AGENTS.md documenting which projects are safe with
+      Claude Code `auto` mode vs which require `acceptEdits`.
+
+      ## Acceptance Criteria
+      - AC-1: New "## Auto-mode guidance" section in `AGENTS.md`
+      - AC-2: Table format: project/context → recommended mode → reason
+      - AC-3: `auto` safe for: greenfield projects, sandboxed examples, test-only work
+      - AC-4: `acceptEdits` required for: production code, shared infra, security-sensitive work
+      - AC-5: Cross-references the delegation rubric for routing context
+      - AC-6: Notes that `permissionMode` in agent frontmatter is the machine-readable equivalent
+
+      ## Scope
+      - Touch: `AGENTS.md`
+      - Read-only: `.github/agents/local.md`, `.github/agents/cloud.md`
+      - Out of scope: modifying agent profiles, changing actual permission modes
+
+      ## Routing
+      R-cloud-default — documentation work.
