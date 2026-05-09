@@ -3,6 +3,7 @@
 
 import json
 from io import StringIO
+import shutil
 import sys
 import tempfile
 import unittest
@@ -117,6 +118,9 @@ class TestApplyRoutingToBriefing(unittest.TestCase):
 class TestRouteTaskFileAndCli(unittest.TestCase):
     def setUp(self):
         self.tmpdir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
 
     def test_route_task_file_writes_decision(self):
         task_file = self.tmpdir / "t-001.md"

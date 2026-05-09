@@ -10,6 +10,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+ROUTING_SECTION_RE = re.compile(
+    r"(## Routing rule matched\n)(.*?)(?=\n## |\Z)",
+    re.DOTALL,
+)
+
 
 @dataclass
 class TaskMetadata:
@@ -142,7 +147,7 @@ def decide_route(metadata: TaskMetadata) -> dict[str, str]:
     # Priority order: R-local.* first
     if _contains_any(
         searchable,
-        ["device-io", "device io", "microphone", "camera", "screen capture", "usb", "bluetooth"],
+        ["device-io", "device io", "microphone", "camera", "screen capture", "screencapture", "usb", "bluetooth"],
     ):
         return {
             "rule": "R-local.device-io",
@@ -222,13 +227,8 @@ def decide_route(metadata: TaskMetadata) -> dict[str, str]:
 def apply_routing_to_briefing(content: str, decision: dict[str, str]) -> str:
     """Write routing decision into briefing markdown content."""
     routing_line = f"{decision['rule']} — {decision['justification']}"
-    section_re = re.compile(
-        r"(## Routing rule matched\n)(.*?)(?=\n## |\Z)",
-        re.DOTALL,
-    )
-
-    if section_re.search(content):
-        return section_re.sub(rf"\1{routing_line}\n", content)
+    if ROUTING_SECTION_RE.search(content):
+        return ROUTING_SECTION_RE.sub(rf"\1{routing_line}\n", content)
 
     trailer = "" if content.endswith("\n") else "\n"
     return f"{content}{trailer}\n## Routing rule matched\n{routing_line}\n"
