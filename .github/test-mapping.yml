@@ -68,6 +68,10 @@ mappings:
     tests: "tests/validators/test_placeholders.py"
     notes: "Placeholder implementation validator and its tests"
 
+  - source: "tools/validators/block_validator.py"
+    tests: "tests/validators/test_block_validator.py"
+    notes: "Structured block schema and lifecycle validator"
+
   # GitHub Workflows - Configuration files
   - source: ".github/workflows/*.yml"
     tests: null

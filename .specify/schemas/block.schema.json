@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kerrigan Block File",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "task_id",
+    "emitted_by",
+    "emitted_at",
+    "reason",
+    "severity",
+    "summary",
+    "details",
+    "decision_needed",
+    "options",
+    "recommendation",
+    "minimum_human_input"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "emitted_by": {
+      "type": "string",
+      "enum": [
+        "local",
+        "cloud",
+        "kerrigan"
+      ]
+    },
+    "emitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "prereq-missing",
+        "ambiguous-ac",
+        "conflicting-decision",
+        "permission-denied",
+        "missing-secret",
+        "local-required",
+        "out-of-budget",
+        "self-test-failure"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "details": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision_needed": {
+      "type": "string",
+      "minLength": 1
+    },
+    "options": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description",
+          "implication"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implication": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "minimum_human_input": {
+      "type": "string",
+      "minLength": 1
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolved_by",
+        "resolved_at",
+        "chosen_option"
+      ],
+      "properties": {
+        "resolved_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resolved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "chosen_option": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
