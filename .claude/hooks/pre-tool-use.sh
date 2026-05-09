@@ -61,7 +61,6 @@ DESTRUCTIVE_PATTERNS=(
     'rm[[:space:]]+-[^[:space:]]*f[^[:space:]]*[[:space:]]+-[^[:space:]]*r[^[:space:]]*[[:space:]]*/[[:space:]]*$'
     'rm[[:space:]]+-rf[[:space:]]*/[[:space:]]*$'
     'rm[[:space:]]+-fr[[:space:]]*/[[:space:]]*$'
-    'rm[[:space:]]+-rf[[:space:]]+/$'
     'rm[[:space:]]+-rf[[:space:]]+/\*'
     'rm[[:space:]]+-rf[[:space:]]+~'
     'rm[[:space:]]+-rf[[:space:]]+\$HOME'

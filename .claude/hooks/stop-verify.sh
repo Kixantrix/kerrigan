@@ -14,7 +14,7 @@
 #   { "hooks": { "Stop": [{ "hooks": [{ "type": "command",
 #     "command": ".claude/hooks/stop-verify.sh" }] }] } }
 
-set -uo pipefail
+set -euo pipefail
 
 # --- Graceful degradation: not running under Claude Code ------------------
 if [[ -z "${CLAUDE_SESSION_ID:-}" ]]; then
