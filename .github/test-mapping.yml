@@ -42,11 +42,6 @@ mappings:
     manual_test_required: true
     notes: "PR documentation validator, needs integration testing"
 
-  - source: "tools/validators/check_agent_signature.py"
-    tests: null
-    manual_test_required: true
-    notes: "Agent signature validator, manual verification needed"
-
   - source: "tools/validators/show_status.py"
     tests: null
     manual_test_required: true

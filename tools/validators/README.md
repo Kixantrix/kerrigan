@@ -23,7 +23,6 @@ The single CI entry point is `kerrigan check`
 | `agents_md.py` | Validates `AGENTS.md` exists and every `.github/agents/*.md` profile has valid YAML frontmatter (`name`, `description`). |
 | `check_artifacts.py` | Validates that required artifact files exist and contain required sections for each project in `specs/projects/`. |
 | `check_dependencies.py` | Validates task dependency syntax in `tasks.md` files and detects circular dependencies. |
-| `check_agent_signature.py` | Validates agent signatures on PRs in GitHub Actions context; skips gracefully when `GITHUB_EVENT_PATH` is not set. |
 | `block_validator.py` | Validates block files in `.specify/blocks/` have correct YAML structure. |
 | `test_capability_matrix.py` | Validates the agent capability matrix is well-formed. |
 | `show_status.py` | Displays `status.json` information for all projects (informational; always passes). |

@@ -291,12 +291,6 @@ For production use:
    - Implement network policies
    - Regular security scans
 
-## Related Documentation
-
-- [Self-Hosted Runner Setup Guide](../../docs/self-hosted-runner-setup.md) - Detailed setup for VM deployment
-- [Self-Hosted Runner Operations](../../docs/self-hosted-runner-operations.md) - Operational procedures
-- [SDK Agent Setup](../../docs/sdk-agent-setup.md) - SDK Agent service configuration
-
 ## Support
 
 For issues or questions:
