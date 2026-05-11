@@ -7,8 +7,6 @@ Kerrigan v2 defines agents by **location**, not role.
 - [`kerrigan.md`](./kerrigan.md) — **swarm shaper** (meta). Maintains the harness itself.
 - [`adapters/`](./adapters/) — thin pointers to built-in sub-agents (Claude Code `Explore` / `Plan`, GH Copilot review / coding agent).
 
-v1 role agents (10 files) are archived in [`_legacy/`](./_legacy/) with a mapping to their v2 homes.
-
 ## Format
 
 All profiles use the GitHub Copilot custom-agent format (YAML frontmatter + Markdown body). Claude Code reads extended fields in the same frontmatter (`model`, `isolation`, `hooks`, `skills`, etc.) and ignores what Copilot doesn't recognize, and vice versa — **one file, all runtimes**.

@@ -16,7 +16,7 @@
 - `.github/agents/adapters/` — thin one-page pointers to Claude Code's `Explore` and `Plan` built-ins and to GH Copilot's built-in review/coding agents. No prompt bodies — just "when to delegate to this built-in".
 - `.github/agents/kerrigan.md` — meta profile (swarm shaper). Rewrite frontmatter, trim body.
 - `.claude/agents/` symlinks (PowerShell junctions via `scripts/mirror-agents.ps1`) to `.github/agents/`.
-- Move v1 `.github/agents/role.*.md` to `.github/agents/_legacy/` with a README mapping each role → either a skill or a spec-kit extension.
+- Retire the remaining v1 role-prompt files in favor of the v2 profiles + skills/extensions.
 - Add 4 v2 labels (`agent:go`, `agent:wait`, `agent:local`, `autonomy:override`). Leave v1 labels in place; migrate in Phase 4.
 - Starter skills in `.github/skills/` (agent-skills spec): `briefing-packet`, `block-report`, `smoke-test`, `delegation-rubric`.
 - Validator `tools/validators/agents_md.py` — checks `AGENTS.md` exists and `.github/agents/*.md` have valid frontmatter + required fields (`name`, `description`).
@@ -98,7 +98,7 @@
 
 **Deliverables:**
 
-- Delete `.github/agents/_legacy/role.*.md`.
+- Delete the remaining v1 role-prompt files.
 - Retire workflows replaced by v2: `agent-gates.yml`, `auto-grant-autonomy.yml`, `auto-ready-pr.yml`, `auto-trigger-dependents.yml` (merged into `verify.yml` + branch protection), `daily-self-improvement.yml` (replaced by kerrigan cron).
 - Rescope `services/sdk-agent/` to "optional programmatic dispatch" — spec-kit's `/speckit.taskstoissues` covers the common path.
 - Retire v1 labels; migration script `scripts/migrate-v1-to-v2.{ps1,sh}`.

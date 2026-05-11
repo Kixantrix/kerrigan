@@ -107,9 +107,9 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **[Satellite Feedback](feedback/satellite/README.md)**: Contribute feedback from your Kerrigan installation
 - **[External Research Workflow](docs/external-research-workflow.md)**: Using external research for self-improvement
 
-### Agent Roles
+### Agent Profiles
 - **[Agent README](.github/agents/README.md)**: Overview of all agent types
-- **Individual prompts**: See `.github/agents/role.*.md` for each specialized agent
+- **Profiles**: See `.github/agents/` for the current `local`, `cloud`, and `kerrigan` profiles
 
 ---
 
@@ -147,7 +147,7 @@ See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed conf
 | Check project status | `kerrigan status <name>` or `kerrigan status --all` |
 | Enable agent work | Add `agent:go` label to GitHub issue |
 | Pause project | Create `status.json` with `"status": "blocked"` |
-| Invoke agent | `kerrigan agent <role> --show` or copy prompt from `.github/agents/role.*.md` |
+| Invoke agent | `kerrigan agent <profile> --show` or open the relevant file in `.github/agents/` |
 | Validate locally | `kerrigan validate` or `python tools/validators/check_artifacts.py` |
 | Multi-repo operations | `kerrigan repos list/sync <project>` |
 | Bootstrap environment | `bash tools/bootstrap.sh` |
@@ -162,7 +162,7 @@ See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for detailed conf
 ```
 kerrigan/
 ├── .github/
-│   ├── agents/              # Agent role prompts (Spec, Architect, SWE, etc.)
+│   ├── agents/              # Agent profiles and built-in adapters
 │   └── workflows/           # CI configuration (validators, autonomy gates)
 ├── docs/                    # Comprehensive documentation
 │   ├── architecture.md      # System design and workflow diagram

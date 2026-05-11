@@ -33,12 +33,12 @@ Validates that all agent prompts follow expected structure and include required 
 - `TestAgentPromptConsistency`: Validates consistency across all agent prompts
   - Consistent status.json checking format
   - All agents identify themselves clearly at the start
-  - Consistent file naming convention (role.{name}.md)
+  - Consistent v2 profile naming and structure
 
 - `TestAgentPromptCompleteness`: Ensures all expected agents exist
-  - All expected agent roles have prompt files
+  - All expected v2 agent profiles have prompt files
   - Agents directory has a README
-  - README documents all agent roles
+  - README documents all agent profiles
 
 ### Automation Configuration (`test_automation.py`)
 
@@ -229,11 +229,11 @@ When modifying agent prompts or adding new agents:
 2. Update tests if adding new requirements
 3. Ensure all tests pass in CI before merging
 
-When adding new agent prompts:
-1. Create the prompt file following the `role.{name}.md` naming convention
-2. Tests will automatically validate the new prompt
+When adding new agent profiles:
+1. Create the profile file in `.github/agents/`
+2. Tests will automatically validate the new profile
 3. Add the agent to expected agents list in `TestAgentPromptCompleteness` if it's a core agent
-4. Update the agents README to document the new agent
+4. Update the agents README to document the new profile
 
 ## Philosophy
 

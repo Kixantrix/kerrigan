@@ -3,7 +3,7 @@
 
 Checks:
 1. AGENTS.md exists at repo root.
-2. Every .github/agents/*.md (excluding _legacy/, adapters/, README.md)
+2. Every .github/agents/*.md (excluding adapters/, README.md)
    has valid YAML frontmatter with required fields: name, description.
 3. Profile `name` matches filename (profile.md -> name: profile).
 
@@ -27,7 +27,7 @@ SPECKIT_AGENT_REQUIRED = ("description",)
 MANIFEST_FIELDS = ("needs", "blocks_on", "budget")
 
 # Directories under .github/agents/ to skip
-SKIP_DIRS = {"_legacy", "adapters"}
+SKIP_DIRS = {"adapters"}
 SKIP_FILES = {"README.md"}
 
 FRONTMATTER_RE = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)

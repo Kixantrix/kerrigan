@@ -188,7 +188,7 @@ class TestValidatorScript(unittest.TestCase):
         # Test glob patterns
         self.assertTrue(matches_pattern("tools/validators/check_artifacts.py", 
                                        "tools/validators/*.py"))
-        self.assertTrue(matches_pattern(".github/agents/role.swe.md",
+        self.assertTrue(matches_pattern(".github/agents/local.md",
                                        ".github/agents/*.md"))
         
         # Test non-matches
@@ -286,7 +286,7 @@ class TestValidatorIntegration(unittest.TestCase):
         self.assertEqual(mapping['source'], "tools/agent_audit.py")
         
         # Test finding a glob pattern mapping
-        mapping = find_mapping_for_file(".github/agents/role.swe.md", mappings)
+        mapping = find_mapping_for_file(".github/agents/local.md", mappings)
         self.assertIsNotNone(mapping)
 
     @patch('subprocess.run')

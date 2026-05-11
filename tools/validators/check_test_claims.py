@@ -258,7 +258,7 @@ def main():
         print("3. Verifiable (include test runner output)")
         print()
         print("See docs/pr-documentation-guidelines.md for standards.")
-        print("See .github/agents/role.swe.md for testing requirements.")
+        print("See .github/agents/cloud.md for testing requirements.")
     else:
         if pr_body_text:
             print("✅ Test claims validation passed")
