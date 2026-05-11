@@ -28,8 +28,10 @@ This document defines the non-negotiable principles for all work produced under 
 - Use secure secret handling and least-privilege access.
 
 ## 7) Human-in-the-loop, not human-as-glue
-- Humans approve key decisions and direction.
+- Humans approve key decisions and **direction** — not technical quality.
 - Agents own implementation, testing, debugging, and deployment excellence.
+- **Review chain**: cloud self-test → CI → Copilot code review → local agent addresses feedback → human reviews direction and spec alignment.
+- Human review happens **after** all automated verification is green. The human asks: "does this do what we intended?" — not "is the code correct?".
 
 ## 8) Clarity for agents
 - Keep key entrypoints discoverable within ~100 lines:

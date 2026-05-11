@@ -13,10 +13,11 @@
 - Local→cloud routing rubric (by capability, not role)
 - Conflict prediction before parallel cloud dispatch
 - Briefing-packet compression to cut dispatch tokens
-- Distributed verification (cloud self-test → CI → spec-kit verify → Copilot review → human)
+- Distributed verification (cloud self-test → CI → Copilot code review → local addresses feedback → human reviews direction)
 - Structured blocks, capability manifests, smoke-test mandate, budget surfacing
+- **Review philosophy**: humans verify *direction and spec alignment*, not technical quality. Technical quality is the agent + CI + Copilot review chain's job. Human review happens after all automated checks are green.
 
-Current milestone: **[v2 rollout](specs/kerrigan-v2/010-phases.md)** — Phase 0 in progress.
+Current milestone: **[v2 rollout](specs/kerrigan-v2/010-phases.md)** — v2 complete.
 
 ## How to start
 

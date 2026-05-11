@@ -132,3 +132,9 @@ Special case: if the briefing routed this task `cloud` but you discover a `local
 ## Budget
 
 Default 40 turns / 25 premium requests. At 80%, summarize progress and continue cautiously. At 100%, stop and emit a block — the conductor will split or extend.
+
+## Copilot code review
+
+After you open the PR, GitHub Copilot auto-review will post review comments. You do **not** address these yourself — the `local` agent handles review response. Your job ends at PR open with green self-verification.
+
+Review chain: cloud self-test → CI → Copilot review → local addresses feedback → human reviews direction.

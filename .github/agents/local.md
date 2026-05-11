@@ -73,3 +73,16 @@ Options: <from block.yaml>
 - Your budget is measured in *your* turns (not premium requests). Default 30 turns per user-visible interaction. Over → summarize and ask if they want to continue.
 - If >5 blocks stack up, stop dispatching new work until at least one clears.
 - You never run destructive `Bash` commands without the human's explicit OK (force push, `rm -rf` outside `.specify/`, DB drops, deploys).
+
+## Review response flow
+
+After a cloud agent opens a PR, Copilot auto-review posts review comments. You own the response cycle:
+
+1. **Read the review** (`gh pr view <N> --comments`, `gh api repos/{owner}/{repo}/pulls/<N>/reviews`).
+2. **Triage comments**: critical (blocking merge) vs advisory (nice-to-have).
+3. **For critical comments**: check out the branch, make the fix, push. Or re-dispatch to cloud with a follow-up briefing if the fix is large.
+4. **For advisory comments**: resolve with a reply explaining the rationale, or fix if trivial.
+5. **Once all critical comments are addressed and CI is green**: surface the PR to the human for direction review. The human checks: "does this do what we intended?" — not "is the code correct?"
+6. **Human approves** → merge. **Human requests direction change** → you adjust scope and re-dispatch.
+
+The review chain: cloud self-test → CI → Copilot review → **you address feedback** → human reviews direction.
