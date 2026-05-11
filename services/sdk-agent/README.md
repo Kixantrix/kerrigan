@@ -1,10 +1,25 @@
 # SDK Agent Service
 
-This directory contains the SDK-based autonomous agent service that enables fully automated issue-to-PR workflows.
+> **Optional service** — sdk-agent is for programmatic or API-driven dispatch scenarios only.
+> For the standard issue-creation workflow, use `/speckit.taskstoissues` (the spec-kit skill) or
+> `tools/create_issues.py` (the CLI entry point). No server setup is required for either of those.
 
-## Overview
+## Standard Workflow (Recommended)
 
-The SDK Agent Service is triggered automatically when issues are labeled with `agent:go`, `agent:sprint`, or `autonomy:override`. It:
+For most users, **no sdk-agent setup is needed**. Use one of these instead:
+
+| Use case | Tool |
+|---|---|
+| Convert tasks to GitHub issues (interactive) | `/speckit.taskstoissues` skill — runs inside Claude Code / Copilot chat |
+| Create issues from a YAML file via CLI | `tools/create_issues.py tasks.yaml` — requires only the `gh` CLI |
+
+See the [speckit-taskstoissues skill](../../.claude/skills/speckit-taskstoissues/SKILL.md) for full documentation on the standard path.
+
+---
+
+## Overview (Programmatic / API Use)
+
+The SDK Agent Service is an **optional** component for teams that need fully automated, event-driven issue-to-PR workflows triggered via the GitHub API. When active it:
 
 1. Validates autonomy gates
 2. Determines the appropriate agent role based on labels
@@ -33,7 +48,9 @@ Issue Event → GitHub Actions → SDK Agent Service → Copilot SDK → PR Crea
               GitHub App Auth      SDK Client           PR Creator
 ```
 
-## Setup
+## Setup (API / Programmatic Use Only)
+
+> Skip this section if you are using `/speckit.taskstoissues` or `tools/create_issues.py`.
 
 ### Prerequisites
 
@@ -79,14 +96,14 @@ npm run dev -- \
   --repository "Kixantrix/kerrigan"
 ```
 
-### Production (GitHub Actions)
+### Production (GitHub Actions) — Optional Automation
 
-The service runs automatically via the `.github/workflows/sdk-agent-service.yml` workflow when:
+The service can run automatically via the `.github/workflows/sdk-agent-service.yml` workflow when:
 
 1. An issue is labeled with `agent:go`, `agent:sprint`, or `autonomy:override`
 2. An issue is assigned and has one of those labels
 
-No manual triggering is required.
+This is an opt-in automation layer; the workflow is not required for normal Kerrigan operation.
 
 ## Agent Roles
 
@@ -264,6 +281,8 @@ Monitor the service through:
 
 ## Related Documentation
 
+- [speckit-taskstoissues skill](../../.claude/skills/speckit-taskstoissues/SKILL.md) — standard issue-creation workflow (no server required)
+- [tools/create_issues.py](../../tools/create_issues.py) — CLI entry point for creating issues from YAML
 - [SDK Architecture Proposal](../../docs/sdk-architecture-proposal.md)
 - [Kerrigan Architecture](../../docs/architecture.md)
 - [Automation Limits](../../docs/automation-limits.md)
