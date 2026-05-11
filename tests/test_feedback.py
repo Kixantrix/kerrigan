@@ -48,9 +48,15 @@ class TestFeedbackStructure(unittest.TestCase):
 
     def test_feedback_spec_exists(self):
         """Test that feedback specification document exists"""
-        spec = self.repo_root / "specs" / "kerrigan" / "080-agent-feedback.md"
+        spec = self.repo_root / "specs" / "kerrigan" / "_archive-v1" / "080-agent-feedback.md"
         self.assertTrue(spec.exists(),
-                       "specs/kerrigan/080-agent-feedback.md should exist")
+                       "specs/kerrigan/_archive-v1/080-agent-feedback.md should exist")
+
+    def test_v1_archive_readme_exists(self):
+        """Test that v1 archive includes a README notice"""
+        archive_readme = self.repo_root / "specs" / "kerrigan" / "_archive-v1" / "README.md"
+        self.assertTrue(archive_readme.exists(),
+                       "specs/kerrigan/_archive-v1/README.md should exist")
 
     def test_feedback_playbook_exists(self):
         """Test that feedback review playbook exists"""
