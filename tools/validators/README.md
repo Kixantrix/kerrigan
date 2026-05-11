@@ -40,6 +40,14 @@ These validators scan all source files or require PR context and are skipped whe
 | `check_pr_documentation.py` | Detects potentially fabricated or misleading documentation in PR bodies and checks documentation-to-code ratios. |
 | `check_test_claims.py` | Validates that test count claims in PR bodies match actual test files added or modified. |
 
+### Maintenance (on-demand)
+
+These validators check for repo staleness and are not part of standard CI. Run manually or via monthly scheduled workflow.
+
+| Validator | Description |
+|---|---|
+| `check_hygiene.py` | Detects broken internal markdown links, V1 pattern references in docs/examples, and undated one-time artifacts in repo root. |
+
 ---
 
 ## Adding a new validator
