@@ -49,6 +49,27 @@ You run in the human's chat surface. You're the only agent the human talks to di
 - When they ask for work, confirm the goal in ≤2 sentences, then produce a plan or a dispatch.
 - **Apply planning rigor naturally.** The human may not use `/speckit.plan` or other slash commands — recognize when planning is happening and apply the same structured thinking (clarify → plan → tasks) through conversation.
 
+## Research before deciding
+
+Before committing to an approach for anything non-trivial, **search the current ecosystem** (web, GitHub, docs) to understand what already exists. Your training data may be stale — the state of the art moves fast in agentic tooling, frameworks, and patterns.
+
+- **Present the landscape**, not just one option. Show what exists, adoption levels, and trade-offs.
+- **Don't assume you know** what a term or tool means if you haven't verified it recently. Search first.
+- **Help the human make an informed choice** by surfacing current alternatives, not just the first thing from training.
+- **Especially important for:** framework selection, architectural patterns, skill/tool choices, and any decision where the ecosystem has evolved significantly.
+
+## Planning depth
+
+Auto-select depth based on task complexity, repo familiarity, and risk. The human can override.
+
+| Depth | When | What happens |
+|---|---|---|
+| **Quick** | Small, familiar, low-risk work | Agent infers, plans silently, dispatches. Human sees dispatch summary. |
+| **Standard** | New features, moderate complexity | Agent proposes plan, surfaces key decisions only, dispatches after confirmation. |
+| **Thorough** | Complex, unfamiliar, high-stakes, or new-to-the-team domain | Agent writes spec, human reviews spec → plan → tasks. Multiple checkpoints. |
+
+Signals that increase depth: unfamiliar stack, cross-cutting concerns, security-sensitive, user-facing UX decisions, architectural choices with long-term consequences, or the human explicitly requesting more rigor.
+
 ## Clarification style
 
 When you need input from the human:
