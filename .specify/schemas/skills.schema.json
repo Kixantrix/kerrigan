@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kerrigan Project Skills Config",
+  "description": "Locked skill set for a project. Written by skill discovery, consumed by briefing generator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skills"],
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Project name or path."
+    },
+    "acquired_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source", "trust"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Skill identifier (e.g., python-patterns, tdd-workflow)."
+          },
+          "source": {
+            "type": "string",
+            "enum": ["repo", "user", "registry", "external"],
+            "description": "Where the skill comes from."
+          },
+          "path": {
+            "type": "string",
+            "description": "File path or URL to the skill definition."
+          },
+          "trust": {
+            "type": "string",
+            "enum": ["trusted", "approved", "unvetted"],
+            "description": "trusted = repo/user config. approved = user explicitly approved. unvetted = proposed but not yet approved."
+          },
+          "phase": {
+            "type": "string",
+            "enum": ["planning", "implementation", "both"],
+            "description": "When this skill is relevant."
+          },
+          "approved_by": {
+            "type": "string",
+            "description": "Who approved this skill (for external sources)."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Why this skill was selected."
+          }
+        }
+      }
+    }
+  }
+}
