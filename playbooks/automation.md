@@ -90,11 +90,6 @@ For autonomous sprints:
 **What it does**: Creates issues from AUTO-ISSUE markers in tasks.md  
 **Permissions**: Needs `issues: write`, `contents: read`
 
-### agent-gates.yml (enhanced)
-**Triggers**: PR opened, labeled  
-**What it does**: Validates autonomy gates + auto-applies agent:go in sprint mode  
-**Permissions**: Needs `pull-requests: write`, `issues: read`
-
 ### PR Review Script (tools/review-prs.ps1)
 **Type**: Local PowerShell script (not GitHub Actions)  
 **What it does**: Systematically manages Copilot reviews on all open PRs  
@@ -142,7 +137,6 @@ The core contracts (role labels, task format, autonomy modes) are platform-agnos
 **Sprint mode not working**
 - Confirm tracking issue has `agent:sprint` label
 - Verify PR body links to the sprint issue
-- Check Actions logs for the agent-gates workflow
 
 **Permission errors**
 - Workflows use `GITHUB_TOKEN` which inherits repo permissions
