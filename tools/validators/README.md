@@ -9,7 +9,8 @@ kerrigan check --verbose # show per-validator output
 ```
 
 No validator should be called directly in CI workflows.
-The single CI entry point is `kerrigan check` (see `.github/workflows/verify.yml`).
+The single CI entry point is `kerrigan check`
+(see `.github/workflows/ci.yml` and `.github/workflows/verify.yml`).
 
 ---
 
