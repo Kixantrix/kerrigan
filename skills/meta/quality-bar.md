@@ -405,7 +405,6 @@ Before submitting PR, ask:
 ## References
 
 - [Constitution](../../specs/constitution.md) - Core principles
-- [Quality Bar Spec](../../specs/kerrigan/030-quality-bar.md) - Full specification
 - [Artifact Contracts](./artifact-contracts.md) - File structure requirements
 - [Examples](../../examples/) - See quality bar in practice
 

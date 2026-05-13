@@ -11,53 +11,31 @@ Kerrigan is a multi-agent orchestration system that coordinates specialized AI a
 ```mermaid
 flowchart TD
     %% Human Inputs
-    Human([Human: Project Goals]) --> Issue[GitHub Issue with Specs]
+    Human([Human: Goal]) --> Local[Local Agent<br/>Plans & Dispatches]
     
-    %% Control Plane
-    Issue --> LabelCheck{Autonomy Labels?}
-    LabelCheck -->|agent:go| ControlPlane[Control Plane]
-    LabelCheck -->|agent:sprint| ControlPlane
-    LabelCheck -->|No label| Blocked[❌ Gate Blocked]
+    %% Planning
+    Local --> SpecKit[Spec-Kit Lifecycle]
+    SpecKit -->|specify → plan → tasks| Tasks[(Task List)]
     
-    ControlPlane --> StatusCheck{status.json Check}
-    StatusCheck -->|blocked/on-hold| Paused[⏸️ Work Paused]
-    StatusCheck -->|active/none| AgentFlow[Agent Workflow]
+    %% Dispatch
+    Tasks --> Routing{Delegation Rubric}
+    Routing -->|Cloud-safe| Cloud[Cloud Agent<br/>Implements & Self-verifies]
+    Routing -->|Needs device/secrets| LocalExec[Local Execution]
     
-    %% Agent Workflow
-    AgentFlow --> Spec[1. Spec Agent]
-    Spec -->|spec.md<br/>acceptance-tests.md| Artifacts1[(Artifacts)]
+    %% Cloud Agent Work
+    Cloud -->|One task, one PR| PR[Pull Request]
     
-    Artifacts1 --> Architect[2. Architect Agent]
-    Architect -->|architecture.md<br/>plan.md<br/>tasks.md<br/>test-plan.md| Artifacts2[(Artifacts)]
-    
-    Artifacts2 --> Kerrigan[3. Kerrigan Meta-Agent]
-    Kerrigan -->|Constitution<br/>Validation| Artifacts3[(Artifacts)]
-    
-    Artifacts3 --> SWE[4. SWE Agent]
-    SWE -->|Implementation<br/>Tests| Artifacts4[(Artifacts)]
-    
-    Artifacts4 --> Testing[5. Testing Agent]
-    Testing -->|Test Coverage<br/>Hardening| Artifacts5[(Artifacts)]
-    
-    Artifacts5 --> Deploy[6. Deploy Agent]
-    Deploy -->|runbook.md<br/>cost-plan.md| Artifacts6[(Artifacts)]
-    
-    %% CI/CD and PR Flow
-    Artifacts6 --> PR[Pull Request]
+    %% Verification Chain
     PR --> CI{CI Validation}
-    CI -->|Validators Pass| Gates{Autonomy Gates}
-    CI -->|Validators Fail| Blocked2[❌ CI Failed]
+    CI -->|Pass| CopilotReview[Copilot Review]
+    CI -->|Fail| Fix[Cloud fixes]
+    Fix --> CI
     
-    Gates -->|Labels Valid| Review[Human Review]
-    Gates -->|Labels Invalid| Blocked3[❌ Gate Failed]
+    CopilotReview --> LocalReview[Local Agent<br/>Addresses feedback]
+    LocalReview --> HumanReview[Human Reviews<br/>Direction & Intent]
     
-    Review -->|Approved| Merge[Merge to Main]
-    Review -->|Changes Requested| AgentFlow
-    
-    %% Validators and Quality Bar
-    CI -.->|Check| Validators[Artifact Validators]
-    CI -.->|Check| QualityBar[Quality Bar<br/>Max 800 LOC/file]
-    CI -.->|Check| SecurityScan[Security Scan]
+    HumanReview -->|Approved| Merge[Merge]
+    HumanReview -->|Direction change| Local
     
     %% Feedback Loops
     Merge --> Complete[✅ Project Complete]
@@ -85,9 +63,10 @@ flowchart TD
 The control plane manages workflow execution and ensures human oversight:
 
 - **Autonomy Gates** (`agent-gates.yml`): Label-based workflow control
-  - `agent:go`: On-demand approval for single issues
-  - `agent:sprint`: Sprint-mode approval for milestone work
-  - `autonomy:override`: Human override for exceptional cases
+  - `agent:go`: Agent has autonomy — proceed
+  - `agent:wait`: Blocked on human — stop
+  - `agent:local`: Requires human's machine
+  - `autonomy:override`: Human override for blocked gate
   
 - **Status Tracking** (`status.json`): Per-project workflow state
   - `active`: Agents may proceed

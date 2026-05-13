@@ -283,10 +283,7 @@ Monitor the service through:
 
 - [speckit-taskstoissues skill](../../.claude/skills/speckit-taskstoissues/SKILL.md) — standard issue-creation workflow (no server required)
 - [tools/create_issues.py](../../tools/create_issues.py) — CLI entry point for creating issues from YAML
-- [SDK Architecture Proposal](../../docs/sdk-architecture-proposal.md)
 - [Kerrigan Architecture](../../docs/architecture.md)
-- [Automation Limits](../../docs/automation-limits.md)
-- [Agent Assignment](../../docs/agent-assignment.md)
 
 ## Support
 

@@ -18,11 +18,11 @@ Kerrigan offers different templates for different needs. Choose the one that fit
 
 ### 📋 Template Options
 
-See **[TEMPLATE-BRANCHES.md](../TEMPLATE-BRANCHES.md)** for a detailed comparison. Quick summary:
+Choose a template branch that fits your needs:
 
-- **🎯 template/minimal** - Core framework only (best for beginners)
-- **📚 template/with-examples** - Core + 2 curated examples (best for learning)
-- **🏢 template/enterprise** - Full tooling + all examples (best for teams)
+- **template/minimal** - Core framework only (best for beginners)
+- **template/with-examples** - Core + 2 curated examples (best for learning)
+- **template/enterprise** - Full tooling + all examples (best for teams)
 - **🔬 main** - Complete reference including development history
 
 ### Option A: Use as Template (Recommended for New Projects)
@@ -67,26 +67,11 @@ Kerrigan uses labels to control agent autonomy and assign work to agents. Create
 
 | Label | Description | Color |
 |-------|-------------|-------|
-| `agent:go` | On-demand approval for agent work | `#0e8a16` (green) |
-| `agent:sprint` | Sprint-mode approval for milestone | `#fbca04` (yellow) |
-| `autonomy:override` | Human override for exceptional cases | `#d73a4a` (red) |
+| `agent:go` | Agent has autonomy — proceed | `#0e8a16` (green) |
+| `agent:wait` | Blocked on human — stop | `#fbca04` (yellow) |
+| `agent:local` | Requires human's machine | `#d4c5f9` (purple) |
+| `autonomy:override` | Human override for a blocked gate | `#d73a4a` (red) |
 | `allow:large-file` | Bypass large file checks (use sparingly) | `#f9d0c4` (orange) |
-
-### Role Labels (for agent assignment)
-
-These labels enable automatic assignment via the automation workflows:
-
-| Label | Description | Color |
-|-------|-------------|-------|
-| `role:spec` | Specification work | `#d4c5f9` (purple) |
-| `role:architect` | Architecture design | `#c5def5` (blue) |
-| `role:swe` | Software engineering | `#bfdadc` (teal) |
-| `role:testing` | Test coverage work | `#fef2c0` (yellow) |
-| `role:security` | Security review | `#f9d0c4` (orange) |
-| `role:deployment` | Deployment tasks | `#c2e0c6` (green) |
-| `role:debugging` | Bug fixing | `#e99695` (red) |
-
-**Note**: Role labels enable [agent assignment automation](./agent-assignment.md) but are optional if you prefer manual assignment.
 
 ### Creating Labels via GitHub UI
 
@@ -110,44 +95,28 @@ These labels enable automatic assignment via the automation workflows:
 # Authenticate
 gh auth login
 
-# Create required labels
-gh label create "agent:go" --color "0e8a16" --description "On-demand approval for agent work"
-gh label create "agent:sprint" --color "fbca04" --description "Sprint-mode approval for milestone"
-gh label create "autonomy:override" --color "d73a4a" --description "Human override for exceptional cases"
-gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large file checks"
+# Create required labels (v2: 4 labels)
+gh label create "agent:go" --color "0e8a16" --description "Agent has autonomy - proceed" --force
+gh label create "agent:wait" --color "fbca04" --description "Blocked on human - stop" --force
+gh label create "agent:local" --color "5319e7" --description "Requires human machine" --force
+gh label create "autonomy:override" --color "d73a4a" --description "Human override for blocked gate" --force
 
-# Create role labels (optional but recommended for agent assignment)
-gh label create "role:spec" --color "d4c5f9" --description "Specification work"
-gh label create "role:architect" --color "c5def5" --description "Architecture design"
-gh label create "role:swe" --color "bfdadc" --description "Software engineering"
-gh label create "role:testing" --color "fef2c0" --description "Test coverage work"
-gh label create "role:security" --color "f9d0c4" --description "Security review"
-gh label create "role:deployment" --color "c2e0c6" --description "Deployment tasks"
-gh label create "role:debugging" --color "e99695" --description "Bug fixing"
+# Optional labels
+gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large file checks" --force
 ```
 
 **Note**: Label colors are suggestions and can be customized to your preference.
 
 ## Step 3: Choose Your Autonomy Mode
 
-Kerrigan supports different modes of agent autonomy. Choose one based on your workflow preferences:
+Kerrigan v2 uses **2 agent profiles** (local conductor + cloud executor) with label-based gating:
 
-### Mode A: On-Demand (Recommended for Starting)
-- Agents only work when you explicitly label an issue with `agent:go`
-- Maximum human control
-- Best for learning and high-stakes projects
+- Add `agent:go` to an issue → cloud agent picks it up
+- Add `agent:wait` to pause → agent stops
+- Add `agent:local` when the task needs your machine (device I/O, secrets)
+- Add `autonomy:override` to bypass a blocked gate
 
-### Mode B: Sprint Mode
-- Label a milestone/epic with `agent:sprint`
-- Agents can work on any issue linked to that milestone
-- Good for focused development sprints
-
-### Mode C: Hybrid (Advanced)
-- Spec and Architect agents can always propose PRs
-- SWE, Testing, and Deploy agents require explicit approval
-- Balances exploration with execution control
-
-**Configuration**: Edit `playbooks/autonomy-modes.md` if you want to customize behavior. The default is **Mode A (On-Demand)**.
+**Configuration**: Edit `playbooks/autonomy-modes.md` if you want to customize behavior.
 
 ## Step 4: Configure Agent Assignment (Optional)
 
@@ -159,11 +128,7 @@ Open `.github/automation/reviewers.json` and add GitHub usernames or teams:
 
 ```json
 {
-  "role_mappings": {
-    "role:swe": ["your-github-username"],
-    "role:spec": ["your-github-username"],
-    "role:architect": ["your-github-username"]
-  },
+  "default_assignee": "your-github-username",
   "auto_assign_on_label": true,
   "comment_on_assignment": true
 }
@@ -171,12 +136,12 @@ Open `.github/automation/reviewers.json` and add GitHub usernames or teams:
 
 ### 2. How It Works
 
-When you apply a role label (e.g., `role:swe`) to an issue:
-- GitHub Actions automatically assigns configured users
-- Those users can then execute the corresponding agent prompt
-- See [Agent Assignment Guide](./agent-assignment.md) for full details
+When you add the `agent:go` label to an issue:
+- Agents with access to the repo can pick up the work
+- Work follows the spec-kit lifecycle: specify → plan → tasks → implement
+- See [AGENTS.md](../AGENTS.md) for full details
 
-**Note**: This is optional. You can manually assign issues without this automation.
+**Note**: This is optional. You can manually assign issues without labels.
 
 ## Step 5: Understand the Repository Structure
 
@@ -326,7 +291,7 @@ When an agent wants to merge work:
    ```
 
 2. **CI Runs**: Autonomy gates check for labels
-   - PR must reference an issue with `agent:go` or `agent:sprint`
+   - PR must reference an issue with `agent:go`
    - Or PR itself must have `autonomy:override` label
 
 3. **Human Review**: Review the PR and either:

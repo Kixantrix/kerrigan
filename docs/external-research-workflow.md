@@ -300,10 +300,8 @@ To prevent API abuse:
 
 ## Related Documentation
 
-- [Self-Improvement System Spec](../specs/kerrigan/060-self-improvement.md)
-- [Daily Self-Improvement Workflow](../.github/workflows/daily-self-improvement.yml)
-- [Agent Feedback System](../specs/kerrigan/080-agent-feedback.md)
-- [Feedback Review Playbook](./feedback-review.md)
+- [Agent Feedback System](../feedback/README.md)
+- [Self-Improvement System](self-improvement-system.md)
 
 ## Questions?
 

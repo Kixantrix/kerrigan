@@ -259,5 +259,4 @@ This gives human a final "moment of presence" before merge.
 
 - [Autonomy Modes](../playbooks/autonomy-modes.md) - Understand autonomy levels
 - [GitHub Labels](github-labels.md) - All required labels including tier labels
-- [Automation Limits](automation-limits.md) - What can/cannot be automated
 - [GitHub Auto-Merge Docs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/automatically-merging-a-pull-request)

@@ -26,7 +26,7 @@ Investigate the newly announced GitHub Copilot SDK and CLI to determine:
 
 ## Background
 
-The Kerrigan system currently has a fundamental automation gap documented in [automation-limits.md](../../../docs/automation-limits.md):
+The Kerrigan system currently has a fundamental automation gap:
 
 > **Key Finding**: GitHub Actions can automate issue management and workflow orchestration, but **GitHub Copilot cannot be directly triggered or invoked from GitHub Actions**. This requires a human with a GitHub account and Copilot access to work locally or through the web interface.
 
@@ -180,6 +180,5 @@ GitHub has announced new Copilot SDK and CLI tooling that may change this landsc
 
 ## Related documents
 
-- [automation-limits.md](../../../docs/automation-limits.md) - Current limitations
 - [autonomy-modes.md](../../../playbooks/autonomy-modes.md) - Autonomy controls
 - [constitution.md](../../constitution.md) - Human-in-loop requirements

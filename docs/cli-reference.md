@@ -326,4 +326,3 @@ sudo dnf install xclip
 
 - [Setup Guide](setup.md): Initial repository setup
 - [Project Lifecycle](../playbooks/project-lifecycle.md): Managing projects
-- [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md): Required files and structure

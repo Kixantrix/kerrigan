@@ -23,7 +23,6 @@ V1_PATTERNS = {
     "AGENT_SIGNATURE": "V1 signature system removed; use Copilot review",
     "agent:sprint": "V1 autonomy label; use agent:go",
     "agent:blocked": "V1 label; use agent:wait",
-    "status.json": "V1 pause mechanism (Phase 2+: use workflow state instead)",
 }
 
 # One-time artifacts that should be dated or archived
@@ -45,8 +44,14 @@ def check_broken_links(repo_root: Path) -> list[Issue]:
     """Check for broken internal markdown links."""
     issues = []
     
-    # Find all markdown files
-    md_files = list(repo_root.glob("**/*.md"))
+    # Directories to skip entirely
+    skip_dirs = {"node_modules", ".git", "_archive-v1", "__pycache__", ".venv"}
+    
+    # Find all markdown files (excluding skip dirs)
+    md_files = [
+        f for f in repo_root.glob("**/*.md")
+        if not any(part in skip_dirs for part in f.relative_to(repo_root).parts)
+    ]
     
     # Extract all file paths for fast lookup
     all_files = {f.relative_to(repo_root).as_posix() for f in repo_root.glob("**/*") if f.is_file()}
@@ -61,6 +66,18 @@ def check_broken_links(repo_root: Path) -> list[Issue]:
             
             # Skip external links, anchors, and special schemes
             if link.startswith(("http://", "https://", "#", "mailto:", "file://")):
+                continue
+            
+            # Skip GitHub relative branch/tree links (work on github.com, not locally)
+            if link.startswith("../../tree/") or link.startswith("../../blob/"):
+                continue
+            
+            # Skip cross-repo references (multi-repo pattern: "reponame:path")
+            if re.match(r"^[a-zA-Z][\w-]*:", link) and not re.match(r"^[a-zA-Z]:\\", link):
+                continue
+            
+            # Skip placeholder paths
+            if link.startswith("path/to/") or link in ("source_url",):
                 continue
             
             # Remove anchor if present
@@ -155,26 +172,26 @@ def main() -> int:
     
     # Report
     if not all_issues:
-        print("✅ All hygiene checks passed")
+        print("[PASS] All hygiene checks passed")
         return 0
     
     errors = [i for i in all_issues if i.severity == "error"]
     warnings = [i for i in all_issues if i.severity == "warning"]
     
     if warnings:
-        print(f"\n⚠️  {len(warnings)} warnings:")
+        print(f"\n[WARN] {len(warnings)} warnings:")
         for issue in warnings:
             loc = f"{issue.file}:{issue.line}" if issue.line else issue.file
             print(f"  {loc} - {issue.message}")
     
     if errors:
-        print(f"\n❌ {len(errors)} errors:")
+        print(f"\n[FAIL] {len(errors)} errors:")
         for issue in errors:
             loc = f"{issue.file}:{issue.line}" if issue.line else issue.file
             print(f"  {loc} - {issue.message}")
         return 1
     
-    print(f"\n✅ No errors (but {len(warnings)} warnings to address)")
+    print(f"\n[PASS] No errors (but {len(warnings)} warnings to address)")
     return 0
 
 

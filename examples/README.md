@@ -32,10 +32,10 @@ Minimal example demonstrating artifact flow.
 **Purpose**: Smallest possible example of Kerrigan artifacts  
 **Best For**: Understanding artifact contracts
 
-#### [task-tracker](task-tracker/)
-Task management example with multiple features.
+#### [task-tracker-real](task-tracker-real/)
+Task management example with authentic development workflow.
 
-**Purpose**: Demonstrate feature-rich application  
+**Purpose**: Demonstrate feature-rich application with real pause/resume cycles  
 **Best For**: Complex single-repo projects
 
 ### Multi-Repository Example ⭐
@@ -220,8 +220,7 @@ To add a new example:
 ## Related Documentation
 
 - [Kerrigan README](../README.md) - Main project documentation
-- [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md) - Artifact specifications
-- [Milestone 7 Spec](../specs/projects/kerrigan/milestone-7-spec.md) - Multi-repo features
+- [V2 Design](../specs/kerrigan-v2/000-vision.md) - Architecture and design
 - [Multi-Repo Walkthrough](MULTI-REPO-WALKTHROUGH.md) - Complete multi-repo guide
 
 ## Need Help?

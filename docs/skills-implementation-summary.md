@@ -82,9 +82,9 @@ Added "Relevant Skills" sections to:
 
 Review these skills to understand Kerrigan patterns and standards:
 
-- **[Artifact Contracts](../../skills/meta/artifact-contracts.md)** - Description
-- **[Agent Handoffs](../../skills/meta/agent-handoffs.md)** - Description  
-- **[Quality Bar](../../skills/meta/quality-bar.md)** - Description
+- **[Artifact Contracts](../skills/meta/artifact-contracts.md)** - Description
+- **[Agent Handoffs](../skills/meta/agent-handoffs.md)** - Description  
+- **[Quality Bar](../skills/meta/quality-bar.md)** - Description
 
 These skills provide quick reference material. Reference them as needed.
 ```

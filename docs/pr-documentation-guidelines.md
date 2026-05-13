@@ -150,9 +150,7 @@ Future validators may check:
 
 ## Related Documents
 
-- [Agent Auditing](agent-auditing.md) - How to track which agents did what
-- [Agent Specs](../specs/kerrigan/agents/) - Quality standards per agent
-- [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md) - Required deliverables
+- [Agent Profiles](../.github/agents/README.md) - Agent profile documentation
 
 ## Test Reporting Standards
 

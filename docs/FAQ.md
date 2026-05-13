@@ -112,8 +112,7 @@ Note: GitHub Actions usage is free for public repositories and has generous free
 2. **Write spec retrospectively**: Document current state in spec.md
 3. **Capture architecture**: Document existing design in architecture.md
 4. **Create plan for future work**: Define milestones in plan.md
-5. **Add status.json**: Set current phase (e.g., "maintenance" or "enhancement")
-6. **Commit to Kerrigan repo**: Your existing code stays where it is
+5. **Commit to Kerrigan repo**: Your existing code stays where it is
 
 Kerrigan can manage projects that live in separate repositories. The `specs/projects/<name>/` folder is just the control plane.
 
@@ -121,37 +120,20 @@ Kerrigan can manage projects that live in separate repositories. The `specs/proj
 
 ### How do I control when agents can work?
 
-Kerrigan uses **autonomy gates** enforced by GitHub labels:
+Kerrigan uses **4 labels** for autonomy control:
 
-**On-Demand Mode (Recommended)**:
-- Add `agent:go` label to an issue
-- Agents may create PRs referencing that issue
-- Remove label to stop agent work on that issue
+| Label | Purpose |
+|-------|---------|
+| `agent:go` | Agent has autonomy — proceed |
+| `agent:wait` | Blocked on human — stop |
+| `agent:local` | Requires human's machine |
+| `autonomy:override` | Human override for a blocked gate |
 
-**Sprint Mode**:
-- Add `agent:sprint` label to a milestone/epic issue
-- Agents may work on any issue linked to that milestone
-- Remove label when sprint is complete
-
-**Override**:
-- Add `autonomy:override` label directly to a PR
-- Bypasses all autonomy checks (human approval)
-
-See `playbooks/autonomy-modes.md` for detailed configuration.
+See [playbooks/autonomy-modes.md](../playbooks/autonomy-modes.md) for detailed configuration.
 
 ### What if I need to pause agent work?
 
-Use `status.json` in your project folder:
-
-```bash
-# Pause work
-echo '{"status":"blocked","current_phase":"implementation","blocked_reason":"Awaiting review","last_updated":"2026-01-09T12:00:00Z"}' > specs/projects/myproject/status.json
-
-# Resume work  
-echo '{"status":"active","current_phase":"implementation","last_updated":"2026-01-09T14:00:00Z"}' > specs/projects/myproject/status.json
-```
-
-All agent prompts include a status check at the start. If status is "blocked" or "on-hold", agents stop immediately and report the blocked reason.
+Remove the `agent:go` label from the issue, or add `agent:wait`. Agents check labels before starting work. For blocks during execution, agents write `.specify/blocks/<task-id>.yaml` and stop — the local agent surfaces these to the human.
 
 ### Can different agents work on the same project simultaneously?
 
@@ -285,10 +267,10 @@ Yes! Validators are Python scripts in `tools/validators/`:
 - Maximum human control
 - Best for: learning, high-stakes projects, uncertain scope
 
-**Mode B: Sprint Mode** (Good for focused work)
-- Label a milestone with `agent:sprint`
-- Agents can work on any issue in that milestone
-- Best for: time-boxed development, clear scope, trusted agents
+**Using `agent:wait`** (Pause work)
+- Add `agent:wait` to an issue to pause agent work
+- Remove it and add `agent:go` to resume
+- Best for: pausing during review, waiting for decisions
 
 **Mode C: Hybrid** (Advanced)
 - Spec and Architect agents can always propose

@@ -55,11 +55,11 @@ Key principles demonstrated:
 - **Validator-enforced**: CI checks that required artifacts exist
 - **Link-driven**: Keep files short and reference other docs
 
-### 3. **AUTO-ISSUE Pattern**
-The `tasks.md` file demonstrates automated issue generation:
-- Use `<!-- AUTO-ISSUE: role:swe priority:high -->` markers
-- Automation creates GitHub issues from task definitions
-- Agents can be automatically assigned via role labels
+### 3. **Task Dispatch Pattern**
+The `tasks.md` file demonstrates task definitions:
+- Tasks are dispatched via spec-kit lifecycle or briefing packets
+- Cloud agents pick up tasks labeled `agent:go`
+- Wave-based dispatch minimizes merge conflicts
 
 ### 4. **Stack-Agnostic Design**
 This example intentionally avoids implementation details:
@@ -95,7 +95,7 @@ Demonstrates task tracking with:
 For more complete examples, see:
 - [hello-cli](../hello-cli/) - Full CLI implementation with tests
 - [hello-api](../hello-api/) - REST API with Docker support
-- [task-tracker](../task-tracker/) - Complex project with full artifact set
+- [task-tracker-real](../task-tracker-real/) - Complex project with full artifact set
 
 ## Related Specs
 
@@ -104,4 +104,4 @@ This example lives in `examples/` but follows the same structure as projects in 
 2. Fill in the artifacts following this example's pattern
 3. Add implementation-specific details (architecture, test plans, etc.)
 
-See [specs/kerrigan/020-artifact-contracts.md](../../specs/kerrigan/020-artifact-contracts.md) for the full list of required artifacts.
+See the [specs/projects/_template/](../../specs/projects/_template/) directory for the full list of required artifacts.

@@ -21,5 +21,4 @@ Files maintain their original naming convention:
 ## See Also
 
 - [Agent Feedback README](../agent-feedback/README.md)
-- [Feedback Review Playbook](../../playbooks/feedback-review.md)
-- [Agent Feedback Spec](../../specs/kerrigan/080-agent-feedback.md)
+- [Feedback System](../README.md)

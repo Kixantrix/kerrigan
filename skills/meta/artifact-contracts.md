@@ -270,8 +270,7 @@ CI automatically runs validators on all PRs. Fix validation errors before reques
 
 ## References
 
-- [Full Artifact Contracts Spec](../../specs/kerrigan/020-artifact-contracts.md) - Complete specification
-- [Quality Bar Spec](../../specs/kerrigan/030-quality-bar.md) - Quality standards
+- [V2 Design](../../specs/kerrigan-v2/000-vision.md) - Architecture and design
 - [Example Projects](../../examples/) - See artifact examples
 - [Agent Handoffs Playbook](../../playbooks/handoffs.md) - Detailed handoff process
 

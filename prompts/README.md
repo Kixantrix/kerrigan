@@ -432,10 +432,9 @@ All prompts must:
 
 ## Further Reading
 
-- [Prompt URL Loading System Specification](../specs/kerrigan/040-toolchain-and-ops.md#prompt-url-loading-system)
-- [Agent Archetypes](../specs/kerrigan/010-agent-archetypes.md)
-- [Artifact Contracts](../specs/kerrigan/020-artifact-contracts.md)
-- [Quality Bar](../specs/kerrigan/030-quality-bar.md)
+- [AGENTS.md](../AGENTS.md) - Canonical agent entry point
+- [Agent Profiles](../.github/agents/README.md) - Local, cloud, kerrigan profiles
+- [V2 Design](../specs/kerrigan-v2/000-vision.md) - Architecture and design philosophy
 
 ## Questions?
 

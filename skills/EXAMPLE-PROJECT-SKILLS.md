@@ -117,12 +117,12 @@ When agents work on this project, they see:
 ## Relevant Skills
 
 Universal (all projects):
-- [Artifact Contracts](../../skills/meta/artifact-contracts.md)
-- [Agent Handoffs](../../skills/meta/agent-handoffs.md)
-- [Quality Bar](../../skills/meta/quality-bar.md)
+- [Artifact Contracts](meta/artifact-contracts.md)
+- [Agent Handoffs](meta/agent-handoffs.md)
+- [Quality Bar](meta/quality-bar.md)
 
 Project-specific:
-- [API Error Response Format](skills/api-conventions.md)
+- API Error Response Format (project-specific convention)
 ```
 
 **Note**: Stack-specific skills will appear here once they are properly curated from authoritative sources.
@@ -219,6 +219,6 @@ All tests pass: `pytest tests/`
 
 ## See Also
 
-- [Skills Registry](../SKILLS-REGISTRY.md) - Complete registry documentation
-- [Skills README](../README.md) - Usage guide
-- [Skills Template](../skills.json.template) - Configuration template
+- [Skills Registry](SKILLS-REGISTRY.md) - Complete registry documentation
+- [Skills README](README.md) - Usage guide
+- [Skills Template](skills.json.template) - Configuration template

@@ -1110,7 +1110,5 @@ if ($waveN_issues.Count -eq 0) {
 
 - [PR Review Playbook](pr-review.md) - Human review guidelines
 - [Autonomy Modes](autonomy-modes.md) - Agent workflow control
-- [Agent Assignment](../docs/agent-assignment.md) - Role label usage
 - [GitHub Labels](../docs/github-labels.md) - Label definitions
-- [Quality Bar](../specs/kerrigan/030-quality-bar.md) - Quality standards
 - [Git Best Practices](../docs/git-best-practices.md) - Preventing interactive editor stalls and git operation guidelines

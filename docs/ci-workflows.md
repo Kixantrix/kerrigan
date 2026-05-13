@@ -128,6 +128,4 @@ If a file exceeds 800 lines:
 ## Related Documentation
 
 - [PR Documentation Guidelines](pr-documentation-guidelines.md) - Standards for PR descriptions
-- [Agent Auditing](agent-auditing.md) - Tracking which agents did what
-- [Automation Configuration](.github/automation/README.md) - GitHub automation setup
 - [Setup Guide](setup.md) - Initial repository setup

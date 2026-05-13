@@ -522,10 +522,8 @@ Complete documentation for each repository:
 
 ## References
 
-- [Kerrigan Milestone 7 Spec](../../specs/projects/kerrigan/milestone-7-spec.md)
-- [Kerrigan Milestone 7 Tasks](../../specs/projects/kerrigan/milestone-7-tasks.md)
-- [Multi-Repo Playbook](../../playbooks/multi-repo.md) (to be created)
-- [Hello API Example](../hello-api) (single-repo reference)
+- [V2 Design](../specs/kerrigan-v2/)
+- [Delegation Rubric](../.github/skills/delegation-rubric/SKILL.md)
 
 ## License
 

@@ -3,7 +3,7 @@
 This file demonstrates the AUTO-ISSUE feature for automated issue generation.
 
 ## Task: Create hello world CLI
-<!-- AUTO-ISSUE: role:swe priority:high -->
+<!-- agent:go priority:high -->
 
 **Description**: Implement a simple "Hello Swarm" CLI tool that prints a greeting message.
 
@@ -18,7 +18,7 @@ This file demonstrates the AUTO-ISSUE feature for automated issue generation.
 **Estimated effort**: small
 
 ## Task: Add greeting customization
-<!-- AUTO-ISSUE: role:swe priority:medium -->
+<!-- agent:go priority:medium -->
 
 **Description**: Allow users to customize the greeting message via config file or environment variable.
 

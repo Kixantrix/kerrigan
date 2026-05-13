@@ -808,8 +808,8 @@ How to know you've succeeded:
 ## Handoff Protocol
 What to do when done:
 1. Create PR with your artifacts
-2. Tag next role with label (e.g., role:architect)
-3. Update status.json
+2. Label issue with `agent:go` for next task
+3. Update project status
 
 ## Quality Standards
 Standards from constitution to uphold:

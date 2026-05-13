@@ -10,7 +10,7 @@ Kerrigan offers three template branches in addition to `main`:
 2. **template/with-examples** - Core + 2 curated examples (hello-swarm, hello-api)
 3. **template/enterprise** - Core + all examples and tooling
 
-See [../TEMPLATE-BRANCHES.md](../TEMPLATE-BRANCHES.md) for detailed descriptions and usage instructions.
+See the [README.md](../README.md) for template details and usage instructions.
 
 ## Initial Setup
 
@@ -153,6 +153,6 @@ git push -f origin template/minimal
 
 ## Questions?
 
-- See [../TEMPLATE-BRANCHES.md](../TEMPLATE-BRANCHES.md) for user-facing documentation
+- See the [README.md](../README.md) for template documentation
 - See [../docs/FAQ.md](../docs/FAQ.md) for general questions
 - Open an issue for problems or suggestions

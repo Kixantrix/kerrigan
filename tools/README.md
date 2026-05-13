@@ -304,7 +304,6 @@ If you see errors about `gh` command:
 ## Related Documentation
 
 - [PowerShell Style Guide](../docs/powershell-style-guide.md) - Coding standards for PowerShell scripts
-- [Automation Limits](../docs/automation-limits.md) - What can be automated
 - [PR Review Playbook](../playbooks/pr-review.md) - Human review guidelines
 
 ## Example Output

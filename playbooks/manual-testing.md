@@ -419,8 +419,6 @@ After user confirms testing:
 - [PR Review Playbook](pr-review.md) - General PR review guidelines
 - [Triage Playbook](triage.md) - PR pipeline management
 - [GitHub Labels](../docs/github-labels.md) - Label definitions
-- [Automation Limits](../docs/automation-limits.md) - What can/cannot be automated
-- [Automation Testing](../docs/automation-testing.md) - Testing automation workflows
 
 ## See Also
 

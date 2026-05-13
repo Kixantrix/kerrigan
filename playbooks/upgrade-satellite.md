@@ -7,7 +7,6 @@ This playbook guides you through upgrading a satellite Kerrigan installation (a 
 **Target audience**: Project maintainers managing satellite installations of Kerrigan.
 
 **Related documents**:
-- [TEMPLATE-BRANCHES.md](../TEMPLATE-BRANCHES.md) - Available template branches
 - [CHANGELOG.md](../CHANGELOG.md) - Version history and breaking changes
 - [playbooks/replication-guide.md](replication-guide.md) - Setting up new installations
 
@@ -712,7 +711,6 @@ git commit -m "Update version manifest"
 
 ## Related Resources
 
-- [TEMPLATE-BRANCHES.md](../TEMPLATE-BRANCHES.md) - Template options
 - [CHANGELOG.md](../CHANGELOG.md) - Version history
 - [playbooks/replication-guide.md](replication-guide.md) - New installations
 - [docs/setup.md](../docs/setup.md) - Initial setup

@@ -314,7 +314,7 @@ const checkInterval = setInterval(() => {
 
 ## Contributing
 
-See [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.
+See the [AGENTS.md](../../AGENTS.md) for contribution guidelines.
 
 ## License
 

@@ -166,7 +166,7 @@ With proper frontmatter, agents can be invoked:
 - [Creating Custom Agents](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-custom-agents)
 - [About Custom Agents](https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-custom-agents)
 - [Asking Copilot to Create a PR](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-a-pr)
-- [Current Agent Assignment Pattern](../../../docs/agent-assignment.md)
+- [Agent Profiles](../../../.github/agents/README.md)
 
 ---
 

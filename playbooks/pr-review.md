@@ -102,7 +102,7 @@ python tools/agent_audit.py create-signature <role>
 python tools/agent_audit.py create-signature role:swe
 ```
 
-See `docs/agent-spec-validation.md` for details on agent signatures and validation.
+See [AGENTS.md](../AGENTS.md) for details on agent profiles and verification.
 
 ### Spec Reference Requirements
 
@@ -168,4 +168,4 @@ When compliance checks fail, error messages include:
 - **Actionable commands** to fix the issue locally
 - **Documentation links** for additional context
 
-See `docs/agent-spec-validation.md` for complete validation documentation and examples.
+See [AGENTS.md](../AGENTS.md) for agent verification documentation.
