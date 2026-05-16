@@ -1,23 +1,36 @@
-# Agent profiles
+# Claude Code agents (local-only)
 
-Kerrigan v2 defines agents by **location**, not role.
+This directory exists for **Claude Code** users. The repo's source of truth for agent profiles is [`.github/agents/`](../../.github/agents/) — that's what GitHub Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) reads.
 
-- [`kerrigan.md`](./kerrigan.md) — **conductor + shaper**. The single interactive profile. Plans, decides, dispatches project work; also maintains the harness itself (this directory, validators, workflows, specs). Runs in your chat (VS Code / Claude Code / Copilot CLI / github.com).
-- [`cloud.md`](./cloud.md) — **executor**. Implements one task slice in a cloud container or isolated worktree. Opens one PR. Default for `@copilot`-assigned issues.
-- [`adapters/`](./adapters/) — thin pointers to built-in sub-agents (Claude Code `Explore` / `Plan`, GH Copilot review / coding agent).
+Claude Code reads from `.claude/agents/` and there's no path override. This directory is **gitignored** so the same files don't show up twice in VS Code's agent picker.
 
-## Format
+## If you use Claude Code in this repo
 
-All profiles use the GitHub Copilot custom-agent format (YAML frontmatter + Markdown body). Claude Code reads extended fields in the same frontmatter (`model`, `isolation`, `hooks`, `skills`, etc.) and ignores what Copilot doesn't recognize, and vice versa — **one file, all runtimes**.
+You have two options:
 
-Kerrigan-specific capability-manifest fields (`role`, `needs`, `verifies_before_pr`, `delegates`, `budget`, `blocks_on`) are ignored by both runtimes but read by kerrigan tooling (validators, conflict predictor, delegation rubric).
+### Option A — directory junction (recommended, Windows)
 
-## Mirroring to `.claude/agents/`
+```powershell
+pwsh scripts/mirror-agents.ps1
+```
 
-Claude Code looks in `.claude/agents/` by default. `scripts/mirror-agents.ps1` creates a directory junction on Windows; on POSIX use `ln -s .github/agents .claude/agents`.
+Creates a junction so `.claude/agents/` points at `.github/agents/`. One source on disk, both tools see it.
 
-## See also
+### Option B — symlink (macOS / Linux)
 
-- [../../AGENTS.md](../../AGENTS.md) — canonical entry point
-- [../../specs/kerrigan-v2/000-vision.md](../../specs/kerrigan-v2/000-vision.md) — why two profiles
-- [../skills/](../skills/) — skills profiles preload
+```bash
+rm -rf .claude/agents
+ln -s ../.github/agents .claude/agents
+```
+
+### Option C — manual copy
+
+```powershell
+Copy-Item -Recurse -Force .github/agents/* .claude/agents/
+```
+
+You'll need to re-run this whenever `.github/agents/` changes.
+
+## If you only use GitHub Copilot
+
+Nothing to do. Leave this directory empty.

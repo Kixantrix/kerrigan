@@ -1,5 +1,6 @@
 ---
 description: Validate current branch follows feature branch naming conventions
+user-invocable: false
 ---
 
 

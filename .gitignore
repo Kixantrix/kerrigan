@@ -28,6 +28,12 @@ analysis-results.json
 
 # Research cache (external research findings)
 .research_cache/
+
+# Claude Code agents directory — local-only mirror of .github/agents/
+# See .claude/agents/README.md for setup. The README itself is tracked.
+.claude/agents/*
+!.claude/agents/README.md
+
 .test_research_cache/
 
 # Prompt URL cache (see specs/kerrigan/040-toolchain-and-ops.md)

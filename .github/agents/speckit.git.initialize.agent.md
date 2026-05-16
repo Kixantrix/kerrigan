@@ -1,5 +1,6 @@
 ---
 description: Initialize a Git repository with an initial commit
+user-invocable: false
 ---
 
 

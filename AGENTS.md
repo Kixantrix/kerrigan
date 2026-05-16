@@ -30,7 +30,7 @@ Pick an agent profile and talk to it in natural language. Selection happens by *
 
 `kerrigan` is the only interactive profile — the single agent the human talks to. It handles both project work (planning and dispatching) and harness work (maintaining `.github/`, validators, workflows, specs). `cloud` is the executor profile that runs in ephemeral environments to implement one slice at a time.
 
-Agent profiles: [`.github/agents/`](./.github/agents/). The same files are loaded by GH Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) and by Claude Code (mirrored into `.claude/agents/`).
+Agent profiles: [`.github/agents/`](./.github/agents/). GitHub Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) reads them directly. Claude Code reads from `.claude/agents/` — see [`.claude/agents/README.md`](./.claude/agents/README.md) for the optional mirror setup.
 
 Built-in sub-agents `kerrigan` can delegate to (thin adapters in [`.github/agents/adapters/`](./.github/agents/adapters/)):
 
@@ -131,7 +131,7 @@ Claude Code supports three `permissionMode` values in agent frontmatter. Choose 
 
 | Purpose | Path |
 |---|---|
-| Agent profiles | `.github/agents/` (+ `.claude/agents/` mirror) |
+| Agent profiles | `.github/agents/` (Claude Code: opt-in mirror via `.claude/agents/`) |
 | Skills | `.github/skills/`, `skills/` |
 | Spec-kit state | `.specify/` |
 | Meta-specs (why Kerrigan works) | `specs/kerrigan-v2/` (active), v1 history in `specs/kerrigan/_archive-v1/` |
