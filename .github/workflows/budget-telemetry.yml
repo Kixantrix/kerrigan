@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Build budget telemetry comment
         id: build_comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
         env:
           INPUT_THRESHOLD_MINUTES: ${{ inputs.threshold_minutes }}
           INPUT_PR_NUMBER: ${{ inputs.pr_number }}
