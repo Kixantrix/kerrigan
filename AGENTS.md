@@ -87,7 +87,7 @@ Four total, not fifteen:
 - `agent:local` — requires the human's machine (device I/O, OS-specific, paid secret).
 - `autonomy:override` — human override for a gate that would otherwise block.
 
-v1 labels are being phased out in Phase 4 of the v2 rollout; during transition both may appear.
+v1 is archived in `specs/kerrigan/_archive-v1/`; v2 is current.
 
 ## Runtimes
 

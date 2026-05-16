@@ -23,7 +23,7 @@ mkdir -p docs/onboarding docs/architecture docs/operations docs/_archive
 ---
 
 ### Task 2: Update AGENTS.md v1 references
-**Status**: Not started  
+**Status**: Done  
 **Priority**: High  
 **Dependencies**: None  
 
@@ -36,9 +36,9 @@ Remove "phasing out" language from AGENTS.md. State clearly that v2 is current a
 - Remove transition language; state v2 as the active system
 
 **Acceptance Criteria**:
-- [ ] No mentions of "phasing out" or "transition" related to v1
-- [ ] Clear statement that v2 is current
-- [ ] Reference to v1 archive location
+- [x] No mentions of "phasing out" or "transition" related to v1
+- [x] Clear statement that v2 is current
+- [x] Reference to v1 archive location
 
 **Files modified**: `AGENTS.md`
 
