@@ -128,4 +128,4 @@ If a file exceeds 800 lines:
 ## Related Documentation
 
 - [PR Documentation Guidelines](pr-documentation-guidelines.md) - Standards for PR descriptions
-- [Setup Guide](setup.md) - Initial repository setup
+- [Setup Guide](../onboarding/setup.md) - Initial repository setup

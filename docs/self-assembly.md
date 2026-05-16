@@ -695,9 +695,9 @@ Approved budget and limits
    - See [Agent Prompt Template](#agent-prompt-template) below
 
 7. **Create documentation** (2 hours)
-   - Setup guide (docs/setup.md)
-   - Architecture (docs/architecture.md)
-   - FAQ (docs/FAQ.md)
+   - Setup guide (docs/onboarding/setup.md)
+   - Architecture (docs/architecture/architecture.md)
+   - FAQ (docs/onboarding/FAQ.md)
    - Playbooks (playbooks/*.md)
 
 8. **Create README** (30 minutes)
@@ -855,9 +855,9 @@ After reconstruction, verify:
 - [ ] Kerrigan meta-agent prompt exists
 
 ### Documentation
-- [ ] docs/setup.md complete
-- [ ] docs/architecture.md complete
-- [ ] docs/FAQ.md exists
+- [ ] docs/onboarding/setup.md complete
+- [ ] docs/architecture/architecture.md complete
+- [ ] docs/onboarding/FAQ.md exists
 - [ ] playbooks/*.md present
 
 ### GitHub Configuration

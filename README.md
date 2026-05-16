@@ -20,13 +20,13 @@ A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.
 ### Setup
 
 1. **[Use this template](https://github.com/Kixantrix/kerrigan/generate)** and choose your branch
-2. **Create 4 labels**: `agent:go`, `agent:wait`, `agent:local`, `autonomy:override` ([details](docs/setup.md))
+2. **Create 4 labels**: `agent:go`, `agent:wait`, `agent:local`, `autonomy:override` ([details](docs/onboarding/setup.md))
 3. **Create an issue** with your goal and add the `agent:go` label
 4. **Point your agent** at the repo — it reads [AGENTS.md](AGENTS.md) and starts working
 
 **CI enforces**: artifact structure, quality bar (800 LOC max), autonomy gates.
 
-📖 **[Full setup guide](docs/setup.md)** · **[FAQ](docs/FAQ.md)**
+📖 **[Full setup guide](docs/onboarding/setup.md)** · **[FAQ](docs/onboarding/FAQ.md)**
 
 ---
 
@@ -50,10 +50,10 @@ Human goal → local agent → spec-kit lifecycle → cloud dispatch → PR → 
 ## Documentation
 
 ### Getting Started
-- **[Setup Guide](docs/setup.md)** — First-time setup walkthrough
-- **[FAQ](docs/FAQ.md)** — Common questions
-- **[CLI Reference](docs/cli-reference.md)** — `kerrigan check`, `kerrigan init`, etc.
-- **[Architecture](docs/architecture.md)** — System design and workflow
+- **[Setup Guide](docs/onboarding/setup.md)** — First-time setup walkthrough
+- **[FAQ](docs/onboarding/FAQ.md)** — Common questions
+- **[CLI Reference](docs/operations/cli-reference.md)** — `kerrigan check`, `kerrigan init`, etc.
+- **[Architecture](docs/architecture/architecture.md)** — System design and workflow
 
 ### Agent Profiles
 - **[AGENTS.md](AGENTS.md)** — Canonical entry point for all agents
@@ -99,7 +99,7 @@ See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for configuration
 | Enable agent work | Add `agent:go` label to issue |
 | Validate locally | `kerrigan check` or `python tools/validators/check_artifacts.py` |
 | Bootstrap environment | `bash tools/bootstrap.sh` |
-| Install CLI | `cd tools/cli/kerrigan && pip install -e .` ([reference](docs/cli-reference.md)) |
+| Install CLI | `cd tools/cli/kerrigan && pip install -e .` ([reference](docs/operations/cli-reference.md)) |
 
 ---
 

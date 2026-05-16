@@ -52,7 +52,7 @@ Each task should be executable and have "done" criteria.
 
 - [x] Task: Create GitHub labels
   - Done when: `agent:go`, `agent:sprint`, `autonomy:override`, `allow:large-file`, role labels exist
-  - Links: docs/github-labels.md, playbooks/autonomy-modes.md
+  - Links: docs/operations/github-labels.md, playbooks/autonomy-modes.md
 
 - [x] Task: Create test issue for agent workflow
   - Done when: issue exists with clear scope and `agent:go` label
@@ -159,19 +159,19 @@ Each task should be executable and have "done" criteria.
 
 - [x] Task: Add architecture diagram to README
   - Done when: visual showing agent flow and control plane
-  - Links: README.md, docs/architecture.md
+  - Links: README.md, docs/architecture/architecture.md
 
 - [x] Task: Create setup walkthrough
   - Done when: step-by-step guide or video exists
-  - Links: docs/setup.md
+  - Links: docs/onboarding/setup.md
 
 - [x] Task: Write FAQ
   - Done when: covers common setup and workflow questions
-  - Links: docs/FAQ.md
+  - Links: docs/onboarding/FAQ.md
 
 - [x] Task: External user test
   - Done when: someone unfamiliar adopts Kerrigan successfully
-  - Links: docs/fresh-user-test.md
+  - Links: docs/onboarding/fresh-user-test.md
 
 - [x] Task: Polish agent prompts
   - Done when: prompts are concise and unambiguous
@@ -183,4 +183,4 @@ Each task should be executable and have "done" criteria.
 
 - [x] Task: Create retrospective
   - Done when: lessons learned documented
-  - Links: docs/milestone-6-retrospective.md
+  - Links: docs/_archive/milestone-6-retrospective.md

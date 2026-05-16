@@ -16,7 +16,7 @@ Milestone 2 validates the core Kerrigan system with real agent execution pattern
 
 ### ✅ Task 1: Create GitHub labels
 **Status**: Complete  
-**Deliverable**: `docs/github-labels.md`
+**Deliverable**: `docs/operations/github-labels.md`
 
 Created comprehensive documentation for all required GitHub labels:
 - Autonomy control: `agent:go`, `agent:sprint`, `autonomy:override`
@@ -29,7 +29,7 @@ Includes:
 - Web UI instructions
 - Links to relevant documentation
 
-**Evidence**: docs/github-labels.md (4610 characters)
+**Evidence**: docs/operations/github-labels.md (4610 characters)
 
 ---
 

@@ -221,7 +221,7 @@ def main():
         print("These are warnings, not errors. Review the flagged items to ensure")
         print("documentation is factually accurate and doesn't include simulations.")
         print()
-        print("See docs/pr-documentation-guidelines.md for standards.")
+        print("See docs/operations/pr-documentation-guidelines.md for standards.")
         return 1
     else:
         print("✅ PR documentation validation passed - no warnings")

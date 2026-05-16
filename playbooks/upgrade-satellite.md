@@ -627,7 +627,7 @@ If you encounter issues during upgrade:
 
 **Documentation**:
 - Check [CHANGELOG.md](../CHANGELOG.md) for known issues
-- Review [FAQ.md](../docs/FAQ.md) for common questions
+- Review [FAQ.md](../docs/onboarding/FAQ.md) for common questions
 - Read component-specific documentation
 
 **Community**:
@@ -713,4 +713,4 @@ git commit -m "Update version manifest"
 
 - [CHANGELOG.md](../CHANGELOG.md) - Version history
 - [playbooks/replication-guide.md](replication-guide.md) - New installations
-- [docs/setup.md](../docs/setup.md) - Initial setup
+- [docs/onboarding/setup.md](../docs/onboarding/setup.md) - Initial setup

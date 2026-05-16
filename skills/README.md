@@ -273,7 +273,7 @@ A: Yes, use relative paths: `See also: ./agent-handoffs.md`
 
 ## Resources
 
-- [Investigation Report](../docs/skills-sh-investigation.md) - Full analysis and rationale
+- [Investigation Report](../docs/_archive/skills-sh-investigation.md) - Full analysis and rationale
 - [skills.sh Documentation](https://skills.sh/docs) - Skills ecosystem reference
 - [Agent Skills Spec](https://agentskills.io/specification) - Technical specification
 - [Kerrigan Constitution](../specs/constitution.md) - Core principles

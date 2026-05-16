@@ -32,9 +32,9 @@ INVESTIGATION_ARTIFACTS=(
   "MILESTONE-2-VALIDATION.md"
   "MILESTONE-3-COMPLETION.md"
   "MILESTONE-4-COMPLETION.md"
-  "docs/milestone-6-retrospective.md"
+  "docs/_archive/milestone-6-retrospective.md"
   "docs/AGENT-SPEC-VALIDATION-SUMMARY.md"
-  "docs/fresh-user-test.md"
+  "docs/onboarding/fresh-user-test.md"
   "docs/test-issue-agent-workflow.md"
 )
 
@@ -181,7 +181,7 @@ This template **excludes**:
 4. **Copy agent prompts** from `.github/agents/` to your AI assistant
 5. **Let agents build**: Spec → Architecture → Implementation → Testing
 
-📖 **Full setup guide**: [docs/setup.md](docs/setup.md)
+📖 **Full setup guide**: [docs/onboarding/setup.md](docs/onboarding/setup.md)
 
 ---
 
@@ -199,16 +199,16 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
 - **Human-in-loop**: Humans decide strategy, agents execute
 - **Stack-agnostic**: Works with any language or framework
 
-See [docs/architecture.md](docs/architecture.md) for complete details.
+See [docs/architecture/architecture.md](docs/architecture/architecture.md) for complete details.
 
 ---
 
 ## 📚 Documentation
 
-- [Setup Guide](docs/setup.md) - Step-by-step walkthrough
+- [Setup Guide](docs/onboarding/setup.md) - Step-by-step walkthrough
 - [Agent Assignment](docs/agent-assignment.md) - How to assign work via labels
-- [FAQ](docs/FAQ.md) - Common questions
-- [Architecture](docs/architecture.md) - System design
+- [FAQ](docs/onboarding/FAQ.md) - Common questions
+- [Architecture](docs/architecture/architecture.md) - System design
 - [Constitution](specs/constitution.md) - Core principles
 - [Artifact Contracts](specs/kerrigan/020-artifact-contracts.md) - Required files
 
@@ -325,7 +325,7 @@ This template **excludes**:
 5. **Copy agent prompts** from `.github/agents/` to your AI assistant
 6. **Let agents build**: Spec → Architecture → Implementation → Testing
 
-📖 **Full setup guide**: [docs/setup.md](docs/setup.md)
+📖 **Full setup guide**: [docs/onboarding/setup.md](docs/onboarding/setup.md)
 
 ---
 
@@ -337,16 +337,16 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
          ↑ status.json         ↓ Validated by CI
 ```
 
-See [docs/architecture.md](docs/architecture.md) for complete details.
+See [docs/architecture/architecture.md](docs/architecture/architecture.md) for complete details.
 
 ---
 
 ## 📚 Documentation
 
-- [Setup Guide](docs/setup.md) - Step-by-step walkthrough
+- [Setup Guide](docs/onboarding/setup.md) - Step-by-step walkthrough
 - [Agent Assignment](docs/agent-assignment.md) - How to assign work via labels
-- [FAQ](docs/FAQ.md) - Common questions
-- [Architecture](docs/architecture.md) - System design
+- [FAQ](docs/onboarding/FAQ.md) - Common questions
+- [Architecture](docs/architecture/architecture.md) - System design
 
 ---
 
@@ -430,7 +430,7 @@ This template **excludes** only:
 5. **Copy agent prompts** from `.github/agents/` to your AI assistant
 6. **Let agents build**: Spec → Architecture → Implementation → Testing
 
-📖 **Full setup guide**: [docs/setup.md](docs/setup.md)
+📖 **Full setup guide**: [docs/onboarding/setup.md](docs/onboarding/setup.md)
 
 ---
 
@@ -442,7 +442,7 @@ Issue → [Control Plane] → Spec Agent → Architect → SWE → Testing → D
          ↑ status.json         ↓ Validated by CI
 ```
 
-See [docs/architecture.md](docs/architecture.md) for complete workflow details.
+See [docs/architecture/architecture.md](docs/architecture/architecture.md) for complete workflow details.
 
 ---
 
@@ -451,10 +451,10 @@ See [docs/architecture.md](docs/architecture.md) for complete workflow details.
 Comprehensive documentation for all aspects:
 
 ### Getting Started
-- [Setup Guide](docs/setup.md)
-- [CLI Reference](docs/cli-reference.md)
+- [Setup Guide](docs/onboarding/setup.md)
+- [CLI Reference](docs/operations/cli-reference.md)
 - [Agent Assignment](docs/agent-assignment.md)
-- [FAQ](docs/FAQ.md)
+- [FAQ](docs/onboarding/FAQ.md)
 
 ### Process & Workflow
 - [Kickoff Playbook](playbooks/kickoff.md)

@@ -332,8 +332,8 @@ if [ "$TOTAL_ISSUES" -eq 0 ]; then
     echo "  4. Let the local profile create your project spec"
     echo ""
     echo "Documentation:"
-    echo "  - Setup guide: docs/setup.md"
-    echo "  - Architecture: docs/architecture.md"
+    echo "  - Setup guide: docs/onboarding/setup.md"
+    echo "  - Architecture: docs/architecture/architecture.md"
     echo "  - Self-assembly: docs/self-assembly.md"
     echo "  - Replication guide: playbooks/replication-guide.md"
     exit 0

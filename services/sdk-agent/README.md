@@ -283,7 +283,7 @@ Monitor the service through:
 
 - [speckit-taskstoissues skill](../../.claude/skills/speckit-taskstoissues/SKILL.md) — standard issue-creation workflow (no server required)
 - [tools/create_issues.py](../../tools/create_issues.py) — CLI entry point for creating issues from YAML
-- [Kerrigan Architecture](../../docs/architecture.md)
+- [Kerrigan Architecture](../../docs/architecture/architecture.md)
 
 ## Support
 

@@ -14,9 +14,9 @@ on:
       - 'specs/constitution.md'
       - 'specs/kerrigan/0*.md'
       - 'tools/validators/**'
-      - 'docs/setup.md'
-      - 'docs/FAQ.md'
-      - 'docs/architecture.md'
+      - 'docs/onboarding/setup.md'
+      - 'docs/onboarding/FAQ.md'
+      - 'docs/architecture/architecture.md'
       - 'playbooks/**'
 
 permissions:

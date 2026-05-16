@@ -215,7 +215,7 @@ Milestones must end with green CI.
 **Related Documents**:
 - `specs/projects/kerrigan/milestone-7-spec.md` - Detailed specification
 - `specs/projects/kerrigan/milestone-7-tasks.md` - Actionable task breakdown
-- `docs/milestone-6-retrospective.md` - Learnings that informed M7 planning
+- `docs/_archive/milestone-6-retrospective.md` - Learnings that informed M7 planning
 
 ## Future (post-v2)
 

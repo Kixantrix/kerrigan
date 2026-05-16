@@ -71,7 +71,7 @@ We extended Kerrigan's agent role prompts with project-specific guidelines that 
 
 Consider adding guidance to Kerrigan about project-specific style guides:
 
-1. **Add to main docs**: Section in `docs/setup.md` about extending agent prompts
+1. **Add to main docs**: Section in `docs/onboarding/setup.md` about extending agent prompts
 2. **Create example**: Add `examples/custom-style-guide/` showing this pattern
 3. **Update agent prompts**: Add placeholder section for project-specific rules
 4. **Playbook**: Document in `playbooks/customization.md` best practices for customizing agents

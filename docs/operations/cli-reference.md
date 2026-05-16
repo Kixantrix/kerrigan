@@ -324,5 +324,5 @@ sudo dnf install xclip
 
 ## See Also
 
-- [Setup Guide](setup.md): Initial repository setup
-- [Project Lifecycle](../playbooks/project-lifecycle.md): Managing projects
+- [Setup Guide](../onboarding/setup.md): Initial repository setup
+- [Project Lifecycle](../../playbooks/project-lifecycle.md): Managing projects

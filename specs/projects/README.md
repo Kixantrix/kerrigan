@@ -78,7 +78,7 @@ grep -r "Acceptance" specs/projects/<project>/
 
 ## See Also
 
-- [docs/project-directory.md](../../docs/project-directory.md) — extended narrative overview of each project
+- [docs/architecture/project-directory.md](../../docs/architecture/project-directory.md) — extended narrative overview of each project
 - [_archive/README.md](_archive/README.md) — guidance on archiving and restoring projects
 - [_template/](_template/) — start here when creating a new project
 - [playbooks/project-lifecycle.md](../../playbooks/project-lifecycle.md) — full lifecycle management guide

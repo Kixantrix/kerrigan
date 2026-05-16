@@ -327,7 +327,7 @@ gh issue create --title "Add multi-repo handoff pattern" \
 **Question**:
 ```bash
 # Answer on the issue/PR
-# If FAQ-worthy, add to docs/FAQ.md
+# If FAQ-worthy, add to docs/onboarding/FAQ.md
 # Update docs to be clearer
 ```
 

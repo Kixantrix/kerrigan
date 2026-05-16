@@ -300,7 +300,7 @@ To prevent API abuse:
 
 ## Related Documentation
 
-- [Agent Feedback System](../feedback/README.md)
+- [Agent Feedback System](../../feedback/README.md)
 - [Self-Improvement System](self-improvement-system.md)
 
 ## Questions?

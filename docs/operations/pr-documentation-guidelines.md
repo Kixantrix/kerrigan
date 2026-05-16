@@ -150,7 +150,7 @@ Future validators may check:
 
 ## Related Documents
 
-- [Agent Profiles](../.github/agents/README.md) - Agent profile documentation
+- [Agent Profiles](../../.github/agents/README.md) - Agent profile documentation
 
 ## Test Reporting Standards
 

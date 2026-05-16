@@ -31,7 +31,7 @@ Handoffs are file-based. Each stage must produce the artifacts defined in:
 
 11. **Small scope enables faster validation**: The validator-enhancement project is intentionally small (~150 LOC) which makes it ideal for workflow validation. Future validation efforts should also use small, focused test projects.
 
-12. **Documentation bootstraps workflow**: Creating comprehensive label documentation (docs/github-labels.md) and test issue templates (docs/test-issue-agent-workflow.md) provides clear guidance for starting new agent workflows.
+12. **Documentation bootstraps workflow**: Creating comprehensive label documentation (docs/operations/github-labels.md) and test issue templates (docs/test-issue-agent-workflow.md) provides clear guidance for starting new agent workflows.
 
 13. **Artifact creation is the heavy lift**: Spec and architecture phases require significant thought and writing (8 artifacts totaling ~3000 words for validator-enhancement). Implementation is often simpler than planning when scope is well-defined.
 

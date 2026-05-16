@@ -345,6 +345,6 @@ Enable teams to:
 
 - `specs/projects/kerrigan/plan.md` - Overall roadmap (will be updated)
 - `specs/projects/kerrigan/architecture.md` - System design
-- `docs/milestone-6-retrospective.md` - Learnings informing this milestone
+- `docs/_archive/milestone-6-retrospective.md` - Learnings informing this milestone
 - `docs/automation-limits.md` - Constraints on automation
 - `specs/kerrigan/020-artifact-contracts.md` - Existing contracts to extend

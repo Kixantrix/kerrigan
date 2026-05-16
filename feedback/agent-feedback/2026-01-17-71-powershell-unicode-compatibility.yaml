@@ -91,7 +91,7 @@ notes: |
   - All PowerShell scripts updated with #Requires -Version 5.1
   - Version checks added to all scripts with clear error messages
   - All Unicode emojis replaced with ASCII alternatives
-  - Comprehensive PowerShell style guide created (docs/powershell-style-guide.md)
+  - Comprehensive PowerShell style guide created (docs/operations/powershell-style-guide.md)
   - tools/README.md updated with version requirements and troubleshooting
   
   Long-term recommendations documented for future implementation:

@@ -418,7 +418,7 @@ After user confirms testing:
 
 - [PR Review Playbook](pr-review.md) - General PR review guidelines
 - [Triage Playbook](triage.md) - PR pipeline management
-- [GitHub Labels](../docs/github-labels.md) - Label definitions
+- [GitHub Labels](../docs/operations/github-labels.md) - Label definitions
 
 ## See Also
 
