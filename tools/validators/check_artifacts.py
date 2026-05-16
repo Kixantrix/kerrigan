@@ -34,6 +34,16 @@ REQUIRED_FILES = [
     # runbook.md and cost-plan.md are conditionally required; see below
 ]
 
+# Tinyspec projects (marked with .tinyspec file) only need a smaller set.
+# Use for docs-only / small-scope work where architecture.md and test-plan.md
+# would just be placeholders. See AGENTS.md "spec-kit-tinyspec" note.
+TINYSPEC_REQUIRED_FILES = [
+    "spec.md",
+    "acceptance-tests.md",
+    "plan.md",
+    "tasks.md",
+]
+
 REQUIRED_SECTIONS_SPEC = [
     "Goal",
     "Scope",
@@ -303,13 +313,28 @@ def main() -> None:
 
     # Validate each project folder
     for proj in project_folders():
-        for f in REQUIRED_FILES:
+        is_tinyspec = (proj / ".tinyspec").exists()
+        required = TINYSPEC_REQUIRED_FILES if is_tinyspec else REQUIRED_FILES
+        for f in required:
             path = proj / f
             if not path.exists():
                 fail(f"Project '{proj.name}' missing required file {f} at {path.relative_to(ROOT)}")
 
         # Required sections
         ensure_sections(proj / "spec.md", REQUIRED_SECTIONS_SPEC, "spec.md")
+
+        # Tinyspec projects skip architecture and deployable checks; they exist
+        # for docs-only / non-deployable work.
+        if is_tinyspec:
+            # Optional status.json validation
+            status_json = proj / "status.json"
+            if status_json.exists():
+                validate_status_json(status_json, proj.name)
+            spec_md = proj / "spec.md"
+            validate_multi_repo_spec(spec_md, proj.name)
+            validate_cross_repo_references(proj, proj.name)
+            continue
+
         # Architecture headings are matched loosely via keywords
         arch_txt = read_text(proj / "architecture.md")
         # Require presence of these section headings (exact names from template)

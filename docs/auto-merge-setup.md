@@ -1,5 +1,7 @@
 # Auto-Merge Setup Guide
 
+> **v2 status (May 2026):** Auto-merge is **enabled** on this repo. `main` is protected with required status check `kerrigan check` and required linear history. Squash is the only merge method. The recommended human flow is: review direction → `gh pr merge <N> --auto --squash` → walk away.
+
 This guide explains how to enable and configure GitHub's auto-merge feature for Kerrigan's autonomous workflow.
 
 ## What is Auto-Merge?
@@ -26,24 +28,32 @@ Auto-merge is **NOT** a replacement for human review - it's an automation of the
 4. Check the box: **"Allow auto-merge"**
 5. Click **Save**
 
-### Step 2: Configure Branch Protection (Recommended)
+### Step 2: Configure Branch Protection
 
-Auto-merge works best with branch protection rules:
+The current `main` branch protection (set via REST API, May 2026):
 
-1. Settings → Branches → Branch protection rules
-2. Add rule for `main` (or your default branch)
-3. Configure:
-   - ✅ **Require a pull request before merging**
-     - Require approvals: 1 (or more)
-   - ✅ **Require status checks to pass before merging**
-     - Add required checks: `Agent Gates`, `CI / validate`
-   - ✅ **Require conversation resolution before merging**
-   - ⚠️ **Do NOT enable "Require branches to be up to date"** 
-     - This blocks autonomous work by requiring manual updates
-     - **Security trade-off**: May allow merging with stale base branch
-     - **Mitigation**: Rely on CI checks to catch integration issues
-     - Alternative: Use auto-update branches feature instead
-4. Click **Create** or **Save changes**
+- ✅ **Require status checks to pass**: `kerrigan check` (the `verify.yml` job)
+- ✅ **Require branches up-to-date before merging** (`strict: true`) — auto-merge handles the rebase
+- ✅ **Require conversation resolution before merging**
+- ✅ **Require linear history** (squash-only is enforced at the repo level)
+- ✅ **Block force pushes and deletions**
+- ❌ **No required PR reviews** — a solo-developer-friendly setup; direction review is captured by the human enabling auto-merge
+- ❌ **`enforce_admins: false`** — admins can still merge emergencies bypassing CI if needed
+
+To re-apply if protection is lost, use the JSON below with `gh api -X PUT repos/<owner>/<repo>/branches/main/protection --input <file>`:
+
+```json
+{
+  "required_status_checks": { "strict": true, "contexts": ["kerrigan check"] },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "required_conversation_resolution": true,
+  "required_linear_history": true
+}
+```
 
 ## Using Auto-Merge on Pull Requests
 
