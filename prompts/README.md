@@ -430,6 +430,19 @@ All prompts must:
 - [ ] Follow Markdown best practices
 - [ ] Be tested before merging
 
+## Not to be confused with agent profiles
+
+The `prompts/` directory and `.github/agents/` serve different purposes:
+
+| | `prompts/` | `.github/agents/` |
+|---|---|---|
+| **What it contains** | Reusable text templates that instruct an agent what to do on a specific task (e.g. `kickoff-spec.md`, `architecture-design.md`) | Runtime configuration files that define an agent's identity, permissions, skills, and delegation rules (e.g. `local.md`, `cloud.md`, `kerrigan.md`) |
+| **Format** | YAML frontmatter + natural-language instructions; loaded by URL into an issue or CLI invocation | YAML frontmatter + Markdown body; loaded by the runtime (GitHub Copilot, Claude Code) to configure the agent session |
+| **Consumed by** | The agent at task-start to understand *what to do* | The runtime/harness to understand *how to run the agent* |
+| **Versioned?** | Yes — semantic versioning per prompt file | Rarely; profiles evolve with the harness |
+
+See [`.github/agents/README.md`](../.github/agents/README.md) for the agent profiles.
+
 ## Further Reading
 
 - [AGENTS.md](../AGENTS.md) - Canonical agent entry point
