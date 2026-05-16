@@ -2,7 +2,7 @@
 
 **When:** an agent can't proceed with a task.
 **Output:** `.specify/blocks/<task-id>.yaml`.
-**Why:** structured, machine-readable blocks so the `local` profile can surface them and other tasks keep moving.
+**Why:** structured, machine-readable blocks so the `kerrigan` profile can surface them and other tasks keep moving.
 
 ## Schema
 
@@ -54,7 +54,7 @@ resolution:                          # filled in when resolved
 2. **Decision first, explanation second.** `decision_needed` should be answerable in one sentence.
 3. **Always offer options.** "I don't know what to do" is not a block — figure out the 2–3 concrete paths first.
 4. **Minimum human input.** Don't ask for a paragraph when a single choice unblocks you.
-5. **Stop.** Once you emit a block, don't keep spending budget. The `local` profile will re-dispatch when resolved.
+5. **Stop.** Once you emit a block, don't keep spending budget. The `kerrigan` profile will re-dispatch when resolved.
 
 ## Example
 

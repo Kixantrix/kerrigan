@@ -1,6 +1,6 @@
 # Built-in sub-agent adapters
 
-These are **not** kerrigan agents. They're thin pointers telling the `local` profile when to delegate to a runtime's **built-in** sub-agent rather than doing the work itself or dispatching a full cloud task.
+These are **not** kerrigan agents. They're thin pointers telling the `kerrigan` profile when to delegate to a runtime's **built-in** sub-agent rather than doing the work itself or dispatching a full cloud task.
 
 Each adapter is one short page: when to use, what it costs, how to invoke, what it returns.
 
@@ -15,6 +15,6 @@ Each adapter is one short page: when to use, what it costs, how to invoke, what 
 
 ## Why adapters, not agents
 
-Built-ins are maintained by Anthropic and GitHub. Reproducing their prompts would drift and lose updates. We just document **when** to use each one from the `local` profile's point of view.
+Built-ins are maintained by Anthropic and GitHub. Reproducing their prompts would drift and lose updates. We just document **when** to use each one from the `kerrigan` profile's point of view.
 
 The `cloud` profile itself is built *on top of* the Copilot coding agent built-in — the profile adds the briefing-packet, self-verify, and block-report conventions. See [copilot-coding.md](./copilot-coding.md).

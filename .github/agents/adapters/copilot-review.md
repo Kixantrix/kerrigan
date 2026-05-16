@@ -6,7 +6,7 @@
 
 ## Use when
 
-Always on. This is the default Copilot PR review. The `local` profile doesn't invoke it per-task — it runs because the repo setting is on.
+Always on. This is the default Copilot PR review. The `kerrigan` profile doesn't invoke it per-task — it runs because the repo setting is on.
 
 ## Configuration
 

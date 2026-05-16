@@ -8,7 +8,7 @@ assignees: ""
 
 <!--
 Labels are annotations, not gates. The functional trigger is assigning @copilot.
-`agent:go` here just signals "ready to dispatch" to the local profile. See AGENTS.md.
+`agent:go` here just signals "ready to dispatch" to the kerrigan profile. See AGENTS.md.
 -->
 
 ## Objective

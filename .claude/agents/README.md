@@ -2,9 +2,8 @@
 
 Kerrigan v2 defines agents by **location**, not role.
 
-- [`local.md`](./local.md) — **conductor**. Plans, decides, dispatches. Runs in your chat (VS Code / Claude Code / Copilot CLI / github.com).
-- [`cloud.md`](./cloud.md) — **executor**. Implements one task slice in a cloud container or isolated worktree. Opens one PR.
-- [`kerrigan.md`](./kerrigan.md) — **swarm shaper** (meta). Maintains the harness itself.
+- [`kerrigan.md`](./kerrigan.md) — **conductor + shaper**. The single interactive profile. Plans, decides, dispatches project work; also maintains the harness itself (this directory, validators, workflows, specs). Runs in your chat (VS Code / Claude Code / Copilot CLI / github.com).
+- [`cloud.md`](./cloud.md) — **executor**. Implements one task slice in a cloud container or isolated worktree. Opens one PR. Default for `@copilot`-assigned issues.
 - [`adapters/`](./adapters/) — thin pointers to built-in sub-agents (Claude Code `Explore` / `Plan`, GH Copilot review / coding agent).
 
 ## Format

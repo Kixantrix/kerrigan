@@ -12,7 +12,7 @@ Direct invocation (bypass) is fine for one-off small tasks where the briefing ov
 
 ## How the `cloud` profile uses it
 
-1. `local` profile generates a briefing packet.
+1. `kerrigan` profile generates a briefing packet.
 2. `/kerrigan.dispatch` (or `/speckit.taskstoissues`) creates a GH issue with the briefing in the body and assigns `@copilot`.
 3. Copilot coding agent spins up an ephemeral container, checks out a new branch, reads the issue (which includes `AGENTS.md` + briefing).
 4. Our `.github/agents/cloud.md` is loaded as a custom agent — it tells Copilot to treat the briefing as its scope, self-verify, and open one PR.

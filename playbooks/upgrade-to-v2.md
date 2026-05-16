@@ -34,7 +34,7 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 ### `personal-selfhost`
 
 - [ ] Delete the `claude-dispatch.sh` fork after the standard v2 files are present.
-- [ ] Replace any README or team habit that says "run the forked dispatch script" with "talk to the `local` profile (for example in Claude Code or VS Code chat), which dispatches to `cloud` when the delegation rubric allows it."
+- [ ] Replace any README or team habit that says "run the forked dispatch script" with "talk to the `kerrigan` profile (for example in Claude Code or VS Code chat), which dispatches to `cloud` when the delegation rubric allows it."
 - [ ] Use Claude Code for local planning and human-in-the-loop steps; use the `cloud` profile for task execution instead of shelling out to a custom dispatch wrapper.
 
 ### `vhs-video-stack`
@@ -85,7 +85,7 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 ## 5. Test dispatch with v2 primitives
 
 - [ ] Pick one low-risk task and run it end-to-end with v2 only.
-- [ ] Start from the `local` profile and have it plan, route, and dispatch.
+- [ ] Start from the `kerrigan` profile and have it plan, route, and dispatch.
 - [ ] Verify the task routes by capability, not by old repo role names.
 - [ ] Confirm the result opens one reviewable PR, not a stacked or batch-merged bundle.
 - [ ] If the task blocks, require a structured block file instead of ad-hoc chat instructions.

@@ -18,7 +18,7 @@
 - Questions where you already know the answer from `AGENTS.md` or `plan.md`.
 - Replacing careful planning — `Explore` finds, `Plan` decides.
 
-## Invocation (inside `local` profile chat)
+## Invocation (inside `kerrigan` profile chat)
 
 ```
 @Explore <question> [files: <glob>]

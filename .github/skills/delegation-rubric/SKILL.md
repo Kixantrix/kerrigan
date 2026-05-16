@@ -1,6 +1,6 @@
 # Skill: delegation-rubric
 
-**When:** the `local` profile decides whether a task runs `cloud` or `local`.
+**When:** the `kerrigan` profile decides whether a task runs `cloud` or `local`.
 **Why:** routing must be auditable. Every routed task cites the rule it matched.
 
 ## Default: cloud
@@ -64,7 +64,7 @@ When running ≥2 agents in parallel, cloud is mandatory — local can't isolate
 
 ## Citation format
 
-When routing, the `local` profile writes the matched rule into the briefing packet:
+When routing, the `kerrigan` profile writes the matched rule into the briefing packet:
 
 ```yaml
 routing_rule_matched: R-local.os-specific

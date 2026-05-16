@@ -9,11 +9,11 @@
 
 **Kerrigan** is a stack-agnostic coding-swarm harness built **on top of** GitHub Spec Kit. Spec Kit provides the lifecycle (`constitution → specify → plan → tasks → implement`); Kerrigan adds the delegation + verification glue on top:
 
-- 2 agent profiles (`local`, `cloud`) + thin adapters for built-in sub-agents
+- 2 agent profiles (`kerrigan` = interactive conductor + shaper, `cloud` = executor) + thin adapters for built-in sub-agents
 - Local→cloud routing rubric (by capability, not role)
 - Conflict prediction before parallel cloud dispatch
 - Briefing-packet compression to cut dispatch tokens
-- Distributed verification (cloud self-test → CI → Copilot code review → local addresses feedback → human reviews direction)
+- Distributed verification (cloud self-test → CI → Copilot code review → kerrigan addresses feedback → human reviews direction)
 - Structured blocks, capability manifests, smoke-test mandate, budget surfacing
 - **Review philosophy**: humans verify *direction and spec alignment*, not technical quality. Technical quality is the agent + CI + Copilot review chain's job. Human review happens after all automated checks are green.
 
@@ -25,13 +25,14 @@ Pick an agent profile and talk to it in natural language. Selection happens by *
 
 | When you want to | Talk to | Where |
 |---|---|---|
-| Plan, research, dispatch work, make decisions | `local` | VS Code chat · Claude Code · Copilot CLI · github.com (mobile) |
-| Implement one task slice, open one PR | `cloud` | GitHub Copilot cloud agent (default) · Claude Code team session |
-| Shape the harness itself (this file, validators, workflows) | `kerrigan` | Claude Code · VS Code chat |
+| Plan work, dispatch tasks, make decisions, shape the harness | `kerrigan` | VS Code chat · Claude Code · Copilot CLI · github.com (mobile) |
+| Implement one task slice, open one PR | `cloud` | GitHub Copilot cloud agent (default for `@copilot`-assigned issues) · Claude Code worktree session |
+
+`kerrigan` is the only interactive profile — the single agent the human talks to. It handles both project work (planning and dispatching) and harness work (maintaining `.github/`, validators, workflows, specs). `cloud` is the executor profile that runs in ephemeral environments to implement one slice at a time.
 
 Agent profiles: [`.github/agents/`](./.github/agents/). The same files are loaded by GH Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) and by Claude Code (mirrored into `.claude/agents/`).
 
-Built-in sub-agents you can delegate to from `local` (thin adapters in [`.github/agents/adapters/`](./.github/agents/adapters/)):
+Built-in sub-agents `kerrigan` can delegate to (thin adapters in [`.github/agents/adapters/`](./.github/agents/adapters/)):
 
 - Claude Code `Explore` — read-only code exploration (Haiku; fast, cheap).
 - Claude Code `Plan` mode — planning without edits.
@@ -71,8 +72,8 @@ See [`specs/constitution.md`](./specs/constitution.md) for the full list. Short 
 - **Living docs:** `plan.md` (always), `tasks.md` (always). `spec.md` is optional — use `spec-kit-tinyspec` for small work.
 - **Acceptance criteria → tests**: enforced by `spec-kit-verify` + `spec-kit-verify-tasks` (Phase 2).
 - **Smoke test** (`scripts/smoke.sh` / `.ps1`): required for every deployable project. Gates PR merge.
-- **Blocks** are structured: a blocked agent writes `.specify/blocks/<task-id>.yaml` and stops. The `local` profile surfaces blocks; unrelated tasks keep moving.
-- **Waves**: the `local` profile computes parallel-safe waves before dispatch (`.specify/waves.yaml`) via `kerrigan-conflict-predictor` (Phase 1).
+- **Blocks** are structured: a blocked agent writes `.specify/blocks/<task-id>.yaml` and stops. The `kerrigan` profile surfaces blocks; unrelated tasks keep moving.
+- **Waves**: the `kerrigan` profile computes parallel-safe waves before dispatch (`.specify/waves.yaml`) via `kerrigan-conflict-predictor` (Phase 1).
 
 ## Skills
 
@@ -82,8 +83,8 @@ Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [
 
 Four total, not fifteen. **None of these are enforced automatically.** The functional gate for cloud execution is `@copilot` assignment on the issue. The labels are *annotations* the `local` profile (and humans) read to understand intent and state across sessions.
 
-- `agent:go` — annotation: this issue is ready to dispatch (or has been dispatched). Used by `local` to find work that's been triaged.
-- `agent:wait` — annotation: intentionally undispatched; waiting on a dependency, a wave, or human input. `local` should not auto-assign Copilot here.
+- `agent:go` — annotation: this issue is ready to dispatch (or has been dispatched). Used by `kerrigan` to find work that's been triaged.
+- `agent:wait` — annotation: intentionally undispatched; waiting on a dependency, a wave, or human input. `kerrigan` should not auto-assign Copilot here.
 - `agent:local` — annotation: this task needs the human's machine (device I/O, OS-specific, paid secret). Don't assign to cloud Copilot.
 - `autonomy:override` — annotation: human has explicitly approved an exception to a default-cautious routing rule.
 
@@ -113,7 +114,7 @@ Claude Code supports three `permissionMode` values in agent frontmatter. Choose 
 | Any task that `R-local.human-judgment` matches in the delegation rubric | `acceptEdits` (at minimum) | The rubric already identified this task needs human in the loop per step — don't bypass that gate. |
 
 **Defaults in this repo:**
-- `local` profile → `permissionMode: default` (planning/dispatch surface; rarely touches files).
+- `kerrigan` profile → `permissionMode: default` (planning/dispatch + light harness edits; rarely touches feature code).
 - `cloud` profile → `permissionMode: acceptEdits` (executor; always touches files but must be confirmed).
 
 **When to consider `auto` for the `cloud` profile:** only when the linked issue is labeled `agent:go` *and* the task's context falls in the `auto`-safe rows above *and* the branch is not `main`. The `autonomy:override` label signals human approval for an exception.

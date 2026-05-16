@@ -1,6 +1,6 @@
 # Skill: briefing-packet
 
-**When:** the `local` profile dispatches a `cloud` task.
+**When:** the `kerrigan` profile dispatches a `cloud` task.
 **Output:** `.specify/briefings/<task-id>.md` attached to the GH issue body.
 **Why:** give the cloud agent full context without re-deriving from the whole repo.
 

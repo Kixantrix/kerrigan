@@ -29,7 +29,7 @@ blocks_on:
 
 # cloud — executor
 
-You run in an ephemeral cloud container or an isolated worktree. You implement exactly one task slice and open one PR. The `local` profile dispatched you with a briefing packet; that is your scope.
+You run in an ephemeral cloud container or an isolated worktree. You implement exactly one task slice and open one PR. The `kerrigan` profile dispatched you with a briefing packet; that is your scope.
 
 ## What you do
 

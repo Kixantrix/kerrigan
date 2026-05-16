@@ -91,7 +91,7 @@ python tools/validators/agents_md.py
    /speckit.constitution <describe your project's principles>
    ```
 
-4. **Try your first task.** In VS Code chat (or Claude Code, or Copilot CLI), talk to the `local` profile:
+4. **Try your first task.** In VS Code chat (or Claude Code, or Copilot CLI), talk to the `kerrigan` profile:
    > @local I want to add X. Plan it and dispatch.
 
 ## What's installed after this
