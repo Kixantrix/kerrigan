@@ -13,4 +13,4 @@ assignees: ""
 ## Notes / constraints
 
 ## Autonomy
-- [ ] Allow agents to proceed (add label `agent:go` when ready)
+- [ ] Ready for cloud dispatch (assign `@copilot` when ready; `agent:go` label is just an annotation)

@@ -6,6 +6,11 @@ labels: ["agent:go"]
 assignees: ""
 ---
 
+<!--
+Labels are annotations, not gates. The functional trigger is assigning @copilot.
+`agent:go` here just signals "ready to dispatch" to the local profile. See AGENTS.md.
+-->
+
 ## Objective
 What needs to be done?
 

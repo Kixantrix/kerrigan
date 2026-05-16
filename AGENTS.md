@@ -80,14 +80,14 @@ Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [
 
 ## Labels (v2)
 
-Four total, not fifteen:
+Four total, not fifteen. **None of these are enforced automatically.** The functional gate for cloud execution is `@copilot` assignment on the issue. The labels are *annotations* the `local` profile (and humans) read to understand intent and state across sessions.
 
-- `agent:go` — you have autonomy; proceed.
-- `agent:wait` — blocked on human; stop.
-- `agent:local` — requires the human's machine (device I/O, OS-specific, paid secret).
-- `autonomy:override` — human override for a gate that would otherwise block.
+- `agent:go` — annotation: this issue is ready to dispatch (or has been dispatched). Used by `local` to find work that's been triaged.
+- `agent:wait` — annotation: intentionally undispatched; waiting on a dependency, a wave, or human input. `local` should not auto-assign Copilot here.
+- `agent:local` — annotation: this task needs the human's machine (device I/O, OS-specific, paid secret). Don't assign to cloud Copilot.
+- `autonomy:override` — annotation: human has explicitly approved an exception to a default-cautious routing rule.
 
-v1 labels are being phased out in Phase 4 of the v2 rollout; during transition both may appear.
+v1 role labels are archived. v2 uses these four annotations only.
 
 ## Runtimes
 
