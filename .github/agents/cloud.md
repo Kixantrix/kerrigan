@@ -3,7 +3,6 @@ name: cloud
 description: Executor. Runs one task slice end-to-end in a cloud container (GitHub Copilot cloud agent preferred) or a Claude Code worktree session. Writes code, writes tests, self-verifies, opens one PR. Never edits scope.
 mcp-servers: []
 # Claude Code extended fields (ignored by Copilot):
-model: sonnet
 permissionMode: acceptEdits
 isolation: worktree
 effort: high
