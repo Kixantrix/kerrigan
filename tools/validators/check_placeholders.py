@@ -229,8 +229,9 @@ def main() -> None:
         # Check for error patterns
         errors = check_file_for_patterns(file_path, ERROR_PATTERNS)
         if errors:
-            # Filter out known placeholders
-            rel_path_str = str(file_path.relative_to(ROOT))
+            # Filter out known placeholders (use POSIX-style paths so the
+            # allowlist works on both Linux CI and Windows dev machines).
+            rel_path_str = file_path.relative_to(ROOT).as_posix()
             filtered_errors = [
                 (line_num, line_content, pattern)
                 for line_num, line_content, pattern in errors

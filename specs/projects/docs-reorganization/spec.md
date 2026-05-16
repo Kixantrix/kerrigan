@@ -4,14 +4,18 @@
 
 Reorganize Kerrigan's documentation structure to improve navigability for both agents and humans. Move from a flat 20-file `docs/` directory to a hierarchical structure with clear ownership.
 
-## Goals
+## Goal
+
+Reorganize Kerrigan's documentation structure to improve navigability for both agents and humans. Move from a flat 20-file `docs/` directory to a hierarchical structure with clear ownership.
+
+## Scope
 
 1. **Improve discoverability**: Agents know where to find/update specific doc types
 2. **Separate current from historical**: Archive completed milestones and research artifacts
 3. **Clarify ownership**: Distinguish setup guides, operational runbooks, and architecture docs
 4. **Reduce confusion**: Make `specs/projects/` and `prompts/` vs `.github/agents/` distinctions clear
 
-## Success Criteria
+## Acceptance criteria
 
 - [ ] `docs/` has 4 subdirectories: `onboarding/`, `architecture/`, `operations/`, `_archive/`
 - [ ] AGENTS.md updated to remove "v1 phasing out" language (state v2 as current)
@@ -21,7 +25,7 @@ Reorganize Kerrigan's documentation structure to improve navigability for both a
 - [ ] All internal links updated to reflect new paths
 - [ ] Hygiene validator passes (no broken links)
 
-## Out of Scope
+## Non-goals
 
 - Content rewrites (only moves and minor clarifications)
 - Deleting files (archive instead for audit trail)
