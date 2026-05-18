@@ -59,9 +59,16 @@ class TestBudgetTelemetryWorkflow(unittest.TestCase):
         self.assertIn("Per-job breakdown", content)
 
     def test_workflow_uses_sticky_comment_actions(self):
+        import re
         content = self.workflow_path.read_text(encoding="utf-8")
-        self.assertIn("peter-evans/find-comment@", content)
-        self.assertIn("peter-evans/create-or-update-comment@", content)
+        # The repo convention pins third-party Actions to a full 40-hex commit SHA
+        # with a # vN comment, e.g. peter-evans/find-comment@<sha>  # v3
+        sha_or_pin = re.compile(r"peter-evans/find-comment@[0-9a-f]{40}")
+        self.assertRegex(content, sha_or_pin,
+                         "peter-evans/find-comment should be pinned to a full commit SHA")
+        sha_or_pin2 = re.compile(r"peter-evans/create-or-update-comment@[0-9a-f]{40}")
+        self.assertRegex(content, sha_or_pin2,
+                         "peter-evans/create-or-update-comment should be pinned to a full commit SHA")
         self.assertIn("budget-telemetry-comment", content)
 
     def test_workflow_posts_budget_warning(self):

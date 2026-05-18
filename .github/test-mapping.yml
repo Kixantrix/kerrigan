@@ -69,9 +69,8 @@ mappings:
     notes: "Hygiene checks validator, manual verification needed"
 
   - source: "tools/validators/test_capability_matrix.py"
-    tests: null
-    manual_test_required: true
-    notes: "Capability matrix validator, manual verification needed"
+    tests: "tests/validators/test_capability_matrix.py"
+    notes: "Capability matrix validator with unit tests"
 
   # GitHub Workflows - Configuration files
   - source: ".github/workflows/*.yml"
