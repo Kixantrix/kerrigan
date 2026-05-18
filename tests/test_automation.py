@@ -8,7 +8,7 @@ import yaml
 
 
 class TestTasksFormat(unittest.TestCase):
-    """Test tasks.md format for AUTO-ISSUE examples."""
+    """Test tasks.md format for v2 task dispatch markers."""
 
     def setUp(self):
         repo_root = Path(__file__).resolve().parent.parent
@@ -17,34 +17,42 @@ class TestTasksFormat(unittest.TestCase):
     def test_example_tasks_exist(self):
         self.assertGreater(len(self.tasks_files), 0, "No example tasks.md files found")
 
-    def test_auto_issue_marker_format(self):
+    def test_agent_go_marker_format(self):
         import re
 
-        pattern = re.compile(r"<!--\s*AUTO-ISSUE:\s*(.+?)\s*-->")
+        pattern = re.compile(r"<!--\s*agent:go(?:\s+[^>]*)?\s*-->")
+        marker_count = 0
         for tasks_file in self.tasks_files:
             content = tasks_file.read_text(encoding="utf-8")
             markers = pattern.findall(content)
-            for marker in markers:
-                self.assertRegex(
-                    marker,
-                    r"\w+:\w+",
-                    f"AUTO-ISSUE marker should contain labels like 'agent:go': {marker}",
-                )
+            marker_count += len(markers)
+        self.assertGreater(
+            marker_count,
+            0,
+            "Expected at least one v2 task marker like <!-- agent:go ... --> in example tasks files",
+        )
 
     def test_task_structure(self):
         import re
 
         task_pattern = re.compile(
-            r"##\s+Task:\s+([^\r\n]+)\r?\n<!--\s*AUTO-ISSUE:\s*([^>]+?)\s*-->\s*\r?\n([\s\S]+?)(?=\n##\s+Task:|\n---\s*\n|$)"
+            r"##\s+Task:\s+([^\r\n]+)\r?\n<!--\s*agent:go(?:\s+[^>]*)?\s*-->\s*\r?\n([\s\S]+?)(?=\n##\s+Task:|\n---\s*\n|$)"
         )
 
+        matched_tasks = 0
         for tasks_file in self.tasks_files:
             content = tasks_file.read_text(encoding="utf-8")
             matches = task_pattern.findall(content)
-            for title, _, body in matches:
+            matched_tasks += len(matches)
+            for title, body in matches:
                 self.assertIn("Description", body, f"Task '{title}' missing Description section")
                 has_acceptance = "Acceptance Criteria" in body or "Acceptance criteria" in body
                 self.assertTrue(has_acceptance, f"Task '{title}' missing Acceptance Criteria section")
+        self.assertGreater(
+            matched_tasks,
+            0,
+            "Expected at least one task with a v2 dispatch marker like <!-- agent:go ... -->",
+        )
 
 
 class TestV2Workflows(unittest.TestCase):
