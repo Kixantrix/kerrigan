@@ -1,0 +1,49 @@
+tasks:
+  - id: autonomy-modes-v2
+    title: "Update docs/operations/autonomy-modes.md to reflect v2 reality"
+    labels: [agent:go]
+    body: |
+      ## Briefing
+
+      `tools/validators/check_hygiene.py` surfaces 3 warnings — all in
+      `docs/operations/autonomy-modes.md` — for stale v1 label references:
+
+      ```
+      docs/operations/autonomy-modes.md:22 - V1 pattern 'role:swe'
+      docs/operations/autonomy-modes.md:22 - V1 pattern 'role:testing'
+      docs/operations/autonomy-modes.md:33 - V1 pattern 'agent:sprint'
+      ```
+
+      In v2 there are two profiles (`kerrigan.md` conductor + `cloud.md` executor)
+      and a single execution label (`agent:go`). The v1 role-based labels
+      (`role:swe`, `role:testing`, `role:deployment`) and the `agent:sprint`
+      autonomy label no longer exist.
+
+      ## Approach
+
+      Update `docs/operations/autonomy-modes.md` to describe the v2 model:
+      - Remove Mode B (`agent:sprint`) and Mode C (role-based hybrid) — they are
+        v1 concepts.
+      - Document the current model: `agent:go` gates execution; review-thread
+        resolution gates merge; cloud agents push fixes on the same branch in
+        response to `@copilot` PR comments from kerrigan.
+      - Cross-link to `.github/agents/kerrigan.md` "Review response flow".
+
+      Keep it concise — this doc should be 1-2 short sections, not a treatise.
+
+      ## Files
+
+      - **Touch**: `docs/operations/autonomy-modes.md`
+      - **Read-only**: `.github/agents/kerrigan.md`, `.github/agents/cloud.md`,
+        `specs/kerrigan-v2/`, `AGENTS.md`
+      - **Out of scope**: any other doc, source code, validators themselves
+
+      ## Verify
+
+      - `python tools/validators/check_hygiene.py` exits 0 with 0 warnings.
+
+      ## Acceptance criteria
+
+      Given main after this PR merges, when running
+      `python tools/validators/check_hygiene.py`, then it reports 0 errors and
+      0 warnings.

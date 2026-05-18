@@ -1,0 +1,95 @@
+tasks:
+  - id: T3
+    title: "tests-cleanup T3: Fix or remove agent compliance tests"
+    labels: [agent:go]
+    body: |
+      **Project**: tests-cleanup (tinyspec)
+      **Task**: T3 — Fix or remove agent compliance tests
+      **Wave**: B (parallel-safe with T4; touches disjoint files)
+
+      ## Briefing
+
+      Audit and fix 12 failures across three files that assert against the v1 agent spec / CLI / agents.md validator:
+
+      - `tests/test_agent_spec_compliance_workflow.py` (9 failures)
+      - `tests/test_agent_cli.py` (2 failures)
+      - `tests/validators/test_agents_md.py` (1 failure)
+
+      v2 reorganized agent profiles. There are now only **2 interactive profiles**: `kerrigan.md` (conductor) and `cloud.md` (executor). `speckit.git.*` are hidden adapters with `user-invocable: false` in their frontmatter. The v1 `local.md` profile was merged into `kerrigan.md`.
+
+      ## Approach
+
+      For each failing test:
+      1. Identify the v1 assumption (file path, profile name, frontmatter field, validator rule).
+      2. If v2 has an equivalent: update the assertion to match current `.github/agents/` reality.
+      3. If gone: delete the test (document rationale in commit body).
+
+      ## Files
+
+      - **Touch**: `tests/test_agent_spec_compliance_workflow.py`, `tests/test_agent_cli.py`, `tests/validators/test_agents_md.py`, `.github/test-mapping.yml` if entire test mappings need removal
+      - **Read-only**: `AGENTS.md`, `.github/agents/`, `specs/kerrigan-v2/`, `tools/validators/`
+      - **Out of scope**: any other test file, source code, validators themselves
+
+      ## Verify
+
+      - `python -m pytest tests/test_agent_spec_compliance_workflow.py tests/test_agent_cli.py tests/validators/test_agents_md.py -v` exits 0
+      - `python tools/validators/check_artifacts.py` still passes
+      - `python tools/validators/check_placeholders.py` still passes
+
+      ## Acceptance criteria (AC3)
+
+      Given main after this PR merges, when running `python -m pytest tests/test_agent_spec_compliance_workflow.py tests/test_agent_cli.py tests/validators/test_agents_md.py`, then exit code is 0.
+
+      ## Spec
+
+      See `specs/projects/tests-cleanup/tasks.md` Task 3.
+
+  - id: T4
+    title: "tests-cleanup T4: Fix or remove remaining misc tests"
+    labels: [agent:go]
+    body: |
+      **Project**: tests-cleanup (tinyspec)
+      **Task**: T4 — Fix or remove remaining misc tests
+      **Wave**: C (parallel-safe with T3; touches disjoint files)
+
+      ## Briefing
+
+      Audit and fix 10 failures across 5 files:
+
+      - `tests/test_test_collateral.py` (5)
+      - `tests/test_migrate_v1_to_v2_scripts.py` (2)
+      - `tests/test_budget_telemetry_workflow.py` (1)
+      - `tests/test_feedback.py` (1)
+      - `tests/validators/test_block_validator.py` (1)
+
+      Likely causes: references to deleted v1 artifacts, expected v1 directory layout, or assertions about workflows/labels that changed in v2.
+
+      ## Approach
+
+      For each failing test:
+      1. Identify the v1 assumption.
+      2. If v2 has an equivalent: update assertion.
+      3. If gone: delete the test (document rationale in commit body).
+
+      ### Important — do NOT remove these references
+
+      In `tests/test_test_collateral.py`, several tests use `tools/agent_audit.py` as a **fixture string** to exercise the `matches_pattern` function with a known historical path. Even though `tools/agent_audit.py` no longer exists on disk, those tests are about the pattern-matching behavior, not about whether the file exists. Read each test carefully to determine which is which.
+
+      ## Files
+
+      - **Touch**: `tests/test_test_collateral.py`, `tests/test_migrate_v1_to_v2_scripts.py`, `tests/test_budget_telemetry_workflow.py`, `tests/test_feedback.py`, `tests/validators/test_block_validator.py`, `.github/test-mapping.yml` (if entire test mappings need removal)
+      - **Read-only**: `AGENTS.md`, `.github/workflows/budget-telemetry.yml`, `scripts/migrate-v1-to-v2.*`, `feedback/`, `tools/validators/`
+      - **Out of scope**: any other test file, source code
+
+      ## Verify
+
+      - `python -m pytest tests/test_test_collateral.py tests/test_migrate_v1_to_v2_scripts.py tests/test_budget_telemetry_workflow.py tests/test_feedback.py tests/validators/test_block_validator.py -v` exits 0
+      - `python tools/validators/check_artifacts.py` still passes
+
+      ## Acceptance criteria (AC4)
+
+      Given main after this PR merges, when running `python -m pytest` on those 5 files, then exit code is 0.
+
+      ## Spec
+
+      See `specs/projects/tests-cleanup/tasks.md` Task 4.
