@@ -1,0 +1,24 @@
+# Example project test environment manifest.
+# Copy to `.specify/test-environments.yaml` and adjust to your project.
+
+supported_environments:
+  - cloud-linux
+  - cloud-windows
+  - cloud-macos
+  - cloud-self-hosted-gpu
+  - local-attested-windows-npu
+  - local-attested-ios-device
+  - manual-human
+
+# Optional mapping for self-hosted cloud environments.
+self_hosted_runner_labels:
+  cloud-self-hosted-gpu:
+    - self-hosted
+    - gpu
+
+# Authorized principals that may post local attestation comments.
+# `session_signature` should identify the kerrigan/local session that performed validation.
+authorized_local_attestation_principals:
+  - handle: kixantrix
+    profile: kerrigan
+    session_signature: kerrigan-session-example-001

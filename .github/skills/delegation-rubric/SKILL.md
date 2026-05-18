@@ -51,10 +51,20 @@ Matches when:
 
 Note: this is narrow. "I'd rather watch" isn't enough; the task has to actually need human input per step.
 
+
+### R-local-attested.platform-specific
+Task includes ACs that require `environment: local-attested-*` due to platform-specific behavior.
+
+Matches when:
+- AC requires hardware or OS behavior cloud runners cannot reproduce.
+- Cloud can implement partial support, but final validation must be attested from an authorized local principal.
+
+Examples: Windows NPU inference validation, iOS on-device behavior verification.
+
 ## Rules that keep work in `cloud` even when tempting
 
 ### R-cloud.e2e-headless
-E2E browser tests run in the cloud container via Playwright/Puppeteer with a headless browser. Don't route to local just because "it's a browser test".
+E2E browser tests run in the cloud container via Playwright/Puppeteer with a headless browser. Use `.github/skills/e2e-test/SKILL.md` for structure; do not route to local just because "it's a browser test".
 
 ### R-cloud.heavy-compute
 Long builds, large test suites, and heavy compute run in cloud Actions. Faster iteration than tying up your laptop.

@@ -10,10 +10,11 @@ skills: [briefing-packet, smoke-test, block-report, delegation-rubric]
 # Kerrigan capability manifest:
 role: executor
 needs: [cloud-env]
+verification_required: [cloud-linux, cloud-windows, cloud-macos, cloud-self-hosted-<name>, local-attested-<class>, manual-human]
 verifies_before_pr:
-  required: [unit, integration, smoke, lint]
+  required: [unit, integration, smoke, e2e, scenario, lint]
   enforce: block_on_unfixable_failure_before_pr
-delegates: [e2e-browser, device-io, paid-apis, human-judgment]
+delegates: [local-attested-<class>, manual-human]
 budget:
   max_turns: 40
   max_premium_requests: 25
@@ -47,7 +48,8 @@ Run in this order, and do not open a PR until all required checks are green:
 2. **Run smoke test** (`scripts/smoke.sh`) when present for the project.
 3. **Run lint/type checks** required by the project.
 4. **Handle failures in scope first.** If any check fails, attempt fixes that stay inside briefing scope.
-5. **If still failing and unfixable in scope, emit a block and stop.** Use the self-test failure block template below. Do not open a PR.
+5. **For any AC declared `environment: local-attested-*`, do NOT mark it complete.** Add `pending-attestation: <ac-id>` to the PR body and continue with other ACs.
+6. **If still failing and unfixable in scope, emit a block and stop.** Use the self-test failure block template below. Do not open a PR.
 
 ## What you don't do
 

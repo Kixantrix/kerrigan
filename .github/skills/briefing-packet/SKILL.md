@@ -13,7 +13,7 @@
 <one sentence — copied/refined from tasks.md>
 
 ## Acceptance criteria
-- AC-<id>: <criterion> — test: <test-id or "tbd">
+- AC-<id>: <criterion> — level: <unit|integration|smoke|e2e|scenario> — environment: <cloud-linux|cloud-windows|cloud-macos|cloud-self-hosted-<name>|local-attested-<class>|manual-human> — test: <test-id or "tbd">
 - …
 
 ## Scope
@@ -49,6 +49,7 @@
 3. **Cite ACs by ID.** No free-form "make it work" — every briefing names specific AC IDs.
 4. **Name tests.** Either the existing test ID or `tbd` with a suggested path.
 5. **State the routing rule.** Even for obvious cloud tasks, cite the matched rubric rule. Makes routing auditable.
+6. **Declare level and environment for every AC.** `manual-human` requires a scenario test referenced by path.
 
 ## Example (too short)
 
@@ -69,8 +70,8 @@ Rejected: no ACs, no scope, no tests, no rule.
 OAuth refresh-token rotation stops failing on the 6th rotation.
 
 ## Acceptance criteria
-- AC-042-a: After 10 consecutive rotations, session is still valid — test: tests/auth/test_refresh.py::test_ten_rotations (tbd)
-- AC-042-b: On rotation failure, session is invalidated and user sees a re-login prompt — test: tests/auth/test_refresh.py::test_rotation_failure (tbd)
+- AC-042-a: After 10 consecutive rotations, session is still valid — level: integration — environment: cloud-linux — test: tests/auth/test_refresh.py::test_ten_rotations (tbd)
+- AC-042-b: On rotation failure, session is invalidated and user sees a re-login prompt — level: scenario — environment: local-attested-auth-device — test: tests/auth/test_refresh.py::test_rotation_failure (tbd)
 
 ## Scope
 - Touch: src/auth/session.ts, tests/auth/test_refresh.py

@@ -4,6 +4,8 @@
 **Output:** `scripts/smoke.sh` (and `scripts/smoke.ps1` mirror for Windows-only projects).
 **Why:** one fast end-to-end happy-path check that gates PR merge.
 
+See also: [`docs/test-strategy.md`](../../../docs/test-strategy.md).
+
 ## Contract
 
 - Exits 0 on success, non-zero on failure.
