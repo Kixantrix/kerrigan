@@ -83,9 +83,9 @@ mappings:
     tests: "tests/test_autonomy_gates.py"
     notes: "Agent gates workflow has specific test coverage"
 
-  - source: ".github/workflows/agent-spec-compliance.yml"
+  - source: ".github/workflows/verify.yml"
     tests: "tests/test_agent_spec_compliance_workflow.py"
-    notes: "Agent spec compliance workflow has specific test coverage"
+    notes: "Verify workflow has specific test coverage"
 
   # Agent Prompts - Agent configuration
   - source: ".github/agents/*.md"
