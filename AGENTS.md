@@ -77,7 +77,7 @@ See [`specs/constitution.md`](./specs/constitution.md) for the full list. Short 
 
 ## Skills
 
-Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [agent-skills](https://github.com/agentskills/agentskills) spec). Agent profiles preload skills by ID in their frontmatter. Stack-specific skills live in [`skills/stacks/`](./skills/stacks/).
+Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [agent-skills](https://github.com/agentskills/agentskills) spec). Agent profiles preload skills by ID in their frontmatter. Stack-specific skills live in [`skills/README.md`](./skills/README.md).
 
 ## Labels (v2)
 
