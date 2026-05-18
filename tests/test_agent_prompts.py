@@ -18,7 +18,6 @@ class TestV2ProfileStructure(unittest.TestCase):
         repo_root = Path(__file__).resolve().parent.parent
         self.agents_dir = repo_root / ".github" / "agents"
         self.profiles = {
-            "local": self.agents_dir / "local.md",
             "cloud": self.agents_dir / "cloud.md",
             "kerrigan": self.agents_dir / "kerrigan.md",
         }
@@ -90,35 +89,6 @@ class TestV2ProfileStructure(unittest.TestCase):
                     f"{name}.md must have a role in capability manifest")
                 self.assertIn("blocks_on:", content,
                     f"{name}.md must declare what blocks it")
-
-
-class TestLocalProfile(unittest.TestCase):
-    """Test local (conductor) profile specific requirements"""
-
-    def setUp(self):
-        repo_root = Path(__file__).resolve().parent.parent
-        self.path = repo_root / ".github" / "agents" / "local.md"
-        if not self.path.exists():
-            self.fail("local.md not found")
-        self.content = self.path.read_text(encoding="utf-8")
-
-    def test_local_is_conductor(self):
-        self.assertIn("conductor", self.content.lower())
-
-    def test_local_mentions_dispatch(self):
-        self.assertIn("dispatch", self.content.lower())
-
-    def test_local_mentions_blocks(self):
-        self.assertIn("block", self.content.lower())
-
-    def test_local_doesnt_write_code(self):
-        self.assertIn("write feature code", self.content.lower())
-
-    def test_local_mentions_speckit(self):
-        self.assertIn("speckit", self.content.lower())
-
-    def test_local_has_output_shape(self):
-        self.assertIn("Output shape", self.content)
 
 
 class TestCloudProfile(unittest.TestCase):
@@ -195,7 +165,7 @@ class TestKerriganProfile(unittest.TestCase):
         self.content = self.path.read_text(encoding="utf-8")
 
     def test_kerrigan_is_meta(self):
-        self.assertIn("role: meta", self.content)
+        self.assertIn("role: conductor", self.content)
 
     def test_kerrigan_mentions_validators(self):
         self.assertIn("validator", self.content.lower())
@@ -218,7 +188,7 @@ class TestAgentPromptCompleteness(unittest.TestCase):
         self.agents_dir = repo_root / ".github" / "agents"
 
     def test_v2_profiles_exist(self):
-        for profile in ["local.md", "cloud.md", "kerrigan.md"]:
+        for profile in ["cloud.md", "kerrigan.md"]:
             path = self.agents_dir / profile
             self.assertTrue(path.exists(), f"v2 profile not found: {profile}")
 
@@ -239,7 +209,7 @@ class TestAgentPromptCompleteness(unittest.TestCase):
         if not readme.exists():
             self.skipTest("README not found")
         content = readme.read_text(encoding="utf-8")
-        for profile in ["local", "cloud", "kerrigan"]:
+        for profile in ["cloud", "kerrigan"]:
             self.assertIn(profile, content.lower(),
                 f"README should document the {profile} profile")
 
