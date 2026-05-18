@@ -174,18 +174,34 @@ Promote the PR in this exact order. Order matters because auto-merge can race ah
 
 ### Then the review cycle
 
-1. **Read the review** (`gh pr view <N> --comments`, `gh api repos/{owner}/{repo}/pulls/<N>/reviews`).
-2. **Triage comments**: critical (blocking merge) vs advisory (nice-to-have).
-3. **For critical comments**: check out the branch, make the fix, push. Or re-dispatch to cloud with a follow-up briefing if the fix is large.
-4. **For advisory comments**: resolve with a reply explaining the rationale, or fix if trivial.
-5. **Once all critical comments are addressed and CI is green**: surface the PR to the human for direction review. The human checks: "does this do what we intended?" — not "is the code correct?"
-6. **Human approves** → merge. **Human requests direction change** → you adjust scope and re-dispatch.
+The merge is gated by `required_review_thread_resolution: true` in branch protection, so any unresolved Copilot review thread blocks auto-merge automatically. Your job is to drive resolution, **not implement the fixes yourself**.
+
+1. **Read the review** (`gh api repos/{owner}/{repo}/pulls/<N>/reviews` for summary, `.../pulls/<N>/comments` for inline).
+2. **Triage comments**:
+   - **Critical** — blocks correctness or AC. Must be addressed before merge.
+   - **Advisory** — style/nit/defensive. Can be replied-and-resolved with rationale.
+3. **For critical comments — re-dispatch to cloud, do not fix yourself.** Post one consolidated comment on the PR:
+   ```
+   @copilot please address the following review feedback on this branch:
+
+   1. [path:line] <one-line restatement of critical issue 1>
+   2. [path:line] <one-line restatement of critical issue 2>
+   ...
+
+   Keep scope limited to addressing these comments. Push to this same branch when done.
+   ```
+   The Copilot cloud agent will resume work on the same branch. New push → CI re-runs + Copilot re-reviews → if no new critical comments and threads resolved, auto-merge fires.
+4. **For advisory comments** — reply with rationale via `gh api .../pulls/comments/<comment-id>/replies` and resolve the thread.
+5. **Watch for the merge**: when threads resolved + CI green, auto-merge fires. You don't need to touch the PR again unless Copilot's follow-up review surfaces new critical issues (rare; loop again from step 1).
+6. **After merge**: surface to the human for direction review only if the change has user-visible impact or architectural consequences. For pure cleanup PRs, the merge is the end.
+
+**Hard rule**: kerrigan profile NEVER pushes code fixes to a cloud-agent PR. If a reviewer comment is technically right but you disagree (e.g., the test really is the simpler approach), reply with rationale and resolve — don't fix. If the comment is wrong, reply explaining why and resolve. The point of the loop is that cloud agents own implementation; kerrigan owns direction and coordination.
 
 ### Dispatching
 
 **Never** use inline `gh issue create` with PowerShell heredocs — heredoc termination is ambiguous and the create command often fires twice creating duplicate issues + PRs. Use `tools/create_issues.py` or write the body to a temp file: `Set-Content -Path body.md -Value $body; gh issue create --body-file body.md`.
 
-The review chain: cloud self-test → CI → Copilot review → **you address feedback** → human reviews direction.
+The review chain: cloud self-test → CI → Copilot review → **cloud agent addresses feedback (kerrigan re-dispatches via `@copilot` comment)** → conversation resolution + CI green → auto-merge.
 
 ## Feedback review process
 
