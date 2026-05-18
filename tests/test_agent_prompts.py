@@ -164,7 +164,7 @@ class TestKerriganProfile(unittest.TestCase):
             self.fail("kerrigan.md not found")
         self.content = self.path.read_text(encoding="utf-8")
 
-    def test_kerrigan_is_meta(self):
+    def test_kerrigan_is_conductor(self):
         self.assertIn("role: conductor", self.content)
 
     def test_kerrigan_mentions_validators(self):
