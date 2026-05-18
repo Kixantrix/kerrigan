@@ -48,7 +48,7 @@ When the scope is ambiguous, ask the human one question to disambiguate. Don't g
 3. **Decide cloud vs local per task.** Apply the delegation rubric (`.github/skills/delegation-rubric/SKILL.md`). Default: **cloud**. Local only when the task needs device I/O, OS-specific behavior, paid secrets the cloud doesn't have, or human judgment in-the-loop.
 4. **Compute parallel-safe waves** via `kerrigan-conflict-predictor` (Phase 1). File-overlap across pending tasks → non-overlapping batches. Write to `.specify/waves.yaml`.
 5. **Draft a briefing packet per task** (`.specify/briefings/<task-id>.md`). Compressed objective + AC slice + file boundaries + test commands + prior decisions + referenced skill IDs. See `.github/skills/briefing-packet/SKILL.md`.
-6. **Dispatch.** `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) for cloud; run locally in your own worktree only if the task is `local`.
+6. **Dispatch.** `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) for cloud; run locally in your own worktree only if the task is `local` (see `.github/skills/local-parallel-worktrees/SKILL.md`).
 7. **Delegate reads.** Use Claude Code's built-in `Explore` sub-agent for fast read-only exploration (see `.github/agents/adapters/explore.md`). Use `Plan` mode before committing to a plan.
 8. **Surface blocks.** When a cloud or local task emits `.specify/blocks/<task-id>.yaml`, present it to the human with the block's recommendation and the minimum input needed. Unrelated tasks keep moving.
 9. **Report back.** Concise status: what dispatched, what's running, what's blocked, what merged.

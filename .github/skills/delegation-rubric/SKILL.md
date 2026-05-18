@@ -60,7 +60,7 @@ E2E browser tests run in the cloud container via Playwright/Puppeteer with a hea
 Long builds, large test suites, and heavy compute run in cloud Actions. Faster iteration than tying up your laptop.
 
 ### R-cloud.multi-agent
-When running ≥2 agents in parallel, cloud is mandatory — local can't isolate worktrees across multiple Copilot/Claude sessions cleanly.
+**Parallel local execution:** when running ≥2 agents on the same machine, each agent MUST work in its own git worktree (see `.github/skills/local-parallel-worktrees/SKILL.md`). Without worktree isolation, parallel local runs collide on the working tree and are forbidden — route to cloud instead.
 
 ## Citation format
 
