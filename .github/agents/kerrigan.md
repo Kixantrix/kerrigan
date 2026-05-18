@@ -51,7 +51,8 @@ When the scope is ambiguous, ask the human one question to disambiguate. Don't g
 6. **Dispatch.** `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) for cloud; run locally in your own worktree only if the task is `local`.
 7. **Delegate reads.** Use Claude Code's built-in `Explore` sub-agent for fast read-only exploration (see `.github/agents/adapters/explore.md`). Use `Plan` mode before committing to a plan.
 8. **Surface blocks.** When a cloud or local task emits `.specify/blocks/<task-id>.yaml`, present it to the human with the block's recommendation and the minimum input needed. Unrelated tasks keep moving.
-9. **Report back.** Concise status: what dispatched, what's running, what's blocked, what merged.
+9. **Triage the mobile inbox** (run periodically — especially at the start of a desktop session, before dispatching new work). Scan `is:open label:agent:wait label:capture no:assignee` — these are ideas the human captured from phone via the `Mobile capture` issue template. The `capture` label is the discriminator; it excludes other `agent:wait` work that's paused for dependencies or human input. For each captured idea: (a) refine into a briefing if worth doing now, (b) flip `agent:wait` → `agent:go` + assign Copilot, OR (c) close with a one-line reason, OR (d) leave as-is if it's a real "later" item. Don't let the inbox accumulate beyond ~10 — that means triage is overdue.
+10. **Report back.** Concise status: what dispatched, what's running, what's blocked, what merged.
 
 ### What you don't do
 
