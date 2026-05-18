@@ -20,7 +20,7 @@ Claude Code looks in `.claude/agents/` by default. `scripts/mirror-agents.ps1` c
 
 Agent profiles (this directory) are **not** the same as prompt templates:
 
-- **Agent profiles** (`local.md`, `cloud.md`, `kerrigan.md`) — runtime configurations loaded by GitHub Copilot or Claude Code to configure the agent session. They declare identity, permissions (`permissionMode`), skills, delegation rules, and capability manifests. They answer *"who is this agent and how should it run?"*
+- **Agent profiles** (`cloud.md`, `kerrigan.md`) — runtime configurations loaded by GitHub Copilot or Claude Code to configure the agent session. They declare identity, permissions (`permissionMode`), skills, delegation rules, and capability manifests. They answer *"who is this agent and how should it run?"*
 - **Prompt templates** (`prompts/`) — reusable Markdown files loaded by URL into a GitHub issue or CLI invocation. They contain task-specific instructions the agent executes once started. They answer *"what should the agent do right now?"*
 
 A typical flow: the runtime loads `cloud.md` (agent profile) to start the agent → the issue body references `prompts/implementation-swe.md` (prompt template) to tell it what to implement.
