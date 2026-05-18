@@ -1,0 +1,173 @@
+tasks:
+  - id: local-parallel-worktrees
+    title: "feat: scripts + skill for parallel local agent isolation via git worktrees"
+    labels: [agent:go]
+    assignees: [Copilot]
+    body: |
+      ## Briefing
+
+      Today the delegation rubric punts: *"When running ≥2 agents in parallel,
+      cloud is mandatory — local can't isolate worktrees cleanly."* In practice
+      humans run multiple local agents on one machine (Claude Code, VS Code
+      Copilot chat, etc.) and they collide on the working tree, branch state,
+      `node_modules`, `.venv`, and build outputs.
+
+      The canonical fix is **git worktrees**: each agent gets its own sibling
+      directory checked out on its own branch, sharing the same `.git`. This is
+      cross-platform (works on Windows) and doesn't require tmux.
+
+      Deliver harness-level tooling + docs so any local agent in this repo can
+      spawn / list / remove an isolated worktree with one command, and the
+      delegation rubric lifts the "cloud mandatory" rule.
+
+      ## Approach
+
+      ### 1. Scripts (Windows-first, POSIX mirror)
+
+      `scripts/worktree.ps1` — PowerShell 5.1 compatible, primary entry point.
+      `scripts/worktree.sh` — POSIX bash mirror, same verbs.
+
+      Verbs (both scripts):
+      - `new <task-id>` — creates `../<repo-name>-worktrees/<task-id>/` on
+        branch `task/<task-id>` from current HEAD. Refuses if the directory or
+        branch already exists. Copies `.env` if present in repo root (does NOT
+        symlink — agents must be free to diverge).
+      - `list` — enumerates active worktrees with their branches and dirty
+        state. Plain output (one line per worktree, tab-separated or aligned).
+      - `remove <task-id>` — runs `git worktree remove`, deletes the
+        `task/<task-id>` branch if unmerged warn unless `-Force`/`--force`.
+      - `prune` — wraps `git worktree prune` to clean up stale entries after
+        manual directory deletion.
+      - `-Help` / `--help` — prints usage covering all verbs and flags.
+
+      Flags:
+      - `-Bootstrap` / `--bootstrap` (on `new`) — opt-in. If repo has
+        `package.json`, `requirements.txt`, or `pyproject.toml`, run the
+        appropriate install in the new worktree. Default off.
+      - `-Force` / `--force` (on `remove`) — delete even if branch is unmerged
+        or worktree is dirty.
+
+      Windows hardening:
+      - Before creating any worktree, check
+        `git config --get core.longpaths`. If not `true`, print a warning
+        (don't fail) — recommend running `git config core.longpaths true`.
+      - Use `Join-Path` / forward slashes in PowerShell. Avoid path quoting
+        pitfalls (paths with spaces).
+      - Worktree parent is computed as
+        `(Split-Path $RepoRoot -Parent) + "/" + (Split-Path $RepoRoot -Leaf) + "-worktrees"`
+        e.g. for `C:\repos\kerrigan`, worktrees live in `C:\repos\kerrigan-worktrees\`.
+
+      Error handling:
+      - Refuse `new` if not inside a git repo, if the branch already exists, if
+        the target directory exists, or if working tree HEAD is detached.
+      - All errors go to stderr with non-zero exit code.
+
+      ### 2. Skill
+
+      `.github/skills/local-parallel-worktrees/SKILL.md` — agent-skills format
+      (matches existing skills under `.github/skills/`). Required sections:
+
+      - **When to use:** running ≥2 local agents on one machine, or want a
+        clean experiment branch without disturbing the main checkout.
+      - **Lifecycle:** `new` → work → commit/push → `remove`.
+      - **Windows gotchas:** long paths (`core.longpaths`), per-worktree
+        `node_modules` cost (no symlinking — isolation must hold), VS Code
+        "Open Folder" the worktree path (don't share window with main repo).
+      - **Cross-platform:** PowerShell on Windows, bash everywhere else. WSL
+        users: optionally mention `claude-squad` (`cs`) as a TUI layer on top
+        of the same primitive — one-paragraph pointer only, no harness coupling.
+      - **Interaction with briefings:** when kerrigan dispatches a local-routed
+        task, the briefing names the suggested worktree id (= task id). The
+        agent runs `worktree.ps1 new <task-id>` and works there.
+      - **Cleanup discipline:** after PR merges, run
+        `worktree.ps1 remove <task-id>`. After bulk cleanup, `worktree.ps1 prune`.
+
+      ### 3. Rubric softening
+
+      `.github/skills/delegation-rubric/SKILL.md` — find the line that reads
+      something like *"When running ≥2 agents in parallel, cloud is mandatory —
+      local can't isolate worktrees across multiple Copilot/Claude sessions
+      cleanly."* Replace with a rule that allows either path:
+
+      > **Parallel local execution:** when running ≥2 agents on the same
+      > machine, each agent MUST work in its own git worktree (see
+      > `.github/skills/local-parallel-worktrees/SKILL.md`). Without
+      > worktree isolation, parallel local runs collide on the working tree
+      > and are forbidden — route to cloud instead.
+
+      Keep the surrounding rubric structure intact (don't reformat unrelated
+      rules).
+
+      ### 4. Profile mentions
+
+      - `.github/agents/cloud.md` — in the section about local worktree
+        isolation (currently says *"If your runtime provides worktree isolation
+        (Claude Code `isolation: worktree`, Copilot cloud container), use it"*),
+        add a one-line pointer: *"For non-Claude-Code local runtimes, use
+        `scripts/worktree.ps1` / `scripts/worktree.sh` — see
+        `.github/skills/local-parallel-worktrees/SKILL.md`."*
+      - `.github/agents/kerrigan.md` — in the conductor responsibilities
+        section that mentions "run locally in your own worktree only if the
+        task is `local`", add a parenthetical pointing at the skill.
+
+      ### 5. Smoke test
+
+      `tests/test_worktree_scripts.py` — pytest, runs on Linux CI:
+      - `bash scripts/worktree.sh --help` exits 0 and stdout contains all four
+        verbs (`new`, `list`, `remove`, `prune`).
+      - `bash scripts/worktree.sh list` in the current repo exits 0 (may show
+        the main checkout; that's fine — no assertion on count).
+
+      Do NOT test `new` or `remove` in CI — they mutate git state. The skill
+      documents a manual e2e checklist instead.
+
+      ## Files
+
+      - **Touch:**
+        - `scripts/worktree.ps1` (NEW)
+        - `scripts/worktree.sh` (NEW)
+        - `.github/skills/local-parallel-worktrees/SKILL.md` (NEW)
+        - `.github/skills/delegation-rubric/SKILL.md` (EDIT — one rule only)
+        - `.github/agents/cloud.md` (EDIT — one-line pointer)
+        - `.github/agents/kerrigan.md` (EDIT — one parenthetical)
+        - `tests/test_worktree_scripts.py` (NEW)
+      - **Read-only:**
+        - `specs/kerrigan-v2/010-phases.md` (context — this delivers part of
+          Phase 1's `spec-kit-worktree-parallel` intent)
+        - `AGENTS.md`
+        - existing `.github/skills/*/SKILL.md` files (for format reference)
+        - existing `scripts/*.ps1` and `scripts/*.sh` (for style reference)
+        - existing `tests/test_*.py` (for pytest patterns)
+      - **Out of scope:**
+        - claude-squad / `cs` integration beyond a single doc paragraph
+        - automatic worktree creation on dispatch (future)
+        - any background runner / TUI
+        - changes to any other validator, workflow, or doc
+        - touching `node_modules` symlink schemes — isolation must be real
+
+      ## Verify
+
+      - `pwsh scripts/worktree.ps1 -Help` exits 0 and lists all verbs (manual
+        check on Windows; not in CI).
+      - `bash scripts/worktree.sh --help` exits 0 and lists all verbs.
+      - `pytest tests/test_worktree_scripts.py -v` passes.
+      - `python tools/validators/check_hygiene.py` exits 0 with 0 warnings.
+      - `bash scripts/smoke.sh` exits 0.
+      - The new skill file has valid frontmatter (matches sibling skills).
+
+      ## Acceptance criteria
+
+      Given main after this PR merges, when a contributor:
+      1. Runs `pwsh ./scripts/worktree.ps1 -Help` (Windows) or
+         `./scripts/worktree.sh --help` (POSIX), THEN the help output lists
+         all four verbs (`new`, `list`, `remove`, `prune`) and the
+         `-Bootstrap`/`-Force` flags.
+      2. Inspects `.github/skills/delegation-rubric/SKILL.md`, THEN the rule
+         that previously declared "≥2 parallel agents = cloud mandatory" now
+         allows local execution provided each agent runs in its own worktree.
+      3. Inspects `.github/skills/local-parallel-worktrees/SKILL.md`, THEN it
+         documents the lifecycle (new/work/remove), Windows gotchas
+         (`core.longpaths`), and points at the scripts.
+      4. Runs `python tools/validators/check_hygiene.py`, THEN it exits 0 with
+         0 warnings.
+      5. Runs `pytest tests/test_worktree_scripts.py -v`, THEN tests pass.
