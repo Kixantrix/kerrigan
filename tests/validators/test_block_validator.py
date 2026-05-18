@@ -12,7 +12,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "validators"))
 
-from block_validator import validate_blocks
+from block_validator import _parse_iso8601, validate_blocks
 
 
 class TestBlockValidator(unittest.TestCase):
@@ -73,9 +73,19 @@ class TestBlockValidator(unittest.TestCase):
         self.assertEqual(warnings, [])
 
     def test_unresolved_block_without_ack_label_fails(self):
-        self._write_block("t-001.yaml", self._base_block())
+        block = self._base_block()
+        self._write_block("t-001.yaml", block)
 
-        errors, warnings = validate_blocks(self.blocks_dir, schema_path=self.schema_path)
+        # Derive now from the fixture's emitted_at so the test stays robust
+        # if the default timestamp in _base_block ever changes.
+        emitted = _parse_iso8601(block["emitted_at"])
+        now = emitted + timedelta(hours=1)
+
+        errors, warnings = validate_blocks(
+            self.blocks_dir,
+            schema_path=self.schema_path,
+            now=now,
+        )
 
         self.assertTrue(
             any("block:acknowledged" in error for error in errors),
