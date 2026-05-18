@@ -129,7 +129,7 @@ Kerrigan uses **4 labels** for autonomy control:
 | `agent:local` | Requires human's machine |
 | `autonomy:override` | Human override for a blocked gate |
 
-See [playbooks/autonomy-modes.md](../../playbooks/autonomy-modes.md) for detailed configuration.
+See [playbooks/autonomy-modes.md](../operations/autonomy-modes.md) for detailed configuration.
 
 ### What if I need to pause agent work?
 

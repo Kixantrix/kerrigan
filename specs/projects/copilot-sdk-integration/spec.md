@@ -180,5 +180,5 @@ GitHub has announced new Copilot SDK and CLI tooling that may change this landsc
 
 ## Related documents
 
-- [autonomy-modes.md](../../../playbooks/autonomy-modes.md) - Autonomy controls
+- [autonomy-modes.md](../../../docs/operations/autonomy-modes.md) - Autonomy controls
 - [constitution.md](../../constitution.md) - Human-in-loop requirements
