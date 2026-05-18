@@ -13,7 +13,7 @@ function Show-Usage {
     Write-Output 'Verbs:'
     Write-Output '  new       Create ../<repo>-worktrees/<task-id> on branch task/<task-id> from current HEAD.'
     Write-Output '  list      List active worktrees with branch and dirty state.'
-    Write-Output '  remove    Remove worktree and delete task/<task-id> branch (warn if unmerged unless -Force).' 
+    Write-Output '  remove    Remove worktree and delete task/<task-id> branch (warn if unmerged unless -Force).'
     Write-Output '  prune     Run git worktree prune.'
     Write-Output ''
     Write-Output 'Flags:'
