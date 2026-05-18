@@ -1109,6 +1109,6 @@ if ($waveN_issues.Count -eq 0) {
 ## See Also
 
 - [PR Review Playbook](pr-review.md) - Human review guidelines
-- [Autonomy Modes](autonomy-modes.md) - Agent workflow control
+- [Autonomy Modes](../docs/operations/autonomy-modes.md) - Agent workflow control
 - [GitHub Labels](../docs/operations/github-labels.md) - Label definitions
 - [Git Best Practices](../docs/operations/git-best-practices.md) - Preventing interactive editor stalls and git operation guidelines

@@ -64,7 +64,7 @@ Human goal → local agent → spec-kit lifecycle → cloud dispatch → PR → 
 ### Process
 - **[Kickoff](playbooks/kickoff.md)** — Start a new project
 - **[Project Lifecycle](playbooks/project-lifecycle.md)** — Active → completed → archived
-- **[Autonomy Modes](playbooks/autonomy-modes.md)** — Label-based agent control
+- **[Autonomy Modes](docs/operations/autonomy-modes.md)** — Label-based agent control
 - **[PR Review](playbooks/pr-review.md)** — Review guidelines
 - **[Replication Guide](playbooks/replication-guide.md)** — Set up Kerrigan in new repos
 
@@ -86,7 +86,7 @@ Four labels control agent work:
 | `agent:local` | Requires human's machine (device I/O, secrets) |
 | `autonomy:override` | Human override for a blocked gate |
 
-See [playbooks/autonomy-modes.md](playbooks/autonomy-modes.md) for configuration.
+See [docs/operations/autonomy-modes.md](docs/operations/autonomy-modes.md) for configuration.
 
 ---
 
