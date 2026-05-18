@@ -84,7 +84,7 @@ python tools/validators/agents_md.py
    - Script: TBD in Phase 1
 
 2. **Enable Copilot PR review** for all PRs:
-   - Follow [playbooks/copilot-review-setup.md](./copilot-review-setup.md) (Settings → Code review → Copilot → Enable for all pull requests).
+   - Follow [playbooks/copilot-review-setup.md](../docs/operations/copilot-review-setup.md) (Settings → Code review → Copilot → Enable for all pull requests).
 
 3. **Set project principles** once:
    ```

@@ -14,7 +14,7 @@ Goal: allow agents to open PRs directly when helpful, while retaining an easy "p
 | `auto-trigger-dependents.yml` | Wave-based dispatch (`kerrigan dispatch`) |
 | `daily-self-improvement.yml` | `kerrigan check` cron (when configured) |
 
-See [`verify.yml`](../.github/workflows/verify.yml) for the current enforcement workflow.
+See [`verify.yml`](../../.github/workflows/verify.yml) for the current enforcement workflow.
 
 ## Automation Features
 
