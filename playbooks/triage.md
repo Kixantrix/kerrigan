@@ -982,7 +982,7 @@ Use past issues as reference:
 - `role:swe` + "CI" → `.github/workflows/`, `.github/test-mapping.yml`
 - "documentation" → `docs/`, `playbooks/`, `README.md`
 - "validator" → `tools/validators/`
-- "label" → `docs/github-labels.md`
+- "label" → `docs/operations/github-labels.md`
 
 #### Strategy 4: Conservative Grouping
 
@@ -1110,5 +1110,5 @@ if ($waveN_issues.Count -eq 0) {
 
 - [PR Review Playbook](pr-review.md) - Human review guidelines
 - [Autonomy Modes](autonomy-modes.md) - Agent workflow control
-- [GitHub Labels](../docs/github-labels.md) - Label definitions
-- [Git Best Practices](../docs/git-best-practices.md) - Preventing interactive editor stalls and git operation guidelines
+- [GitHub Labels](../docs/operations/github-labels.md) - Label definitions
+- [Git Best Practices](../docs/operations/git-best-practices.md) - Preventing interactive editor stalls and git operation guidelines

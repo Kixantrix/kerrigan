@@ -245,10 +245,10 @@ The combination of visual architecture, step-by-step guides, comprehensive FAQ, 
 ## Appendix: Files Modified/Created
 
 ### Created (4 files)
-- `docs/architecture.md` (8,639 bytes)
-- `docs/setup.md` (10,536 bytes)
-- `docs/FAQ.md` (16,050 bytes)
-- `docs/fresh-user-test.md` (7,945 bytes)
+- `docs/architecture/architecture.md` (8,639 bytes)
+- `docs/onboarding/setup.md` (10,536 bytes)
+- `docs/onboarding/FAQ.md` (16,050 bytes)
+- `docs/onboarding/fresh-user-test.md` (7,945 bytes)
 
 ### Modified (10 files)
 - `README.md` (enhanced quickstart and structure)

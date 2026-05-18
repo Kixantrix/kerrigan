@@ -7,7 +7,7 @@
 ## What Was Delivered
 
 ### 1. Comprehensive Investigation Report
-**File:** `docs/skills-sh-investigation.md`
+**File:** `docs/_archive/skills-sh-investigation.md`
 
 A complete analysis including:
 - Skills.sh format analysis (SKILL.md, AGENTS.md, rules/)
@@ -82,9 +82,9 @@ Added "Relevant Skills" sections to:
 
 Review these skills to understand Kerrigan patterns and standards:
 
-- **[Artifact Contracts](../skills/meta/artifact-contracts.md)** - Description
-- **[Agent Handoffs](../skills/meta/agent-handoffs.md)** - Description  
-- **[Quality Bar](../skills/meta/quality-bar.md)** - Description
+- **[Artifact Contracts](../../skills/meta/artifact-contracts.md)** - Description
+- **[Agent Handoffs](../../skills/meta/agent-handoffs.md)** - Description  
+- **[Quality Bar](../../skills/meta/quality-bar.md)** - Description
 
 These skills provide quick reference material. Reference them as needed.
 ```
@@ -227,7 +227,7 @@ These skills provide quick reference material. Reference them as needed.
 
 | File | Type | Description |
 |------|------|-------------|
-| `docs/skills-sh-investigation.md` | New | Full investigation report (19KB) |
+| `docs/_archive/skills-sh-investigation.md` | New | Full investigation report (19KB) |
 | `skills/README.md` | New | Skills library guide (7KB) |
 | `skills/meta/artifact-contracts.md` | New | Artifact structure and validation (8.5KB) |
 | `skills/meta/agent-handoffs.md` | New | Agent workflow patterns (10KB) |
@@ -312,4 +312,4 @@ The hybrid approach with Kerrigan-curated skills provides:
 
 ---
 
-**Questions?** See `docs/skills-sh-investigation.md` for full analysis and `skills/README.md` for usage guide.
+**Questions?** See `docs/_archive/skills-sh-investigation.md` for full analysis and `skills/README.md` for usage guide.

@@ -65,7 +65,7 @@ Kerrigan is a repo template for defining and evolving a **swarm of agents** that
 4. Add agent:go label and assign to Copilot
 5. Let agents build: Spec → Architecture → Implementation → Testing → Deploy
 
-See [docs/setup.md](docs/setup.md) for detailed instructions.
+See [docs/onboarding/setup.md](docs/onboarding/setup.md) for detailed instructions.
 
 ---
 

@@ -105,7 +105,7 @@ proposed_solution: |
   
   If implementing label check is too complex, update documentation:
   
-  1. Remove `allow:large-file` from docs/github-labels.md
+  1. Remove `allow:large-file` from docs/operations/github-labels.md
   2. Update check_quality_bar.py comment to be explicit:
      "Label-based overrides NOT IMPLEMENTED. Use --admin flag for exceptions."
   3. Update playbooks/triage.md with admin bypass procedure

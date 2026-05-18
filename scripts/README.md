@@ -60,7 +60,7 @@ Template branches should be updated whenever core framework changes are made to 
   - `*-VALIDATION.md`
   - `*-SUMMARY.md`
   - `docs/milestone-*.md`
-  - `docs/fresh-user-test.md`
+  - `docs/onboarding/fresh-user-test.md`
   - `docs/test-issue-agent-workflow.md`
   - `docs/AGENT-SPEC-VALIDATION-SUMMARY.md`
 
@@ -154,5 +154,5 @@ git push -f origin template/minimal
 ## Questions?
 
 - See the [README.md](../README.md) for template documentation
-- See [../docs/FAQ.md](../docs/FAQ.md) for general questions
+- See [../docs/onboarding/FAQ.md](../docs/onboarding/FAQ.md) for general questions
 - Open an issue for problems or suggestions

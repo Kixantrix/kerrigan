@@ -129,7 +129,7 @@ Kerrigan uses **4 labels** for autonomy control:
 | `agent:local` | Requires human's machine |
 | `autonomy:override` | Human override for a blocked gate |
 
-See [playbooks/autonomy-modes.md](../playbooks/autonomy-modes.md) for detailed configuration.
+See [playbooks/autonomy-modes.md](../../playbooks/autonomy-modes.md) for detailed configuration.
 
 ### What if I need to pause agent work?
 
@@ -403,8 +403,8 @@ Consider adding `CONTRIBUTING.md` that references your Kerrigan workflow.
 
 ### Documentation structure
 
-- **Getting started**: `README.md`, `docs/setup.md`
-- **Architecture**: `docs/architecture.md`
+- **Getting started**: `README.md`, `docs/onboarding/setup.md`
+- **Architecture**: `docs/architecture/architecture.md`
 - **Process**: `playbooks/*.md`
 - **Specifications**: `specs/constitution.md`, `specs/kerrigan/*.md`
 - **Agent roles**: `.github/agents/*.md`

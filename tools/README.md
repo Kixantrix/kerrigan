@@ -276,7 +276,7 @@ See [feedback/satellite/README.md](../feedback/satellite/README.md) for more abo
 
 ## Style Guidelines
 
-All PowerShell scripts follow the [PowerShell Style Guide](../docs/powershell-style-guide.md) which ensures:
+All PowerShell scripts follow the [PowerShell Style Guide](../docs/operations/powershell-style-guide.md) which ensures:
 - Compatibility with PowerShell 5.1 and later
 - ASCII-only characters (no Unicode emojis or box-drawing characters)
 - Clear version requirements and error messages
@@ -303,7 +303,7 @@ If you see errors about `gh` command:
 
 ## Related Documentation
 
-- [PowerShell Style Guide](../docs/powershell-style-guide.md) - Coding standards for PowerShell scripts
+- [PowerShell Style Guide](../docs/operations/powershell-style-guide.md) - Coding standards for PowerShell scripts
 - [PR Review Playbook](../playbooks/pr-review.md) - Human review guidelines
 
 ## Example Output

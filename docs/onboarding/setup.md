@@ -139,7 +139,7 @@ Open `.github/automation/reviewers.json` and add GitHub usernames or teams:
 When you add the `agent:go` label to an issue:
 - Agents with access to the repo can pick up the work
 - Work follows the spec-kit lifecycle: specify → plan → tasks → implement
-- See [AGENTS.md](../AGENTS.md) for full details
+- See [AGENTS.md](../../AGENTS.md) for full details
 
 **Note**: This is optional. You can manually assign issues without labels.
 
@@ -367,8 +367,8 @@ Now that you've completed your first project:
 
 ## Getting Help
 
-- **FAQ**: See `docs/FAQ.md` for common questions
-- **Architecture**: Read `docs/architecture.md` for system design
+- **FAQ**: See `docs/onboarding/FAQ.md` for common questions
+- **Architecture**: Read `docs/architecture/architecture.md` for system design
 - **Issues**: Check existing issues in the repository
 - **Community**: [Add your community links here]
 

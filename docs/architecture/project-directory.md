@@ -53,7 +53,7 @@ These projects validated the Kerrigan workflow and agent capabilities. They rema
 
 Currently no archived projects. When projects are archived, they move to `specs/projects/_archive/`.
 
-See [Project Lifecycle Playbook](../playbooks/project-lifecycle.md) for archival criteria and process.
+See [Project Lifecycle Playbook](../../playbooks/project-lifecycle.md) for archival criteria and process.
 
 ## Quick Discovery Commands
 
@@ -76,10 +76,10 @@ cat specs/projects/<project-name>/STATUS.md
 
 ## How to Use This Directory
 
-1. **Starting a new project**: Copy `_template/` and see [Kickoff Playbook](../playbooks/kickoff.md)
+1. **Starting a new project**: Copy `_template/` and see [Kickoff Playbook](../../playbooks/kickoff.md)
 2. **Finding examples**: Check completed validation projects (hello-api, hello-cli)
 3. **Understanding minimums**: See hello-swarm for minimum viable structure
-4. **Managing lifecycle**: See [Project Lifecycle Playbook](../playbooks/project-lifecycle.md)
+4. **Managing lifecycle**: See [Project Lifecycle Playbook](../../playbooks/project-lifecycle.md)
 
 ## Status File Convention
 

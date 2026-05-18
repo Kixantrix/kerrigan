@@ -406,10 +406,10 @@ Agent prompts define how agents behave. These are markdown files in `.github/age
 
 Documentation helps humans and agents understand the system:
 
-- **docs/setup.md**: First-time setup walkthrough
-- **docs/architecture.md**: System design and workflow
+- **docs/onboarding/setup.md**: First-time setup walkthrough
+- **docs/architecture/architecture.md**: System design and workflow
 - **docs/agent-assignment.md**: How to assign work
-- **docs/FAQ.md**: Common questions
+- **docs/onboarding/FAQ.md**: Common questions
 - **playbooks/*.md**: Process guides
 
 **Setup**: Can be created from examples in the Kerrigan repository.
@@ -543,10 +543,10 @@ gh label create "agent:go" --color "0e8a16" --description "On-demand approval"
 ## Support & Resources
 
 ### Documentation
-- **Setup Guide**: [docs/setup.md](../docs/setup.md)
-- **Architecture**: [docs/architecture.md](../docs/architecture.md)
+- **Setup Guide**: [docs/onboarding/setup.md](../docs/onboarding/setup.md)
+- **Architecture**: [docs/architecture/architecture.md](../docs/architecture/architecture.md)
 - **Self-Assembly Guide**: [docs/self-assembly.md](../docs/self-assembly.md)
-- **FAQ**: [docs/FAQ.md](../docs/FAQ.md)
+- **FAQ**: [docs/onboarding/FAQ.md](../docs/onboarding/FAQ.md)
 
 ### Reference Implementations
 - **Examples**: [examples/](../examples/) directory

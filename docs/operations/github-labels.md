@@ -42,6 +42,6 @@ gh label list
 
 ## See Also
 
-- [Autonomy Modes](../playbooks/autonomy-modes.md) - How labels control agent workflow
-- [Setup Guide](setup.md) - Complete setup instructions
-- [AGENTS.md](../AGENTS.md) - Label usage in agent profiles
+- [Autonomy Modes](../../playbooks/autonomy-modes.md) - How labels control agent workflow
+- [Setup Guide](../onboarding/setup.md) - Complete setup instructions
+- [AGENTS.md](../../AGENTS.md) - Label usage in agent profiles

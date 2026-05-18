@@ -66,8 +66,8 @@ Each task should be executable and have "done" criteria.
   - Details: Setup.py, package.json, or Homebrew formula
 
 - [ ] Task: Write CLI tool documentation
-  - Done when: docs/cli-reference.md covers all commands with examples
-  - Links: docs/cli-reference.md
+  - Done when: docs/operations/cli-reference.md covers all commands with examples
+  - Links: docs/operations/cli-reference.md
   - Details: Installation, configuration, command reference, troubleshooting
 
 ### Phase 1.3: Prompt URL loading
@@ -442,7 +442,7 @@ Each task should be executable and have "done" criteria.
 
 - [ ] Task: Update FAQ with Milestone 7 questions
   - Ongoing: Add Q&A as patterns emerge
-  - Links: docs/FAQ.md
+  - Links: docs/onboarding/FAQ.md
 
 - [ ] Task: Maintain example projects
   - Ongoing: Keep examples working, update with new features

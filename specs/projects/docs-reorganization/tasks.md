@@ -116,7 +116,7 @@ Add cross-reference notes to `prompts/README.md` and `.github/agents/README.md` 
 ## Wave 2: File Moves (Sequential)
 
 ### Task 5: Move docs to subdirectories
-**Status**: Not started  
+**Status**: Complete  
 **Priority**: High  
 **Dependencies**: Task 1 (directories must exist)  
 
@@ -160,9 +160,9 @@ git mv docs/playground-infrastructure.md docs/_archive/
 **Keep in root**: `docs/self-assembly.md` (validator reference)
 
 **Acceptance Criteria**:
-- [ ] All listed files moved to appropriate subdirectories
-- [ ] Git history preserved (use `git mv`)
-- [ ] No files left in `docs/` root except `self-assembly.md`
+- [x] All listed files moved to appropriate subdirectories
+- [x] Git history preserved (use `git mv`)
+- [x] No files left in `docs/` root except `self-assembly.md`
 
 **Files modified**: 19 files moved
 

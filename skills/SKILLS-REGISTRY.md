@@ -490,7 +490,7 @@ applies_to: [all]
 
 - [skills.sh Documentation](https://skills.sh/docs)
 - [Skills README](./README.md)
-- [Investigation Report](../docs/skills-sh-investigation.md)
+- [Investigation Report](../docs/_archive/skills-sh-investigation.md)
 - [Kerrigan Constitution](../specs/constitution.md)
 
 ## Changelog

@@ -344,6 +344,6 @@ MIT (see root LICENSE file)
 ## Contributing
 
 This is a reference example project. For the full Kerrigan workflow, see:
-- `../../docs/setup.md` - Setup guide
+- `../../docs/onboarding/setup.md` - Setup guide
 - `../../playbooks/kickoff.md` - Project workflow
-- `../../docs/FAQ.md` - Common questions
+- `../../docs/onboarding/FAQ.md` - Common questions
