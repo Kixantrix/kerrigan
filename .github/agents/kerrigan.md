@@ -197,6 +197,13 @@ The merge is gated by `required_review_thread_resolution: true` in branch protec
 
 **Hard rule**: kerrigan profile NEVER pushes code fixes to a cloud-agent PR. If a reviewer comment is technically right but you disagree (e.g., the test really is the simpler approach), reply with rationale and resolve — don't fix. If the comment is wrong, reply explaining why and resolve. The point of the loop is that cloud agents own implementation; kerrigan owns direction and coordination.
 
+### Operational notes (observed in practice)
+
+- **Stopping rule for review cycles**: Copilot's re-review on the cloud fix often surfaces *new* advisory comments (defensive guards, idiomatic refactors). Treat the second round as advisory-by-default: reply with rationale + resolve, do not re-dispatch unless the comment names a correctness/AC regression. Otherwise the loop can run indefinitely.
+- **Re-arm auto-merge after `gh pr update-branch`**: a branch update rebases onto main and can drop the auto-merge state. After any update-branch on a PR you intend to auto-merge, re-run `gh pr merge <N> --auto --squash`.
+- **`mergeable=UNKNOWN` is transient**: GitHub may take many minutes (sometimes after a merge has already happened) to recompute mergeability. Don't chase it — the source of truth for "did this merge?" is `state: MERGED` + `mergedAt`, not the mergeability cache.
+- **One reply tool**: `python tools/pr_reply_resolve.py <pr> <comment-id> "reply"` posts a reply to a specific review comment AND resolves its thread — use this for advisory closure.
+
 ### Dispatching
 
 **Never** use inline `gh issue create` with PowerShell heredocs — heredoc termination is ambiguous and the create command often fires twice creating duplicate issues + PRs. Use `tools/create_issues.py` or write the body to a temp file: `Set-Content -Path body.md -Value $body; gh issue create --body-file body.md`.
