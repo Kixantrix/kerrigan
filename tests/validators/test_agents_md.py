@@ -51,8 +51,19 @@ class TestCheckAgentProfile(unittest.TestCase):
 
     def test_valid_profile(self):
         with tempfile.TemporaryDirectory() as td:
-            p = self._write_profile(Path(td), "local.md",
-                "---\nname: local\ndescription: Conductor\n---\n# local")
+            p = self._write_profile(
+                Path(td),
+                "cloud.md",
+                "---\n"
+                "name: cloud\n"
+                "description: Executor\n"
+                "needs: [cloud-env]\n"
+                "blocks_on: [ambiguous_goal]\n"
+                "budget:\n"
+                "  max_turns: 40\n"
+                "---\n"
+                "# cloud",
+            )
             errors = []
             # Monkey-patch REPO_ROOT for relative path display
             import agents_md

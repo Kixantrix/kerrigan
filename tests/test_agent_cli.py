@@ -20,17 +20,17 @@ class TestAgentCli(unittest.TestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Available agent profiles:", result.output)
-        for profile in ("local", "cloud", "kerrigan"):
+        for profile in ("cloud", "kerrigan"):
             self.assertIn(f"  - {profile}", result.output)
         self.assertNotIn("Available agent roles:", result.output)
 
     def test_show_reads_profile_file(self):
         result = self.runner.invoke(
             agent,
-            ["local", "--show"],
+            ["kerrigan", "--show"],
             catch_exceptions=False,
         )
 
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("Agent profile: local", result.output)
-        self.assertIn("File: .github/agents/local.md", result.output)
+        self.assertIn("Agent profile: kerrigan", result.output)
+        self.assertIn("File: .github/agents/kerrigan.md", result.output)
