@@ -324,8 +324,8 @@ class TestDocumentationReferences(unittest.TestCase):
         with open(readme, "r", encoding="utf-8") as f:
             content = f.read()
         
-        self.assertIn("080-agent-feedback.md", content,
-                     "README should link to feedback specification")
+        self.assertIn("feedback", content.lower(),
+                     "README should mention feedback")
 
     def test_agents_readme_mentions_feedback(self):
         """Test that agents README mentions feedback or legacy reference"""

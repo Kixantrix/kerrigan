@@ -75,7 +75,11 @@ class TestBlockValidator(unittest.TestCase):
     def test_unresolved_block_without_ack_label_fails(self):
         self._write_block("t-001.yaml", self._base_block())
 
-        errors, warnings = validate_blocks(self.blocks_dir, schema_path=self.schema_path)
+        errors, warnings = validate_blocks(
+            self.blocks_dir,
+            schema_path=self.schema_path,
+            now=datetime(2026, 5, 9, 1, 0, tzinfo=timezone.utc),
+        )
 
         self.assertTrue(
             any("block:acknowledged" in error for error in errors),

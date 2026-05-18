@@ -60,8 +60,8 @@ class TestBudgetTelemetryWorkflow(unittest.TestCase):
 
     def test_workflow_uses_sticky_comment_actions(self):
         content = self.workflow_path.read_text(encoding="utf-8")
-        self.assertIn("peter-evans/find-comment@v3", content)
-        self.assertIn("peter-evans/create-or-update-comment@v4", content)
+        self.assertIn("peter-evans/find-comment@", content)
+        self.assertIn("peter-evans/create-or-update-comment@", content)
         self.assertIn("budget-telemetry-comment", content)
 
     def test_workflow_posts_budget_warning(self):

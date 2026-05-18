@@ -63,6 +63,16 @@ mappings:
     tests: "tests/validators/test_block_validator.py"
     notes: "Structured block schema and lifecycle validator"
 
+  - source: "tools/validators/check_hygiene.py"
+    tests: null
+    manual_test_required: true
+    notes: "Hygiene checks validator, manual verification needed"
+
+  - source: "tools/validators/test_capability_matrix.py"
+    tests: null
+    manual_test_required: true
+    notes: "Capability matrix validator, manual verification needed"
+
   # GitHub Workflows - Configuration files
   - source: ".github/workflows/*.yml"
     tests: null

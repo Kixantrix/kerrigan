@@ -109,7 +109,6 @@ class TestTestMappingFile(unittest.TestCase):
     def test_expected_mappings_exist(self):
         """Test that expected source files have mappings"""
         expected_sources = [
-            "tools/agent_audit.py",
             "tools/self_improvement_analyzer.py",
             "tools/validators/check_artifacts.py",
             "tools/validators/check_dependencies.py",
@@ -280,10 +279,10 @@ class TestValidatorIntegration(unittest.TestCase):
         mapping_config = load_test_mapping()
         mappings = mapping_config.get('mappings', [])
         
-        # Test finding a specific mapping
-        mapping = find_mapping_for_file("tools/agent_audit.py", mappings)
+        # Test finding a specific mapping (block_validator.py is in the mapping)
+        mapping = find_mapping_for_file("tools/validators/block_validator.py", mappings)
         self.assertIsNotNone(mapping)
-        self.assertEqual(mapping['source'], "tools/agent_audit.py")
+        self.assertEqual(mapping['source'], "tools/validators/block_validator.py")
         
         # Test finding a glob pattern mapping
         mapping = find_mapping_for_file(".github/agents/local.md", mappings)
@@ -300,8 +299,8 @@ class TestValidatorIntegration(unittest.TestCase):
         
         # Simulate source and corresponding test both changed
         changed_files = {
-            "tools/agent_audit.py",
-            "tests/test_agent_audit.py"
+            "tools/validators/check_artifacts.py",
+            "tests/test_automation.py"
         }
         
         result = check_test_collateral(changed_files, mapping_config)
@@ -316,9 +315,9 @@ class TestValidatorIntegration(unittest.TestCase):
         
         mapping_config = load_test_mapping()
         
-        # Simulate only source changed, not test
+        # Simulate only source changed, not test (check_artifacts.py maps to test_automation.py)
         changed_files = {
-            "tools/agent_audit.py"
+            "tools/validators/check_artifacts.py"
         }
         
         result = check_test_collateral(changed_files, mapping_config)
