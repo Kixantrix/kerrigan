@@ -459,7 +459,6 @@ Comprehensive documentation for all aspects:
 - [Kickoff Playbook](playbooks/kickoff.md)
 - [Project Lifecycle](playbooks/project-lifecycle.md)
 - [Autonomy Modes](playbooks/autonomy-modes.md)
-- [Handoffs](playbooks/handoffs.md)
 
 ### Specifications
 - [Constitution](specs/constitution.md)

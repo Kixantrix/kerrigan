@@ -364,7 +364,6 @@ Agents MUST check this before starting work.
 
 - [Artifact Contracts](./artifact-contracts.md) - What to produce at each phase
 - [Quality Bar](./quality-bar.md) - Quality standards for handoffs
-- [Handoffs Playbook](../../playbooks/handoffs.md) - Detailed process guide
 - [Agent Prompts](../../.github/agents/) - Role-specific instructions
 
 ## Updates

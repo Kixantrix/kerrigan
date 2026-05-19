@@ -353,7 +353,7 @@ See `.github/agents/role.spec.md` and `role.architect.md` for exact heading name
 - If truly necessary, add `allow:large-file` label to PR
 
 ### Issue 4: Agent doesn't know what to do next
-**Solution**: Check the handoff playbook (`playbooks/handoffs.md`) for clear artifact contracts. Ensure previous agent produced all required files.
+**Solution**: Check the briefing packet attached to the issue (see [`.github/skills/briefing-packet/SKILL.md`](../../.github/skills/briefing-packet/SKILL.md)) and the closest [`AGENTS.md`](../../AGENTS.md) for context.
 
 ## Next Steps
 

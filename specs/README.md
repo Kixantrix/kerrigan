@@ -275,8 +275,8 @@ Is it explanatory documentation for humans using the system?
 **Decision**:
 - Is it a specification? **No** (it's a procedure)
 - Is it a step-by-step workflow? **Yes**
-- **Location**: `playbooks/deployment.md` or update `playbooks/handoffs.md`
-- **Action**: Create a new playbook or extend an existing one with deployment steps
+- **Location**: a new file under `playbooks/`
+- **Action**: Create a new playbook with the deployment steps
 
 ## Validation
 

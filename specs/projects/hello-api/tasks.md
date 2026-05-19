@@ -181,8 +181,8 @@ Each task should be executable and have "done" criteria.
   - Links: acceptance-tests.md
 
 - [ ] Task: Document friction points
-  - Done when: At least 3 workflow improvements documented in handoffs.md
-  - Links: playbooks/handoffs.md
+  - Done when: At least 3 workflow improvements documented in feedback
+  - Links: feedback/agent-feedback/TEMPLATE.yaml
 
 - [ ] Task: Update agent prompts
   - Done when: Role prompts updated based on learnings
