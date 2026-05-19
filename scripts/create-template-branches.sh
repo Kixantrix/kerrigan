@@ -74,7 +74,6 @@ EXAMPLE_PROJECTS_TO_REMOVE=(
 SPEC_PROJECTS_TO_REMOVE=(
   "specs/projects/design-system-playground"
   "specs/projects/hello-cli"
-  "specs/projects/pause-resume-demo"
   "specs/projects/task-dashboard-example"
   "specs/projects/task-tracker-real"
   "specs/projects/validator-enhancement"

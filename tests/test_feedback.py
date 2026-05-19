@@ -342,17 +342,21 @@ class TestDocumentationReferences(unittest.TestCase):
         self.assertTrue(has_feedback_ref,
                        "Agents README should reference feedback or kerrigan profile")
 
-    def test_handoffs_playbook_mentions_feedback(self):
-        """Test that handoffs playbook mentions feedback"""
-        handoffs = self.repo_root / "playbooks" / "handoffs.md"
-        
-        with open(handoffs, "r", encoding="utf-8") as f:
+    def test_feedback_review_playbook_mentions_feedback(self):
+        """Test that the feedback-review playbook mentions feedback artifacts.
+
+        playbooks/handoffs.md was deleted in #274 as a v1 orphan; feedback-review.md
+        is the v2 home for feedback workflow guidance.
+        """
+        playbook = self.repo_root / "playbooks" / "feedback-review.md"
+
+        with open(playbook, "r", encoding="utf-8") as f:
             content = f.read()
-        
+
         self.assertIn("feedback", content.lower(),
-                     "Handoffs playbook should mention feedback")
-        self.assertIn("080-agent-feedback.md", content,
-                     "Handoffs playbook should link to feedback specification")
+                     "feedback-review playbook should mention feedback")
+        self.assertIn("agent-feedback", content,
+                     "feedback-review playbook should reference the agent-feedback artifact path")
 
 
 if __name__ == "__main__":

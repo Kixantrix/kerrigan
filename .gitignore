@@ -8,6 +8,7 @@ __pycache__/
 venv/
 .coverage
 htmlcov/
+.pytest_cache/
 
 # Node
 node_modules/
@@ -40,3 +41,7 @@ analysis-results.json
 .kerrigan/
 prompt-cache/
 .coverage
+
+# PR body scratch files (used by kerrigan to pipe markdown to gh pr create)
+pr_body.md
+pr_body*.md
