@@ -58,7 +58,7 @@ This folder contains the governing documents and specifications for all work don
 - `acceptance-tests.md` - Acceptance criteria in testable form
 - `status.json` - Current project status (active, blocked, on-hold)
 
-**Special case**: `specs/projects/kerrigan/` contains specs for Kerrigan *as a project* (building the agent swarm system), not about how the system works (that's in `specs/kerrigan/`).
+> Kerrigan itself is no longer modelled as a managed project here — the harness specs live in [`specs/kerrigan-v2/`](kerrigan-v2/) and the canonical roadmap is in [`AGENTS.md`](../AGENTS.md).
 
 ### Agent Prompts (.github/agents/)
 **Purpose**: Executable prompts that humans copy into AI assistants to perform specific roles.
@@ -146,10 +146,10 @@ This is a common source of confusion. Here's the distinction:
 - **Examples**: Agent archetypes, artifact contracts, quality bar standards
 
 ### Kerrigan the Project
-- **What it is**: The specific work of building and improving the Kerrigan system
-- **Where it's defined**: `specs/projects/kerrigan/` (project specs)
-- **Purpose**: Tracks the goals, architecture, and implementation of the Kerrigan system itself
-- **Examples**: "Add validator for artifact completeness", "Create handoff playbook"
+- **What it is**: The ongoing work of evolving the Kerrigan harness
+- **Where it's defined**: [`specs/kerrigan-v2/`](kerrigan-v2/) (phases, delegation rubric, vision) and [`AGENTS.md`](../AGENTS.md) (current state)
+- **Purpose**: Tracks why and how the harness evolves
+- **Examples**: "Add two-axis test strategy", "Move to spec-kit primitives"
 
 **Analogy**: Think of it like a programming language:
 - **Kerrigan the System** = The language specification (how the language works)

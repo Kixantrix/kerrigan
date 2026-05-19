@@ -55,7 +55,6 @@ AGENT_FEEDBACK_FILES=(
 
 # Meta-project specs to remove
 META_PROJECT_SPECS=(
-  "specs/projects/kerrigan"
   "specs/kerrigan/agents"
 )
 

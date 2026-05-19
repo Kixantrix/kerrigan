@@ -166,7 +166,6 @@ The artifact-driven approach means nothing is lost — all work is in Git, and y
 - **AI API calls**: If using OpenAI, Anthropic, etc. for agents
   - Cost depends on usage and model choice
   - Estimate: $5-50 per project depending on size and iterations
-  - See `specs/projects/kerrigan/cost-plan.md` for Kerrigan's own costs
 - **GitHub Actions**: Free for public repos, free tier for private repos
   - Paid plans if you exceed free tier minutes
 - **Infrastructure**: If deploying services (AWS, Azure, GCP, etc.)
@@ -399,7 +398,6 @@ Consider adding `CONTRIBUTING.md` that references your Kerrigan workflow.
 
 - `examples/hello-swarm/`: Minimal example project
 - `examples/hello-api/`: Complete REST API example
-- `specs/projects/kerrigan/`: Kerrigan managing itself (meta-example)
 
 ### Documentation structure
 
