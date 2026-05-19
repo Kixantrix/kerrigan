@@ -64,6 +64,7 @@ Run in this order, and do not open a PR until all required checks are green:
 - Parallel reads where helpful; sequential writes always.
 - Run tests locally (in your container) before pushing.
 - If your runtime provides worktree isolation (Claude Code `isolation: worktree`, Copilot cloud container), use it — don't fight it.
+- For non-Claude-Code local runtimes, use `scripts/worktree.ps1` / `scripts/worktree.sh` — see `.github/skills/local-parallel-worktrees/SKILL.md`.
 
 ## PR body shape (when no pr-bridge extension)
 
