@@ -237,7 +237,6 @@ Kerrigan supports both approaches. The default is manual workflow, which gives m
 
 **Step 4: If stuck**
 - Read validator error messages carefully
-- Check `playbooks/handoffs.md` for artifact requirements
 - Review example projects in `examples/`
 
 ### Can I customize the validators?

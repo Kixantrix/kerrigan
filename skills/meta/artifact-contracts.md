@@ -272,7 +272,6 @@ CI automatically runs validators on all PRs. Fix validation errors before reques
 
 - [V2 Design](../../specs/kerrigan-v2/000-vision.md) - Architecture and design
 - [Example Projects](../../examples/) - See artifact examples
-- [Agent Handoffs Playbook](../../playbooks/handoffs.md) - Detailed handoff process
 
 ## Updates
 

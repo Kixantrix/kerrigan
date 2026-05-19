@@ -482,5 +482,4 @@ Create `tools/feedback/summarize.py` to:
 - `feedback/satellite/TEMPLATE.md`: Satellite feedback template
 - `feedback/satellite/README.md`: Satellite feedback guide
 - `tools/feedback-to-kerrigan.ps1`: Satellite feedback submission script
-- `playbooks/handoffs.md`: Agent handoff process
 - `specs/kerrigan/010-agent-archetypes.md`: Agent roles

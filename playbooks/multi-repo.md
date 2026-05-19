@@ -9,7 +9,6 @@ This playbook guides teams through managing projects that span multiple GitHub r
 **Related documents**:
 - `specs/kerrigan/020-artifact-contracts.md` - Multi-repo specification schema
 - `playbooks/project-lifecycle.md` - General project management
-- `playbooks/handoffs.md` - Agent handoff protocols
 
 ## When to use multi-repo
 
@@ -516,5 +515,4 @@ See `specs/kerrigan/020-artifact-contracts.md` for detailed examples:
 ## Related playbooks
 
 - `playbooks/project-lifecycle.md` - Managing project states
-- `playbooks/handoffs.md` - Agent handoff protocols
 - `playbooks/autonomy-modes.md` - Controlling agent autonomy
