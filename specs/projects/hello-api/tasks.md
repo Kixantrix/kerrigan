@@ -188,10 +188,6 @@ Each task should be executable and have "done" criteria.
   - Done when: Role prompts updated based on learnings
   - Links: .github/agents/role.*.md
 
-- [ ] Task: Update plan.md with lessons
-  - Done when: Kerrigan plan.md updated with Milestone 5 completion
-  - Links: specs/projects/kerrigan/plan.md
-
 - [ ] Task: Final documentation review
   - Done when: All docs are accurate and complete
   - Links: All spec artifacts

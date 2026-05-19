@@ -4,10 +4,7 @@ This document provides an overview of all projects in `specs/projects/` and thei
 
 ## Active Production Projects
 
-### kerrigan
-**Purpose**: Kerrigan meta-project - the agent swarm system itself  
-**Status**: Active (ongoing development and maintenance)  
-**Location**: `specs/projects/kerrigan/`
+The Kerrigan harness itself is no longer tracked as a managed project here. Its specs live in [`specs/kerrigan-v2/`](../../specs/kerrigan-v2/) and its current state is summarised in [`AGENTS.md`](../../AGENTS.md).
 
 ## Completed Validation Projects
 
