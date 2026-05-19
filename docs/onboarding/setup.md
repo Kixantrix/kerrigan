@@ -213,20 +213,20 @@ cd my-first-project/
 5. Add label: `agent:go` (to enable agent work)
 6. Click **"Submit new issue"**
 
-### 6.3: Invoke the Spec Agent
+### 6.3: Dispatch to a cloud agent
 
-Copy the `.github/agents/role.spec.md` prompt into your AI assistant along with:
+In v2, you don't paste prompts into an assistant manually — you dispatch the issue to the GitHub Copilot cloud agent, which runs against a briefing packet generated from your task.
+
+The quickest path: chat with **`kerrigan`** (the conductor profile). Ask it to plan and dispatch the issue:
 
 ```
-Project name: my-first-project
-Issue: [paste your issue URL]
-
-Please create the spec.md and acceptance-tests.md files for this project.
+Goal: implement my-first-project per issue #123.
+Please draft a briefing packet and dispatch to @copilot.
 ```
 
-The Spec Agent will create:
-- `specs/projects/my-first-project/spec.md`
-- `specs/projects/my-first-project/acceptance-tests.md`
+`kerrigan` will run `/speckit.specify` (and `/speckit.plan` / `/speckit.tasks` as needed), generate `.specify/briefings/<task-id>.md`, attach it to the issue, and assign `@copilot`. The cloud agent (`cloud` profile in `.github/agents/cloud.md`) then implements the task in an ephemeral container and opens a PR.
+
+See [`AGENTS.md`](../../AGENTS.md) for the canonical lifecycle and `.github/agents/kerrigan.md` for the conductor's instructions.
 
 ### 6.4: Review and Commit Spec
 
@@ -238,25 +238,26 @@ git commit -m "Add spec for my-first-project"
 git push origin main
 ```
 
-### 6.5: Invoke the Architect Agent
+### 6.5: Iterate on plan and tasks
 
-Copy the `.github/agents/role.architect.md` prompt with the project context. The Architect Agent will create:
-- `architecture.md`
+If `kerrigan` ran `/speckit.specify` only, ask it to follow up with `/speckit.plan` and `/speckit.tasks`. The plan generates:
 - `plan.md`
 - `tasks.md`
-- `test-plan.md`
+- (optionally) `test-plan.md`
+
+These are living artifacts — `plan.md` and `tasks.md` are kept current as work progresses.
 
 ### 6.6: Continue Through Agents
 
-Follow the workflow defined in `playbooks/kickoff.md`:
-1. Spec Agent (done)
-2. Architect Agent (done)
-3. Kerrigan Meta-Agent (validates constitution compliance)
-4. SWE Agent (implements the feature)
-5. Testing Agent (strengthens test coverage)
-6. Deploy Agent (creates operational docs)
+Follow the workflow defined in `playbooks/kickoff.md`. In short:
+1. `/speckit.specify` (or `spec-kit-tinyspec` for small work) — `kerrigan` produces `spec.md` + `acceptance-tests.md`.
+2. `/speckit.plan` — `kerrigan` produces `plan.md`.
+3. `/speckit.tasks` — `kerrigan` produces `tasks.md` and dispatches to `cloud` via `/kerrigan.dispatch`.
+4. `cloud` agent (Copilot or Claude Code worktree) implements one task slice end-to-end, opens a PR.
+5. CI + Copilot review + `kerrigan` resolve / re-dispatch the feedback loop.
+6. Human reviews direction; merge.
 
-Each agent handoff is artifact-driven — one agent produces files that the next agent consumes.
+Each handoff is artifact-driven — the briefing packet, plan, and tasks are the contract between profiles.
 
 ## Step 8: Validate with CI
 
@@ -345,7 +346,7 @@ git push origin main
 - ✅ `## Goal` not `## GOAL`
 - ✅ `## Acceptance criteria` not `## Acceptance Criteria`
 
-See `.github/agents/role.spec.md` and `role.architect.md` for exact heading names.
+See `.specify/templates/spec-template.md` and your project's `spec.md` for the heading names enforced by the spec-kit verify chain.
 
 ### Issue 3: Large file warning
 **Solution**: 

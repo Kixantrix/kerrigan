@@ -258,24 +258,22 @@ Yes! Validators are Python scripts in `tools/validators/`:
 
 ## Workflow and Processes
 
-### What are the autonomy modes and which should I use?
+### How do I control when agents work?
 
-**Mode A: On-Demand** (Recommended for starting)
-- Agents only work when you label an issue `agent:go`
-- Maximum human control
-- Best for: learning, high-stakes projects, uncertain scope
+v2 uses four GitHub labels as annotations (none are auto-enforced — the functional gate for cloud execution is `@copilot` assignment on the issue):
 
-**Using `agent:wait`** (Pause work)
-- Add `agent:wait` to an issue to pause agent work
-- Remove it and add `agent:go` to resume
-- Best for: pausing during review, waiting for decisions
+- **`agent:go`** — ready to dispatch (or has been dispatched). `kerrigan` looks here for triaged work.
+- **`agent:wait`** — intentionally undispatched: waiting on a dependency, a wave, or human input.
+- **`agent:local`** — needs the human's machine (device I/O, OS-specific, paid secret). Don't assign to cloud Copilot.
+- **`autonomy:override`** — human has explicitly approved an exception to a default-cautious routing rule.
 
-**Mode C: Hybrid** (Advanced)
-- Spec and Architect agents can always propose
-- SWE/Testing/Deploy agents need explicit approval
-- Best for: balancing exploration and execution control
+The `capture` label (paired with `agent:wait`) marks ideas dropped in via the mobile capture issue template; `kerrigan` triages those at the start of a desktop session.
 
-Start with Mode A, then graduate to Mode B or C as you gain confidence.
+If you want stricter control, simply don't assign `@copilot` until you're ready — the issue stays inert. See [`AGENTS.md`](../../AGENTS.md#labels-v2) for the canonical label spec.
+
+### How do I pause an in-flight task?
+
+Add `agent:wait` to the issue and remove `@copilot` as the assignee. To resume, restore the assignment.
 
 ### How do I know what phase my project is in?
 
@@ -296,17 +294,16 @@ The `tasks.md` file also tracks completion status for each milestone.
 
 Kerrigan is customizable! You can:
 
-**Add/remove agent roles**:
-- Create new role prompts in `.github/agents/`
-- Example: Add "Documentation Agent" or "Security Audit Agent"
+**Add/remove agent profiles**:
+- Edit profiles in `.github/agents/` (v2 keeps this to two — `kerrigan` and `cloud` — plus thin adapters in `.github/agents/adapters/`).
+- Resist adding more: most "new agent" needs are better served by a new skill in `.github/skills/`.
 
-**Change phase order**:
-- Edit `playbooks/kickoff.md` to redefine workflow
-- Example: Add "design review" phase between Architect and SWE
+**Change project workflow**:
+- Edit `playbooks/kickoff.md` to refine the conductor flow.
+- The detailed mechanics live in `kerrigan`'s agent profile (`.github/agents/kerrigan.md`).
 
-**Modify artifact requirements**:
-- Edit `specs/kerrigan/020-artifact-contracts.md`
-- Update validators to match new requirements
+**Modify validator behaviour**:
+- Validators live in `tools/validators/`. Add/remove checks there and wire them into `.github/workflows/verify.yml`.
 
 **Adjust quality bar**:
 - Modify line-of-code limits in `tools/validators/check_artifacts.py`
