@@ -66,8 +66,8 @@ For each feedback file, assess:
 **Review related files**:
 ```bash
 # For each file mentioned in related_files
-cat .github/agents/role.swe.md
-cat specs/kerrigan/020-artifact-contracts.md
+cat .github/agents/cloud.md
+cat specs/kerrigan-v2/000-vision.md
 ```
 
 **Check for patterns**:
@@ -145,8 +145,8 @@ reviewed_by: "kerrigan-maintainer"
 reviewed_date: "2026-01-15T14:00:00Z"
 implementation_pr: 123  # if fixed
 notes: |
-  Confirmed issue. Updated role.swe.md to include exact heading names.
-  Also added examples to handoffs.md.
+  Confirmed issue. Updated `cloud.md` (or the relevant skill) to include exact heading names.
+  Also added examples to the briefing-packet skill.
 ```
 
 ### 7. Archive Processed Feedback
@@ -389,7 +389,7 @@ When processing feedback:
 **Example comment**:
 ```
 Thanks for the feedback! You're right that the heading names weren't clear.
-I've updated role.swe.md with specific examples in #44.
+I've updated the `cloud` agent profile with specific examples in #44.
 The feedback has been processed and moved to the archive.
 ```
 
@@ -456,8 +456,8 @@ Create `tools/feedback/summarize.py` to:
 
 ### Example 1: High-Severity Prompt Issue
 
-**Feedback**: Validator heading names not in prompt
-**Action**: Immediate fix to role.swe.md
+**Feedback**: Validator heading names not in agent profile
+**Action**: Immediate fix to `.github/agents/cloud.md`
 **Time**: Same day
 **Result**: No more reports of this issue
 

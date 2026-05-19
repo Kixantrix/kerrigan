@@ -978,8 +978,8 @@ Use past issues as reference:
 - Workflow changes → almost always touch `.github/workflows/`
 
 **Common patterns:**
-- `role:triage` → `playbooks/triage.md`, `.github/agents/role.triage.md`
-- `role:swe` + "CI" → `.github/workflows/`, `.github/test-mapping.yml`
+- "PR review" / "approval" → `playbooks/pr-review.md`, `playbooks/triage.md`
+- "CI" / "workflow" → `.github/workflows/`, `.github/test-mapping.yml`
 - "documentation" → `docs/`, `playbooks/`, `README.md`
 - "validator" → `tools/validators/`
 - "label" → `docs/operations/github-labels.md`

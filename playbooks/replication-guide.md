@@ -57,22 +57,16 @@ Kerrigan follows this directory layout:
 ```
 kerrigan/
 ├── .github/
-│   ├── agents/              # Agent role prompts and instructions
-│   │   ├── README.md        # Overview of agent system
-│   │   ├── role.spec.md     # Specification agent prompt
-│   │   ├── role.architect.md # Architecture agent prompt
-│   │   ├── role.swe.md      # Software engineering agent prompt
-│   │   ├── role.testing.md  # Testing agent prompt
-│   │   ├── role.debugging.md # Debugging agent prompt
-│   │   ├── role.deployment.md # Deployment agent prompt
-│   │   ├── role.security.md # Security agent prompt
-│   │   └── kerrigan.swarm-shaper.md # Meta-agent prompt
+│   ├── agents/              # v2 agent profiles
+│   │   ├── README.md        # Overview of the two-profile model
+│   │   ├── kerrigan.md      # Conductor + swarm-shaper (interactive)
+│   │   ├── cloud.md         # Executor (cloud or worktree)
+│   │   └── adapters/        # Thin adapters to built-in sub-agents (Explore, Plan, code-review)
+│   ├── skills/              # Reusable agent knowledge (agent-skills spec)
 │   ├── workflows/           # CI/CD automation
-│   │   ├── ci.yml           # Main validation workflow
-│   │   ├── agent-gates.yml  # Autonomy control workflow
-│   │   ├── auto-assign-issues.yml # Auto-assignment automation
-│   │   ├── auto-assign-reviewers.yml # Reviewer automation
-│   │   ├── auto-generate-issues.yml # Issue generation automation
+│   │   ├── verify.yml       # Main validation workflow (required check)
+│   │   ├── budget-telemetry.yml
+│   │   └── sync-template-branches.yml
 │   │   └── auto-triage-on-assign.yml # Triage automation
 │   └── automation/          # Automation configuration
 │       └── README.md        # Automation setup guide
@@ -286,11 +280,11 @@ python tools/validators/check_quality_bar.py
 
 Create a test issue to validate the system:
 
-1. **Create issue** with label `agent:go` and `role:spec`
-2. **Copy agent prompt** from `.github/agents/role.spec.md`
-3. **Have agent create** a test project in `specs/projects/test-project/`
+1. **Create issue** with label `agent:go`
+2. **Chat with `kerrigan`** in VS Code / Claude Code / Copilot CLI to dispatch the issue (`kerrigan` generates a briefing packet and assigns `@copilot`).
+3. **Cloud agent** implements a test project under `specs/projects/test-project/` and opens a PR.
 4. **Verify**:
-   - CI passes on agent's PR
+   - `verify` workflow passes
    - All required artifacts present
    - Quality bar checks pass
 
@@ -387,18 +381,15 @@ jobs:
           python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
-### Priority 2: Agent Prompts
+### Priority 2: Agent Profiles
 
-Agent prompts define how agents behave. These are markdown files in `.github/agents/`:
+Agent profiles define how agents behave. v2 keeps this to **two profiles** plus thin adapters:
 
-- **role.spec.md**: Creates specifications from requirements
-- **role.architect.md**: Designs system architecture
-- **role.swe.md**: Implements features with tests
-- **role.testing.md**: Strengthens test coverage
-- **role.debugging.md**: Fixes failures
-- **role.deployment.md**: Creates deployment runbooks
-- **role.security.md**: Reviews for vulnerabilities
-- **kerrigan.swarm-shaper.md**: Ensures constitution compliance
+- **`.github/agents/kerrigan.md`**: Conductor + swarm-shaper. Interactive; plans, dispatches, and maintains the harness. Never implements feature code directly.
+- **`.github/agents/cloud.md`**: Executor. Runs one task slice end-to-end in a cloud container (GitHub Copilot) or a Claude Code worktree session. Writes code + tests, self-verifies, opens one PR.
+- **`.github/agents/adapters/`**: Thin adapters to built-in sub-agents (`Explore`, `Plan` mode, Copilot code-review, Copilot coding agent).
+
+Claude Code can mirror these from `.claude/agents/`; GitHub Copilot reads them directly.
 
 **Setup**: See [Self-Assembly Guide](../docs/self-assembly.md) for template structure.
 
@@ -439,16 +430,16 @@ cat .github/workflows/ci.yml
 
 1. **Create test issue**:
    - Title: "Test: Validate Kerrigan recovery"
-   - Add labels: `agent:go`, `role:spec`
+   - Add label: `agent:go`
 
-2. **Invoke spec agent**:
-   - Copy prompt from `.github/agents/role.spec.md`
-   - Paste into AI assistant with issue link
-   - Agent should create test project in `specs/projects/test-recovery/`
+2. **Dispatch via `kerrigan`**:
+   - Chat with the `kerrigan` profile in VS Code / Claude Code / Copilot CLI.
+   - Ask it to plan and dispatch the issue (`kerrigan` runs spec-kit, generates a briefing packet, assigns `@copilot`).
+   - Cloud agent creates a test project in `specs/projects/test-recovery/` and opens a PR.
 
 3. **Verify agent output**:
    - Check that all required files are created
-   - Verify CI passes on agent's PR
+   - Verify `verify` workflow passes on the PR
    - Review artifacts meet quality standards
 
 4. **Clean up**:
