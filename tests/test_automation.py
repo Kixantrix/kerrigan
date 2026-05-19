@@ -64,7 +64,6 @@ class TestV2Workflows(unittest.TestCase):
         self.expected_workflows = {
             "verify.yml",
             "budget-telemetry.yml",
-            "sdk-agent-service.yml",
             "sync-template-branches.yml",
         }
 

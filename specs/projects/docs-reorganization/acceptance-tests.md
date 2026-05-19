@@ -14,9 +14,9 @@ Each test below maps to one acceptance criterion from `spec.md` and the correspo
 
 - [ ] **Given** `specs/projects/README.md` **When** opened **Then** a status legend for each project under `specs/projects/` is present (Task 3)
 
-## AC4: Prompts vs agents distinction is documented
+## AC4: ~~Prompts vs agents distinction is documented~~ (obsolete)
 
-- [ ] **Given** `prompts/README.md` and `.github/agents/README.md` **When** opened **Then** each explains its purpose and the distinction from the other (Task 4)
+- [x] Cancelled — `prompts/` was retired together with `services/sdk-agent/`. `.github/agents/README.md` now contrasts agent profiles with briefing packets instead.
 
 ## AC5: Docs moved into subdirectories
 

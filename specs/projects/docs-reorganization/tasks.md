@@ -92,24 +92,8 @@ Specs without active implementation. Kept for historical context.
 
 ---
 
-### Task 4: Clarify prompts vs agents distinction
-**Status**: Not started  
-**Priority**: Medium  
-**Dependencies**: None  
-
-Add cross-reference notes to `prompts/README.md` and `.github/agents/README.md` explaining:
-- **Prompts** = reusable text templates for invoking agents (kickoff-spec.md, architecture-design.md, etc.)
-- **Agent profiles** = runtime configurations with frontmatter, permissions, skills (local.md, cloud.md, kerrigan.md)
-
-**Changes to prompts/README.md**: Add "Not to be confused with" section
-**Changes to .github/agents/README.md**: Add "See also: prompts/" section
-
-**Acceptance Criteria**:
-- [ ] `prompts/README.md` clarifies difference from agent profiles
-- [ ] `.github/agents/README.md` clarifies difference from prompt templates
-- [ ] Cross-references between the two
-
-**Files modified**: `prompts/README.md`, `.github/agents/README.md`
+### Task 4: ~~Clarify prompts vs agents distinction~~ (obsolete)
+**Status**: Cancelled — `prompts/` and `services/sdk-agent/` were retired (see PR retiring sdk-agent). `.github/agents/README.md` now explains agent profiles vs. briefing packets instead, which is the v2 mechanism.
 
 ---
 

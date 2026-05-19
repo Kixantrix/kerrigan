@@ -52,29 +52,9 @@ tasks:
       ## Routing
       R-cloud-default — cleanup work.
 
-  - id: T-P4-003
-    title: "docs: rescope sdk-agent service to optional programmatic dispatch"
-    labels: [agent:go]
-    body: |
-      ## Objective
-      Update `services/sdk-agent/README.md` to clarify that spec-kit's
-      `/speckit.taskstoissues` covers the common issue-creation path, and
-      sdk-agent is now for programmatic/API-driven dispatch only.
-
-      ## Acceptance Criteria
-      - AC-1: `services/sdk-agent/README.md` updated with scope clarification
-      - AC-2: Note that `tools/create_issues.py` is the CLI entry point (no server needed)
-      - AC-3: Link to spec-kit taskstoissues skill for the standard workflow
-      - AC-4: Clarify sdk-agent is optional for API/programmatic scenarios
-      - AC-5: Remove any "required" language around sdk-agent
-
-      ## Scope
-      - Touch: `services/sdk-agent/README.md`
-      - Read-only: `tools/create_issues.py`, `.claude/skills/speckit-taskstoissues/`
-      - Out of scope: modifying sdk-agent code itself
-
-      ## Routing
-      R-cloud-default — documentation update.
+  # T-P4-003 (rescope sdk-agent) was superseded — sdk-agent was retired entirely
+  # in favour of spec-kit's /speckit.taskstoissues + tools/create_issues.py.
+  # See PR retiring services/sdk-agent/ and prompts/.
 
   - id: T-P4-004
     title: "feat: label migration script — v1 to v2 label upgrade"

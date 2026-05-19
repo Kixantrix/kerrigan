@@ -100,7 +100,7 @@
 
 - Delete the remaining v1 role-prompt files.
 - Retire workflows replaced by v2: `agent-gates.yml`, `auto-grant-autonomy.yml`, `auto-ready-pr.yml`, `auto-trigger-dependents.yml` (merged into `verify.yml` + branch protection), `daily-self-improvement.yml` (replaced by kerrigan cron).
-- Rescope `services/sdk-agent/` to "optional programmatic dispatch" — spec-kit's `/speckit.taskstoissues` covers the common path.
+- Retire `services/sdk-agent/` and the v1 `prompts/` library — spec-kit's `/speckit.taskstoissues` plus `tools/create_issues.py` cover the common path; the SDK investigation concluded that fully-autonomous CI-triggered Copilot needs self-hosted-runner infrastructure outside this repo's scope (see archived `specs/projects/_archive/copilot-sdk-integration/`).
 - Retire v1 labels; migration script `scripts/migrate-v1-to-v2.{ps1,sh}`.
 - `playbooks/upgrade-to-v2.md` — step-by-step for `personal-selfhost` (delete its `claude-dispatch.sh` fork; use `cloud` profile + Claude Code runtime) and `vhs-video-stack` (migrate batch-merge habits to wave-based dispatch).
 - Archive `specs/kerrigan/000–080*.md` as v1 history; `specs/kerrigan-v2/` becomes source of truth.

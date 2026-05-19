@@ -20,7 +20,6 @@ Reorganize Kerrigan's documentation structure to improve navigability for both a
 - [ ] `docs/` has 4 subdirectories: `onboarding/`, `architecture/`, `operations/`, `_archive/`
 - [ ] AGENTS.md updated to remove "v1 phasing out" language (state v2 as current)
 - [ ] `specs/projects/README.md` exists with status legend for all 11 projects
-- [ ] `prompts/README.md` and `.github/agents/README.md` clarify the distinction
 - [ ] Setup guides moved from `playbooks/` to `docs/operations/`
 - [ ] All internal links updated to reflect new paths
 - [ ] Hygiene validator passes (no broken links)

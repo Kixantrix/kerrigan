@@ -89,7 +89,6 @@ EXCLUDE_FILE_PATTERNS = [
 # Known pre-existing placeholders (allowed until fixed)
 # Format: (file_path, line_number) tuples
 KNOWN_PLACEHOLDERS = {
-    ('services/sdk-agent/src/agent-orchestrator.ts', 103),
     ('tools/research/paper_researcher.py', 17),
     ('tools/research/paper_researcher.py', 27),
     ('tools/research/paper_researcher.py', 28),
