@@ -550,7 +550,7 @@ gh label create "agent:go" --color "0e8a16" --description "On-demand approval"
 
 ### Reference Implementations
 - **Examples**: [examples/](../examples/) directory
-- **Kerrigan Project**: [specs/projects/kerrigan/](../specs/projects/kerrigan/)
+- **Harness specs**: [specs/kerrigan-v2/](../specs/kerrigan-v2/)
 
 ### Community
 - **GitHub Issues**: Report problems or ask questions

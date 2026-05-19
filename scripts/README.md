@@ -68,7 +68,6 @@ Template branches should be updated whenever core framework changes are made to 
   - `feedback/agent-feedback/*.yaml` (except `TEMPLATE.yaml` and `README.md`)
 
 - **Meta-project specs**:
-  - `specs/projects/kerrigan/`
   - `specs/kerrigan/agents/`
 
 #### template/minimal Additionally Removes:

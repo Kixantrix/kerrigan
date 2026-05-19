@@ -51,7 +51,8 @@ When the scope is ambiguous, ask the human one question to disambiguate. Don't g
 6. **Dispatch.** `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) for cloud; run locally in your own worktree only if the task is `local` (see `.github/skills/local-parallel-worktrees/SKILL.md`).
 7. **Delegate reads.** Use Claude Code's built-in `Explore` sub-agent for fast read-only exploration (see `.github/agents/adapters/explore.md`). Use `Plan` mode before committing to a plan.
 8. **Surface blocks.** When a cloud or local task emits `.specify/blocks/<task-id>.yaml`, present it to the human with the block's recommendation and the minimum input needed. Unrelated tasks keep moving.
-9. **Report back.** Concise status: what dispatched, what's running, what's blocked, what merged.
+9. **Triage the mobile inbox** (run periodically — especially at the start of a desktop session, before dispatching new work). Scan `is:open label:agent:wait label:capture no:assignee` — these are ideas the human captured from phone via the `Mobile capture` issue template. The `capture` label is the discriminator; it excludes other `agent:wait` work that's paused for dependencies or human input. For each captured idea: (a) refine into a briefing if worth doing now, (b) flip `agent:wait` → `agent:go` + assign Copilot, OR (c) close with a one-line reason, OR (d) leave as-is if it's a real "later" item. Don't let the inbox accumulate beyond ~10 — that means triage is overdue.
+10. **Report back.** Concise status: what dispatched, what's running, what's blocked, what merged.
 
 ### What you don't do
 
@@ -192,7 +193,7 @@ The merge is gated by `required_review_thread_resolution: true` in branch protec
    ```
    The Copilot cloud agent will resume work on the same branch. New push → CI re-runs + Copilot re-reviews → if no new critical comments and threads resolved, auto-merge fires.
 4. **For advisory comments** — reply with rationale via `gh api .../pulls/comments/<comment-id>/replies` and resolve the thread.
-5. **Watch for the merge**: when threads resolved + CI green, auto-merge fires. You don't need to touch the PR again unless Copilot's follow-up review surfaces new critical issues (rare; loop again from step 1).
+5. **Watch for the merge**: when threads resolved + CI green, auto-merge fires. **"All checks green" is NOT sufficient** — the ruleset's `required_review_thread_resolution: true` silently holds the merge on any unresolved review thread, even with status checks fully green. Always check `pullRequest.reviewThreads.nodes[].isResolved` via GraphQL before assuming a PR is stuck on CI. If CI is green and the PR hasn't merged within a few minutes, query unresolved threads and either re-dispatch (critical) or reply-resolve (advisory) — don't wait. You don't need to touch the PR again unless Copilot's follow-up review surfaces new critical issues (rare; loop again from step 1).
 6. **After merge**: surface to the human for direction review only if the change has user-visible impact or architectural consequences. For pure cleanup PRs, the merge is the end.
 
 **Hard rule**: kerrigan profile NEVER pushes code fixes to a cloud-agent PR. If a reviewer comment is technically right but you disagree (e.g., the test really is the simpler approach), reply with rationale and resolve — don't fix. If the comment is wrong, reply explaining why and resolve. The point of the loop is that cloud agents own implementation; kerrigan owns direction and coordination.
