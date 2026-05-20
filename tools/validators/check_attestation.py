@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 PENDING_RE = re.compile(r"^\s*pending-attestation:\s*(AC-[A-Za-z0-9_-]+)\s*$")
+FENCE_RE = re.compile(r"^\s*(```+|~~~+)\s*.*$")
 ATTEST_RE = re.compile(
     r"^ATTEST:\s*ac-id=(AC-[A-Za-z0-9_-]+)\s+"
     r"environment=(local-attested-[A-Za-z0-9_-]+)\s+"
@@ -21,7 +22,29 @@ ALLOWED_ASSOCIATIONS = {"OWNER", "MEMBER", "COLLABORATOR"}
 
 def parse_pending_attestations(pr_body: str) -> set[str]:
     pending: set[str] = set()
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+
     for line in pr_body.splitlines():
+        fence_match = FENCE_RE.match(line)
+        if fence_match:
+            token = fence_match.group(1)
+            token_char = token[0]
+            token_len = len(token)
+            if not in_fence:
+                in_fence = True
+                fence_char = token_char
+                fence_len = token_len
+            elif token_char == fence_char and token_len >= fence_len:
+                in_fence = False
+                fence_char = ""
+                fence_len = 0
+            continue
+
+        if in_fence:
+            continue
+
         match = PENDING_RE.match(line)
         if match:
             pending.add(match.group(1))

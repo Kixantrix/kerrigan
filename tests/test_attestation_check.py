@@ -18,6 +18,19 @@ def test_pending_attestation_parser():
     assert parse_pending_attestations(body) == {"AC-1", "AC-2"}
 
 
+def test_pending_attestation_parser_ignores_fenced_code_blocks():
+    body = """pending-attestation: AC-1
+```markdown
+pending-attestation: AC-2
+```
+~~~yaml
+pending-attestation: AC-3
+~~~
+pending-attestation: AC-4
+"""
+    assert parse_pending_attestations(body) == {"AC-1", "AC-4"}
+
+
 def test_attestation_comment_parser():
     comment = "ATTEST: ac-id=AC-5 environment=local-attested-ios-device commit=abc1234 result=pass"
     parsed = parse_attestation_comment(comment)
