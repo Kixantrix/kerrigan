@@ -205,6 +205,13 @@ The merge is gated by `required_review_thread_resolution: true` in branch protec
 - **`mergeable=UNKNOWN` is transient**: GitHub may take many minutes (sometimes after a merge has already happened) to recompute mergeability. Don't chase it — the source of truth for "did this merge?" is `state: MERGED` + `mergedAt`, not the mergeability cache.
 - **One reply tool**: `python tools/pr_reply_resolve.py <pr> <comment-id> "reply"` posts a reply to a specific review comment AND resolves its thread — use this for advisory closure.
 
+## PR loop helpers
+
+- `tools/pr-doctor.ps1 <pr-number>` — one-shot PR diagnostic summary across state, checks, stalled runs, and review status.
+- `tools/pr-resolve-threads.ps1 <pr-number>` — lists unresolved review threads and resolves them (supports dry run + confirmation).
+- `tools/pr-rerun-pending.ps1 <pr-number>` — reruns workflow runs on the PR branch with `action_required` conclusion.
+- `tools/pr-redispatch.ps1 <pr-number>` — posts a multiline `@copilot` redispatch comment and re-arms `--auto --squash` merge.
+
 ### Dispatching
 
 **Never** use inline `gh issue create` with PowerShell heredocs — heredoc termination is ambiguous and the create command often fires twice creating duplicate issues + PRs. Use `tools/create_issues.py` or write the body to a temp file: `Set-Content -Path body.md -Value $body; gh issue create --body-file body.md`.

@@ -43,5 +43,4 @@ prompt-cache/
 .coverage
 
 # PR body scratch files (used by kerrigan to pipe markdown to gh pr create)
-pr_body.md
-pr_body*.md
+pr_*.md

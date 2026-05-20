@@ -13,6 +13,8 @@ Preferred:
 
 ## Handling Copilot PR Reviewer Feedback
 
+See also: [cloud-agent-pr-loop.md](./cloud-agent-pr-loop.md).
+
 When the Copilot pull-request-reviewer bot leaves feedback on PRs:
 
 ### Detection
