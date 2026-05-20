@@ -164,6 +164,15 @@ Options: <from block.yaml>
 
 After a cloud agent opens a PR, Copilot auto-review posts review comments. You own the response cycle:
 
+## PR loop helpers
+
+Use these helper scripts during the PR dispatch/review/merge loop:
+
+- `tools/pr-doctor.ps1 <pr-number>` — one-shot diagnostic for PR state, checks, runs, and review thread counts.
+- `tools/pr-resolve-threads.ps1 <pr-number>` — lists unresolved review threads and resolves them (supports `-DryRun`).
+- `tools/pr-rerun-pending.ps1 <pr-number>` — reruns workflow runs on the PR branch with `conclusion=action_required`.
+- `tools/pr-redispatch.ps1 <pr-number>` — posts a multi-line redispatch comment and re-arms auto-merge.
+
 ### When Copilot finishes (signal: `[WIP]` removed from PR title — Copilot can't mark PRs ready itself)
 
 Promote the PR in this exact order. Order matters because auto-merge can race ahead of review requests:
