@@ -60,6 +60,7 @@ def check(verbose: bool, fast: bool) -> None:
       - tools/validators/block_validator.py (if present)
       - tools/validators/test_capability_matrix.py (if present)
       - tools/validators/show_status.py (if present)
+      - tools/validators/check_test_environment.py (if present)
 
     Skipped with --fast (heavy / PR-context validators):
       - tools/validators/check_quality_bar.py
@@ -166,6 +167,19 @@ def check(verbose: bool, fast: bool) -> None:
         ok = _run_validator(
             "show_status.py", [python, str(show_status)], root, verbose
         )
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+
+    check_test_environment = validators_dir / "check_test_environment.py"
+    if check_test_environment.exists():
+        briefing = root / ".specify" / "briefings" / "test-strategy-v1.md"
+        manifest = root / ".specify" / "test-environments.yaml"
+        cmd = [python, str(check_test_environment), "--briefing", str(briefing)]
+        if manifest.exists():
+            cmd.extend(["--manifest", str(manifest)])
+        ok = _run_validator("check_test_environment.py", cmd, root, verbose)
         if ok:
             passed += 1
         else:

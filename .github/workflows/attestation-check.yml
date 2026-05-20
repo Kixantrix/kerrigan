@@ -1,0 +1,41 @@
+name: attestation-check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  check-attestation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Prepare attestation inputs
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        with:
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: pull_number,
+              per_page: 100,
+            });
+            fs.writeFileSync('pr-body.txt', context.payload.pull_request.body || '', 'utf8');
+            fs.writeFileSync('pr-comments.json', JSON.stringify(comments), 'utf8');
+
+      - name: Validate attestations
+        run: |
+          python tools/validators/check_attestation.py \
+            --pr-body-file pr-body.txt \
+            --comments-file pr-comments.json \
+            --head-sha "${{ github.event.pull_request.head.sha }}"

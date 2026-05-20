@@ -79,6 +79,14 @@ See [`specs/constitution.md`](./specs/constitution.md) for the full list. Short 
 
 Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [agent-skills](https://github.com/agentskills/agentskills) spec). Agent profiles preload skills by ID in their frontmatter. Stack-specific skills live in [`skills/README.md`](./skills/README.md).
 
+
+## Testing
+
+- Canonical guide: [`docs/test-strategy.md`](./docs/test-strategy.md).
+- Kerrigan chooses tests on two axes: level (`unit → integration → smoke → e2e → scenario`) and environment.
+- Environment taxonomy: `cloud-linux`, `cloud-windows`, `cloud-macos`, `cloud-self-hosted-<name>`, `local-attested-<class>`, `manual-human`.
+- `local-attested-*` ACs require attestation handoff before completion.
+
 ## Labels (v2)
 
 Four total, not fifteen. **None of these are enforced automatically.** The functional gate for cloud execution is `@copilot` assignment on the issue. The labels are *annotations* the `local` profile (and humans) read to understand intent and state across sessions.
