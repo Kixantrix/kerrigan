@@ -30,7 +30,7 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [int]$PrNumber,
     [switch]$DryRun,
-    [switch]$Confirm = $true
+    [switch]$Confirm
 )
 
 $ErrorActionPreference = 'Stop'
@@ -61,7 +61,8 @@ if ($DryRun) {
     exit 0
 }
 
-if ($Confirm) {
+$shouldConfirm = if ($PSBoundParameters.ContainsKey('Confirm')) { [bool]$Confirm } else { $true }
+if ($shouldConfirm) {
     $reply = Read-Host "Resolve $($threads.Count) thread(s)? [y/N]"
     if ($reply -notmatch '^[Yy]') {
         Write-Host "Cancelled."

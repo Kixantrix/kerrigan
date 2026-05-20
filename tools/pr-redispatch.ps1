@@ -48,7 +48,7 @@ if ([string]::IsNullOrWhiteSpace($commentBody)) {
 
 try {
     if (-not [string]::IsNullOrWhiteSpace($commentBody)) {
-        if ($tempFile -eq $null) {
+        if ($null -eq $tempFile) {
             $tempFile = [System.IO.Path]::GetTempFileName() -replace '\.tmp$', '.md'
             Set-Content -Path $tempFile -Value $commentBody -Encoding UTF8
         }
