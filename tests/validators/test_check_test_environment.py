@@ -30,6 +30,19 @@ def test_passing_case():
         assert main(["--briefing", str(briefing), "--manifest", str(manifest)]) == 0
 
 
+def test_passing_case_with_non_bold_ac_id():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        briefing = root / "briefing.md"
+        manifest = root / "manifest.yaml"
+        _write(
+            briefing,
+            "- AC-9: Works — level: unit — environment: cloud-linux — test: tests/test_x.py::test_x\n",
+        )
+        manifest.write_text(yaml.safe_dump({"supported_environments": ["cloud-linux"]}), encoding="utf-8")
+        assert main(["--briefing", str(briefing), "--manifest", str(manifest)]) == 0
+
+
 def test_mismatch_case():
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -65,3 +78,11 @@ def test_invalid_yaml_case():
         )
         manifest.write_text("supported_environments: [cloud-linux", encoding="utf-8")
         assert main(["--briefing", str(briefing), "--manifest", str(manifest)]) == 3
+
+
+def test_missing_briefing_case():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        manifest = root / "manifest.yaml"
+        manifest.write_text(yaml.safe_dump({"supported_environments": ["cloud-linux"]}), encoding="utf-8")
+        assert main(["--briefing", str(root / "missing.md"), "--manifest", str(manifest)]) == 3

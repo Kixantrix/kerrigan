@@ -11,18 +11,18 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_BRIEFING = ROOT / ".specify" / "briefings" / "test-strategy-v1.md"
 DEFAULT_MANIFEST = ROOT / ".specify" / "test-environments.yaml"
 EXAMPLE_MANIFEST = ROOT / ".specify" / "test-environments.example.yaml"
 
-AC_ENV_RE = re.compile(r"^\s*-\s*\*\*AC-[^*]+\*\*:.*?level:\s*[^\s`]+.*?environment:\s*([^\s`]+)")
+AC_LINE_RE = re.compile(r"^\s*-\s*(?:\*\*(AC-?[A-Za-z0-9_-]+)\*\*|(AC-?[A-Za-z0-9_-]+)):\s*")
+ENV_RE = re.compile(r"\benvironment:\s*([^\s`]+)")
 
 
 def _load_yaml(path: Path) -> dict:
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except FileNotFoundError as exc:
-        raise ValueError(f"missing file: {path}") from exc
+    except (OSError, UnicodeDecodeError) as exc:
+        raise ValueError(f"unable to read file: {path}: {exc}") from exc
     except yaml.YAMLError as exc:
         raise ValueError(f"invalid YAML in {path}: {exc}") from exc
 
@@ -35,15 +35,18 @@ def parse_ac_environments(briefing_path: Path) -> list[tuple[str, int, str]]:
     environments: list[tuple[str, int, str]] = []
     try:
         lines = briefing_path.read_text(encoding="utf-8").splitlines()
-    except FileNotFoundError as exc:
-        raise ValueError(f"missing file: {briefing_path}") from exc
+    except (OSError, UnicodeDecodeError) as exc:
+        raise ValueError(f"unable to read file: {briefing_path}: {exc}") from exc
 
     for idx, line in enumerate(lines, start=1):
-        match = AC_ENV_RE.search(line)
-        if match:
-            ac_id_match = re.search(r"AC-[A-Za-z0-9_-]+", line)
-            ac_id = ac_id_match.group(0) if ac_id_match else f"line-{idx}"
-            environments.append((ac_id, idx, match.group(1).strip()))
+        ac_match = AC_LINE_RE.match(line)
+        if not ac_match:
+            continue
+        env_match = ENV_RE.search(line)
+        if not env_match:
+            continue
+        ac_id = ac_match.group(1) or ac_match.group(2) or f"line-{idx}"
+        environments.append((ac_id, idx, env_match.group(1).strip()))
     return environments
 
 

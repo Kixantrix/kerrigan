@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools" / "valid
 
 from check_attestation import (
     find_missing_attestations,
+    main,
     parse_attestation_comment,
     parse_pending_attestations,
 )
@@ -63,11 +64,40 @@ def test_attestation_by_non_member_does_not_count():
     assert find_missing_attestations(body, comments, "abc1234") == ["AC-8"]
 
 
+def test_full_sha_attestation_counts_for_current_head():
+    head_sha = "98e38d0f32560e29efe6b0fa2852d1c2d403aa11"
+    body = "pending-attestation: AC-9"
+    comments = [
+        {
+            "body": f"ATTEST: ac-id=AC-9 environment=local-attested-ios-device commit={head_sha} result=pass",
+            "author_association": "MEMBER",
+        }
+    ]
+    assert find_missing_attestations(body, comments, head_sha) == []
+
+
+def test_main_returns_error_for_invalid_comments_json(tmp_path: Path):
+    pr_body = tmp_path / "pr-body.txt"
+    comments = tmp_path / "pr-comments.json"
+    pr_body.write_text("pending-attestation: AC-10\n", encoding="utf-8")
+    comments.write_text("{not json", encoding="utf-8")
+    assert main(
+        [
+            "--pr-body-file",
+            str(pr_body),
+            "--comments-file",
+            str(comments),
+            "--head-sha",
+            "abc1234ff",
+        ]
+    ) == 3
+
+
 def test_workflow_exists_and_references_script():
     repo_root = Path(__file__).resolve().parent.parent
     workflow = repo_root / ".github" / "workflows" / "attestation-check.yml"
-    content = workflow.read_text(encoding="utf-8")
 
     assert workflow.exists()
+    content = workflow.read_text(encoding="utf-8")
     assert "types: [opened, synchronize, reopened, edited]" in content
     assert "tools/validators/check_attestation.py" in content

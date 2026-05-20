@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate pending attestation lines against PR comments."""
+"""Validate pending attestation lines against PR comments.
+
+Accepted attestation comment format:
+- commit=<sha> may be either the 7-char short SHA or a longer SHA prefix (up to 40 chars)
+  of the current PR head commit.
+"""
 
 from __future__ import annotations
 
@@ -65,6 +70,7 @@ def parse_attestation_comment(body: str) -> dict[str, str] | None:
 def has_matching_attestation(
     ac_id: str, comments: list[dict[str, Any]], head_sha: str
 ) -> bool:
+    full_sha = head_sha.lower()
     short_sha = head_sha[:7].lower()
     for comment in comments:
         association = str(comment.get("author_association", "")).upper()
@@ -73,7 +79,10 @@ def has_matching_attestation(
         parsed = parse_attestation_comment(str(comment.get("body", "")))
         if not parsed:
             continue
-        if parsed["ac_id"] == ac_id and parsed["commit"] == short_sha:
+        attested_commit = parsed["commit"]
+        if parsed["ac_id"] == ac_id and (
+            attested_commit == short_sha or full_sha.startswith(attested_commit)
+        ):
             return True
     return False
 
@@ -92,8 +101,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--head-sha", required=True, help="Current PR head commit SHA")
     args = parser.parse_args(argv)
 
-    pr_body = Path(args.pr_body_file).read_text(encoding="utf-8")
-    comments = json.loads(Path(args.comments_file).read_text(encoding="utf-8"))
+    try:
+        pr_body = Path(args.pr_body_file).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        print(f"check_attestation: ERROR: unable to read PR body file {args.pr_body_file}: {exc}")
+        return 3
+
+    try:
+        comments = json.loads(Path(args.comments_file).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError) as exc:
+        print(f"check_attestation: ERROR: unable to read comments file {args.comments_file}: {exc}")
+        return 3
+    except json.JSONDecodeError as exc:
+        print(f"check_attestation: ERROR: invalid JSON in comments file {args.comments_file}: {exc}")
+        return 3
     if not isinstance(comments, list):
         print("check_attestation: ERROR: comments JSON must be an array")
         return 3
