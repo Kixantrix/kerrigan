@@ -86,3 +86,16 @@ def test_missing_briefing_case():
         manifest = root / "manifest.yaml"
         manifest.write_text(yaml.safe_dump({"supported_environments": ["cloud-linux"]}), encoding="utf-8")
         assert main(["--briefing", str(root / "missing.md"), "--manifest", str(manifest)]) == 3
+
+
+def test_inline_code_environment_hint_is_ignored():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        briefing = root / "briefing.md"
+        manifest = root / "manifest.yaml"
+        _write(
+            briefing,
+            "- AC-6: For any AC declared `environment: local-attested-*`, do NOT mark it complete\n",
+        )
+        manifest.write_text(yaml.safe_dump({"supported_environments": ["cloud-linux"]}), encoding="utf-8")
+        assert main(["--briefing", str(briefing), "--manifest", str(manifest)]) == 0

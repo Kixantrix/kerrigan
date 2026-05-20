@@ -16,6 +16,7 @@ EXAMPLE_MANIFEST = ROOT / ".specify" / "test-environments.example.yaml"
 
 AC_LINE_RE = re.compile(r"^\s*-\s*(?:\*\*(AC-?[A-Za-z0-9_-]+)\*\*|(AC-?[A-Za-z0-9_-]+)):\s*")
 ENV_RE = re.compile(r"\benvironment:\s*([^\s`]+)")
+INLINE_CODE_RE = re.compile(r"`[^`]*`")
 
 
 def _load_yaml(path: Path) -> dict:
@@ -42,7 +43,8 @@ def parse_ac_environments(briefing_path: Path) -> list[tuple[str, int, str]]:
         ac_match = AC_LINE_RE.match(line)
         if not ac_match:
             continue
-        env_match = ENV_RE.search(line)
+        line_without_inline_code = INLINE_CODE_RE.sub("", line)
+        env_match = ENV_RE.search(line_without_inline_code)
         if not env_match:
             continue
         ac_id = ac_match.group(1) or ac_match.group(2) or f"line-{idx}"
