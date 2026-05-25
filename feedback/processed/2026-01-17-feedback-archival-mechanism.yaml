@@ -196,7 +196,7 @@ impact: low
 actionable: true
 
 # METADATA
-status: "wontfix"
+status: "wont_fix"
 reviewed_by: "copilot"
 reviewed_date: "2026-01-22"
 implementation_pr: null

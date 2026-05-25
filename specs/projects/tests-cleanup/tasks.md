@@ -1,5 +1,7 @@
 # Tasks: tests-cleanup
 
+> **Status (2026-05-19)**: Original scope was 70 failures across 10 files. PRs #270, #275, #276, #277 retired enough v1 infrastructure that **67 of 70 resolved organically**. Current pytest on the original target files: 131 pass / 3 fail / 0 error. Tasks 1–4 below are mostly obsolete — only 3 stragglers remain (audit needed). Task 5 (require `tests` status check) is unchanged and still pending.
+
 ## Task 1: Fix or remove `test_automation.py`
 **Wave**: A · **Status**: Not started · **Files (touch)**: `tests/test_automation.py`, `.github/test-mapping.yml`
 
