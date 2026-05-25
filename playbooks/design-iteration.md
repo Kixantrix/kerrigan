@@ -4,6 +4,8 @@
 
 This playbook guides users and the Design Agent through iterative refinement of design systems. It covers the complete workflow from initial creation to final approval.
 
+> **Design perspective:** all UI work in this repo follows the four principles in [.github/skills/ui-design-perspective/SKILL.md](../.github/skills/ui-design-perspective/SKILL.md) — pre-vis before commit, researched references over invention, one show-stopper per project, curated simplicity. Iteration here implements those principles; it does not replace them.
+
 ## Roles
 
 - **User**: Product designer, developer, or stakeholder providing requirements and feedback
