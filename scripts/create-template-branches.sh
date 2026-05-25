@@ -70,13 +70,22 @@ EXAMPLE_PROJECTS_TO_REMOVE=(
   "examples/MULTI-REPO-WALKTHROUGH.md"
 )
 
-# All example project specs except hello-swarm and hello-api
+# All example project specs except hello-swarm and hello-api.
+# As of 2026-05-19 these now live under specs/projects/_archive/; listing both
+# legacy and archived paths so the script remains correct if run against older
+# branches or if a future revival moves any back out of _archive/.
 SPEC_PROJECTS_TO_REMOVE=(
   "specs/projects/design-system-playground"
   "specs/projects/hello-cli"
   "specs/projects/task-dashboard-example"
   "specs/projects/task-tracker-real"
   "specs/projects/validator-enhancement"
+  "specs/projects/_archive/design-system-playground"
+  "specs/projects/_archive/hello-cli"
+  "specs/projects/_archive/task-dashboard-example"
+  "specs/projects/_archive/task-tracker-real"
+  "specs/projects/_archive/validator-enhancement"
+  "specs/projects/_archive/hello-swarm"
 )
 
 # Function to remove files safely
