@@ -1,6 +1,9 @@
 # Example Design Feedback: Task Dashboard Button Refinement
 
 timestamp: "2026-01-17T10:30:00Z"
+agent_role: "kerrigan"
+category: "workflow_friction"
+severity: "low"
 project: "task-dashboard-example"
 design_system: "technical-precision"
 component: "button"
@@ -73,7 +76,8 @@ agent_response: |
   the changes meet your needs.
 
 iteration: 2
-status: "implemented"
+status: "wont_fix"
+resolution_notes: "Project archived in PR Kixantrix/kerrigan#282 on 2026-05-12; no further refinement work is planned for this example."
 
 previous_iterations:
   - iteration: 1
