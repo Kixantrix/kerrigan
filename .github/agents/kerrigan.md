@@ -172,6 +172,7 @@ Use these helper scripts during the PR dispatch/review/merge loop:
 - `tools/pr-resolve-threads.ps1 <pr-number>` — lists unresolved review threads and resolves them (supports `-DryRun`).
 - `tools/pr-rerun-pending.ps1 <pr-number>` — reruns workflow runs on the PR branch with `conclusion=action_required`.
 - `tools/pr-redispatch.ps1 <pr-number>` — posts a multi-line redispatch comment and re-arms auto-merge.
+- `tools/pr-promote.ps1 <pr-number>` — promotes draft PRs through ready/update-branch/reviewer/auto-merge in strict order.
 
 ### When Copilot finishes (signal: `[WIP]` removed from PR title — Copilot can't mark PRs ready itself)
 

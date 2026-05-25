@@ -10,6 +10,7 @@ dispatch
   -> action_required
   -> rerun
   -> CI green
+  -> promote draft
   -> Copilot review
   -> resolve threads
   -> auto-merge
@@ -25,6 +26,8 @@ dispatch
   - Example: `./tools/pr-rerun-pending.ps1 270`
 - `tools/pr-redispatch.ps1 <pr-number>`: post redispatch comment and re-arm auto-merge.
   - Example: `./tools/pr-redispatch.ps1 270`
+- `tools/pr-promote.ps1 <pr-number>`: promote draft PR through ready/update-branch/reviewer/auto-merge in order.
+  - Example: `./tools/pr-promote.ps1 270`
 
 ## Common stalls and how to clear them
 
@@ -60,7 +63,8 @@ Clear:
 ## Quick loop checklist
 
 1. Diagnose: `./tools/pr-doctor.ps1 <pr>`
-2. Rerun blocked workflows: `./tools/pr-rerun-pending.ps1 <pr>`
-3. Re-dispatch critical feedback: `./tools/pr-redispatch.ps1 <pr>`
-4. Resolve advisory/handled threads: `./tools/pr-resolve-threads.ps1 <pr>`
-5. Verify auto-merge remains armed after updates.
+2. Promote to merge queue: `./tools/pr-promote.ps1 <pr>`
+3. Rerun blocked workflows: `./tools/pr-rerun-pending.ps1 <pr>`
+4. Re-dispatch critical feedback: `./tools/pr-redispatch.ps1 <pr>`
+5. Resolve advisory/handled threads: `./tools/pr-resolve-threads.ps1 <pr>`
+6. Verify auto-merge remains armed after updates.
