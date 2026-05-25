@@ -64,7 +64,6 @@ EXAMPLE_PROJECTS_TO_REMOVE=(
   "examples/hello-multiapp-api"
   "examples/hello-multiapp-frontend"
   "examples/hello-multiapp-infra"
-  "examples/task-dashboard-design"
   "examples/task-tracker"
   "examples/task-tracker-real"
   "examples/MULTI-REPO-WALKTHROUGH.md"
