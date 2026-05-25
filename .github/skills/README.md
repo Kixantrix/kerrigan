@@ -12,6 +12,7 @@ Kerrigan-local skills live here (`.github/skills/`). Stack-specific skills live 
 | [block-report](./block-report/SKILL.md) | Structured block output schema | `local`, `cloud`, `kerrigan` |
 | [delegation-rubric](./delegation-rubric/SKILL.md) | Cloud vs local routing rules | `local` |
 | [smoke-test](./smoke-test/SKILL.md) | End-to-end happy-path test contract | `cloud` |
+| [ui-design-perspective](./ui-design-perspective/SKILL.md) | Pre-vis, references, show-stopper, simplicity | UI projects |
 
 ## Loading skills
 

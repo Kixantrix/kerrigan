@@ -30,10 +30,6 @@ Complete examples maintained for educational purposes. Safe to copy and adapt.
 | Project | Purpose | Status | Implementation | Last Updated |
 |---------|---------|--------|----------------|--------------|
 | [hello-api](hello-api/) | REST API scaffold — validates the spec-to-deployment workflow | Reference | [examples/hello-api/](../../examples/hello-api/) | 2026-01-10 |
-| [hello-cli](hello-cli/) | CLI tool scaffold — validates the CLI development workflow | Reference | [examples/hello-cli/](../../examples/hello-cli/) | 2026-01-10 |
-| [hello-swarm](hello-swarm/) | Minimal artifact structure — shows the smallest valid project | Reference | Stack-agnostic (no code) | — |
-| [task-tracker-real](task-tracker-real/) | Real workflow example with authentic pause/resume cycles | Reference | [examples/task-tracker-real/](../../examples/task-tracker-real/) | 2026-01-16 |
-| [task-dashboard-example](task-dashboard-example/) | Design system example with working HTML/CSS/JS playground | Reference | [examples/task-dashboard-design/](../../examples/task-dashboard-design/) | 2026-05-12 |
 
 ---
 
@@ -46,7 +42,11 @@ Specs or investigations that have concluded. Kept for historical context; no act
 | [agent-frontmatter-upgrade](agent-frontmatter-upgrade/) | YAML frontmatter was added to all agent files as part of the v2 rollout | 2026-05-12 |
 | [copilot-sdk-integration](copilot-sdk-integration/) | Investigation complete; findings captured in [research-findings.md](copilot-sdk-integration/research-findings.md) | 2026-05-12 |
 | [design-system-playground](design-system-playground/) | Playground spec and static implementation complete; no active use case driving further work | 2026-05-12 |
+| [hello-cli](_archive/hello-cli/) | Archived in PR #282 during relevance sweep; example is retained under `examples/` as pedagogy | 2026-05-12 |
+| [hello-swarm](_archive/hello-swarm/) | Archived in PR #282 during relevance sweep; minimal structure example retained for teaching | 2026-05-12 |
 | [pause-resume-demo](pause-resume-demo/) | M3 pause/resume workflow validation complete; all status transitions confirmed | 2026-01-15 |
+| [task-dashboard-example](_archive/task-dashboard-example/) | Archived in PR #282; aspirational task dashboard design example is no longer maintained | 2026-05-12 |
+| [task-tracker-real](_archive/task-tracker-real/) | Archived in PR #282; implementation remains available as a pedagogical example | 2026-05-12 |
 | [validator-enhancement](validator-enhancement/) | Specs complete and implementation-ready, but the enhancement was not prioritised; lessons captured in STATUS.md | 2026-01-10 |
 
 ---

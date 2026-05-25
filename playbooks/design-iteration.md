@@ -4,6 +4,8 @@
 
 This playbook guides users and the Design Agent through iterative refinement of design systems. It covers the complete workflow from initial creation to final approval.
 
+> **Design perspective:** all UI work in this repo follows the four principles in [.github/skills/ui-design-perspective/SKILL.md](../.github/skills/ui-design-perspective/SKILL.md) — pre-vis before commit, researched references over invention, one show-stopper per project, curated simplicity. Iteration here implements those principles; it does not replace them.
+
 ## Roles
 
 - **User**: Product designer, developer, or stakeholder providing requirements and feedback
@@ -442,7 +444,7 @@ Track these metrics to improve the process:
 
 See these example feedback files for patterns:
 
-- `feedback/design-feedback/2026-01-17-task-dashboard-button-feedback.yaml` - Component refinement
+- `feedback/processed/2026-01-17-task-dashboard-button-feedback.yaml` - Component refinement
 - `feedback/design-feedback/2026-01-17-wellness-app-philosophy-feedback.yaml` - Philosophy selection (to be created)
 - `feedback/design-feedback/2026-01-17-admin-portal-color-feedback.yaml` - Token adjustment (to be created)
 
