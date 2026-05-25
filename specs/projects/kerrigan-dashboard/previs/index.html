@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kerrigan-dashboard — pre-vis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ================================================
+     * COLOR BUDGET: 2 neutrals + 1 brand + 1 accent
+     * TYPE BUDGET: 5 font-size values
+     * MOTION BUDGET: transitions ≤300ms, show-stopper ≤2000ms
+     * ================================================ */
+    :root {
+      --color-neutral-bg: #0D1117;
+      --color-neutral-fg: #E8EAED;
+      --color-brand: #5965F2;
+      --color-accent: #F59E0B;
+
+      --fs-display: 28px;
+      --fs-heading: 18px;
+      --fs-body: 14px;
+      --fs-micro: 12px;
+      --fs-nano: 10px;
+    }
+
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--color-neutral-bg);
+      color: var(--color-neutral-fg);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: var(--fs-body);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ================================================ APP SHELL */
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      height: 52px;
+      border-bottom: 1px solid #1e2530;
+      background: var(--color-neutral-bg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .app-logo {
+      font-size: var(--fs-heading);
+      font-weight: 600;
+      color: var(--color-brand);
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .logo-dot { color: var(--color-accent); }
+
+    .nav-tabs {
+      display: flex;
+      gap: 2px;
+      margin-left: 8px;
+    }
+
+    .nav-tab {
+      padding: 5px 14px;
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      font-size: var(--fs-body);
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 150ms, color 150ms;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover { background: #16202e; color: var(--color-neutral-fg); }
+    .nav-tab.active { background: #16202e; color: var(--color-neutral-fg); }
+
+    .app-badge {
+      margin-left: auto;
+      font-size: var(--fs-nano);
+      color: #4b5563;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ================================================ VIEW MANAGEMENT */
+    .app-content { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+    [data-view] { display: none; }
+    [data-view].active { display: flex; flex-direction: column; flex: 1; }
+
+    /* ================================================ PORTFOLIO VIEW */
+    [data-view="portfolio"] {
+      padding: 28px 24px;
+      overflow-y: auto;
+    }
+
+    .portfolio-header { margin-bottom: 24px; }
+
+    .portfolio-title {
+      font-size: var(--fs-display);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .portfolio-subtitle {
+      font-size: var(--fs-micro);
+      color: #6b7280;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    [data-component="project-card"] {
+      background: #0b111a;
+      border: 1px solid #1e2530;
+      border-radius: 10px;
+      padding: 18px;
+      cursor: pointer;
+      transition: border-color 200ms, box-shadow 200ms, transform 150ms;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    [data-component="project-card"]:hover {
+      border-color: var(--color-brand);
+      box-shadow: 0 0 0 1px var(--color-brand), 0 4px 24px rgba(89,101,242,0.08);
+      transform: translateY(-1px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    [data-field="name"] {
+      font-size: var(--fs-body);
+      font-weight: 600;
+      color: var(--color-neutral-fg);
+      flex: 1;
+    }
+
+    .health-pill {
+      font-size: var(--fs-nano);
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .health-green  { background: #052e16; color: #4ade80; }
+    .health-yellow { background: #422006; color: var(--color-accent); }
+    .health-red    { background: #450a0a; color: #fca5a5; }
+
+    .card-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .meta-item { display: flex; flex-direction: column; gap: 3px; }
+
+    .meta-label {
+      font-size: var(--fs-nano);
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .meta-value {
+      font-size: var(--fs-micro);
+      font-weight: 500;
+      color: var(--color-neutral-fg);
+    }
+
+    .meta-value.blocked  { color: #fca5a5; }
+    .meta-value.alert    { color: var(--color-accent); }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid #1e2530;
+    }
+
+    .wave-badge {
+      font-size: var(--fs-nano);
+      color: var(--color-brand);
+      background: rgba(89,101,242,0.12);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    [data-field="last-pr-merged"] {
+      font-size: var(--fs-nano);
+      color: #6b7280;
+    }
+
+    /* ================================================ PROJECT DETAIL VIEW */
+    [data-view="project-detail"] {
+      display: grid !important;
+      grid-template-columns: 260px 1fr 280px;
+      grid-template-rows: 1fr;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
+
+    [data-pane] {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid #1e2530;
+    }
+
+    [data-pane="chat"] { border-right: none; }
+
+    .pane-header {
+      padding: 8px 14px;
+      border-bottom: 1px solid #1e2530;
+      font-size: var(--fs-nano);
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* -------- PLAN PANE -------- */
+    [data-pane="plan"] { background: #080d14; }
+
+    .plan-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px;
+    }
+
+    .plan-stub h1 {
+      font-size: var(--fs-heading);
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .plan-stub h2 {
+      font-size: var(--fs-body);
+      font-weight: 600;
+      color: #9ca3af;
+      margin: 14px 0 6px;
+    }
+
+    .plan-stub p {
+      font-size: var(--fs-micro);
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .plan-stub ul {
+      padding-left: 18px;
+      margin-bottom: 8px;
+    }
+
+    .plan-stub li {
+      font-size: var(--fs-micro);
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 3px;
+    }
+
+    .plan-stub code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-nano);
+      background: #141d2e;
+      color: var(--color-brand);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .plan-stub .phase-block {
+      margin: 10px 0;
+      padding: 10px;
+      background: #0b1420;
+      border-left: 2px solid var(--color-brand);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .plan-stub .phase-title {
+      font-size: var(--fs-micro);
+      font-weight: 600;
+      color: var(--color-brand);
+      margin-bottom: 4px;
+    }
+
+    /* -------- DAG PANE -------- */
+    [data-pane="dag"] { background: var(--color-neutral-bg); }
+
+    .dag-toolbar {
+      padding: 6px 10px;
+      border-bottom: 1px solid #1e2530;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .dag-toolbar-label {
+      font-size: var(--fs-nano);
+      color: #6b7280;
+      flex: 1;
+    }
+
+    [data-component="variant-picker"] { display: flex; gap: 3px; }
+
+    [data-component="variant-picker"] button[data-variant] {
+      padding: 4px 10px;
+      border: 1px solid #1e2530;
+      background: transparent;
+      color: #6b7280;
+      font-size: var(--fs-nano);
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 150ms, color 150ms, border-color 150ms;
+      white-space: nowrap;
+    }
+
+    [data-component="variant-picker"] button[data-variant]:hover {
+      background: #16202e;
+      color: var(--color-neutral-fg);
+    }
+
+    [data-component="variant-picker"] button[data-variant].active {
+      background: var(--color-brand);
+      color: #fff;
+      border-color: var(--color-brand);
+    }
+
+    .dag-canvas-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Dot grid background */
+    .dag-canvas-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, #1e2a3a 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .dag-nodes-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }
+
+    .dag-svg-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .dag-animation-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Stage nodes */
+    [data-component="stage-node"] {
+      position: absolute;
+      width: 150px;
+      padding: 10px 12px;
+      border-radius: 7px;
+      border: 1px solid;
+      cursor: pointer;
+      font-size: var(--fs-micro);
+      transition: box-shadow 200ms;
+      user-select: none;
+    }
+
+    [data-component="stage-node"]:hover {
+      box-shadow: 0 0 0 2px rgba(89,101,242,0.5);
+    }
+
+    .node-label {
+      font-weight: 600;
+      font-size: var(--fs-micro);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-status-text {
+      font-size: var(--fs-nano);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      opacity: 0.8;
+    }
+
+    /* Status palette (semantic, not part of base color budget) */
+    [data-status="planned"]           { background: #0f141c; border-color: #2a3040; color: #9ca3af; }
+    [data-status="dispatched"]        { background: #071a38; border-color: #1e3a6e; color: #93c5fd; }
+    [data-status="in-review"]         { background: #0d1449; border-color: #2233a0; color: var(--color-brand); }
+    [data-status="blocked"]           { background: #200808; border-color: #7f1d1d; color: #fca5a5; }
+    [data-status="needs-attestation"] { background: #1c0f00; border-color: #78350f; color: var(--color-accent); }
+    [data-status="needs-human-test"]  { background: #0d0b20; border-color: #3730a3; color: #c4b5fd; }
+    [data-status="merged"] {
+      background: #041a0a;
+      border-color: #166534;
+      color: #4ade80;
+      /* Show-stopper pulse ≤2000ms */
+      animation: node-merged-pulse 1500ms ease-in-out infinite;
+    }
+
+    @keyframes node-merged-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.25); }
+      50%       { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); }
+    }
+
+    /* PR source cards (floating near edge) */
+    .pr-source-card {
+      position: absolute;
+      width: 110px;
+      background: #07162d;
+      border: 1px solid #1e3a6e;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: var(--fs-nano);
+      color: #93c5fd;
+      z-index: 4;
+    }
+
+    .pr-source-title {
+      font-weight: 600;
+      font-size: var(--fs-nano);
+      margin-bottom: 3px;
+    }
+
+    .pr-source-repo {
+      color: #4b5563;
+      font-size: var(--fs-nano);
+    }
+
+    .pr-source-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      margin-right: 4px;
+    }
+
+    /* -------- CHAT PANE -------- */
+    [data-pane="chat"] { background: #080d14; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-msg {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .msg-author {
+      font-size: var(--fs-nano);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .msg-author.user  { color: var(--color-brand); }
+    .msg-author.agent { color: #4ade80; }
+    .msg-author.tool  { color: var(--color-accent); }
+
+    .msg-body {
+      background: #0f161f;
+      border: 1px solid #1e2530;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: var(--fs-micro);
+      line-height: 1.55;
+    }
+
+    .msg-body code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-nano);
+      background: #1a2438;
+      color: var(--color-brand);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .tool-card {
+      background: #080f08;
+      border: 1px solid #166534;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .tool-fn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-nano);
+      color: #4ade80;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .tool-args {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-nano);
+      color: #6b7280;
+      white-space: pre-wrap;
+    }
+
+    .tool-result {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid #1e2530;
+      font-size: var(--fs-nano);
+      color: var(--color-accent);
+    }
+
+    .chat-input-area {
+      padding: 10px;
+      border-top: 1px solid #1e2530;
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: #0f161f;
+      border: 1px solid #1e2530;
+      border-radius: 6px;
+      color: var(--color-neutral-fg);
+      font-size: var(--fs-micro);
+      font-family: inherit;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color 150ms;
+    }
+
+    .chat-input:focus { border-color: var(--color-brand); }
+
+    .chat-send {
+      background: var(--color-brand);
+      border: none;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: var(--fs-micro);
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 150ms;
+      white-space: nowrap;
+    }
+
+    .chat-send:hover { opacity: 0.85; }
+
+    /* ================================================ SVG EDGE STYLES */
+    .dag-edge {
+      stroke: #1e2a3a;
+      stroke-width: 1.5;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+
+    /* ================================================ RESPONSIVE */
+    @media (max-width: 1279px) {
+      [data-view="project-detail"] {
+        grid-template-columns: 220px 1fr 240px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      [data-view="project-detail"] {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto;
+        height: auto;
+        overflow-y: auto;
+        min-height: 0;
+      }
+
+      [data-pane="plan"] { display: none; }
+
+      [data-pane="dag"] {
+        height: 420px;
+        border-right: none;
+        border-bottom: 1px solid #1e2530;
+      }
+
+      [data-pane="chat"] {
+        height: 380px;
+      }
+
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 479px) {
+      .app-header { padding: 0 10px; gap: 6px; }
+      .app-logo { font-size: var(--fs-body); letter-spacing: -0.01em; }
+      .app-badge { display: none; }
+      .nav-tab { padding: 4px 9px; font-size: var(--fs-nano); }
+      [data-view="portfolio"] { padding: 20px 12px; }
+      .project-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 399px) {
+      .app-header { padding: 0 8px; gap: 4px; }
+      .app-logo { font-size: var(--fs-micro); }
+      .nav-tab { padding: 4px 7px; font-size: var(--fs-nano); }
+      [data-view="portfolio"] { padding: 16px 10px; }
+    }
+
+    /* ================================================ REDUCED MOTION */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      [data-status="merged"] {
+        animation: none !important;
+      }
+    }
+
+    /* ================================================ SCROLLBARS */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================ APP HEADER -->
+  <header class="app-header">
+    <div class="app-logo">kerrigan<span class="logo-dot">.</span>dashboard</div>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="showView('portfolio')">Portfolio</button>
+      <button class="nav-tab" onclick="showView('project-detail')">Project Detail</button>
+    </nav>
+    <span class="app-badge">pre-vis · M1</span>
+  </header>
+
+  <main class="app-content">
+
+    <!-- ========================================================= PORTFOLIO VIEW -->
+    <section data-view="portfolio" class="active">
+
+      <div class="portfolio-header">
+        <h1 class="portfolio-title">Projects</h1>
+        <p class="portfolio-subtitle">5 registered · 1 blocked · 2 need intervention</p>
+      </div>
+
+      <div class="project-grid">
+
+        <!-- Card 1 -->
+        <div data-component="project-card" onclick="showView('project-detail')">
+          <div class="card-header">
+            <span data-field="name">kerrigan-dashboard</span>
+            <span class="health-pill health-yellow">1 block</span>
+          </div>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Repos</span>
+              <span data-field="repo-count" class="meta-value">2</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Blocked</span>
+              <span data-field="blocked-count" class="meta-value blocked">1</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Intervene</span>
+              <span data-field="intervention-count" class="meta-value alert">2</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span data-field="wave" class="wave-badge">Wave 1</span>
+            <span data-field="last-pr-merged">merged 2h ago</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div data-component="project-card">
+          <div class="card-header">
+            <span data-field="name">hello-api</span>
+            <span class="health-pill health-green">healthy</span>
+          </div>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Repos</span>
+              <span data-field="repo-count" class="meta-value">1</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Blocked</span>
+              <span data-field="blocked-count" class="meta-value">0</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Intervene</span>
+              <span data-field="intervention-count" class="meta-value">0</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span data-field="wave" class="wave-badge">Wave 3</span>
+            <span data-field="last-pr-merged">merged 1d ago</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div data-component="project-card">
+          <div class="card-header">
+            <span data-field="name">tests-cleanup</span>
+            <span class="health-pill health-green">healthy</span>
+          </div>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Repos</span>
+              <span data-field="repo-count" class="meta-value">1</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Blocked</span>
+              <span data-field="blocked-count" class="meta-value">0</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Intervene</span>
+              <span data-field="intervention-count" class="meta-value">1</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span data-field="wave" class="wave-badge">Wave 2</span>
+            <span data-field="last-pr-merged">merged 3d ago</span>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div data-component="project-card">
+          <div class="card-header">
+            <span data-field="name">kerrigan-core</span>
+            <span class="health-pill health-red">3 blocks</span>
+          </div>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Repos</span>
+              <span data-field="repo-count" class="meta-value">3</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Blocked</span>
+              <span data-field="blocked-count" class="meta-value blocked">3</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Intervene</span>
+              <span data-field="intervention-count" class="meta-value alert">4</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span data-field="wave" class="wave-badge">Wave 4</span>
+            <span data-field="last-pr-merged">merged 5h ago</span>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div data-component="project-card">
+          <div class="card-header">
+            <span data-field="name">spec-kit</span>
+            <span class="health-pill health-yellow">needs attest</span>
+          </div>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Repos</span>
+              <span data-field="repo-count" class="meta-value">2</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Blocked</span>
+              <span data-field="blocked-count" class="meta-value">0</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Intervene</span>
+              <span data-field="intervention-count" class="meta-value alert">1</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span data-field="wave" class="wave-badge">Wave 2</span>
+            <span data-field="last-pr-merged">merged 6h ago</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================== PROJECT DETAIL VIEW -->
+    <section data-view="project-detail">
+
+      <!-- ---- PLAN PANE ---- -->
+      <div data-pane="plan">
+        <div class="pane-header">Plan</div>
+        <div class="plan-scroll">
+          <div class="plan-stub">
+            <h1>kerrigan-dashboard</h1>
+            <p>Local desktop application surfacing live state across all Kerrigan-managed projects.</p>
+
+            <div class="phase-block">
+              <div class="phase-title">M1 · Pre-vis</div>
+              <p>Design-lock HTML mockup; establish visual contract before any production code.</p>
+            </div>
+
+            <div class="phase-block">
+              <div class="phase-title">M2 · Tauri Shell</div>
+              <p>Scaffold Tauri 2 + React 19 + Vite app; window management, auth wiring.</p>
+            </div>
+
+            <div class="phase-block">
+              <div class="phase-title">M3 · Plan Parser</div>
+              <p>Parse <code>plan.md</code> headings into stage list. Render DAG skeleton.</p>
+            </div>
+
+            <h2>Dependencies</h2>
+            <ul>
+              <li>Tauri 2 + React 19 + Vite + Tailwind</li>
+              <li>React Flow 12 (DAG canvas)</li>
+              <li>Tiptap (plan editor)</li>
+              <li>Kerrigan MCP server (M5)</li>
+            </ul>
+
+            <h2>Status</h2>
+            <p>Wave 1 active. M1 in-progress. M2 dispatched and waiting on M1 design-lock.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- DAG PANE ---- -->
+      <div data-pane="dag">
+        <div class="pane-header">
+          <span>DAG Canvas</span>
+          <span style="color:#4b5563;font-size:var(--fs-nano);">kerrigan-dashboard</span>
+        </div>
+        <div class="dag-toolbar">
+          <span class="dag-toolbar-label">PR-flow animation</span>
+          <div data-component="variant-picker">
+            <button data-variant="dots" class="active">Dots</button>
+            <button data-variant="line">Line</button>
+            <button data-variant="glow">Glow</button>
+          </div>
+        </div>
+        <div class="dag-canvas-wrapper" id="dagWrapper">
+
+          <!-- SVG layer: edges + arrowhead marker -->
+          <svg class="dag-svg-layer" id="dagSvg">
+            <defs>
+              <marker id="arrowhead" markerWidth="8" markerHeight="6"
+                      refX="8" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="#1e2a3a"/>
+              </marker>
+            </defs>
+          </svg>
+
+          <!-- Stage nodes (6 nodes; statuses cover required set) -->
+          <div data-component="stage-node" data-status="merged"
+               id="node-m1" style="left:5%;top:10%">
+            <div class="node-label">M1 · Pre-vis</div>
+            <div class="node-status-text">merged</div>
+          </div>
+
+          <div data-component="stage-node" data-status="dispatched"
+               id="node-m2" style="left:36%;top:10%">
+            <div class="node-label">M2 · Tauri Shell</div>
+            <div class="node-status-text">dispatched</div>
+          </div>
+
+          <div data-component="stage-node" data-status="in-review"
+               id="node-m3" style="left:66%;top:10%">
+            <div class="node-label">M3 · Plan Parser</div>
+            <div class="node-status-text">in-review</div>
+          </div>
+
+          <div data-component="stage-node" data-status="blocked"
+               id="node-m4" style="left:5%;top:55%">
+            <div class="node-label">M4 · DAG Canvas</div>
+            <div class="node-status-text">blocked</div>
+          </div>
+
+          <div data-component="stage-node" data-status="needs-attestation"
+               id="node-m5" style="left:36%;top:55%">
+            <div class="node-label">M5 · MCP Server</div>
+            <div class="node-status-text">needs-attestation</div>
+          </div>
+
+          <div data-component="stage-node" data-status="planned"
+               id="node-m6" style="left:66%;top:55%">
+            <div class="node-label">M6 · Chat Pane</div>
+            <div class="node-status-text">planned</div>
+          </div>
+
+          <!-- PR source cards -->
+          <div class="pr-source-card" id="pr-42" style="right:2%;top:8%">
+            <div class="pr-source-title">
+              <span class="pr-source-dot"></span>PR #42
+            </div>
+            <div class="pr-source-repo">kerrigan · open</div>
+          </div>
+
+          <div class="pr-source-card" id="pr-39" style="right:2%;top:50%">
+            <div class="pr-source-title">PR #39</div>
+            <div class="pr-source-repo">kerrigan · merged</div>
+          </div>
+
+          <!-- Animation canvas overlay -->
+          <canvas class="dag-animation-canvas" id="animCanvas"></canvas>
+
+        </div><!-- /.dag-canvas-wrapper -->
+      </div>
+
+      <!-- ---- CHAT PANE ---- -->
+      <div data-pane="chat">
+        <div class="pane-header">Copilot Chat</div>
+
+        <div class="chat-messages">
+
+          <div class="chat-msg">
+            <span class="msg-author user">You</span>
+            <div class="msg-body">
+              Status of kerrigan-dashboard? Specifically what's blocking M4.
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <span class="msg-author agent">Copilot</span>
+            <div class="msg-body">
+              Checking project state for <code>kerrigan-dashboard</code>…
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <span class="msg-author tool">Tool Call</span>
+            <div class="tool-card">
+              <div class="tool-fn">kerrigan.status</div>
+              <div class="tool-args">{ "project": "kerrigan-dashboard",
+  "phase": "M4" }</div>
+              <div class="tool-result">↳ 1 block: dependency on M3 plan-parser not yet merged</div>
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <span class="msg-author agent">Copilot</span>
+            <div class="msg-body">
+              M4 (DAG Canvas) is blocked because M3's plan-parser PR #42 is still in review. Once #42 merges, M4 can be dispatched. Want me to check if there are reviewers assigned to #42?
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <span class="msg-author user">You</span>
+            <div class="msg-body">
+              Yes — and if not, assign me.
+            </div>
+          </div>
+
+          <div class="chat-msg">
+            <span class="msg-author tool">Tool Call</span>
+            <div class="tool-card">
+              <div class="tool-fn">kerrigan.block-resolve</div>
+              <div class="tool-args">{ "pr": 42, "action": "assign-reviewer",
+  "reviewer": "@conductor" }</div>
+              <div class="tool-result">↳ Reviewer assigned · block updated</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-input-area">
+          <input class="chat-input" type="text" placeholder="Message Copilot…" />
+          <button class="chat-send">Send</button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    /* ==============================================================
+     * VIEW SWITCHING
+     * ============================================================== */
+    function showView(name) {
+      document.querySelectorAll('[data-view]').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+      const view = document.querySelector('[data-view="' + name + '"]');
+      if (view) view.classList.add('active');
+      const tabs = document.querySelectorAll('.nav-tab');
+      const idx = name === 'portfolio' ? 0 : 1;
+      if (tabs[idx]) tabs[idx].classList.add('active');
+
+      if (name === 'project-detail') {
+        requestAnimationFrame(() => { initAnimation(); });
+      }
+    }
+
+    /* ==============================================================
+     * ANIMATION ENGINE
+     * ============================================================== */
+    let animFrame = null;
+    let currentVariant = 'dots';
+    let particles = [];
+    let animPaths = [];
+    let animInited = false;
+
+    const PARTICLE_SPEED = 0.006;   // progress per frame (≈ 1s at 60fps for full path)
+    const SPAWN_INTERVAL = 40;      // frames between new particles
+    let frameCount = 0;
+
+    function getNodeCenter(el, wrapper) {
+      const nr = el.getBoundingClientRect();
+      const wr = wrapper.getBoundingClientRect();
+      return {
+        x: nr.left - wr.left + nr.width / 2,
+        y: nr.top  - wr.top  + nr.height / 2
+      };
+    }
+
+    function initAnimation() {
+      const wrapper = document.getElementById('dagWrapper');
+      const canvas  = document.getElementById('animCanvas');
+      const svg     = document.getElementById('dagSvg');
+      if (!wrapper || !canvas || !svg) return;
+
+      canvas.width  = wrapper.clientWidth;
+      canvas.height = wrapper.clientHeight;
+
+      /* Build edge data for SVG */
+      const edges = [
+        ['node-m1', 'node-m2'],
+        ['node-m2', 'node-m3'],
+        ['node-m1', 'node-m4'],
+        ['node-m4', 'node-m5'],
+        ['node-m5', 'node-m6'],
+        ['node-m3', 'node-m6']
+      ];
+
+      /* Clear old edges */
+      svg.querySelectorAll('path.dag-edge').forEach(p => p.remove());
+
+      edges.forEach(([fromId, toId]) => {
+        const fromEl = document.getElementById(fromId);
+        const toEl   = document.getElementById(toId);
+        if (!fromEl || !toEl) return;
+        const fr = fromEl.getBoundingClientRect();
+        const tr = toEl.getBoundingClientRect();
+        const wr = wrapper.getBoundingClientRect();
+        const x1 = fr.left - wr.left + fr.width / 2;
+        const y1 = fr.top  - wr.top  + fr.height;
+        const x2 = tr.left - wr.left + tr.width / 2;
+        const y2 = tr.top  - wr.top;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const cy1 = y1 + (y2 - y1) * 0.4;
+        const cy2 = y1 + (y2 - y1) * 0.6;
+        path.setAttribute('d', `M${x1},${y1} C${x1},${cy1} ${x2},${cy2} ${x2},${y2}`);
+        path.setAttribute('class', 'dag-edge');
+        svg.appendChild(path);
+
+        /* Bezier control points for animation */
+        animPaths.push({ x1, y1, cx1: x1, cy1, cx2: x2, cy2, x2, y2 });
+      });
+
+      /* PR source → target paths */
+      const pr42 = document.getElementById('pr-42');
+      const nodeM3 = document.getElementById('node-m3');
+      if (pr42 && nodeM3) {
+        const pc = getNodeCenter(pr42, wrapper);
+        const nc = getNodeCenter(nodeM3, wrapper);
+        animPaths.push({
+          x1: pc.x, y1: pc.y,
+          cx1: pc.x - 80, cy1: pc.y - 30,
+          cx2: nc.x + 60, cy2: nc.y - 30,
+          x2: nc.x, y2: nc.y,
+          isPR: true
+        });
+      }
+
+      particles = [];
+      animInited = true;
+
+      if (animFrame) cancelAnimationFrame(animFrame);
+      tick();
+    }
+
+    function bezierPoint(t, p) {
+      const mt = 1 - t;
+      return {
+        x: mt*mt*mt*p.x1 + 3*mt*mt*t*p.cx1 + 3*mt*t*t*p.cx2 + t*t*t*p.x2,
+        y: mt*mt*mt*p.y1 + 3*mt*mt*t*p.cy1 + 3*mt*t*t*p.cy2 + t*t*t*p.y2
+      };
+    }
+
+    function spawnParticle() {
+      /* Prefer PR paths for the show-stopper effect */
+      const prPaths = animPaths.filter(p => p.isPR);
+      const pool = prPaths.length ? prPaths : animPaths;
+      if (!pool.length) return;
+      const path = pool[Math.floor(Math.random() * pool.length)];
+      particles.push({ path, t: 0, trail: [] });
+    }
+
+    function tick() {
+      const canvas = document.getElementById('animCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+
+      /* Check for reduced motion */
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        ctx.clearRect(0, 0, w, h);
+        animFrame = requestAnimationFrame(tick);
+        return;
+      }
+
+      ctx.clearRect(0, 0, w, h);
+      frameCount++;
+
+      if (frameCount % SPAWN_INTERVAL === 0 && animPaths.length > 0) {
+        spawnParticle();
+        if (particles.length > 12) particles.shift();
+      }
+
+      particles.forEach((p, i) => {
+        p.t += PARTICLE_SPEED;
+        if (p.t > 1) { particles.splice(i, 1); return; }
+
+        const pos = bezierPoint(p.t, p.path);
+        p.trail.push({ x: pos.x, y: pos.y });
+        if (p.trail.length > 30) p.trail.shift();
+
+        drawParticle(ctx, pos, p.trail, currentVariant);
+      });
+
+      animFrame = requestAnimationFrame(tick);
+    }
+
+    function drawParticle(ctx, pos, trail, variant) {
+      if (variant === 'dots') {
+        /* Dots: small filled circles */
+        trail.forEach((pt, i) => {
+          const alpha = (i / trail.length) * 0.6;
+          const r = 1.5 + (i / trail.length) * 1.5;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(89,101,242,${alpha})`;
+          ctx.fill();
+        });
+        /* Lead dot */
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(89,101,242,0.9)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+      } else if (variant === 'line') {
+        /* Line trail: a fading polyline */
+        if (trail.length < 2) return;
+        for (let i = 1; i < trail.length; i++) {
+          const alpha = (i / trail.length) * 0.8;
+          const width = 0.5 + (i / trail.length) * 2;
+          ctx.beginPath();
+          ctx.moveTo(trail[i-1].x, trail[i-1].y);
+          ctx.lineTo(trail[i].x, trail[i].y);
+          ctx.strokeStyle = `rgba(89,101,242,${alpha})`;
+          ctx.lineWidth = width;
+          ctx.stroke();
+        }
+        /* Lead point */
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(200,210,255,0.95)';
+        ctx.fill();
+
+      } else if (variant === 'glow') {
+        /* Glow trail: radial gradient blooms along the path */
+        trail.forEach((pt, i) => {
+          const alpha = (i / trail.length) * 0.35;
+          const radius = 4 + (i / trail.length) * 12;
+          const grad = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, radius);
+          grad.addColorStop(0, `rgba(89,101,242,${alpha})`);
+          grad.addColorStop(1, 'rgba(89,101,242,0)');
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        });
+        /* Lead glow */
+        const grad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 14);
+        grad.addColorStop(0, 'rgba(200,210,255,0.95)');
+        grad.addColorStop(0.3, 'rgba(89,101,242,0.7)');
+        grad.addColorStop(1, 'rgba(89,101,242,0)');
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+    }
+
+    /* ==============================================================
+     * VARIANT PICKER
+     * ============================================================== */
+    document.querySelectorAll('[data-component="variant-picker"] button[data-variant]')
+      .forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-component="variant-picker"] button[data-variant]')
+            .forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentVariant = btn.dataset.variant;
+          particles = [];
+        });
+      });
+
+    /* ==============================================================
+     * RESIZE HANDLER
+     * ============================================================== */
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (document.querySelector('[data-view="project-detail"]').classList.contains('active')) {
+          animPaths = [];
+          animInited = false;
+          initAnimation();
+        }
+      }, 150);
+    });
+
+    /* ==============================================================
+     * BOOT
+     * ============================================================== */
+    /* Auto-start animation if project-detail is the landing view */
+    window.addEventListener('DOMContentLoaded', () => {
+      const detail = document.querySelector('[data-view="project-detail"]');
+      if (detail && detail.classList.contains('active')) {
+        requestAnimationFrame(() => { initAnimation(); });
+      }
+    });
+  </script>
+
+</body>
+</html>

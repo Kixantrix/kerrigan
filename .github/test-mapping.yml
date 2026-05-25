@@ -109,6 +109,15 @@ mappings:
     tests: "tests/test_feedback.py"
     notes: "Feedback system configuration and files"
 
+  # Project: kerrigan-dashboard
+  - source: "specs/projects/kerrigan-dashboard/previs/**"
+    tests: "tests/projects/kerrigan_dashboard/test_previs_static.py"
+    notes: "Pre-vis HTML mockup validated by static parser tests (AC-1,2,3,4)"
+
+  - source: "specs/projects/kerrigan-dashboard/design-references.md"
+    tests: "tests/projects/kerrigan_dashboard/test_design_references_updated.py"
+    notes: "Design references decisions-locked section validated (AC-7)"
+
   # Test files themselves
   - source: "tests/test_*.py"
     tests: null
