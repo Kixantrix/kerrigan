@@ -120,7 +120,7 @@ task complete $TASK
 - **acceptance-tests.md** - Acceptance-criteria-to-test traceability matrix
 - **README.md** - This file
 
-All documentation is in `../../specs/projects/task-tracker-real/`.
+All documentation is in `../../specs/projects/_archive/task-tracker-real/`.
 
 ## M3/M4 Demonstration
 
@@ -315,7 +315,7 @@ This is a reference example project demonstrating Kerrigan workflow.
 For questions about the workflow, see:
 - [WORKFLOW-TIMELINE.md](WORKFLOW-TIMELINE.md) - Development story
 - [Kerrigan docs](../../docs/) - Workflow documentation
-- [specs/projects/task-tracker-real/](../../specs/projects/task-tracker-real/) - Project specs
+- [specs/projects/_archive/task-tracker-real/](../../specs/projects/_archive/task-tracker-real/) - Project specs (archived)
 
 ## About
 

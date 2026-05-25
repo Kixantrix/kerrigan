@@ -311,11 +311,11 @@ Packages created in `dist/`:
 ## Documentation
 
 For complete project documentation, see:
-- **Specification**: `../../specs/projects/hello-cli/spec.md`
-- **Architecture**: `../../specs/projects/hello-cli/architecture.md`
-- **Testing**: `../../specs/projects/hello-cli/test-plan.md`
-- **Deployment**: `../../specs/projects/hello-cli/runbook.md`
-- **Cost Planning**: `../../specs/projects/hello-cli/cost-plan.md`
+- **Specification**: `../../specs/projects/_archive/hello-cli/spec.md`
+- **Architecture**: `../../specs/projects/_archive/hello-cli/architecture.md`
+- **Testing**: `../../specs/projects/_archive/hello-cli/test-plan.md`
+- **Deployment**: `../../specs/projects/_archive/hello-cli/runbook.md`
+- **Cost Planning**: `../../specs/projects/_archive/hello-cli/cost-plan.md`
 
 ## Comparison with hello-api
 
