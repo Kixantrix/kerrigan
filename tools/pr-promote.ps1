@@ -55,7 +55,11 @@ function Invoke-Step {
     )
 
     try {
+        $global:LASTEXITCODE = 0
         & $Command
+        if ($LASTEXITCODE -ne 0) {
+            throw ("Command exited with code {0}." -f $LASTEXITCODE)
+        }
         Write-Host ("✓ {0}" -f $Label)
         return $true
     } catch {
@@ -70,15 +74,19 @@ function Invoke-Step {
 
 $repo = '(unknown)/(unknown)'
 if ($DryRun) {
-    Write-Host "✓ [dry-run] gh repo view --json nameWithOwner -q .nameWithOwner"
+    Write-Host "✓ [dry-run] gh repo view --json nameWithOwner --jq "".nameWithOwner"""
 } else {
-    try {
-        $repo = gh repo view --json nameWithOwner -q .nameWithOwner
-        Write-Host "✓ Resolved repository owner/name."
-    } catch {
-        Write-Host ("✗ Resolve repository owner/name: {0}" -f $_.Exception.Message)
+    $repoOutput = gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ("✗ Resolve repository owner/name: {0}" -f ($repoOutput -join "`n"))
         exit 1
     }
+    $repo = ($repoOutput -join "`n").Trim()
+    if ([string]::IsNullOrWhiteSpace($repo)) {
+        Write-Host "✗ Resolve repository owner/name: empty response from gh repo view."
+        exit 1
+    }
+    Write-Host "✓ Resolved repository owner/name."
 }
 
 if (-not (Invoke-Step -Label "Ready PR #$PrNumber" -ContinueOnFailure -Command {
@@ -111,6 +119,9 @@ if ($SkipReviewer) {
             $reviewerOutput = gh api --method POST "repos/$repo/pulls/$PrNumber/requested_reviewers" -f "reviewers[]=copilot-pull-request-reviewer[bot]" 2>&1
             if ($LASTEXITCODE -ne 0 -and ($reviewerOutput -join "`n") -notmatch '422') {
                 throw ($reviewerOutput -join "`n")
+            }
+            if ($LASTEXITCODE -ne 0 -and ($reviewerOutput -join "`n") -match '422') {
+                $global:LASTEXITCODE = 0
             }
         }
     })) {
