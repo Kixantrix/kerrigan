@@ -5,6 +5,7 @@ Every PR should include:
 - Which milestone/task it advances
 - Tests added or updated (or rationale if none)
 - Any docs updates required by the artifact contract
+- See also: [cloud-agent-pr-loop.md](./cloud-agent-pr-loop.md)
 
 Preferred:
 - Small, focused diffs
