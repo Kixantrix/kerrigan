@@ -46,7 +46,7 @@ if ($threads.Count -eq 0) {
     exit 0
 }
 
-Write-Host "Unresolved threads on PR #$PrNumber:" -ForegroundColor Cyan
+Write-Host "Unresolved threads on PR #${PrNumber}:" -ForegroundColor Cyan
 foreach ($thread in $threads) {
     $comment = $thread.comments.nodes | Select-Object -First 1
     $path = if ($null -ne $comment -and $comment.path) { $comment.path } else { '(unknown path)' }
