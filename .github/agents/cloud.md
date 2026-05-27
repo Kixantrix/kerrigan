@@ -25,6 +25,7 @@ blocks_on:
   - missing_secret
   - local_required
   - out_of_budget
+  - merge_conflict_unresolvable
 ---
 
 # cloud — executor
@@ -47,9 +48,11 @@ Run in this order, and do not open a PR until all required checks are green:
 1. **Run unit + integration tests** for the slice.
 2. **Run smoke test** (`scripts/smoke.sh`) when present for the project.
 3. **Run lint/type checks** required by the project.
-4. **Handle failures in scope first.** If any check fails, attempt fixes that stay inside briefing scope.
-5. **For any AC declared `environment: local-attested-*`, do NOT mark it complete.** Add `pending-attestation: <ac-id>` to the PR body and continue with other ACs.
-6. **If still failing and unfixable in scope, emit a block and stop.** Use the self-test failure block template below. Do not open a PR.
+4. **Verify dependency manifests match imports.** If your tests `import X` from a third-party package, `X` (or its distribution) must be in the project's dependency manifest (`requirements.txt`, `package.json`, `Cargo.toml`, etc.) on the same branch. Cloud CI runs in a clean container — missing manifest entries fail there even if your local container has the package cached. (Named cautionary case: 2026-05-27 PR #289 pushed a test importing `bs4` without adding `beautifulsoup4` to `requirements.txt`.)
+5. **Rebase on the base branch before pushing.** Run `git fetch origin && git rebase origin/<base>` (or `git merge origin/<base>` if rebase is risky for your slice). If conflicts arise, attempt resolution in scope. If the conflict touches files outside your briefing's `Touch` list or you can't determine the correct resolution, **emit a `merge_conflict_unresolvable` block and stop** — do not guess, do not force-push, do not silently abandon your branch.
+6. **Handle failures in scope first.** If any check fails, attempt fixes that stay inside briefing scope.
+7. **For any AC declared `environment: local-attested-*`, do NOT mark it complete.** Add `pending-attestation: <ac-id>` to the PR body and continue with other ACs.
+8. **If still failing and unfixable in scope, emit a block and stop.** Use the self-test failure block template below. Do not open a PR.
 
 ## What you don't do
 
