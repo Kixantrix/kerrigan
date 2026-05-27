@@ -178,6 +178,8 @@ Use these helper scripts during the PR dispatch/review/merge loop:
 
 ### When Copilot finishes (signal: `[WIP]` removed from PR title — Copilot can't mark PRs ready itself)
 
+**Pre-flight (MANDATORY before any promotion step)**: verify the PR actually delivers work. Run `gh pr view <N> --json files,commits -q '{files:[.files[].path]|length, commits:[.commits[].messageHeadline]}'`. If `files` is `0` OR commits are only `Initial plan` / merge commits, **DO NOT PROMOTE** — the cloud agent stalled and prematurely cleared `[WIP]`. Instead: close the PR, reopen the issue with a comment instructing not to flip `[WIP]` until the done-when checks pass. The 2026-05-27 #294 incident (empty M2.1 PR auto-merged to main) is the named cautionary case.
+
 Promote the PR in this exact order. Order matters because auto-merge can race ahead of review requests:
 
 1. `gh pr ready <N>` — flip draft → ready.
