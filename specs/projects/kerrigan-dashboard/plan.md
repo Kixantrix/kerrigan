@@ -157,7 +157,7 @@ The Tauri app lives under `apps/` so it can coexist with future apps without ren
 - Inbox aggregator pulling from all projects: open blocks, `agent:wait + capture` issues, PRs with unresolved review threads, attestation requests parsed from task ACs.
 - Inbox view (filterable by project, type, age).
 - Per-item actions: "dispatch" (sends to chat with prefilled prompt), "close with reason", "snooze".
-- Mobile-capture triage: side panel renders the captured idea + suggests a briefing draft via chat MCP `briefing-gen` tool.
+- Mobile-capture triage: side panel renders the captured idea and offers a "draft briefing" action that calls the in-scope `kerrigan.plan-update` MCP tool (M5.2) to insert a briefing-shaped block into a draft PR on the target project. A dedicated `kerrigan.briefing-gen` tool is out of v1 scope per spec AC-011 and is deferred to a future spec amendment.
 
 **Acceptance**: AC-012, AC-013.
 

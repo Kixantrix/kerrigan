@@ -60,12 +60,12 @@ function Invoke-Step {
         if ($LASTEXITCODE -ne 0) {
             throw ("Command exited with code {0}." -f $LASTEXITCODE)
         }
-        Write-Host ("✓ {0}" -f $Label)
+        Write-Host ("[OK] {0}" -f $Label)
         return $true
     } catch {
-        Write-Host ("✗ {0}: {1}" -f $Label, $_.Exception.Message)
+        Write-Host ("[FAIL] {0}: {1}" -f $Label, $_.Exception.Message)
         if ($ContinueOnFailure) {
-            Write-Host ("✓ Continuing after step failure: {0}" -f $Label) -ForegroundColor Yellow
+            Write-Host ("[WARN] Continuing after step failure: {0}" -f $Label) -ForegroundColor Yellow
             return $true
         }
         return $false
@@ -74,24 +74,24 @@ function Invoke-Step {
 
 $repo = '(unknown)/(unknown)'
 if ($DryRun) {
-    Write-Host "✓ [dry-run] gh repo view --json nameWithOwner --jq "".nameWithOwner"""
+    Write-Host "[OK] [dry-run] gh repo view --json nameWithOwner --jq "".nameWithOwner"""
 } else {
     $repoOutput = gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>&1
     if ($LASTEXITCODE -ne 0) {
-        Write-Host ("✗ Resolve repository owner/name: {0}" -f ($repoOutput -join "`n"))
+        Write-Host ("[FAIL] Resolve repository owner/name: {0}" -f ($repoOutput -join "`n"))
         exit 1
     }
     $repo = ($repoOutput -join "`n").Trim()
     if ([string]::IsNullOrWhiteSpace($repo)) {
-        Write-Host "✗ Resolve repository owner/name: empty response from gh repo view."
+        Write-Host "[FAIL] Resolve repository owner/name: empty response from gh repo view."
         exit 1
     }
-    Write-Host "✓ Resolved repository owner/name."
+    Write-Host "[OK] Resolved repository owner/name."
 }
 
 if (-not (Invoke-Step -Label "Ready PR #$PrNumber" -ContinueOnFailure -Command {
     if ($DryRun) {
-        Write-Host "✓ [dry-run] gh pr ready $PrNumber"
+        Write-Host "[OK] [dry-run] gh pr ready $PrNumber"
     } else {
         gh pr ready $PrNumber | Out-Null
     }
@@ -101,7 +101,7 @@ if (-not (Invoke-Step -Label "Ready PR #$PrNumber" -ContinueOnFailure -Command {
 
 if (-not (Invoke-Step -Label "Update branch for PR #$PrNumber" -Command {
     if ($DryRun) {
-        Write-Host "✓ [dry-run] gh pr update-branch $PrNumber"
+        Write-Host "[OK] [dry-run] gh pr update-branch $PrNumber"
     } else {
         gh pr update-branch $PrNumber | Out-Null
     }
@@ -110,11 +110,11 @@ if (-not (Invoke-Step -Label "Update branch for PR #$PrNumber" -Command {
 }
 
 if ($SkipReviewer) {
-    Write-Host "✓ Skip reviewer request (requested by -SkipReviewer)."
+    Write-Host "[SKIP] Skip reviewer request (requested by -SkipReviewer)."
 } else {
     if (-not (Invoke-Step -Label "Request Copilot reviewer for PR #$PrNumber" -Command {
         if ($DryRun) {
-            Write-Host "✓ [dry-run] gh api --method POST repos/$repo/pulls/$PrNumber/requested_reviewers -f ""reviewers[]=copilot-pull-request-reviewer[bot]"""
+            Write-Host "[OK] [dry-run] gh api --method POST repos/$repo/pulls/$PrNumber/requested_reviewers -f ""reviewers[]=copilot-pull-request-reviewer[bot]"""
         } else {
             $reviewerOutput = gh api --method POST "repos/$repo/pulls/$PrNumber/requested_reviewers" -f "reviewers[]=copilot-pull-request-reviewer[bot]" 2>&1
             if ($LASTEXITCODE -ne 0 -and ($reviewerOutput -join "`n") -notmatch '422') {
@@ -131,7 +131,7 @@ if ($SkipReviewer) {
 
 if (-not (Invoke-Step -Label "Arm auto-merge ($MergeMethod) for PR #$PrNumber" -Command {
     if ($DryRun) {
-        Write-Host "✓ [dry-run] gh pr merge $PrNumber --auto --$MergeMethod"
+        Write-Host "[OK] [dry-run] gh pr merge $PrNumber --auto --$MergeMethod"
     } else {
         gh pr merge $PrNumber --auto --$MergeMethod | Out-Null
     }
