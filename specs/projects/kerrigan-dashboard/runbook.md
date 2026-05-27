@@ -8,8 +8,8 @@
 
 1. Conductor pushes a tag matching `dashboard-v*.*.*` on `main`.
 2. The CI matrix builds the Tauri app on `windows-latest`, `macos-14`, `ubuntu-22.04`.
-3. Each runner produces signed installers (MSI on Windows, DMG on macOS, AppImage + .deb on Linux) and uploads as workflow artifacts.
-4. A release job pulls the artifacts and creates a GitHub release with checksums + Tauri updater manifest.
+3. Each runner produces an installer (MSI on Windows, DMG on macOS, AppImage + .deb on Linux). **Signing is conditional**: if the relevant signing secrets are present in the workflow environment, the installer is signed (Authenticode on Windows, notarized on macOS); otherwise the workflow produces an unsigned **internal/dev build** and labels the GitHub release accordingly. The first public release upgrades this path to signed by populating the secrets — see *Code signing* below.
+4. A release job pulls the artifacts and creates a GitHub release with checksums + Tauri updater manifest. Internal/dev releases are marked as GitHub `pre-release` so the auto-updater's stable channel skips them.
 5. The auto-updater in already-installed apps detects the new release on next launch via the Tauri updater channel.
 
 **Code signing**:

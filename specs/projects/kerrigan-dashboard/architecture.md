@@ -8,7 +8,7 @@ The app interacts with three external systems:
 
 1. **GitHub** — read via Octokit with ETag-aware conditional polling, write via `gh` CLI shell-out where useful. Authentication is borrowed on-demand from `gh auth token`; no token is ever persisted by the dashboard itself.
 2. **GitHub Copilot CLI** — `copilot --acp` subprocess provides the chat experience. The CLI handles its own auth, model, and policy concerns; the dashboard just streams events.
-3. **Local Kerrigan MCP server** — a Node 22 / TypeScript sidecar process started by the dashboard at launch. It exposes four tools to the chat agent (`kerrigan.dispatch`, `kerrigan.plan-update`, `kerrigan.block-resolve`, `kerrigan.conflict-predict`) and emits tool-result events back to the dashboard over a control channel so panes can refresh reactively.
+3. **Local Kerrigan MCP server** — a Node 22 / TypeScript sidecar process started by the dashboard at launch. It exposes the four v1 tools enumerated in spec AC-011 (`kerrigan.dispatch`, `kerrigan.plan-update`, `kerrigan.block-resolve`, `kerrigan.conflict-predict`) and emits tool-result events back to the dashboard over a control channel so panes can refresh reactively. Any tool beyond this set is explicitly v2+ scope and must be added via a spec amendment to AC-011 before it can land.
 
 Constraints from [`spec.md`](./spec.md): cold-start <1s, no credential persistence (AC-017), offline-tolerant (AC-014, AC-015), exactly one show-stopper visual (AC-020).
 
@@ -104,7 +104,7 @@ Polling cadence: 60s default, adaptive on rate-limit pressure (AC-014 backoff). 
 - **Tauri allowlist**: locked to the minimum required scopes:
   - `fs`: read-write on `~/.kerrigan/`, read on any project's git working copy paths declared in `projects.json`.
   - `shell.execute`: only for vetted commands (`gh auth token`, `git`, `copilot --acp`); no arbitrary shell.
-  - No network capability granted to the renderer; all outbound HTTP goes through the Rust core via Octokit.
+  - **Renderer egress is restricted, not eliminated.** Octokit is a JavaScript client and runs in the renderer; the dashboard does not proxy HTTP through the Rust core. The renderer's network surface is constrained by a strict CSP (`connect-src 'self' https://api.github.com https://*.githubusercontent.com`) and the Tauri config's `http.scope` allowlist set to the same two origins. Any other outbound HTTP from the renderer (telemetry endpoints, third-party CDNs, etc.) is blocked by the browser engine and verified by a CI test that fetches a non-allowlisted origin and asserts the request fails.
 - **MCP server boundary**: binds to stdio only — no TCP/UDP listener, no Unix socket exposed beyond the parent process.
 - **Plan edit safety**: writes always go to a branch (never directly to `main`). The conflict detector blocks save when an `agent:go` issue's PR touches the same plan file.
 - **External calls**: limited to `api.github.com` and `*.githubusercontent.com`. No telemetry endpoints, no third-party analytics.

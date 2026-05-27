@@ -6,7 +6,7 @@
 - **Component (Vitest + React Testing Library)** — `apps/kerrigan-dashboard/src/components/**`. Renderers for ACP events, ProjectCard, InboxItem, PlanEditor in read-only and writable modes.
 - **Integration** — `tools/kerrigan-mcp/test/**` exercising the MCP server against a fixture GitHub repo (authenticated via the developer's `gh auth token`; in CI via a scoped PAT secret). Covers each tool end-to-end.
 - **E2E (Playwright)** — `apps/kerrigan-dashboard/tests/e2e/**` driving the Tauri app via Playwright's Tauri driver. Critical flows: portfolio → project → chat → dispatch; plan edit → save → draft PR; offline indicator; inbox triage.
-- **Smoke** — `scripts/smoke.ps1` / `.sh` runs `tauri build` on the current OS, launches the binary, asserts the window opens, asserts one successful GitHub API call is made. Required for PR merge per [AGENTS.md](../../../AGENTS.md).
+- **Smoke** — today, `scripts/smoke.ps1` / `.sh` perform read-only repo health checks only (no Tauri/Node build). Task M2.5 extends them so that when `apps/kerrigan-dashboard/` exists they additionally run `pnpm -C apps/kerrigan-dashboard tauri build`, assert the artifact, and (on CI OSes where binary launch is feasible) launch and assert one successful GitHub API call. The extended smoke gates PR merge per [AGENTS.md](../../../AGENTS.md).
 - **Pre-vis static checks (Python)** — `tests/projects/kerrigan_dashboard/test_previs_*.py`. Validate the M1 deliverable's structure, color/type/motion budgets, and responsive breakpoints before any production UI is dispatched.
 
 ## Tooling

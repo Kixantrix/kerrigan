@@ -76,7 +76,7 @@ Test locations (created by the corresponding tasks):
 
 ## AC-017: No persistent credential storage
 
-- [ ] **Given** the app runs through a full session including GitHub API calls **When** the app data directory is scanned post-shutdown **Then** no GitHub token, OAuth secret, or session cookie is present (Task M2.3 — `github.test.ts` `no-token-on-disk`; also covered by `tests/projects/kerrigan_dashboard/test_no_credential_persistence.py`)
+- [ ] **Given** the app runs through a full session including GitHub API calls **When** the app data directory is scanned post-shutdown **Then** no GitHub token, OAuth secret, or session cookie is present (Task M2.3 — `github.test.ts` `no-token-on-disk` asserts no token is written during API calls; a Playwright post-shutdown scan of `~/.kerrigan/` is added in M2.4 as part of the offline-indicator E2E and fails the build if any string matches `ghp_`, `github_pat_`, or `gho_`)
 
 ## AC-018: Pre-vis HTML exists and matches design references
 
@@ -92,8 +92,9 @@ Test locations (created by the corresponding tasks):
 
 ## Cross-cutting tests
 
-- [ ] **Smoke**: `scripts/smoke.ps1` / `.sh` builds `tauri build`, launches the binary, asserts window opens, asserts one GitHub API call succeeds. Required for PR merge per [AGENTS.md](../../../AGENTS.md).
-- [ ] **Build matrix**: `dashboard-build.yml` runs on Windows / macOS / Linux runners; lint + Vitest + smoke pass on each.
+- [ ] **Smoke (current state)**: `scripts/smoke.ps1` / `.sh` perform read-only repo health checks (validators, no build/launch). They gate PR merge today.
+- [ ] **Smoke (after M2.5)**: M2.5 extends `scripts/smoke.*` so that when `apps/kerrigan-dashboard/` is present they additionally run `pnpm -C apps/kerrigan-dashboard tauri build`, assert the artifact exists, and (on the OSes where it's feasible in CI) launch the binary and assert one GitHub API call succeeds. The extended smoke continues to gate PR merge per [AGENTS.md](../../../AGENTS.md).
+- [ ] **Build matrix**: `dashboard-build.yml` runs on Windows / macOS / Linux runners; lint + Vitest + extended smoke pass on each.
 - [ ] **Coverage**: ≥80% line coverage on `apps/kerrigan-dashboard/src/lib/**` and `tools/kerrigan-mcp/src/**` (the logic-heavy modules) per repo testing standard.
 
 ## Notes
