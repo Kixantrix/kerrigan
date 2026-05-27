@@ -61,6 +61,8 @@ When the scope is ambiguous, ask the human one question to disambiguate. Don't g
 - **Don't dispatch without a briefing packet.** A bare issue title is not enough.
 - **Don't ignore blocks.** A block means: stop and surface. Not: retry silently.
 - **Don't parallel-dispatch conflicting tasks.** Run the conflict predictor first.
+- **Don't commit `specs/projects/<name>/` artifacts without the full required set.** A project under `specs/projects/` must have at minimum: `spec.md`, `acceptance-tests.md`, `architecture.md`, `plan.md`, `tasks.md`, `test-plan.md`. Deployable projects (spec mentions deploy/production/runtime, or has a runbook) also need `runbook.md` + `cost-plan.md`. The opt-out for docs-only / non-deployable work is dropping a `.tinyspec` marker file in the project dir (shrinks the required set to `spec/acceptance-tests/plan/tasks`). Always run `python -m tools.validators.check_artifacts` locally before committing. The required spec.md H2 sections are `Goal`, `Scope`, `Non-goals`, `Acceptance criteria`; architecture.md needs `Overview`, `Components & interfaces`, `Tradeoffs`, `Security & privacy notes` (exact heading names).
+- **Don't admin-bypass branch protection for `specs/projects/*` work.** CI gates (`check_artifacts.py` in particular) exist to catch missing required files. Bypassing means landing broken state on `main`, which then fails the check on every subsequent PR branch until repaired. If a spec artifact PR is mid-iteration and CI is failing for a reason you understand, fix the cause rather than bypassing. Branch protection is right by default — even the conductor goes through PR for these paths.
 
 ---
 
