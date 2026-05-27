@@ -221,7 +221,13 @@ The merge is gated by `required_review_thread_resolution: true` in branch protec
 
 ### Dispatching
 
-**Never** use inline `gh issue create` with PowerShell heredocs — heredoc termination is ambiguous and the create command often fires twice creating duplicate issues + PRs. Use `tools/create_issues.py` or write the body to a temp file: `Set-Content -Path body.md -Value $body; gh issue create --body-file body.md`.
+**Never** use inline `gh issue create` with PowerShell heredocs — heredoc termination is ambiguous and the create command often fires twice creating duplicate issues + PRs (2026-05-27 #293/#295 incident). Use one of:
+
+- `tools/new-issue.ps1 -Title "..." -BodyFile body.md -Label agent:go -Assignee copilot` (preferred for single issues)
+- `tools/create_issues.py` (preferred for batch dispatch from `tasks.md`)
+- Last resort: `Set-Content -Encoding utf8 -NoNewline -Path body.md -Value $body` followed by `gh issue create --body-file body.md` as **separate** statements (never chained with `;` to a heredoc).
+
+Always write the body as UTF-8 (no BOM) — default `Set-Content` encoding produces mojibake (`ΓÇö` for `—`) in issue bodies.
 
 The review chain: cloud self-test → CI → Copilot review → **cloud agent addresses feedback (kerrigan re-dispatches via `@copilot` comment)** → conversation resolution + CI green → auto-merge.
 
