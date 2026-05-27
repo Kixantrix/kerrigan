@@ -24,7 +24,11 @@ def main(argv: list[str] | None = None) -> int:
         forwarded_args.extend(["--repo-root", args.repo_root])
 
     for label, validator in REGISTERED_VALIDATORS:
-        exit_code = validator(forwarded_args)
+        try:
+            exit_code = validator(forwarded_args)
+        except Exception as exc:  # pragma: no cover - defensive wrapper
+            print(f"tools.validators: {label} errored: {exc}", file=sys.stderr)
+            exit_code = 1
         if exit_code != 0:
             failures += 1
         else:

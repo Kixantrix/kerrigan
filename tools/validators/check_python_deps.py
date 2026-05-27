@@ -110,7 +110,10 @@ def discover_test_paths(repo_root: Path) -> list[Path]:
 
 
 def imported_modules(test_file: Path) -> list[tuple[int, str]]:
-    tree = ast.parse(test_file.read_text(encoding="utf-8-sig"), filename=str(test_file))
+    try:
+        tree = ast.parse(test_file.read_text(encoding="utf-8-sig"), filename=str(test_file))
+    except SyntaxError as exc:
+        raise ValueError(f"failed to parse {test_file}: {exc.msg}") from exc
     imports: list[tuple[int, str]] = []
 
     for node in ast.walk(tree):
@@ -152,7 +155,10 @@ def find_undeclared_imports(
                 continue
 
             if not suggested:
-                suggested = sorted(distributions)[0] if distributions else module
+                if distributions:
+                    suggested = sorted(distributions)[0]
+                else:
+                    suggested = f"(unknown; check package for '{module}')"
             failures.append((relative_path, line_no, module, suggested))
 
     return failures
@@ -172,7 +178,11 @@ def main(argv: list[str] | None = None) -> int:
 
     repo_root = Path(args.repo_root).resolve()
     requirements_path = Path(args.requirements).resolve()
-    failures = find_undeclared_imports(repo_root, requirements_path)
+    try:
+        failures = find_undeclared_imports(repo_root, requirements_path)
+    except ValueError as exc:
+        print(f"check_python_deps: ERROR: {exc}", file=sys.stderr)
+        return 1
 
     if failures:
         print("check_python_deps: FAIL", file=sys.stderr)
