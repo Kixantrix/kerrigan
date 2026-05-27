@@ -1,7 +1,8 @@
 """
 Tests for kerrigan-dashboard pre-vis static HTML.
 Covers AC-1 (file exists, self-contained), AC-2 (portfolio cards),
-AC-3 (project-detail 3-pane layout), AC-4 (animation variants).
+AC-3 (project-detail 3-pane layout), AC-4 (animation variants),
+AC-011 (no banned tool names), AC-drawer (drawer markup present).
 """
 import re
 import unittest
@@ -168,6 +169,47 @@ class TestAnimationVariantsPresent(unittest.TestCase):
             "animation: none" in block or "animation:none" in block,
             "prefers-reduced-motion block does not contain 'animation: none'"
         )
+
+
+class TestSpecCompliance(unittest.TestCase):
+    """AC-011: no banned v1 MCP tool names in HTML; only kerrigan.dispatch,
+    kerrigan.plan-update, kerrigan.block-resolve, kerrigan.conflict-predict."""
+
+    def test_no_kerrigan_status_tool(self):
+        content = PREVIS.read_text(encoding="utf-8")
+        self.assertNotIn(
+            "kerrigan.status",
+            content,
+            "Banned tool name 'kerrigan.status' found in HTML (not in v1 MCP tool list)"
+        )
+
+
+class TestDrawersPresent(unittest.TestCase):
+    """AC-drawer: blocks drawer and capture inbox drawer markup exists."""
+
+    def test_blocks_drawer_present(self):
+        soup = load_soup()
+        drawer = soup.find(attrs={"data-drawer": "blocks"})
+        self.assertIsNotNone(drawer, "No element with data-drawer='blocks' found")
+
+    def test_capture_drawer_present(self):
+        soup = load_soup()
+        drawer = soup.find(attrs={"data-drawer": "capture"})
+        self.assertIsNotNone(drawer, "No element with data-drawer='capture' found")
+
+    def test_blocks_drawer_has_items_and_empty_state_possible(self):
+        soup = load_soup()
+        drawer = soup.find(attrs={"data-drawer": "blocks"})
+        self.assertIsNotNone(drawer)
+        items = drawer.find_all(class_="block-item")
+        self.assertGreater(len(items), 0, "Blocks drawer should have at least one sample block item")
+
+    def test_capture_drawer_has_items(self):
+        soup = load_soup()
+        drawer = soup.find(attrs={"data-drawer": "capture"})
+        self.assertIsNotNone(drawer)
+        items = drawer.find_all(class_="capture-item")
+        self.assertGreater(len(items), 0, "Capture drawer should have at least one sample capture item")
 
 
 if __name__ == "__main__":
