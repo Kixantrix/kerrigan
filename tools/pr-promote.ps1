@@ -93,7 +93,8 @@ if (-not (Invoke-Step -Label "Ready PR #$PrNumber" -ContinueOnFailure -Command {
     if ($DryRun) {
         Write-Host "[OK] [dry-run] gh pr ready $PrNumber"
     } else {
-        gh pr ready $PrNumber | Out-Null
+        # gh writes its success confirmation to stderr; redirect so $ErrorActionPreference='Stop' doesn't treat it as a failure.
+        gh pr ready $PrNumber 2>&1 | Out-Null
     }
 })) {
     exit 1
@@ -103,7 +104,7 @@ if (-not (Invoke-Step -Label "Update branch for PR #$PrNumber" -Command {
     if ($DryRun) {
         Write-Host "[OK] [dry-run] gh pr update-branch $PrNumber"
     } else {
-        gh pr update-branch $PrNumber | Out-Null
+        gh pr update-branch $PrNumber 2>&1 | Out-Null
     }
 })) {
     exit 1
