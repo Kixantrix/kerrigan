@@ -111,9 +111,11 @@ The PR-flow animation (see `spec.md` § Show-stopper) sits on the DAG canvas. Re
 
 Pre-vis must demonstrate the animation in a static HTML+CSS+JS prototype on at least one node before any production code is written.
 
-## Open visual decisions (resolved during pre-vis)
+## Decisions locked
 
-- Exact brand color hex (currently leaning toward `#5965F2` or `#22D3EE`).
-- Whether the DAG canvas background is a flat near-black, a subtle dot grid, or a faint vertical-line grid.
-- Whether plan-stage nodes are pill-shaped (Retool-ish) or rectangular cards with rounded corners.
-- Particle visual: dots, a tracing line, or a soft glow trail. Three variants must be in the pre-vis.
+The following visual decisions were resolved during M1 pre-vis and are now design-locked. All subsequent production milestones must match these choices.
+
+- **Brand color**: `#5965F2` (cool indigo). Selected over `#22D3EE` because indigo reads more "orchestration tool" than "observability dashboard", and it pairs cleanly with the near-black background without washing out on dim displays.
+- **Accent color**: `#F59E0B` (warm amber). Used for intervention states (blocked counts, attestation needed) — amber reads as "needs attention" without the alarm of red, keeping the red palette reserved for true blocks.
+- **Type scale**: `28px` (display heading), `18px` (section heading), `14px` (body), `12px` (metadata / labels), `10px` (node status strips / micro). Five sizes total, within budget.
+- **Default animation variant**: `dots`. Three variants are present in the pre-vis (dots, line trail, glow trail); dots was selected as the default because it communicates "many discrete events" most faithfully to the PR-flow metaphor without the visual weight of the glow trail distracting from the DAG structure.
