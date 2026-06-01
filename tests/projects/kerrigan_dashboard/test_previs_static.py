@@ -4,7 +4,6 @@ Covers AC-1 (file exists, self-contained), AC-2 (portfolio cards),
 AC-3 (project-detail 3-pane layout), AC-4 (animation variants),
 AC-011 (no banned tool names), AC-drawer (drawer markup present).
 """
-import re
 import unittest
 from pathlib import Path
 
@@ -13,7 +12,15 @@ from bs4 import BeautifulSoup
 PREVIS = Path(__file__).resolve().parents[3] / "specs" / "projects" / "kerrigan-dashboard" / "previs" / "index.html"
 
 REQUIRED_FIELDS = {"name", "repo-count", "wave", "blocked-count", "intervention-count", "last-pr-merged"}
-REQUIRED_STATUSES = {"planned", "dispatched", "in-review", "blocked", "merged"}
+REQUIRED_STATUSES = {
+    "planned",
+    "dispatched",
+    "in-review",
+    "blocked",
+    "needs-attestation",
+    "needs-human-test",
+    "merged",
+}
 REQUIRED_VARIANTS = {"dots", "line", "glow"}
 
 

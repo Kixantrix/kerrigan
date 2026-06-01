@@ -1043,8 +1043,8 @@
       <button class="nav-tab" onclick="showView('project-detail')">Project Detail</button>
     </nav>
     <div class="header-spacer"></div>
-    <button class="header-icon-btn" id="btn-drawer-blocks" onclick="openDrawer('blocks')" title="Open Blocks">&#9889;</button>
-    <button class="header-icon-btn" id="btn-drawer-capture" onclick="openDrawer('capture')" title="Capture Inbox">&#128229;</button>
+    <button class="header-icon-btn" id="btn-drawer-blocks" onclick="openDrawer('blocks')" title="Open Blocks" aria-label="Open Blocks drawer">&#9889;</button>
+    <button class="header-icon-btn" id="btn-drawer-capture" onclick="openDrawer('capture')" title="Capture Inbox" aria-label="Open Capture Inbox drawer">&#128229;</button>
     <span class="app-badge">pre-vis · M1</span>
   </header>
 
@@ -1337,7 +1337,7 @@
             </defs>
           </svg>
 
-          <!-- Stage nodes (6 nodes; statuses cover required set) -->
+          <!-- Stage nodes (7 nodes; statuses cover required set) -->
           <div data-component="stage-node" data-status="merged" data-wave="1"
                id="node-m1" style="left:5%;top:10%">
             <div class="node-label">M1 · Pre-vis</div>
@@ -1372,6 +1372,12 @@
                id="node-m6" style="left:66%;top:55%">
             <div class="node-label">M6 · Chat Pane</div>
             <div class="node-status-text">planned</div>
+          </div>
+
+          <div data-component="stage-node" data-status="needs-human-test" data-wave="4"
+               id="node-m7" style="left:82%;top:55%">
+            <div class="node-label">M7 · QA Gate</div>
+            <div class="node-status-text">needs-human-test</div>
           </div>
 
           <!-- PR source cards -->
@@ -1553,6 +1559,8 @@
 
       if (name === 'project-detail') {
         requestAnimationFrame(() => { initAnimation(); });
+      } else {
+        stopAnimation();
       }
     }
 
@@ -1708,6 +1716,13 @@
       tick();
     }
 
+    function stopAnimation() {
+      if (animFrame) {
+        cancelAnimationFrame(animFrame);
+        animFrame = null;
+      }
+    }
+
     function bezierPoint(t, p) {
       const mt = 1 - t;
       return {
@@ -1744,16 +1759,17 @@
         if (particles.length > 12) particles.shift();
       }
 
-      particles.forEach((p, i) => {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
         p.t += PARTICLE_SPEED;
-        if (p.t > 1) { particles.splice(i, 1); return; }
+        if (p.t > 1) { particles.splice(i, 1); continue; }
 
         const pos = bezierPoint(p.t, p.path);
         p.trail.push({ x: pos.x, y: pos.y });
         if (p.trail.length > 30) p.trail.shift();
 
         drawParticle(ctx, pos, p.trail, currentVariant);
-      });
+      }
 
       animFrame = requestAnimationFrame(tick);
     }
