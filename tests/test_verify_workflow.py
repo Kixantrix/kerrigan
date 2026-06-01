@@ -26,20 +26,26 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         )
 
     def test_root_requirements_are_fully_pinned(self):
-        """The root requirements file should pin the workflow dependencies."""
+        """Every root requirement should be exact-version pinned, and the core
+        workflow dependencies must be present.
+
+        This asserts the pinning invariant (every entry uses ``==``) rather than
+        an exact dependency set, so adding a legitimately-pinned dependency does
+        not break the suite.
+        """
         self.assertTrue(self.requirements_path.exists(), "requirements.txt should exist")
         requirements = [
-            line
+            line.strip()
             for line in self.requirements_path.read_text(encoding="utf-8").splitlines()
-            if line.strip()
+            if line.strip() and not line.strip().startswith("#")
         ]
-        self.assertEqual(
-            requirements,
-            [
-                "PyYAML==6.0.2",
-                "click==8.1.8",
-                "pytest==8.3.5",
-            ],
+        for entry in requirements:
+            with self.subTest(requirement=entry):
+                self.assertIn("==", entry, f"requirement '{entry}' must be exact-version pinned")
+        core = {"PyYAML==6.0.2", "click==8.1.8", "pytest==8.3.5"}
+        self.assertTrue(
+            core.issubset(set(requirements)),
+            f"core workflow deps {core} must remain pinned in requirements.txt",
         )
 
     def test_verify_workflow_uses_tool_versions_and_requirements(self):
