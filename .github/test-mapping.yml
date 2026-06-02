@@ -117,6 +117,18 @@ mappings:
     tests: "tests/test_feedback.py"
     notes: "Feedback system configuration and files"
 
+  # Project: kerrigan-dashboard
+  - source: "specs/projects/kerrigan-dashboard/previs/**"
+    tests:
+      - "tests/projects/kerrigan_dashboard/test_previs_static.py"
+      - "tests/projects/kerrigan_dashboard/test_previs_budgets.py"
+      - "tests/projects/kerrigan_dashboard/test_previs_responsive.py"
+    notes: "Pre-vis HTML mockup validated by static, budgets, and responsive tests"
+
+  - source: "specs/projects/kerrigan-dashboard/design-references.md"
+    tests: "tests/projects/kerrigan_dashboard/test_design_references_updated.py"
+    notes: "Design references decisions-locked section validated (AC-7)"
+
   # Test files themselves
   - source: "tests/test_*.py"
     tests: null
@@ -130,6 +142,7 @@ config:
   # Pattern to identify test files (used to track which tests changed)
   test_file_patterns:
     - "tests/test_*.py"
+    - "tests/**/test_*.py"
   
   # Ignore these patterns when checking for changes
   exclude_patterns:
