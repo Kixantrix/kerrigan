@@ -99,4 +99,8 @@ class TestShellNoVerticalScroll(unittest.TestCase):
                     browser.close()
         finally:
             proc.terminate()
-            proc.wait(timeout=10)
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait(timeout=10)
