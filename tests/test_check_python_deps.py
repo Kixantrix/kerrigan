@@ -10,7 +10,10 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "validators"))
 
-from check_python_deps import main as check_python_deps_main
+from check_python_deps import (
+    load_optional_test_dependencies,
+    main as check_python_deps_main,
+)
 
 validators_main = importlib.import_module("tools.validators.__main__")
 
@@ -86,6 +89,20 @@ def test_optional_allowlist_exempts_import():
                 str(root / ".github" / "optional-test-deps.txt"),
             ]
         ) == 0
+
+
+def test_optional_allowlist_parser_handles_missing_comments_and_submodules():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        missing = root / ".github" / "missing-optional-test-deps.txt"
+        assert load_optional_test_dependencies(missing) == set()
+
+        allowlist = root / ".github" / "optional-test-deps.txt"
+        _write(
+            allowlist,
+            "# comment only\n\nplaywright.sync_api  # optional browser test import\n",
+        )
+        assert load_optional_test_dependencies(allowlist) == {"playwright"}
 
 
 def test_validators_module_runs_registered_check():
