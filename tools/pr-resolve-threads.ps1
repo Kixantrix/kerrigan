@@ -72,8 +72,12 @@ if ($shouldConfirm) {
 
 $mutation = 'mutation($threadId:ID!) { resolveReviewThread(input:{threadId:$threadId}) { thread { id isResolved } } }'
 foreach ($thread in $threads) {
-    gh api graphql -f query=$mutation -f threadId=$thread.id | Out-Null
-    Write-Host "Resolved thread $($thread.id)"
+    # Bind the property to a local first: passing $thread.id inline to `-f` makes
+    # PowerShell stringify $thread (its type name) and append literal text,
+    # sending a garbage id so the resolve silently no-ops.
+    $threadId = $thread.id
+    gh api graphql -f query=$mutation -f threadId=$threadId | Out-Null
+    Write-Host "Resolved thread $threadId"
 }
 
 exit 0

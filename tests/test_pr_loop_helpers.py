@@ -37,6 +37,16 @@ def test_pr_resolve_threads_has_required_switches() -> None:
     assert "resolveReviewThread" in content
 
 
+def test_pr_resolve_threads_binds_thread_id_to_local() -> None:
+    # Regression: `-f threadId=$thread.id` makes PowerShell stringify $thread
+    # (its type name) and append literal ".id", sending a garbage thread id so
+    # the resolve silently no-ops. The property must be bound to a local first.
+    content = _read("tools/pr-resolve-threads.ps1")
+    assert "threadId=$thread.id" not in content
+    assert "$threadId = $thread.id" in content
+    assert "threadId=$threadId" in content
+
+
 def test_pr_rerun_pending_filters_by_status() -> None:
     content = _read("tools/pr-rerun-pending.ps1")
     for token in (".SYNOPSIS", ".DESCRIPTION", ".PARAMETER", ".EXAMPLE"):
