@@ -14,6 +14,9 @@ htmlcov/
 node_modules/
 dist/
 build/
+apps/kerrigan-dashboard/src-tauri/target/
+apps/kerrigan-dashboard/dist/
+apps/kerrigan-dashboard/node_modules/
 
 # Secrets
 .env
