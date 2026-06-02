@@ -80,6 +80,14 @@ mappings:
     tests: "tests/test_attestation_check.py"
     notes: "Attestation parser and validator checks"
 
+  - source: "tools/validators/check_python_deps.py"
+    tests: "tests/test_check_python_deps.py"
+    notes: "Python dependency validator and its tests"
+
+  - source: "tools/validators/__main__.py"
+    tests: "tests/test_check_python_deps.py"
+    notes: "Validator package entry point and registration"
+
   # GitHub Workflows - Configuration files
   - source: ".github/workflows/*.yml"
     tests: null
