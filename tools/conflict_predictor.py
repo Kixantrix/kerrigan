@@ -4,11 +4,12 @@
 Usage:
     python tools/conflict_predictor.py [--tasks path/to/tasks.md] [--output path/to/waves.yaml]
 
-Each task in tasks.md may declare the files it touches via an HTML comment on the
-same line as the task checkbox:
+Each task in tasks.md may declare the files it touches via a ``Touch:`` sub-bullet
+or via a legacy HTML comment on the same line:
 
-    - [ ] T-001 [P] Create model <!-- touch: src/models/*.py -->
-    - [ ] T-002 [P] Write tests  <!-- touch: tests/unit/*.py, tests/integration/*.py -->
+    - [ ] Task M2.3: lib/github.ts wrapper
+      - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, sibling test
+    - [ ] T-002 [P] Write tests <!-- touch: tests/unit/*.py, tests/integration/*.py -->
 
 Tasks whose touch globs overlap are placed in separate (sequential) waves.
 Tasks with no overlap can be placed in the same wave and run in parallel.
@@ -23,11 +24,15 @@ from typing import Optional
 
 import yaml
 
-# Matches a task checkbox line, capturing the task ID (e.g. T001 or T-001)
-_TASK_LINE_RE = re.compile(r"^\s*-\s*\[[ xX]\]\s*(T-?\d+)\b", re.MULTILINE)
+# Matches a task checkbox line, capturing the task ID (e.g. T001, T-001, M2.3)
+_TASK_LINE_RE = re.compile(
+    r"^\s*-\s*\[[ xX]\]\s*(?:Task\s+)?([A-Za-z]+-?\d+(?:\.\d+)*)\b",
+    re.IGNORECASE,
+)
 
 # Matches <!-- touch: glob1, glob2 --> annotations
 _TOUCH_RE = re.compile(r"<!--\s*touch:\s*([^>]+?)\s*-->")
+_TOUCH_BULLET_RE = re.compile(r"^\s+-\s*Touch:\s*(.+?)\s*$", re.IGNORECASE)
 
 
 def normalize_task_id(raw_id: str) -> str:
@@ -44,27 +49,64 @@ def normalize_task_id(raw_id: str) -> str:
     return f"T-{digits.zfill(3)}"
 
 
+def _split_globs(raw: str) -> list[str]:
+    return [
+        glob.strip().strip("`")
+        for glob in raw.split(",")
+        if glob.strip().strip("`")
+    ]
+
+
+def _normalize_parsed_task_id(raw_id: str) -> str:
+    if re.fullmatch(r"T-?\d+", raw_id, flags=re.IGNORECASE):
+        return normalize_task_id(raw_id)
+    return raw_id
+
+
+def parse_tasks_with_stats(content: str) -> tuple[list[dict], int, int]:
+    """Parse task entries and return ``(tasks, task_line_count, touch_count)``."""
+    tasks: list[dict] = []
+    task_line_count = 0
+    touch_count = 0
+    current_task: Optional[dict] = None
+
+    for line in content.splitlines():
+        task_match = _TASK_LINE_RE.match(line)
+        if task_match:
+            task_line_count += 1
+            task_id = _normalize_parsed_task_id(task_match.group(1))
+            current_task = {"id": task_id, "globs": []}
+            tasks.append(current_task)
+
+            touch_match = _TOUCH_RE.search(line)
+            if touch_match:
+                current_task["globs"].extend(_split_globs(touch_match.group(1)))
+                touch_count += 1
+            continue
+
+        if not current_task:
+            continue
+
+        touch_bullet_match = _TOUCH_BULLET_RE.match(line)
+        if touch_bullet_match:
+            current_task["globs"].extend(_split_globs(touch_bullet_match.group(1)))
+            touch_count += 1
+
+    return tasks, task_line_count, touch_count
+
+
 def parse_tasks(content: str) -> list[dict]:
     """Parse task entries from *tasks.md* text.
 
     Returns a list of dicts::
 
-        [{"id": "T-001", "globs": ["src/models/*.py"]}, ...]
+        [{"id": "T-001", "globs": ["src/models/*.py"]}, {"id": "M2.3", "globs": [...]}, ...]
 
-    Tasks without a ``<!-- touch: ... -->`` annotation are returned with an
+    Supports both ``- Touch: ...`` bullets and legacy ``<!-- touch: ... -->``.
+    Tasks without touch annotations are returned with an
     empty ``globs`` list and will be treated as non-conflicting.
     """
-    tasks: list[dict] = []
-    for line in content.splitlines():
-        task_match = _TASK_LINE_RE.match(line)
-        if not task_match:
-            continue
-        task_id = normalize_task_id(task_match.group(1))
-        globs: list[str] = []
-        touch_match = _TOUCH_RE.search(line)
-        if touch_match:
-            globs = [g.strip() for g in touch_match.group(1).split(",") if g.strip()]
-        tasks.append({"id": task_id, "globs": globs})
+    tasks, _, _ = parse_tasks_with_stats(content)
     return tasks
 
 
@@ -159,7 +201,15 @@ def run(
         return 1
 
     content = tasks_path.read_text(encoding="utf-8")
-    tasks = parse_tasks(content)
+    tasks, task_line_count, touch_count = parse_tasks_with_stats(content)
+    if task_line_count > 0 and touch_count == 0:
+        print(
+            f"Error: no touch annotations found in task lines for {tasks_path}. "
+            "Expected either '- Touch: `glob`' sub-bullets or '<!-- touch: glob -->' annotations.",
+            file=sys.stderr,
+        )
+        return 1
+
     waves = compute_waves(tasks)
     write_waves_yaml(waves, output_path)
     _print(
