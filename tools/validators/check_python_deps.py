@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 REQUIREMENTS = ROOT / "requirements.txt"
+OPTIONAL_TEST_DEPS_ALLOWLIST = ROOT / ".github" / "optional-test-deps.txt"
 ALIASES = {
     "bs4": "beautifulsoup4",
     "yaml": "PyYAML",
@@ -68,6 +69,18 @@ def stdlib_modules() -> set[str]:
     if names:
         return set(names) | {"__future__"}
     return set(FALLBACK_STDLIB)
+
+
+def load_optional_test_dependencies(allowlist_path: Path) -> set[str]:
+    if not allowlist_path.exists():
+        return set()
+
+    optional_dependencies: set[str] = set()
+    for raw_line in allowlist_path.read_text(encoding="utf-8").splitlines():
+        module = raw_line.split("#", 1)[0].strip()
+        if module:
+            optional_dependencies.add(module.split(".", 1)[0])
+    return optional_dependencies
 
 
 def first_party_modules(repo_root: Path) -> set[str]:
@@ -129,10 +142,12 @@ def imported_modules(test_file: Path) -> list[tuple[int, str]]:
 def find_undeclared_imports(
     repo_root: Path,
     requirements_path: Path,
+    optional_test_deps_allowlist_path: Path,
 ) -> list[tuple[str, int, str, str]]:
     required_packages = load_requirements(requirements_path)
     stdlib = stdlib_modules()
     first_party = first_party_modules(repo_root)
+    optional_test_deps = load_optional_test_dependencies(optional_test_deps_allowlist_path)
     module_to_distributions = packages_distributions()
     failures: list[tuple[str, int, str, str]] = []
 
@@ -142,7 +157,12 @@ def find_undeclared_imports(
 
         for line_no, module in imported_modules(test_file):
             key = (line_no, module)
-            if key in seen or module in stdlib or module in first_party:
+            if (
+                key in seen
+                or module in stdlib
+                or module in first_party
+                or module in optional_test_deps
+            ):
                 continue
             seen.add(key)
 
@@ -174,12 +194,22 @@ def main(argv: list[str] | None = None) -> int:
         default=str(REQUIREMENTS),
         help="Path to requirements.txt",
     )
+    parser.add_argument(
+        "--optional-test-deps-allowlist",
+        default=str(OPTIONAL_TEST_DEPS_ALLOWLIST),
+        help="Path to optional test dependency allowlist",
+    )
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root).resolve()
     requirements_path = Path(args.requirements).resolve()
+    optional_test_deps_allowlist_path = Path(args.optional_test_deps_allowlist).resolve()
     try:
-        failures = find_undeclared_imports(repo_root, requirements_path)
+        failures = find_undeclared_imports(
+            repo_root,
+            requirements_path,
+            optional_test_deps_allowlist_path,
+        )
     except ValueError as exc:
         print(f"check_python_deps: ERROR: {exc}", file=sys.stderr)
         return 1

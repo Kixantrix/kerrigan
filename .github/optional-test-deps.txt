@@ -1,0 +1,3 @@
+# Optional test-only imports that are intentionally allowed to be undeclared in requirements.txt.
+# One module name per line; '#' comments are supported.
+playwright

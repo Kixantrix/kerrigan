@@ -69,6 +69,25 @@ def test_alias_resolution_passes():
         ) == 0
 
 
+def test_optional_allowlist_exempts_import():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        _write(root / "requirements.txt", "pytest==8.3.5\n")
+        _write(root / ".github" / "optional-test-deps.txt", "playwright\n")
+        _write(root / "tests" / "test_optional_dep.py", "import playwright\n")
+
+        assert check_python_deps_main(
+            [
+                "--repo-root",
+                str(root),
+                "--requirements",
+                str(root / "requirements.txt"),
+                "--optional-test-deps-allowlist",
+                str(root / ".github" / "optional-test-deps.txt"),
+            ]
+        ) == 0
+
+
 def test_validators_module_runs_registered_check():
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
