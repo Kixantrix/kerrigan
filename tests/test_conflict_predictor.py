@@ -140,12 +140,15 @@ class TestParseTasks(unittest.TestCase):
     def test_touch_bullet_parsed(self):
         content = _tasks_md(
             "- [ ] Task M2.3: GitHub wrapper",
-            "  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, sibling test",
+            "  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, `apps/kerrigan-dashboard/src/lib/github.test.ts`",
         )
         result = parse_tasks(content)
         self.assertEqual(
             result[0]["globs"],
-            ["apps/kerrigan-dashboard/src/lib/github.ts", "sibling test"],
+            [
+                "apps/kerrigan-dashboard/src/lib/github.ts",
+                "apps/kerrigan-dashboard/src/lib/github.test.ts",
+            ],
         )
 
     def test_multiple_touch_bullets_are_unioned(self):
@@ -398,8 +401,7 @@ class TestRun(unittest.TestCase):
         return p
 
     def test_missing_tasks_file_returns_1(self):
-        import io
-        with unittest.mock.patch("sys.stderr", new_callable=io.StringIO) as mock_stderr:
+        with unittest.mock.patch("sys.stderr", new_callable=StringIO) as mock_stderr:
             rc = run(
                 self.tmp_dir / "nonexistent.md",
                 self.tmp_dir / "waves.yaml",
@@ -447,9 +449,7 @@ class TestRun(unittest.TestCase):
             "- [ ] Task M2.4: Portfolio view\n"
         )
         output = self.tmp_dir / "waves.yaml"
-        import io
-
-        with unittest.mock.patch("sys.stderr", new_callable=io.StringIO) as mock_stderr:
+        with unittest.mock.patch("sys.stderr", new_callable=StringIO) as mock_stderr:
             rc = run(tasks_path, output)
         self.assertEqual(rc, 1)
         self.assertIn(str(tasks_path), mock_stderr.getvalue())

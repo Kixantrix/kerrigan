@@ -50,21 +50,27 @@ def normalize_task_id(raw_id: str) -> str:
 
 
 def _split_globs(raw: str) -> list[str]:
-    return [
-        glob.strip().strip("`")
-        for glob in raw.split(",")
-        if glob.strip().strip("`")
-    ]
+    globs: list[str] = []
+    for glob in raw.split(","):
+        token = glob.strip().strip("`")
+        if token:
+            globs.append(token)
+    return globs
 
 
-def _normalize_parsed_task_id(raw_id: str) -> str:
+def _normalize_legacy_t_task_id(raw_id: str) -> str:
     if re.fullmatch(r"T-?\d+", raw_id, flags=re.IGNORECASE):
         return normalize_task_id(raw_id)
     return raw_id
 
 
 def parse_tasks_with_stats(content: str) -> tuple[list[dict], int, int]:
-    """Parse task entries and return ``(tasks, task_line_count, touch_count)``."""
+    """Parse task entries.
+
+    Returns ``(tasks, task_line_count, touch_count)`` where:
+    - ``task_line_count`` is the number of checkbox task lines found.
+    - ``touch_count`` is the number of touch annotations found (bullet + HTML).
+    """
     tasks: list[dict] = []
     task_line_count = 0
     touch_count = 0
@@ -74,7 +80,7 @@ def parse_tasks_with_stats(content: str) -> tuple[list[dict], int, int]:
         task_match = _TASK_LINE_RE.match(line)
         if task_match:
             task_line_count += 1
-            task_id = _normalize_parsed_task_id(task_match.group(1))
+            task_id = _normalize_legacy_t_task_id(task_match.group(1))
             current_task = {"id": task_id, "globs": []}
             tasks.append(current_task)
 
