@@ -100,17 +100,20 @@ else
 
         BUNDLE_DIR="$DASHBOARD_DIR/src-tauri/target/release/bundle"
         PLATFORM="$(uname -s)"
-        case "$PLATFORM" in
-            Linux*)
-                mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" -type f \( -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \) 2>/dev/null || true)
-                ;;
-            Darwin*)
-                mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" -type f \( -name "*.dmg" -o -name "*.app" \) 2>/dev/null || true)
-                ;;
-            *)
-                mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" -type f \( -name "*.msi" -o -name "*.exe" \) 2>/dev/null || true)
-                ;;
-        esac
+        ARTIFACTS=()
+        if [[ -d "$BUNDLE_DIR" ]]; then
+            case "$PLATFORM" in
+                Linux*)
+                    mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" -type f \( -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \))
+                    ;;
+                Darwin*)
+                    mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" \( -type f -name "*.dmg" -o -type d -name "*.app" \))
+                    ;;
+                *)
+                    mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" -type f \( -name "*.msi" -o -name "*.exe" \))
+                    ;;
+            esac
+        fi
 
         if [[ "${#ARTIFACTS[@]}" -gt 0 ]]; then
             pass "dashboard artifact exists (${#ARTIFACTS[@]} found; first: ${ARTIFACTS[0]})"

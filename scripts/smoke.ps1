@@ -141,16 +141,23 @@ if ($runDashboardSmoke -ne '1') {
         }
 
         $bundleDir = Join-Path $dashboardDir 'src-tauri' 'target' 'release' 'bundle'
-        $patterns = switch ($IsWindows) {
-            $true { @('*.msi', '*.exe') }
-            $false {
-                if ($IsMacOS) { @('*.dmg', '*.app') } else { @('*.AppImage', '*.deb', '*.rpm') }
-            }
+        $isWindowsPlatform = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
+        $isMacOSPlatform = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
+        $patterns = if ($isWindowsPlatform) {
+            @('*.msi', '*.exe')
+        } elseif ($isMacOSPlatform) {
+            @('*.dmg', '*.app')
+        } else {
+            @('*.AppImage', '*.deb', '*.rpm')
         }
 
         $artifacts = @()
         foreach ($pattern in $patterns) {
-            $matches = Get-ChildItem -Path $bundleDir -Recurse -File -Filter $pattern -ErrorAction SilentlyContinue
+            $matches = if ($pattern -eq '*.app') {
+                Get-ChildItem -Path $bundleDir -Recurse -Directory -Filter $pattern -ErrorAction SilentlyContinue
+            } else {
+                Get-ChildItem -Path $bundleDir -Recurse -File -Filter $pattern -ErrorAction SilentlyContinue
+            }
             if ($matches) { $artifacts += $matches.FullName }
         }
 
