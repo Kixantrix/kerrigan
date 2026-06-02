@@ -1,0 +1,20 @@
+# Hand-authored: tools/conflict_predictor.py can't parse this repo's `- Touch:`
+# tasks.md format (it only reads `<!-- touch: -->` HTML comments) and silently
+# emits `waves: []`. Wave assignment below is derived from the briefing packets,
+# which are authoritative for files-actually-touched. See the predictor-fix task.
+#
+# Overlap analysis (kerrigan-dashboard Milestone 2):
+#   M2.2 (lib/projects.ts)  -> also mutates package.json + pnpm-lock.yaml (adds zod)
+#   M2.3 (lib/github.ts)    -> also mutates package.json + pnpm-lock.yaml (adds @octokit/*)
+#   M2.5 (dashboard-build.yml + smoke scripts) -> .github/ + scripts/ only (no package.json)
+#   M2.4 (portfolio view)   -> external:M2.2 + external:M2.3 (must follow both)
+#
+# => M2.2 and M2.3 collide on package.json/pnpm-lock.yaml, so they are serialized.
+#    M2.5 is disjoint and runs alongside M2.3 in wave 1.
+waves:
+  - wave: 1
+    tasks: [M2.3, M2.5]
+  - wave: 2
+    tasks: [M2.2]
+  - wave: 3
+    tasks: [M2.4]
