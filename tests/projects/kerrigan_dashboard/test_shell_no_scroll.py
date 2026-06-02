@@ -11,7 +11,8 @@ from urllib.request import urlopen
 
 APP_DIR = Path(__file__).resolve().parents[3] / "apps" / "kerrigan-dashboard"
 ARTIFACTS = Path(__file__).resolve().parents[2] / "artifacts"
-APP_URL = "http://127.0.0.1:4173"
+DEV_PORT = 4173
+APP_URL = f"http://127.0.0.1:{DEV_PORT}"
 NO_SCROLL_VIEWPORTS = [(1280, 800), (1920, 1080)]
 
 
@@ -72,7 +73,7 @@ class TestShellNoVerticalScroll(unittest.TestCase):
                 "--host",
                 "127.0.0.1",
                 "--port",
-                "4173",
+                str(DEV_PORT),
                 "--strictPort",
             ],
             stdout=subprocess.DEVNULL,

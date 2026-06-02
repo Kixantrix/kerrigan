@@ -1,4 +1,4 @@
-const APP_VERSION = "v0.1.0";
+const APP_VERSION = `v${__APP_VERSION__}`;
 
 function App() {
   return (
