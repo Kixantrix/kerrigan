@@ -102,6 +102,11 @@ mappings:
     tests: "tests/test_agent_spec_compliance_workflow.py"
     notes: "Verify workflow has specific test coverage"
 
+  - source: ".github/workflows/dashboard-build.yml"
+    tests: null
+    manual_test_required: true
+    notes: "Dashboard CI matrix + security scans (gitleaks, token handling, renderer egress) verified via workflow runs"
+
   # Agent Prompts - Agent configuration
   - source: ".github/agents/*.md"
     tests: "tests/test_agent_prompts.py"

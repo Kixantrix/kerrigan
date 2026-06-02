@@ -11,7 +11,9 @@
       4. Key repository directories exist
 
     Exits 0 on success, exits 1 on failure.
-    Idempotent and side-effect-free (read-only checks only).
+    Idempotent and side-effect-free by default (read-only checks only).
+    Optional dashboard build checks can be enabled with:
+      KERRIGAN_SMOKE_DASHBOARD=1
 
 .EXAMPLE
     pwsh scripts/smoke.ps1
@@ -104,6 +106,59 @@ foreach ($dir in $keyDirs) {
         Write-Pass "$dir/"
     } else {
         Write-Fail "$dir/ missing"
+    }
+}
+Write-Output ""
+
+# --- Check 5: Optional dashboard build + artifact ---
+Write-Output "[ Dashboard build ]"
+$dashboardDir = Join-Path $repoRoot 'apps' 'kerrigan-dashboard'
+$runDashboardSmoke = $env:KERRIGAN_SMOKE_DASHBOARD
+$skipDashboardBuild = $env:KERRIGAN_SMOKE_DASHBOARD_SKIP_BUILD
+
+if ($runDashboardSmoke -ne '1') {
+    Write-Pass "dashboard smoke skipped (set KERRIGAN_SMOKE_DASHBOARD=1 to enable)"
+} elseif (-not (Test-Path -Path $dashboardDir -PathType Container)) {
+    Write-Pass "dashboard smoke skipped (apps/kerrigan-dashboard not present)"
+} else {
+    $pnpmCmd = Get-Command pnpm -ErrorAction SilentlyContinue
+    if (-not $pnpmCmd) {
+        Write-Fail "pnpm is required for dashboard smoke checks"
+    } else {
+        if ($skipDashboardBuild -ne '1') {
+            try {
+                & $pnpmCmd.Source -C $dashboardDir tauri build
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Pass "dashboard tauri build completed"
+                } else {
+                    Write-Fail "dashboard tauri build failed"
+                }
+            } catch {
+                Write-Fail "dashboard tauri build failed"
+            }
+        } else {
+            Write-Pass "dashboard tauri build skipped (KERRIGAN_SMOKE_DASHBOARD_SKIP_BUILD=1)"
+        }
+
+        $bundleDir = Join-Path $dashboardDir 'src-tauri' 'target' 'release' 'bundle'
+        $patterns = switch ($IsWindows) {
+            $true { @('*.msi', '*.exe') }
+            $false {
+                if ($IsMacOS) { @('*.dmg', '*.app') } else { @('*.AppImage', '*.deb', '*.rpm') }
+            }
+        }
+
+        $artifacts = @()
+        foreach ($pattern in $patterns) {
+            $matches = Get-ChildItem -Path $bundleDir -Recurse -File -Filter $pattern -ErrorAction SilentlyContinue
+            if ($matches) { $artifacts += $matches.FullName }
+        }
+
+        if ($artifacts.Count -gt 0) {
+            Write-Pass "dashboard artifact exists ($($artifacts.Count) found; first: $($artifacts[0]))"
+        } else {
+            Write-Fail "dashboard artifact missing under $bundleDir"
+        }
     }
 }
 Write-Output ""
