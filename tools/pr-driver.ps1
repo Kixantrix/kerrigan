@@ -231,7 +231,7 @@ $stateDict = [ordered]@{
 $stateJson = $stateDict | ConvertTo-Json -Depth 10 -Compress
 
 $decideScript = Join-Path $ScriptDir "pr_driver_decide.py"
-$actionJson = echo $stateJson | python $decideScript --json-stdin 2>&1
+$actionJson = $stateJson | python $decideScript --json-stdin 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "pr_driver_decide.py failed: $actionJson"
     exit 1
@@ -338,7 +338,7 @@ switch ($action) {
                 Write-Host ("  Unresolved threads ({0}):" -f $threads.Count)
                 foreach ($t in $threads) {
                     $loc = if ($t.path) { "{0}:{1}" -f $t.path, $t.line } else { "(no location)" }
-                    $preview = if ($t.body.Length -gt 120) { $t.body.Substring(0, 120) + "..." } else { $t.body }
+                    $preview = if ($t.body -and $t.body.Length -gt 120) { $t.body.Substring(0, 120) + "..." } elseif ($t.body) { $t.body } else { "(no body)" }
                     Write-Host ("    [{0}] {1}" -f $loc, $preview)
                 }
             }

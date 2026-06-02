@@ -135,7 +135,9 @@ def test_empty_pr_only_placeholder_commits_escalates() -> None:
 def test_empty_pr_never_auto_close_has_reason() -> None:
     result = decide({"title": "feat: thing", "state": "OPEN", "files": 0,
                      "commits": ["feat: real"]})
-    assert "never auto-close" in result["reason"].lower() or "human" in result["reason"].lower()
+    assert result["action"] == "ESCALATE"
+    assert result["escalate_type"] == "empty-pr"
+    assert "human" in result["reason"].lower()
 
 
 # 4. Draft + real work → promote
@@ -237,7 +239,8 @@ def test_budget_telemetry_failure_is_ignored() -> None:
         autoMergeArmed=True,
     ))
     # Should NOT escalate ci-red; should reach AUTO_WAIT (clean + armed)
-    assert result["action"] != "ESCALATE" or result.get("escalate_type") != "ci-red"
+    if result["action"] == "ESCALATE":
+        assert result.get("escalate_type") != "ci-red"
 
 
 def test_budget_telemetry_case_insensitive_ignored() -> None:
@@ -247,7 +250,8 @@ def test_budget_telemetry_case_insensitive_ignored() -> None:
         checkStatuses=["completed"],
         autoMergeArmed=True,
     ))
-    assert result["action"] != "ESCALATE" or result.get("escalate_type") != "ci-red"
+    if result["action"] == "ESCALATE":
+        assert result.get("escalate_type") != "ci-red"
 
 
 # 10. Unresolved threads — round 1 (escalate review-classify)

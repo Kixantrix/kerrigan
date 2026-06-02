@@ -53,9 +53,11 @@ _CI_FAIL_CONCLUSIONS = frozenset(
 )
 
 # Commit headlines that indicate an empty/stalled PR.
+# Values must be lowercase — compared against `headline.strip().lower()`.
 _EMPTY_HEADLINES = frozenset({"initial plan"})
 
 # Known non-required check that should not gate CI-red escalation.
+# Values must be lowercase — compared against `check_name.lower()`.
 _IGNORED_CHECK_NAMES = frozenset({"budget telemetry"})
 
 # After this many consecutive unchanged passes, escalate as stuck.
