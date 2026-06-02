@@ -27,7 +27,7 @@ def test_clean_case_passes():
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         _write(root / "requirements.txt", "click==8.1.8\nPyYAML==6.0.2\n")
-        _write(root / "tools" / "validators" / "helpers.py", "VALUE = 1\n")
+        _write(root / "helpers.py", "VALUE = 1\n")
         _write(
             root / "tests" / "test_ok.py",
             "import click\nimport yaml\nfrom helpers import VALUE\nassert VALUE == 1\n",
@@ -105,10 +105,24 @@ def test_optional_allowlist_parser_handles_missing_comments_and_submodules():
         assert load_optional_test_dependencies(allowlist) == {"playwright"}
 
 
-def test_validators_module_runs_registered_check():
+def test_validators_module_uses_repo_root_requirements(capsys):
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        _write(root / "requirements.txt", "click==8.1.8\n")
+        _write(root / "requirements.txt", "")
         _write(root / "tests" / "test_ok.py", "import click\n")
 
-        assert validators_main.main(["--repo-root", str(root)]) == 0
+        assert validators_main.main(["--repo-root", str(root)]) == 1
+        assert "click" in capsys.readouterr().err
+
+
+def test_nested_python_file_does_not_mask_third_party_import(capsys):
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        _write(root / "requirements.txt", "")
+        _write(root / "tools" / "fixtures" / "yaml.py", "VALUE = 1\n")
+        _write(root / "tests" / "test_missing_dep.py", "import yaml\n")
+
+        assert check_python_deps_main(
+            ["--repo-root", str(root), "--requirements", str(root / "requirements.txt")]
+        ) == 1
+        assert "yaml" in capsys.readouterr().err

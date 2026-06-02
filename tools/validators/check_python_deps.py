@@ -84,20 +84,155 @@ def load_optional_test_dependencies(allowlist_path: Path) -> set[str]:
 
 
 def first_party_modules(repo_root: Path) -> set[str]:
-    modules = {
-        path.name
-        for path in repo_root.iterdir()
-        if path.is_dir() and not path.name.startswith(".")
-    }
-
-    for py_file in repo_root.rglob("*.py"):
-        if py_file.name == "__init__.py":
+    modules: set[str] = set()
+    for path in repo_root.iterdir():
+        if path.name.startswith("."):
             continue
-        modules.add(py_file.stem)
+        if path.is_dir() and (path / "__init__.py").is_file():
+            modules.add(path.name)
+        elif path.is_file() and path.suffix == ".py" and path.name != "__init__.py":
+            modules.add(path.stem)
+    return modules
 
-    for package_init in repo_root.rglob("__init__.py"):
-        modules.add(package_init.parent.name)
 
+def _path_from_expr(node: ast.AST, *, file_path: Path, env: dict[str, Path]) -> Path | None:
+    if isinstance(node, ast.Name):
+        if node.id == "__file__":
+            return file_path
+        return env.get(node.id)
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return Path(node.value)
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+        left = _path_from_expr(node.left, file_path=file_path, env=env)
+        right = _path_from_expr(node.right, file_path=file_path, env=env)
+        if left is not None and right is not None:
+            return left / str(right)
+        return None
+    if isinstance(node, ast.Call):
+        if isinstance(node.func, ast.Name):
+            if node.func.id == "Path" and len(node.args) == 1:
+                arg = _path_from_expr(node.args[0], file_path=file_path, env=env)
+                if arg is not None:
+                    return Path(arg)
+            if node.func.id == "str" and len(node.args) == 1:
+                return _path_from_expr(node.args[0], file_path=file_path, env=env)
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "dirname"
+            and isinstance(node.func.value, ast.Attribute)
+            and node.func.value.attr == "path"
+            and isinstance(node.func.value.value, ast.Name)
+            and node.func.value.value.id == "os"
+            and len(node.args) == 1
+        ):
+            arg = _path_from_expr(node.args[0], file_path=file_path, env=env)
+            if arg is not None:
+                return Path(arg).parent
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "join"
+            and isinstance(node.func.value, ast.Attribute)
+            and node.func.value.attr == "path"
+            and isinstance(node.func.value.value, ast.Name)
+            and node.func.value.value.id == "os"
+            and node.args
+        ):
+            parts: list[Path | str] = []
+            for arg in node.args:
+                resolved = _path_from_expr(arg, file_path=file_path, env=env)
+                if resolved is not None:
+                    parts.append(resolved)
+                    continue
+                if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                    parts.append(arg.value)
+                    continue
+                return None
+            current = Path(parts[0])
+            for part in parts[1:]:
+                current = current / str(part)
+            return current
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "resolve"
+            and not node.args
+            and not node.keywords
+        ):
+            base = _path_from_expr(node.func.value, file_path=file_path, env=env)
+            if base is not None:
+                return base.resolve()
+    if isinstance(node, ast.Attribute) and node.attr == "parent":
+        base = _path_from_expr(node.value, file_path=file_path, env=env)
+        if base is not None:
+            return base.parent
+    if isinstance(node, ast.Subscript):
+        if isinstance(node.value, ast.Attribute) and node.value.attr == "parents":
+            base = _path_from_expr(node.value.value, file_path=file_path, env=env)
+            index_node = node.slice
+            if isinstance(index_node, ast.Constant) and isinstance(index_node.value, int):
+                index = index_node.value
+            else:
+                return None
+            if base is not None and index >= 0:
+                try:
+                    return base.parents[index]
+                except IndexError:
+                    return None
+    return None
+
+
+def _is_sys_path_insert(call: ast.Call) -> bool:
+    func = call.func
+    if not isinstance(func, ast.Attribute) or func.attr != "insert":
+        return False
+    path_attr = func.value
+    return (
+        isinstance(path_attr, ast.Attribute)
+        and path_attr.attr == "path"
+        and isinstance(path_attr.value, ast.Name)
+        and path_attr.value.id == "sys"
+    )
+
+
+def test_import_roots(test_file: Path, repo_root: Path) -> list[Path]:
+    source = test_file.read_text(encoding="utf-8-sig")
+    tree = ast.parse(source, filename=str(test_file))
+    env: dict[str, Path] = {}
+    import_roots: list[Path] = []
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            target = node.targets[0]
+            if isinstance(target, ast.Name):
+                resolved = _path_from_expr(node.value, file_path=test_file, env=env)
+                if resolved is not None:
+                    env[target.id] = resolved
+        elif isinstance(node, ast.Call) and _is_sys_path_insert(node) and len(node.args) >= 2:
+            resolved = _path_from_expr(node.args[1], file_path=test_file, env=env)
+            if resolved is None:
+                continue
+            try:
+                normalized = resolved.resolve()
+            except OSError:
+                continue
+            try:
+                normalized.relative_to(repo_root)
+            except ValueError:
+                continue
+            if normalized.is_dir():
+                import_roots.append(normalized)
+
+    return import_roots
+
+
+def modules_in_import_root(import_root: Path) -> set[str]:
+    modules: set[str] = set()
+    for path in import_root.iterdir():
+        if path.name.startswith("."):
+            continue
+        if path.is_file() and path.suffix == ".py" and path.name != "__init__.py":
+            modules.add(path.stem)
+        elif path.is_dir() and (path / "__init__.py").is_file():
+            modules.add(path.name)
     return modules
 
 
@@ -154,13 +289,16 @@ def find_undeclared_imports(
     for test_file in discover_test_paths(repo_root):
         relative_path = test_file.relative_to(repo_root).as_posix()
         seen: set[tuple[int, str]] = set()
+        first_party_for_test = set(first_party)
+        for import_root in test_import_roots(test_file, repo_root):
+            first_party_for_test.update(modules_in_import_root(import_root))
 
         for line_no, module in imported_modules(test_file):
             key = (line_no, module)
             if (
                 key in seen
                 or module in stdlib
-                or module in first_party
+                or module in first_party_for_test
                 or module in optional_test_deps
             ):
                 continue
