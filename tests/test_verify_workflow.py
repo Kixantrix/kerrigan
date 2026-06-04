@@ -97,7 +97,7 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         with open(self.workflow_path, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
 
-        on_config = workflow.get("on", workflow.get(True, {}))
+        on_config = workflow["on"] if "on" in workflow else workflow.get(True, {})
         self.assertIn("pull_request", on_config)
         self.assertIn("merge_group", on_config)
 
