@@ -101,3 +101,17 @@ notes: |
   Tracked via Phase 1 issue #171 (conflict-predictor) and #172 (briefing-generator)
   which are the natural homes for fixes 1-3. Add fix 4 as a separate small task
   during Phase 1 cleanup.
+
+# --- RESOLUTION (kerrigan, 2026-06-03) ---
+resolution:
+  status: resolved-behavioral
+  note: |
+    Closed per maintainer (aged ~5 weeks). The high-severity friction
+    (cloud agents fork from main and recreate read-only deps that only exist
+    on an unmerged branch) is already cured behaviorally: "merge dispatch infra
+    to main FIRST, then dispatch dependents" is documented in AGENTS.md
+    sequencing discipline and repo memory, and is followed in practice (the
+    M2.x wave held M2.2 until M2.3 merged for exactly this reason).
+    The proposed briefing-packet schema enhancement (base_branch /
+    prereq_artifacts fields) is NOT adopted — sequencing discipline covers the
+    case without adding schema surface. Closing as resolved-behavioral.

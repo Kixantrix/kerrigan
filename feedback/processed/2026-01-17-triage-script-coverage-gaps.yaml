@@ -197,3 +197,13 @@ notes: |
   Other recommendations remain as future enhancements.
   
   Priority: Medium - Would improve efficiency but workarounds exist.
+
+# --- RESOLUTION (kerrigan, 2026-06-03) ---
+resolution:
+  status: obsolete
+  note: |
+    v1-era. References role:* labels (archived in v2) and triage-prs.ps1 /
+    review-prs.ps1 / show-issues.ps1 scripts. v2 triage is the mobile-inbox
+    scan (agent:wait + capture) plus the pr-loop helpers (pr-doctor,
+    pr-promote, pr-rerun-pending, pr-resolve-threads). The bulk-assignment
+    friction described no longer maps to current tooling. Closing as obsolete.

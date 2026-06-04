@@ -268,3 +268,13 @@ notes: |
   
   Priority: Medium - Would improve visibility and traceability of self-improvement
   analysis, but system is functional without it.
+
+# --- RESOLUTION (kerrigan, 2026-06-03) ---
+resolution:
+  status: obsolete
+  note: |
+    The .github/workflows/daily-self-improvement.yml workflow and
+    tools/self_improvement_analyzer.py referenced here no longer exist in v2.
+    The automated self-improvement loop was removed; feedback is now reviewed
+    manually per playbooks/feedback-review.md. The artifact-visibility gap is
+    therefore moot. Closing as obsolete.

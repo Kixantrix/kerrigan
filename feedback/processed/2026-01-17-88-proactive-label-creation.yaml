@@ -96,3 +96,13 @@ notes: |
   
   This is a quality-of-life improvement that would reduce friction but is
   not critical. Marked as open with low priority.
+
+# --- RESOLUTION (kerrigan, 2026-06-03) ---
+resolution:
+  status: obsolete
+  note: |
+    v1-era. v2 collapsed the label taxonomy to 4 annotation labels
+    (agent:go/agent:wait/agent:local/autonomy:override); the role:*/milestone:*
+    taxonomy that motivated this is archived. A tools/init-labels.ps1 was never
+    needed at v2's scale. Lesson "create labels before batch" is moot for the 4
+    fixed labels. Closing as obsolete.
