@@ -79,7 +79,7 @@ cp preset/kerrigan/vscode-settings.example.jsonc .vscode/settings.json
 The policy is **script-first**:
 
 - **Auto-approve** the trusted, reviewed kerrigan tools (`pr-*.ps1`,
-  `pr_reply_resolve.py`, `new-issue.ps1`, `create_issues.py`,
+  `pr_reply_resolve.py`, `new-issue.ps1`, `new-pr.ps1`, `create_issues.py`,
   `clean-build.ps1`, `tools/validators`), read-only `git`/`gh`, and routine
   reversible git writes.
 - **Require approval** for anything off the common-script path — raw

@@ -35,6 +35,7 @@
         "/pr-redispatch\\.ps1/":      { "approve": true, "matchCommandLine": true },
         "/pr_reply_resolve\\.py/":    { "approve": true, "matchCommandLine": true },
         "/new-issue\\.ps1/":          { "approve": true, "matchCommandLine": true },
+        "/new-pr\\.ps1/":             { "approve": true, "matchCommandLine": true },
         "/create_issues\\.py/":       { "approve": true, "matchCommandLine": true },
         "/clean-build\\.ps1/":        { "approve": true, "matchCommandLine": true },
         "/tools[\\\\/]validators/":   { "approve": true, "matchCommandLine": true },
