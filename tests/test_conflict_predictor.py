@@ -132,6 +132,49 @@ class TestParseTasks(unittest.TestCase):
         result = parse_tasks(content)
         self.assertEqual(result[0]["globs"], ["src/a.py", "src/b.py"])
 
+    def test_task_prefix_and_milestone_id_preserved(self):
+        content = _tasks_md("- [ ] Task M2.3: GitHub wrapper")
+        result = parse_tasks(content)
+        self.assertEqual(result[0]["id"], "M2.3")
+
+    def test_touch_bullet_parsed(self):
+        content = _tasks_md(
+            "- [ ] Task M2.3: GitHub wrapper",
+            "  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, `apps/kerrigan-dashboard/src/lib/github.test.ts`",
+        )
+        result = parse_tasks(content)
+        self.assertEqual(
+            result[0]["globs"],
+            [
+                "apps/kerrigan-dashboard/src/lib/github.ts",
+                "apps/kerrigan-dashboard/src/lib/github.test.ts",
+            ],
+        )
+
+    def test_multiple_touch_bullets_are_unioned(self):
+        content = _tasks_md(
+            "- [ ] Task M2.5: CI workflow",
+            "  - Touch: `scripts/smoke.ps1`",
+            "  - Touch: `scripts/smoke.sh`, `.github/workflows/dashboard-build.yml`",
+        )
+        result = parse_tasks(content)
+        self.assertEqual(
+            result[0]["globs"],
+            [
+                "scripts/smoke.ps1",
+                "scripts/smoke.sh",
+                ".github/workflows/dashboard-build.yml",
+            ],
+        )
+
+    def test_html_and_touch_bullet_both_accumulate(self):
+        content = _tasks_md(
+            "- [ ] T001 Task <!-- touch: src/a.py -->",
+            "  - Touch: `src/b.py`",
+        )
+        result = parse_tasks(content)
+        self.assertEqual(result[0]["globs"], ["src/a.py", "src/b.py"])
+
 
 # ---------------------------------------------------------------------------
 # globs_overlap
@@ -358,8 +401,7 @@ class TestRun(unittest.TestCase):
         return p
 
     def test_missing_tasks_file_returns_1(self):
-        import io
-        with unittest.mock.patch("sys.stderr", new_callable=io.StringIO) as mock_stderr:
+        with unittest.mock.patch("sys.stderr", new_callable=StringIO) as mock_stderr:
             rc = run(
                 self.tmp_dir / "nonexistent.md",
                 self.tmp_dir / "waves.yaml",
@@ -400,6 +442,37 @@ class TestRun(unittest.TestCase):
         self.assertEqual(rc, 0)
         data = yaml.safe_load(output.read_text())
         self.assertEqual(data["waves"], [])
+
+    def test_task_lines_without_touch_annotations_fail_loud(self):
+        tasks_path = self._write_tasks(
+            "- [ ] Task M2.3: GitHub wrapper\n"
+            "- [ ] Task M2.4: Portfolio view\n"
+        )
+        output = self.tmp_dir / "waves.yaml"
+        with unittest.mock.patch("sys.stderr", new_callable=StringIO) as mock_stderr:
+            rc = run(tasks_path, output)
+        self.assertEqual(rc, 1)
+        self.assertIn(str(tasks_path), mock_stderr.getvalue())
+        self.assertIn("- Touch:", mock_stderr.getvalue())
+
+    def test_realistic_touch_bullets_parse_and_wave(self):
+        tasks_path = self._write_tasks(
+            "- [ ] Task M2.2: projects reader\n"
+            "  - Touch: `apps/kerrigan-dashboard/src/lib/projects.ts`\n"
+            "- [ ] Task M2.3: github wrapper\n"
+            "  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, sibling test\n"
+            "- [ ] Task M2.4: portfolio view\n"
+            "  - Touch: `apps/kerrigan-dashboard/src/routes/portfolio/**`\n"
+            "- [ ] Task M2.5: smoke\n"
+            "  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`\n"
+        )
+        output = self.tmp_dir / "waves.yaml"
+        rc = run(tasks_path, output)
+        self.assertEqual(rc, 0)
+        data = yaml.safe_load(output.read_text())
+        self.assertEqual(len(data["waves"]), 2)
+        self.assertEqual(data["waves"][0]["tasks"], ["M2.2", "M2.3", "M2.4"])
+        self.assertEqual(data["waves"][1]["tasks"], ["M2.5"])
 
 
 # ---------------------------------------------------------------------------
