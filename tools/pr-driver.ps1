@@ -85,7 +85,7 @@ function Invoke-Gh {
     }
     $result = & gh @Args 2>&1
     if ($LASTEXITCODE -ne 0) {
-        throw ("gh $Args exited $LASTEXITCODE: $result")
+        throw ("gh $Args exited ${LASTEXITCODE}: $result")
     }
 }
 
@@ -98,9 +98,11 @@ $repo = (gh repo view --json nameWithOwner --jq '.nameWithOwner').Trim()
 $owner, $repoName = $repo.Split('/')
 
 # Core PR fields
-$prJson = gh pr view $PrNumber --json `
-    state,isDraft,title,mergeable,mergeStateStatus,autoMergeRequest,`
-    headRefName,headRefOid,files,commits,reviews | ConvertFrom-Json
+# NOTE: keep the --json field list on ONE line. A backtick line-continuation
+# inside a comma list splits it into two argv tokens, so trailing fields
+# (headRefOid, files, commits, reviews) silently never get requested.
+$prFields = 'state,isDraft,title,mergeable,mergeStateStatus,autoMergeRequest,headRefName,headRefOid,files,commits,reviews'
+$prJson = gh pr view $PrNumber --json $prFields | ConvertFrom-Json
 
 # Check-runs
 $checkRunsRaw = gh api "repos/$repo/commits/$($prJson.headRefOid)/check-runs?per_page=100" `
@@ -129,7 +131,6 @@ query($owner:String!, $name:String!, $number:Int!) {
         nodes {
           id
           isResolved
-          createdAt
           comments(first:20) {
             nodes {
               databaseId
