@@ -47,3 +47,6 @@ prompt-cache/
 
 # PR body scratch files (used by kerrigan to pipe markdown to gh pr create)
 pr_*.md
+
+# Conductor scratch dir (redispatch/reply comment bodies, temp commit messages)
+.specify/tmp/
