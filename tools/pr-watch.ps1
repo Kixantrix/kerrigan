@@ -21,11 +21,15 @@
 
       headRefOid       -> cloud pushed a new commit (e.g. a re-dispatched fix)
       reviewDecision   -> a new review landed (APPROVED / CHANGES_REQUESTED)
-      mergeStateStatus -> CI/threads moved (BEHIND / BLOCKED / UNSTABLE / CLEAN)
       isDraft + [WIP]  -> cloud marked the PR ready
       state            -> PR merged or closed
       set membership   -> a NEW open PR appeared (a dispatched issue's PR), or
                           a watched PR left the open set (merged/closed)
+
+    mergeStateStatus is intentionally NOT tracked: it churns UNKNOWN->BEHIND
+    whenever `main` moves (an unrelated merge), which is not work on this PR and
+    would false-fire the watcher. The pr-driver pass you run on wake recomputes
+    BEHIND/CLEAN itself.
 
     On any delta the script prints a summary and exits 0. On the safety
     timeout it exits 0 with a "no change" note so the agent can relaunch.
@@ -76,7 +80,7 @@ $ErrorActionPreference = 'Stop'
 function Get-PrSignatureMap {
     param([int[]]$Restrict)
 
-    $fields = 'number,title,state,isDraft,headRefOid,mergeStateStatus,reviewDecision'
+    $fields = 'number,title,state,isDraft,headRefOid,reviewDecision'
     $list = gh pr list --state open --json $fields | ConvertFrom-Json
     if ($null -eq $list) { $list = @() }
 
@@ -85,13 +89,19 @@ function Get-PrSignatureMap {
         if ($Restrict.Count -gt 0 -and ($Restrict -notcontains $p.number)) { continue }
         $wip = if ($p.title -match '\[WIP\]') { 'wip' } else { 'ready' }
         $draft = if ($p.isDraft) { 'draft' } else { 'open' }
+        # mergeStateStatus is deliberately EXCLUDED from the signature: it churns
+        # UNKNOWN->BEHIND every time `main` moves (an unrelated merge), which is
+        # not cloud work on THIS PR and would false-fire the watcher. The real
+        # "cloud did something" signals are commit push (headRefOid), review
+        # (reviewDecision), draft->ready, merge (state), and new-PR membership.
+        # When the watcher wakes on one of those, the pr-driver pass recomputes
+        # BEHIND/CLEAN itself and acts. (Learned from the first live run.)
         # Order matters only for readability; the whole string is the signature.
         $sig = @(
             $p.state
             $draft
             $wip
             $p.headRefOid
-            $p.mergeStateStatus
             $p.reviewDecision
         ) -join '|'
         $map[[string]$p.number] = $sig
