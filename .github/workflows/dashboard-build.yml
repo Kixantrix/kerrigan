@@ -53,9 +53,9 @@ jobs:
               repo / ".github" / "workflows" / "dashboard-build.yml",
           }
 
-          token_re = re.compile(r"gh\s+auth\s+token")
           redirection_re = re.compile(r"gh\s+auth\s+token\s*(?:\d?>|>>|2>>|&>)")
           logging_re = re.compile(r"(echo|printf|Write-Output|Write-Host).*?(?:\$\(\s*gh\s+auth\s+token\s*\)|`gh auth token`)")
+          pipe_re = re.compile(r"gh\s+auth\s+token\s*\|\s*([^\s|]+)")
 
           issues: list[str] = []
 
@@ -71,9 +71,6 @@ jobs:
                       continue
 
                   for idx, line in enumerate(lines, start=1):
-                      if not token_re.search(line):
-                          continue
-
                       stripped = line.strip()
                       if stripped.startswith("#") or stripped.startswith("//") or stripped.startswith("*"):
                           continue
@@ -86,9 +83,9 @@ jobs:
                           issues.append(f"{path}:{idx}: gh auth token output logged")
                           continue
 
-                      if "|" in line:
-                          pipe_target = line.split("|", 1)[1].strip().split()
-                          cmd = pipe_target[0] if pipe_target else ""
+                      pipe_match = pipe_re.search(line)
+                      if pipe_match:
+                          cmd = pipe_match.group(1)
                           if cmd and cmd not in allowed_pipe_targets:
                               issues.append(
                                   f"{path}:{idx}: gh auth token piped to non-allowlisted process '{cmd}'"
