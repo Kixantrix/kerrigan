@@ -102,17 +102,21 @@ else
         PLATFORM="$(uname -s)"
         ARTIFACTS=()
         if [[ -d "$BUNDLE_DIR" ]]; then
+            find_args=()
             case "$PLATFORM" in
                 Linux*)
-                    mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" -type f \( -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \))
+                    find_args=(-type f \( -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \))
                     ;;
                 Darwin*)
-                    mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" \( -type f -name "*.dmg" -o -type d -name "*.app" \))
+                    find_args=(\( -type f -name "*.dmg" -o -type d -name "*.app" \))
                     ;;
                 *)
-                    mapfile -t ARTIFACTS < <(find "$BUNDLE_DIR" -type f \( -name "*.msi" -o -name "*.exe" \))
+                    find_args=(-type f \( -name "*.msi" -o -name "*.exe" \))
                     ;;
             esac
+            while IFS= read -r -d '' artifact; do
+                ARTIFACTS+=("$artifact")
+            done < <(find "$BUNDLE_DIR" "${find_args[@]}" -print0)
         fi
 
         if [[ "${#ARTIFACTS[@]}" -gt 0 ]]; then

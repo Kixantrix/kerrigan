@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7  # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -117,44 +117,76 @@ jobs:
           cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
 
           allowed = {"https://api.github.com", "https://*.githubusercontent.com"}
-          probe_origin = "https://example.com"
+          forbidden_tokens = {"*"}
 
           app_cfg = cfg.get("app", {})
           security = app_cfg.get("security", {})
           csp = security.get("csp")
 
-          csp_ok = False
-          if isinstance(csp, str):
+          plugins = cfg.get("plugins", {})
+          scope_present = False
+          http_scope = None
+          if isinstance(plugins, dict):
+              http_plugin = plugins.get("http")
+              if isinstance(http_plugin, dict):
+                  scope_present = "scope" in http_plugin
+                  scope = http_plugin.get("scope")
+                  if isinstance(scope, list):
+                      normalized_scope = []
+                      for value in scope:
+                          entry = str(value).strip()
+                          if entry:
+                              normalized_scope.append(entry)
+                      http_scope = normalized_scope
+
+          csp_present = isinstance(csp, str) and bool(csp.strip())
+          if not csp_present and not scope_present:
+              print("Renderer egress guard skipped: no CSP connect-src or plugins.http.scope configured.")
+              sys.exit(0)
+
+          def check_strict_allowlist(values: list[str], source: str) -> list[str]:
+              issues: list[str] = []
+              entries = set(values)
+              missing = sorted(allowed - entries)
+              extras = sorted(entries - allowed)
+              forbidden = sorted(v for v in entries if v in forbidden_tokens or re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:$", v))
+              if missing:
+                  issues.append(f"{source}: missing required GitHub origins: {missing}")
+              if extras:
+                  issues.append(f"{source}: contains non-allowlisted origins: {extras}")
+              if forbidden:
+                  issues.append(f"{source}: contains forbidden wildcard/scheme sources: {forbidden}")
+              return issues
+
+          issues: list[str] = []
+
+          if csp_present:
               connect_src = None
               for directive in [d.strip() for d in csp.split(";") if d.strip()]:
                   if directive.startswith("connect-src"):
                       connect_src = directive
                       break
-              if connect_src:
-                  tokens = connect_src.split()[1:]
-                  required = allowed.issubset(set(tokens))
-                  wildcard_blocked = "*" not in tokens and probe_origin not in tokens
-                  csp_ok = required and wildcard_blocked
+              if not connect_src:
+                  issues.append("CSP: missing connect-src directive")
+              else:
+                  csp_tokens = connect_src.split()[1:]
+                  issues.extend(check_strict_allowlist(csp_tokens, "CSP connect-src"))
 
-          plugins = cfg.get("plugins", {})
-          http_scope = []
-          if isinstance(plugins, dict):
-              http_plugin = plugins.get("http")
-              if isinstance(http_plugin, dict):
-                  scope = http_plugin.get("scope")
-                  if isinstance(scope, list):
-                      http_scope = [str(v) for v in scope]
+          if scope_present:
+              if http_scope is None:
+                  issues.append("plugins.http.scope: must be an array when configured")
+              else:
+                  issues.extend(check_strict_allowlist(http_scope, "plugins.http.scope"))
 
-          scope_ok = bool(http_scope) and allowed.issubset(set(http_scope)) and probe_origin not in set(http_scope)
-
-          if not (csp_ok or scope_ok):
+          if issues:
               print("Renderer egress guard failed.")
-              print("Expected CSP connect-src or plugins.http.scope to allow only GitHub origins and block non-allowlisted origins.")
+              for issue in issues:
+                  print(f"  - {issue}")
               print(f"Found CSP: {csp!r}")
               print(f"Found plugins.http.scope: {http_scope!r}")
               sys.exit(1)
 
-          print("Renderer egress guard passed: non-allowlisted origin would be blocked.")
+          print("Renderer egress guard passed: strict GitHub-only egress policy is configured.")
           PY
 
   build:
@@ -171,7 +203,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: 22
 
@@ -188,7 +220,7 @@ jobs:
         run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
       - name: Cache pnpm store
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
         with:
           path: ${{ steps.pnpm-store.outputs.path }}
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
@@ -196,10 +228,10 @@ jobs:
             ${{ runner.os }}-pnpm-
 
       - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8  # stable
 
       - name: Cache Cargo
-        uses: swatinem/rust-cache@v2
+        uses: swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
         with:
           workspaces: apps/kerrigan-dashboard/src-tauri -> target
 
@@ -250,7 +282,7 @@ jobs:
 
       - name: Upload Windows bundles
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: dashboard-windows-bundle
           if-no-files-found: error
@@ -260,7 +292,7 @@ jobs:
 
       - name: Upload macOS bundles
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: dashboard-macos-bundle
           if-no-files-found: error
@@ -270,7 +302,7 @@ jobs:
 
       - name: Upload Linux bundles
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: dashboard-linux-bundle
           if-no-files-found: error
