@@ -1,17 +1,19 @@
 # Processed Feedback
 
-This directory contains feedback files that have been reviewed and processed.
+Short-lived staging area for feedback that has been reviewed but not yet acted on.
 
 ## Usage
 
-Feedback files are moved here after they have been:
-1. Analyzed by the daily self-improvement workflow
-2. Reviewed by a human maintainer
-3. Resulted in issues or documentation updates
+A feedback file lands here only while it is mid-resolution. Once its lesson is
+absorbed — into `AGENTS.md`, repo memory, a code/validator change, or a
+dispatched issue — **delete the file**. Git history is the permanent archive;
+we do not keep a parallel graveyard of resolved feedback.
 
 ## Retention
 
-Processed feedback is kept for historical reference. Files older than 90 days may be archived or removed during periodic cleanup.
+None. There is no time-based retention policy. The rule is outcome-based:
+a feedback file exists only until its lesson is captured somewhere durable,
+then it is removed. To recover a past entry, use `git log -- feedback/`.
 
 ## Structure
 
