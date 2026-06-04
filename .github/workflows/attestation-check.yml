@@ -3,6 +3,8 @@ name: attestation-check
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
+  merge_group:
+    branches: [main]
 
 permissions:
   contents: read
@@ -16,7 +18,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
+      - name: Skip for merge queue
+        if: ${{ github.event_name == 'merge_group' }}
+        run: echo "Skipping attestation in merge queue; attestations are enforced at pull_request time."
+
       - name: Prepare attestation inputs
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
         with:
           script: |
@@ -34,6 +41,7 @@ jobs:
             fs.writeFileSync('pr-comments.json', JSON.stringify(comments), 'utf8');
 
       - name: Validate attestations
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           python tools/validators/check_attestation.py \
             --pr-body-file pr-body.txt \
