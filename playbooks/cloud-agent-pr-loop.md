@@ -18,6 +18,10 @@ dispatch
 
 ## Helper scripts
 
+- `tools/pr-driver.ps1 <pr-number>`: auto-advance one PR pass; escalates only at decision points.
+  - Example: `./tools/pr-driver.ps1 270`
+  - Add `-AutoResolveConverged` to automatically resolve pre-fix threads after a clean re-review.
+  - Add `-DryRun` to preview actions without executing them.
 - `tools/pr-doctor.ps1 <pr-number>`: one-shot PR diagnostic snapshot.
   - Example: `./tools/pr-doctor.ps1 270`
 - `tools/pr-resolve-threads.ps1 <pr-number>`: list and resolve unresolved review threads.
@@ -62,9 +66,10 @@ Clear:
 
 ## Quick loop checklist
 
-1. Diagnose: `./tools/pr-doctor.ps1 <pr>`
-2. Promote to merge queue: `./tools/pr-promote.ps1 <pr>`
-3. Rerun blocked workflows: `./tools/pr-rerun-pending.ps1 <pr>`
-4. Re-dispatch critical feedback: `./tools/pr-redispatch.ps1 <pr>`
-5. Resolve advisory/handled threads: `./tools/pr-resolve-threads.ps1 <pr>`
-6. Verify auto-merge remains armed after updates.
+1. Run the driver: `./tools/pr-driver.ps1 <pr>` (auto-advances; exits 2 on escalation)
+2. Diagnose (manual): `./tools/pr-doctor.ps1 <pr>`
+3. Promote to merge queue: `./tools/pr-promote.ps1 <pr>`
+4. Rerun blocked workflows: `./tools/pr-rerun-pending.ps1 <pr>`
+5. Re-dispatch critical feedback: `./tools/pr-redispatch.ps1 <pr>`
+6. Resolve advisory/handled threads: `./tools/pr-resolve-threads.ps1 <pr>`
+7. Verify auto-merge remains armed after updates.

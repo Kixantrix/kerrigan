@@ -442,11 +442,9 @@ Track these metrics to improve the process:
 
 ## Examples
 
-See these example feedback files for patterns:
-
-- `feedback/processed/2026-01-17-task-dashboard-button-feedback.yaml` - Component refinement
-- `feedback/design-feedback/2026-01-17-wellness-app-philosophy-feedback.yaml` - Philosophy selection (to be created)
-- `feedback/design-feedback/2026-01-17-admin-portal-color-feedback.yaml` - Token adjustment (to be created)
+For real-world feedback patterns, browse the design-feedback directory or the
+repo history (`git log -- feedback/`). Resolved feedback is removed once its
+lesson is absorbed, so use git history rather than a retained example file.
 
 ---
 

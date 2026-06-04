@@ -170,6 +170,7 @@ After a cloud agent opens a PR, Copilot auto-review posts review comments. You o
 
 Use these helper scripts during the PR dispatch/review/merge loop:
 
+- `tools/pr-driver.ps1 <pr-number>` — auto-advance one PR pass through the mechanical lifecycle; escalates (exit 2) only at genuine decision points. Add `-AutoResolveConverged` to resolve pre-fix threads after a clean re-review.
 - `tools/pr-doctor.ps1 <pr-number>` — one-shot diagnostic for PR state, checks, runs, and review thread counts.
 - `tools/pr-resolve-threads.ps1 <pr-number>` — lists unresolved review threads and resolves them (supports `-DryRun`).
 - `tools/pr-rerun-pending.ps1 <pr-number>` — reruns workflow runs on the PR branch with `conclusion=action_required`.

@@ -15,6 +15,10 @@ mappings:
     tests: "tests/test_self_improvement.py"
     notes: "Self-improvement analyzer and its tests"
 
+  - source: "tools/pr_driver_decide.py"
+    tests: "tests/test_pr_driver.py"
+    notes: "Pure PR driver decision function and its unit tests"
+
   - source: "tools/extract_metrics.py"
     tests: null
     manual_test_required: true
