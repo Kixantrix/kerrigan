@@ -124,10 +124,9 @@ Choose appropriate response:
 
 #### For won't-fix items:
 
-1. Update feedback status to "wont_fix"
-2. Add detailed notes explaining decision
-3. Document workaround if available
-4. Move to processed/
+1. Add detailed notes explaining the decision in the feedback file
+2. Document workaround if available
+3. Delete the file (the decision is the outcome; git history retains it)
 
 ### 6. Update Status
 
@@ -149,13 +148,19 @@ notes: |
   Also added examples to the briefing-packet skill.
 ```
 
-### 7. Archive Processed Feedback
+### 7. Remove Resolved Feedback
+
+Once a feedback item's lesson is absorbed (into a doc, validator, code change,
+or dispatched issue), delete the file. Git history is the permanent archive —
+we don't retain a parallel graveyard of resolved feedback.
 
 ```bash
-# Move processed feedback to archive
-mv feedback/agent-feedback/2026-01-15-42-heading-names.yaml \
-   feedback/processed/2026-01-15-42-heading-names.yaml
+# Remove resolved feedback; recover later via: git log -- feedback/
+git rm feedback/agent-feedback/2026-01-15-42-heading-names.yaml
 ```
+
+The `feedback/processed/` directory is a short-lived staging area only — a file
+lives there only while mid-resolution, then it is removed, not kept.
 
 ## Implementation Patterns
 
