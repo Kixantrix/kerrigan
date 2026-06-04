@@ -141,8 +141,9 @@ jobs:
 
           csp_present = isinstance(csp, str) and bool(csp.strip())
           if not csp_present and not scope_present:
-              print("Renderer egress guard skipped: no CSP connect-src or plugins.http.scope configured.")
-              sys.exit(0)
+              print("Renderer egress guard failed: neither app.security.csp nor plugins.http.scope is configured.")
+              print("A strict GitHub-only egress policy (connect-src or plugins.http.scope) is required.")
+              sys.exit(1)
 
           def check_strict_allowlist(values: list[str], source: str) -> list[str]:
               issues: list[str] = []
@@ -193,6 +194,9 @@ jobs:
     name: build (${{ matrix.os }})
     needs: security-scans
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      actions: write
     strategy:
       fail-fast: false
       matrix:

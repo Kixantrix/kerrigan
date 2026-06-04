@@ -7,7 +7,7 @@
 #   3. Kerrigan CLI package is loadable
 #   4. Key repository directories exist
 #
-# Exit 0 on success, exit 1 on first failure.
+# Exit 0 on success, exit 1 if any check fails (all checks run before exiting).
 # Idempotent and side-effect-free by default (read-only checks only).
 # Optional dashboard build checks can be enabled with:
 #   KERRIGAN_SMOKE_DASHBOARD=1
