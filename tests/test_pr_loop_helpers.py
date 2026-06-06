@@ -72,6 +72,18 @@ def test_gitignore_covers_pr_md() -> None:
     assert "pr_*.md" in content
 
 
+def test_pr_watch_guards_transient_failures() -> None:
+    # Regression (2026-06-03): a transient `gh pr list` network failure is not a
+    # terminating PowerShell error, so it yielded an empty map and the watcher
+    # reported every watched PR as "left the open set" (merged/closed). The
+    # signature function must check the gh exit code, and the poll loop must skip
+    # a zero-PR result when the baseline was non-empty.
+    content = _read("tools/pr-watch.ps1")
+    assert "$LASTEXITCODE -ne 0" in content
+    assert "gh pr list failed" in content
+    assert "$current.Count -eq 0 -and $baseline.Count -gt 0" in content
+
+
 def test_playbook_present_and_links_helpers() -> None:
     playbook = REPO_ROOT / "playbooks" / "cloud-agent-pr-loop.md"
     assert playbook.exists()

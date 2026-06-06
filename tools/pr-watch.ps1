@@ -81,7 +81,17 @@ function Get-PrSignatureMap {
     param([int[]]$Restrict)
 
     $fields = 'number,title,state,isDraft,headRefOid,reviewDecision'
-    $list = gh pr list --state open --json $fields | ConvertFrom-Json
+    $raw = gh pr list --state open --json $fields
+    # A native command failure (e.g. a transient network error) is NOT a
+    # terminating PowerShell error, so it would otherwise yield $null -> an
+    # empty map -> the delta logic would read "every watched PR vanished" and
+    # false-fire. Check the exit code and throw so the poll loop's catch treats
+    # it as a transient failure and retries next cycle. (Learned 2026-06-03:
+    # a wsarecv timeout made the watcher report both PRs as merged/closed.)
+    if ($LASTEXITCODE -ne 0) {
+        throw "gh pr list failed (exit $LASTEXITCODE)"
+    }
+    $list = $raw | ConvertFrom-Json
     if ($null -eq $list) { $list = @() }
 
     $map = [ordered]@{}
@@ -166,6 +176,14 @@ while ((Get-Date) -lt $deadline) {
     }
     catch {
         Write-Host ("[warn] poll failed ({0}); retrying next cycle." -f $_.Exception.Message)
+        continue
+    }
+
+    # Defensive: if a poll returns zero PRs but the baseline had some, it is far
+    # more likely a partial/transient API failure (exit 0, empty body) than every
+    # watched PR merging at the same instant. Skip rather than false-fire.
+    if ($current.Count -eq 0 -and $baseline.Count -gt 0) {
+        Write-Host ("[warn] poll returned 0 PRs but baseline had {0}; treating as transient, retrying." -f $baseline.Count)
         continue
     }
 
