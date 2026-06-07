@@ -2,9 +2,15 @@
 """Tests for the merge-queue readiness validator."""
 
 import json
+import sys
 from pathlib import Path
 
-from tools.validators.check_merge_queue import validate
+# Import the validator the same way the other validator tests do: add
+# tools/validators to sys.path and import the module directly. Importing via
+# `from tools.validators...` trips check_python_deps (it reads `tools` as an
+# undeclared third-party package).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "validators"))
+from check_merge_queue import validate  # noqa: E402
 
 
 def _write(path: Path, text: str) -> None:
