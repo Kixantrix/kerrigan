@@ -1,8 +1,9 @@
 {
   "$schema": "https://kerrigan.dev/schemas/repo-protection/v1",
   "profile": "kerrigan",
-  "description": "Optimized Kerrigan default repo-protection + merge-queue shape, built for swarm repos running many concurrent cloud PRs (velocity + scale + green-main quality). Copy this file to .github/repo-protection.json in a target repo to adopt it, then override any field for that repo's setup (e.g. drop the merge queue for a low-volume repo, or change required_checks to match its CI job names). With the file present: tools/validators/check_merge_queue.py enforces the 'every required check runs on merge_group' invariant, and tools/configure-repo-protection.ps1 applies the settings to the repo (dry-run by default).",
+  "description": "Optimized Kerrigan default repo-protection shape, built for swarm repos running many concurrent cloud PRs (velocity + scale + green-main quality). Copy this file to .github/repo-protection.json in a target repo to adopt it, then override any field for that repo's setup (e.g. drop the merge queue for a low-volume repo, or change required_checks to match its CI job names). The apply tool uses one branch ruleset for required checks + merge queue, then clears classic required_status_checks to avoid conflicts. With the file present: tools/validators/check_merge_queue.py enforces the 'every required check runs on merge_group' invariant, and tools/configure-repo-protection.ps1 applies the settings to the repo (dry-run by default).",
   "branch": "main",
+  "protection_mode": "ruleset",
   "required_checks": [
     "kerrigan check",
     "tests",
