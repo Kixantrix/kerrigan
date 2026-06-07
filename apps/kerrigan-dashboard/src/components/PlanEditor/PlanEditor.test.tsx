@@ -2,7 +2,11 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PlanEditor, serializePlanMarkdownPreservingUnchangedRegions } from "./PlanEditor.js";
+import { PlanEditor } from "./PlanEditor.js";
+import {
+  type ProseMirrorDocument,
+  serializePlanMarkdownPreservingUnchangedRegions,
+} from "./planMarkdownRoundTrip.js";
 
 afterEach(() => {
   cleanup();
@@ -84,7 +88,7 @@ describe("PlanEditor", () => {
 
   it("preserves unchanged regions when serializing an edited block", () => {
     const sourceMarkdown = "## Build\n\nAlpha    spacing\n\n## Test\n\nBeta\n";
-    const sourceDocument = {
+    const sourceDocument: ProseMirrorDocument = {
       type: "doc",
       content: [
         { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Build" }] },
@@ -92,7 +96,7 @@ describe("PlanEditor", () => {
         { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Test" }] },
         { type: "paragraph", content: [{ type: "text", text: "Beta" }] },
       ],
-    } as const;
+    };
 
     const editedDocument = {
       ...sourceDocument,
