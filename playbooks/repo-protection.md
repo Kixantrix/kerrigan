@@ -16,6 +16,7 @@ the config is per repo.
 
 `.github/repo-protection.json` declares the repo's desired shape:
 
+- `protection_mode` — currently `ruleset` (single branch ruleset for checks + queue).
 - `required_checks` — the status-check contexts that gate merge.
 - `strict_status_checks` — `false` when using a merge queue (the queue enforces freshness).
 - `merge_queue.enabled` + parameters — merge method, batch sizes, timeouts.
@@ -44,10 +45,10 @@ without a `merge_group` trigger fails CI.
 .\tools\configure-repo-protection.ps1 -Repo <owner>/<name> -Apply
 ```
 
-The tool sets the required status checks + `strict` (classic protection) and
-creates/updates a `Kerrigan merge queue` ruleset (idempotent). Review the
-`merge_queue` parameters in the dry-run output against the repo's GitHub plan
-before the first `-Apply`.
+The tool creates/updates a single `Kerrigan main protection` ruleset on `main`
+that includes both `required_status_checks` and `merge_queue` (when enabled),
+then clears classic `required_status_checks` so rulesets are the single source
+of merge gating. Review both payloads in dry-run before the first `-Apply`.
 
 ## Order of operations for a new repo
 
@@ -56,21 +57,16 @@ before the first `-Apply`.
    verifies this).
 2. Drop in `.github/repo-protection.json` (copy the preset default, adjust).
 3. Dry-run `configure-repo-protection.ps1`; review the plan.
-4. `-Apply` with human OK.
+4. `-Apply` with human OK (`.\tools\configure-repo-protection.ps1 -Repo <r> -Apply`).
 
-## Known limitation: merge_queue ruleset vs classic required checks
+## Resolved: merge_queue + required checks conflict
 
-Creating the `merge_queue` ruleset can return an opaque `422 Validation Failed`
-(`"Invalid rule 'merge_queue': "` with no detail) when the branch's **required
-status checks still live in classic branch protection**. GitHub generally wants
-the required checks expressed in a *ruleset* alongside the `merge_queue` rule.
+GitHub can reject a standalone `merge_queue` ruleset with opaque `422` errors
+if required checks are still managed in classic branch protection. Kerrigan now
+avoids that by shipping one ruleset that includes both rules and by clearing the
+classic required-check contexts in the same apply flow. Operational notes:
 
-The `strict_status_checks` change (classic protection) applies independently and
-is the bulk of the churn reduction. To finish enabling the queue, the follow-up
-is to migrate the required checks off classic protection into a ruleset that
-also carries the `merge_queue` rule (one ruleset, both rules). Notes:
-
-- `merge_method` enum is **UPPERCASE** (`SQUASH`/`MERGE`/`REBASE`); a squash-only
-  repo must use `SQUASH` (the default `MERGE` is rejected).
-- The full `parameters` object is required — a partial one fails the schema.
-
+- `merge_method` is always sent in **UPPERCASE** (`SQUASH`/`MERGE`/`REBASE`).
+- The merge-queue rule sends the full parameters object GitHub expects.
+- With queue enabled, strict-up-to-date is carried by the queue path rather than
+  strict classic required checks.
