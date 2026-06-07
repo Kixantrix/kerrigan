@@ -185,6 +185,19 @@ def check(verbose: bool, fast: bool) -> None:
         else:
             failed += 1
 
+    check_merge_queue = validators_dir / "check_merge_queue.py"
+    if check_merge_queue.exists():
+        ok = _run_validator(
+            "check_merge_queue.py",
+            [python, str(check_merge_queue), "--repo-root", str(root)],
+            root,
+            verbose,
+        )
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+
     # --- Heavy / PR-context validators (skipped with --fast) ---
 
     if fast:

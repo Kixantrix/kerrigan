@@ -1,0 +1,25 @@
+{
+  "$schema": "https://kerrigan.dev/schemas/repo-protection/v1",
+  "profile": "kerrigan",
+  "description": "Declared branch-protection + merge-queue shape for this repo. Read by tools/validators/check_merge_queue.py (invariant guardrail) and tools/configure-repo-protection.ps1 (applies it via the GitHub API). Absent file => tooling is a no-op, so this is opt-in per repo. Copy preset/kerrigan/repo-protection.json to adopt the optimized Kerrigan default in another repo, then override fields for that repo's setup.",
+  "branch": "main",
+  "required_checks": [
+    "kerrigan check",
+    "tests",
+    "smoke",
+    "check-attestation"
+  ],
+  "strict_status_checks": false,
+  "merge_queue": {
+    "enabled": true,
+    "merge_method": "SQUASH",
+    "min_entries_to_merge": 1,
+    "max_entries_to_merge": 5,
+    "min_entries_to_merge_wait_minutes": 5
+  },
+  "pull_request": {
+    "require_thread_resolution": true,
+    "require_copilot_review": true,
+    "squash_only": true
+  }
+}
