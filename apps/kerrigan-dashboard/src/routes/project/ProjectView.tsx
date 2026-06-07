@@ -23,6 +23,7 @@ declare global {
   interface Window {
     __KERRIGAN_PROJECTS_FIXTURE__?: unknown;
     __KERRIGAN_PLAN_FIXTURE__?: Record<string, string | null>;
+    __KERRIGAN_OPEN_PRS_FIXTURE__?: Record<string, ReadonlyArray<PullRequestData>>;
   }
 }
 
@@ -42,6 +43,7 @@ interface ProjectRouteState {
   planMarkdown: string;
   graph: PlanStageGraph;
   statuses: ReadonlyMap<string, StageStatus>;
+  openPRs: ReadonlyArray<PullRequestData>;
   parseErrors: ReadonlyArray<PlanParseError>;
   offline: boolean;
   missingPlan: boolean;
@@ -63,10 +65,13 @@ const INITIAL_STATE: ProjectRouteState = {
   planMarkdown: "",
   graph: EMPTY_GRAPH,
   statuses: new Map(),
+  openPRs: [],
   parseErrors: [],
   offline: false,
   missingPlan: false,
 };
+
+const PROJECT_STATUS_REFRESH_EVENT = "kerrigan:refresh-project-status";
 
 export function ProjectView({
   planReader = readPlanMarkdownFromWorkingCopy,
@@ -76,6 +81,7 @@ export function ProjectView({
   const projectId = params.projectId ?? "";
   const [state, setState] = useState<ProjectRouteState>(INITIAL_STATE);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   const githubClient: GitHubClient = useMemo(() => {
     try {
@@ -135,6 +141,7 @@ export function ProjectView({
           planMarkdown,
           graph: { nodes: parsed.nodes, edges: parsed.edges },
           statuses,
+          openPRs: statusInput.prs,
           parseErrors: parsed.errors,
           offline: statusInput.offline,
           missingPlan: false,
@@ -145,11 +152,22 @@ export function ProjectView({
     return () => {
       cancelled = true;
     };
-  }, [blocksReader, githubClient, planReader, projectId]);
+  }, [blocksReader, githubClient, planReader, projectId, refreshNonce]);
 
   useEffect(() => {
     setSelectedStageId(null);
   }, [projectId]);
+
+  useEffect(() => {
+    const onRefreshRequested = (): void => {
+      setRefreshNonce((value) => value + 1);
+    };
+
+    window.addEventListener(PROJECT_STATUS_REFRESH_EVENT, onRefreshRequested);
+    return () => {
+      window.removeEventListener(PROJECT_STATUS_REFRESH_EVENT, onRefreshRequested);
+    };
+  }, []);
 
   if (state.loading) {
     return (
@@ -202,7 +220,12 @@ export function ProjectView({
             <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
           </div>
           <div className="min-h-0 flex-1">
-            <Dag graph={state.graph} onStageSelect={setSelectedStageId} statuses={state.statuses} />
+            <Dag
+              graph={state.graph}
+              onStageSelect={setSelectedStageId}
+              openPRs={state.openPRs}
+              statuses={state.statuses}
+            />
           </div>
         </div>
       )}
@@ -320,6 +343,12 @@ async function fetchRepoStatus(
   const prs: PullRequestData[] = [];
   const issues: IssueData[] = [];
   const reviewsByPr = new Map<number, ReadonlyArray<ReviewData>>();
+  const fixtureOpenPRs = readFixtureOpenPRs(owner, repo);
+
+  if (fixtureOpenPRs !== undefined) {
+    prs.push(...fixtureOpenPRs);
+    return { prs, issues, reviewsByPr, offline };
+  }
 
   const [prsResult, issuesResult] = await Promise.all([
     githubClient.listOpenPRs(owner, repo),
@@ -354,6 +383,13 @@ async function fetchRepoStatus(
   }
 
   return { prs, issues, reviewsByPr, offline };
+}
+
+function readFixtureOpenPRs(
+  owner: string,
+  repo: string,
+): ReadonlyArray<PullRequestData> | undefined {
+  return window.__KERRIGAN_OPEN_PRS_FIXTURE__?.[`${owner}/${repo}`];
 }
 
 async function readBlocksForStatus(

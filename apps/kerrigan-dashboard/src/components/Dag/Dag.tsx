@@ -5,18 +5,28 @@ import {
   ReactFlow,
   type NodeTypes,
 } from "@xyflow/react";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { PullRequestData } from "../../lib/github.js";
 import {
   buildDagLayout,
+  type StageDagNode,
   type StageDagEdge,
 } from "../../lib/dag-layout.js";
 import type { PlanStageGraph } from "../../lib/plan-parser.js";
 import type { StageStatus } from "../../lib/status.js";
+import { PrFlowOverlay } from "../PrFlowOverlay/PrFlowOverlay.js";
+import {
+  createPrFlowBindingState,
+  derivePrFlows,
+  stageIdFromFlowId,
+} from "../PrFlowOverlay/binding.js";
+import type { PrFlow, PrFlowPoint } from "../PrFlowOverlay/types.js";
 import { StageNode } from "./StageNode.js";
 
 interface DagProps {
   graph: PlanStageGraph;
   statuses: ReadonlyMap<string, StageStatus>;
+  openPRs: ReadonlyArray<PullRequestData>;
   onStageSelect?: (stageId: string) => void;
 }
 
@@ -29,8 +39,17 @@ const edgeColorByKind: Record<"parent" | "dependency", string> = {
   dependency: "#5965F2",
 };
 
-export function Dag({ graph, statuses, onStageSelect }: DagProps) {
+export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
   const layout = useMemo(() => buildDagLayout(graph, statuses), [graph, statuses]);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const bindingStateRef = useRef(createPrFlowBindingState());
+  const flowStageIdsRef = useRef<ReadonlyMap<string, string>>(new Map());
+  const absorbingTimerByFlowRef = useRef<Map<string, number>>(new Map());
+  const [flows, setFlows] = useState<ReadonlyArray<PrFlow>>([]);
+  const [nodePositions, setNodePositions] = useState<ReadonlyMap<string, PrFlowPoint>>(new Map());
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [pulseAtByStage, setPulseAtByStage] = useState<ReadonlyMap<string, number>>(new Map());
+  const [viewportRevision, setViewportRevision] = useState(0);
 
   const edges = useMemo<StageDagEdge[]>(
     () =>
@@ -39,6 +58,149 @@ export function Dag({ graph, statuses, onStageSelect }: DagProps) {
         style: { stroke: edgeColorByKind[edge.data?.kind ?? "parent"], strokeWidth: 1.5 },
       })),
     [layout.edges],
+  );
+
+  const nodes = useMemo<StageDagNode[]>(
+    () =>
+      layout.nodes.map((node) => {
+        const pulseAt = pulseAtByStage.get(node.id);
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ...(pulseAt === undefined ? {} : { pulseAt }),
+          },
+        };
+      }),
+    [layout.nodes, pulseAtByStage],
+  );
+
+  const recomputeNodePositions = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    if (wrapper === null) {
+      return;
+    }
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    setContainerSize({ width: wrapperRect.width, height: wrapperRect.height });
+
+    const next = new Map<string, PrFlowPoint>();
+    for (const node of layout.nodes) {
+      const element = wrapper.querySelector(`[data-testid="stage-node-${node.id}"]`);
+      if (!(element instanceof HTMLElement)) {
+        continue;
+      }
+
+      const rect = element.getBoundingClientRect();
+      next.set(node.id, {
+        x: rect.left - wrapperRect.left + rect.width / 2,
+        y: rect.top - wrapperRect.top + rect.height / 2,
+      });
+    }
+    setNodePositions(next);
+  }, [layout.nodes]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(recomputeNodePositions);
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [recomputeNodePositions, viewportRevision]);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (wrapper === null) {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      recomputeNodePositions();
+    });
+    observer.observe(wrapper);
+    return () => {
+      observer.disconnect();
+    };
+  }, [recomputeNodePositions]);
+
+  const pulseStage = useCallback((stageId: string) => {
+    setPulseAtByStage((previous) => {
+      const next = new Map(previous);
+      next.set(stageId, Date.now());
+      return next;
+    });
+  }, []);
+
+  const onAbsorbed = useCallback((flowId: string) => {
+    const stageId = flowStageIdsRef.current.get(flowId) ?? stageIdFromFlowId(flowId);
+    if (stageId === null) {
+      return;
+    }
+    pulseStage(stageId);
+  }, [pulseStage]);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (wrapper === null || containerSize.width <= 0) {
+      setFlows([]);
+      return;
+    }
+
+    const sourceOrigin = {
+      x: Math.max(24, containerSize.width - 40),
+      y: 40,
+    };
+    const result = derivePrFlows(
+      {
+        openPRs,
+        stages: layout.nodes.map((node) => ({
+          id: node.id,
+          label: String(node.data.label),
+        })),
+        stageStatuses: statuses,
+        nodePositions,
+        sourceOrigin,
+      },
+      bindingStateRef.current,
+    );
+    bindingStateRef.current = result.state;
+    flowStageIdsRef.current = result.flowStageIds;
+    const activeAbsorbingFlowIds = new Set(
+      result.flows
+        .filter((flow) => flow.state === "absorbing")
+        .map((flow) => flow.id),
+    );
+    for (const flowId of activeAbsorbingFlowIds) {
+      if (absorbingTimerByFlowRef.current.has(flowId)) {
+        continue;
+      }
+
+      const stageId = result.flowStageIds.get(flowId);
+      if (stageId === undefined) {
+        continue;
+      }
+      const timer = window.setTimeout(() => {
+        pulseStage(stageId);
+        absorbingTimerByFlowRef.current.delete(flowId);
+      }, 950);
+      absorbingTimerByFlowRef.current.set(flowId, timer);
+    }
+    for (const [flowId, timer] of absorbingTimerByFlowRef.current.entries()) {
+      if (!activeAbsorbingFlowIds.has(flowId)) {
+        window.clearTimeout(timer);
+        absorbingTimerByFlowRef.current.delete(flowId);
+      }
+    }
+    setFlows(result.flows);
+  }, [containerSize.width, layout.nodes, nodePositions, openPRs, pulseStage, statuses]);
+
+  useEffect(
+    () => () => {
+      for (const timer of absorbingTimerByFlowRef.current.values()) {
+        window.clearTimeout(timer);
+      }
+      absorbingTimerByFlowRef.current.clear();
+    },
+    [],
   );
 
   if (layout.nodes.length === 0) {
@@ -50,9 +212,13 @@ export function Dag({ graph, statuses, onStageSelect }: DagProps) {
   }
 
   return (
-    <div className="h-full w-full rounded-lg border border-[#1E2530] bg-[#101724]" data-testid="project-dag">
+    <div
+      className="relative h-full w-full rounded-lg border border-[#1E2530] bg-[#101724]"
+      data-testid="project-dag"
+      ref={wrapperRef}
+    >
       <ReactFlow
-        nodes={layout.nodes}
+        nodes={nodes}
         edges={edges}
         fitView
         nodesDraggable={false}
@@ -62,10 +228,25 @@ export function Dag({ graph, statuses, onStageSelect }: DagProps) {
         onNodeClick={(_, node) => {
           onStageSelect?.(node.id);
         }}
+        onMove={() => {
+          setViewportRevision((value) => value + 1);
+        }}
       >
         <Background color="#1E2530" gap={24} />
         <Controls />
       </ReactFlow>
+      <PrFlowOverlay
+        className="z-10"
+        flows={flows}
+        onAbsorbed={onAbsorbed}
+        style={{ pointerEvents: "none" }}
+      />
+      <div
+        data-flow-count={String(flows.length)}
+        data-flow-states={flows.map((flow) => flow.state).join(",")}
+        data-testid="dag-pr-flows"
+        hidden
+      />
     </div>
   );
 }
