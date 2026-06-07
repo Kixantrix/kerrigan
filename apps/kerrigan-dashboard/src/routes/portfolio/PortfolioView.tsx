@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { ProjectCard } from "../../components/ProjectCard/ProjectCard.js";
 import { createGitHubClient } from "../../lib/github.js";
 import {
@@ -89,7 +90,13 @@ export function PortfolioView() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {state.cards.map((card) => (
-          <ProjectCard key={card.id} card={card} />
+          <Link
+            key={card.id}
+            to={`/project/${card.id}`}
+            className="block text-inherit no-underline"
+          >
+            <ProjectCard card={card} />
+          </Link>
         ))}
       </div>
     </section>
