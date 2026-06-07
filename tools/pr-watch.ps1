@@ -81,7 +81,19 @@ function Get-PrSignatureMap {
     param([int[]]$Restrict)
 
     $fields = 'number,title,state,isDraft,headRefOid,reviewDecision'
-    $list = gh pr list --state open --json $fields | ConvertFrom-Json
+    $raw = gh pr list --state open --json $fields 2>&1
+    # A native command failure (e.g. a transient network error) is NOT a
+    # terminating PowerShell error, so it would otherwise yield $null -> an
+    # empty map -> the delta logic would read "every watched PR vanished" and
+    # false-fire. Check the exit code and throw so the poll loop's catch treats
+    # it as a transient failure and retries next cycle. (Learned 2026-06-03:
+    # a wsarecv timeout made the watcher report both PRs as merged/closed.)
+    # Capture 2>&1 so the actual gh error text (usually on stderr) rides along
+    # in the thrown message instead of just a bare exit code.
+    if ($LASTEXITCODE -ne 0) {
+        throw "gh pr list failed (exit $LASTEXITCODE): $(($raw | Out-String).Trim())"
+    }
+    $list = ($raw | Out-String) | ConvertFrom-Json
     if ($null -eq $list) { $list = @() }
 
     $map = [ordered]@{}
@@ -107,6 +119,26 @@ function Get-PrSignatureMap {
         $map[[string]$p.number] = $sig
     }
     return $map
+}
+
+# ---------------------------------------------------------------------------
+# Acquire a signature map, retrying transient gh failures until a deadline.
+# Used for the baseline so a startup network blip does not kill the script
+# (which would falsely wake the caller before any real change occurred).
+# ---------------------------------------------------------------------------
+function Get-PrSignatureMapWithRetry {
+    param([int[]]$Restrict, [datetime]$Deadline, [int]$RetrySeconds = 10)
+
+    while ($true) {
+        try {
+            return Get-PrSignatureMap -Restrict $Restrict
+        }
+        catch {
+            if ((Get-Date) -ge $Deadline) { throw }
+            Write-Host ("[warn] baseline poll failed ({0}); retrying in {1}s." -f $_.Exception.Message, $RetrySeconds)
+            Start-Sleep -Seconds $RetrySeconds
+        }
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -137,7 +169,8 @@ function Get-SignatureDelta {
 # ---------------------------------------------------------------------------
 # Baseline
 # ---------------------------------------------------------------------------
-$baseline = Get-PrSignatureMap -Restrict $Pr
+$deadline = (Get-Date).AddMinutes($MaxMinutes)
+$baseline = Get-PrSignatureMapWithRetry -Restrict $Pr -Deadline $deadline
 $scope = if ($Pr.Count -gt 0) { "PRs $($Pr -join ', ')" } else { "all open PRs" }
 
 Write-Host "=== pr-watch: $scope ===" -ForegroundColor Cyan
@@ -156,8 +189,6 @@ Write-Host ("Polling every {0}s, max {1} min. Will exit on first actionable chan
 # ---------------------------------------------------------------------------
 # Poll loop
 # ---------------------------------------------------------------------------
-$deadline = (Get-Date).AddMinutes($MaxMinutes)
-
 while ((Get-Date) -lt $deadline) {
     Start-Sleep -Seconds $IntervalSeconds
 
@@ -167,6 +198,33 @@ while ((Get-Date) -lt $deadline) {
     catch {
         Write-Host ("[warn] poll failed ({0}); retrying next cycle." -f $_.Exception.Message)
         continue
+    }
+
+    # A poll that returns zero PRs against a non-empty baseline is ambiguous: it
+    # can be a transient API blip (exit 0, empty/partial body) OR a genuine
+    # mass-merge where every watched PR really left the open set at once - which
+    # is the COMMON single-PR-merge case we must not suppress. Disambiguate with
+    # ONE immediate confirm re-poll instead of skipping forever: if the confirm
+    # also returns zero, the emptiness is real and we let the delta logic fire
+    # (so the merge wakes us); if the confirm returns PRs, the first read was a
+    # blip and we use the confirm result.
+    if ($current.Count -eq 0 -and $baseline.Count -gt 0) {
+        Start-Sleep -Seconds 3
+        try {
+            $confirm = Get-PrSignatureMap -Restrict $Pr
+        }
+        catch {
+            Write-Host ("[warn] confirm re-poll failed ({0}); retrying next cycle." -f $_.Exception.Message)
+            continue
+        }
+        if ($confirm.Count -gt 0) {
+            Write-Host "[warn] empty poll was a transient blip; confirm re-poll recovered, continuing."
+            $current = $confirm
+        }
+        else {
+            Write-Host "[info] confirm re-poll also empty; treating as genuine - all watched PRs left the open set."
+            # fall through with $current empty so the delta fires and we wake.
+        }
     }
 
     $delta = Get-SignatureDelta -Baseline $baseline -Current $current
