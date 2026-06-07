@@ -18,7 +18,7 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; connect-src https://api.github.com https://*.githubusercontent.com; script-src 'self'; style-src 'self'"
     }
   },
   "bundle": {

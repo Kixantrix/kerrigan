@@ -93,11 +93,6 @@ mappings:
     notes: "Validator package entry point and registration"
 
   # GitHub Workflows - Configuration files
-  - source: ".github/workflows/*.yml"
-    tests: null
-    manual_test_required: true
-    notes: "Workflow files require manual verification and integration testing"
-
   - source: ".github/workflows/agent-gates.yml"
     tests: "tests/test_autonomy_gates.py"
     notes: "Agent gates workflow has specific test coverage"
@@ -105,6 +100,16 @@ mappings:
   - source: ".github/workflows/verify.yml"
     tests: "tests/test_agent_spec_compliance_workflow.py"
     notes: "Verify workflow has specific test coverage"
+
+  - source: ".github/workflows/dashboard-build.yml"
+    tests: null
+    manual_test_required: true
+    notes: "Dashboard CI matrix + security scans (gitleaks, token handling, renderer egress) verified via workflow runs"
+
+  - source: ".github/workflows/*.yml"
+    tests: null
+    manual_test_required: true
+    notes: "Workflow files require manual verification and integration testing"
 
   # Agent Prompts - Agent configuration
   - source: ".github/agents/*.md"
