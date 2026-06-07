@@ -75,6 +75,21 @@ $requiredChecks = @($config.required_checks)
 $strict = [bool]$config.strict_status_checks
 $mode = if ($Apply) { "APPLY" } else { "DRY-RUN" }
 
+# Guard: a missing / non-string-array required_checks would PATCH an EMPTY
+# contexts list, silently CLEARING the branch's required checks. Refuse instead.
+if ($requiredChecks.Count -eq 0 -or ($requiredChecks | Where-Object { $_ -isnot [string] -or [string]::IsNullOrWhiteSpace($_) })) {
+    Write-Host "[fail] ${ConfigPath}: 'required_checks' must be a non-empty array of check-name strings (refusing to clear required checks)." -ForegroundColor Red
+    exit 1
+}
+
+# Write text as UTF-8 WITHOUT a BOM. PowerShell 5.1's `Set-Content -Encoding utf8`
+# adds a BOM (gh -> HTTP 400 "Problems parsing JSON"); writing as plain ASCII
+# avoids the BOM but corrupts non-ASCII check/branch names. UTF-8-no-BOM is
+# correct for both concerns.
+function Write-Utf8NoBom([string]$Path, [string]$Content) {
+    [System.IO.File]::WriteAllText($Path, $Content, (New-Object System.Text.UTF8Encoding($false)))
+}
+
 Write-Host "=== configure-repo-protection ($mode) ===" -ForegroundColor Cyan
 Write-Host ("repo={0} branch={1}" -f $Repo, $branch)
 Write-Host ""
@@ -90,10 +105,10 @@ Write-Plan "PATCH /repos/$Repo/branches/$branch/protection/required_status_check
 Write-Host "       payload: $rscPayload"
 if ($Apply) {
     $tmp = New-TemporaryFile
-    Set-Content -LiteralPath $tmp -Value $rscPayload -Encoding ascii -NoNewline
+    Write-Utf8NoBom $tmp $rscPayload
     gh api --method PATCH "repos/$Repo/branches/$branch/protection/required_status_checks" --input $tmp 2>&1 | Out-Null
     Remove-Item $tmp -ErrorAction SilentlyContinue
-    if ($LASTEXITCODE -ne 0) { Write-Host "[fail] required_status_checks PATCH failed." -ForegroundColor Red; exit 1 }
+    if ($LASTEXITCODE -ne 0) { Write-Host "[fail] required_status_checks PATCH failed (does the branch have protection enabled?)." -ForegroundColor Red; exit 1 }
     Write-Did "required status checks set (strict=$strict; contexts=$($requiredChecks -join ', '))"
 }
 Write-Host ""
@@ -139,9 +154,7 @@ if ($null -ne $mq -and [bool]$mq.enabled) {
 
     if ($Apply) {
         $tmp = New-TemporaryFile
-        # ASCII (no BOM): PowerShell 5.1's -Encoding utf8 writes a BOM, which gh
-        # rejects with HTTP 400 "Problems parsing JSON". The payload is ASCII.
-        Set-Content -LiteralPath $tmp -Value $rulesetPayload -Encoding ascii -NoNewline
+        Write-Utf8NoBom $tmp $rulesetPayload
         if ($existingId) {
             gh api --method PUT "repos/$Repo/rulesets/$existingId" --input $tmp 2>&1 | Out-Null
         } else {

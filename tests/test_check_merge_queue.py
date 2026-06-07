@@ -102,3 +102,15 @@ def test_repo_protection_file_matches_actual_workflows() -> None:
     # The real repo must satisfy its own declared invariant.
     repo_root = Path(__file__).resolve().parents[1]
     assert validate(repo_root) == []
+
+
+def test_unreadable_workflow_fails_fast(tmp_path: Path) -> None:
+    # A malformed workflow must surface as a parse error, NOT be misdiagnosed as
+    # "required check missing a merge_group trigger".
+    _write(tmp_path / ".github" / "repo-protection.json", _config())
+    _write(tmp_path / ".github" / "workflows" / "verify.yml", _VERIFY_WF)
+    _write(tmp_path / ".github" / "workflows" / "broken.yml", "name: [unclosed\n  : : :\n")
+    problems = validate(tmp_path)
+    assert problems
+    assert "could not parse" in problems[0]
+    assert "broken.yml" in problems[0]

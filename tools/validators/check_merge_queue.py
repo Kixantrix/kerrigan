@@ -76,20 +76,27 @@ def _job_check_names(workflow: dict) -> set[str]:
     return names
 
 
-def _merge_group_check_names(workflows_dir: Path) -> set[str]:
+def _merge_group_check_names(workflows_dir: Path) -> tuple[set[str], list[str]]:
+    """Return (check names produced on merge_group, workflow-parse errors).
+
+    Parse/read errors are returned rather than swallowed: a malformed workflow
+    must not be misdiagnosed as "required check has no merge_group trigger".
+    """
     names: set[str] = set()
+    errors: list[str] = []
     if not workflows_dir.is_dir():
-        return names
+        return names, errors
     for path in sorted(workflows_dir.glob("*.y*ml")):
         try:
             workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
-        except (yaml.YAMLError, OSError):
+        except (yaml.YAMLError, OSError) as exc:
+            errors.append(f"{path}: could not parse workflow ({exc})")
             continue
         if not isinstance(workflow, dict):
             continue
         if _triggers_on_merge_group(_on_section(workflow)):
             names |= _job_check_names(workflow)
-    return names
+    return names, errors
 
 
 def validate(repo_root: Path) -> list[str]:
@@ -111,7 +118,11 @@ def validate(repo_root: Path) -> list[str]:
     if not isinstance(required, list) or not all(isinstance(c, str) for c in required):
         return [f"{config_path}: 'required_checks' must be a list of strings."]
 
-    produced = _merge_group_check_names(repo_root / ".github" / "workflows")
+    produced, wf_errors = _merge_group_check_names(repo_root / ".github" / "workflows")
+    # Fail fast on unreadable workflows: otherwise a parse error would be
+    # misreported as "required check missing a merge_group trigger".
+    if wf_errors:
+        return wf_errors
     missing = [c for c in required if c not in produced]
     if missing:
         return [

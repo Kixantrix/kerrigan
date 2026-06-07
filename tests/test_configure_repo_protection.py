@@ -53,3 +53,19 @@ def test_apply_tool_skips_when_no_config() -> None:
 def test_merge_queue_validator_is_registered_in_check() -> None:
     content = _read("tools/cli/kerrigan/kerrigan_cli/commands/check.py")
     assert "check_merge_queue.py" in content
+
+
+def test_apply_tool_uses_utf8_no_bom_not_ascii() -> None:
+    # -Encoding ascii corrupts non-ASCII names; PS 5.1 -Encoding utf8 adds a BOM
+    # gh rejects. The tool must write payloads as UTF-8 without BOM.
+    content = _read("tools/configure-repo-protection.ps1")
+    assert "Write-Utf8NoBom" in content
+    assert "UTF8Encoding" in content
+    # No ascii-encoded payload writes remain.
+    assert "-Encoding ascii" not in content
+
+
+def test_apply_tool_guards_empty_required_checks() -> None:
+    # Refuse to PATCH an empty contexts list (which would clear required checks).
+    content = _read("tools/configure-repo-protection.ps1")
+    assert "refusing to clear required checks" in content
