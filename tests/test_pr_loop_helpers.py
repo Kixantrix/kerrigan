@@ -72,6 +72,25 @@ def test_gitignore_covers_pr_md() -> None:
     assert "pr_*.md" in content
 
 
+def test_pr_watch_guards_transient_failures() -> None:
+    # Regression (2026-06-03): a transient `gh pr list` network failure is not a
+    # terminating PowerShell error, so it yielded an empty map and the watcher
+    # reported every watched PR as "left the open set" (merged/closed). The
+    # signature function must check the gh exit code; the baseline must retry
+    # transient failures; and an empty poll against a non-empty baseline must be
+    # CONFIRMED with a re-poll rather than skipped forever (otherwise a genuine
+    # single-PR merge would never wake the watcher).
+    content = _read("tools/pr-watch.ps1")
+    assert "$LASTEXITCODE -ne 0" in content
+    assert "gh pr list failed" in content
+    # Baseline retries transient failures instead of dying on a startup blip.
+    assert "Get-PrSignatureMapWithRetry" in content
+    # Empty-poll ambiguity is resolved by a confirm re-poll, and a confirmed
+    # empty result is allowed to fall through to the delta (genuine mass-merge).
+    assert "confirm re-poll" in content.lower()
+    assert "$confirm = Get-PrSignatureMap" in content
+
+
 def test_playbook_present_and_links_helpers() -> None:
     playbook = REPO_ROOT / "playbooks" / "cloud-agent-pr-loop.md"
     assert playbook.exists()
@@ -100,3 +119,23 @@ def test_kerrigan_md_links_helpers() -> None:
         "pr-redispatch.ps1",
     ):
         assert script in content
+
+
+def test_clean_build_uses_separator_aware_containment() -> None:
+    # Safety regression: a bare StartsWith($repoRoot) check would treat a sibling
+    # like `repo-backup` as inside `repo` (prefix collision), letting a deletion
+    # tool escape the repo root. The containment must be separator-aware.
+    content = _read("tools/clean-build.ps1")
+    assert "DirectorySeparatorChar" in content
+    assert "$rootWithSep" in content
+    # Single-walk: must not run a recursive Get-ChildItem per pattern name.
+    assert "-Filter $name" not in content
+
+
+def test_new_pr_validates_inputs() -> None:
+    # Regression: body file must be a real file (not a directory) and normalized
+    # to an absolute path; a detached HEAD must be rejected rather than passing
+    # the literal 'HEAD' to gh.
+    content = _read("tools/new-pr.ps1")
+    assert "-PathType Leaf" in content
+    assert "$Head -eq 'HEAD'" in content
