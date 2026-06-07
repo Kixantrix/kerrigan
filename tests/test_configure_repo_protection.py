@@ -105,6 +105,7 @@ def test_apply_tool_dry_run_prints_single_ruleset_and_no_mutation(tmp_path: Path
     )
 
     gh_log = tmp_path / "gh.log"
+    gh_log.write_text("", encoding="utf-8")
     gh_stub = tmp_path / "gh"
     gh_stub.write_text(
         "#!/usr/bin/env sh\n"
@@ -152,4 +153,4 @@ def test_apply_tool_dry_run_prints_single_ruleset_and_no_mutation(tmp_path: Path
     assert 'payload: {"strict":false,"contexts":[]}' in out
 
     # Dry-run must not call gh mutating endpoints.
-    assert not gh_log.exists() or gh_log.read_text(encoding="utf-8").strip() == ""
+    assert gh_log.read_text(encoding="utf-8").strip() == ""

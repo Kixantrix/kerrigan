@@ -108,11 +108,12 @@ Write-Host ""
 # 1) Build one branch ruleset: required_status_checks (+ merge_queue)
 # ---------------------------------------------------------------------------
 $rulesetName = "Kerrigan main protection"
+$strictRequiredChecksPolicy = if ($mqEnabled) { $false } else { $strict }
 $requiredStatusChecksRule = [ordered]@{
     type       = 'required_status_checks'
     parameters = [ordered]@{
         required_status_checks             = @($requiredChecks | ForEach-Object { [ordered]@{ context = [string]$_ } })
-        strict_required_status_checks_policy = if ($mqEnabled) { $false } else { $strict }
+        strict_required_status_checks_policy = $strictRequiredChecksPolicy
     }
 }
 
