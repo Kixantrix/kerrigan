@@ -15,6 +15,7 @@ import {
 import type { PlanStageGraph } from "../../lib/plan-parser.js";
 import type { StageStatus } from "../../lib/status.js";
 import { PrFlowOverlay } from "../PrFlowOverlay/PrFlowOverlay.js";
+import { ABSORBING_FLOW_DURATION_MS } from "../PrFlowOverlay/constants.js";
 import {
   createPrFlowBindingState,
   derivePrFlows,
@@ -38,6 +39,12 @@ const edgeColorByKind: Record<"parent" | "dependency", string> = {
   parent: "#2A3342",
   dependency: "#5965F2",
 };
+// Pulse starts just before absorb completion for smoother visual handoff.
+const ABSORB_PULSE_LEAD_MS = 250;
+const ABSORB_PULSE_DELAY_MS = ABSORBING_FLOW_DURATION_MS - ABSORB_PULSE_LEAD_MS;
+const FLOW_SOURCE_MIN_X = 24;
+const FLOW_SOURCE_OFFSET_X = 40;
+const FLOW_SOURCE_OFFSET_Y = 40;
 
 export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
   const layout = useMemo(() => buildDagLayout(graph, statuses), [graph, statuses]);
@@ -130,13 +137,17 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
     });
   }, []);
 
-  const onAbsorbed = useCallback((flowId: string) => {
+  const pulseForFlow = useCallback((flowId: string) => {
     const stageId = flowStageIdsRef.current.get(flowId) ?? stageIdFromFlowId(flowId);
     if (stageId === null) {
       return;
     }
     pulseStage(stageId);
   }, [pulseStage]);
+
+  const onAbsorbed = useCallback((flowId: string) => {
+    pulseForFlow(flowId);
+  }, [pulseForFlow]);
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -146,8 +157,8 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
     }
 
     const sourceOrigin = {
-      x: Math.max(24, containerSize.width - 40),
-      y: 40,
+      x: Math.max(FLOW_SOURCE_MIN_X, containerSize.width - FLOW_SOURCE_OFFSET_X),
+      y: FLOW_SOURCE_OFFSET_Y,
     };
     const result = derivePrFlows(
       {
@@ -179,9 +190,9 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
         continue;
       }
       const timer = window.setTimeout(() => {
-        pulseStage(stageId);
+        pulseForFlow(flowId);
         absorbingTimerByFlowRef.current.delete(flowId);
-      }, 950);
+      }, ABSORB_PULSE_DELAY_MS);
       absorbingTimerByFlowRef.current.set(flowId, timer);
     }
     for (const [flowId, timer] of absorbingTimerByFlowRef.current.entries()) {
@@ -191,7 +202,7 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
       }
     }
     setFlows(result.flows);
-  }, [containerSize.width, layout.nodes, nodePositions, openPRs, pulseStage, statuses]);
+  }, [containerSize.width, layout.nodes, nodePositions, openPRs, pulseForFlow, statuses]);
 
   useEffect(
     () => () => {

@@ -346,6 +346,8 @@ async function fetchRepoStatus(
   const fixtureOpenPRs = readFixtureOpenPRs(owner, repo);
 
   if (fixtureOpenPRs !== undefined) {
+    // PR fixtures are intentionally scoped to open-PR lifecycle playback.
+    // Issues and reviews stay empty here so fixture-driven e2e runs stay deterministic.
     prs.push(...fixtureOpenPRs);
     return { prs, issues, reviewsByPr, offline };
   }

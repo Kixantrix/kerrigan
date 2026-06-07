@@ -2,6 +2,7 @@ import type { NodeProps } from "@xyflow/react";
 import { useEffect, useState } from "react";
 import type { StageDagNode } from "../../lib/dag-layout.js";
 import type { StageStatus } from "../../lib/status.js";
+import { ABSORBING_FLOW_DURATION_MS } from "../PrFlowOverlay/constants.js";
 
 interface StageStatusStyle {
   indicatorClassName: string;
@@ -41,6 +42,7 @@ const STATUS_STYLE_BY_STATE: Record<StageStatus, StageStatusStyle> = {
     badgeClassName: "text-[#A2AAB8] border-[#2A3342]",
   },
 };
+const STAGE_PULSE_DURATION_MS = ABSORBING_FLOW_DURATION_MS;
 
 export function StageNode({ id, data }: NodeProps<StageDagNode>) {
   const statusStyle = STATUS_STYLE_BY_STATE[data.status];
@@ -54,7 +56,7 @@ export function StageNode({ id, data }: NodeProps<StageDagNode>) {
     setPulsing(true);
     const timeout = window.setTimeout(() => {
       setPulsing(false);
-    }, 1_200);
+    }, STAGE_PULSE_DURATION_MS);
 
     return () => {
       window.clearTimeout(timeout);

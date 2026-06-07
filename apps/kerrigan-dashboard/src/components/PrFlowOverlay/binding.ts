@@ -1,6 +1,7 @@
 import type { PullRequestData } from "../../lib/github.js";
 import type { PlanStageNode } from "../../lib/plan-parser.js";
 import { defaultStageMatcher, type StageStatus } from "../../lib/status.js";
+import { ABSORBING_FLOW_DURATION_MS } from "./constants.js";
 import type { PrFlow, PrFlowPoint } from "./types.js";
 
 interface MatchedPrFlow {
@@ -35,8 +36,9 @@ export interface PrFlowBindingResult {
   state: PrFlowBindingState;
 }
 
-const ABSORBING_FLOW_MS = 1_200;
 const FLOW_SOURCE_SPACING_Y = 24;
+const DEFAULT_STAGE_LEVEL_FOR_MATCHING = 2;
+const DEFAULT_STAGE_PARENT_FOR_MATCHING: string | null = null;
 
 export function createPrFlowBindingState(): PrFlowBindingState {
   return {
@@ -107,7 +109,7 @@ export function derivePrFlows(
 
   const absorbingFlows: PrFlow[] = [];
   for (const [key, absorbing] of nextAbsorbingByKey.entries()) {
-    if (nowMs - absorbing.startedAt > ABSORBING_FLOW_MS) {
+    if (nowMs - absorbing.startedAt > ABSORBING_FLOW_DURATION_MS) {
       nextAbsorbingByKey.delete(key);
       continue;
     }
@@ -150,7 +152,16 @@ function matchPrToStage(
     if (target === undefined) {
       continue;
     }
-    if (defaultStageMatcher({ ...stage, level: 2, parentId: null }, pr)) {
+    if (
+      defaultStageMatcher(
+        {
+          ...stage,
+          level: DEFAULT_STAGE_LEVEL_FOR_MATCHING,
+          parentId: DEFAULT_STAGE_PARENT_FOR_MATCHING,
+        },
+        pr,
+      )
+    ) {
       return { stage, target };
     }
   }
