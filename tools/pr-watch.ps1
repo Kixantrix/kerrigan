@@ -191,6 +191,21 @@ function Get-SignatureDelta {
             $changes += "PR #${num}: NEW open PR ($($Current[$num]))"
         }
         elseif ($Baseline[$num] -ne $Current[$num]) {
+            # Signature = state|draft|wip|headRefOid|reviewDecision.
+            # A head-only change while the PR is still draft+wip is the cloud
+            # agent iterating mid-build - NOT actionable (we act on the [WIP]->
+            # ready flip, a merge/close, or a review). Suppress it so active WIP
+            # development does not spam non-actionable wakes. Any change to
+            # state/draft/wip/reviewDecision still fires. (2026-06-08.)
+            $oldParts = $Baseline[$num] -split '\|'
+            $newParts = $Current[$num] -split '\|'
+            $onlyHeadChanged = ($oldParts[0] -eq $newParts[0]) -and `
+                ($oldParts[1] -eq $newParts[1]) -and `
+                ($oldParts[2] -eq $newParts[2]) -and `
+                ($oldParts[4] -eq $newParts[4]) -and `
+                ($oldParts[3] -ne $newParts[3])
+            $stillDraftWip = ($newParts[1] -eq 'draft') -and ($newParts[2] -eq 'wip')
+            if ($onlyHeadChanged -and $stillDraftWip) { continue }
             $changes += "PR #${num}: changed`n    was: $($Baseline[$num])`n    now: $($Current[$num])"
         }
     }
