@@ -7,8 +7,10 @@
 #   3. Kerrigan CLI package is loadable
 #   4. Key repository directories exist
 #
-# Exit 0 on success, exit 1 on first failure.
-# Idempotent and side-effect-free (read-only checks only).
+# Exit 0 on success, exit 1 if any check fails.
+# Idempotent and side-effect-free by default (read-only checks only).
+# Optional dashboard build checks can be enabled with:
+#   KERRIGAN_SMOKE_DASHBOARD=1
 #
 # Usage: bash scripts/smoke.sh
 #        (or make it executable and run: ./scripts/smoke.sh)
@@ -70,6 +72,60 @@ for dir in tools tools/validators tools/cli scripts .github/agents specs playboo
         fail "$dir/ missing"
     fi
 done
+echo ""
+
+# --- Check 5: Optional dashboard build + artifact ---
+echo "[ Dashboard build ]"
+DASHBOARD_DIR="$REPO_ROOT/apps/kerrigan-dashboard"
+RUN_DASHBOARD_SMOKE="${KERRIGAN_SMOKE_DASHBOARD:-0}"
+SKIP_DASHBOARD_BUILD="${KERRIGAN_SMOKE_DASHBOARD_SKIP_BUILD:-0}"
+
+if [[ "$RUN_DASHBOARD_SMOKE" != "1" ]]; then
+    pass "dashboard smoke skipped (set KERRIGAN_SMOKE_DASHBOARD=1 to enable)"
+elif [[ ! -d "$DASHBOARD_DIR" ]]; then
+    pass "dashboard smoke skipped (apps/kerrigan-dashboard not present)"
+else
+    if ! command -v pnpm >/dev/null 2>&1; then
+        fail "pnpm is required for dashboard smoke checks"
+    else
+        if [[ "$SKIP_DASHBOARD_BUILD" != "1" ]]; then
+            if pnpm -C "$DASHBOARD_DIR" tauri build; then
+                pass "dashboard tauri build completed"
+            else
+                fail "dashboard tauri build failed"
+            fi
+        else
+            pass "dashboard tauri build skipped (KERRIGAN_SMOKE_DASHBOARD_SKIP_BUILD=1)"
+        fi
+
+        BUNDLE_DIR="$DASHBOARD_DIR/src-tauri/target/release/bundle"
+        PLATFORM="$(uname -s)"
+        ARTIFACTS=()
+        if [[ -d "$BUNDLE_DIR" ]]; then
+            find_args=()
+            case "$PLATFORM" in
+                Linux*)
+                    find_args=(-type f \( -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \))
+                    ;;
+                Darwin*)
+                    find_args=(\( -type f -name "*.dmg" -o -type d -name "*.app" \))
+                    ;;
+                *)
+                    find_args=(-type f \( -name "*.msi" -o -name "*.exe" \))
+                    ;;
+            esac
+            while IFS= read -r -d '' artifact; do
+                ARTIFACTS+=("$artifact")
+            done < <(find "$BUNDLE_DIR" "${find_args[@]}" -print0)
+        fi
+
+        if [[ "${#ARTIFACTS[@]}" -gt 0 ]]; then
+            pass "dashboard artifact exists (${#ARTIFACTS[@]} found; first: ${ARTIFACTS[0]})"
+        else
+            fail "dashboard artifact missing under $BUNDLE_DIR"
+        fi
+    fi
+fi
 echo ""
 
 # --- Summary ---
