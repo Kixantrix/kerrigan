@@ -100,4 +100,7 @@ def test_workflow_exists_and_references_script():
     assert workflow.exists()
     content = workflow.read_text(encoding="utf-8")
     assert "types: [opened, synchronize, reopened, edited]" in content
+    assert "merge_group:" in content
+    assert "if: ${{ github.event_name == 'merge_group' }}" in content
+    assert "if: ${{ github.event_name == 'pull_request' }}" in content
     assert "tools/validators/check_attestation.py" in content
