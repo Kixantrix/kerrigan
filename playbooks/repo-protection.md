@@ -57,3 +57,20 @@ before the first `-Apply`.
 2. Drop in `.github/repo-protection.json` (copy the preset default, adjust).
 3. Dry-run `configure-repo-protection.ps1`; review the plan.
 4. `-Apply` with human OK.
+
+## Known limitation: merge_queue ruleset vs classic required checks
+
+Creating the `merge_queue` ruleset can return an opaque `422 Validation Failed`
+(`"Invalid rule 'merge_queue': "` with no detail) when the branch's **required
+status checks still live in classic branch protection**. GitHub generally wants
+the required checks expressed in a *ruleset* alongside the `merge_queue` rule.
+
+The `strict_status_checks` change (classic protection) applies independently and
+is the bulk of the churn reduction. To finish enabling the queue, the follow-up
+is to migrate the required checks off classic protection into a ruleset that
+also carries the `merge_queue` rule (one ruleset, both rules). Notes:
+
+- `merge_method` enum is **UPPERCASE** (`SQUASH`/`MERGE`/`REBASE`); a squash-only
+  repo must use `SQUASH` (the default `MERGE` is rejected).
+- The full `parameters` object is required — a partial one fails the schema.
+

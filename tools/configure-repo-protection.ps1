@@ -139,7 +139,9 @@ if ($null -ne $mq -and [bool]$mq.enabled) {
 
     if ($Apply) {
         $tmp = New-TemporaryFile
-        Set-Content -LiteralPath $tmp -Value $rulesetPayload -Encoding utf8 -NoNewline
+        # ASCII (no BOM): PowerShell 5.1's -Encoding utf8 writes a BOM, which gh
+        # rejects with HTTP 400 "Problems parsing JSON". The payload is ASCII.
+        Set-Content -LiteralPath $tmp -Value $rulesetPayload -Encoding ascii -NoNewline
         if ($existingId) {
             gh api --method PUT "repos/$Repo/rulesets/$existingId" --input $tmp 2>&1 | Out-Null
         } else {
