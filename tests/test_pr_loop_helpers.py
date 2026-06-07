@@ -100,6 +100,11 @@ def test_pr_watch_mine_mode_derives_author_set() -> None:
     assert "'Copilot'" in content
     # The author filter is threaded through the per-cycle signature map.
     assert "-OnlyAuthors" in content
+    # Regression (2026-06-08): the Copilot coding agent's author.login from
+    # `gh pr list --json author` is 'app/copilot-swe-agent', not 'Copilot', so an
+    # exact-string compare silently excluded every cloud PR. The filter must match
+    # any copilot-ish login case-insensitively.
+    assert "(?i)copilot" in content
 
 
 def test_playbook_present_and_links_helpers() -> None:
