@@ -2,7 +2,14 @@ import Heading from "@tiptap/extension-heading";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import MarkdownIt from "markdown-it";
-import { useCallback, useEffect, useMemo, useRef, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type FocusEvent as ReactFocusEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import {
   type ProseMirrorDocument,
   serializePlanMarkdownPreservingUnchangedRegions,
@@ -113,7 +120,12 @@ export function PlanEditor({ markdown, selectedStageId, editable = false, onSave
     [editor, triggerSave],
   );
 
-  const handleBlur = useCallback(() => {
+  const handleBlur = useCallback((event: ReactFocusEvent<HTMLDivElement>) => {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+      return;
+    }
+
     triggerSave(editor?.getJSON() ?? null);
   }, [editor, triggerSave]);
 

@@ -119,10 +119,11 @@ describe("PlanEditor", () => {
     const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
     HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
     try {
+      const onSave = vi.fn();
       const { rerender } = render(
-        <PlanEditor editable markdown={"## Build\n\n## Ship"} selectedStageId={null} />,
+        <PlanEditor editable markdown={"## Build\n\n## Ship"} onSave={onSave} selectedStageId={null} />,
       );
-      rerender(<PlanEditor editable markdown={"## Build\n\n## Ship"} selectedStageId="ship" />);
+      rerender(<PlanEditor editable markdown={"## Build\n\n## Ship"} onSave={onSave} selectedStageId="ship" />);
 
       await waitFor(() => {
         expect(scrollIntoViewMock).toHaveBeenCalled();

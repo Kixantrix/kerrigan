@@ -224,7 +224,7 @@ function applyMarks(text: string, marks: ProseMirrorMark[]): string {
   for (const mark of sortedMarks) {
     switch (mark.type) {
       case "code":
-        value = `\`${value.replace(/\\/g, "\\\\").replace(/`/g, "\\`")}\``;
+        value = `\`${value.replace(/`/g, "\\`").replace(/\\/g, "\\\\")}\``;
         break;
       case "bold":
         value = `**${value}**`;
