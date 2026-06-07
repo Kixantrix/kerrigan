@@ -119,3 +119,23 @@ def test_kerrigan_md_links_helpers() -> None:
         "pr-redispatch.ps1",
     ):
         assert script in content
+
+
+def test_clean_build_uses_separator_aware_containment() -> None:
+    # Safety regression: a bare StartsWith($repoRoot) check would treat a sibling
+    # like `repo-backup` as inside `repo` (prefix collision), letting a deletion
+    # tool escape the repo root. The containment must be separator-aware.
+    content = _read("tools/clean-build.ps1")
+    assert "DirectorySeparatorChar" in content
+    assert "$rootWithSep" in content
+    # Single-walk: must not run a recursive Get-ChildItem per pattern name.
+    assert "-Filter $name" not in content
+
+
+def test_new_pr_validates_inputs() -> None:
+    # Regression: body file must be a real file (not a directory) and normalized
+    # to an absolute path; a detached HEAD must be rejected rather than passing
+    # the literal 'HEAD' to gh.
+    content = _read("tools/new-pr.ps1")
+    assert "-PathType Leaf" in content
+    assert "$Head -eq 'HEAD'" in content
