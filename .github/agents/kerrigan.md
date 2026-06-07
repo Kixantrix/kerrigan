@@ -175,7 +175,8 @@ Use these helper scripts during the PR dispatch/review/merge loop:
 - `tools/pr-resolve-threads.ps1 <pr-number>` — lists unresolved review threads and resolves them (supports `-DryRun`).
 - `tools/pr-rerun-pending.ps1 <pr-number>` — reruns workflow runs on the PR branch with `conclusion=action_required`.
 - `tools/pr-redispatch.ps1 <pr-number>` — posts a multi-line redispatch comment and re-arms auto-merge.
-- `tools/pr-promote.ps1 <pr-number>` — promotes draft PRs through ready/update-branch/reviewer/auto-merge in strict order.
+- `tools/pr-promote.ps1 <pr-number>` — runs the MANDATORY empty-PR pre-flight gate (refuses zero-file / `Initial plan`-only PRs, exit 2), then promotes through ready/update-branch/reviewer/auto-merge in strict order, then nudges `action_required` checks. One command per finished PR; don't hand-roll the `gh` sequence. (`-SkipPreflight` / `-SkipRerun` to opt out of either bookend.)
+- `tools/pr-watch.ps1 -Mine` — the wake bridge scoped to my + Copilot-authored open PRs, re-derived each poll cycle so new cloud PRs auto-join and merged ones drop. Prefer over passing explicit `-Pr` numbers and relaunching with a hand-maintained list.
 
 ### When Copilot finishes (signal: `[WIP]` removed from PR title — Copilot can't mark PRs ready itself)
 

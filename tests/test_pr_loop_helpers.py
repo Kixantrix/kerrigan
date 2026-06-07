@@ -91,6 +91,17 @@ def test_pr_watch_guards_transient_failures() -> None:
     assert "$confirm = Get-PrSignatureMap" in content
 
 
+def test_pr_watch_mine_mode_derives_author_set() -> None:
+    # -Mine scopes the watch to my + Copilot-authored PRs, re-derived each poll
+    # so new cloud PRs auto-join and merged ones drop without relaunching.
+    content = _read("tools/pr-watch.ps1")
+    assert "[switch]$Mine" in content
+    assert "gh api user --jq" in content
+    assert "'Copilot'" in content
+    # The author filter is threaded through the per-cycle signature map.
+    assert "-OnlyAuthors" in content
+
+
 def test_playbook_present_and_links_helpers() -> None:
     playbook = REPO_ROOT / "playbooks" / "cloud-agent-pr-loop.md"
     assert playbook.exists()

@@ -40,6 +40,13 @@
     One or more PR numbers to watch. If omitted, watches ALL currently-open PRs
     and also fires when a brand-new open PR appears.
 
+.PARAMETER Mine
+    Watch only the PRs that belong to this conductor's work: PRs authored by the
+    current gh user OR by the Copilot coding agent. The set is RE-DERIVED every
+    poll cycle, so a newly-opened cloud PR auto-joins the watch and a merged one
+    drops out -- no need to pass explicit numbers or relaunch with a new list.
+    Ignored if -Pr is given (an explicit list wins).
+
 .PARAMETER IntervalSeconds
     Seconds between poll cycles. Default 90.
 
@@ -58,11 +65,18 @@
 .EXAMPLE
     .\tools\pr-watch.ps1 -Pr 310,320
     Watch only #310 and #320; exit on the first actionable change to either.
+
+.EXAMPLE
+    .\tools\pr-watch.ps1 -Mine
+    Watch my own + Copilot-authored open PRs, re-derived each cycle, so new
+    cloud PRs auto-join and merged ones drop without relaunching with a new list.
 #>
 
 param(
     [Parameter(Position = 0)]
     [int[]]$Pr = @(),
+
+    [switch]$Mine,
 
     [int]$IntervalSeconds = 90,
 
@@ -78,9 +92,9 @@ $ErrorActionPreference = 'Stop'
 # One `gh pr list` call. When -Pr is given, restrict to that set.
 # ---------------------------------------------------------------------------
 function Get-PrSignatureMap {
-    param([int[]]$Restrict)
+    param([int[]]$Restrict, [string[]]$OnlyAuthors)
 
-    $fields = 'number,title,state,isDraft,headRefOid,reviewDecision'
+    $fields = 'number,title,state,isDraft,headRefOid,reviewDecision,author'
     $raw = gh pr list --state open --json $fields 2>&1
     # A native command failure (e.g. a transient network error) is NOT a
     # terminating PowerShell error, so it would otherwise yield $null -> an
@@ -99,6 +113,13 @@ function Get-PrSignatureMap {
     $map = [ordered]@{}
     foreach ($p in $list) {
         if ($Restrict.Count -gt 0 -and ($Restrict -notcontains $p.number)) { continue }
+        # -Mine restricts to PRs authored by the current user or the Copilot
+        # coding agent. The set is recomputed each cycle (this function runs per
+        # poll), so newly-opened cloud PRs join and merged ones drop on their own.
+        if ($OnlyAuthors.Count -gt 0) {
+            $login = if ($null -ne $p.author) { [string]$p.author.login } else { '' }
+            if ($OnlyAuthors -notcontains $login) { continue }
+        }
         $wip = if ($p.title -match '\[WIP\]') { 'wip' } else { 'ready' }
         $draft = if ($p.isDraft) { 'draft' } else { 'open' }
         # mergeStateStatus is deliberately EXCLUDED from the signature: it churns
@@ -127,11 +148,11 @@ function Get-PrSignatureMap {
 # (which would falsely wake the caller before any real change occurred).
 # ---------------------------------------------------------------------------
 function Get-PrSignatureMapWithRetry {
-    param([int[]]$Restrict, [datetime]$Deadline, [int]$RetrySeconds = 10)
+    param([int[]]$Restrict, [string[]]$OnlyAuthors, [datetime]$Deadline, [int]$RetrySeconds = 10)
 
     while ($true) {
         try {
-            return Get-PrSignatureMap -Restrict $Restrict
+            return Get-PrSignatureMap -Restrict $Restrict -OnlyAuthors $OnlyAuthors
         }
         catch {
             if ((Get-Date) -ge $Deadline) { throw }
@@ -167,11 +188,26 @@ function Get-SignatureDelta {
 }
 
 # ---------------------------------------------------------------------------
+# Resolve the -Mine author filter (current gh user + the Copilot coding agent).
+# Skipped when -Pr is given (an explicit list wins) or -Mine is not set.
+# ---------------------------------------------------------------------------
+$authorFilter = @()
+if ($Mine -and $Pr.Count -eq 0) {
+    $me = (gh api user --jq '.login' 2>&1)
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($me | Out-String))) {
+        Write-Host "[warn] -Mine: could not resolve current gh user; watching Copilot-authored PRs only."
+        $authorFilter = @('Copilot')
+    } else {
+        $authorFilter = @(($me | Out-String).Trim(), 'Copilot')
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Baseline
 # ---------------------------------------------------------------------------
 $deadline = (Get-Date).AddMinutes($MaxMinutes)
-$baseline = Get-PrSignatureMapWithRetry -Restrict $Pr -Deadline $deadline
-$scope = if ($Pr.Count -gt 0) { "PRs $($Pr -join ', ')" } else { "all open PRs" }
+$baseline = Get-PrSignatureMapWithRetry -Restrict $Pr -OnlyAuthors $authorFilter -Deadline $deadline
+$scope = if ($Pr.Count -gt 0) { "PRs $($Pr -join ', ')" } elseif ($authorFilter.Count -gt 0) { "my + Copilot open PRs ($($authorFilter -join ', '))" } else { "all open PRs" }
 
 Write-Host "=== pr-watch: $scope ===" -ForegroundColor Cyan
 Write-Host ("Baseline ({0} PR(s)) at {1}:" -f $baseline.Count, (Get-Date -Format 'HH:mm:ss'))
@@ -193,7 +229,7 @@ while ((Get-Date) -lt $deadline) {
     Start-Sleep -Seconds $IntervalSeconds
 
     try {
-        $current = Get-PrSignatureMap -Restrict $Pr
+        $current = Get-PrSignatureMap -Restrict $Pr -OnlyAuthors $authorFilter
     }
     catch {
         Write-Host ("[warn] poll failed ({0}); retrying next cycle." -f $_.Exception.Message)
@@ -211,7 +247,7 @@ while ((Get-Date) -lt $deadline) {
     if ($current.Count -eq 0 -and $baseline.Count -gt 0) {
         Start-Sleep -Seconds 3
         try {
-            $confirm = Get-PrSignatureMap -Restrict $Pr
+            $confirm = Get-PrSignatureMap -Restrict $Pr -OnlyAuthors $authorFilter
         }
         catch {
             Write-Host ("[warn] confirm re-poll failed ({0}); retrying next cycle." -f $_.Exception.Message)
