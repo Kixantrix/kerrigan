@@ -76,12 +76,19 @@ def test_pr_watch_guards_transient_failures() -> None:
     # Regression (2026-06-03): a transient `gh pr list` network failure is not a
     # terminating PowerShell error, so it yielded an empty map and the watcher
     # reported every watched PR as "left the open set" (merged/closed). The
-    # signature function must check the gh exit code, and the poll loop must skip
-    # a zero-PR result when the baseline was non-empty.
+    # signature function must check the gh exit code; the baseline must retry
+    # transient failures; and an empty poll against a non-empty baseline must be
+    # CONFIRMED with a re-poll rather than skipped forever (otherwise a genuine
+    # single-PR merge would never wake the watcher).
     content = _read("tools/pr-watch.ps1")
     assert "$LASTEXITCODE -ne 0" in content
     assert "gh pr list failed" in content
-    assert "$current.Count -eq 0 -and $baseline.Count -gt 0" in content
+    # Baseline retries transient failures instead of dying on a startup blip.
+    assert "Get-PrSignatureMapWithRetry" in content
+    # Empty-poll ambiguity is resolved by a confirm re-poll, and a confirmed
+    # empty result is allowed to fall through to the delta (genuine mass-merge).
+    assert "confirm re-poll" in content.lower()
+    assert "$confirm = Get-PrSignatureMap" in content
 
 
 def test_playbook_present_and_links_helpers() -> None:
