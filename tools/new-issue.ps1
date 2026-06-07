@@ -23,7 +23,11 @@
     Zero or more labels to apply.
 
 .PARAMETER Assignee
-    Optional assignee handle (e.g. 'copilot' or a username).
+    Optional assignee handle. To assign the Copilot coding agent, pass any of
+    'copilot', 'Copilot', '@copilot', or 'copilot-swe-agent' — they are all
+    normalized to '@copilot', which is the handle gh requires for the bot actor
+    (bare 'copilot' fails with "'copilot' not found"). Any other value is passed
+    through to gh unchanged.
 
 .PARAMETER Milestone
     Optional milestone name.
@@ -32,6 +36,7 @@
     Print the planned gh command without executing it.
 
 .EXAMPLE
+    # Assign the Copilot coding agent (normalized to @copilot internally).
     .\tools\new-issue.ps1 -Title "Wire up X" -BodyFile .specify/briefings/x.md -Label agent:go -Assignee copilot
 
 .EXAMPLE
@@ -64,6 +69,13 @@ if ($Label) {
     }
 }
 if ($Assignee) {
+    # The Copilot coding agent is a Bot actor: gh only accepts the '@copilot'
+    # handle for it (bare 'copilot' / 'Copilot' / 'copilot-swe-agent' all fail
+    # with "'copilot' not found"). Normalize the known aliases to '@copilot'.
+    $copilotAliases = @('copilot', '@copilot', 'copilot-swe-agent')
+    if ($copilotAliases -contains $Assignee.ToLowerInvariant()) {
+        $Assignee = '@copilot'
+    }
     $args += @('--assignee', $Assignee)
 }
 if ($Milestone) {
