@@ -57,10 +57,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-if (-not (Test-Path -LiteralPath $BodyFile)) {
-    Write-Error "Body file not found: $BodyFile"
+if (-not (Test-Path -LiteralPath $BodyFile -PathType Leaf)) {
+    Write-Error "Body file not found or is not a file: $BodyFile"
     exit 1
 }
+$BodyFile = (Resolve-Path -LiteralPath $BodyFile).Path
 
 if (-not $Head) {
     $Head = (git rev-parse --abbrev-ref HEAD 2>$null)
@@ -69,6 +70,12 @@ if (-not $Head) {
         exit 1
     }
     $Head = $Head.Trim()
+    # Detached HEAD resolves to the literal 'HEAD', which gh would reject with a
+    # confusing error; require an explicit branch instead.
+    if ($Head -eq 'HEAD') {
+        Write-Error "Detached HEAD state; pass -Head explicitly with a branch name."
+        exit 1
+    }
 }
 
 $ghArgs = @('pr', 'create', '--title', $Title, '--body-file', $BodyFile, '--base', $Base, '--head', $Head)

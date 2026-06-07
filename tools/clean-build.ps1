@@ -13,9 +13,14 @@
 
     Hard guarantees:
       - Refuses to run outside a git working tree.
-      - Only ever deletes paths that resolve to inside the repo root.
-      - Never touches tracked source: the target list is generated artifacts
-        only (node_modules, dist, .next, __pycache__, .pytest_cache, etc).
+      - Only ever deletes paths that resolve to INSIDE the repo root (a
+        separator-aware containment check, so a sibling like `repo-backup` is
+        never mistaken for being inside `repo`).
+      - Targets a fixed allowlist of generated-artifact directory NAMES
+        (node_modules, dist, .next, __pycache__, .pytest_cache, etc). Matching
+        is by name only - it does not inspect git tracked-status - so if you
+        deliberately track a directory with one of these names it would match.
+        Run `-DryRun` first to review the target list.
 
 .PARAMETER DryRun
     List what would be removed without deleting anything.
@@ -68,15 +73,27 @@ function Test-InsideRepo {
     param([string]$Path)
     $full = (Resolve-Path -LiteralPath $Path -ErrorAction SilentlyContinue)
     if (-not $full) { return $false }
-    return $full.Path.StartsWith($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)
+    # Separator-aware containment: a bare StartsWith($repoRoot) prefix check
+    # would treat siblings like `C:\repo-backup` as inside `C:\repo` (prefix
+    # collision). Require the path to equal the root, or begin with the root
+    # followed by a directory separator.
+    $cmp = [System.StringComparison]::OrdinalIgnoreCase
+    if ($full.Path.Equals($repoRoot, $cmp)) { return $true }
+    $rootWithSep = $repoRoot.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+    return $full.Path.StartsWith($rootWithSep, $cmp)
 }
 
 $targets = New-Object System.Collections.Generic.List[string]
 
-foreach ($name in $dirPatterns) {
-    Get-ChildItem -Path $repoRoot -Directory -Recurse -Force -Filter $name -ErrorAction SilentlyContinue |
-        ForEach-Object { $targets.Add($_.FullName) }
-}
+# Walk the tree ONCE and match directory names against a case-insensitive set,
+# rather than running a full recursive Get-ChildItem per allowlisted name
+# (which multiplied traversal cost by the number of patterns).
+$nameSet = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($name in $dirPatterns) { [void]$nameSet.Add($name) }
+
+Get-ChildItem -Path $repoRoot -Directory -Recurse -Force -ErrorAction SilentlyContinue |
+    Where-Object { $nameSet.Contains($_.Name) } |
+    ForEach-Object { $targets.Add($_.FullName) }
 
 foreach ($rel in $relPaths) {
     $candidate = Join-Path $repoRoot $rel
