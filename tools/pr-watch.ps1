@@ -118,7 +118,22 @@ function Get-PrSignatureMap {
         # poll), so newly-opened cloud PRs join and merged ones drop on their own.
         if ($OnlyAuthors.Count -gt 0) {
             $login = if ($null -ne $p.author) { [string]$p.author.login } else { '' }
-            if ($OnlyAuthors -notcontains $login) { continue }
+            # The Copilot coding agent's author.login varies by API surface
+            # ('Copilot' from some endpoints, 'app/copilot-swe-agent' from
+            # `gh pr list --json author`, 'copilot-swe-agent', etc.). The sentinel
+            # 'Copilot' in the filter therefore matches ANY copilot-ish login
+            # case-insensitively; other entries (real usernames) match exactly.
+            # (Bug 2026-06-08: an exact 'Copilot' compare silently excluded every
+            # cloud PR, so -Mine only ever tracked my own PRs.)
+            $match = $false
+            foreach ($a in $OnlyAuthors) {
+                if ($a -eq 'Copilot') {
+                    if ($login -match '(?i)copilot') { $match = $true; break }
+                } elseif ($login -eq $a) {
+                    $match = $true; break
+                }
+            }
+            if (-not $match) { continue }
         }
         $wip = if ($p.title -match '\[WIP\]') { 'wip' } else { 'ready' }
         $draft = if ($p.isDraft) { 'draft' } else { 'open' }
