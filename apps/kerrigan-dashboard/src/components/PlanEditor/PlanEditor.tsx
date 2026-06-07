@@ -2,11 +2,25 @@ import Heading from "@tiptap/extension-heading";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import MarkdownIt from "markdown-it";
-import { useEffect, useMemo } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type FocusEvent as ReactFocusEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
+import {
+  type ProseMirrorDocument,
+  serializePlanMarkdownPreservingUnchangedRegions,
+  toProseMirrorDocument,
+} from "./planMarkdownRoundTrip.js";
 
 interface PlanEditorProps {
   markdown: string;
   selectedStageId: string | null;
+  editable?: boolean;
+  onSave?: (markdown: string) => void;
 }
 
 const AnchoredHeading = Heading.extend({
@@ -25,10 +39,33 @@ const AnchoredHeading = Heading.extend({
   },
 });
 
-export function PlanEditor({ markdown, selectedStageId }: PlanEditorProps) {
+export function PlanEditor({ markdown, selectedStageId, editable = false, onSave }: PlanEditorProps) {
   const htmlContent = useMemo(() => renderPlanMarkdown(markdown), [markdown]);
+  const sourceMarkdownRef = useRef(markdown);
+  const sourceDocumentRef = useRef<ProseMirrorDocument | null>(null);
+  const triggerSave = useCallback(
+    (editorDocument: unknown) => {
+      if (!editable || onSave === undefined || editorDocument === null) {
+        return;
+      }
+
+      const currentDocument = toProseMirrorDocument(editorDocument);
+      const sourceDocument = sourceDocumentRef.current ?? currentDocument;
+      const savedMarkdown = serializePlanMarkdownPreservingUnchangedRegions(
+        sourceMarkdownRef.current,
+        sourceDocument,
+        currentDocument,
+      );
+
+      sourceMarkdownRef.current = savedMarkdown;
+      sourceDocumentRef.current = currentDocument;
+      onSave(savedMarkdown);
+    },
+    [editable, onSave],
+  );
+
   const editor = useEditor({
-    editable: false,
+    editable,
     extensions: [
       StarterKit.configure({
         heading: false,
@@ -50,7 +87,17 @@ export function PlanEditor({ markdown, selectedStageId }: PlanEditorProps) {
     }
 
     editor.commands.setContent(htmlContent, { emitUpdate: false });
-  }, [editor, htmlContent]);
+    sourceMarkdownRef.current = markdown;
+    sourceDocumentRef.current = toProseMirrorDocument(editor.getJSON());
+  }, [editor, htmlContent, markdown]);
+
+  useEffect(() => {
+    if (editor === null) {
+      return;
+    }
+
+    editor.setEditable(editable);
+  }, [editor, editable]);
 
   useEffect(() => {
     if (editor === null || selectedStageId === null) {
@@ -63,10 +110,31 @@ export function PlanEditor({ markdown, selectedStageId }: PlanEditorProps) {
     }
   }, [editor, selectedStageId]);
 
+  const handleKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLDivElement>) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        triggerSave(editor?.getJSON() ?? null);
+      }
+    },
+    [editor, triggerSave],
+  );
+
+  const handleBlur = useCallback((event: ReactFocusEvent<HTMLDivElement>) => {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+      return;
+    }
+
+    triggerSave(editor?.getJSON() ?? null);
+  }, [editor, triggerSave]);
+
   return (
     <div
       className="h-full overflow-hidden rounded-lg border border-[#1E2530] bg-[#101724]"
       data-testid="project-plan-editor"
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
     >
       <EditorContent className="h-full" editor={editor} />
     </div>

@@ -18,6 +18,7 @@
     "@octokit/rest": "^22.0.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
+    "@tiptap/extension-heading": "^3.26.0",
     "@tiptap/react": "^3.26.0",
     "@tiptap/starter-kit": "^3.26.0",
     "@xyflow/react": "^12.11.0",
