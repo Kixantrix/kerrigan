@@ -223,9 +223,10 @@ function applyMarks(text: string, marks: ProseMirrorMark[]): string {
 
   for (const mark of sortedMarks) {
     switch (mark.type) {
-      case "code":
-        value = `\`${value.replace(/`/g, "\\`").replace(/\\/g, "\\\\")}\``;
+      case "code": {
+        value = `\`${escapeInlineCodeContent(value)}\``;
         break;
+      }
       case "bold":
         value = `**${value}**`;
         break;
@@ -246,6 +247,25 @@ function applyMarks(text: string, marks: ProseMirrorMark[]): string {
   }
 
   return value;
+}
+
+function escapeInlineCodeContent(value: string): string {
+  let escaped = "";
+  for (const character of value) {
+    if (character === "\\") {
+      escaped += "\\\\";
+      continue;
+    }
+
+    if (character === "`") {
+      escaped += "\\`";
+      continue;
+    }
+
+    escaped += character;
+  }
+
+  return escaped;
 }
 
 function markOrder(markType: string): number {
