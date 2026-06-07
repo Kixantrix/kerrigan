@@ -438,8 +438,16 @@ describe("buildInbox", () => {
 
 describe("buildInboxFromProjectsFile", () => {
   it("returns empty feed when projects file is missing", async () => {
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const missingPath = path.join(
+      os.tmpdir(),
+      "kerrigan-inbox-missing",
+      "projects-does-not-exist.json",
+    );
+
     const result = await buildInboxFromProjectsFile(createGitHubClientStub(), {
-      projectsPath: "/tmp/definitely-does-not-exist/projects.json",
+      projectsPath: missingPath,
       now: fixedNow,
     });
 

@@ -193,6 +193,7 @@ export function createInboxGitHubClient(shellOut: ShellOut): GitHubClient {
 }
 
 export function createDefaultAttestationSource(): AttestationSource {
+  // Attestation read-path is not available yet in lib/github.ts (follow-up slice).
   return async () => [];
 }
 
@@ -239,7 +240,7 @@ function parseBlockSummary(yaml: string, fileName: string): BlockSummary | null 
     return null;
   }
 
-  const id = extractYamlScalar(yaml, ["id"]) ?? fileName.replace(/\.ya?ml$/i, "");
+  const id = extractYamlScalar(yaml, ["id"]) ?? stripYamlExtension(fileName);
   const title =
     extractYamlScalar(yaml, ["title", "summary", "reason"]) ??
     `Block ${id}`;
@@ -304,6 +305,10 @@ function stripQuotes(input: string): string {
   return match?.[2] ?? input;
 }
 
+function stripYamlExtension(fileName: string): string {
+  return fileName.replace(YAML_EXTENSION, "");
+}
+
 async function buildReviewItemsFromPRs(
   projectId: string,
   repo: RepoRef,
@@ -348,6 +353,9 @@ async function buildReviewItemsFromPRs(
 }
 
 function hasOutstandingReviewFeedback(reviews: ReadonlyArray<ReviewData>): boolean {
+  // Proxy until github.ts exposes GraphQL reviewThreads resolution state:
+  // - include if latest review is CHANGES_REQUESTED
+  // - include if latest review is COMMENTED and no later APPROVED review exists
   if (reviews.length === 0) {
     return false;
   }
@@ -356,6 +364,7 @@ function hasOutstandingReviewFeedback(reviews: ReadonlyArray<ReviewData>): boole
     .map((review, index) => ({
       review,
       index,
+      // Keep reviews with missing submitted_at older than any timestamped review.
       submittedMs: parseDateOr(review.submitted_at, Number.NEGATIVE_INFINITY),
     }))
     .sort((a, b) => {
