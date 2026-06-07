@@ -26,6 +26,27 @@ def test_pr_promote_has_help_and_params() -> None:
     assert "[switch]$DryRun" in content
     assert "[string]$MergeMethod = 'squash'" in content
     assert "[switch]$SkipReviewer" in content
+    assert "[switch]$SkipPreflight" in content
+    assert "[switch]$SkipRerun" in content
+
+
+def test_pr_promote_preflight_gate_precedes_ready() -> None:
+    # The empty-PR gate must run BEFORE the PR is marked ready, and must refuse
+    # (exit 2) a PR with no files or only scaffold commits (the #294 class).
+    content = _read("tools/pr-promote.ps1")
+    assert "gh pr view $PrNumber --json files,commits" in content
+    assert "[BLOCK]" in content
+    assert "exit 2" in content
+    assert "Initial plan" in content
+    assert content.index("--json files,commits") < content.index("gh pr ready")
+
+
+def test_pr_promote_reruns_pending_checks_last() -> None:
+    # After arming auto-merge, nudge the action_required bot-branch workflows.
+    content = _read("tools/pr-promote.ps1")
+    assert "pr-rerun-pending.ps1" in content
+    # rindex: the help text mentions the script too; the actual invocation is last.
+    assert content.index("gh pr merge") < content.rindex("pr-rerun-pending.ps1")
 
 
 def test_pr_promote_invokes_four_steps_in_order() -> None:
@@ -79,6 +100,10 @@ def test_pr_promote_aborts_when_update_branch_fails(tmp_path: Path) -> None:
               echo "Kixantrix/kerrigan"
               exit 0
             fi
+            if [[ "$1" == "pr" && "$2" == "view" ]]; then
+              echo '{"files":[{"path":"a.ts"}],"commits":[{"messageHeadline":"Initial plan"},{"messageHeadline":"feat: real work"}]}'
+              exit 0
+            fi
             if [[ "$1" == "pr" && "$2" == "ready" ]]; then
               exit 0
             fi
@@ -116,6 +141,62 @@ def test_pr_promote_aborts_when_update_branch_fails(tmp_path: Path) -> None:
     assert "pr update-branch 123" in calls
     assert "requested_reviewers" not in calls
     assert "pr merge 123" not in calls
+
+
+def test_pr_promote_blocks_empty_pr(tmp_path: Path) -> None:
+    # Pre-flight gate: a PR with zero files / only an `Initial plan` commit must
+    # be refused (exit 2) before any promotion step touches it.
+    pwsh = shutil.which("pwsh")
+    if pwsh is None:
+        raise AssertionError("pwsh is required for this test")
+
+    call_log = tmp_path / "gh-calls.log"
+    gh = tmp_path / "gh"
+    gh.write_text(
+        textwrap.dedent(
+            """\
+            #!/usr/bin/env bash
+            set -euo pipefail
+            echo "$*" >> "$GH_CALL_LOG"
+            if [[ "$1" == "repo" && "$2" == "view" ]]; then
+              echo "Kixantrix/kerrigan"
+              exit 0
+            fi
+            if [[ "$1" == "pr" && "$2" == "view" ]]; then
+              echo '{"files":[],"commits":[{"messageHeadline":"Initial plan"}]}'
+              exit 0
+            fi
+            exit 0
+            """
+        ),
+        encoding="utf-8",
+    )
+    gh.chmod(gh.stat().st_mode | stat.S_IEXEC)
+
+    env = os.environ.copy()
+    env["GH_CALL_LOG"] = str(call_log)
+    env["PATH"] = f"{tmp_path}:{env['PATH']}"
+    result = subprocess.run(
+        [pwsh, "-NoProfile", "-File", str(REPO_ROOT / "tools/pr-promote.ps1"), "123"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    calls = call_log.read_text(encoding="utf-8")
+    assert "pr view 123" in calls
+    assert "pr ready 123" not in calls
+    assert "pr merge 123" not in calls
+
+
+def test_pr_promote_skip_preflight_bypasses_gate() -> None:
+    content = _read("tools/pr-promote.ps1")
+    assert "$SkipPreflight" in content
+    # The gate is conditional on the switch, not unconditional.
+    assert "if ($SkipPreflight)" in content
 
 
 def test_playbook_lists_promote() -> None:
