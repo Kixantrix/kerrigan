@@ -107,6 +107,18 @@ def test_pr_watch_mine_mode_derives_author_set() -> None:
     assert "(?i)copilot" in content
 
 
+def test_pr_watch_suppresses_wip_head_noise() -> None:
+    # A head-only change while a PR is still draft+wip is the cloud agent
+    # iterating mid-build (many commits/min) — non-actionable. The delta must
+    # suppress it (still firing on wip->ready, merge, and review changes).
+    content = _read("tools/pr-watch.ps1")
+    assert "$onlyHeadChanged" in content
+    assert "$stillDraftWip" in content
+    # The signature fields it compares (state/draft/wip/reviewDecision unchanged,
+    # head changed) and the draft+wip guard.
+    assert "'draft'" in content and "'wip'" in content
+
+
 def test_playbook_present_and_links_helpers() -> None:
     playbook = REPO_ROOT / "playbooks" / "cloud-agent-pr-loop.md"
     assert playbook.exists()
