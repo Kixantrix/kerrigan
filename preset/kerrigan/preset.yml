@@ -28,6 +28,15 @@ configs:
       tools auto-approve; raw gh/python mutations and ad-hoc deletes require
       approval; destructive flags hard-deny. Assumes the kerrigan tools/ are
       present (pr-*.ps1, clean-build.ps1, validators).
+  - source: repo-protection.json
+    target: .github/repo-protection.json
+    description: >
+      Declarative branch-protection + merge-queue shape for the repo (the
+      optimized Kerrigan default: merge queue on, strict off, squash-only,
+      thread-resolution + Copilot review, the four required checks). Copy it,
+      then override per repo. tools/configure-repo-protection.ps1 applies it
+      (dry-run by default); tools/validators/check_merge_queue.py enforces the
+      "every required check runs on merge_group" invariant in `kerrigan check`.
 
 # Spec-kit extensions configured by this preset (applied on `specify preset add kerrigan`)
 extensions:

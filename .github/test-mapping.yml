@@ -80,6 +80,10 @@ mappings:
     tests: "tests/validators/test_check_test_environment.py"
     notes: "Test environment validator and its tests"
 
+  - source: "tools/validators/check_merge_queue.py"
+    tests: "tests/test_check_merge_queue.py"
+    notes: "Merge-queue readiness invariant validator and its tests"
+
   - source: "tools/validators/check_attestation.py"
     tests: "tests/test_attestation_check.py"
     notes: "Attestation parser and validator checks"
