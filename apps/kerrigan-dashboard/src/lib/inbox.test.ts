@@ -449,7 +449,11 @@ describe("buildInboxFromProjectsFile", () => {
   });
 
   it("builds feed from projects read from file", async () => {
-    const projectsPath = "/tmp/workspace/Kixantrix/kerrigan/apps/kerrigan-dashboard/.tmp-inbox-projects.json";
+    const fs = await import("node:fs/promises");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "kerrigan-inbox-test-"));
+    const projectsPath = path.join(tempDir, "projects.json");
     const fileData = {
       projects: [
         {
@@ -461,30 +465,30 @@ describe("buildInboxFromProjectsFile", () => {
       ],
     };
 
-    await import("node:fs/promises").then((fs) =>
-      fs.writeFile(projectsPath, JSON.stringify(fileData), "utf-8"),
-    );
+    try {
+      await fs.writeFile(projectsPath, JSON.stringify(fileData), "utf-8");
 
-    const result = await buildInboxFromProjectsFile(
-      createGitHubClientStub({
-        issues: {
-          "acme/repo-a": {
-            ok: true,
-            data: [
-              makeIssue({ labels: [{ name: "agent:wait" }, { name: "capture" }] }),
-            ],
+      const result = await buildInboxFromProjectsFile(
+        createGitHubClientStub({
+          issues: {
+            "acme/repo-a": {
+              ok: true,
+              data: [
+                makeIssue({ labels: [{ name: "agent:wait" }, { name: "capture" }] }),
+              ],
+            },
           },
+        }),
+        {
+          projectsPath,
+          now: fixedNow,
         },
-      }),
-      {
-        projectsPath,
-        now: fixedNow,
-      },
-    );
+      );
 
-    expect(result.items).toHaveLength(1);
-    expect(result.items[0]?.projectId).toBe("proj-file");
-
-    await import("node:fs/promises").then((fs) => fs.unlink(projectsPath));
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]?.projectId).toBe("proj-file");
+    } finally {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    }
   });
 });

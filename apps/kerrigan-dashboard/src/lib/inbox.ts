@@ -60,6 +60,9 @@ export interface BuildInboxOptions {
 }
 
 const YAML_EXTENSION = /\.ya?ml$/i;
+// Stable fallback when a source omits creation metadata; keeps age sorting deterministic.
+const UNKNOWN_CREATED_AT = "1970-01-01T00:00:00.000Z";
+const YAML_SCALAR_REGEX_BY_KEY = new Map<string, RegExp>();
 
 export async function buildInbox({
   projects,
@@ -242,7 +245,7 @@ function parseBlockSummary(yaml: string, fileName: string): BlockSummary | null 
     `Block ${id}`;
   const createdAt =
     extractYamlScalar(yaml, ["createdAt", "created_at", "openedAt", "opened_at"]) ??
-    new Date().toISOString();
+    UNKNOWN_CREATED_AT;
   const url = extractYamlScalar(yaml, ["url", "issue", "link"]);
 
   return {
@@ -272,7 +275,7 @@ function extractYamlScalar(
   keys: ReadonlyArray<string>,
 ): string | undefined {
   for (const key of keys) {
-    const match = yaml.match(new RegExp(`^[ \\t]*${escapeRegex(key)}:[ \\t]*([^\\n#]+)`, "mi"));
+    const match = yaml.match(yamlScalarRegexForKey(key));
     if (match?.[1] !== undefined) {
       return stripQuotes(match[1].trim());
     }
@@ -285,8 +288,20 @@ function escapeRegex(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function yamlScalarRegexForKey(key: string): RegExp {
+  const cached = YAML_SCALAR_REGEX_BY_KEY.get(key);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const created = new RegExp(`^[ \\t]*${escapeRegex(key)}:[ \\t]*([^\\n#]+)`, "mi");
+  YAML_SCALAR_REGEX_BY_KEY.set(key, created);
+  return created;
+}
+
 function stripQuotes(input: string): string {
-  return input.replace(/^['"]|['"]$/g, "");
+  const match = input.match(/^(['"])(.*)\1$/);
+  return match?.[2] ?? input;
 }
 
 async function buildReviewItemsFromPRs(
@@ -364,10 +379,21 @@ function hasOutstandingReviewFeedback(reviews: ReadonlyArray<ReviewData>): boole
     return false;
   }
 
-  return !ordered.some(
+  return !hasApprovalAfter(ordered, latest);
+}
+
+function hasApprovalAfter(
+  ordered: ReadonlyArray<{
+    review: ReviewData;
+    index: number;
+    submittedMs: number;
+  }>,
+  target: { index: number; submittedMs: number },
+): boolean {
+  return ordered.some(
     (entry) =>
       entry.review.state.toUpperCase() === "APPROVED" &&
-      isStrictlyAfter(entry.submittedMs, entry.index, latest.submittedMs, latest.index),
+      isStrictlyAfter(entry.submittedMs, entry.index, target.submittedMs, target.index),
   );
 }
 
@@ -391,7 +417,7 @@ function toCaptureIssueItems(
   nowMs: number,
 ): InboxItem[] {
   return issues
-    .filter(hasAgentWaitCaptureLabels)
+    .filter(hasAgentWaitAndCaptureLabels)
     .map((issue) =>
       withAge(
         {
@@ -408,7 +434,7 @@ function toCaptureIssueItems(
     );
 }
 
-function hasAgentWaitCaptureLabels(issue: IssueData): boolean {
+function hasAgentWaitAndCaptureLabels(issue: IssueData): boolean {
   const labels = new Set(
     issue.labels
       .map((label) => label.name?.toLowerCase())
