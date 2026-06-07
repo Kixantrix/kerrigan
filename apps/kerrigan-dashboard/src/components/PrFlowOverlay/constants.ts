@@ -1,0 +1,1 @@
+export const ABSORBING_FLOW_DURATION_MS = 1_200;

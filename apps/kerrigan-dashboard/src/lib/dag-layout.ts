@@ -8,6 +8,7 @@ export interface StageDagNodeData {
   label: string;
   level: PlanStageNode["level"];
   status: StageStatus;
+  pulseAt?: number;
 }
 
 export type StageDagNode = Node<StageDagNodeData, "stage">;

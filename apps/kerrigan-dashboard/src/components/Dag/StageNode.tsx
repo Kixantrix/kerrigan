@@ -1,6 +1,8 @@
 import type { NodeProps } from "@xyflow/react";
+import { useEffect, useState } from "react";
 import type { StageDagNode } from "../../lib/dag-layout.js";
 import type { StageStatus } from "../../lib/status.js";
+import { ABSORBING_FLOW_DURATION_MS } from "../PrFlowOverlay/constants.js";
 
 interface StageStatusStyle {
   indicatorClassName: string;
@@ -40,13 +42,33 @@ const STATUS_STYLE_BY_STATE: Record<StageStatus, StageStatusStyle> = {
     badgeClassName: "text-[#A2AAB8] border-[#2A3342]",
   },
 };
+const STAGE_PULSE_DURATION_MS = ABSORBING_FLOW_DURATION_MS;
 
 export function StageNode({ id, data }: NodeProps<StageDagNode>) {
   const statusStyle = STATUS_STYLE_BY_STATE[data.status];
+  const [pulsing, setPulsing] = useState(false);
+
+  useEffect(() => {
+    if (typeof data.pulseAt !== "number" || data.pulseAt <= 0) {
+      return;
+    }
+
+    setPulsing(true);
+    const timeout = window.setTimeout(() => {
+      setPulsing(false);
+    }, STAGE_PULSE_DURATION_MS);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [data.pulseAt]);
 
   return (
     <article
-      className="min-w-60 rounded-lg border border-[#1E2530] bg-[#101724] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
+      className={`min-w-60 rounded-lg border border-[#1E2530] bg-[#101724] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] ${
+        pulsing ? "ring-2 ring-green-500/70 shadow-[0_0_0_1px_rgba(34,197,94,0.55)]" : ""
+      }`}
+      data-pulsing={pulsing ? "true" : "false"}
       data-testid={`stage-node-${id}`}
     >
       <div className="mb-2 flex items-center gap-2 text-nano uppercase tracking-[0.06em] text-[#8B94A6]">
