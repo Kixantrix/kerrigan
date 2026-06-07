@@ -18,6 +18,17 @@ templates:
   - source: pr-body-template.md
     target: pr-body-template.md
 
+# Loadable editor/agent configs (copied, not auto-applied). Agents discover
+# these here and load them with a single copy into the repo.
+configs:
+  - source: vscode-settings.example.jsonc
+    target: .vscode/settings.json
+    description: >
+      Script-first agent terminal/edit auto-approval policy. Trusted kerrigan
+      tools auto-approve; raw gh/python mutations and ad-hoc deletes require
+      approval; destructive flags hard-deny. Assumes the kerrigan tools/ are
+      present (pr-*.ps1, clean-build.ps1, validators).
+
 # Spec-kit extensions configured by this preset (applied on `specify preset add kerrigan`)
 extensions:
   - name: spec-kit-worktree-parallel

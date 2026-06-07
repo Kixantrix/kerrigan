@@ -63,6 +63,42 @@ cp preset/kerrigan/tasks-template.md   .specify/templates/tasks-template.md
 cp preset/kerrigan/pr-body-template.md .specify/templates/pr-body-template.md
 ```
 
+## Agent approval rules
+
+[`vscode-settings.example.jsonc`](./vscode-settings.example.jsonc) is a loadable
+example of the harness's **agent auto-approval policy**. It is committed here so
+agents can find it and load it without confusing it for live config — it is
+never read from this path.
+
+Load it into a repo with one copy:
+
+```sh
+cp preset/kerrigan/vscode-settings.example.jsonc .vscode/settings.json
+```
+
+The policy is **script-first**:
+
+- **Auto-approve** the trusted, reviewed kerrigan tools (`pr-*.ps1`,
+  `pr_reply_resolve.py`, `new-issue.ps1`, `new-pr.ps1`, `create_issues.py`,
+  `clean-build.ps1`, `tools/validators`), read-only `git`/`gh`, and routine
+  reversible git writes.
+- **Require approval** for anything off the common-script path — raw
+  `gh ... --method POST/PUT/PATCH/DELETE` and ad-hoc `python -c` are
+  deliberately *not* allowlisted, which nudges flows into named tools.
+- **Hard-deny** (always prompt, even if the allowlist grows): `--force`,
+  `--no-verify`, `--admin`, `git reset --hard`, `git clean`, `git restore`,
+  `git branch -D`, raw `rm`/`Remove-Item`/`del`, immediate (non-`--auto`)
+  `gh pr merge`, `gh pr/issue close`, `gh repo delete`.
+
+Build cleanup is intentionally routed through
+[`tools/clean-build.ps1`](../../tools/clean-build.ps1) (sandboxed to the repo
+root, fixed artifact allowlist) so routine cleanup auto-approves while raw
+deletes still prompt.
+
+> Compound-command rule: in `a; b` every segment must match a rule to
+> auto-approve. Consolidating multi-step flows into one named script is both
+> safer and more auto-approvable than an inline chain.
+
 ## Template placeholders
 
 All placeholder text uses `[SQUARE BRACKETS]`. When an agent fills in a

@@ -1,3 +1,20 @@
+// ──────────────────────────────────────────────────────────────────────────
+// Kerrigan agent approval rules — EXAMPLE / TEMPLATE (not active config)
+//
+// This is the opinionated terminal/edit auto-approval policy used by the
+// kerrigan harness. It is NOT loaded from here. To activate it in a repo:
+//
+//   cp preset/kerrigan/vscode-settings.example.jsonc .vscode/settings.json
+//
+// (or merge these keys into an existing .vscode/settings.json).
+//
+// Model: script-first. Trusted, reviewed kerrigan tools auto-approve; raw
+// gh/python mutations and ad-hoc deletes fall through to manual approval;
+// a hard-deny net always prompts for destructive flags. Assumes the kerrigan
+// `tools/` scripts (pr-*.ps1, clean-build.ps1, etc.) are present in the repo.
+//
+// See preset/kerrigan/README.md "Agent approval rules" for the full rationale.
+// ──────────────────────────────────────────────────────────────────────────
 {
     // Keep the agent on "Default Approvals"; never silently jump to Bypass/Autopilot.
     "chat.permissions.default": "Default Approvals",

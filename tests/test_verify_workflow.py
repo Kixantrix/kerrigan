@@ -92,6 +92,20 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         validators_install = validators_install_step.get("run", "")
         self.assertIn("python -m pip install -e tools/cli/kerrigan", validators_install)
 
+    def test_verify_workflow_triggers_and_check_names_for_merge_queue(self):
+        """The verify workflow should run required check contexts on merge queue events."""
+        with open(self.workflow_path, "r", encoding="utf-8") as f:
+            workflow = yaml.safe_load(f)
+
+        on_config = workflow["on"] if "on" in workflow else workflow.get(True, {})
+        self.assertIn("pull_request", on_config)
+        self.assertIn("merge_group", on_config)
+
+        jobs = workflow["jobs"]
+        self.assertEqual(jobs["validators"]["name"], "kerrigan check")
+        self.assertEqual(jobs["tests"]["name"], "tests")
+        self.assertEqual(jobs["smoke"]["name"], "smoke")
+
 
 if __name__ == "__main__":
     unittest.main()
