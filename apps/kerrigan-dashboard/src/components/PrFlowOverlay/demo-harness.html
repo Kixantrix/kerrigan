@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PR Flow Overlay Demo</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #0d1117;
+        color: #e8eaed;
+        font-family: Inter, system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+      }
+
+      .surface {
+        width: 760px;
+        height: 360px;
+        border: 1px solid #1e2530;
+        border-radius: 12px;
+        background: #101724;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .chip {
+        position: absolute;
+        border: 1px solid #2a3342;
+        border-radius: 8px;
+        background: #0d1117;
+        color: #e8eaed;
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+
+      .chip.stage {
+        border-color: rgba(89, 101, 242, 0.45);
+        color: #5965f2;
+      }
+
+      .chip.stage.merged {
+        border-color: rgba(34, 197, 94, 0.5);
+        color: rgb(134 239 172);
+      }
+
+      canvas {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="surface" data-testid="demo-surface">
+      <div class="chip" style="right: 28px; top: 78px">PR #42</div>
+      <div class="chip" style="right: 28px; top: 246px">PR #39</div>
+      <div class="chip stage" style="left: 228px; top: 194px">M3</div>
+      <div class="chip stage merged" style="left: 390px; top: 226px">M5</div>
+      <canvas id="overlay"></canvas>
+    </div>
+
+    <script>
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const canvas = document.getElementById("overlay");
+      const surface = document.querySelector(".surface");
+      const context = canvas.getContext("2d");
+      const particles = [];
+      let frame = 0;
+
+      const streamingPath = {
+        from: { x: 632, y: 104 },
+        c1: { x: 524, y: 32 },
+        c2: { x: 360, y: 142 },
+        to: { x: 262, y: 212 },
+      };
+
+      const absorbingPath = {
+        from: { x: 632, y: 272 },
+        c1: { x: 560, y: 206 },
+        c2: { x: 468, y: 214 },
+        to: { x: 428, y: 244 },
+      };
+
+      function resize() {
+        canvas.width = surface.clientWidth;
+        canvas.height = surface.clientHeight;
+      }
+
+      function point(path, t) {
+        const mt = 1 - t;
+        return {
+          x:
+            mt * mt * mt * path.from.x +
+            3 * mt * mt * t * path.c1.x +
+            3 * mt * t * t * path.c2.x +
+            t * t * t * path.to.x,
+          y:
+            mt * mt * mt * path.from.y +
+            3 * mt * mt * t * path.c1.y +
+            3 * mt * t * t * path.c2.y +
+            t * t * t * path.to.y,
+        };
+      }
+
+      function spawn(path, absorbing = false) {
+        particles.push({
+          path,
+          absorbing,
+          t: absorbing ? 0.72 + Math.random() * 0.2 : 0,
+          speed: absorbing ? 0.028 : 0.014 + Math.random() * 0.004,
+          trail: [],
+        });
+        if (particles.length > 20) particles.shift();
+      }
+
+      function drawStatic() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.beginPath();
+        context.moveTo(streamingPath.from.x, streamingPath.from.y);
+        context.bezierCurveTo(
+          streamingPath.c1.x,
+          streamingPath.c1.y,
+          streamingPath.c2.x,
+          streamingPath.c2.y,
+          streamingPath.to.x,
+          streamingPath.to.y,
+        );
+        context.strokeStyle = "rgba(89, 101, 242, 0.22)";
+        context.lineWidth = 1;
+        context.stroke();
+      }
+
+      function tick() {
+        if (prefersReducedMotion) {
+          drawStatic();
+          requestAnimationFrame(tick);
+          return;
+        }
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        frame += 1;
+
+        if (frame % 10 === 0) {
+          spawn(streamingPath);
+        }
+        if (frame % 35 === 0) {
+          spawn(absorbingPath, true);
+        }
+
+        for (let i = particles.length - 1; i >= 0; i -= 1) {
+          const p = particles[i];
+          p.t += p.speed;
+          if (p.t >= 1) {
+            particles.splice(i, 1);
+            continue;
+          }
+
+          const pos = point(p.path, p.t);
+          p.trail.push(pos);
+          if (p.trail.length > 8) p.trail.shift();
+
+          for (let j = 1; j < p.trail.length; j += 1) {
+            const alpha = (j / p.trail.length) * 0.34;
+            context.beginPath();
+            context.moveTo(p.trail[j - 1].x, p.trail[j - 1].y);
+            context.lineTo(p.trail[j].x, p.trail[j].y);
+            context.strokeStyle = p.absorbing
+              ? `rgba(34, 197, 94, ${alpha})`
+              : `rgba(89, 101, 242, ${alpha})`;
+            context.lineWidth = 1 + (j / p.trail.length);
+            context.stroke();
+          }
+
+          context.beginPath();
+          context.arc(pos.x, pos.y, p.absorbing ? 2.2 : 1.9, 0, Math.PI * 2);
+          context.fillStyle = p.absorbing ? "rgba(34, 197, 94, 0.84)" : "rgba(89, 101, 242, 0.45)";
+          context.fill();
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      resize();
+      window.addEventListener("resize", resize);
+      requestAnimationFrame(tick);
+    </script>
+  </body>
+</html>
