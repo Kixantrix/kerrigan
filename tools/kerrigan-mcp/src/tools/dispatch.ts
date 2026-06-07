@@ -19,11 +19,11 @@ export const dispatchInputSchema = {
 interface DispatchInput {
   title: string;
   body: string;
-  labels?: ReadonlyArray<string>;
-  repo?: string;
+  labels: ReadonlyArray<string> | undefined;
+  repo: string | undefined;
 }
 
-interface DispatchResult {
+interface DispatchResult extends Record<string, unknown> {
   number: number;
   url: string;
 }
@@ -92,7 +92,12 @@ function parseIssue(stdout: string): DispatchResult {
     throw new Error(`Unable to parse issue URL from output: ${lastLine}`);
   }
 
-  const issueNumber = Number.parseInt(match[1], 10);
+  const issueNumberRaw = match[1];
+  if (!issueNumberRaw) {
+    throw new Error(`Unable to parse issue number from URL: ${lastLine}`);
+  }
+
+  const issueNumber = Number.parseInt(issueNumberRaw, 10);
   if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
     throw new Error(`Invalid issue number in URL: ${lastLine}`);
   }
@@ -107,8 +112,11 @@ export async function dispatchIssue(
   input: DispatchInput,
   deps: DispatchDeps = getDispatchDeps(),
 ): Promise<DispatchResult> {
-  const bodyFile = path.join(tmpdir(), `kerrigan-dispatch-${randomUUID()}.md`);
-  await writeFile(bodyFile, input.body, { encoding: "utf8" });
+  const tempBodyFilePath = path.join(
+    tmpdir(),
+    `kerrigan-dispatch-${randomUUID()}.md`,
+  );
+  await writeFile(tempBodyFilePath, input.body, { encoding: "utf8" });
 
   try {
     const args: string[] = [
@@ -117,7 +125,7 @@ export async function dispatchIssue(
       "--title",
       input.title,
       "--body-file",
-      bodyFile,
+      tempBodyFilePath,
       "--assignee",
       "@copilot",
     ];
@@ -155,7 +163,7 @@ export async function dispatchIssue(
       message,
     });
   } finally {
-    await rm(bodyFile, { force: true });
+    await rm(tempBodyFilePath, { force: true });
   }
 }
 
@@ -164,8 +172,13 @@ export function registerDispatchTool(server: McpServer): void {
     "kerrigan.dispatch",
     "Create a GitHub issue from a briefing and assign @copilot",
     dispatchInputSchema,
-    async (input) => {
-      const issue = await dispatchIssue(input);
+    async (input, _extra) => {
+      const issue = await dispatchIssue({
+        title: input.title,
+        body: input.body,
+        labels: input.labels,
+        repo: input.repo,
+      });
 
       return {
         content: [
