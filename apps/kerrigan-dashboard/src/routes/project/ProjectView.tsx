@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Dag } from "../../components/Dag/Dag.js";
+import { PlanEditor } from "../../components/PlanEditor/PlanEditor.js";
 import {
   createGitHubClient,
   type GitHubClient,
@@ -38,6 +39,7 @@ interface ProjectViewProps {
 interface ProjectRouteState {
   loading: boolean;
   project: Readonly<Project> | null;
+  planMarkdown: string;
   graph: PlanStageGraph;
   statuses: ReadonlyMap<string, StageStatus>;
   parseErrors: ReadonlyArray<PlanParseError>;
@@ -58,6 +60,7 @@ const EMPTY_GRAPH: PlanStageGraph = { nodes: [], edges: [] };
 const INITIAL_STATE: ProjectRouteState = {
   loading: true,
   project: null,
+  planMarkdown: "",
   graph: EMPTY_GRAPH,
   statuses: new Map(),
   parseErrors: [],
@@ -72,6 +75,7 @@ export function ProjectView({
   const params = useParams();
   const projectId = params.projectId ?? "";
   const [state, setState] = useState<ProjectRouteState>(INITIAL_STATE);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
 
   const githubClient: GitHubClient = useMemo(() => {
     try {
@@ -128,6 +132,7 @@ export function ProjectView({
         setState({
           loading: false,
           project,
+          planMarkdown,
           graph: { nodes: parsed.nodes, edges: parsed.edges },
           statuses,
           parseErrors: parsed.errors,
@@ -141,6 +146,10 @@ export function ProjectView({
       cancelled = true;
     };
   }, [blocksReader, githubClient, planReader, projectId]);
+
+  useEffect(() => {
+    setSelectedStageId(null);
+  }, [projectId]);
 
   if (state.loading) {
     return (
@@ -188,8 +197,13 @@ export function ProjectView({
           Plan file is unavailable for this project.
         </div>
       ) : (
-        <div className="min-h-0 flex-1">
-          <Dag graph={state.graph} statuses={state.statuses} />
+        <div className="min-h-0 flex flex-1 gap-4">
+          <div className="min-h-0 flex-1">
+            <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
+          </div>
+          <div className="min-h-0 flex-1">
+            <Dag graph={state.graph} onStageSelect={setSelectedStageId} statuses={state.statuses} />
+          </div>
         </div>
       )}
 

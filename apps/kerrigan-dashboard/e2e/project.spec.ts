@@ -64,3 +64,30 @@ test("visual regression on reference plans", async ({ page }) => {
     await expect(page.getByTestId("project-dag")).toHaveScreenshot(`${project.id}-dag.png`);
   }
 });
+
+test("clicking a DAG node scrolls the matching plan heading into view", async ({ page }) => {
+  await page.addInitScript((plans) => {
+    window.__KERRIGAN_PLAN_FIXTURE__ = plans;
+  }, {
+    ...planFixtureByProject,
+    "kerrigan-dashboard": buildLargePlanFixture(60),
+  });
+
+  await page.goto("/#/project/kerrigan-dashboard");
+
+  const heading = page.getByTestId("plan-heading-stage-35");
+  await expect(heading).toBeAttached();
+
+  await page.getByTestId("stage-node-stage-35").click();
+
+  await expect
+    .poll(
+      async () =>
+        heading.evaluate((element) => {
+          const rect = element.getBoundingClientRect();
+          return rect.top >= 0 && rect.bottom <= window.innerHeight;
+        }),
+      { timeout: 250 },
+    )
+    .toBe(true);
+});

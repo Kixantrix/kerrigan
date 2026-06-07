@@ -17,6 +17,7 @@ import { StageNode } from "./StageNode.js";
 interface DagProps {
   graph: PlanStageGraph;
   statuses: ReadonlyMap<string, StageStatus>;
+  onStageSelect?: (stageId: string) => void;
 }
 
 const nodeTypes = {
@@ -28,7 +29,7 @@ const edgeColorByKind: Record<"parent" | "dependency", string> = {
   dependency: "#5965F2",
 };
 
-export function Dag({ graph, statuses }: DagProps) {
+export function Dag({ graph, statuses, onStageSelect }: DagProps) {
   const layout = useMemo(() => buildDagLayout(graph, statuses), [graph, statuses]);
 
   const edges = useMemo<StageDagEdge[]>(
@@ -58,6 +59,9 @@ export function Dag({ graph, statuses }: DagProps) {
         nodesConnectable={false}
         elementsSelectable
         nodeTypes={nodeTypes}
+        onNodeClick={(_, node) => {
+          onStageSelect?.(node.id);
+        }}
       >
         <Background color="#1E2530" gap={24} />
         <Controls />
