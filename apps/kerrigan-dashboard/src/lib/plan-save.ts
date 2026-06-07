@@ -166,6 +166,9 @@ function createDefaultPrOpener(
 ): PrOpener {
   return async ({ repo, branch, baseBranch }: OpenDraftPrInput): Promise<OpenDraftPrResult> => {
     const token = (await shellOut("gh", ["auth", "token"])).trim();
+    if (token.length === 0) {
+      throw new Error("auth-unavailable");
+    }
     const octokit = new Octokit({ auth: token });
     const response = await octokit.pulls.create({
       owner: repo.owner,
@@ -182,7 +185,11 @@ function createDefaultPrOpener(
 }
 
 function toShortSha(sha: string): string {
-  return sha.trim().toLowerCase().replace(/[^a-f0-9]/g, "").slice(0, 7) || "unknown";
+  const normalized = sha.trim().toLowerCase().replace(/[^a-f0-9]/g, "").slice(0, 7);
+  if (normalized.length < 7) {
+    throw new Error(`invalid-base-sha: '${sha}'`);
+  }
+  return normalized;
 }
 
 function toBranchTimestamp(now: Date): string {

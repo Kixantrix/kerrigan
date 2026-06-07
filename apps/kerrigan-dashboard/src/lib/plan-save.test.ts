@@ -158,4 +158,25 @@ describe("createPlanEditSession", () => {
     });
     expect(prOpener.calls).toHaveLength(0);
   });
+
+  it("returns typed branch-create-failed when base SHA cannot form a short SHA", async () => {
+    const gitOps = new FakeGitOps();
+    gitOps.headSha = "xyz";
+    const prOpener = new FakePrOpener();
+    const session = createPlanEditSession({
+      project: createProject(),
+      filePath: "/fixtures/rocket/spec.md",
+      gitOps,
+      prOpener: (input) => prOpener.open(input),
+      now: () => new Date("2026-06-07T18:54:19.888Z"),
+    });
+
+    const result = await session.save("# Invalid sha");
+
+    expect(result).toMatchObject({
+      ok: false,
+      reason: "branch-create-failed",
+    });
+    expect(prOpener.calls).toHaveLength(0);
+  });
 });
