@@ -10,8 +10,10 @@
     config (.github/repo-protection.json). This tool reads that config and brings
     the repo's GitHub settings into line with it:
 
-      1. Required status checks + strict-up-to-date  (classic branch protection)
-      2. Merge queue                                 (repository ruleset)
+      1. One branch ruleset containing:
+         - required_status_checks
+         - merge_queue (when enabled)
+      2. Classic required_status_checks cleared (to avoid ruleset conflicts)
 
     Flexible: any repo can ship a different config (different required checks,
     queue off, strict on) and this tool applies whatever is declared. Optimized
@@ -22,9 +24,9 @@
     the exact JSON payloads. It mutates shared branch protection ONLY when you
     pass -Apply. Re-running is idempotent (converges to the declared state).
 
-    The merge-queue rule is created/updated via the repository rulesets API. The
-    dry-run prints the full ruleset payload so you can review the merge_queue
-    parameters against your repo's GitHub plan before the first -Apply.
+    The checks + queue rules are created/updated together in a single repository
+    ruleset. The dry-run prints the full payloads (ruleset + classic-clear plan)
+    so you can review them before the first -Apply.
 
 .PARAMETER Repo
     owner/name. Defaults to the current repo (gh repo view).
@@ -73,12 +75,20 @@ if (-not $Repo) {
 $branch = if ($config.branch) { [string]$config.branch } else { 'main' }
 $requiredChecks = @($config.required_checks)
 $strict = [bool]$config.strict_status_checks
+$protectionMode = if ($config.protection_mode) { [string]$config.protection_mode } else { 'ruleset' }
+$mq = $config.merge_queue
+$mqEnabled = ($null -ne $mq -and [bool]$mq.enabled)
 $mode = if ($Apply) { "APPLY" } else { "DRY-RUN" }
 
 # Guard: a missing / non-string-array required_checks would PATCH an EMPTY
 # contexts list, silently CLEARING the branch's required checks. Refuse instead.
 if ($requiredChecks.Count -eq 0 -or ($requiredChecks | Where-Object { $_ -isnot [string] -or [string]::IsNullOrWhiteSpace($_) })) {
     Write-Host "[fail] ${ConfigPath}: 'required_checks' must be a non-empty array of check-name strings (refusing to clear required checks)." -ForegroundColor Red
+    exit 1
+}
+
+if ($protectionMode -ne 'ruleset') {
+    Write-Host "[fail] ${ConfigPath}: unsupported protection_mode '$protectionMode' (only 'ruleset' is supported)." -ForegroundColor Red
     exit 1
 }
 
@@ -95,32 +105,26 @@ Write-Host ("repo={0} branch={1}" -f $Repo, $branch)
 Write-Host ""
 
 # ---------------------------------------------------------------------------
-# 1) Required status checks + strict (classic branch protection)
+# 1) Build one branch ruleset: required_status_checks (+ merge_queue)
 # ---------------------------------------------------------------------------
-$rscPayload = [ordered]@{
-    strict   = $strict
-    contexts = $requiredChecks
-} | ConvertTo-Json -Compress
-Write-Plan "PATCH /repos/$Repo/branches/$branch/protection/required_status_checks"
-Write-Host "       payload: $rscPayload"
-if ($Apply) {
-    $tmp = New-TemporaryFile
-    Write-Utf8NoBom $tmp $rscPayload
-    gh api --method PATCH "repos/$Repo/branches/$branch/protection/required_status_checks" --input $tmp 2>&1 | Out-Null
-    Remove-Item $tmp -ErrorAction SilentlyContinue
-    if ($LASTEXITCODE -ne 0) { Write-Host "[fail] required_status_checks PATCH failed (does the branch have protection enabled?)." -ForegroundColor Red; exit 1 }
-    Write-Did "required status checks set (strict=$strict; contexts=$($requiredChecks -join ', '))"
+$rulesetName = "Kerrigan main protection"
+$strictRequiredChecksPolicy = if ($mqEnabled) { $false } else { $strict }
+$requiredStatusChecksRule = [ordered]@{
+    type       = 'required_status_checks'
+    parameters = [ordered]@{
+        required_status_checks             = @($requiredChecks | ForEach-Object { [ordered]@{ context = [string]$_ } })
+        strict_required_status_checks_policy = $strictRequiredChecksPolicy
+    }
 }
-Write-Host ""
 
-# ---------------------------------------------------------------------------
-# 2) Merge queue (repository ruleset)
-# ---------------------------------------------------------------------------
-$mq = $config.merge_queue
-if ($null -ne $mq -and [bool]$mq.enabled) {
-    $rulesetName = "Kerrigan merge queue"
+if ($mqEnabled) {
+    $mergeMethod = if ($mq.merge_method) { ([string]$mq.merge_method).ToUpperInvariant() } else { 'SQUASH' }
+    if (@('MERGE', 'REBASE', 'SQUASH') -notcontains $mergeMethod) {
+        Write-Host "[fail] ${ConfigPath}: merge_queue.merge_method must be one of MERGE/REBASE/SQUASH." -ForegroundColor Red
+        exit 1
+    }
     $mqParams = [ordered]@{
-        merge_method                      = if ($mq.merge_method) { [string]$mq.merge_method } else { 'SQUASH' }
+        merge_method                      = $mergeMethod
         min_entries_to_merge              = if ($null -ne $mq.min_entries_to_merge) { [int]$mq.min_entries_to_merge } else { 1 }
         max_entries_to_merge              = if ($null -ne $mq.max_entries_to_merge) { [int]$mq.max_entries_to_merge } else { 5 }
         min_entries_to_merge_wait_minutes = if ($null -ne $mq.min_entries_to_merge_wait_minutes) { [int]$mq.min_entries_to_merge_wait_minutes } else { 5 }
@@ -128,45 +132,84 @@ if ($null -ne $mq -and [bool]$mq.enabled) {
         check_response_timeout_minutes    = if ($null -ne $mq.check_response_timeout_minutes) { [int]$mq.check_response_timeout_minutes } else { 60 }
         grouping_strategy                 = if ($mq.grouping_strategy) { [string]$mq.grouping_strategy } else { 'ALLGREEN' }
     }
-    $rulesetPayload = [ordered]@{
-        name        = $rulesetName
-        target      = 'branch'
-        enforcement = 'active'
-        conditions  = [ordered]@{ ref_name = [ordered]@{ include = @("refs/heads/$branch"); exclude = @() } }
-        rules       = @([ordered]@{ type = 'merge_queue'; parameters = $mqParams })
-    } | ConvertTo-Json -Depth 8
+    $queueRule = [ordered]@{ type = 'merge_queue'; parameters = $mqParams }
+    $rules = @($requiredStatusChecksRule, $queueRule)
+} else {
+    $rules = @($requiredStatusChecksRule)
+}
 
+$rulesetPayload = [ordered]@{
+    name        = $rulesetName
+    target      = 'branch'
+    enforcement = 'active'
+    conditions  = [ordered]@{ ref_name = [ordered]@{ include = @("refs/heads/$branch"); exclude = @() } }
+    rules       = $rules
+} | ConvertTo-Json -Depth 10
+
+$clearClassicPayload = [ordered]@{
+    strict   = $false
+    contexts = @()
+} | ConvertTo-Json -Compress
+$restoreClassicPayload = [ordered]@{
+    strict   = $strict
+    contexts = $requiredChecks
+} | ConvertTo-Json -Compress
+
+Write-Plan "POST/PUT /repos/$Repo/rulesets  (idempotent by name '$rulesetName')"
+Write-Host "       payload:"
+$rulesetPayload.Split("`n") | ForEach-Object { Write-Host "         $_" }
+Write-Host "       NOTE: required_status_checks and merge_queue are sent together in one ruleset."
+if ($mqEnabled -and $strict) {
+    Write-Host "       NOTE: strict_status_checks=true is ignored for queue mode; strict_required_status_checks_policy is set to false."
+}
+Write-Host ""
+Write-Plan "PATCH /repos/$Repo/branches/$branch/protection/required_status_checks  (clear classic duplicate checks)"
+Write-Host "       payload: $clearClassicPayload"
+Write-Host ""
+
+if ($Apply) {
     # Find an existing ruleset with our name (idempotent create-or-update).
     $existingId = $null
     $rulesets = gh api "repos/$Repo/rulesets" 2>&1 | Out-String
-    if ($LASTEXITCODE -eq 0) {
-        $existingId = ($rulesets | ConvertFrom-Json | Where-Object { $_.name -eq $rulesetName } | Select-Object -First 1).id
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[fail] could not list existing rulesets for $Repo." -ForegroundColor Red
+        exit 1
     }
+    $existingId = ($rulesets | ConvertFrom-Json | Where-Object { $_.name -eq $rulesetName } | Select-Object -First 1).id
 
+    $tmp = New-TemporaryFile
+    Write-Utf8NoBom $tmp $clearClassicPayload
+    gh api --method PATCH "repos/$Repo/branches/$branch/protection/required_status_checks" --input $tmp 2>&1 | Out-Null
+    $clearRc = $LASTEXITCODE
+    Remove-Item $tmp -ErrorAction SilentlyContinue
+    if ($clearRc -ne 0) { Write-Host "[fail] classic required_status_checks clear failed (is branch protection enabled?)." -ForegroundColor Red; exit 1 }
+    Write-Did "classic required status checks cleared (ruleset is now the single source of gating)."
+
+    $tmp = New-TemporaryFile
+    Write-Utf8NoBom $tmp $rulesetPayload
     if ($existingId) {
-        Write-Plan "PUT /repos/$Repo/rulesets/$existingId  (update '$rulesetName')"
+        gh api --method PUT "repos/$Repo/rulesets/$existingId" --input $tmp 2>&1 | Out-Null
     } else {
-        Write-Plan "POST /repos/$Repo/rulesets  (create '$rulesetName')"
+        gh api --method POST "repos/$Repo/rulesets" --input $tmp 2>&1 | Out-Null
     }
-    Write-Host "       payload:"
-    $rulesetPayload.Split("`n") | ForEach-Object { Write-Host "         $_" }
-    Write-Host "       NOTE: review the merge_queue parameters above against your repo's GitHub plan before the first apply."
+    $rulesetRc = $LASTEXITCODE
+    Remove-Item $tmp -ErrorAction SilentlyContinue
 
-    if ($Apply) {
+    if ($rulesetRc -ne 0) {
+        Write-Host "[fail] checks+queue ruleset write failed; attempting classic required_status_checks rollback." -ForegroundColor Red
         $tmp = New-TemporaryFile
-        Write-Utf8NoBom $tmp $rulesetPayload
-        if ($existingId) {
-            gh api --method PUT "repos/$Repo/rulesets/$existingId" --input $tmp 2>&1 | Out-Null
-        } else {
-            gh api --method POST "repos/$Repo/rulesets" --input $tmp 2>&1 | Out-Null
-        }
-        $rc = $LASTEXITCODE
+        Write-Utf8NoBom $tmp $restoreClassicPayload
+        gh api --method PATCH "repos/$Repo/branches/$branch/protection/required_status_checks" --input $tmp 2>&1 | Out-Null
+        $rollbackRc = $LASTEXITCODE
         Remove-Item $tmp -ErrorAction SilentlyContinue
-        if ($rc -ne 0) { Write-Host "[fail] merge-queue ruleset write failed (review merge_queue params)." -ForegroundColor Red; exit 1 }
-        Write-Did "merge queue ruleset '$rulesetName' applied."
+        if ($rollbackRc -eq 0) {
+            Write-Host "[done] rollback restored classic required_status_checks payload." -ForegroundColor Yellow
+        } else {
+            Write-Host "[warn] rollback failed; re-run with corrected payload or restore manually." -ForegroundColor Yellow
+        }
+        exit 1
     }
-} else {
-    Write-Plan "merge queue: not enabled in config; leaving rulesets untouched."
+    Write-Did "ruleset '$rulesetName' applied."
 }
 
 Write-Host ""

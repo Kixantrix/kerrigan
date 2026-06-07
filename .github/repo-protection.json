@@ -1,8 +1,9 @@
 {
   "$schema": "https://kerrigan.dev/schemas/repo-protection/v1",
   "profile": "kerrigan",
-  "description": "Declared branch-protection + merge-queue shape for this repo. Read by tools/validators/check_merge_queue.py (invariant guardrail) and tools/configure-repo-protection.ps1 (applies it via the GitHub API). Absent file => tooling is a no-op, so this is opt-in per repo. Copy preset/kerrigan/repo-protection.json to adopt the optimized Kerrigan default in another repo, then override fields for that repo's setup.",
+  "description": "Declared repo-protection shape for this repo. Read by tools/validators/check_merge_queue.py (invariant guardrail) and tools/configure-repo-protection.ps1 (applies it via the GitHub API). The apply tool uses one branch ruleset for required checks + merge queue, then clears classic required_status_checks to avoid conflicts. Absent file => tooling is a no-op, so this is opt-in per repo. Copy preset/kerrigan/repo-protection.json to adopt the optimized Kerrigan default in another repo, then override fields for that repo's setup.",
   "branch": "main",
+  "protection_mode": "ruleset",
   "required_checks": [
     "kerrigan check",
     "tests",
