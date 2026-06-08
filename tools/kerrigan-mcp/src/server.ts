@@ -2,6 +2,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { pathToFileURL } from "node:url";
 import { registerDispatchTool } from "./tools/dispatch.js";
+import { registerPlanUpdateTool } from "./tools/plan-update.js";
 
 export function createServer(): McpServer {
   const server = new McpServer({
@@ -10,6 +11,7 @@ export function createServer(): McpServer {
   });
 
   registerDispatchTool(server);
+  registerPlanUpdateTool(server);
   return server;
 }
 
