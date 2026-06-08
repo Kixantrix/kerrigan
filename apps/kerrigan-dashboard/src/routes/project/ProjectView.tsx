@@ -435,11 +435,9 @@ interface TauriFsModule {
 }
 
 async function loadTauriFs(): Promise<TauriFsModule | null> {
-  const moduleName = "@tauri-apps/plugin-fs";
-
   let moduleValue: unknown;
   try {
-    moduleValue = await import(moduleName);
+    moduleValue = await import("@tauri-apps/plugin-fs");
   } catch {
     return null;
   }
