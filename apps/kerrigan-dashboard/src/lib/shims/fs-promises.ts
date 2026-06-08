@@ -24,6 +24,7 @@ interface ReadDirOptions {
 }
 
 async function readFile(filePath: string, encoding: "utf-8"): Promise<string> {
+  // encoding is always 'utf-8'; kept for Node fs.promises API compatibility.
   void encoding;
 
   if (typeof window !== "undefined" && "__TAURI__" in window) {
@@ -38,6 +39,7 @@ async function readdir(
   dirPath: string,
   _options: ReadDirOptions,
 ): Promise<ReadonlyArray<DirEntry>> {
+  // withFileTypes is always true; kept for Node fs.promises API compatibility.
   void _options;
   if (typeof window !== "undefined" && "__TAURI__" in window) {
     const { readDir } = await import("@tauri-apps/plugin-fs");

@@ -22,7 +22,7 @@ function notFoundError(filePath: string): NodeLikeError {
 }
 
 async function readFile(filePath: string, encoding: "utf-8"): Promise<string> {
-  // Keep the parameter signature compatible with Node's fs.promises.readFile.
+  // encoding is always 'utf-8'; kept for Node fs.promises API compatibility.
   void encoding;
 
   if (typeof window !== "undefined" && "__TAURI__" in window) {
