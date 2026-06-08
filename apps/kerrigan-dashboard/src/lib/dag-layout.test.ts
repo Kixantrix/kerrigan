@@ -31,6 +31,8 @@ describe("buildDagLayout", () => {
     expect(nodeById.get("m1")?.data.status).toBe("blocked");
     expect(nodeById.get("m1a")?.data.status).toBe("in-review");
     expect(nodeById.get("m2")?.data.status).toBe("planned");
+    expect(nodeById.get("m1")?.width).toBe(240);
+    expect(nodeById.get("m1")?.height).toBe(104);
 
     const parent = nodeById.get("m1");
     const child = nodeById.get("m1a");

@@ -4,6 +4,8 @@ import {
   Controls,
   ReactFlow,
   type NodeTypes,
+  useNodesInitialized,
+  useReactFlow,
 } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PullRequestData } from "../../lib/github.js";
@@ -45,6 +47,27 @@ const ABSORB_PULSE_DELAY_MS = ABSORBING_FLOW_DURATION_MS - ABSORB_PULSE_LEAD_MS;
 const FLOW_SOURCE_MIN_X = 24;
 const FLOW_SOURCE_OFFSET_X = 40;
 const FLOW_SOURCE_OFFSET_Y = 40;
+const FIT_PADDING = 0.2;
+const FIT_MAX_ZOOM = 1;
+
+interface FitViewOnNodesReadyProps {
+  fitRevision: number;
+}
+
+function FitViewOnNodesReady({ fitRevision }: FitViewOnNodesReadyProps) {
+  const { fitView } = useReactFlow();
+  const nodesInitialized = useNodesInitialized();
+
+  useEffect(() => {
+    if (!nodesInitialized) {
+      return;
+    }
+
+    void fitView({ padding: FIT_PADDING, maxZoom: FIT_MAX_ZOOM });
+  }, [fitView, fitRevision, nodesInitialized]);
+
+  return null;
+}
 
 export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
   const layout = useMemo(() => buildDagLayout(graph, statuses), [graph, statuses]);
@@ -57,6 +80,7 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [pulseAtByStage, setPulseAtByStage] = useState<ReadonlyMap<string, number>>(new Map());
   const [viewportRevision, setViewportRevision] = useState(0);
+  const [fitRevision, setFitRevision] = useState(0);
 
   const edges = useMemo<StageDagEdge[]>(
     () =>
@@ -81,6 +105,9 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
       }),
     [layout.nodes, pulseAtByStage],
   );
+  useEffect(() => {
+    setFitRevision((previous) => previous + 1);
+  }, [graph]);
 
   const recomputeNodePositions = useCallback(() => {
     const wrapper = wrapperRef.current;
@@ -232,6 +259,7 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
         nodes={nodes}
         edges={edges}
         fitView
+        fitViewOptions={{ padding: FIT_PADDING, maxZoom: FIT_MAX_ZOOM }}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable
@@ -243,6 +271,7 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
           setViewportRevision((value) => value + 1);
         }}
       >
+        <FitViewOnNodesReady fitRevision={fitRevision} />
         <Background color="#1E2530" gap={24} />
         <Controls />
       </ReactFlow>
