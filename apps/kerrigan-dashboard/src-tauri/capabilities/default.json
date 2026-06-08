@@ -5,6 +5,39 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "opener:default"
+    "opener:default",
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [
+        { "path": "$HOME/.kerrigan/**" },
+        { "path": "$HOME/code/**" },
+        { "path": "$HOME/dev/**" },
+        { "path": "$HOME/projects/**" },
+        { "path": "$HOME/src/**" },
+        { "path": "$HOME/work/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": [
+        { "path": "$HOME/.kerrigan/**" },
+        { "path": "$HOME/code/**" },
+        { "path": "$HOME/dev/**" },
+        { "path": "$HOME/projects/**" },
+        { "path": "$HOME/src/**" },
+        { "path": "$HOME/work/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        { "path": "$HOME/.kerrigan/**" },
+        { "path": "$HOME/code/**" },
+        { "path": "$HOME/dev/**" },
+        { "path": "$HOME/projects/**" },
+        { "path": "$HOME/src/**" },
+        { "path": "$HOME/work/**" }
+      ]
+    }
   ]
 }
