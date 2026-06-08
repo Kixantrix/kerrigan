@@ -24,6 +24,42 @@ describe("parsePlanMarkdown", () => {
     ]);
   });
 
+  it("extracts only milestone H3 stages and links them sequentially", () => {
+    const result = parsePlanMarkdown(`## Overview
+### Ignore me
+## Milestones
+### M1 — Setup
+### M2 — Build
+## Phases
+### M3 — Ship
+## Tasks
+### Ignore me too`);
+
+    expect(result.nodes).toEqual([
+      { id: "m1-setup", label: "M1 — Setup", level: 3, parentId: "milestones" },
+      { id: "m2-build", label: "M2 — Build", level: 3, parentId: "milestones" },
+      { id: "m3-ship", label: "M3 — Ship", level: 3, parentId: "phases" },
+    ]);
+    expect(result.edges).toEqual([
+      { from: "m1-setup", to: "m2-build", kind: "parent" },
+      { from: "m2-build", to: "m3-ship", kind: "parent" },
+    ]);
+    expect(result.errors).toEqual([]);
+  });
+
+  it("falls back to H2/H3 parsing when no milestone section exists", () => {
+    const result = parsePlanMarkdown("## Build\n### Compile\n## Ship");
+
+    expect(result.nodes).toEqual([
+      { id: "build", label: "Build", level: 2, parentId: null },
+      { id: "compile", label: "Compile", level: 3, parentId: "build" },
+      { id: "ship", label: "Ship", level: 2, parentId: null },
+    ]);
+    expect(result.edges).toEqual([
+      { from: "build", to: "compile", kind: "parent" },
+    ]);
+  });
+
   it("re-parents H3 stages when a new H2 appears", () => {
     const result = parsePlanMarkdown("## Build\n### Compile\n## Ship\n### Release");
 

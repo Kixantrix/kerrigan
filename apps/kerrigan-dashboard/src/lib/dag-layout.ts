@@ -19,8 +19,8 @@ export interface DagLayoutResult {
   edges: StageDagEdge[];
 }
 
-const NODE_WIDTH = 240;
-const NODE_HEIGHT = 84;
+export const NODE_WIDTH = 240;
+export const NODE_HEIGHT = 104;
 
 export function buildDagLayout(
   graph: PlanStageGraph,
@@ -60,6 +60,8 @@ export function buildDagLayout(
         id: node.id,
         type: "stage",
         position: { x, y },
+        width: NODE_WIDTH,
+        height: NODE_HEIGHT,
         data: {
           label: node.label,
           level: node.level,

@@ -49,6 +49,7 @@ interface StageParseResult {
 }
 
 const HEADING_PATTERN = /^(#{2,3})\s+(.+?)\s*#*\s*$/;
+const MILESTONE_SECTION_PATTERN = /^\s*(milestones?|phases?)\b/i;
 
 export function parsePlanMarkdown(markdown: string): PlanParseResult {
   const frontmatter = parseFrontmatter(markdown);
@@ -119,6 +120,8 @@ function parseStages(body: string): StageParseResult {
 
   const slugCounts = new Map<string, number>();
   let currentH2Id: string | null = null;
+  const milestoneSectionIds = new Set<string>();
+  const orphanHeadingLineById = new Map<string, number>();
 
   for (const [index, line] of body.split(/\r?\n/).entries()) {
     const match = line.match(HEADING_PATTERN);
@@ -146,21 +149,47 @@ function parseStages(body: string): StageParseResult {
     let parentId: string | null = null;
     if (level === 2) {
       currentH2Id = id;
+      if (MILESTONE_SECTION_PATTERN.test(label)) {
+        milestoneSectionIds.add(id);
+      }
     } else {
       parentId = currentH2Id;
       if (parentId === null) {
-        errors.push({
-          code: "orphan-substage",
-          message: `H3 stage '${label}' has no parent H2 stage.`,
-          line: index + 1,
-        });
+        orphanHeadingLineById.set(id, index + 1);
       }
     }
 
     nodes.push({ id, label, level, parentId });
+  }
 
-    if (parentId !== null) {
-      edges.push({ from: parentId, to: id, kind: "parent" });
+  if (milestoneSectionIds.size > 0) {
+    const milestoneNodes = nodes.filter(
+      (node) => node.level === 3 && node.parentId !== null && milestoneSectionIds.has(node.parentId),
+    );
+
+    let previousNode: PlanStageNode | undefined;
+    for (const node of milestoneNodes) {
+      if (previousNode !== undefined) {
+        edges.push({ from: previousNode.id, to: node.id, kind: "parent" });
+      }
+      previousNode = node;
+    }
+
+    return { nodes: milestoneNodes, edges, errors };
+  }
+
+  for (const node of nodes) {
+    if (node.level === 3 && node.parentId === null) {
+      errors.push({
+        code: "orphan-substage",
+        message: `H3 stage '${node.label}' has no parent H2 stage.`,
+        line: orphanHeadingLineById.get(node.id) ?? null,
+      });
+      continue;
+    }
+
+    if (node.parentId !== null) {
+      edges.push({ from: node.parentId, to: node.id, kind: "parent" });
     }
   }
 
