@@ -1,6 +1,6 @@
 import type { NodeProps } from "@xyflow/react";
 import { useEffect, useState } from "react";
-import type { StageDagNode } from "../../lib/dag-layout.js";
+import { NODE_HEIGHT, NODE_WIDTH, type StageDagNode } from "../../lib/dag-layout.js";
 import type { StageStatus } from "../../lib/status.js";
 import { ABSORBING_FLOW_DURATION_MS } from "../PrFlowOverlay/constants.js";
 
@@ -65,17 +65,20 @@ export function StageNode({ id, data }: NodeProps<StageDagNode>) {
 
   return (
     <article
-      className={`min-w-60 rounded-lg border border-[#1E2530] bg-[#101724] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] ${
+      className={`rounded-lg border border-[#1E2530] bg-[#101724] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] ${
         pulsing ? "ring-2 ring-green-500/70 shadow-[0_0_0_1px_rgba(34,197,94,0.55)]" : ""
       }`}
       data-pulsing={pulsing ? "true" : "false"}
       data-testid={`stage-node-${id}`}
+      style={{ height: NODE_HEIGHT, width: NODE_WIDTH }}
     >
       <div className="mb-2 flex items-center gap-2 text-nano uppercase tracking-[0.06em] text-[#8B94A6]">
         <span className={`inline-block h-2 w-2 rounded-full ${statusStyle.indicatorClassName}`} />
         <span>{data.level === 2 ? "Stage" : "Substage"}</span>
       </div>
-      <h3 className="text-body font-medium text-neutral-fg">{data.label}</h3>
+      <h3 className="line-clamp-2 break-words whitespace-normal text-body font-medium leading-5 text-neutral-fg">
+        {data.label}
+      </h3>
       <p
         className={`mt-2 inline-flex rounded border px-1.5 py-0.5 text-nano uppercase tracking-[0.05em] ${statusStyle.badgeClassName}`}
       >
