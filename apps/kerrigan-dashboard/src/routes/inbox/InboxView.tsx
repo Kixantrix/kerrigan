@@ -7,6 +7,7 @@ import {
   type InboxResult,
 } from "../../lib/inbox.js";
 import { createOfflineGitHubClient } from "../../lib/portfolio.js";
+import { tauriShellOut } from "../../lib/shell.js";
 import {
   applyFilters,
   INITIAL_FILTER_STATE,
@@ -54,9 +55,7 @@ const defaultInboxBuilder: InboxBuilder = async () => {
   }
 
   try {
-    const githubClient = createInboxGitHubClient(async () => {
-      throw new Error("shell-unavailable");
-    });
+    const githubClient = createInboxGitHubClient(tauriShellOut);
     return buildInboxFromProjectsFile(githubClient);
   } catch {
     return buildInboxFromProjectsFile(fallbackGitHubClient);

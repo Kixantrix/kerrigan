@@ -8,6 +8,7 @@ import {
   type PortfolioCardData,
 } from "../../lib/portfolio.js";
 import { projectSchema, readProjects, type Project } from "../../lib/projects.js";
+import { tauriShellOut } from "../../lib/shell.js";
 
 declare global {
   interface Window {
@@ -34,9 +35,7 @@ export function PortfolioView() {
 
   const githubClient = useMemo(() => {
     try {
-      return createGitHubClient(async () => {
-        throw new Error("shell-unavailable");
-      });
+      return createGitHubClient(tauriShellOut);
     } catch {
       return fallbackGitHubClient;
     }

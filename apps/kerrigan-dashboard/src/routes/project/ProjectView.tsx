@@ -17,6 +17,7 @@ import {
 } from "../../lib/plan-parser.js";
 import { createOfflineGitHubClient } from "../../lib/portfolio.js";
 import { projectSchema, readProjects, type Project } from "../../lib/projects.js";
+import { tauriShellOut } from "../../lib/shell.js";
 import { deriveStatuses, type BlockSummary, type StageStatus } from "../../lib/status.js";
 
 declare global {
@@ -85,9 +86,7 @@ export function ProjectView({
 
   const githubClient: GitHubClient = useMemo(() => {
     try {
-      return createGitHubClient(async () => {
-        throw new Error("shell-unavailable");
-      });
+      return createGitHubClient(tauriShellOut);
     } catch {
       return fallbackGitHubClient;
     }
