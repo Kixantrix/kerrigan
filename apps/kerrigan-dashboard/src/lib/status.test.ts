@@ -250,4 +250,187 @@ describe("defaultStageMatcher", () => {
 
     expect(defaultStageMatcher(stage, { title: "Task M3.2: status taxonomy" })).toBe(true);
   });
+
+  it("matches via milestone prefix for heading-derived ids (e.g. m3-project-detail-dag → M3)", () => {
+    const stage: PlanStageNode = {
+      id: "m3-project-detail-dag",
+      label: "Project Detail DAG",
+      level: 2,
+      parentId: null,
+    };
+
+    expect(defaultStageMatcher(stage, { title: "M3 tracking issue" })).toBe(true);
+    expect(defaultStageMatcher(stage, { title: "feat: M3.1 ship it" })).toBe(true);
+    expect(defaultStageMatcher(stage, { title: "fix M3.4 bug" })).toBe(true);
+  });
+
+  it("does not match M30 when milestone prefix is m3", () => {
+    const stage: PlanStageNode = {
+      id: "m3-project-detail-dag",
+      label: "Project Detail DAG",
+      level: 2,
+      parentId: null,
+    };
+
+    // "M30" normalises to "m30" — a different standalone word from "m3"
+    expect(defaultStageMatcher(stage, { title: "M30 unrelated milestone" })).toBe(false);
+    // "M31" also should not match
+    expect(defaultStageMatcher(stage, { title: "feat M31 unrelated" })).toBe(false);
+  });
+
+  it("matches via milestone prefix in issue body", () => {
+    const stage: PlanStageNode = {
+      id: "m3-project-detail-dag",
+      label: "Project Detail DAG",
+      level: 2,
+      parentId: null,
+    };
+
+    expect(
+      defaultStageMatcher(stage, {
+        title: "fix: some hotfix with no milestone in title",
+        body: "This resolves M3 work item.",
+      }),
+    ).toBe(true);
+  });
+
+  it("matches via milestone prefix in head branch ref", () => {
+    const stage: PlanStageNode = {
+      id: "m3-project-detail-dag",
+      label: "Project Detail DAG",
+      level: 2,
+      parentId: null,
+    };
+
+    expect(
+      defaultStageMatcher(stage, {
+        title: "fix: hotfix",
+        head: { ref: "feature/m3-dag-polish" },
+      }),
+    ).toBe(true);
+  });
+
+  it("does not apply milestone-prefix matching to sub-indexed stages (m3-2, m3-4-some-feature)", () => {
+    // Sub-indexed stages have a pure-digit second segment; the prefix matching is
+    // intentionally not applied — they rely on the existing compact-match paths.
+    const subIndexed: PlanStageNode = {
+      id: "m3-2",
+      label: "M3.2 status taxonomy",
+      level: 2,
+      parentId: null,
+    };
+
+    // Still matches via normalizedId/stageIdPattern compact check
+    expect(defaultStageMatcher(subIndexed, { title: "Task M3.2: status taxonomy" })).toBe(true);
+    // Does NOT match M3.1 or M3.4 — prefix matching is disabled for sub-indexed stages
+    expect(defaultStageMatcher(subIndexed, { title: "M3.4 unrelated sub-task" })).toBe(false);
+  });
+});
+
+describe("deriveStatuses — closing-PR traversal (Option C)", () => {
+  it("shows merged when a matched issue was closed by a merged PR even if PR title lacks milestone", () => {
+    const stage: PlanStageNode = {
+      id: "m3-project-detail-dag",
+      label: "Project Detail DAG",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [],
+        issues: [
+          issue({
+            title: "M3 tracking issue",
+            state: "closed",
+            closingPRs: [
+              { number: 42, merged: true, title: "fix(dashboard): some unrelated title", url: "https://example.com/pr/42" },
+            ],
+          }),
+        ],
+        blocks: [],
+      },
+    );
+
+    expect(statuses.get("m3-project-detail-dag")).toBe("merged");
+  });
+
+  it("shows planned when the closing PR of a matched issue was NOT merged (only closed)", () => {
+    const stage: PlanStageNode = {
+      id: "m3-project-detail-dag",
+      label: "Project Detail DAG",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [],
+        issues: [
+          issue({
+            title: "M3 tracking issue",
+            state: "closed",
+            closingPRs: [
+              { number: 42, merged: false, title: "fix: closed without merge", url: "https://example.com/pr/42" },
+            ],
+          }),
+        ],
+        blocks: [],
+      },
+    );
+
+    expect(statuses.get("m3-project-detail-dag")).toBe("planned");
+  });
+
+  it("blocked takes precedence over closing-PR merged signal", () => {
+    const stage: PlanStageNode = {
+      id: "m3-project-detail-dag",
+      label: "Project Detail DAG",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [],
+        issues: [
+          issue({
+            title: "M3 tracking issue",
+            state: "closed",
+            closingPRs: [
+              { number: 42, merged: true, title: "fix: merged hotfix", url: "https://example.com/pr/42" },
+            ],
+          }),
+        ],
+        blocks: [{ open: true, title: "M3 blocker" }],
+      },
+    );
+
+    expect(statuses.get("m3-project-detail-dag")).toBe("blocked");
+  });
+
+  it("direct merged-PR title match (#385) still works alongside closing-PR traversal", () => {
+    const stage: PlanStageNode = {
+      id: "m5-1",
+      label: "M5.1 Ship feature",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [
+          pr({ number: 10, title: "M5.1 ship feature", state: "closed", merged_at: "2026-05-01T00:00:00Z" }),
+        ],
+        issues: [],
+        blocks: [],
+      },
+    );
+
+    expect(statuses.get("m5-1")).toBe("merged");
+  });
 });

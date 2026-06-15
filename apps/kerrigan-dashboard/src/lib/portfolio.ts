@@ -201,5 +201,6 @@ export function createOfflineGitHubClient(reason = "auth-unavailable"): GitHubCl
     getPRReviews: (): Promise<GitHubResult<ReviewData[]>> => offline(),
     listRecentlyMergedPRs: (): Promise<GitHubResult<PullRequestData[]>> => offline(),
     listClosedIssues: (): Promise<GitHubResult<IssueData[]>> => offline(),
+    listIssuesWithClosingPRs: (): Promise<GitHubResult<IssueData[]>> => offline(),
   };
 }

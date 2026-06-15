@@ -371,11 +371,12 @@ async function fetchRepoStatus(
     return { prs, issues, reviewsByPr, offline, offlineReason };
   }
 
-  const [prsResult, issuesResult, mergedPRsResult, closedIssuesResult] = await Promise.all([
+  const [prsResult, issuesResult, mergedPRsResult, closedIssuesResult, closingPRsResult] = await Promise.all([
     githubClient.listOpenPRs(owner, repo),
     githubClient.listIssues(owner, repo),
     githubClient.listRecentlyMergedPRs(owner, repo),
     githubClient.listClosedIssues(owner, repo),
+    githubClient.listIssuesWithClosingPRs(owner, repo),
   ]);
 
   if (!prsResult.ok) {
@@ -420,6 +421,27 @@ async function fetchRepoStatus(
   } else {
     offline = true;
     offlineReason ??= closedIssuesResult.reason;
+  }
+
+  // Closing-PR traversal: augment collected issues with body + closingPRs data
+  // from the GraphQL call.  On failure we degrade gracefully (issues still work,
+  // just without closing-PR linkage).  Never surfaces a new offline reason on its
+  // own so it doesn't mask the primary offline signal.
+  if (closingPRsResult.ok) {
+    const closingPRsById = new Map<number, IssueData>(
+      closingPRsResult.data.map((iss) => [iss.number, iss] as const),
+    );
+    const enrichedIssues = issues.map((iss): IssueData => {
+      const ref = closingPRsById.get(iss.number);
+      if (ref === undefined) return iss;
+      const closingPRs = ref.closingPRs;
+      return {
+        ...iss,
+        body: iss.body ?? ref.body ?? null,
+        ...(closingPRs !== undefined ? { closingPRs } : {}),
+      };
+    });
+    issues.splice(0, issues.length, ...enrichedIssues);
   }
 
   return { prs, issues, reviewsByPr, offline, offlineReason };
