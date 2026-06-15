@@ -100,6 +100,8 @@ function createGitHubClientStub(maps: ClientMaps = {}): GitHubClient {
       Promise.resolve({ ok: true, data: [] }),
     listClosedIssues: (): Promise<GitHubResult<IssueData[]>> =>
       Promise.resolve({ ok: true, data: [] }),
+    listIssuesWithClosingPRs: (): Promise<GitHubResult<IssueData[]>> =>
+      Promise.resolve({ ok: true, data: [] }),
   };
 }
 

@@ -33,7 +33,7 @@ export interface StageStatusInput {
 
 export type StageMatcher = (
   stage: PlanStageNode,
-  item: { title: string },
+  item: { title: string; body?: string | null; head?: { ref: string } | null },
 ) => boolean;
 
 export interface DeriveStatusesInput extends StageStatusInput {
@@ -151,6 +151,48 @@ function stageIdPattern(id: string): string {
   return prefix + digits;
 }
 
+/**
+ * Extracts the milestone prefix from a stage ID for word-boundary matching.
+ * Returns the first hyphen-delimited segment only when:
+ *  - it matches `[a-z]+\d+` (letter prefix + digits, like "m3")
+ *  - the second segment (if present) is NOT a pure digit
+ *
+ * The second condition distinguishes descriptive-slug stages (e.g.
+ * "m3-project-detail-dag") from sub-indexed stages (e.g. "m3-2", "m3-4").
+ * Sub-indexed stages are already handled by the normalizedId / stageIdPattern
+ * compact-matching paths; the prefix match is only needed for descriptive slugs
+ * where the full compact id ("m3projectdetaildag") never appears in item titles.
+ *
+ * Examples:
+ *  "m3-project-detail-dag" → "m3"   (prefix + descriptive slug)
+ *  "m3-2"                  → null   (has pure-digit sub-index)
+ *  "m3-4-some-feature"     → null   (second segment "4" is a pure digit)
+ *  "alpha"                 → null   (no digit suffix)
+ */
+function extractMilestonePrefix(id: string): string | null {
+  const segments = id.split("-");
+  const firstSegment = segments[0] ?? "";
+  if (!/^[a-z]+\d+$/.test(firstSegment)) {
+    return null;
+  }
+  // If the second segment is a pure digit, this is a sub-indexed stage like
+  // "m3-2" or "m3-4-some-feature" — not a descriptive-slug stage.
+  const secondSegment = segments[1];
+  if (secondSegment !== undefined && /^\d+$/.test(secondSegment)) {
+    return null;
+  }
+  return firstSegment;
+}
+
+/**
+ * Returns true when `word` appears as a standalone whitespace-delimited token
+ * in `normalizedText` (already lowercased / non-alphanum → space).
+ * Uses space-padding to avoid partial matches (e.g. "m3" ≠ "m30").
+ */
+function containsAsWord(normalizedText: string, word: string): boolean {
+  return ` ${normalizedText} `.includes(` ${word} `);
+}
+
 export const defaultStageMatcher: StageMatcher = (stage, item) => {
   const title = normalizeForMatch(item.title);
   const compactTitle = title.replace(/\s+/g, "");
@@ -166,7 +208,32 @@ export const defaultStageMatcher: StageMatcher = (stage, item) => {
     return true;
   }
 
-  return normalizedLabel.length > 0 && title.includes(normalizedLabel);
+  if (normalizedLabel.length > 0 && title.includes(normalizedLabel)) {
+    return true;
+  }
+
+  // Milestone-prefix matching for descriptive-slug stage IDs:
+  // "m3-project-detail-dag" → prefix "m3" → matches any item whose title,
+  // body, or head branch contains "m3" as a standalone word (so "M3", "M3.4"
+  // which normalises to "m3 4" match, while "M30" which normalises to "m30"
+  // does not — word-boundary prevents the partial match).
+  const milestonePrefix = extractMilestonePrefix(stage.id);
+  if (milestonePrefix !== null) {
+    const texts: string[] = [title];
+    if (item.body != null) {
+      texts.push(normalizeForMatch(item.body));
+    }
+    if (item.head != null) {
+      texts.push(normalizeForMatch(item.head.ref));
+    }
+    for (const text of texts) {
+      if (containsAsWord(text, milestonePrefix)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 };
 
 export function deriveStatuses(
@@ -193,8 +260,32 @@ export function deriveStatuses(
               .filter(([, reviews]) => reviews.length > 0),
           );
 
+    // Closing-PR traversal (Option C): for each issue matched to this stage,
+    // collect any merged closing PRs and treat them as merged PRs for the stage.
+    // This allows a stage to show "merged" when a hotfix-titled PR closed an
+    // issue that references the milestone (even if the PR title doesn't).
+    const closingMergedPRs: PullRequestData[] = stageIssues.flatMap((issue) =>
+      (issue.closingPRs ?? [])
+        .filter((ref) => ref.merged)
+        .map(
+          (ref): PullRequestData => ({
+            number: ref.number,
+            title: ref.title,
+            state: "merged",
+            draft: false,
+            user: null,
+            created_at: "",
+            updated_at: "",
+            merged_at: "1970-01-01T00:00:00Z",
+            head: { ref: "", sha: "" },
+            base: { ref: "" },
+            html_url: ref.url,
+          }),
+        ),
+    );
+
     const stageInput: StageStatusInput = {
-      prs: stagePRs,
+      prs: [...stagePRs, ...closingMergedPRs],
       issues: stageIssues,
       blocks: stageBlocks,
     };

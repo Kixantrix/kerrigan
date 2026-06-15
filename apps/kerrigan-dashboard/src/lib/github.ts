@@ -65,10 +65,35 @@ export interface OctokitResponse {
  */
 export type OctokitFactory = (token: string) => OctokitRequestFn;
 
+/**
+ * GraphQL execution function type.  Takes a query string and variables,
+ * returns the raw response data (the `data` field of the GraphQL response).
+ * Exposed so tests can inject a mock without vi.mock() hoisting.
+ */
+export type OctokitGraphQLFn = (
+  query: string,
+  variables: Record<string, unknown>,
+) => Promise<unknown>;
+
+/**
+ * Factory that creates the GraphQL execution function given a token.
+ * Defaults to using `@octokit/rest`'s built-in `.graphql()` method.
+ * Override in tests to avoid real network calls.
+ */
+export type OctokitGraphQLFactory = (token: string) => OctokitGraphQLFn;
+
 /** Discriminated union returned by every read helper. */
 export type GitHubResult<T> =
   | { ok: true; data: T }
   | { ok: false; offline: true; reason: string };
+
+/** A pull request reference returned by a closing-PR GraphQL traversal. */
+export interface ClosingPRRef {
+  number: number;
+  merged: boolean;
+  title: string;
+  url: string;
+}
 
 export interface RepoData {
   id: number;
@@ -84,6 +109,8 @@ export interface RepoData {
 export interface PullRequestData {
   number: number;
   title: string;
+  /** Optional PR body text.  Present when fetched from list endpoints that include it. */
+  body?: string | null;
   state: string;
   draft: boolean;
   user: { login: string } | null;
@@ -99,12 +126,19 @@ export interface PullRequestData {
 export interface IssueData {
   number: number;
   title: string;
+  /** Optional issue body text.  Populated when fetched via GraphQL or endpoints that include it. */
+  body?: string | null;
   state: string;
   user: { login: string } | null;
   created_at: string;
   updated_at: string;
   labels: ReadonlyArray<{ name?: string }>;
   html_url: string;
+  /**
+   * Pull requests that closed this issue, populated by `listIssuesWithClosingPRs`.
+   * Absent when fetched via REST-only endpoints.
+   */
+  closingPRs?: ReadonlyArray<ClosingPRRef>;
 }
 
 export interface ReviewData {
@@ -152,6 +186,20 @@ export interface GitHubClient {
    * Pull-request entries returned by GitHub's issues endpoint are filtered out.
    */
   listClosedIssues(
+    owner: string,
+    repo: string,
+  ): Promise<GitHubResult<IssueData[]>>;
+  /**
+   * Fetch issues (open + recently closed, up to 50 most recently updated) together
+   * with the pull requests that closed each issue, using one GraphQL round-trip.
+   *
+   * Each returned `IssueData` item has `body` and `closingPRs` populated.
+   * Prefer this over `listIssues` + `listClosedIssues` when closing-PR traversal
+   * is needed.  Falls back to `{ ok: false }` when GraphQL is unavailable or
+   * the call fails — callers should degrade gracefully (e.g. skip closing-PR
+   * linkage but continue with REST-based issue data).
+   */
+  listIssuesWithClosingPRs(
     owner: string,
     repo: string,
   ): Promise<GitHubResult<IssueData[]>>;
@@ -212,6 +260,23 @@ const defaultOctokitFactory: OctokitFactory = (token) => {
     octokit.request(endpoint, params) as Promise<OctokitResponse>;
 };
 
+/**
+ * Default GraphQL factory — uses `@octokit/rest`'s built-in `.graphql()` method.
+ * `@octokit/rest` (via `@octokit/core`) ships graphql support natively.
+ */
+const defaultGraphQLFactory: OctokitGraphQLFactory = (token) => {
+  const octokit = new Octokit({ auth: token });
+  // `@octokit/rest` extends `@octokit/core` which ships graphql natively.
+  // Verify at runtime that the method is present before calling it.
+  const graphqlFn = (octokit as unknown as Record<string, unknown>)["graphql"];
+  if (typeof graphqlFn !== "function") {
+    throw new Error(
+      "@octokit/rest graphql method not available — check @octokit/rest version",
+    );
+  }
+  return (query, variables) => (graphqlFn as OctokitGraphQLFn)(query, variables);
+};
+
 // ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
@@ -226,10 +291,14 @@ const defaultOctokitFactory: OctokitFactory = (token) => {
  *                       function.  Defaults to real `@octokit/rest`.  Override
  *                       in tests to avoid real network calls without needing
  *                       vi.mock() module-level hoisting.
+ * @param graphqlFactory Optional factory override for the GraphQL execution
+ *                       function.  Defaults to `@octokit/rest`'s built-in
+ *                       `.graphql()`.  Override in tests for mock GraphQL.
  */
 export function createGitHubClient(
   shellOut: ShellOut,
   octokitFactory: OctokitFactory = defaultOctokitFactory,
+  graphqlFactory: OctokitGraphQLFactory = defaultGraphQLFactory,
 ): GitHubClient {
   const etagCache = new Map<string, ETagEntry>();
   let rateLimitState: RateLimitState | null = null;
@@ -374,6 +443,127 @@ export function createGitHubClient(
         );
         return { ok: true, data: issues };
       });
+    },
+
+    async listIssuesWithClosingPRs(owner, repo) {
+      // Pre-flight: short-circuit if we already know we're rate-limited
+      if (rateLimitState !== null && isRateLimitedByState(rateLimitState)) {
+        return { ok: false, offline: true, reason: "rate-limited" };
+      }
+
+      // Resolve auth (fresh on every call — AC-017)
+      let token: string;
+      try {
+        token = await resolveToken(shellOut);
+      } catch {
+        return { ok: false, offline: true, reason: "auth-unavailable" };
+      }
+
+      const graphql = graphqlFactory(token);
+
+      const ISSUES_WITH_CLOSING_PRS_QUERY = `
+        query IssuesWithClosingPRs($owner: String!, $repo: String!) {
+          repository(owner: $owner, name: $repo) {
+            issues(first: 50, orderBy: {field: UPDATED_AT, direction: DESC}, states: [OPEN, CLOSED]) {
+              nodes {
+                number
+                title
+                state
+                url
+                body
+                createdAt
+                updatedAt
+                author { login }
+                labels(first: 20) {
+                  nodes { name }
+                }
+                closedByPullRequestsReferences(first: 5, includeClosedPrs: true) {
+                  nodes {
+                    number
+                    merged
+                    title
+                    url
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      interface RawClosingPR {
+        number: number;
+        merged: boolean;
+        title: string;
+        url: string;
+      }
+      interface RawGQLIssue {
+        number: number;
+        title: string;
+        state: string;
+        url: string;
+        body?: string | null;
+        createdAt: string;
+        updatedAt: string;
+        author: { login: string } | null;
+        labels: { nodes: Array<{ name?: string }> };
+        closedByPullRequestsReferences: { nodes: RawClosingPR[] };
+      }
+      interface GQLResponse {
+        repository: { issues: { nodes: RawGQLIssue[] } };
+      }
+
+      try {
+        const raw = await graphql(ISSUES_WITH_CLOSING_PRS_QUERY, { owner, repo });
+        // Validate the response has the expected shape before using it; the GraphQL
+        // call returns `unknown` from Octokit.  If the structure is wrong we fall
+        // through to an empty-data success response rather than throwing.
+        if (
+          typeof raw !== "object" ||
+          raw === null ||
+          !("repository" in raw) ||
+          typeof (raw as Record<string, unknown>).repository !== "object"
+        ) {
+          return { ok: true, data: [] };
+        }
+        const data = raw as GQLResponse;
+        const rawNodes = data?.repository?.issues?.nodes ?? [];
+        const issues: IssueData[] = rawNodes.map((node): IssueData => ({
+          number: node.number,
+          title: node.title,
+          // GraphQL returns OPEN/CLOSED in uppercase; normalize to lowercase to match REST
+          state: node.state.toLowerCase(),
+          user: node.author,
+          created_at: node.createdAt,
+          updated_at: node.updatedAt,
+          labels: node.labels.nodes,
+          html_url: node.url,
+          body: node.body ?? null,
+          closingPRs: node.closedByPullRequestsReferences.nodes.map(
+            (pr): ClosingPRRef => ({
+              number: pr.number,
+              merged: pr.merged,
+              title: pr.title,
+              url: pr.url,
+            }),
+          ),
+        }));
+        return { ok: true, data: issues };
+      } catch (err) {
+        if (isHttpError(err)) {
+          const status = err.status;
+          if (status === 403 || status === 429) {
+            return { ok: false, offline: true, reason: "rate-limited" };
+          }
+          if (status === 401) {
+            return { ok: false, offline: true, reason: "unauthorized" };
+          }
+          if (status >= 500) {
+            return { ok: false, offline: true, reason: "server-error" };
+          }
+        }
+        return { ok: false, offline: true, reason: "graphql-unavailable" };
+      }
     },
   };
 }

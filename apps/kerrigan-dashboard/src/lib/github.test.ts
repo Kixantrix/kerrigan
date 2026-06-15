@@ -6,6 +6,8 @@ import {
   type GitHubResult,
   type IssueData,
   type OctokitFactory,
+  type OctokitGraphQLFactory,
+  type OctokitGraphQLFn,
   type OctokitRequestFn,
   type PullRequestData,
   type RepoData,
@@ -614,5 +616,134 @@ describe("createGitHubClient", () => {
       "GET /repos/{owner}/{repo}/issues",
       expect.objectContaining({ state: "closed", per_page: 50 }),
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// listIssuesWithClosingPRs — GraphQL-based tests
+// ---------------------------------------------------------------------------
+
+type MockGraphQLFn = Mock<OctokitGraphQLFn>;
+
+function makeMockGraphQLFactory(): { mockGraphQL: MockGraphQLFn; graphqlFactory: OctokitGraphQLFactory } {
+  const mockGraphQL: MockGraphQLFn = vi.fn<OctokitGraphQLFn>();
+  const graphqlFactory: OctokitGraphQLFactory = () => mockGraphQL;
+  return { mockGraphQL, graphqlFactory };
+}
+
+describe("createGitHubClient — listIssuesWithClosingPRs", () => {
+  let restMock: ReturnType<typeof makeMockFactory>;
+  let graphqlMock: ReturnType<typeof makeMockGraphQLFactory>;
+
+  beforeEach(() => {
+    restMock = makeMockFactory();
+    graphqlMock = makeMockGraphQLFactory();
+  });
+
+  it("returns issues with closingPRs and body from GraphQL response", async () => {
+    const shellOut = makeShellOut();
+    graphqlMock.mockGraphQL.mockResolvedValueOnce({
+      repository: {
+        issues: {
+          nodes: [
+            {
+              number: 10,
+              title: "M3 tracking issue",
+              state: "CLOSED",
+              url: "https://github.com/o/r/issues/10",
+              body: "Tracks M3 work.",
+              createdAt: "2026-01-01T00:00:00Z",
+              updatedAt: "2026-06-01T00:00:00Z",
+              author: { login: "dev" },
+              labels: { nodes: [{ name: "agent:go" }] },
+              closedByPullRequestsReferences: {
+                nodes: [
+                  { number: 42, merged: true, title: "fix(dashboard): unrelated title", url: "https://github.com/o/r/pull/42" },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    const client = createGitHubClient(shellOut, restMock.factory, graphqlMock.graphqlFactory);
+    const result = await client.listIssuesWithClosingPRs("o", "r");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.data).toHaveLength(1);
+    const issue = result.data[0];
+    if (issue === undefined) throw new Error("Expected issue at index 0");
+    expect(issue.number).toBe(10);
+    expect(issue.title).toBe("M3 tracking issue");
+    expect(issue.state).toBe("closed"); // normalised to lowercase
+    expect(issue.body).toBe("Tracks M3 work.");
+    expect(issue.labels).toEqual([{ name: "agent:go" }]);
+    expect(issue.closingPRs).toHaveLength(1);
+    expect(issue.closingPRs?.[0]).toEqual({
+      number: 42,
+      merged: true,
+      title: "fix(dashboard): unrelated title",
+      url: "https://github.com/o/r/pull/42",
+    });
+  });
+
+  it("resolves auth fresh on each GraphQL call (AC-017)", async () => {
+    const shellOut = makeShellOut();
+    graphqlMock.mockGraphQL.mockResolvedValue({ repository: { issues: { nodes: [] } } });
+
+    const client = createGitHubClient(shellOut, restMock.factory, graphqlMock.graphqlFactory);
+    await client.listIssuesWithClosingPRs("o", "r");
+    await client.listIssuesWithClosingPRs("o", "r");
+
+    // shellOut called once per request
+    expect(shellOut).toHaveBeenCalledTimes(2);
+    expect(shellOut).toHaveBeenCalledWith("gh", ["auth", "token"]);
+  });
+
+  it("returns offline when auth is unavailable", async () => {
+    const shellOut = vi.fn<ShellOut>().mockRejectedValue(new Error("auth not available"));
+
+    const client = createGitHubClient(shellOut, restMock.factory, graphqlMock.graphqlFactory);
+    const result = await client.listIssuesWithClosingPRs("o", "r");
+
+    expect(result).toEqual({ ok: false, offline: true, reason: "auth-unavailable" });
+    expect(graphqlMock.mockGraphQL).not.toHaveBeenCalled();
+  });
+
+  it("returns offline with graphql-unavailable when GraphQL throws", async () => {
+    const shellOut = makeShellOut();
+    graphqlMock.mockGraphQL.mockRejectedValueOnce(new Error("GraphQL error"));
+
+    const client = createGitHubClient(shellOut, restMock.factory, graphqlMock.graphqlFactory);
+    const result = await client.listIssuesWithClosingPRs("o", "r");
+
+    expect(result).toEqual({ ok: false, offline: true, reason: "graphql-unavailable" });
+  });
+
+  it("returns offline with rate-limited when GraphQL returns 403", async () => {
+    const shellOut = makeShellOut();
+    graphqlMock.mockGraphQL.mockRejectedValueOnce(
+      Object.assign(new Error("Rate limited"), { status: 403 }),
+    );
+
+    const client = createGitHubClient(shellOut, restMock.factory, graphqlMock.graphqlFactory);
+    const result = await client.listIssuesWithClosingPRs("o", "r");
+
+    expect(result).toEqual({ ok: false, offline: true, reason: "rate-limited" });
+  });
+
+  it("handles empty issues array gracefully", async () => {
+    const shellOut = makeShellOut();
+    graphqlMock.mockGraphQL.mockResolvedValueOnce({
+      repository: { issues: { nodes: [] } },
+    });
+
+    const client = createGitHubClient(shellOut, restMock.factory, graphqlMock.graphqlFactory);
+    const result = await client.listIssuesWithClosingPRs("o", "r");
+
+    expect(result).toEqual({ ok: true, data: [] });
   });
 });
