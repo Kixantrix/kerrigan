@@ -9,7 +9,7 @@ export interface StageDetailPanelProps {
 }
 
 function isMergedPR(pr: PullRequestData): boolean {
-  return pr.state.toLowerCase() === "merged" || typeof pr.merged_at === "string";
+  return typeof pr.merged_at === "string";
 }
 
 function isOpenPR(pr: PullRequestData): boolean {
@@ -25,7 +25,7 @@ function repoFromHtmlUrl(url: string): string | null {
 function formatTimestamp(iso: string | null | undefined): string {
   if (!iso) return "—";
   const date = new Date(iso);
-  if (isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "—";
   return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
