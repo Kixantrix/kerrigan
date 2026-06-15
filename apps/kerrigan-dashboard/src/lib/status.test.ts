@@ -279,7 +279,7 @@ describe("defaultStageMatcher", () => {
     expect(defaultStageMatcher(stage, { title: "feat M31 unrelated" })).toBe(false);
   });
 
-  it("matches via milestone prefix in issue body", () => {
+  it("does NOT match via body-only milestone mention (false-positive prevention)", () => {
     const stage: PlanStageNode = {
       id: "m3-project-detail-dag",
       label: "Project Detail DAG",
@@ -287,12 +287,14 @@ describe("defaultStageMatcher", () => {
       parentId: null,
     };
 
+    // Body-only matches are excluded: a PR that incidentally mentions "M3" in
+    // its description (e.g. a dispatch briefing using M3 as an example) must
+    // NOT be seeded to the M3 stage.
     expect(
       defaultStageMatcher(stage, {
         title: "fix: some hotfix with no milestone in title",
-        body: "This resolves M3 work item.",
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("matches via milestone prefix in head branch ref", () => {
