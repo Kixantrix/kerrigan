@@ -25,6 +25,7 @@ import {
 } from "../PrFlowOverlay/binding.js";
 import type { PrFlow, PrFlowPoint } from "../PrFlowOverlay/types.js";
 import { StageNode } from "./StageNode.js";
+import { DagLegend } from "./DagLegend.js";
 
 interface DagProps {
   graph: PlanStageGraph;
@@ -281,6 +282,7 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
         onAbsorbed={onAbsorbed}
         style={{ pointerEvents: "none" }}
       />
+      <DagLegend />
       <div
         data-flow-count={String(flows.length)}
         data-flow-states={flows.map((flow) => flow.state).join(",")}
