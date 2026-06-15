@@ -266,7 +266,15 @@ const defaultOctokitFactory: OctokitFactory = (token) => {
  */
 const defaultGraphQLFactory: OctokitGraphQLFactory = (token) => {
   const octokit = new Octokit({ auth: token });
-  return (query, variables) => (octokit as unknown as { graphql: OctokitGraphQLFn }).graphql(query, variables);
+  // `@octokit/rest` extends `@octokit/core` which ships graphql natively.
+  // Verify at runtime that the method is present before calling it.
+  const graphqlFn = (octokit as unknown as Record<string, unknown>)["graphql"];
+  if (typeof graphqlFn !== "function") {
+    throw new Error(
+      "@octokit/rest graphql method not available — check @octokit/rest version",
+    );
+  }
+  return (query, variables) => (graphqlFn as OctokitGraphQLFn)(query, variables);
 };
 
 // ---------------------------------------------------------------------------
