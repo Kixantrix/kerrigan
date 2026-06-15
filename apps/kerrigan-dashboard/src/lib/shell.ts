@@ -37,7 +37,18 @@ export const tauriShellOut: ShellOut = async (
     throw new Error("shell-module-incompatible");
   }
 
-  const shellCommand = shellModuleUnknown.Command.create(command, args);
+  // Map the generic (command, args) pair to the allowlist entry name defined in
+  // src-tauri/capabilities/default.json.  Any request that does not match a
+  // known allowlist entry is rejected before it reaches the plugin so that
+  // denials surface as a clear error rather than a silent permission failure.
+  let allowlistName: string;
+  if (command === "gh" && args.length === 2 && args[0] === "auth" && args[1] === "token") {
+    allowlistName = "gh-auth-token";
+  } else {
+    throw new Error("shell-command-not-allowed");
+  }
+
+  const shellCommand = shellModuleUnknown.Command.create(allowlistName, args);
   const result = await shellCommand.execute();
   if (result.code !== 0) {
     const details = result.stderr.trim() || result.stdout.trim() || `exit-${result.code}`;
