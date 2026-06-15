@@ -11,6 +11,7 @@ Wave structure (from [`plan.md`](./plan.md#sequencing-notes)):
 - **wave-3**: M3 + M4 tasks parallel.
 - **wave-4**: M5 + M6 tasks parallel.
 - **wave-5**: M7 + M8 tasks parallel.
+- **wave-6**: M9 deferred (cross-project integrated chat).
 
 Within a milestone, tasks are sequenced by their declared dependencies. The conductor regenerates `.specify/waves.yaml` before each dispatch via `kerrigan-conflict-predictor`.
 
@@ -244,6 +245,20 @@ Within a milestone, tasks are sequenced by their declared dependencies. The cond
     - external:M5.2
   - Touch: `apps/kerrigan-dashboard/src/components/CaptureTriage/**`
   - Tests: Playwright E2E captures → triage → draft PR via `plan-update`
+
+---
+
+## Milestone 9: Cross-project integrated chat (wave-6, deferred to v2)
+
+- [ ] Task M9.1: Workspace-level chat surface + scoped context model
+  - Done when: a global chat entrypoint is available from portfolio/inbox; user can scope chat to `all projects` or selected project subset; chat sessions persist with scope metadata; tool-result refreshes fan out only to affected projects; at least one E2E flow validates cross-project query → actionable result links
+  - Links: plan.md M9 (deferred); spec.md Goal and scenarios
+  - Dependencies:
+    - external:M4.2
+    - external:M8.2
+    - external:M5.4
+  - Touch: `apps/kerrigan-dashboard/src/routes/**`, `apps/kerrigan-dashboard/src/components/Chat/**`, `apps/kerrigan-dashboard/src/lib/**`
+  - Tests: Vitest unit for scope selection/session model + Playwright E2E for cross-project chat workflow
 
 ---
 
