@@ -5,6 +5,7 @@ import {
   defaultStageMatcher,
   deriveStageStatus,
   deriveStatuses,
+  groupPRsByStage,
   type BlockSummary,
   type StageStatus,
 } from "./status.js";
@@ -432,5 +433,57 @@ describe("deriveStatuses — closing-PR traversal (Option C)", () => {
     );
 
     expect(statuses.get("m5-1")).toBe("merged");
+  });
+});
+
+describe("groupPRsByStage", () => {
+  const stageA: PlanStageNode = {
+    id: "m3-2",
+    label: "M3.2 Status",
+    level: 2,
+    parentId: null,
+  };
+  const stageB: PlanStageNode = {
+    id: "m3-3",
+    label: "M3.3 DAG",
+    level: 2,
+    parentId: null,
+  };
+
+  it("returns an empty map when no PRs are provided", () => {
+    const result = groupPRsByStage(graph([stageA, stageB]), []);
+    expect(result.size).toBe(0);
+  });
+
+  it("maps a PR to the correct stage", () => {
+    const matchedPr = pr({ number: 1, title: "M3.2 status work" });
+    const result = groupPRsByStage(graph([stageA, stageB]), [matchedPr]);
+    expect(result.get("m3-2")).toEqual([matchedPr]);
+    expect(result.has("m3-3")).toBe(false);
+  });
+
+  it("groups multiple PRs across multiple stages", () => {
+    const prA1 = pr({ number: 1, title: "M3.2 open PR", html_url: "https://github.com/o/r/pull/1" });
+    const prA2 = pr({ number: 2, title: "M3.2 merged PR", state: "closed", merged_at: "2026-05-01T00:00:00Z", html_url: "https://github.com/o/r/pull/2" });
+    const prB1 = pr({ number: 3, title: "M3.3 dag work", html_url: "https://github.com/o/r/pull/3" });
+
+    const result = groupPRsByStage(graph([stageA, stageB]), [prA1, prA2, prB1]);
+    expect(result.get("m3-2")).toEqual([prA1, prA2]);
+    expect(result.get("m3-3")).toEqual([prB1]);
+  });
+
+  it("does not include stages that have no matching PRs", () => {
+    const unrelatedPr = pr({ number: 99, title: "chore: unrelated change", html_url: "https://github.com/o/r/pull/99" });
+    const result = groupPRsByStage(graph([stageA, stageB]), [unrelatedPr]);
+    expect(result.has("m3-2")).toBe(false);
+    expect(result.has("m3-3")).toBe(false);
+  });
+
+  it("supports a custom matcher override", () => {
+    const customMatcher = () => true;
+    const singlePr = pr({ number: 5, title: "anything", html_url: "https://github.com/o/r/pull/5" });
+    const result = groupPRsByStage(graph([stageA, stageB]), [singlePr], customMatcher);
+    expect(result.get("m3-2")).toEqual([singlePr]);
+    expect(result.get("m3-3")).toEqual([singlePr]);
   });
 });
