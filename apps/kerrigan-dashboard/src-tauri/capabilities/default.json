@@ -26,16 +26,6 @@
         { "path": "$HOME/.kerrigan/**" },
         { "path": "$HOME/**" }
       ]
-    },
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        {
-          "name": "gh-auth-token",
-          "cmd": "gh",
-          "args": ["auth", "token"]
-        }
-      ]
     }
   ]
 }
