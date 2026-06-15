@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Dag } from "../../components/Dag/Dag.js";
 import { PlanEditor } from "../../components/PlanEditor/PlanEditor.js";
+import { StageDetailPanel } from "../../components/StageDetailPanel/StageDetailPanel.js";
 import {
   createGitHubClient,
   type GitHubClient,
@@ -18,7 +19,7 @@ import {
 import { createOfflineGitHubClient } from "../../lib/portfolio.js";
 import { projectSchema, readProjects, type Project } from "../../lib/projects.js";
 import { resolveShellOut } from "../../lib/auth.js";
-import { deriveStatuses, type BlockSummary, type StageStatus } from "../../lib/status.js";
+import { deriveStatuses, groupPRsByStage, type BlockSummary, type StageStatus } from "../../lib/status.js";
 
 declare global {
   interface Window {
@@ -94,6 +95,19 @@ export function ProjectView({
       return fallbackGitHubClient;
     }
   }, []);
+
+  const prsByStage = useMemo(
+    () => groupPRsByStage(state.graph, state.openPRs),
+    [state.graph, state.openPRs],
+  );
+
+  const selectedStage = useMemo(
+    () =>
+      selectedStageId !== null
+        ? state.graph.nodes.find((node) => node.id === selectedStageId) ?? null
+        : null,
+    [selectedStageId, state.graph.nodes],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -241,6 +255,16 @@ export function ProjectView({
               statuses={state.statuses}
             />
           </div>
+          {selectedStage !== null ? (
+            <div className="min-h-0 w-80 shrink-0">
+              <StageDetailPanel
+                stageId={selectedStage.id}
+                stageName={selectedStage.label}
+                prs={prsByStage.get(selectedStage.id) ?? []}
+                onClose={() => { setSelectedStageId(null); }}
+              />
+            </div>
+          ) : null}
         </div>
       )}
 

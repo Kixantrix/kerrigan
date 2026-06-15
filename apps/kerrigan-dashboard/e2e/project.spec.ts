@@ -91,3 +91,54 @@ test("clicking a DAG node scrolls the matching plan heading into view", async ({
     )
     .toBe(true);
 });
+
+test("clicking a DAG node opens the stage details panel", async ({ page }) => {
+  const openPRsFixture: Record<string, unknown[]> = {
+    "Kixantrix/kerrigan": [
+      {
+        number: 42,
+        title: "M3.2 status work open",
+        state: "open",
+        draft: false,
+        user: { login: "agent" },
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-06-01T00:00:00Z",
+        merged_at: null,
+        head: { ref: "feature/m3-2-status", sha: "abc123" },
+        base: { ref: "main" },
+        html_url: "https://github.com/Kixantrix/kerrigan/pull/42",
+      },
+    ],
+    "Kixantrix/kerrigan-dashboard": [],
+  };
+
+  await page.addInitScript(
+    ({ projects, plans, openPRs }) => {
+      window.__KERRIGAN_PROJECTS_FIXTURE__ = projects;
+      window.__KERRIGAN_PLAN_FIXTURE__ = plans;
+      window.__KERRIGAN_OPEN_PRS_FIXTURE__ = openPRs;
+    },
+    { projects: projectsFixture, plans: planFixtureByProject, openPRs: openPRsFixture },
+  );
+
+  await page.goto("/#/project/kerrigan-dashboard");
+  await expect(page.getByTestId("project-dag")).toBeVisible();
+
+  // Panel should not be visible initially
+  await expect(page.getByTestId("stage-detail-panel-m3-2")).not.toBeVisible();
+
+  // Click the M3.2 stage node
+  await page.getByTestId("stage-node-m3-2").click();
+
+  // Panel should appear with the stage name
+  await expect(page.getByTestId("stage-detail-panel-m3-2")).toBeVisible();
+  await expect(page.getByTestId("stage-detail-name")).toContainText("M3.2");
+
+  // The open PR should be listed
+  await expect(page.getByTestId("stage-detail-open-prs")).toBeVisible();
+  await expect(page.getByTestId("stage-detail-pr-42")).toBeVisible();
+
+  // Close button dismisses the panel
+  await page.getByTestId("stage-detail-close").click();
+  await expect(page.getByTestId("stage-detail-panel-m3-2")).not.toBeVisible();
+});
