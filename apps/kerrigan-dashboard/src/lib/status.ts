@@ -58,14 +58,9 @@ function hasAgentGoLabel(issue: IssueData): boolean {
 }
 
 function isMergedPR(pr: PullRequestData): boolean {
-  const candidate = pr as unknown as Record<string, unknown>;
-  const hasMergedFlag = candidate["merged"] === true;
-  const hasMergedAt = typeof candidate["merged_at"] === "string";
-
   return (
     pr.state.toLowerCase() === "merged" ||
-    hasMergedFlag ||
-    hasMergedAt
+    typeof pr.merged_at === "string"
   );
 }
 

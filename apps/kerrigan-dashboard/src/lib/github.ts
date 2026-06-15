@@ -89,6 +89,8 @@ export interface PullRequestData {
   user: { login: string } | null;
   created_at: string;
   updated_at: string;
+  /** Timestamp when the PR was merged, or null/absent if not yet merged. */
+  merged_at?: string | null;
   head: { ref: string; sha: string };
   base: { ref: string };
   html_url: string;
@@ -137,6 +139,22 @@ export interface GitHubClient {
     repo: string,
     prNumber: number,
   ): Promise<GitHubResult<ReviewData[]>>;
+  /**
+   * List recently merged pull requests (up to 50, ETag-cached).
+   * Returns closed PRs filtered to those with a non-null merged_at timestamp.
+   */
+  listRecentlyMergedPRs(
+    owner: string,
+    repo: string,
+  ): Promise<GitHubResult<PullRequestData[]>>;
+  /**
+   * List recently closed issues (up to 50, ETag-cached).
+   * Pull-request entries returned by GitHub's issues endpoint are filtered out.
+   */
+  listClosedIssues(
+    owner: string,
+    repo: string,
+  ): Promise<GitHubResult<IssueData[]>>;
 }
 
 // ---------------------------------------------------------------------------
@@ -326,6 +344,36 @@ export function createGitHubClient(
         "GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews",
         { owner, repo, pull_number: prNumber, per_page: 100 },
       );
+    },
+
+    listRecentlyMergedPRs(owner, repo) {
+      // Fetch the most recent closed PRs and filter to those that were merged.
+      return request<PullRequestData[]>(
+        "GET /repos/{owner}/{repo}/pulls",
+        { owner, repo, state: "closed", per_page: 50 },
+      ).then((result): GitHubResult<PullRequestData[]> => {
+        if (!result.ok) return result;
+        const merged = result.data.filter(
+          (pr) => typeof pr.merged_at === "string",
+        );
+        return { ok: true, data: merged };
+      });
+    },
+
+    listClosedIssues(owner, repo) {
+      // GitHub's issues endpoint returns both issues and pull requests.
+      // We filter out PRs by checking for the presence of the pull_request field.
+      type RawClosedIssue = IssueData & { pull_request?: object };
+      return request<RawClosedIssue[]>(
+        "GET /repos/{owner}/{repo}/issues",
+        { owner, repo, state: "closed", per_page: 50 },
+      ).then((result): GitHubResult<IssueData[]> => {
+        if (!result.ok) return result;
+        const issues = result.data.filter(
+          (item): item is IssueData => item.pull_request === undefined,
+        );
+        return { ok: true, data: issues };
+      });
     },
   };
 }

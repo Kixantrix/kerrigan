@@ -118,6 +118,15 @@ describe("deriveStageStatus", () => {
       },
       "merged",
     ],
+    [
+      "merged via merged_at field",
+      {
+        prs: [pr({ state: "closed", merged_at: "2026-02-01T00:00:00Z" })],
+        issues: [],
+        blocks: [],
+      },
+      "merged",
+    ],
   ])("returns %s", (_name, input, expected) => {
     expect(deriveStageStatus(input)).toBe(expected);
   });
@@ -138,6 +147,24 @@ describe("deriveStageStatus", () => {
 
   it("returns planned for empty input", () => {
     expect(deriveStageStatus({ prs: [], issues: [], blocks: [] })).toBe("planned");
+  });
+
+  it("closed issue without open PR does not trigger dispatched", () => {
+    const input = {
+      prs: [],
+      issues: [issue({ state: "closed", labels: [{ name: "agent:go" }] })],
+      blocks: [],
+    };
+    expect(deriveStageStatus(input)).toBe("planned");
+  });
+
+  it("closed PR without merged_at does not trigger merged", () => {
+    const input = {
+      prs: [pr({ state: "closed", merged_at: null })],
+      issues: [],
+      blocks: [],
+    };
+    expect(deriveStageStatus(input)).toBe("planned");
   });
 });
 
@@ -187,6 +214,28 @@ describe("deriveStatuses", () => {
     );
 
     expect(statuses.get("alpha")).toBe("dispatched");
+  });
+
+  it("shows merged when the stage has a merged PR (via merged_at) and no open work", () => {
+    const stage: PlanStageNode = {
+      id: "m5-1",
+      label: "M5.1 Ship feature",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [
+          pr({ number: 10, title: "M5.1 ship feature", state: "closed", merged_at: "2026-05-01T00:00:00Z" }),
+        ],
+        issues: [],
+        blocks: [],
+      },
+    );
+
+    expect(statuses.get("m5-1")).toBe("merged");
   });
 });
 
