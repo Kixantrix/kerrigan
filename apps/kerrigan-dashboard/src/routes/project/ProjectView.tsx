@@ -360,7 +360,7 @@ async function fetchRepoStatus(
   let offline = false;
   let offlineReason: string | null = null;
   const prs: PullRequestData[] = [];
-  const issues: IssueData[] = [];
+  let issues: IssueData[] = [];
   const reviewsByPr = new Map<number, ReadonlyArray<ReviewData>>();
   const fixtureOpenPRs = readFixtureOpenPRs(owner, repo);
 
@@ -441,7 +441,7 @@ async function fetchRepoStatus(
         ...(closingPRs !== undefined ? { closingPRs } : {}),
       };
     });
-    issues.splice(0, issues.length, ...enrichedIssues);
+    issues = enrichedIssues;
   }
 
   return { prs, issues, reviewsByPr, offline, offlineReason };

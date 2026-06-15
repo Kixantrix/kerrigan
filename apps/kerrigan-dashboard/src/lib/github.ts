@@ -506,7 +506,19 @@ export function createGitHubClient(
       }
 
       try {
-        const data = await graphql(ISSUES_WITH_CLOSING_PRS_QUERY, { owner, repo }) as GQLResponse;
+        const raw = await graphql(ISSUES_WITH_CLOSING_PRS_QUERY, { owner, repo });
+        // Validate the response has the expected shape before using it; the GraphQL
+        // call returns `unknown` from Octokit.  If the structure is wrong we fall
+        // through to an empty-data success response rather than throwing.
+        if (
+          typeof raw !== "object" ||
+          raw === null ||
+          !("repository" in raw) ||
+          typeof (raw as Record<string, unknown>).repository !== "object"
+        ) {
+          return { ok: true, data: [] };
+        }
+        const data = raw as GQLResponse;
         const rawNodes = data?.repository?.issues?.nodes ?? [];
         const issues: IssueData[] = rawNodes.map((node): IssueData => ({
           number: node.number,
