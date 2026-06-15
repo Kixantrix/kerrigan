@@ -33,7 +33,7 @@ export interface StageStatusInput {
 
 export type StageMatcher = (
   stage: PlanStageNode,
-  item: { title: string; body?: string | null; head?: { ref: string } | null },
+  item: { title: string; head?: { ref: string } | null },
 ) => boolean;
 
 export interface DeriveStatusesInput extends StageStatusInput {
@@ -213,16 +213,15 @@ export const defaultStageMatcher: StageMatcher = (stage, item) => {
   }
 
   // Milestone-prefix matching for descriptive-slug stage IDs:
-  // "m3-project-detail-dag" → prefix "m3" → matches any item whose title,
-  // body, or head branch contains "m3" as a standalone word (so "M3", "M3.4"
+  // "m3-project-detail-dag" → prefix "m3" → matches any item whose title
+  // or head branch contains "m3" as a standalone word (so "M3", "M3.4"
   // which normalises to "m3 4" match, while "M30" which normalises to "m30"
   // does not — word-boundary prevents the partial match).
+  // NOTE: body is intentionally excluded — free-text body matching produces
+  // false positives when PRs mention a milestone incidentally in discussion.
   const milestonePrefix = extractMilestonePrefix(stage.id);
   if (milestonePrefix !== null) {
     const texts: string[] = [title];
-    if (item.body != null) {
-      texts.push(normalizeForMatch(item.body));
-    }
     if (item.head != null) {
       texts.push(normalizeForMatch(item.head.ref));
     }
