@@ -163,6 +163,21 @@ The Tauri app lives under `apps/` so it can coexist with future apps without ren
 
 **Exit criteria**: conductor processes ≥10 inbox items in ≤2 minutes during walkthrough.
 
+### M9 — Cross-project integrated chat (deferred to v2)
+
+**Goal**: Add a workspace-level chat surface that can operate across multiple projects without forcing a single-project context first.
+
+**Deliverables**:
+- Global chat route (or drawer) reachable from portfolio/inbox views.
+- Context selector allowing `all projects` or explicit project scopes.
+- Session model for chat threads with scope metadata (`global` vs project-bound).
+- Tool-call refresh fan-out: tool results invalidate only affected projects/panes.
+- Prompt templates for multi-project intents (triage, dispatch, status synthesis).
+
+**Acceptance**: v2 AC amendment required (new ACs for multi-project chat scope, thread persistence, and context safety).
+
+**Exit criteria**: conductor can ask one global question (for example, "what needs intervention across all projects?") and receive a scoped, actionable response with links back to affected projects.
+
 ## Cross-cutting concerns
 
 ### Testing strategy
@@ -206,6 +221,7 @@ The Tauri app lives under `apps/` so it can coexist with future apps without ren
 - M5 depends on M4. M6 depends on M3.
 - M7 depends on M3. Can run in parallel with M5/M6 in a later wave.
 - M8 depends on M5 (uses MCP tools internally).
+- M9 depends on M4 + M8 and is intentionally deferred to v2.
 
 Approximate wave structure (`.specify/waves.yaml` generated during `/kerrigan.dispatch`):
 
@@ -215,6 +231,7 @@ wave-2: M2 (Tauri skeleton + portfolio)
 wave-3: M3 (DAG) + M4 (chat)            # parallel
 wave-4: M5 (MCP) + M6 (plan editor)     # parallel
 wave-5: M7 (show-stopper) + M8 (inbox)  # parallel
+wave-6: M9 (cross-project chat, v2)     # deferred
 ```
 
 ## Tasks
