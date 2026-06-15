@@ -17,7 +17,7 @@ import {
 } from "../../lib/plan-parser.js";
 import { createOfflineGitHubClient } from "../../lib/portfolio.js";
 import { projectSchema, readProjects, type Project } from "../../lib/projects.js";
-import { tauriShellOut } from "../../lib/shell.js";
+import { resolveShellOut } from "../../lib/auth.js";
 import { deriveStatuses, type BlockSummary, type StageStatus } from "../../lib/status.js";
 
 declare global {
@@ -47,6 +47,7 @@ interface ProjectRouteState {
   openPRs: ReadonlyArray<PullRequestData>;
   parseErrors: ReadonlyArray<PlanParseError>;
   offline: boolean;
+  offlineReason: string | null;
   missingPlan: boolean;
 }
 
@@ -56,6 +57,7 @@ interface StatusSourceResult {
   blocks: ReadonlyArray<BlockSummary>;
   reviewsByPr: ReadonlyMap<number, ReadonlyArray<ReviewData>>;
   offline: boolean;
+  offlineReason: string | null;
 }
 
 const fallbackGitHubClient = createOfflineGitHubClient();
@@ -69,6 +71,7 @@ const INITIAL_STATE: ProjectRouteState = {
   openPRs: [],
   parseErrors: [],
   offline: false,
+  offlineReason: null,
   missingPlan: false,
 };
 
@@ -86,7 +89,7 @@ export function ProjectView({
 
   const githubClient: GitHubClient = useMemo(() => {
     try {
-      return createGitHubClient(tauriShellOut);
+      return createGitHubClient(resolveShellOut());
     } catch {
       return fallbackGitHubClient;
     }
@@ -143,6 +146,7 @@ export function ProjectView({
           openPRs: statusInput.prs,
           parseErrors: parsed.errors,
           offline: statusInput.offline,
+          offlineReason: statusInput.offline ? statusInput.offlineReason : null,
           missingPlan: false,
         });
       }
@@ -167,6 +171,12 @@ export function ProjectView({
       window.removeEventListener(PROJECT_STATUS_REFRESH_EVENT, onRefreshRequested);
     };
   }, []);
+
+  useEffect(() => {
+    if (state.offline && state.offlineReason !== null) {
+      console.warn("[kerrigan] project offline:", state.offlineReason);
+    }
+  }, [state.offline, state.offlineReason]);
 
   if (state.loading) {
     return (
@@ -196,8 +206,13 @@ export function ProjectView({
         </div>
         <div className="flex items-center gap-4">
           {state.offline ? (
-            <span className="text-micro font-medium text-accent" role="status">
-              offline — showing local/fallback signals
+            <span
+              className="text-micro font-medium text-accent"
+              role="status"
+              data-testid="project-offline-indicator"
+              title={state.offlineReason !== null ? `offline — ${state.offlineReason}` : undefined}
+            >
+              offline{state.offlineReason !== null ? ` — ${state.offlineReason}` : ""} · showing local/fallback signals
             </span>
           ) : null}
           <Link className="text-micro text-brand" to="/">
@@ -308,11 +323,13 @@ async function collectStatusInput(
   const issues: IssueData[] = [];
   const blocks = blocksByWorkingCopy.flat();
   let offline = false;
+  let offlineReason: string | null = null;
 
   for (const repoStatusResult of repoStatusResults) {
     prs.push(...repoStatusResult.prs);
     issues.push(...repoStatusResult.issues);
     offline ||= repoStatusResult.offline;
+    offlineReason ??= repoStatusResult.offlineReason;
 
     for (const [prNumber, reviews] of repoStatusResult.reviewsByPr.entries()) {
       reviewsByPr.set(prNumber, reviews);
@@ -325,6 +342,7 @@ async function collectStatusInput(
     blocks,
     reviewsByPr,
     offline,
+    offlineReason,
   };
 }
 
@@ -337,8 +355,10 @@ async function fetchRepoStatus(
   issues: ReadonlyArray<IssueData>;
   reviewsByPr: ReadonlyMap<number, ReadonlyArray<ReviewData>>;
   offline: boolean;
+  offlineReason: string | null;
 }> {
   let offline = false;
+  let offlineReason: string | null = null;
   const prs: PullRequestData[] = [];
   const issues: IssueData[] = [];
   const reviewsByPr = new Map<number, ReadonlyArray<ReviewData>>();
@@ -348,7 +368,7 @@ async function fetchRepoStatus(
     // PR fixtures are intentionally scoped to open-PR lifecycle playback.
     // Issues and reviews stay empty here so fixture-driven e2e runs stay deterministic.
     prs.push(...fixtureOpenPRs);
-    return { prs, issues, reviewsByPr, offline };
+    return { prs, issues, reviewsByPr, offline, offlineReason };
   }
 
   const [prsResult, issuesResult] = await Promise.all([
@@ -358,6 +378,7 @@ async function fetchRepoStatus(
 
   if (!prsResult.ok) {
     offline = true;
+    offlineReason ??= prsResult.reason;
   } else {
     prs.push(...prsResult.data);
 
@@ -371,6 +392,7 @@ async function fetchRepoStatus(
     for (const reviewResult of reviewResults) {
       if (!reviewResult.result.ok) {
         offline = true;
+        offlineReason ??= reviewResult.result.reason;
         continue;
       }
       reviewsByPr.set(reviewResult.prNumber, reviewResult.result.data);
@@ -379,11 +401,12 @@ async function fetchRepoStatus(
 
   if (!issuesResult.ok) {
     offline = true;
+    offlineReason ??= issuesResult.reason;
   } else {
     issues.push(...issuesResult.data);
   }
 
-  return { prs, issues, reviewsByPr, offline };
+  return { prs, issues, reviewsByPr, offline, offlineReason };
 }
 
 function readFixtureOpenPRs(

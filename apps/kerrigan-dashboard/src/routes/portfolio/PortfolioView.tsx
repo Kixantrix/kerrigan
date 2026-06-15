@@ -8,7 +8,7 @@ import {
   type PortfolioCardData,
 } from "../../lib/portfolio.js";
 import { projectSchema, readProjects, type Project } from "../../lib/projects.js";
-import { tauriShellOut } from "../../lib/shell.js";
+import { resolveShellOut } from "../../lib/auth.js";
 
 declare global {
   interface Window {
@@ -19,12 +19,14 @@ declare global {
 interface PortfolioState {
   cards: ReadonlyArray<PortfolioCardData>;
   offline: boolean;
+  offlineReason: string | null;
   lastSyncedAt: Date | null;
 }
 
 const INITIAL_STATE: PortfolioState = {
   cards: [],
   offline: false,
+  offlineReason: null,
   lastSyncedAt: null,
 };
 
@@ -35,7 +37,7 @@ export function PortfolioView() {
 
   const githubClient = useMemo(() => {
     try {
-      return createGitHubClient(tauriShellOut);
+      return createGitHubClient(resolveShellOut());
     } catch {
       return fallbackGitHubClient;
     }
@@ -60,6 +62,7 @@ export function PortfolioView() {
         return {
           cards: result.cards,
           offline: result.offline,
+          offlineReason: result.offline ? result.offlineReason : null,
           lastSyncedAt,
         };
       });
@@ -69,6 +72,12 @@ export function PortfolioView() {
       cancelled = true;
     };
   }, [githubClient]);
+
+  useEffect(() => {
+    if (state.offline && state.offlineReason !== null) {
+      console.warn("[kerrigan] portfolio offline:", state.offlineReason);
+    }
+  }, [state.offline, state.offlineReason]);
 
   return (
     <section className="h-full overflow-auto rounded-lg border border-[#1E2530] bg-[#101724] p-6">
@@ -81,8 +90,13 @@ export function PortfolioView() {
         </div>
 
         {state.offline ? (
-          <p className="text-micro font-medium text-accent" role="status">
-            offline — last synced {formatTime(state.lastSyncedAt)}
+          <p
+            className="text-micro font-medium text-accent"
+            role="status"
+            data-testid="portfolio-offline-indicator"
+            title={state.offlineReason !== null ? `offline — ${state.offlineReason}` : undefined}
+          >
+            offline{state.offlineReason !== null ? ` — ${state.offlineReason}` : ""} · last synced {formatTime(state.lastSyncedAt)}
           </p>
         ) : null}
       </header>

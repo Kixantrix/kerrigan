@@ -25,6 +25,7 @@ export interface InboxItem {
 export interface InboxResult {
   items: ReadonlyArray<InboxItem>;
   offline: boolean;
+  offlineReason: string | null;
   lastSyncedAt: Date;
 }
 
@@ -75,6 +76,7 @@ export async function buildInbox({
   const nowMs = nowDate.getTime();
   const items: InboxItem[] = [];
   let offline = false;
+  let offlineReason: string | null = null;
 
   for (const project of projects) {
     for (const workingCopyPath of project.workingCopyPaths) {
@@ -100,6 +102,7 @@ export async function buildInbox({
       const issuesResult = await githubClient.listIssues(repo.owner, repo.repo);
       if (!issuesResult.ok) {
         offline = true;
+        offlineReason ??= issuesResult.reason;
       } else {
         items.push(...toCaptureIssueItems(project.id, repo, issuesResult.data, nowMs));
       }
@@ -107,6 +110,7 @@ export async function buildInbox({
       const prsResult = await githubClient.listOpenPRs(repo.owner, repo.repo);
       if (!prsResult.ok) {
         offline = true;
+        offlineReason ??= prsResult.reason;
         continue;
       }
 
@@ -120,6 +124,7 @@ export async function buildInbox({
 
       if (!reviewItemsResult.ok) {
         offline = true;
+        offlineReason ??= reviewItemsResult.reason;
       } else {
         items.push(...reviewItemsResult.data);
       }
@@ -155,6 +160,7 @@ export async function buildInbox({
   return {
     items,
     offline,
+    offlineReason,
     lastSyncedAt: nowDate,
   };
 }
@@ -171,6 +177,7 @@ export async function buildInboxFromProjectsFile(
     return {
       items: [],
       offline: false,
+      offlineReason: null,
       lastSyncedAt: nowDate,
     };
   }

@@ -7,7 +7,7 @@ import {
   type InboxResult,
 } from "../../lib/inbox.js";
 import { createOfflineGitHubClient } from "../../lib/portfolio.js";
-import { tauriShellOut } from "../../lib/shell.js";
+import { resolveShellOut } from "../../lib/auth.js";
 import {
   applyFilters,
   INITIAL_FILTER_STATE,
@@ -36,6 +36,7 @@ interface InboxState {
   items: ReadonlyArray<InboxItem>;
   snoozedIds: ReadonlySet<string>;
   offline: boolean;
+  offlineReason: string | null;
   lastSyncedAt: Date | null;
 }
 
@@ -43,6 +44,7 @@ const INITIAL_STATE: InboxState = {
   items: [],
   snoozedIds: new Set(),
   offline: false,
+  offlineReason: null,
   lastSyncedAt: null,
 };
 
@@ -55,7 +57,7 @@ const defaultInboxBuilder: InboxBuilder = async () => {
   }
 
   try {
-    const githubClient = createInboxGitHubClient(tauriShellOut);
+    const githubClient = createInboxGitHubClient(resolveShellOut());
     return buildInboxFromProjectsFile(githubClient);
   } catch {
     return buildInboxFromProjectsFile(fallbackGitHubClient);
@@ -142,6 +144,7 @@ export function InboxView({
           ...previousState,
           items: result.items,
           offline: result.offline,
+          offlineReason: result.offline ? result.offlineReason : null,
           lastSyncedAt,
         };
       });
@@ -176,6 +179,12 @@ export function InboxView({
     (item) => item.kind === "block" || item.kind === "capture-issue",
   ).length;
 
+  useEffect(() => {
+    if (state.offline && state.offlineReason !== null) {
+      console.warn("[kerrigan] inbox offline:", state.offlineReason);
+    }
+  }, [state.offline, state.offlineReason]);
+
   return (
     <section className="h-full overflow-auto rounded-lg border border-[#1E2530] bg-[#101724] p-6">
       <header className="mb-5 flex items-center justify-between gap-4">
@@ -196,8 +205,13 @@ export function InboxView({
 
         <div className="flex items-center gap-3">
           {state.offline ? (
-            <p className="text-micro font-medium text-accent" role="status">
-              offline — last synced {formatTime(state.lastSyncedAt)}
+            <p
+              className="text-micro font-medium text-accent"
+              role="status"
+              data-testid="inbox-offline-indicator"
+              title={state.offlineReason !== null ? `offline — ${state.offlineReason}` : undefined}
+            >
+              offline{state.offlineReason !== null ? ` — ${state.offlineReason}` : ""} · last synced {formatTime(state.lastSyncedAt)}
             </p>
           ) : null}
           <Link to="/" className="text-micro text-[#8B94A6] hover:text-neutral-fg">
