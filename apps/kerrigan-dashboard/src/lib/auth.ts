@@ -16,7 +16,7 @@ import { tauriShellOut } from "./shell.js";
  * The token is never logged.
  */
 export function resolveShellOut(): ShellOut {
-  if (typeof window !== "undefined" && "__TAURI__" in window) {
+  if ("__TAURI__" in window) {
     return tauriShellOut;
   }
 
