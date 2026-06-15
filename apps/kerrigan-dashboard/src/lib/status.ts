@@ -236,6 +236,32 @@ export const defaultStageMatcher: StageMatcher = (stage, item) => {
   return false;
 };
 
+/**
+ * Groups a flat list of PRs by the stage they match, using the same matching
+ * logic as `deriveStatuses`.  Only stages that have at least one matched PR
+ * are included as keys in the returned map.
+ *
+ * Useful for the stage details panel: call with the full PR set (open + merged)
+ * to power the per-stage PR history view.
+ */
+export function groupPRsByStage(
+  graph: PlanStageGraph,
+  prs: ReadonlyArray<PullRequestData>,
+  matcher?: StageMatcher,
+): Map<string, ReadonlyArray<PullRequestData>> {
+  const matchFn = matcher ?? defaultStageMatcher;
+  const result = new Map<string, ReadonlyArray<PullRequestData>>();
+
+  for (const stage of graph.nodes) {
+    const stagePRs = prs.filter((pr) => matchFn(stage, pr));
+    if (stagePRs.length > 0) {
+      result.set(stage.id, stagePRs);
+    }
+  }
+
+  return result;
+}
+
 export function deriveStatuses(
   graph: PlanStageGraph,
   input: DeriveStatusesInput,
