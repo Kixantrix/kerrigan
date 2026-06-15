@@ -48,7 +48,7 @@ export const tauriShellOut: ShellOut = async (
     throw new Error("shell-command-not-allowed");
   }
 
-  const shellCommand = shellModuleUnknown.Command.create(allowlistName, [...args]);
+  const shellCommand = shellModuleUnknown.Command.create(allowlistName, args);
   const result = await shellCommand.execute();
   if (result.code !== 0) {
     const details = result.stderr.trim() || result.stdout.trim() || `exit-${result.code}`;

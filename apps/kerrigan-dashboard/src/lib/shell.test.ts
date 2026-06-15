@@ -1,7 +1,13 @@
 // @vitest-environment happy-dom
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("tauriShellOut", () => {
+  afterEach(() => {
+    // @ts-expect-error intentional deletion for test cleanup
+    delete window.__TAURI__;
+    vi.resetModules();
+  });
+
   it("throws in web preview when Tauri runtime is unavailable", async () => {
     vi.resetModules();
     // @ts-expect-error intentional deletion for test setup
