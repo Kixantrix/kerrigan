@@ -371,9 +371,11 @@ async function fetchRepoStatus(
     return { prs, issues, reviewsByPr, offline, offlineReason };
   }
 
-  const [prsResult, issuesResult] = await Promise.all([
+  const [prsResult, issuesResult, mergedPRsResult, closedIssuesResult] = await Promise.all([
     githubClient.listOpenPRs(owner, repo),
     githubClient.listIssues(owner, repo),
+    githubClient.listRecentlyMergedPRs(owner, repo),
+    githubClient.listClosedIssues(owner, repo),
   ]);
 
   if (!prsResult.ok) {
@@ -404,6 +406,20 @@ async function fetchRepoStatus(
     offlineReason ??= issuesResult.reason;
   } else {
     issues.push(...issuesResult.data);
+  }
+
+  if (mergedPRsResult.ok) {
+    prs.push(...mergedPRsResult.data);
+  } else {
+    offline = true;
+    offlineReason ??= mergedPRsResult.reason;
+  }
+
+  if (closedIssuesResult.ok) {
+    issues.push(...closedIssuesResult.data);
+  } else {
+    offline = true;
+    offlineReason ??= closedIssuesResult.reason;
   }
 
   return { prs, issues, reviewsByPr, offline, offlineReason };

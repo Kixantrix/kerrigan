@@ -96,6 +96,10 @@ function createGitHubClientStub(maps: ClientMaps = {}): GitHubClient {
       const key = `${owner}/${repo}#${prNumber}`;
       return Promise.resolve(maps.reviews?.[key] ?? { ok: true, data: [] });
     },
+    listRecentlyMergedPRs: (): Promise<GitHubResult<PullRequestData[]>> =>
+      Promise.resolve({ ok: true, data: [] }),
+    listClosedIssues: (): Promise<GitHubResult<IssueData[]>> =>
+      Promise.resolve({ ok: true, data: [] }),
   };
 }
 

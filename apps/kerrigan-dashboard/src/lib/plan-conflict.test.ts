@@ -65,6 +65,8 @@ function makeGhClient(
       ok: true,
       data: issues,
     }),
+    listRecentlyMergedPRs: async () => ({ ok: true, data: [] }),
+    listClosedIssues: async () => ({ ok: true, data: [] }),
   };
 }
 
@@ -79,6 +81,8 @@ function makeOfflineGhClient(): GitHubClient {
       offline: true,
       reason: "unreachable",
     }),
+    listRecentlyMergedPRs: async () => ({ ok: false, offline: true, reason: "unreachable" }),
+    listClosedIssues: async () => ({ ok: false, offline: true, reason: "unreachable" }),
   };
 }
 

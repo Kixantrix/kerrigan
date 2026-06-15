@@ -38,6 +38,10 @@ function createGitHubClientStub(
       return Promise.resolve(result);
     },
     getPRReviews: (): Promise<GitHubResult<ReviewData[]>> => offline(),
+    listRecentlyMergedPRs: (): Promise<GitHubResult<PullRequestData[]>> =>
+      Promise.resolve({ ok: true, data: [] }),
+    listClosedIssues: (): Promise<GitHubResult<IssueData[]>> =>
+      Promise.resolve({ ok: true, data: [] }),
   };
 }
 

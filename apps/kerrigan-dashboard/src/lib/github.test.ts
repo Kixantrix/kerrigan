@@ -431,4 +431,188 @@ describe("createGitHubClient", () => {
 
     expect(result).toEqual({ ok: true, data: reviews });
   });
+
+  // -------------------------------------------------------------------------
+  it("listRecentlyMergedPRs returns only PRs with merged_at set", async () => {
+    const shellOut = makeShellOut();
+    const rawPRs = [
+      {
+        number: 20,
+        title: "feat: merged feature",
+        state: "closed",
+        draft: false,
+        user: { login: "alice" },
+        created_at: "2024-02-01T00:00:00Z",
+        updated_at: "2024-02-02T00:00:00Z",
+        merged_at: "2024-02-02T12:00:00Z",
+        head: { ref: "feat/thing", sha: "def" },
+        base: { ref: "main" },
+        html_url: "https://github.com/o/r/pull/20",
+      },
+      {
+        number: 21,
+        title: "fix: closed without merging",
+        state: "closed",
+        draft: false,
+        user: { login: "bob" },
+        created_at: "2024-02-01T00:00:00Z",
+        updated_at: "2024-02-03T00:00:00Z",
+        merged_at: null,
+        head: { ref: "fix/thing", sha: "ghi" },
+        base: { ref: "main" },
+        html_url: "https://github.com/o/r/pull/21",
+      },
+    ];
+    mockSuccess(mock.mockRequest, rawPRs);
+
+    const client = createGitHubClient(shellOut, mock.factory);
+    const result = await client.listRecentlyMergedPRs("o", "r");
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const prs: PullRequestData[] = result.data;
+      expect(prs).toHaveLength(1);
+      expect(prs[0]?.number).toBe(20);
+      expect(prs[0]?.merged_at).toBe("2024-02-02T12:00:00Z");
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  it("listRecentlyMergedPRs sends If-None-Match on second request and returns cached data on 304", async () => {
+    const shellOut = makeShellOut();
+    const mergedPR: PullRequestData = {
+      number: 30,
+      title: "chore: merged cleanup",
+      state: "closed",
+      draft: false,
+      user: { login: "carol" },
+      created_at: "2024-03-01T00:00:00Z",
+      updated_at: "2024-03-02T00:00:00Z",
+      merged_at: "2024-03-02T09:00:00Z",
+      head: { ref: "chore/cleanup", sha: "jkl" },
+      base: { ref: "main" },
+      html_url: "https://github.com/o/r/pull/30",
+    };
+    const ETAG = '"merged-etag-xyz"';
+
+    mockSuccess(mock.mockRequest, [mergedPR], ETAG);
+    mockNotModified(mock.mockRequest);
+
+    const client = createGitHubClient(shellOut, mock.factory);
+    const first = await client.listRecentlyMergedPRs("o", "r");
+    const second = await client.listRecentlyMergedPRs("o", "r");
+
+    expect(first).toEqual({ ok: true, data: [mergedPR] });
+    expect(second).toEqual({ ok: true, data: [mergedPR] });
+
+    expect(mock.mockRequest).toHaveBeenNthCalledWith(
+      2,
+      "GET /repos/{owner}/{repo}/pulls",
+      expect.objectContaining({
+        headers: expect.objectContaining({ "if-none-match": ETAG }),
+      }),
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  it("listRecentlyMergedPRs uses per_page: 50 (bounded)", async () => {
+    const shellOut = makeShellOut();
+    mockSuccess(mock.mockRequest, []);
+
+    const client = createGitHubClient(shellOut, mock.factory);
+    await client.listRecentlyMergedPRs("o", "r");
+
+    expect(mock.mockRequest).toHaveBeenCalledWith(
+      "GET /repos/{owner}/{repo}/pulls",
+      expect.objectContaining({ state: "closed", per_page: 50 }),
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  it("listClosedIssues returns closed issues, filtering out PR entries", async () => {
+    const shellOut = makeShellOut();
+    const rawItems = [
+      {
+        number: 50,
+        title: "Done: closed milestone issue",
+        state: "closed",
+        user: { login: "dave" },
+        created_at: "2024-04-01T00:00:00Z",
+        updated_at: "2024-04-02T00:00:00Z",
+        labels: [],
+        html_url: "https://github.com/o/r/issues/50",
+        // no pull_request field → real issue
+      },
+      {
+        number: 51,
+        title: "Closed PR via issues endpoint",
+        state: "closed",
+        user: { login: "eve" },
+        created_at: "2024-04-01T00:00:00Z",
+        updated_at: "2024-04-02T00:00:00Z",
+        labels: [],
+        html_url: "https://github.com/o/r/pull/51",
+        pull_request: { url: "https://api.github.com/repos/o/r/pulls/51" },
+      },
+    ];
+    mockSuccess(mock.mockRequest, rawItems);
+
+    const client = createGitHubClient(shellOut, mock.factory);
+    const result = await client.listClosedIssues("o", "r");
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const issues: IssueData[] = result.data;
+      expect(issues).toHaveLength(1);
+      expect(issues[0]?.number).toBe(50);
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  it("listClosedIssues sends If-None-Match on second request and returns cached data on 304", async () => {
+    const shellOut = makeShellOut();
+    const closedIssue: IssueData = {
+      number: 60,
+      title: "Closed: done task",
+      state: "closed",
+      user: { login: "frank" },
+      created_at: "2024-05-01T00:00:00Z",
+      updated_at: "2024-05-02T00:00:00Z",
+      labels: [],
+      html_url: "https://github.com/o/r/issues/60",
+    };
+    const ETAG = '"closed-issues-etag"';
+
+    mockSuccess(mock.mockRequest, [closedIssue], ETAG);
+    mockNotModified(mock.mockRequest);
+
+    const client = createGitHubClient(shellOut, mock.factory);
+    const first = await client.listClosedIssues("o", "r");
+    const second = await client.listClosedIssues("o", "r");
+
+    expect(first).toEqual({ ok: true, data: [closedIssue] });
+    expect(second).toEqual({ ok: true, data: [closedIssue] });
+
+    expect(mock.mockRequest).toHaveBeenNthCalledWith(
+      2,
+      "GET /repos/{owner}/{repo}/issues",
+      expect.objectContaining({
+        headers: expect.objectContaining({ "if-none-match": ETAG }),
+      }),
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  it("listClosedIssues uses per_page: 50 (bounded)", async () => {
+    const shellOut = makeShellOut();
+    mockSuccess(mock.mockRequest, []);
+
+    const client = createGitHubClient(shellOut, mock.factory);
+    await client.listClosedIssues("o", "r");
+
+    expect(mock.mockRequest).toHaveBeenCalledWith(
+      "GET /repos/{owner}/{repo}/issues",
+      expect.objectContaining({ state: "closed", per_page: 50 }),
+    );
+  });
 });
