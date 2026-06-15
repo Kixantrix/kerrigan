@@ -28,6 +28,7 @@ export interface PortfolioCardData {
 export interface PortfolioCardsResult {
   cards: ReadonlyArray<PortfolioCardData>;
   offline: boolean;
+  offlineReason: string | null;
   lastSyncedAt: Date;
 }
 
@@ -56,6 +57,7 @@ export async function buildPortfolioCards(
 ): Promise<PortfolioCardsResult> {
   const cards: PortfolioCardData[] = [];
   let offline = false;
+  let offlineReason: string | null = null;
 
   for (const project of projects) {
     const workingCopyState = await readFirstWorkingCopy(
@@ -68,6 +70,7 @@ export async function buildPortfolioCards(
       const issuesResult = await githubClient.listIssues(repoRef.owner, repoRef.repo);
       if (!issuesResult.ok) {
         offline = true;
+        offlineReason ??= issuesResult.reason;
         continue;
       }
 
@@ -89,6 +92,7 @@ export async function buildPortfolioCards(
   return {
     cards,
     offline,
+    offlineReason,
     lastSyncedAt: new Date(),
   };
 }
