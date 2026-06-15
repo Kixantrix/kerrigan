@@ -1,27 +1,16 @@
 import type { ShellOut } from "./github.js";
 
-interface ShellExecuteResult {
-  code: number;
-  stdout: string;
-  stderr: string;
+interface TauriCoreModule {
+  invoke<T>(cmd: string): Promise<T>;
 }
 
-interface ShellCommandLike {
-  execute(): Promise<ShellExecuteResult>;
-}
-
-interface ShellModuleLike {
-  Command: {
-    create(command: string, args: readonly string[]): ShellCommandLike;
-  };
-}
-
-function isShellModuleLike(value: unknown): value is ShellModuleLike {
-  if (typeof value !== "object" || value === null) return false;
-  if (!("Command" in value)) return false;
-  const command = (value as Record<string, unknown>).Command;
-  if (typeof command !== "object" || command === null) return false;
-  return typeof (command as Record<string, unknown>).create === "function";
+function isTauriCoreModule(value: unknown): value is TauriCoreModule {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "invoke" in value &&
+    typeof (value as Record<string, unknown>).invoke === "function"
+  );
 }
 
 export const tauriShellOut: ShellOut = async (
@@ -32,28 +21,27 @@ export const tauriShellOut: ShellOut = async (
     throw new Error("shell-unavailable");
   }
 
-  const shellModuleUnknown: unknown = await import("@tauri-apps/plugin-shell");
-  if (!isShellModuleLike(shellModuleUnknown)) {
-    throw new Error("shell-module-incompatible");
-  }
-
-  // Map the generic (command, args) pair to the allowlist entry name defined in
-  // src-tauri/capabilities/default.json.  Any request that does not match a
-  // known allowlist entry is rejected before it reaches the plugin so that
-  // denials surface as a clear error rather than a silent permission failure.
-  let allowlistName: string;
-  if (command === "gh" && args.length === 2 && args[0] === "auth" && args[1] === "token") {
-    allowlistName = "gh-auth-token";
-  } else {
+  // Only `gh auth token` is permitted; all other commands are rejected before
+  // reaching the Tauri invoke boundary.
+  if (!(command === "gh" && args.length === 2 && args[0] === "auth" && args[1] === "token")) {
     throw new Error("shell-command-not-allowed");
   }
 
-  const shellCommand = shellModuleUnknown.Command.create(allowlistName, args);
-  const result = await shellCommand.execute();
-  if (result.code !== 0) {
-    const details = result.stderr.trim() || result.stdout.trim() || `exit-${result.code}`;
-    throw new Error(details);
+  // Resolve the token via the Rust-side `gh_auth_token` command, which uses
+  // std::process::Command with PATH + common install-location fallbacks.  This
+  // is more reliable than the plugin-shell approach in native GUI processes
+  // where PATH may not include the user's shell PATH.
+  const coreModule: unknown = await import("@tauri-apps/api/core");
+  if (!isTauriCoreModule(coreModule)) {
+    throw new Error("tauri-core-unavailable");
   }
 
-  return result.stdout.trimEnd();
+  try {
+    return await coreModule.invoke<string>("gh_auth_token");
+  } catch (err) {
+    // Tauri propagates the Rust Err(String) as a plain string rejection.
+    // Re-throw as an Error so callers always see an Error object.
+    const message = typeof err === "string" ? err : "invoke-failed";
+    throw new Error(message);
+  }
 };

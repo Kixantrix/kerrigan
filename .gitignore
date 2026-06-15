@@ -18,6 +18,11 @@ apps/kerrigan-dashboard/src-tauri/target/
 apps/kerrigan-dashboard/dist/
 apps/kerrigan-dashboard/node_modules/
 
+# Rust build artifacts (e.g. from ad-hoc rustc invocations at the repo root)
+*.rlib
+*.rmeta
+*.d
+
 # Secrets
 .env
 .env.*
