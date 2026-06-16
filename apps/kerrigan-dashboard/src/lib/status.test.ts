@@ -524,6 +524,7 @@ describe("groupStageWorkByStage", () => {
       title: "fix(dashboard): detail panel polish",
       state: "closed",
       merged_at: "2026-05-01T00:00:00Z",
+      head: { ref: "feature/m3-4-polish", sha: "abc123" },
       html_url: "https://github.com/o/r/pull/88",
     });
     const matchedIssue = issue({
