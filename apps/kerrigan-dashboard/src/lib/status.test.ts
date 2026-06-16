@@ -239,6 +239,66 @@ describe("deriveStatuses", () => {
 
     expect(statuses.get("m5-1")).toBe("merged");
   });
+
+  it("ignores docs/plan PRs when deriving stage status", () => {
+    const stage: PlanStageNode = {
+      id: "m9",
+      label: "M9 Deferred milestone",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [
+          pr({
+            number: 90,
+            title: "docs(dashboard): add deferred M9 milestone",
+            state: "merged",
+            merged_at: "2026-06-01T00:00:00Z",
+          }),
+        ],
+        issues: [],
+        blocks: [],
+      },
+    );
+
+    expect(statuses.get("m9")).toBe("planned");
+  });
+
+  it("keeps stage in-flight when docs PR is merged but implementation PR is still open", () => {
+    const stage: PlanStageNode = {
+      id: "m10",
+      label: "M10 Ongoing maintenance",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [
+          pr({
+            number: 100,
+            title: "plan(dashboard): add M10 ongoing maintenance milestone",
+            state: "merged",
+            merged_at: "2026-06-01T00:00:00Z",
+          }),
+          pr({
+            number: 101,
+            title: "feat(dashboard): M10.2 chat cockpit",
+            state: "open",
+            merged_at: null,
+          }),
+        ],
+        issues: [issue({ title: "M10 tracking issue", labels: [{ name: "agent:go" }] })],
+        blocks: [],
+      },
+    );
+
+    expect(statuses.get("m10")).toBe("dispatched");
+  });
 });
 
 describe("defaultStageMatcher", () => {
@@ -388,6 +448,39 @@ describe("deriveStatuses — closing-PR traversal (Option C)", () => {
     expect(statuses.get("m3-project-detail-dag")).toBe("planned");
   });
 
+  it("ignores docs/plan closing PRs linked from matched issues", () => {
+    const stage: PlanStageNode = {
+      id: "m9",
+      label: "M9 Deferred milestone",
+      level: 2,
+      parentId: null,
+    };
+
+    const statuses = deriveStatuses(
+      graph([stage]),
+      {
+        prs: [],
+        issues: [
+          issue({
+            title: "M9 tracking issue",
+            state: "closed",
+            closingPRs: [
+              {
+                number: 91,
+                merged: true,
+                title: "plan(dashboard): add M9 deferred milestone",
+                url: "https://example.com/pr/91",
+              },
+            ],
+          }),
+        ],
+        blocks: [],
+      },
+    );
+
+    expect(statuses.get("m9")).toBe("planned");
+  });
+
   it("blocked takes precedence over closing-PR merged signal", () => {
     const stage: PlanStageNode = {
       id: "m3-project-detail-dag",
@@ -514,6 +607,39 @@ describe("groupStageWorkByStage", () => {
 
     expect(result.get("m3")).toEqual({
       prs: [matchedPr],
+      issues: [matchedIssue],
+    });
+  });
+
+  it("excludes docs/plan/briefings PRs from matched stage work", () => {
+    const matchedIssue = issue({ number: 24, title: "M3.4: tracking issue" });
+    const implementationPr = pr({
+      number: 42,
+      title: "feat(dashboard): M3.4 status work",
+      html_url: "https://github.com/o/r/pull/42",
+    });
+    const docsPr = pr({
+      number: 43,
+      title: "docs(dashboard): M3.4 milestone briefing",
+      state: "closed",
+      merged_at: "2026-05-01T00:00:00Z",
+      html_url: "https://github.com/o/r/pull/43",
+    });
+    const briefingsPr = pr({
+      number: 44,
+      title: "chore(briefings): M3.4 dispatch packet refresh",
+      state: "closed",
+      merged_at: "2026-05-01T00:00:00Z",
+      html_url: "https://github.com/o/r/pull/44",
+    });
+
+    const result = groupStageWorkByStage(
+      graph([stage]),
+      { prs: [implementationPr, docsPr, briefingsPr], issues: [matchedIssue] },
+    );
+
+    expect(result.get("m3")).toEqual({
+      prs: [implementationPr],
       issues: [matchedIssue],
     });
   });
