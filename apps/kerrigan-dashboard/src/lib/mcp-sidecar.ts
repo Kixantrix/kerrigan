@@ -241,7 +241,10 @@ class AsyncQueue<T> implements AsyncIterable<T> {
       next: (): Promise<IteratorResult<T>> => {
         if (this.items.length > 0) {
           const item = this.items.shift();
-          return Promise.resolve({ value: item, done: false } as IteratorResult<T>);
+          if (item === undefined) {
+            return Promise.resolve({ value: undefined, done: true });
+          }
+          return Promise.resolve({ value: item, done: false });
         }
         if (this.failure !== null) return Promise.reject(this.failure);
         if (this.ended) return Promise.resolve({ value: undefined, done: true });
@@ -284,11 +287,14 @@ export function createDefaultMcpSidecarSpawn(): McpSidecarSpawn {
     return {
       stdout: {
         async *[Symbol.asyncIterator](): AsyncIterator<Uint8Array> {
+          let processResolved = false;
           try {
             const process = await pendingProcess;
+            processResolved = true;
             for await (const chunk of process.stdout) yield chunk;
-          } catch {
-            throw new McpSidecarStartupError();
+          } catch (error) {
+            if (!processResolved) throw new McpSidecarStartupError();
+            throw error;
           }
         },
       },
