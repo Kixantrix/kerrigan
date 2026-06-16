@@ -33,9 +33,9 @@ export function buildDagLayout(
   const dag = new dagre.graphlib.Graph();
   dag.setDefaultEdgeLabel(() => ({}));
   dag.setGraph({
-    rankdir: "TB",
-    nodesep: 36,
-    ranksep: 80,
+    rankdir: "LR",
+    nodesep: 24,
+    ranksep: 60,
     marginx: 24,
     marginy: 24,
   });
