@@ -310,4 +310,38 @@ describe("acp-client", () => {
     );
     await client.dispose();
   });
+
+  it("passes --additional-mcp-config when provided", async () => {
+    const server = new MockAcpProcess();
+    let seenArgs: readonly string[] | null = null;
+    const spawn: AcpSpawn = (_command, args) => {
+      seenArgs = args;
+      server.onRequest = (request) => {
+        if (request.method === "initialize" && request.id !== undefined) {
+          server.send({ jsonrpc: "2.0", id: request.id, result: { ok: true } });
+          return;
+        }
+        if (request.method === "user_message" && request.id !== undefined) {
+          server.send({ jsonrpc: "2.0", method: "turn_end", params: { reason: "done" } });
+          server.send({ jsonrpc: "2.0", id: request.id, result: { accepted: true } });
+        }
+      };
+      return server;
+    };
+
+    const mcpConfig = {
+      mcpServers: {
+        kerrigan: { command: "node", args: ["tools/kerrigan-mcp/dist/server.js"] },
+      },
+    };
+    const client = createAcpClient(spawn, { additionalMcpConfig: mcpConfig });
+    await collectEvents(client.sendUserTurn("hi"));
+
+    expect(seenArgs).toEqual([
+      "--acp",
+      "--additional-mcp-config",
+      JSON.stringify(mcpConfig),
+    ]);
+    await client.dispose();
+  });
 });
