@@ -6,6 +6,7 @@ import {
   deriveStageStatus,
   deriveStatuses,
   groupPRsByStage,
+  groupStageWorkByStage,
   type BlockSummary,
   type StageStatus,
 } from "./status.js";
@@ -487,5 +488,77 @@ describe("groupPRsByStage", () => {
     const result = groupPRsByStage(graph([stageA, stageB]), [singlePr], customMatcher);
     expect(result.get("m3-2")).toEqual([singlePr]);
     expect(result.get("m3-3")).toEqual([singlePr]);
+  });
+});
+
+describe("groupStageWorkByStage", () => {
+  const stage: PlanStageNode = {
+    id: "m3",
+    label: "M3",
+    level: 2,
+    parentId: null,
+  };
+
+  it("groups matched issues and PRs together for a stage", () => {
+    const matchedIssue = issue({ number: 24, title: "M3.4: tracking issue" });
+    const matchedPr = pr({
+      number: 42,
+      title: "M3.4 status work",
+      html_url: "https://github.com/o/r/pull/42",
+    });
+
+    const result = groupStageWorkByStage(
+      graph([stage]),
+      { prs: [matchedPr], issues: [matchedIssue] },
+    );
+
+    expect(result.get("m3")).toEqual({
+      prs: [matchedPr],
+      issues: [matchedIssue],
+    });
+  });
+
+  it("includes merged closing PRs for matched issues without duplicating direct matches", () => {
+    const directPr = pr({
+      number: 88,
+      title: "fix(dashboard): detail panel polish",
+      state: "closed",
+      merged_at: "2026-05-01T00:00:00Z",
+      head: { ref: "feature/m3-4-polish", sha: "abc123" },
+      html_url: "https://github.com/o/r/pull/88",
+    });
+    const matchedIssue = issue({
+      title: "M3.4: tracking issue",
+      closingPRs: [
+        {
+          number: 88,
+          merged: true,
+          title: "fix(dashboard): detail panel polish",
+          url: "https://github.com/o/r/pull/88",
+        },
+        {
+          number: 89,
+          merged: true,
+          title: "fix(dashboard): follow-up",
+          url: "https://github.com/o/r/pull/89",
+        },
+      ],
+    });
+
+    const result = groupStageWorkByStage(
+      graph([stage]),
+      { prs: [directPr], issues: [matchedIssue] },
+    );
+
+    expect(result.get("m3")?.issues).toEqual([matchedIssue]);
+    expect(result.get("m3")?.prs).toEqual([
+      directPr,
+      expect.objectContaining({
+        number: 89,
+        title: "fix(dashboard): follow-up",
+        state: "merged",
+        html_url: "https://github.com/o/r/pull/89",
+      }),
+    ]);
   });
 });

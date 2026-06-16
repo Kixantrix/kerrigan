@@ -19,13 +19,21 @@ import {
 import { createOfflineGitHubClient } from "../../lib/portfolio.js";
 import { projectSchema, readProjects, type Project } from "../../lib/projects.js";
 import { resolveShellOut } from "../../lib/auth.js";
-import { deriveStatuses, groupPRsByStage, type BlockSummary, type StageStatus } from "../../lib/status.js";
+import { deriveStatuses, groupStageWorkByStage, type BlockSummary, type StageStatus } from "../../lib/status.js";
 
 declare global {
   interface Window {
     __KERRIGAN_PROJECTS_FIXTURE__?: unknown;
     __KERRIGAN_PLAN_FIXTURE__?: Record<string, string | null>;
     __KERRIGAN_OPEN_PRS_FIXTURE__?: Record<string, ReadonlyArray<PullRequestData>>;
+    __KERRIGAN_REPO_STATUS_FIXTURE__?: Record<
+      string,
+      {
+        prs?: ReadonlyArray<PullRequestData>;
+        issues?: ReadonlyArray<IssueData>;
+        reviewsByPr?: Record<string, ReadonlyArray<ReviewData>>;
+      }
+    >;
   }
 }
 
@@ -45,6 +53,7 @@ interface ProjectRouteState {
   planMarkdown: string;
   graph: PlanStageGraph;
   statuses: ReadonlyMap<string, StageStatus>;
+  issues: ReadonlyArray<IssueData>;
   openPRs: ReadonlyArray<PullRequestData>;
   parseErrors: ReadonlyArray<PlanParseError>;
   offline: boolean;
@@ -69,6 +78,7 @@ const INITIAL_STATE: ProjectRouteState = {
   planMarkdown: "",
   graph: EMPTY_GRAPH,
   statuses: new Map(),
+  issues: [],
   openPRs: [],
   parseErrors: [],
   offline: false,
@@ -96,9 +106,9 @@ export function ProjectView({
     }
   }, []);
 
-  const prsByStage = useMemo(
-    () => groupPRsByStage(state.graph, state.openPRs),
-    [state.graph, state.openPRs],
+  const workByStage = useMemo(
+    () => groupStageWorkByStage(state.graph, { prs: state.openPRs, issues: state.issues }),
+    [state.graph, state.issues, state.openPRs],
   );
 
   const selectedStage = useMemo(
@@ -157,6 +167,7 @@ export function ProjectView({
           planMarkdown,
           graph: { nodes: parsed.nodes, edges: parsed.edges },
           statuses,
+          issues: statusInput.issues,
           openPRs: statusInput.prs,
           parseErrors: parsed.errors,
           offline: statusInput.offline,
@@ -260,7 +271,8 @@ export function ProjectView({
               <StageDetailPanel
                 stageId={selectedStage.id}
                 stageName={selectedStage.label}
-                prs={prsByStage.get(selectedStage.id) ?? []}
+                issues={workByStage.get(selectedStage.id)?.issues ?? []}
+                prs={workByStage.get(selectedStage.id)?.prs ?? []}
                 onClose={() => { setSelectedStageId(null); }}
               />
             </div>
@@ -386,7 +398,23 @@ async function fetchRepoStatus(
   const prs: PullRequestData[] = [];
   let issues: IssueData[] = [];
   const reviewsByPr = new Map<number, ReadonlyArray<ReviewData>>();
+  const fixtureRepoStatus = readFixtureRepoStatus(owner, repo);
   const fixtureOpenPRs = readFixtureOpenPRs(owner, repo);
+
+  if (fixtureRepoStatus !== undefined) {
+    return {
+      prs: fixtureRepoStatus.prs ?? [],
+      issues: fixtureRepoStatus.issues ?? [],
+      reviewsByPr: new Map(
+        Object.entries(fixtureRepoStatus.reviewsByPr ?? {}).map(([prNumber, reviews]) => [
+          Number(prNumber),
+          reviews,
+        ]),
+      ),
+      offline,
+      offlineReason,
+    };
+  }
 
   if (fixtureOpenPRs !== undefined) {
     // PR fixtures are intentionally scoped to open-PR lifecycle playback.
@@ -476,6 +504,19 @@ function readFixtureOpenPRs(
   repo: string,
 ): ReadonlyArray<PullRequestData> | undefined {
   return window.__KERRIGAN_OPEN_PRS_FIXTURE__?.[`${owner}/${repo}`];
+}
+
+function readFixtureRepoStatus(
+  owner: string,
+  repo: string,
+):
+  | {
+      prs?: ReadonlyArray<PullRequestData>;
+      issues?: ReadonlyArray<IssueData>;
+      reviewsByPr?: Record<string, ReadonlyArray<ReviewData>>;
+    }
+  | undefined {
+  return window.__KERRIGAN_REPO_STATUS_FIXTURE__?.[`${owner}/${repo}`];
 }
 
 async function readBlocksForStatus(
