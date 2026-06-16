@@ -36,7 +36,7 @@ describe("buildDagLayout", () => {
 
     const parent = nodeById.get("m1");
     const child = nodeById.get("m1a");
-    expect(parent?.position.y).toBeLessThan(child?.position.y ?? 0);
+    expect(parent?.position.x).toBeLessThan(child?.position.x ?? 0);
 
     expect(layout.edges).toContainEqual(
       expect.objectContaining({
