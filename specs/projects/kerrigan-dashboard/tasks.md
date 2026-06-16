@@ -262,6 +262,32 @@ Within a milestone, tasks are sequenced by their declared dependencies. The cond
 
 ---
 
+## Milestone 10: Maintenance & enhancements (ongoing)
+
+> **Living milestone.** Append `M10.x` tasks as work is identified. Dispatch each as an `M10.x:`-prefixed issue so it links to the M10 stage and exercises the dashboard's own in-flight status. Unlike M1–M9, this milestone never closes.
+
+**Completed (dogfood-driven, this lane):**
+- Status accuracy: merged-status data source (#385), milestone↔work auto-linkage via closing-PR traversal (#387), matcher precision title+branch (#394).
+- Project detail: per-stage PR details panel (#390), sub-milestone grouping (#396), DAG left-to-right spine (#400), legend (#392).
+- Runtime: Tauri fs + `withGlobalTauri` (#372), `gh auth token` shell-out (#380/#389), offline-reason + dev-browser auth (#383).
+- Cockpit foundation: MCP sidecar lib (#401).
+
+**Open:**
+
+- [ ] Task M10.1: Scope sub-milestone grouping to the current stage's milestone (no foreign `Mx.y` groups)
+  - Done when: a stage panel shows only its own milestone's sub-groups; foreign sub-ids are not surfaced; unit + Playwright cover it
+  - Links: plan.md M10
+  - Touch: `apps/kerrigan-dashboard/src/components/StageDetailPanel/groupStageItems.ts`
+  - Tracked as: #403
+
+- [ ] Task M10.2: Mount chat pane + wire MCP sidecar into ProjectView (cockpit)
+  - Done when: project view shows a chat pane backed by `copilot --acp` with the Kerrigan MCP tools; tool results refresh affected panes; missing-CLI error surfaced
+  - Links: plan.md M10; M4.x + M5.x
+  - Touch: `apps/kerrigan-dashboard/src/routes/project/ProjectView.tsx`, `apps/kerrigan-dashboard/src/components/Chat/**`
+  - Tracked as: #404
+
+---
+
 ## Notes for the conductor
 
 - Re-run `kerrigan-conflict-predictor` before each wave dispatch; the `Touch` field above is authoritative for overlap detection.

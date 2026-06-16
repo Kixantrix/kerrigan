@@ -56,6 +56,7 @@ describe("groupStageItemsBySubMilestone", () => {
         pr({ number: 21, title: "M3.2: PR" }),
         pr({ number: 22, title: "M3.10: PR" }),
       ],
+      3,
     );
 
     expect(grouped.map((group) => group.label)).toEqual(["M3.2", "M3.10"]);
@@ -75,6 +76,7 @@ describe("groupStageItemsBySubMilestone", () => {
     const grouped = groupStageItemsBySubMilestone(
       [issue({ number: 31, title: "Milestone tracking issue" })],
       [pr({ number: 41, title: "fix(dashboard): polish" })],
+      3,
     );
 
     expect(grouped).toEqual([
@@ -83,6 +85,40 @@ describe("groupStageItemsBySubMilestone", () => {
         label: "Other",
         issues: [expect.objectContaining({ number: 31 })],
         prs: [expect.objectContaining({ number: 41 })],
+      },
+    ]);
+  });
+
+  it("does not create a foreign milestone bucket when only foreign sub-ids are present", () => {
+    const grouped = groupStageItemsBySubMilestone(
+      [issue({ number: 51, title: "M2.1: docs clean-up" })],
+      [pr({ number: 61, title: "M2.1: misc follow-up" })],
+      3,
+    );
+
+    expect(grouped).toEqual([
+      {
+        id: null,
+        label: "Other",
+        issues: [expect.objectContaining({ number: 51 })],
+        prs: [expect.objectContaining({ number: 61 })],
+      },
+    ]);
+  });
+
+  it("prefers an in-milestone sub-id when titles contain multiple sub-ids", () => {
+    const grouped = groupStageItemsBySubMilestone(
+      [issue({ number: 71, title: "fix: examples M2.1, M3.4 in description" })],
+      [pr({ number: 81, title: "docs: mentions M2.9 then M3.4" })],
+      3,
+    );
+
+    expect(grouped).toEqual([
+      {
+        id: "M3.4",
+        label: "M3.4",
+        issues: [expect.objectContaining({ number: 71 })],
+        prs: [expect.objectContaining({ number: 81 })],
       },
     ]);
   });

@@ -178,6 +178,16 @@ test("clicking a DAG node opens the stage details panel", async ({ page }) => {
           labels: [],
           html_url: "https://github.com/Kixantrix/kerrigan/issues/35",
         },
+        {
+          number: 36,
+          title: "fix(dashboard): examples M2.1, M3.4 in title",
+          state: "open",
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-03T00:00:00Z",
+          labels: [],
+          html_url: "https://github.com/Kixantrix/kerrigan/issues/36",
+        },
       ],
       prs: [
         {
@@ -219,6 +229,19 @@ test("clicking a DAG node opens the stage details panel", async ({ page }) => {
           base: { ref: "main" },
           html_url: "https://github.com/Kixantrix/kerrigan/pull/45",
         },
+        {
+          number: 46,
+          title: "chore: M3 coordination with M2.1-only token in title",
+          state: "open",
+          draft: false,
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-03T00:00:00Z",
+          merged_at: null,
+          head: { ref: "feature/m2-1-mention", sha: "jkl012" },
+          base: { ref: "main" },
+          html_url: "https://github.com/Kixantrix/kerrigan/pull/46",
+        },
       ],
     },
     "Kixantrix/kerrigan-dashboard": {
@@ -253,12 +276,15 @@ test("clicking a DAG node opens the stage details panel", async ({ page }) => {
   await expect(page.getByTestId("stage-detail-group-heading-m3-3")).toBeVisible();
   await expect(page.getByTestId("stage-detail-group-heading-m3-4")).toBeVisible();
   await expect(page.getByTestId("stage-detail-group-heading-other")).toBeVisible();
+  await expect(page.getByTestId("stage-detail-group-heading-m2-1")).toHaveCount(0);
   await expect(page.getByTestId("stage-detail-group-m3-3")).toContainText("Issue #33");
   await expect(page.getByTestId("stage-detail-group-m3-3")).toContainText("PR #43");
   await expect(page.getByTestId("stage-detail-group-m3-4")).toContainText("Issue #34");
+  await expect(page.getByTestId("stage-detail-group-m3-4")).toContainText("Issue #36");
   await expect(page.getByTestId("stage-detail-group-m3-4")).toContainText("PR #44");
   await expect(page.getByTestId("stage-detail-group-other")).toContainText("Issue #35");
   await expect(page.getByTestId("stage-detail-group-other")).toContainText("PR #45");
+  await expect(page.getByTestId("stage-detail-group-other")).toContainText("PR #46");
 
   // Close button dismisses the panel
   await page.getByTestId("stage-detail-close").click();

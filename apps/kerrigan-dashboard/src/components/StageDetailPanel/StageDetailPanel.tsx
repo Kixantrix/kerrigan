@@ -164,6 +164,22 @@ function IssueRow({ issue }: IssueRowProps) {
   );
 }
 
+function extractStageMilestoneMajor(stageId: string, stageName: string): number | undefined {
+  const stageIdMatch = /^m(\d+)(?:-|$)/i.exec(stageId);
+  const stageNameMatch = /\bM(\d+)\b/i.exec(stageName);
+  const match = stageIdMatch ?? stageNameMatch;
+  if (match == null) {
+    return undefined;
+  }
+
+  const major = Number.parseInt(match[1] ?? "", 10);
+  if (Number.isNaN(major)) {
+    return undefined;
+  }
+
+  return major;
+}
+
 export function StageDetailPanel({
   stageId,
   stageName,
@@ -171,7 +187,7 @@ export function StageDetailPanel({
   prs,
   onClose,
 }: StageDetailPanelProps) {
-  const groups = groupStageItemsBySubMilestone(issues, prs);
+  const groups = groupStageItemsBySubMilestone(issues, prs, extractStageMilestoneMajor(stageId, stageName));
   const hasItems = issues.length > 0 || prs.length > 0;
 
   return (
