@@ -22,9 +22,15 @@ export interface AcpProcess {
 
 export type AcpSpawn = (cmd: string, args: readonly string[]) => AcpProcess;
 
+export type AdditionalMcpConfig = string | Record<string, unknown>;
+
 export interface AcpClient {
   sendUserTurn(text: string): AsyncIterable<AcpEvent>;
   dispose(): Promise<void>;
+}
+
+export interface CreateAcpClientOptions {
+  additionalMcpConfig?: AdditionalMcpConfig;
 }
 
 export class AcpClientError extends Error {
@@ -536,8 +542,19 @@ function extractName(params: Record<string, unknown>): string {
 
 export function createAcpClient(
   spawn: AcpSpawn = createDefaultAcpSpawn(),
+  options: CreateAcpClientOptions = {},
 ): AcpClient {
-  return new AcpClientImpl(spawn, "copilot", ["--acp"]);
+  const args = ["--acp"];
+  const additionalMcpConfig = options.additionalMcpConfig;
+  if (additionalMcpConfig !== undefined) {
+    args.push(
+      "--additional-mcp-config",
+      typeof additionalMcpConfig === "string"
+        ? additionalMcpConfig
+        : JSON.stringify(additionalMcpConfig),
+    );
+  }
+  return new AcpClientImpl(spawn, "copilot", args);
 }
 
 interface ShellCommandLike {
