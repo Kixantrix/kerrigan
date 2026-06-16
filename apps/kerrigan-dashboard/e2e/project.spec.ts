@@ -22,6 +22,54 @@ test("portfolio-to-project", async ({ page }) => {
   await expect(page.getByTestId("stage-node-m3-1-parse")).toBeVisible();
 });
 
+test("project-view-chat-smoke-exchange", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__KERRIGAN_PROJECT_CHAT_RUNTIME_FIXTURE__ = {
+      createSidecar() {
+        return {
+          async start() {},
+          async stop() {},
+          getAdditionalMcpConfig() {
+            return {
+              mcpServers: {
+                kerrigan: {
+                  command: "node",
+                  args: ["tools/kerrigan-mcp/dist/server.js"],
+                },
+              },
+            };
+          },
+          onToolResult() {
+            return () => {};
+          },
+        };
+      },
+      createClient() {
+        return {
+          sendUserTurn() {
+            return {
+              async *[Symbol.asyncIterator]() {
+                yield { type: "message_chunk", text: "Stubbed Copilot response" };
+                yield { type: "turn_end", reason: "done" };
+              },
+            };
+          },
+          async dispose() {},
+        };
+      },
+    };
+  });
+
+  await page.goto("/#/project/kerrigan-dashboard");
+
+  await expect(page.getByTestId("chat-pane")).toBeVisible();
+  await page.getByTestId("chat-input").fill("hello");
+  await page.getByTestId("chat-submit").click();
+
+  await expect(page.getByTestId("chat-user-turn")).toContainText("hello");
+  await expect(page.getByTestId("chat-event-message-chunk")).toContainText("Stubbed Copilot response");
+});
+
 test("renders placeholder when plan is unavailable", async ({ page }) => {
   await page.addInitScript((plans) => {
     window.__KERRIGAN_PLAN_FIXTURE__ = plans;
@@ -216,3 +264,12 @@ test("clicking a DAG node opens the stage details panel", async ({ page }) => {
   await page.getByTestId("stage-detail-close").click();
   await expect(page.getByTestId("stage-detail-panel-m3")).not.toBeVisible();
 });
+
+declare global {
+  interface Window {
+    __KERRIGAN_PROJECT_CHAT_RUNTIME_FIXTURE__?: {
+      createSidecar: () => unknown;
+      createClient: () => unknown;
+    };
+  }
+}

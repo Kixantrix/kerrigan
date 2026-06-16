@@ -10,6 +10,7 @@ import {
 interface ChatPaneProps {
   client?: AcpClient;
   createClient?: () => AcpClient;
+  startupError?: string | null;
 }
 
 type TranscriptEntry =
@@ -146,7 +147,11 @@ function toBannerMessage(error: unknown): string {
   return "Chat failed unexpectedly. Restart chat and try again.";
 }
 
-export function ChatPane({ client: injectedClient, createClient = createAcpClient }: ChatPaneProps) {
+export function ChatPane({
+  client: injectedClient,
+  createClient = createAcpClient,
+  startupError = null,
+}: ChatPaneProps) {
   const [ownedClient, setOwnedClient] = useState<AcpClient>(() => createClient());
   const client = useMemo(() => injectedClient ?? ownedClient, [injectedClient, ownedClient]);
   const [draft, setDraft] = useState("");
@@ -155,6 +160,7 @@ export function ChatPane({ client: injectedClient, createClient = createAcpClien
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const turnIdRef = useRef(0);
   const cancelRequestedRef = useRef(false);
+  const activeErrorBanner = errorBanner ?? startupError;
 
   useEffect(() => {
     return () => {
@@ -237,9 +243,9 @@ export function ChatPane({ client: injectedClient, createClient = createAcpClien
         <p className="text-micro text-[#8B94A6]">ACP event stream</p>
       </header>
 
-      {errorBanner !== null ? (
+      {activeErrorBanner !== null ? (
         <aside className="mb-3 rounded border border-accent/40 bg-accent/10 p-2 text-micro text-accent" data-testid="chat-error-banner">
-          {errorBanner}
+          {activeErrorBanner}
         </aside>
       ) : null}
 

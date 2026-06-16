@@ -150,4 +150,12 @@ describe("ChatPane", () => {
     expect(fakeClient.dispose).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("chat-error-banner")).toBeNull();
   });
+
+  it("renders startup errors from the runtime wiring", () => {
+    const fakeClient = new FakeAcpClient([() => streamEvents([{ type: "turn_end", reason: "done" }])]);
+    render(<ChatPane client={fakeClient} startupError="Kerrigan MCP server failed to start." />);
+    expect(screen.getByTestId("chat-error-banner")).toHaveTextContent(
+      "Kerrigan MCP server failed to start.",
+    );
+  });
 });
