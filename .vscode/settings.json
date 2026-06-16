@@ -21,6 +21,9 @@
         "/new-pr\\.ps1/":             { "approve": true, "matchCommandLine": true },
         "/create_issues\\.py/":       { "approve": true, "matchCommandLine": true },
         "/clean-build\\.ps1/":        { "approve": true, "matchCommandLine": true },
+        "/sync-main\\.ps1/":          { "approve": true, "matchCommandLine": true },
+        "/dashboard-dev\\.ps1/":      { "approve": true, "matchCommandLine": true },
+        "/close-completed-issues\\.ps1/": { "approve": true, "matchCommandLine": true },
         "/tools[\\\\/]validators/":   { "approve": true, "matchCommandLine": true },
 
         // Validators / tests via the standard entry points (common scripts).
