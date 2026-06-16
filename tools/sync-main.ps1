@@ -52,6 +52,19 @@ if ($code -ne 0) {
   exit $code
 }
 
+# Make sure we're ON the target branch before fast-forwarding; otherwise a
+# `merge --ff-only origin/<Branch>` tries to advance whatever branch is checked
+# out (which fails if it has diverged, e.g. a squash-merged feature branch).
+$current = (& git rev-parse --abbrev-ref HEAD 2>$null)
+if ($current -ne $Branch) {
+  Write-Host "Switching $current -> $Branch ..." -ForegroundColor Cyan
+  $code = Invoke-Git checkout $Branch
+  if ($code -ne 0) {
+    Write-Host "[FAIL] git checkout $Branch exited $code (uncommitted changes blocking the switch?)." -ForegroundColor Red
+    exit $code
+  }
+}
+
 Write-Host "Fast-forwarding to $Remote/$Branch ..." -ForegroundColor Cyan
 $code = Invoke-Git merge --ff-only "$Remote/$Branch"
 if ($code -ne 0) {
