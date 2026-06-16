@@ -178,6 +178,22 @@ The Tauri app lives under `apps/` so it can coexist with future apps without ren
 
 **Exit criteria**: conductor can ask one global question (for example, "what needs intervention across all projects?") and receive a scoped, actionable response with links back to affected projects.
 
+### M10 — Maintenance & enhancements (ongoing)
+
+**Goal**: A living milestone for post-M8 maintenance and dogfood-driven enhancements. Unlike M1–M8 (discrete, sequential), **M10 is open-ended** — new tasks are appended as work is identified (bugs caught while dogfooding, UX refinements, runtime/harness fixes the dashboard surfaces about itself).
+
+**Convention**: dispatch every M10 task as an `M10.x:`-prefixed issue so it links to this stage. That makes the dashboard show its **own** in-flight status (`dispatched` / `in-review` / `merged`) — exercising, on itself, the exact pipeline used to track other projects.
+
+**Deliverables (representative; this list extends over time)**:
+- Status accuracy: merged-status data source, milestone↔work auto-linkage, matcher precision.
+- Project detail: per-stage PR details panel, sub-milestone grouping, DAG left-to-right spine, legend.
+- Runtime: Tauri fs + `gh auth` wiring, offline-reason surfacing, dev-browser harness.
+- Cockpit: MCP sidecar, chat-pane mount.
+
+**Acceptance**: each `M10.x` task ships with its own tests + green CI. No single exit criterion.
+
+**Exit criteria**: none — M10 stays open for the life of the project; it is the maintenance lane.
+
 ## Cross-cutting concerns
 
 ### Testing strategy
@@ -222,6 +238,7 @@ The Tauri app lives under `apps/` so it can coexist with future apps without ren
 - M7 depends on M3. Can run in parallel with M5/M6 in a later wave.
 - M8 depends on M5 (uses MCP tools internally).
 - M9 depends on M4 + M8 and is intentionally deferred to v2.
+- M10 is the ongoing maintenance lane — no dependency, never "done"; tasks are appended as work is identified.
 
 Approximate wave structure (`.specify/waves.yaml` generated during `/kerrigan.dispatch`):
 
@@ -232,6 +249,7 @@ wave-3: M3 (DAG) + M4 (chat)            # parallel
 wave-4: M5 (MCP) + M6 (plan editor)     # parallel
 wave-5: M7 (show-stopper) + M8 (inbox)  # parallel
 wave-6: M9 (cross-project chat, v2)     # deferred
+ongoing: M10 (maintenance & enhancements)  # living lane, appended over time
 ```
 
 ## Tasks
