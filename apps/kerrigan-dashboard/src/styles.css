@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+:root {
+  color: #e8eaed;
+  background-color: #0d1117;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
 html,
 body,
 #root {

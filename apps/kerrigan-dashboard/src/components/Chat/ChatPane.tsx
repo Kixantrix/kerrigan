@@ -35,7 +35,7 @@ function UserTurn({ text }: { text: string }) {
 
 function MessageChunkEvent({ text }: { text: string }) {
   return (
-    <div className="rounded border border-[#2A3342] bg-[#101724] px-3 py-2 text-body text-neutral-fg" data-testid="chat-event-message-chunk">
+    <div className="rounded border border-neutral-border-strong bg-neutral-surface px-3 py-2 text-body text-neutral-fg" data-testid="chat-event-message-chunk">
       {text}
     </div>
   );
@@ -43,10 +43,10 @@ function MessageChunkEvent({ text }: { text: string }) {
 
 function ToolCallEvent({ name, input }: { name: string; input: unknown }) {
   return (
-    <div className="rounded border border-[#2A3342] bg-[#101724] px-3 py-2 text-micro text-[#C0C7D4]" data-testid="chat-event-tool-call">
-      <p className="text-nano uppercase tracking-wide text-[#8B94A6]">Tool call</p>
+    <div className="rounded border border-neutral-border-strong bg-neutral-surface px-3 py-2 text-micro text-neutral-soft" data-testid="chat-event-tool-call">
+      <p className="text-nano uppercase tracking-wide text-neutral-muted">Tool call</p>
       <p data-testid="chat-event-tool-call-name">{name}</p>
-      <pre className="mt-1 overflow-x-auto text-nano whitespace-pre-wrap text-[#8B94A6]" data-testid="chat-event-tool-call-input">
+      <pre className="mt-1 overflow-x-auto text-nano whitespace-pre-wrap text-neutral-muted" data-testid="chat-event-tool-call-input">
         {safeJson(input)}
       </pre>
     </div>
@@ -55,10 +55,10 @@ function ToolCallEvent({ name, input }: { name: string; input: unknown }) {
 
 function ToolResultEvent({ name, output }: { name: string; output: unknown }) {
   return (
-    <div className="rounded border border-[#2A3342] bg-[#101724] px-3 py-2 text-micro text-[#C0C7D4]" data-testid="chat-event-tool-result">
-      <p className="text-nano uppercase tracking-wide text-[#8B94A6]">Tool result</p>
+    <div className="rounded border border-neutral-border-strong bg-neutral-surface px-3 py-2 text-micro text-neutral-soft" data-testid="chat-event-tool-result">
+      <p className="text-nano uppercase tracking-wide text-neutral-muted">Tool result</p>
       <p data-testid="chat-event-tool-result-name">{name}</p>
-      <pre className="mt-1 overflow-x-auto text-nano whitespace-pre-wrap text-[#8B94A6]" data-testid="chat-event-tool-result-output">
+      <pre className="mt-1 overflow-x-auto text-nano whitespace-pre-wrap text-neutral-muted" data-testid="chat-event-tool-result-output">
         {safeJson(output)}
       </pre>
     </div>
@@ -67,8 +67,8 @@ function ToolResultEvent({ name, output }: { name: string; output: unknown }) {
 
 function ThoughtEvent({ text }: { text: string }) {
   return (
-    <div className="rounded border border-[#2A3342] bg-[#101724] px-3 py-2 text-micro text-[#C0C7D4]" data-testid="chat-event-thought">
-      <p className="text-nano uppercase tracking-wide text-[#8B94A6]">Thought</p>
+    <div className="rounded border border-neutral-border-strong bg-neutral-surface px-3 py-2 text-micro text-neutral-soft" data-testid="chat-event-thought">
+      <p className="text-nano uppercase tracking-wide text-neutral-muted">Thought</p>
       <p>{text}</p>
     </div>
   );
@@ -76,7 +76,7 @@ function ThoughtEvent({ text }: { text: string }) {
 
 function TurnEndEvent({ reason }: { reason?: string }) {
   return (
-    <div className="rounded border border-[#2A3342] bg-[#101724] px-3 py-2 text-nano text-[#8B94A6]" data-testid="chat-event-turn-end">
+    <div className="rounded border border-neutral-border-strong bg-neutral-surface px-3 py-2 text-nano text-neutral-muted" data-testid="chat-event-turn-end">
       Turn complete{reason !== undefined ? `: ${reason}` : ""}
     </div>
   );
@@ -237,10 +237,10 @@ export function ChatPane({
   };
 
   return (
-    <section className="flex h-full min-h-0 flex-col rounded-lg border border-[#1E2530] bg-neutral-bg p-4" data-testid="chat-pane">
+    <section className="flex h-full min-h-0 flex-col rounded-lg border border-neutral-border bg-neutral-bg p-4" data-testid="chat-pane">
       <header className="mb-3">
         <h2 className="text-heading font-semibold text-neutral-fg">Chat</h2>
-        <p className="text-micro text-[#8B94A6]">ACP event stream</p>
+        <p className="text-micro text-neutral-muted">ACP event stream</p>
       </header>
 
       {activeErrorBanner !== null ? (
@@ -261,7 +261,7 @@ export function ChatPane({
 
       <form className="mt-3 flex gap-2" onSubmit={submitTurn}>
         <input
-          className="min-w-0 flex-1 rounded border border-[#2A3342] bg-[#101724] px-3 py-2 text-body text-neutral-fg outline-none focus:border-brand"
+          className="min-w-0 flex-1 rounded border border-neutral-border-strong bg-neutral-surface px-3 py-2 text-body text-neutral-fg outline-none transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] focus:border-brand"
           data-testid="chat-input"
           onChange={(changeEvent) => {
             setDraft(changeEvent.target.value);
@@ -270,7 +270,7 @@ export function ChatPane({
           value={draft}
         />
         <button
-          className="rounded border border-brand/50 px-3 py-2 text-micro text-brand disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded border border-brand/50 px-3 py-2 text-micro text-brand transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] disabled:cursor-not-allowed disabled:opacity-60"
           data-testid="chat-submit"
           disabled={isStreaming}
           type="submit"
@@ -278,7 +278,7 @@ export function ChatPane({
           Send
         </button>
         <button
-          className="rounded border border-[#2A3342] px-3 py-2 text-micro text-[#C0C7D4] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded border border-neutral-border-strong px-3 py-2 text-micro text-neutral-soft transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] disabled:cursor-not-allowed disabled:opacity-60"
           data-testid="chat-cancel"
           disabled={!isStreaming}
           onClick={cancelTurn}

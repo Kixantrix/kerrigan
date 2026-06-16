@@ -6,7 +6,14 @@ export default {
     extend: {
       colors: {
         "neutral-bg": "#0D1117",
+        "neutral-surface": "#101724",
         "neutral-fg": "#E8EAED",
+        "neutral-muted": "#8B94A6",
+        "neutral-dim": "#A2AAB8",
+        "neutral-soft": "#C0C7D4",
+        "neutral-border": "#1E2530",
+        "neutral-border-strong": "#2A3342",
+        "status-planned": "#4C5568",
         brand: "#5965F2",
         accent: "#F59E0B",
       },

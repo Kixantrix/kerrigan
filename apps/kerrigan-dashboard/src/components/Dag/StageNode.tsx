@@ -38,8 +38,8 @@ const STATUS_STYLE_BY_STATE: Record<StageStatus, StageStatusStyle> = {
     badgeClassName: "text-green-300 border-green-500/40",
   },
   planned: {
-    indicatorClassName: "bg-[#4C5568]",
-    badgeClassName: "text-[#A2AAB8] border-[#2A3342]",
+    indicatorClassName: "bg-status-planned",
+    badgeClassName: "text-neutral-dim border-neutral-border-strong",
   },
 };
 const STAGE_PULSE_DURATION_MS = ABSORBING_FLOW_DURATION_MS;
@@ -65,14 +65,14 @@ export function StageNode({ id, data }: NodeProps<StageDagNode>) {
 
   return (
     <article
-      className={`rounded-lg border border-[#1E2530] bg-[#101724] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] ${
+      className={`rounded-lg border border-neutral-border bg-neutral-surface p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] transition-[box-shadow,ring-color] duration-200 ease-[cubic-bezier(0.2,0,0,1)] ${
         pulsing ? "ring-2 ring-green-500/70 shadow-[0_0_0_1px_rgba(34,197,94,0.55)]" : ""
       }`}
       data-pulsing={pulsing ? "true" : "false"}
       data-testid={`stage-node-${id}`}
       style={{ height: NODE_HEIGHT, width: NODE_WIDTH }}
     >
-      <div className="mb-2 flex items-center gap-2 text-nano uppercase tracking-[0.06em] text-[#8B94A6]">
+      <div className="mb-2 flex items-center gap-2 text-nano uppercase tracking-[0.06em] text-neutral-muted">
         <span className={`inline-block h-2 w-2 rounded-full ${statusStyle.indicatorClassName}`} />
         <span>{data.level === 2 ? "Stage" : "Substage"}</span>
       </div>

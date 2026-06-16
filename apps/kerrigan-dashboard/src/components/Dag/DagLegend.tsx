@@ -10,7 +10,7 @@ export const PR_FLOW_ENTRIES = [
 ] as const;
 
 export const STATUS_ENTRIES = [
-  { status: "planned", label: "Planned", indicatorClassName: "bg-[#4C5568]" },
+  { status: "planned", label: "Planned", indicatorClassName: "bg-status-planned" },
   { status: "dispatched", label: "Dispatched", indicatorClassName: "bg-brand" },
   { status: "in-review", label: "In review", indicatorClassName: "bg-brand" },
   { status: "needs-attestation", label: "Needs attestation", indicatorClassName: "bg-accent" },
@@ -71,17 +71,17 @@ export function DagLegend({ reducedMotion }: DagLegendProps) {
       {open && (
         <div
           aria-label="DAG legend"
-          className="absolute bottom-full right-0 mb-1 w-52 rounded-lg border border-[#1E2530] bg-[#101724] p-3 shadow-lg"
+          className="absolute bottom-full right-0 mb-1 w-52 rounded-lg border border-neutral-border bg-neutral-surface p-3 shadow-lg"
           data-testid="dag-legend-panel"
           role="region"
         >
-          <p className="mb-1.5 text-nano font-semibold uppercase tracking-[0.06em] text-[#8B94A6]">
+          <p className="mb-1.5 text-nano font-semibold uppercase tracking-[0.06em] text-neutral-muted">
             PR flow
           </p>
           <ul className="mb-3 space-y-1.5" data-testid="dag-legend-pr-flows">
             {PR_FLOW_ENTRIES.map((entry) =>
               entry.key === "streaming" ? (
-                <li key={entry.key} className="flex items-center gap-2 text-nano text-[#A2AAB8]">
+                <li key={entry.key} className="flex items-center gap-2 text-nano text-neutral-dim">
                   <span
                     aria-hidden="true"
                     className={`inline-block h-2 w-2 shrink-0 rounded-full ${!prefersReducedMotion ? "animate-bounce" : ""}`}
@@ -91,7 +91,7 @@ export function DagLegend({ reducedMotion }: DagLegendProps) {
                   {entry.label}
                 </li>
               ) : (
-                <li key={entry.key} className="flex items-center gap-2 text-nano text-[#A2AAB8]">
+                <li key={entry.key} className="flex items-center gap-2 text-nano text-neutral-dim">
                   <span
                     aria-hidden="true"
                     className="relative inline-flex h-3 w-3 shrink-0"
@@ -115,12 +115,12 @@ export function DagLegend({ reducedMotion }: DagLegendProps) {
             )}
           </ul>
 
-          <p className="mb-1.5 text-nano font-semibold uppercase tracking-[0.06em] text-[#8B94A6]">
+          <p className="mb-1.5 text-nano font-semibold uppercase tracking-[0.06em] text-neutral-muted">
             Status
           </p>
           <ul className="space-y-1.5" data-testid="dag-legend-statuses">
             {STATUS_ENTRIES.map((entry) => (
-              <li key={entry.status} className="flex items-center gap-2 text-nano text-[#A2AAB8]">
+              <li key={entry.status} className="flex items-center gap-2 text-nano text-neutral-dim">
                 <span
                   aria-hidden="true"
                   className={`inline-block h-2 w-2 shrink-0 rounded-full ${entry.indicatorClassName}`}
@@ -136,7 +136,7 @@ export function DagLegend({ reducedMotion }: DagLegendProps) {
       <button
         aria-expanded={open}
         aria-label={open ? "Hide legend" : "Show legend"}
-        className="flex items-center gap-1 rounded border border-[#2A3342] bg-[#101724] px-2 py-1 text-nano text-[#8B94A6] transition-colors hover:border-[#3A4357] hover:text-[#A2AAB8]"
+        className="flex items-center gap-1 rounded border border-neutral-border-strong bg-neutral-surface px-2 py-1 text-nano text-neutral-muted transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-brand/50 hover:text-neutral-dim"
         data-testid="dag-legend-toggle"
         onClick={() => {
           setOpen((prev) => !prev);

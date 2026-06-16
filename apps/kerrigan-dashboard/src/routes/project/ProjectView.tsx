@@ -290,7 +290,7 @@ export function ProjectView({
 
   if (state.loading) {
     return (
-      <section className="flex h-full items-center justify-center rounded-lg border border-[#1E2530] bg-[#101724] text-micro text-[#8B94A6]">
+      <section className="flex h-full items-center justify-center rounded-lg border border-neutral-border bg-neutral-surface text-micro text-neutral-muted">
         Loading project…
       </section>
     );
@@ -298,7 +298,7 @@ export function ProjectView({
 
   if (state.project === null) {
     return (
-      <section className="flex h-full flex-col items-center justify-center rounded-lg border border-[#1E2530] bg-[#101724] text-micro text-[#8B94A6]">
+      <section className="flex h-full flex-col items-center justify-center rounded-lg border border-neutral-border bg-neutral-surface text-micro text-neutral-muted">
         <p>Project not found.</p>
         <Link className="mt-3 text-brand" to="/">
           Back to portfolio
@@ -308,11 +308,11 @@ export function ProjectView({
   }
 
   return (
-    <section className="flex h-full flex-col gap-4 overflow-hidden rounded-lg border border-[#1E2530] bg-[#101724] p-5">
+    <section className="flex h-full flex-col gap-4 overflow-hidden rounded-lg border border-neutral-border bg-neutral-surface p-5">
       <header className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-heading font-semibold text-neutral-fg">{state.project.name}</h2>
-          <p className="text-micro text-[#8B94A6]">Plan DAG</p>
+          <h2 className="text-display font-semibold text-neutral-fg">{state.project.name}</h2>
+          <p className="text-micro text-neutral-muted">Plan DAG</p>
         </div>
         <div className="flex items-center gap-4">
           {state.offline ? (
@@ -331,43 +331,55 @@ export function ProjectView({
         </div>
       </header>
 
-      <div className="min-h-0 flex flex-1 flex-col gap-4 2xl:flex-row">
-        <div className="min-h-0 flex-1">
+      <div
+        className="min-h-0 flex flex-1 flex-col gap-4 lg:flex-row"
+        data-testid="project-detail-layout"
+      >
+        <div
+          className="min-h-0 lg:basis-[28%] lg:shrink lg:grow-0 lg:min-w-[320px]"
+          data-testid="project-pane-plan"
+        >
           {state.missingPlan ? (
             <div
-              className="flex h-full items-center justify-center rounded-lg border border-dashed border-[#2A3342] bg-neutral-bg text-micro text-[#8B94A6]"
+              className="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-border-strong bg-neutral-bg text-micro text-neutral-muted"
               data-testid="project-plan-placeholder"
             >
               Plan file is unavailable for this project.
             </div>
           ) : (
-            <div className="min-h-0 flex h-full flex-col gap-4 2xl:flex-row">
-              <div className="min-h-0 flex-1">
-                <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
-              </div>
-              <div className="min-h-0 flex-1">
-                <Dag
-                  graph={state.graph}
-                  onStageSelect={setSelectedStageId}
-                  openPRs={state.openPRs}
-                  statuses={state.statuses}
-                />
-              </div>
-              {selectedStage !== null ? (
-                <div className="min-h-0 w-80 shrink-0">
-                  <StageDetailPanel
-                    stageId={selectedStage.id}
-                    stageName={selectedStage.label}
-                    issues={workByStage.get(selectedStage.id)?.issues ?? []}
-                    prs={workByStage.get(selectedStage.id)?.prs ?? []}
-                    onClose={() => { setSelectedStageId(null); }}
-                  />
-                </div>
-              ) : null}
-            </div>
+            <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
           )}
         </div>
-        <div className="min-h-0 xl:w-96 xl:shrink-0">
+
+        <div
+          className="relative min-h-0 min-w-0 flex-1 lg:min-w-[540px]"
+          data-testid="project-pane-dag"
+        >
+          <Dag
+            graph={state.graph}
+            onStageSelect={setSelectedStageId}
+            openPRs={state.openPRs}
+            statuses={state.statuses}
+          />
+          {selectedStage !== null ? (
+            <div className="pointer-events-none absolute inset-x-3 bottom-3 top-3 z-20 flex justify-end">
+              <div className="pointer-events-auto h-full w-full max-w-[360px]">
+                <StageDetailPanel
+                  stageId={selectedStage.id}
+                  stageName={selectedStage.label}
+                  issues={workByStage.get(selectedStage.id)?.issues ?? []}
+                  prs={workByStage.get(selectedStage.id)?.prs ?? []}
+                  onClose={() => { setSelectedStageId(null); }}
+                />
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div
+          className="min-h-0 lg:basis-[26%] lg:shrink lg:grow-0 lg:min-w-[320px]"
+          data-testid="project-pane-chat"
+        >
           <ChatPane
             client={chatClient ?? fallbackChatClient}
             startupError={chatStartupError}
