@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Dag } from "../../components/Dag/Dag.js";
+import { ChatPane } from "../../components/Chat/ChatPane.js";
 import { PlanEditor } from "../../components/PlanEditor/PlanEditor.js";
 import { StageDetailPanel } from "../../components/StageDetailPanel/StageDetailPanel.js";
+import {
+  AcpClientError,
+  createAcpClient,
+  type AcpClient,
+  type AdditionalMcpConfig,
+} from "../../lib/acp-client.js";
 import {
   createGitHubClient,
   type GitHubClient,
@@ -19,6 +26,7 @@ import {
 import { createOfflineGitHubClient } from "../../lib/portfolio.js";
 import { projectSchema, readProjects, type Project } from "../../lib/projects.js";
 import { resolveShellOut } from "../../lib/auth.js";
+import { createMcpSidecar, type McpSidecar } from "../../lib/mcp-sidecar.js";
 import { deriveStatuses, groupStageWorkByStage, type BlockSummary, type StageStatus } from "../../lib/status.js";
 
 declare global {
@@ -34,6 +42,10 @@ declare global {
         reviewsByPr?: Record<string, ReadonlyArray<ReviewData>>;
       }
     >;
+    __KERRIGAN_PROJECT_CHAT_RUNTIME_FIXTURE__?: {
+      createSidecar: () => McpSidecar;
+      createClient: (additionalMcpConfig: AdditionalMcpConfig) => AcpClient;
+    };
   }
 }
 
@@ -45,6 +57,8 @@ export type BlocksReader = (
 interface ProjectViewProps {
   planReader?: PlanReader;
   blocksReader?: BlocksReader;
+  createSidecar?: () => McpSidecar;
+  createChatClient?: (additionalMcpConfig: AdditionalMcpConfig) => AcpClient;
 }
 
 interface ProjectRouteState {
@@ -91,12 +105,16 @@ const PROJECT_STATUS_REFRESH_EVENT = "kerrigan:refresh-project-status";
 export function ProjectView({
   planReader = readPlanMarkdownFromWorkingCopy,
   blocksReader = readBlocksForStatus,
+  createSidecar,
+  createChatClient,
 }: ProjectViewProps) {
   const params = useParams();
   const projectId = params.projectId ?? "";
   const [state, setState] = useState<ProjectRouteState>(INITIAL_STATE);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const [chatClient, setChatClient] = useState<AcpClient | null>(null);
+  const [chatStartupError, setChatStartupError] = useState<string | null>(null);
 
   const githubClient: GitHubClient = useMemo(() => {
     try {
@@ -187,6 +205,61 @@ export function ProjectView({
   }, [projectId]);
 
   useEffect(() => {
+    let disposed = false;
+    let sidecar: McpSidecar | null = null;
+    let client: AcpClient | null = null;
+    let unsubscribe: (() => void) | null = null;
+
+    const fixture = window.__KERRIGAN_PROJECT_CHAT_RUNTIME_FIXTURE__;
+    const createMcpSidecarRuntime = createSidecar ?? fixture?.createSidecar ?? createMcpSidecar;
+    const createChatClientRuntime =
+      createChatClient ?? fixture?.createClient ?? defaultCreateChatClient;
+
+    void (async () => {
+      try {
+        sidecar = createMcpSidecarRuntime();
+        await sidecar.start();
+        if (disposed) {
+          await sidecar.stop();
+          sidecar = null;
+          return;
+        }
+
+        unsubscribe = sidecar.onToolResult((event) => {
+          const targetsCurrentProject =
+            event.affectedProjectId === undefined ||
+            event.affectedProjectId === "" ||
+            event.affectedProjectId === projectId;
+          if (!targetsCurrentProject) return;
+          window.dispatchEvent(new Event(PROJECT_STATUS_REFRESH_EVENT));
+        });
+
+        client = createChatClientRuntime(sidecar.getAdditionalMcpConfig());
+        setChatClient(client);
+        setChatStartupError(null);
+      } catch (error) {
+        setChatClient(null);
+        setChatStartupError(error instanceof Error ? error.message : "Kerrigan MCP server failed to start.");
+      }
+    })();
+
+    return () => {
+      disposed = true;
+      unsubscribe?.();
+      setChatClient(null);
+      setChatStartupError(null);
+      void (async () => {
+        if (client !== null) {
+          await client.dispose();
+        }
+        if (sidecar !== null) {
+          await sidecar.stop();
+        }
+      })();
+    };
+  }, [createChatClient, createSidecar, projectId]);
+
+  useEffect(() => {
     const onRefreshRequested = (): void => {
       setRefreshNonce((value) => value + 1);
     };
@@ -202,6 +275,18 @@ export function ProjectView({
       console.warn("[kerrigan] project offline:", state.offlineReason);
     }
   }, [state.offline, state.offlineReason]);
+
+  const fallbackChatClient = useMemo<AcpClient>(() => {
+    return {
+      sendUserTurn: (): AsyncIterable<never> => {
+        const message =
+          chatStartupError ??
+          "Chat runtime is starting. Wait a moment and try again.";
+        throw new AcpClientError("chat-runtime-unavailable", message);
+      },
+      dispose: async (): Promise<void> => {},
+    };
+  }, [chatStartupError]);
 
   if (state.loading) {
     return (
@@ -246,39 +331,49 @@ export function ProjectView({
         </div>
       </header>
 
-      {state.missingPlan ? (
-        <div
-          className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[#2A3342] bg-neutral-bg text-micro text-[#8B94A6]"
-          data-testid="project-plan-placeholder"
-        >
-          Plan file is unavailable for this project.
-        </div>
-      ) : (
-        <div className="min-h-0 flex flex-1 gap-4">
-          <div className="min-h-0 flex-1">
-            <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
-          </div>
-          <div className="min-h-0 flex-1">
-            <Dag
-              graph={state.graph}
-              onStageSelect={setSelectedStageId}
-              openPRs={state.openPRs}
-              statuses={state.statuses}
-            />
-          </div>
-          {selectedStage !== null ? (
-            <div className="min-h-0 w-80 shrink-0">
-              <StageDetailPanel
-                stageId={selectedStage.id}
-                stageName={selectedStage.label}
-                issues={workByStage.get(selectedStage.id)?.issues ?? []}
-                prs={workByStage.get(selectedStage.id)?.prs ?? []}
-                onClose={() => { setSelectedStageId(null); }}
-              />
+      <div className="min-h-0 flex flex-1 flex-col gap-4 2xl:flex-row">
+        <div className="min-h-0 flex-1">
+          {state.missingPlan ? (
+            <div
+              className="flex h-full items-center justify-center rounded-lg border border-dashed border-[#2A3342] bg-neutral-bg text-micro text-[#8B94A6]"
+              data-testid="project-plan-placeholder"
+            >
+              Plan file is unavailable for this project.
             </div>
-          ) : null}
+          ) : (
+            <div className="min-h-0 flex h-full flex-col gap-4 2xl:flex-row">
+              <div className="min-h-0 flex-1">
+                <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
+              </div>
+              <div className="min-h-0 flex-1">
+                <Dag
+                  graph={state.graph}
+                  onStageSelect={setSelectedStageId}
+                  openPRs={state.openPRs}
+                  statuses={state.statuses}
+                />
+              </div>
+              {selectedStage !== null ? (
+                <div className="min-h-0 w-80 shrink-0">
+                  <StageDetailPanel
+                    stageId={selectedStage.id}
+                    stageName={selectedStage.label}
+                    issues={workByStage.get(selectedStage.id)?.issues ?? []}
+                    prs={workByStage.get(selectedStage.id)?.prs ?? []}
+                    onClose={() => { setSelectedStageId(null); }}
+                  />
+                </div>
+              ) : null}
+            </div>
+          )}
         </div>
-      )}
+        <div className="min-h-0 xl:w-96 xl:shrink-0">
+          <ChatPane
+            client={chatClient ?? fallbackChatClient}
+            startupError={chatStartupError}
+          />
+        </div>
+      </div>
 
       {state.parseErrors.length > 0 ? (
         <aside className="rounded border border-accent/40 bg-accent/10 p-2 text-nano text-accent">
@@ -287,6 +382,10 @@ export function ProjectView({
       ) : null}
     </section>
   );
+}
+
+function defaultCreateChatClient(additionalMcpConfig: AdditionalMcpConfig): AcpClient {
+  return createAcpClient(undefined, { additionalMcpConfig });
 }
 
 async function readDashboardProjects(): Promise<ReadonlyArray<Readonly<Project>>> {
