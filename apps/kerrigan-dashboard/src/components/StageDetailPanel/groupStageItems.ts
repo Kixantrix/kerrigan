@@ -13,7 +13,7 @@ interface ParsedSubMilestone {
   minor: number;
 }
 
-const SUB_MILESTONE_PATTERN = /\bM(\d+)\.(\d+)\b/i;
+const SUB_MILESTONE_PATTERN = /\bM(\d+)\.(\d+)\b/gi;
 
 export function parseSubMilestoneId(title: string): string | null {
   const parsed = parseSubMilestone(title);
@@ -21,27 +21,40 @@ export function parseSubMilestoneId(title: string): string | null {
 }
 
 function parseSubMilestone(title: string): ParsedSubMilestone | null {
-  const match = SUB_MILESTONE_PATTERN.exec(title);
-  if (match == null) {
-    return null;
+  return parseSubMilestones(title)[0] ?? null;
+}
+
+function parseSubMilestones(title: string): ReadonlyArray<ParsedSubMilestone> {
+  const parsed: ParsedSubMilestone[] = [];
+  for (const match of title.matchAll(SUB_MILESTONE_PATTERN)) {
+    const major = Number.parseInt(match[1] ?? "", 10);
+    const minor = Number.parseInt(match[2] ?? "", 10);
+    if (Number.isNaN(major) || Number.isNaN(minor)) {
+      continue;
+    }
+    parsed.push({
+      id: `M${major}.${minor}`,
+      major,
+      minor,
+    });
   }
 
-  const major = Number.parseInt(match[1] ?? "", 10);
-  const minor = Number.parseInt(match[2] ?? "", 10);
-  if (Number.isNaN(major) || Number.isNaN(minor)) {
-    return null;
-  }
+  return parsed;
+}
 
-  return {
-    id: `M${major}.${minor}`,
-    major,
-    minor,
-  };
+function parseSubMilestoneForMajor(title: string, major: number): ParsedSubMilestone | null {
+  for (const parsed of parseSubMilestones(title)) {
+    if (parsed.major === major) {
+      return parsed;
+    }
+  }
+  return null;
 }
 
 export function groupStageItemsBySubMilestone(
   issues: ReadonlyArray<IssueData>,
   prs: ReadonlyArray<PullRequestData>,
+  currentMilestoneMajor?: number,
 ): ReadonlyArray<StageDetailGroup> {
   const groups = new Map<string, { meta: ParsedSubMilestone; issues: IssueData[]; prs: PullRequestData[] }>();
   const otherGroup = {
@@ -50,7 +63,10 @@ export function groupStageItemsBySubMilestone(
   };
 
   for (const issue of issues) {
-    const parsed = parseSubMilestone(issue.title);
+    const parsed =
+      currentMilestoneMajor === undefined
+        ? parseSubMilestone(issue.title)
+        : parseSubMilestoneForMajor(issue.title, currentMilestoneMajor);
     if (parsed === null) {
       otherGroup.issues.push(issue);
       continue;
@@ -62,7 +78,10 @@ export function groupStageItemsBySubMilestone(
   }
 
   for (const pr of prs) {
-    const parsed = parseSubMilestone(pr.title);
+    const parsed =
+      currentMilestoneMajor === undefined
+        ? parseSubMilestone(pr.title)
+        : parseSubMilestoneForMajor(pr.title, currentMilestoneMajor);
     if (parsed === null) {
       otherGroup.prs.push(pr);
       continue;
