@@ -40,6 +40,11 @@ export interface DeriveStatusesInput extends StageStatusInput {
   matcher?: StageMatcher;
 }
 
+export interface StageMatchedWork {
+  prs: ReadonlyArray<PullRequestData>;
+  issues: ReadonlyArray<IssueData>;
+}
+
 const ATTENTION_LABELS: Record<Exclude<StageStatus, "planned" | "dispatched" | "in-review" | "blocked" | "merged">, string> = {
   "needs-attestation": "agent:needs-attestation",
   "needs-human-test": "agent:needs-human-test",
@@ -235,6 +240,58 @@ export const defaultStageMatcher: StageMatcher = (stage, item) => {
   return false;
 };
 
+function createClosingMergedPR(ref: NonNullable<IssueData["closingPRs"]>[number]): PullRequestData {
+  return {
+    number: ref.number,
+    title: ref.title,
+    state: "merged",
+    draft: false,
+    user: null,
+    created_at: "",
+    updated_at: "",
+    merged_at: "1970-01-01T00:00:00Z",
+    head: { ref: "", sha: "" },
+    base: { ref: "" },
+    html_url: ref.url,
+  };
+}
+
+function dedupePRs(prs: ReadonlyArray<PullRequestData>): PullRequestData[] {
+  const seen = new Set<string>();
+  const result: PullRequestData[] = [];
+
+  for (const pr of prs) {
+    const key = pr.html_url;
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    result.push(pr);
+  }
+
+  return result;
+}
+
+function collectStageMatchedWork(
+  stage: PlanStageNode,
+  input: Pick<StageStatusInput, "prs" | "issues">,
+  matcher: StageMatcher,
+): StageMatchedWork {
+  const stagePRs = input.prs.filter((pr) => matcher(stage, pr));
+  const stageIssues = input.issues.filter((issue) => matcher(stage, issue));
+  const closingMergedPRs = stageIssues.flatMap((issue) =>
+    (issue.closingPRs ?? [])
+      .filter((ref) => ref.merged)
+      .map(createClosingMergedPR),
+  );
+
+  return {
+    prs: dedupePRs([...stagePRs, ...closingMergedPRs]),
+    issues: stageIssues,
+  };
+}
+
 /**
  * Groups a flat list of PRs by the stage they match, using the same matching
  * logic as `deriveStatuses`.  Only stages that have at least one matched PR
@@ -248,13 +305,24 @@ export function groupPRsByStage(
   prs: ReadonlyArray<PullRequestData>,
   matcher?: StageMatcher,
 ): Map<string, ReadonlyArray<PullRequestData>> {
+  const workByStage = groupStageWorkByStage(graph, { prs, issues: [] }, matcher);
+  return new Map(
+    Array.from(workByStage.entries()).map(([stageId, work]) => [stageId, work.prs] as const),
+  );
+}
+
+export function groupStageWorkByStage(
+  graph: PlanStageGraph,
+  input: Pick<StageStatusInput, "prs" | "issues">,
+  matcher?: StageMatcher,
+): Map<string, StageMatchedWork> {
   const matchFn = matcher ?? defaultStageMatcher;
-  const result = new Map<string, ReadonlyArray<PullRequestData>>();
+  const result = new Map<string, StageMatchedWork>();
 
   for (const stage of graph.nodes) {
-    const stagePRs = prs.filter((pr) => matchFn(stage, pr));
-    if (stagePRs.length > 0) {
-      result.set(stage.id, stagePRs);
+    const matchedWork = collectStageMatchedWork(stage, input, matchFn);
+    if (matchedWork.prs.length > 0 || matchedWork.issues.length > 0) {
+      result.set(stage.id, matchedWork);
     }
   }
 
@@ -269,8 +337,9 @@ export function deriveStatuses(
   const result = new Map<string, StageStatus>();
 
   for (const stage of graph.nodes) {
-    const stagePRs = input.prs.filter((pr) => matcher(stage, pr));
-    const stageIssues = input.issues.filter((issue) => matcher(stage, issue));
+    const matchedWork = collectStageMatchedWork(stage, input, matcher);
+    const stagePRs = matchedWork.prs;
+    const stageIssues = matchedWork.issues;
     const stageBlocks = input.blocks.filter(
       (block) =>
         block.title !== undefined && matcher(stage, { title: block.title }),
@@ -285,32 +354,8 @@ export function deriveStatuses(
               .filter(([, reviews]) => reviews.length > 0),
           );
 
-    // Closing-PR traversal (Option C): for each issue matched to this stage,
-    // collect any merged closing PRs and treat them as merged PRs for the stage.
-    // This allows a stage to show "merged" when a hotfix-titled PR closed an
-    // issue that references the milestone (even if the PR title doesn't).
-    const closingMergedPRs: PullRequestData[] = stageIssues.flatMap((issue) =>
-      (issue.closingPRs ?? [])
-        .filter((ref) => ref.merged)
-        .map(
-          (ref): PullRequestData => ({
-            number: ref.number,
-            title: ref.title,
-            state: "merged",
-            draft: false,
-            user: null,
-            created_at: "",
-            updated_at: "",
-            merged_at: "1970-01-01T00:00:00Z",
-            head: { ref: "", sha: "" },
-            base: { ref: "" },
-            html_url: ref.url,
-          }),
-        ),
-    );
-
     const stageInput: StageStatusInput = {
-      prs: [...stagePRs, ...closingMergedPRs],
+      prs: stagePRs,
       issues: stageIssues,
       blocks: stageBlocks,
     };

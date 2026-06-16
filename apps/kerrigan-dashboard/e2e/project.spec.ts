@@ -93,52 +93,126 @@ test("clicking a DAG node scrolls the matching plan heading into view", async ({
 });
 
 test("clicking a DAG node opens the stage details panel", async ({ page }) => {
-  const openPRsFixture: Record<string, unknown[]> = {
-    "Kixantrix/kerrigan": [
-      {
-        number: 42,
-        title: "M3.2 status work open",
-        state: "open",
-        draft: false,
-        user: { login: "agent" },
-        created_at: "2026-01-01T00:00:00Z",
-        updated_at: "2026-06-01T00:00:00Z",
-        merged_at: null,
-        head: { ref: "feature/m3-2-status", sha: "abc123" },
-        base: { ref: "main" },
-        html_url: "https://github.com/Kixantrix/kerrigan/pull/42",
-      },
-    ],
-    "Kixantrix/kerrigan-dashboard": [],
+  const planFixture = {
+    ...planFixtureByProject,
+    "kerrigan-dashboard": ["## M2", "### M2.1", "", "## M3", "### M3.3", "### M3.4"].join("\n"),
+  };
+  const repoStatusFixture = {
+    "Kixantrix/kerrigan": {
+      issues: [
+        {
+          number: 33,
+          title: "M3.3: tracking issue",
+          state: "open",
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-01T00:00:00Z",
+          labels: [{ name: "agent:go" }],
+          html_url: "https://github.com/Kixantrix/kerrigan/issues/33",
+        },
+        {
+          number: 34,
+          title: "M3.4: shipped issue",
+          state: "closed",
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-02T00:00:00Z",
+          labels: [{ name: "done" }],
+          html_url: "https://github.com/Kixantrix/kerrigan/issues/34",
+        },
+        {
+          number: 35,
+          title: "M3 milestone coordination",
+          state: "open",
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-03T00:00:00Z",
+          labels: [],
+          html_url: "https://github.com/Kixantrix/kerrigan/issues/35",
+        },
+      ],
+      prs: [
+        {
+          number: 43,
+          title: "M3.3: DAG polish",
+          state: "open",
+          draft: false,
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-01T00:00:00Z",
+          merged_at: null,
+          head: { ref: "feature/m3-3-dag", sha: "abc123" },
+          base: { ref: "main" },
+          html_url: "https://github.com/Kixantrix/kerrigan/pull/43",
+        },
+        {
+          number: 44,
+          title: "M3.4: detail panel groupings",
+          state: "closed",
+          draft: false,
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-02T00:00:00Z",
+          merged_at: "2026-06-02T00:00:00Z",
+          head: { ref: "feature/m3-4-groupings", sha: "def456" },
+          base: { ref: "main" },
+          html_url: "https://github.com/Kixantrix/kerrigan/pull/44",
+        },
+        {
+          number: 45,
+          title: "feat: M3 milestone cleanup",
+          state: "open",
+          draft: false,
+          user: { login: "agent" },
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-06-03T00:00:00Z",
+          merged_at: null,
+          head: { ref: "feature/m3-cleanup", sha: "ghi789" },
+          base: { ref: "main" },
+          html_url: "https://github.com/Kixantrix/kerrigan/pull/45",
+        },
+      ],
+    },
+    "Kixantrix/kerrigan-dashboard": {
+      issues: [],
+      prs: [],
+    },
   };
 
   await page.addInitScript(
-    ({ projects, plans, openPRs }) => {
+    ({ projects, plans, repoStatus }) => {
       window.__KERRIGAN_PROJECTS_FIXTURE__ = projects;
       window.__KERRIGAN_PLAN_FIXTURE__ = plans;
-      window.__KERRIGAN_OPEN_PRS_FIXTURE__ = openPRs;
+      window.__KERRIGAN_REPO_STATUS_FIXTURE__ = repoStatus;
     },
-    { projects: projectsFixture, plans: planFixtureByProject, openPRs: openPRsFixture },
+    { projects: projectsFixture, plans: planFixture, repoStatus: repoStatusFixture },
   );
 
   await page.goto("/#/project/kerrigan-dashboard");
   await expect(page.getByTestId("project-dag")).toBeVisible();
 
   // Panel should not be visible initially
-  await expect(page.getByTestId("stage-detail-panel-m3-2")).not.toBeVisible();
+  await expect(page.getByTestId("stage-detail-panel-m3")).not.toBeVisible();
 
-  // Click the M3.2 stage node
-  await page.getByTestId("stage-node-m3-2").click();
+  // Click the M3 stage node
+  await page.getByTestId("stage-node-m3").click();
 
   // Panel should appear with the stage name
-  await expect(page.getByTestId("stage-detail-panel-m3-2")).toBeVisible();
-  await expect(page.getByTestId("stage-detail-name")).toContainText("M3.2");
+  await expect(page.getByTestId("stage-detail-panel-m3")).toBeVisible();
+  await expect(page.getByTestId("stage-detail-name")).toContainText("M3");
 
-  // The open PR should be listed
-  await expect(page.getByTestId("stage-detail-open-prs")).toBeVisible();
-  await expect(page.getByTestId("stage-detail-pr-42")).toBeVisible();
+  // The panel should group linked issues + PRs by sub-milestone and keep milestone-level work in Other.
+  await expect(page.getByTestId("stage-detail-group-heading-m3-3")).toBeVisible();
+  await expect(page.getByTestId("stage-detail-group-heading-m3-4")).toBeVisible();
+  await expect(page.getByTestId("stage-detail-group-heading-other")).toBeVisible();
+  await expect(page.getByTestId("stage-detail-group-m3-3")).toContainText("Issue #33");
+  await expect(page.getByTestId("stage-detail-group-m3-3")).toContainText("PR #43");
+  await expect(page.getByTestId("stage-detail-group-m3-4")).toContainText("Issue #34");
+  await expect(page.getByTestId("stage-detail-group-m3-4")).toContainText("PR #44");
+  await expect(page.getByTestId("stage-detail-group-other")).toContainText("Issue #35");
+  await expect(page.getByTestId("stage-detail-group-other")).toContainText("PR #45");
 
   // Close button dismisses the panel
   await page.getByTestId("stage-detail-close").click();
-  await expect(page.getByTestId("stage-detail-panel-m3-2")).not.toBeVisible();
+  await expect(page.getByTestId("stage-detail-panel-m3")).not.toBeVisible();
 });
