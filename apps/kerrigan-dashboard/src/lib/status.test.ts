@@ -244,7 +244,7 @@ describe("deriveStatuses", () => {
     const stage: PlanStageNode = {
       id: "m9",
       label: "M9 Deferred milestone",
-      level: 1,
+      level: 2,
       parentId: null,
     };
 
@@ -271,7 +271,7 @@ describe("deriveStatuses", () => {
     const stage: PlanStageNode = {
       id: "m10",
       label: "M10 Ongoing maintenance",
-      level: 1,
+      level: 2,
       parentId: null,
     };
 
@@ -452,7 +452,7 @@ describe("deriveStatuses — closing-PR traversal (Option C)", () => {
     const stage: PlanStageNode = {
       id: "m9",
       label: "M9 Deferred milestone",
-      level: 1,
+      level: 2,
       parentId: null,
     };
 

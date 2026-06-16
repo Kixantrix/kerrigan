@@ -69,10 +69,12 @@ function isMergedPR(pr: PullRequestData): boolean {
   );
 }
 
+const NON_IMPLEMENTATION_PR_TITLE_PATTERN =
+  /^(?:(?:plan|docs)(?:\(|:)|(?:chore|docs)\(briefings\))/;
+
 function isNonImplementationPRTitle(title: string): boolean {
   const normalizedTitle = title.trim().toLowerCase();
-  return /^(?:plan|docs)(?:\(|:)/.test(normalizedTitle) ||
-    /^(?:chore|docs)\(briefings\)/.test(normalizedTitle);
+  return NON_IMPLEMENTATION_PR_TITLE_PATTERN.test(normalizedTitle);
 }
 
 function isImplementationPR(pr: Pick<PullRequestData, "title">): boolean {
