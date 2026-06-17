@@ -244,7 +244,7 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
 
   if (layout.nodes.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center rounded-lg border border-[#1E2530] bg-[#101724] text-micro text-[#8B94A6]">
+      <div className="flex h-full items-center justify-center rounded-lg border border-neutral-border bg-neutral-surface text-micro text-neutral-muted">
         No stages found in this project plan.
       </div>
     );
@@ -252,7 +252,7 @@ export function Dag({ graph, statuses, openPRs, onStageSelect }: DagProps) {
 
   return (
     <div
-      className="relative h-full w-full rounded-lg border border-[#1E2530] bg-[#101724]"
+      className="relative h-full w-full rounded-lg border border-neutral-border bg-neutral-surface"
       data-testid="project-dag"
       ref={wrapperRef}
     >

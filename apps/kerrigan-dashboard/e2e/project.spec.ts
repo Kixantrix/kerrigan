@@ -22,6 +22,50 @@ test("portfolio-to-project", async ({ page }) => {
   await expect(page.getByTestId("stage-node-m3-1-parse")).toBeVisible();
 });
 
+test("project detail uses three horizontal panes with DAG widest on desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/project/kerrigan-dashboard");
+
+  await expect(page.getByTestId("project-pane-plan")).toBeVisible();
+  await expect(page.getByTestId("project-pane-dag")).toBeVisible();
+  await expect(page.getByTestId("project-pane-chat")).toBeVisible();
+
+  const planBox = await page.getByTestId("project-pane-plan").boundingBox();
+  const dagBox = await page.getByTestId("project-pane-dag").boundingBox();
+  const chatBox = await page.getByTestId("project-pane-chat").boundingBox();
+
+  expect(planBox).not.toBeNull();
+  expect(dagBox).not.toBeNull();
+  expect(chatBox).not.toBeNull();
+  if (planBox === null || dagBox === null || chatBox === null) {
+    return;
+  }
+
+  expect(planBox.x).toBeLessThan(dagBox.x);
+  expect(dagBox.x).toBeLessThan(chatBox.x);
+  expect(dagBox.width).toBeGreaterThan(planBox.width);
+  expect(dagBox.width).toBeGreaterThan(chatBox.width);
+});
+
+test("project detail falls back to stacked panes on narrow widths", async ({ page }) => {
+  await page.setViewportSize({ width: 960, height: 900 });
+  await page.goto("/#/project/kerrigan-dashboard");
+
+  const planBox = await page.getByTestId("project-pane-plan").boundingBox();
+  const dagBox = await page.getByTestId("project-pane-dag").boundingBox();
+  const chatBox = await page.getByTestId("project-pane-chat").boundingBox();
+
+  expect(planBox).not.toBeNull();
+  expect(dagBox).not.toBeNull();
+  expect(chatBox).not.toBeNull();
+  if (planBox === null || dagBox === null || chatBox === null) {
+    return;
+  }
+
+  expect(planBox.y).toBeLessThan(dagBox.y);
+  expect(dagBox.y).toBeLessThan(chatBox.y);
+});
+
 test("project-view-chat-smoke-exchange", async ({ page }) => {
   await page.addInitScript(() => {
     window.__KERRIGAN_PROJECT_CHAT_RUNTIME_FIXTURE__ = {
