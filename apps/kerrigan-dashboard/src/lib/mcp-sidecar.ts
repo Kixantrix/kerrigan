@@ -259,8 +259,7 @@ class AsyncQueue<T> implements AsyncIterable<T> {
 export function createDefaultMcpSidecarSpawn(): McpSidecarSpawn {
   return (command: string, args: readonly string[]): McpSidecarProcess => {
     const pendingProcess: Promise<McpSidecarProcess> = (async () => {
-      const moduleName = "@tauri-apps/plugin-shell";
-      const shellModuleUnknown: unknown = await import(moduleName);
+      const shellModuleUnknown: unknown = await import("@tauri-apps/plugin-shell");
       if (!isShellModuleLike(shellModuleUnknown)) {
         throw new McpSidecarStartupError();
       }
