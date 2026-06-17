@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import { Dag } from "../../components/Dag/Dag.js";
 import { ChatPane } from "../../components/Chat/ChatPane.js";
 import { PlanEditor } from "../../components/PlanEditor/PlanEditor.js";
@@ -86,6 +87,7 @@ interface StatusSourceResult {
 
 const fallbackGitHubClient = createOfflineGitHubClient();
 const EMPTY_GRAPH: PlanStageGraph = { nodes: [], edges: [] };
+const DESKTOP_LAYOUT_QUERY = "(min-width: 1024px)";
 const INITIAL_STATE: ProjectRouteState = {
   loading: true,
   project: null,
@@ -115,6 +117,7 @@ export function ProjectView({
   const [refreshNonce, setRefreshNonce] = useState(0);
   const [chatClient, setChatClient] = useState<AcpClient | null>(null);
   const [chatStartupError, setChatStartupError] = useState<string | null>(null);
+  const isDesktopLayout = useMediaQuery(DESKTOP_LAYOUT_QUERY);
 
   const githubClient: GitHubClient = useMemo(() => {
     try {
@@ -136,6 +139,10 @@ export function ProjectView({
         : null,
     [selectedStageId, state.graph.nodes],
   );
+  const { defaultLayout: desktopDefaultLayout, onLayoutChanged } = useDefaultLayout({
+    id: "project-detail-panes",
+    panelIds: ["detail-pane-plan", "detail-pane-dag", "detail-pane-chat"],
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -288,6 +295,57 @@ export function ProjectView({
     };
   }, [chatStartupError]);
 
+  const planPane = (
+    <div className="min-h-0 h-full min-w-0" data-testid="project-pane-plan">
+      {state.missingPlan ? (
+        <div
+          className="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-border-strong bg-neutral-bg text-micro text-neutral-muted"
+          data-testid="project-plan-placeholder"
+        >
+          Plan file is unavailable for this project.
+        </div>
+      ) : (
+        <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
+      )}
+    </div>
+  );
+
+  const dagPane = (
+    <div
+      className="relative min-h-0 h-full min-w-0 flex-1"
+      data-testid="project-pane-dag"
+    >
+      <Dag
+        graph={state.graph}
+        onStageSelect={setSelectedStageId}
+        openPRs={state.openPRs}
+        statuses={state.statuses}
+      />
+      {selectedStage !== null ? (
+        <div className="pointer-events-none absolute inset-x-3 bottom-3 top-3 z-20 flex justify-end">
+          <div className="pointer-events-auto h-full w-full max-w-[360px]">
+            <StageDetailPanel
+              stageId={selectedStage.id}
+              stageName={selectedStage.label}
+              issues={workByStage.get(selectedStage.id)?.issues ?? []}
+              prs={workByStage.get(selectedStage.id)?.prs ?? []}
+              onClose={() => { setSelectedStageId(null); }}
+            />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+
+  const chatPane = (
+    <div className="min-h-0 h-full min-w-0" data-testid="project-pane-chat">
+      <ChatPane
+        client={chatClient ?? fallbackChatClient}
+        startupError={chatStartupError}
+      />
+    </div>
+  );
+
   if (state.loading) {
     return (
       <section className="flex h-full items-center justify-center rounded-lg border border-neutral-border bg-neutral-surface text-micro text-neutral-muted">
@@ -332,59 +390,36 @@ export function ProjectView({
       </header>
 
       <div
-        className="min-h-0 flex flex-1 flex-col gap-4 lg:flex-row"
+        className="min-h-0 flex flex-1 overflow-hidden"
         data-testid="project-detail-layout"
       >
-        <div
-          className="min-h-0 lg:basis-[28%] lg:shrink lg:grow-0 lg:min-w-[320px]"
-          data-testid="project-pane-plan"
-        >
-          {state.missingPlan ? (
-            <div
-              className="flex h-full items-center justify-center rounded-lg border border-dashed border-neutral-border-strong bg-neutral-bg text-micro text-neutral-muted"
-              data-testid="project-plan-placeholder"
-            >
-              Plan file is unavailable for this project.
-            </div>
-          ) : (
-            <PlanEditor markdown={state.planMarkdown} selectedStageId={selectedStageId} />
-          )}
-        </div>
-
-        <div
-          className="relative min-h-0 min-w-0 flex-1 lg:min-w-[540px]"
-          data-testid="project-pane-dag"
-        >
-          <Dag
-            graph={state.graph}
-            onStageSelect={setSelectedStageId}
-            openPRs={state.openPRs}
-            statuses={state.statuses}
-          />
-          {selectedStage !== null ? (
-            <div className="pointer-events-none absolute inset-x-3 bottom-3 top-3 z-20 flex justify-end">
-              <div className="pointer-events-auto h-full w-full max-w-[360px]">
-                <StageDetailPanel
-                  stageId={selectedStage.id}
-                  stageName={selectedStage.label}
-                  issues={workByStage.get(selectedStage.id)?.issues ?? []}
-                  prs={workByStage.get(selectedStage.id)?.prs ?? []}
-                  onClose={() => { setSelectedStageId(null); }}
-                />
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        <div
-          className="min-h-0 lg:basis-[26%] lg:shrink lg:grow-0 lg:min-w-[320px]"
-          data-testid="project-pane-chat"
-        >
-          <ChatPane
-            client={chatClient ?? fallbackChatClient}
-            startupError={chatStartupError}
-          />
-        </div>
+        {isDesktopLayout ? (
+          <Group
+            className="min-h-0 flex-1"
+            defaultLayout={desktopDefaultLayout}
+            id="project-detail-panes"
+            onLayoutChanged={onLayoutChanged}
+            orientation="horizontal"
+          >
+            <Panel defaultSize="28%" id="detail-pane-plan" minSize="18%">
+              {planPane}
+            </Panel>
+            <Separator className="project-pane-resize-handle" id="project-pane-resize-handle-plan-dag" />
+            <Panel defaultSize="46%" id="detail-pane-dag" minSize="30%">
+              {dagPane}
+            </Panel>
+            <Separator className="project-pane-resize-handle" id="project-pane-resize-handle-dag-chat" />
+            <Panel defaultSize="26%" id="detail-pane-chat" minSize="18%">
+              {chatPane}
+            </Panel>
+          </Group>
+        ) : (
+          <div className="min-h-0 flex flex-1 flex-col gap-4">
+            {planPane}
+            {dagPane}
+            {chatPane}
+          </div>
+        )}
       </div>
 
       {state.parseErrors.length > 0 ? (
@@ -394,6 +429,40 @@ export function ProjectView({
       ) : null}
     </section>
   );
+}
+
+function useMediaQuery(query: string): boolean {
+  const getMatches = (): boolean =>
+    typeof window === "undefined" ? false : window.matchMedia(query).matches;
+  const [matches, setMatches] = useState<boolean>(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const mediaQueryList = window.matchMedia(query);
+    const handleChange = (event: MediaQueryListEvent): void => {
+      setMatches(event.matches);
+    };
+
+    setMatches(mediaQueryList.matches);
+    if (typeof mediaQueryList.addEventListener === "function") {
+      mediaQueryList.addEventListener("change", handleChange);
+    } else {
+      mediaQueryList.addListener(handleChange);
+    }
+
+    return () => {
+      if (typeof mediaQueryList.removeEventListener === "function") {
+        mediaQueryList.removeEventListener("change", handleChange);
+      } else {
+        mediaQueryList.removeListener(handleChange);
+      }
+    };
+  }, [query]);
+
+  return matches;
 }
 
 function defaultCreateChatClient(additionalMcpConfig: AdditionalMcpConfig): AcpClient {

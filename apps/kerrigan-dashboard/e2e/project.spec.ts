@@ -47,6 +47,57 @@ test("project detail uses three horizontal panes with DAG widest on desktop", as
   expect(dagBox.width).toBeGreaterThan(chatBox.width);
 });
 
+test("project detail panes can be resized and persist after reload", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/#/project/kerrigan-dashboard");
+
+  const planPane = page.getByTestId("project-pane-plan");
+  const dagPane = page.getByTestId("project-pane-dag");
+  const resizeHandle = page.getByTestId("project-pane-resize-handle-plan-dag");
+
+  const beforePlanBox = await planPane.boundingBox();
+  const beforeDagBox = await dagPane.boundingBox();
+  const handleBox = await resizeHandle.boundingBox();
+  expect(beforePlanBox).not.toBeNull();
+  expect(beforeDagBox).not.toBeNull();
+  expect(handleBox).not.toBeNull();
+  if (beforePlanBox === null || beforeDagBox === null || handleBox === null) {
+    return;
+  }
+
+  const handleMidX = handleBox.x + handleBox.width / 2;
+  const handleMidY = handleBox.y + handleBox.height / 2;
+  await page.mouse.move(handleMidX, handleMidY);
+  await page.mouse.down();
+  await page.mouse.move(handleMidX + 140, handleMidY, { steps: 10 });
+  await page.mouse.up();
+
+  await expect
+    .poll(async () => (await planPane.boundingBox())?.width ?? 0)
+    .toBeGreaterThan(beforePlanBox.width + 40);
+  await expect
+    .poll(async () => (await dagPane.boundingBox())?.width ?? 0)
+    .toBeLessThan(beforeDagBox.width - 40);
+
+  const resizedPlanBox = await planPane.boundingBox();
+  expect(resizedPlanBox).not.toBeNull();
+  if (resizedPlanBox === null) {
+    return;
+  }
+
+  await page.reload();
+  await expect(planPane).toBeVisible();
+
+  const reloadedPlanBox = await planPane.boundingBox();
+  expect(reloadedPlanBox).not.toBeNull();
+  if (reloadedPlanBox === null) {
+    return;
+  }
+
+  expect(reloadedPlanBox.width).toBeGreaterThan(beforePlanBox.width + 30);
+  expect(Math.abs(reloadedPlanBox.width - resizedPlanBox.width)).toBeLessThan(25);
+});
+
 test("project detail falls back to stacked panes on narrow widths", async ({ page }) => {
   await page.setViewportSize({ width: 960, height: 900 });
   await page.goto("/#/project/kerrigan-dashboard");

@@ -14,3 +14,31 @@ body,
   margin: 0;
   overflow: hidden;
 }
+
+.project-pane-resize-handle {
+  position: relative;
+  flex: 0 0 6px;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.project-pane-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background-color: #1e2530;
+  transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.project-pane-resize-handle:hover::after,
+.project-pane-resize-handle:focus-visible::after,
+.project-pane-resize-handle[data-separator="hover"]::after,
+.project-pane-resize-handle[data-separator="active"]::after,
+.project-pane-resize-handle[data-separator="focus"]::after {
+  background-color: #5965f2;
+}
