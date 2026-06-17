@@ -69,6 +69,18 @@ function isMergedPR(pr: PullRequestData): boolean {
   );
 }
 
+const NON_IMPLEMENTATION_PR_TITLE_PATTERN =
+  /^(?:(?:plan|docs)(?:\(|:)|(?:chore|docs)\(briefings\))/;
+
+function isNonImplementationPRTitle(title: string): boolean {
+  const normalizedTitle = title.trim().toLowerCase();
+  return NON_IMPLEMENTATION_PR_TITLE_PATTERN.test(normalizedTitle);
+}
+
+function isImplementationPR(pr: Pick<PullRequestData, "title">): boolean {
+  return !isNonImplementationPRTitle(pr.title);
+}
+
 function hasReviewSignal(
   prs: ReadonlyArray<PullRequestData>,
   reviewsByPr: ReadonlyMap<number, ReadonlyArray<ReviewData>>,
@@ -278,11 +290,13 @@ function collectStageMatchedWork(
   input: Pick<StageStatusInput, "prs" | "issues">,
   matcher: StageMatcher,
 ): StageMatchedWork {
-  const stagePRs = input.prs.filter((pr) => matcher(stage, pr));
+  const stagePRs = input.prs.filter(
+    (pr) => matcher(stage, pr) && isImplementationPR(pr),
+  );
   const stageIssues = input.issues.filter((issue) => matcher(stage, issue));
   const closingMergedPRs = stageIssues.flatMap((issue) =>
     (issue.closingPRs ?? [])
-      .filter((ref) => ref.merged)
+      .filter((ref) => ref.merged && !isNonImplementationPRTitle(ref.title))
       .map(createClosingMergedPR),
   );
 
