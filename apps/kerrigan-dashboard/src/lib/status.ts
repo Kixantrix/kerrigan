@@ -130,12 +130,11 @@ export function deriveStageStatus(input: StageStatusInput): StageStatus {
     return "in-review";
   }
 
-  const hasOpenPR = prs.some((pr) => pr.state.toLowerCase() === "open");
   const hasAgentGoIssue = issues.some(
     (issue) => isOpenIssue(issue) && hasAgentGoLabel(issue),
   );
 
-  if (hasOpenPR && hasAgentGoIssue) {
+  if (hasAgentGoIssue) {
     return "dispatched";
   }
 
