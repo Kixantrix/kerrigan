@@ -401,15 +401,23 @@ export function ProjectView({
             onLayoutChanged={onLayoutChanged}
             orientation="horizontal"
           >
-            <Panel defaultSize="28%" id="detail-pane-plan" minSize="18%">
+            <Panel defaultSize={28} id="detail-pane-plan" minSize={18}>
               {planPane}
             </Panel>
-            <Separator className="project-pane-resize-handle" id="project-pane-resize-handle-plan-dag" />
-            <Panel defaultSize="46%" id="detail-pane-dag" minSize="30%">
+            <Separator
+              className="project-pane-resize-handle"
+              data-testid="project-pane-resize-handle-plan-dag"
+              id="project-pane-resize-handle-plan-dag"
+            />
+            <Panel defaultSize={46} id="detail-pane-dag" minSize={30}>
               {dagPane}
             </Panel>
-            <Separator className="project-pane-resize-handle" id="project-pane-resize-handle-dag-chat" />
-            <Panel defaultSize="26%" id="detail-pane-chat" minSize="18%">
+            <Separator
+              className="project-pane-resize-handle"
+              data-testid="project-pane-resize-handle-dag-chat"
+              id="project-pane-resize-handle-dag-chat"
+            />
+            <Panel defaultSize={26} id="detail-pane-chat" minSize={18}>
               {chatPane}
             </Panel>
           </Group>
@@ -447,18 +455,10 @@ function useMediaQuery(query: string): boolean {
     };
 
     setMatches(mediaQueryList.matches);
-    if (typeof mediaQueryList.addEventListener === "function") {
-      mediaQueryList.addEventListener("change", handleChange);
-    } else {
-      mediaQueryList.addListener(handleChange);
-    }
+    mediaQueryList.addEventListener("change", handleChange);
 
     return () => {
-      if (typeof mediaQueryList.removeEventListener === "function") {
-        mediaQueryList.removeEventListener("change", handleChange);
-      } else {
-        mediaQueryList.removeListener(handleChange);
-      }
+      mediaQueryList.removeEventListener("change", handleChange);
     };
   }, [query]);
 
