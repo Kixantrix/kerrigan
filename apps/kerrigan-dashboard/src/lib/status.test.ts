@@ -151,6 +151,15 @@ describe("deriveStageStatus", () => {
     expect(deriveStageStatus({ prs: [], issues: [], blocks: [] })).toBe("planned");
   });
 
+  it("open agent:go issue with no matched open PR derives dispatched", () => {
+    const input = {
+      prs: [],
+      issues: [issue({ labels: [{ name: "agent:go" }] })],
+      blocks: [],
+    };
+    expect(deriveStageStatus(input)).toBe("dispatched");
+  });
+
   it("closed issue without open PR does not trigger dispatched", () => {
     const input = {
       prs: [],
