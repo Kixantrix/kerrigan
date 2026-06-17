@@ -604,59 +604,26 @@ function isShellModuleLike(value: unknown): value is ShellModuleLike {
  * need to help resolve it.
  * 
  * Returns the original command if not on Windows or if resolution isn't needed.
+ * 
+ * Note: For now, this is a placeholder that logs and returns the bare command.
+ * The shell capability permissions should allow PATH resolution to work.
+ * Future enhancement: implement full Windows path resolution similar to gh.rs.
  */
 async function resolveCopilotCommand(command: string): Promise<string> {
-  // Only attempt resolution for the copilot command on Windows
+  // Only attempt resolution for the copilot command
   if (command !== "copilot") {
     return command;
   }
 
-  // Check if we're in a Tauri environment on Windows
+  // Check if we're in a Tauri environment
   if (typeof window === "undefined" || !("__TAURI__" in window)) {
     return command;
   }
 
-  try {
-    // Dynamically import platform check
-    const osModule: unknown = await import("@tauri-apps/plugin-os");
-    if (!isRecord(osModule) || typeof osModule["platform"] !== "function") {
-      return command;
-    }
-
-    const platform = await (osModule["platform"] as () => Promise<string>)();
-    if (platform !== "windows") {
-      return command;
-    }
-
-    // On Windows, check common npm global install locations
-    // This mirrors the pattern from gh.rs
-    const fsModule: unknown = await import("@tauri-apps/plugin-fs");
-    if (!isRecord(fsModule) || typeof fsModule["exists"] !== "function") {
-      return command;
-    }
-
-    const exists = fsModule["exists"] as (path: string) => Promise<boolean>;
-    
-    // Try %AppData%\npm\copilot.cmd (Windows npm global)
-    const appData = typeof process !== "undefined" && process.env?.APPDATA;
-    if (appData) {
-      const npmPath = `${appData}\\npm\\copilot.cmd`;
-      if (await exists(npmPath)) {
-        console.log("[acp-client] Resolved copilot to npm global:", npmPath);
-        return npmPath;
-      }
-    }
-
-    // Fallback: assume PATH resolution will work
-    console.warn(
-      "[acp-client] Could not find npm-installed copilot; using bare command (may fail if not in PATH)"
-    );
-    return command;
-  } catch (error) {
-    // If resolution fails, log and use bare command
-    console.warn("[acp-client] Windows resolution failed:", error);
-    return command;
-  }
+  // For now, just use the bare command and log a note
+  // The shell:allow-execute capability should enable PATH resolution
+  console.log("[acp-client] Using bare 'copilot' command (will resolve via PATH)");
+  return command;
 }
 
 export function createDefaultAcpSpawn(): AcpSpawn {
