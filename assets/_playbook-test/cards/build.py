@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import struct
 import zlib
 from pathlib import Path
@@ -16,12 +17,12 @@ LAYER_ORDER = [
     "back",
     "border",
     "frame",
-    "card-mask",
     "art",
     "logo",
     "nameplate",
     "text-box",
     "rules-text",
+    "card-mask",
 ]
 FONT = {
     " ": ["00000", "00000", "00000", "00000", "00000", "00000", "00000"],
@@ -50,7 +51,7 @@ FONT = {
 
 
 def read_json(path: Path) -> dict:
-    return yaml.safe_load(path.read_text())
+    return json.loads(path.read_text())
 
 
 def load_card() -> dict:
@@ -89,10 +90,14 @@ class Canvas:
             return
         idx = self.index(x, y)
         dst_r, dst_g, dst_b, dst_a = self.pixels[idx:idx + 4]
+        inv_src_a = 255 - src_a
         out_a = src_a + (dst_a * (255 - src_a) + 127) // 255
-        out_r = (src_r * src_a + dst_r * (255 - src_a) + 127) // 255
-        out_g = (src_g * src_a + dst_g * (255 - src_a) + 127) // 255
-        out_b = (src_b * src_a + dst_b * (255 - src_a) + 127) // 255
+        if out_a == 0:
+            self.pixels[idx:idx + 4] = bytes((0, 0, 0, 0))
+            return
+        out_r = (src_r * src_a * 255 + dst_r * dst_a * inv_src_a + (out_a * 255) // 2) // (out_a * 255)
+        out_g = (src_g * src_a * 255 + dst_g * dst_a * inv_src_a + (out_a * 255) // 2) // (out_a * 255)
+        out_b = (src_b * src_a * 255 + dst_b * dst_a * inv_src_a + (out_a * 255) // 2) // (out_a * 255)
         self.pixels[idx:idx + 4] = bytes((out_r, out_g, out_b, out_a))
 
 
@@ -323,7 +328,7 @@ def render_card() -> tuple[Canvas, dict]:
     manifest = {
         "card": card,
         "toolchain": {
-            "choice": "Python stdlib raster compositor",
+            "choice": "Python raster compositor (stdlib + PyYAML manifest I/O)",
             "plan": "plan.md",
         },
         "export": {
@@ -344,10 +349,15 @@ def build() -> dict:
     final, manifest = render_card()
     write_png(EXPORT_PATH, final, manifest["export"]["dpi"])
     manifest["export"]["sha256"] = sha256(EXPORT_PATH)
+    input_paths = [
+        path
+        for path in (sorted((ROOT / "shared").rglob("*")) + sorted((ROOT / "source").rglob("*")))
+        if path.is_file()
+    ]
+    input_paths.extend([ROOT / "build.py", ROOT / "plan.md"])
     manifest["inputs"] = [
         {"path": str(path.relative_to(ROOT).as_posix()), "sha256": sha256(path)}
-        for path in sorted((ROOT / "shared").rglob("*")) + sorted((ROOT / "source").rglob("*"))
-        if path.is_file()
+        for path in sorted(input_paths, key=lambda path: str(path.relative_to(ROOT)))
     ]
     MANIFEST_PATH.write_text(yaml.safe_dump(manifest, sort_keys=False))
     return manifest

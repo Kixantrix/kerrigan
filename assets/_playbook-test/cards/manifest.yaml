@@ -5,7 +5,7 @@ card:
   rules_text: WHEN SAMPLE SIGIL ENTERS THE FIELD|SCRY 1.|DRAW A CARD.
   art_ref: source/art/placeholder.ppm
 toolchain:
-  choice: Python stdlib raster compositor
+  choice: Python raster compositor (stdlib + PyYAML manifest I/O)
   plan: plan.md
 export:
   path: exports/sample-card.png
@@ -50,17 +50,6 @@ layers:
     - 107
     - 255
   note: Top title band and box framing.
-- name: card-mask
-  source: source/card-mask/layer.json
-  probe:
-    x: 60
-    y: 60
-    rgba:
-    - 133
-    - 87
-    - 52
-    - 255
-  note: Rounded card body clips the front stack so the back shows through at the corner.
 - name: art
   source: source/art/layer.json
   probe:
@@ -116,7 +105,22 @@ layers:
     - 26
     - 255
   note: Rendered bitmap rules text.
+- name: card-mask
+  source: source/card-mask/layer.json
+  probe:
+    x: 60
+    y: 60
+    rgba:
+    - 133
+    - 87
+    - 52
+    - 255
+  note: Rounded card body clips the front stack so the back shows through at the corner.
 inputs:
+- path: build.py
+  sha256: 3f61b53a1bd9d3f0f0857fd1423af088e848f0085520f3485d99de3efe73fe79
+- path: plan.md
+  sha256: 4cddfab7d4b4139a217f5d1449baf43741b4e30b13eb0464d9a5de22fdb2d560
 - path: shared/card-back.json
   sha256: 0d7425f314d817fbfba13ecfca80ec929b20354af2701f09b6828649ff2b391f
 - path: shared/geometry.json
@@ -132,7 +136,7 @@ inputs:
 - path: source/art/placeholder.ppm
   sha256: 1e13668bcd21bbd67f5a22a9a1c34542003a4b4ffbcbdd6ba7f15e050d75525e
 - path: source/back/layer.json
-  sha256: a3a4ff87760aedb079baac1b319e52876014e94f82a79522934486735ba0e57d
+  sha256: 34a43ac86c4eb063a5a1b5f354786d16b57987ccf13841a7dcc588188e929a35
 - path: source/border/layer.json
   sha256: ebe18a2e8f274b6350c7e3de512b87f52edc440f77738763fce54fea1441516c
 - path: source/card-mask/layer.json
