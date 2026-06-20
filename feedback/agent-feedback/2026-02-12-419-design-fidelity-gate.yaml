@@ -1,0 +1,82 @@
+# Agent Feedback
+timestamp: "2026-02-12T06:00:00Z"
+issue_number: 419            # voxel test dispatch (companion: #420 guitar, #421 cards)
+agent_role: "kerrigan"
+category: "quality_bar"
+severity: "high"
+title: "Green tests pass while design fidelity fails — verification chain is blind to stub geometry and clipped layout"
+
+description: |
+  The three asset-design playbook test dispatches (#419 voxel → PR #422, #420 guitar
+  → PR #423, #421 cards → PR #424) all passed their full CI chain (kerrigan check,
+  tests, smoke, check-attestation) and merged. But two of the three shipped design
+  defects that no automated check caught:
+
+  - Guitar (#423): the headstock exported as an 8-vertex rounded rectangle (80x190mm)
+    with a single nut line — no tuner holes, no slots, no real silhouette. The "brass
+    logo" was two nested rectangles plus a "BRASS 0.5mm" text label, with no actual
+    logo artwork. All 5 pytest ACs passed because they assert units, bbox-fits-stock,
+    manufacturability, and determinism — never design substance.
+
+  - Cards (#424): the rules text ("ENTERS") was clipped off the right edge because the
+    compositor had no word-wrap and no AC asserted that text fits inside the text box.
+    All 6 smoke ACs passed.
+
+  - Voxel (#422) was the one good result: a recognizable colored ship, 716 tris,
+    manifold, deterministic, PoT texture.
+
+  Impact: the verification chain proves correctness (dimensions, manifold, units,
+  determinism, manufacturability envelope) but is blind to whether an asset is actually
+  well-designed. An agent can satisfy every check with a stub and ship a green PR. For
+  asset work, "all tests green" gave false confidence in design quality.
+
+related_files:
+  - "playbooks/asset-design.md"
+
+related_artifacts:
+  - "spec.md"
+  - "scripts/smoke.sh"
+  - "scripts/smoke.ps1"
+
+context: |
+  Discovered while driving PRs #422/#423/#424 through the merge chain and rendering each
+  PR's artifacts to images for a human quality review. The defects were obvious on sight
+  but invisible to the test suite. Root cause: acceptance criteria tested the bounding
+  envelope, not design substance — a placeholder passes every one of them.
+
+  All three PRs are now merged (the guitar shipped with placeholder geometry by explicit
+  human decision, as a test artifact). The process gap is addressed via the playbook fix
+  below rather than by re-dispatching the guitar track.
+
+  Secondary finding: all three tracks appended deps to a shared requirements.txt, causing
+  a merge conflict on #423 after #422 merged first. The conflict-predictor would have
+  flagged requirements.txt as a shared-file conflict and wave-gated the dispatch; the
+  tracks were treated as "disjoint dirs" but the shared dependency file was missed.
+
+proposed_solution: |
+  Implemented in this PR — added a "Design-fidelity gate" to playbooks/asset-design.md:
+
+  1. Fidelity assertions, not just envelope assertions: every AC must test design
+     substance. Rule of thumb — "write the assertion a placeholder would fail."
+     Per-track specifics: cards assert text fits + layers non-blank; guitar asserts
+     load-bearing features (N tuner holes at spec'd positions, nut slot, non-trivial
+     outline) + real logo path geometry; voxel asserts silhouette differs from its box.
+
+  2. Golden-render regression: commit one approved reference render per asset under
+     specs/projects/<name>/previs/golden/; smoke test re-renders from source and diffs against it. Forces a
+     real render to exist and catches silent drift.
+
+  3. Mandatory render-and-eyeball before merge: no asset PR merges without its artifacts
+     rendered and attached to the PR. A green asset PR with no visible artifact is not
+     reviewable.
+
+  Follow-up to consider separately: have the conflict-predictor treat shared manifest
+  files (requirements.txt, package.json, Cargo.toml) as conflict surfaces even when
+  tasks touch otherwise-disjoint directories.
+
+status: "new"
+reviewed_by: ""
+reviewed_date: ""
+implementation_pr: null
+notes: |
+  Playbook fix landed alongside this feedback entry.

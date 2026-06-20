@@ -29,10 +29,11 @@ Adapted from the four UI-design principles — apply all four to *every* asset s
 - **One show-stopper per set.** Every set has exactly one signature element a person would screenshot — a card-back mechanic, the guitar's headstock silhouette, the flagship ship. Name it in `spec.md` § Show-stopper.
 - **Simplicity / curated system.** A small, consistent kit of layers/components/palettes reused across the set beats per-asset one-offs. Define the shared system once (palette, frame geometry, material list, voxel palette) and let each asset vary within it.
 
-Plus two asset-specific rules:
+Plus three asset-specific rules:
 
 - **Layer/component separation is the architecture.** Decompose every asset into independently-authored, independently-dispatchable pieces (per-layer for cards, per-part for guitars, per-mesh + per-texture for voxels). Composition is a separate, deterministic step.
 - **Outputs must be manufacturable/importable.** Define the target format and tolerances up front (print bleed/DPI for cards, CNC stock thickness + bit radius + DXF units for guitar parts, engine-ready glTF + power-of-two textures for game assets). These are acceptance criteria, not afterthoughts.
+- **Design fidelity is tested and seen, not assumed.** Correctness checks (dimensions, manifold, units, determinism) are blind to whether an asset is *actually well-designed* — a stub can pass them all. Every asset task therefore carries fidelity assertions, a golden-render diff, and a render-and-eyeball checkpoint before merge. See [Design-fidelity gate](#design-fidelity-gate-green-tests--good-design).
 
 ## Toolchain map — options to evaluate
 
@@ -58,6 +59,7 @@ specs/projects/<name>/
 ├── plan.md                 # toolchain choice, layer/component breakdown, tolerances
 ├── design-references.md    # 3–5 researched references + lessons
 ├── previs/                 # one approved sample before the full set
+│   └── golden/             # approved reference renders per asset (fidelity-gate baseline)
 assets/<name>/
 ├── source/                 # source-of-truth: scripts, data, .py/.scad, .bbmodel/.vox
 ├── shared/                 # palette, frame geometry, material list, voxel palette
@@ -78,7 +80,7 @@ Keep heavy binaries out of git history where possible (Git LFS or an `exports/` 
 2. **Define the shared system** in `assets/<name>/shared/`: palette, frame geometry, typography, the card-back, and the watermark treatment — authored once, reused by every card.
 3. **Decompose into layers** as independent, dispatchable pieces: `back`, `border`, `frame`, `logo`, `card-mask`, `nameplate`, `text-box` (with watermark), `art`. Card data (name, cost, rules, rarity, art ref) lives in a CSV/YAML row.
 4. **Compose deterministically.** A Squib script or Python compositor stacks layers per data row → print-ready PNG/PDF at the right DPI + bleed. This step is pure and cloud-safe.
-5. **Smoke test:** rebuild every card from data; assert correct dimensions/DPI/bleed, all layers present, no missing art reference.
+5. **Smoke test:** rebuild every card from data; assert correct dimensions/DPI/bleed, all layers present, no missing art reference. **Fidelity assertions:** rendered text fits its box (no glyph past the text-box bounds — word-wrap or auto-fit applied), every declared layer contributes non-blank pixels, and the art region is non-empty; diff each card against its committed golden render. *(The first dispatch clipped "ENTERS" off the card edge with all envelope checks green — a fit assertion would have failed it.)*
 6. **Routing:** layer scripts, frame/back/logo SVG, and compositing are **cloud**. Original *artwork generation* (hand-drawn or AI image-gen) is a **local-attested** step — the produced art is checked into `source/art/` and becomes deterministic input thereafter.
 
 ## Track B — Guitar CAD → CNC templates + brass logo
@@ -88,7 +90,7 @@ Keep heavy binaries out of git history where possible (Git LFS or an `exports/` 
 1. **Work from existing plans.** Import vendor/Thingiverse/community DXF plans as references into `design-references.md`; capture the real dimensions and how parts mate (neck pocket, scale length, nut width, bridge spacing). Pull standard hardware (tuners, bridge, truss rod) as off-the-shelf STEP — vendor downloads, or the CAD Skills `step.parts` skill — so your pockets match real parts.
 2. **Parametric source-of-truth.** Model each part in **build123d** or CadQuery (FreeCAD for organic curves you'd rather loft in a GUI; the CAD Skills `cad` skill is a convenient agent wrapper over build123d) using shared parameters (`scale_length`, `nut_width`, `body_thickness`, `stock_thickness`, `bit_radius`). Parts that share a parameter import it from `shared/` so they stay consistent — a change to scale length propagates everywhere. Preview locally (CAD Skills `cad-viewer`, FreeCAD, or any STEP viewer) as your pre-vis.
 3. **Component templates** as independent models: `body`, `neck`, `fretboard`, `headstock`, `neck-pocket-template`, `brass-logo`. Export a 2D **DXF** per template (build123d/CadQuery 2D export or the CAD Skills `dxf` skill — CNC outline, correct units, bit-radius-aware fillets) and/or 3D **STEP**.
-4. **Fit checks are tests.** Assert mating dimensions agree across parts (neck tenon == body pocket, fret slot positions == scale length, hardware pockets == off-the-shelf STEP footprints) in the smoke test before any export is considered valid.
+4. **Fit checks are tests.** Assert mating dimensions agree across parts (neck tenon == body pocket, fret slot positions == scale length, hardware pockets == off-the-shelf STEP footprints) in the smoke test before any export is considered valid. **Fidelity assertions:** assert each part carries its load-bearing features, not just a correct bounding box — e.g. the headstock has its N tuner holes at the spec'd positions, a nut slot, and a non-trivial outline (segment count + curvature above a floor a plain rounded rectangle would fail); diff each cut file against its committed golden DXF/STEP. *(The first dispatch shipped a headstock that was an 8-vertex rounded rectangle with no tuner holes and a "brass logo" of two nested rectangles — every units/bbox/manufacturability/determinism check passed because none asserted design substance.)*
 5. **Brass headstock logo:** author the logo as SVG → 2D outline → DXF, constrained to the headstock's physical footprint (assert bounding box ≤ headstock minus margin); keep it single-piece and pocket-friendly for brass. Validate against the fab service's rules **before ordering** — e.g. SendCutSend brass: minimum feature/bridge width ≈ 0.02″ (0.5 mm), account for kerf ≈ 0.008–0.015″, and pick a stocked thickness. The CAD Skills `sendcutsend` skill automates this DXF/STEP check; this is the manufacturability gate.
 6. **Routing:** parametric models, DXF/STEP export, fab-rule validation, and fit-check tests are **cloud** (all run headless via Python). Placing the actual brass order and CNC'ing/verifying physical fit of wood parts is **`agent:local` / `manual-human`** — closed with an attestation (order confirmation, photos, measurements), never auto-completed.
 
@@ -100,7 +102,7 @@ Keep heavy binaries out of git history where possible (Git LFS or an `exports/` 
 2. **Shared palette + scale** in `shared/` (color palette, grid units, silhouette guidelines) so the whole fleet/bestiary reads as one world.
 3. **Per-asset source-of-truth.** Model each asset in **Blockbench** (voxel + low-poly, paints UV textures, native glTF — and it's scriptable/web-based) — or Goxel/MagicaVoxel for pure-voxel work. Procedural variants (asteroid fields, planet variants) can be generated by Python `.vox` writers. The `.bbmodel`/`.vox`/`.gox` file is the committed source.
 4. **Texture + refine.** Paint UVs directly in Blockbench, or import into Blender via Python to apply/bake materials; export **glTF** + power-of-two textures. Bakes are scriptable and reproducible.
-5. **Smoke test:** re-export every asset; assert manifold mesh, tri-count budget, texture dimensions (PoT), and glTF validity.
+5. **Smoke test:** re-export every asset; assert manifold mesh, tri-count budget, texture dimensions (PoT), and glTF validity. **Fidelity assertions:** assert the silhouette/volume distinguishes the asset from its bounding box (filled-voxel ratio in a target band, recognizable feature cells present) and the texture is not a flat fill; diff a fixed-view render against the committed golden image.
 6. **Routing:** procedural generation, Blender Python bake/export, and validation are **cloud-safe** (headless Blender + Blockbench/Goxel CLI export). Hand-modeling in a GUI editor is **local-attested** — commit the `.bbmodel`/`.vox`/`.gox` as the new source.
 
 ## Dispatch & waves
@@ -129,7 +131,24 @@ Apply the [delegation rubric](../specs/kerrigan-v2/050-delegation-rubric.md). Fo
 
 - **Automated (cloud + CI):** smoke test regenerates everything from source and validates format/dimensions/tolerances. Fit-checks (cards: layers+DPI; guitar: mating dims; voxel: manifold+budget+PoT) are unit/integration tests mapped to acceptance criteria.
 - **Manufacturability gate:** for physical tracks, an `acceptance-tests.md` entry requires a `local-attested` handoff (measured DXF fits stock + bit; brass logo within footprint; CNC dry-run) before completion.
-- **Human review = direction.** Per Kerrigan's review philosophy, humans approve *aesthetic direction and spec alignment* after all automated checks are green. Technical quality is the agent + CI's job.
+- **Human review = direction.** Per Kerrigan's review philosophy, humans approve *aesthetic direction and spec alignment* after all automated checks are green. Technical quality is the agent + CI's job. **No asset PR is reviewable without its artifacts rendered and attached** — see the gate below.
+
+## Design-fidelity gate (green tests ≠ good design)
+
+The smoke test and unit ACs prove an asset is **correct** — right dimensions, manifold mesh, units, determinism, manufacturability envelope. They are **blind to whether the asset is actually well-designed**: an agent can satisfy every check with stub geometry or clipped layout and still ship a green PR.
+
+This is not hypothetical — it's why this section exists. The three test dispatches that seeded this playbook all passed CI, yet two shipped design defects no check caught:
+
+- the **guitar** headstock was an 8-vertex rounded rectangle with no tuner holes, no silhouette, and a "brass logo" that was two nested rectangles plus a text label — every test (units, bbox-fits-stock, manufacturability, determinism) passed because none asserted *design substance*;
+- the **card** clipped its rules text ("ENTERS") off the right edge — the compositor had no word-wrap and no AC asserted text fit inside the box.
+
+Close the gap with three additions to **every asset task**, layered on top of the correctness smoke test:
+
+1. **Fidelity assertions, not just envelope assertions.** Each AC must test design *substance*, not only the bounding envelope. The rule of thumb: **write the assertion a placeholder would fail.** A test a stub can pass is not a fidelity test. Per-track specifics live in each track's smoke-test step above (cards: text fits + layers non-blank; guitar: load-bearing features present + real logo geometry; voxel: silhouette differs from its box + textured).
+2. **Golden-render regression.** Commit one approved reference render per asset — `specs/projects/<name>/previs/golden/<asset>.png` for 2D/voxel, a fixed-view PNG plus the DXF/STEP for CAD. The smoke test re-renders from source and diffs against the golden (perceptual/pixel diff within tolerance for raster; geometry/DXF diff for CAD). This both **forces a real render to exist** and catches silent drift. Update a golden only via a reviewed change with the new render attached and signed off.
+3. **Mandatory render-and-eyeball before merge.** No asset PR merges without its artifacts **rendered and attached to the PR** (images for 2D/voxel; a rendered view + the cut file for CAD). A green asset PR with no visible artifact is **not reviewable** — the conductor renders it (or requires the agent to) and a human eyeballs direction. This is the human-in-loop checkpoint that catches a stub or a clip in seconds, where a passing test suite never will.
+
+Distinction from pre-vis: [pre-vis](#core-principles-for-asset-sets) signs off the *direction of a whole set* once, up front. This gate runs *per asset / per dispatched task* — it's what keeps any single green PR from slipping a stub past review after the set's direction is approved.
 
 ## Blocks specific to asset work
 
@@ -148,6 +167,7 @@ A cloud agent that hits a wall writes `.specify/blocks/<task-id>.yaml` and stops
 | Regenerate all | `scripts/build-assets.{sh,ps1}` |
 | Validate | `scripts/smoke.{sh,ps1}` (dims, layers, manifold, units, tolerances) |
 | Approve direction | Human signs off on `previs/` sample before the full set |
+| Fidelity gate | Per-asset fidelity assertions + golden-render diff + render attached to PR before merge ([gate](#design-fidelity-gate-green-tests--good-design)) |
 | Physical step done | `local-attested` handoff in `acceptance-tests.md` (photos/measurements) |
 | Try text-to-cad | Acquire CAD Skills (`npx skills add earthtojake/text-to-cad`) or via `kerrigan-acquire`; build123d → STEP/DXF; validate brass with `sendcutsend` |
 

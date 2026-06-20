@@ -246,6 +246,19 @@ class TestFeedbackFiles(unittest.TestCase):
                     self.assertIn(data["severity"], self.valid_severities,
                                 f"{feedback_file.name} has invalid severity: {data['severity']}")
 
+    def test_at_least_one_feedback_entry_present(self):
+        """Guard that the generic validators exercise real feedback entries.
+
+        The schema-validation tests above glob feedback files; if the directory
+        only held TEMPLATE.yaml they would silently pass on an empty set. This
+        asserts at least one non-template entry exists across agent-feedback or
+        processed, so the suite has something real to validate.
+        """
+        all_files = (self.get_feedback_files(self.agent_feedback_dir) +
+                    self.get_feedback_files(self.processed_dir))
+        self.assertGreater(len(all_files), 0,
+                          "Expected at least one non-template feedback entry to validate")
+
     def test_processed_files_have_status(self):
         """Test that processed feedback files have status field"""
         processed_files = self.get_feedback_files(self.processed_dir)
