@@ -1,0 +1,56 @@
+# Shared palette and grid constants for the _playbook-test voxel set.
+# All assets in this set share this palette so they read as one world.
+
+grid:
+  voxel_size_m: 0.1        # 1 voxel = 0.1 metres
+  up_axis: "+y"
+  forward_axis: "+z"        # z=0 is front/nose, z increases toward rear
+
+palette:
+  - index: 1
+    name: hull_base
+    hex: "#1A2347"
+    rgba: [26, 35, 71, 255]
+    use: primary hull surfaces (shadow / underside)
+
+  - index: 2
+    name: hull_mid
+    hex: "#2D4A8A"
+    rgba: [45, 74, 138, 255]
+    use: main hull body
+
+  - index: 3
+    name: hull_highlight
+    hex: "#4D7FCC"
+    rgba: [77, 127, 204, 255]
+    use: hull accent stripe / nose / leading edges
+
+  - index: 4
+    name: cockpit_glass
+    hex: "#44EECC"
+    rgba: [68, 238, 204, 255]
+    use: canopy / viewport glass
+
+  - index: 5
+    name: wing_edge
+    hex: "#6698BB"
+    rgba: [102, 152, 187, 255]
+    use: wing surfaces
+
+  - index: 6
+    name: engine_housing
+    hex: "#222233"
+    rgba: [34, 34, 51, 255]
+    use: engine nacelles / dark detail areas
+
+  - index: 7
+    name: thruster_glow
+    hex: "#FF8833"
+    rgba: [255, 136, 51, 255]
+    use: thruster / exhaust / energy glow
+
+  - index: 8
+    name: hull_accent
+    hex: "#C8C8DC"
+    rgba: [200, 200, 220, 255]
+    use: wing tips / trim details
