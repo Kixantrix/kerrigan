@@ -18,7 +18,6 @@ Material: brass, thickness = params["brass_thickness"].
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import ezdxf
@@ -66,8 +65,9 @@ def build(params: dict | None = None, output_path: Path | None = None) -> Path:
 
     Raises
     ------
-    AssertionError
-        If the wall thickness does not satisfy the brass manufacturability gate.
+    ValueError
+        If the wall thickness fails the brass manufacturability gate or if logo
+        dimensions become non-positive after applying wall thickness.
     """
     if params is None:
         params = load_params()
@@ -82,10 +82,11 @@ def build(params: dict | None = None, output_path: Path | None = None) -> Path:
     # Each cut edge loses kerf/2 of material.  The narrowest strip (wall) must
     # be at least min_feature_mm wide after accounting for kerf.
     required_wall = min_feat + kerf / 2
-    assert WALL_MM >= required_wall, (
-        f"Wall {WALL_MM} mm < required {required_wall:.3f} mm "
-        f"(min_feature={min_feat} mm, kerf={kerf} mm)"
-    )
+    if WALL_MM < required_wall:
+        raise ValueError(
+            f"Wall {WALL_MM} mm < required {required_wall:.3f} mm "
+            f"(min_feature={min_feat} mm, kerf={kerf} mm)"
+        )
 
     # --- Logo bounding box ---
     # Outer rectangle: fits inside headstock footprint minus margin on each side.
@@ -101,8 +102,10 @@ def build(params: dict | None = None, output_path: Path | None = None) -> Path:
     inner_w = logo_w - 2 * WALL_MM
     inner_h = logo_h - 2 * WALL_MM
 
-    assert inner_w > 0, f"Logo width too small for wall: inner_w={inner_w:.3f} mm"
-    assert inner_h > 0, f"Logo height too small for wall: inner_h={inner_h:.3f} mm"
+    if inner_w <= 0:
+        raise ValueError(f"Logo width too small for wall: inner_w={inner_w:.3f} mm")
+    if inner_h <= 0:
+        raise ValueError(f"Logo height too small for wall: inner_h={inner_h:.3f} mm")
 
     doc = ezdxf.new("R2010")
     doc.header["$INSUNITS"] = 4  # millimetres

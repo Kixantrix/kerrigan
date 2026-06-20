@@ -15,10 +15,8 @@ AC5  Re-running build is deterministic (geometry is identical on a second run).
 import copy
 import math
 import sys
-import tempfile
 from pathlib import Path
 
-import pytest
 import yaml
 
 # ---------------------------------------------------------------------------
@@ -104,15 +102,16 @@ def _entity_coords(path: Path) -> list[tuple]:
         dtype = ent.dxftype()
         if dtype == "LWPOLYLINE":
             pts = [
-                (round(float(x), 6), round(float(y), 6))
-                for x, y, *_ in ent.get_points()
+                (round(float(x), 6), round(float(y), 6), round(float(bulge), 6))
+                for x, y, _, _, bulge in ent.get_points(format="xyseb")
             ]
-            coords.append(("LWPOLYLINE", tuple(pts)))
+            coords.append(("LWPOLYLINE", ent.dxf.layer, tuple(pts)))
         elif dtype == "LINE":
             s = ent.dxf.start
             e = ent.dxf.end
             coords.append((
                 "LINE",
+                ent.dxf.layer,
                 round(float(s[0]), 6), round(float(s[1]), 6),
                 round(float(e[0]), 6), round(float(e[1]), 6),
             ))
