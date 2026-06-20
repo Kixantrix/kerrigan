@@ -1,155 +1,234 @@
-card:
-  slug: sample-card
-  name: SAMPLE SIGIL
-  mana_cost: 1U
-  rules_text: WHEN SAMPLE SIGIL ENTERS THE FIELD|SCRY 1.|DRAW A CARD.
-  art_ref: source/art/placeholder.ppm
-toolchain:
-  choice: Python raster compositor (stdlib + PyYAML manifest I/O)
-  plan: plan.md
-export:
-  path: exports/sample-card.png
-  dpi: 400
-  bleed_in: 0.125
-  card_width_in: 2.5
-  card_height_in: 3.5
-  width_px: 1100
-  height_px: 1500
-  sha256: 04c8351c0a8515ebf6a763f70f1b15524e763092c82b0daf9a14e17852e06e3d
-layers:
-- name: back
-  source: source/back/layer.json
-  probe:
-    x: 25
-    y: 750
-    rgba:
-    - 28
-    - 33
-    - 46
-    - 255
-  note: Bleed-side background remains visible after front compositing.
-- name: border
-  source: source/border/layer.json
-  probe:
-    x: 80
-    y: 750
-    rgba:
-    - 32
-    - 28
-    - 24
-    - 255
-  note: Outer front border ring.
-- name: frame
-  source: source/frame/layer.json
-  probe:
-    x: 770
-    y: 115
-    rgba:
-    - 56
-    - 118
-    - 107
-    - 255
-  note: Top title band and box framing.
-- name: art
-  source: source/art/layer.json
-  probe:
-    x: 550
-    y: 468
-    rgba:
-    - 240
-    - 189
-    - 103
-    - 255
-  note: Placeholder art block resolves from source/art/placeholder.ppm.
-- name: logo
-  source: source/logo/layer.json
-  probe:
-    x: 878
-    y: 126
-    rgba:
-    - 250
-    - 213
-    - 97
-    - 255
-  note: Set logo glyph in the title band.
-- name: nameplate
-  source: source/nameplate/layer.json
-  probe:
-    x: 730
-    y: 120
-    rgba:
-    - 48
-    - 51
-    - 58
-    - 255
-  note: Nameplate panel behind the card name.
-- name: text-box
-  source: source/text-box/layer.json
-  probe:
-    x: 850
-    y: 1140
-    rgba:
-    - 240
-    - 231
-    - 209
-    - 255
-  note: Rules text box with watermark treatment.
-- name: rules-text
-  source: source/rules-text/layer.json
-  probe:
-    x: 194
-    y: 875
-    rgba:
-    - 34
-    - 30
-    - 26
-    - 255
-  note: Rendered bitmap rules text.
-- name: card-mask
-  source: source/card-mask/layer.json
-  probe:
-    x: 60
-    y: 60
-    rgba:
-    - 133
-    - 87
-    - 52
-    - 255
-  note: Rounded card body clips the front stack so the back shows through at the corner.
-inputs:
-- path: build.py
-  sha256: f66ce166ff769a7a6f3f0f8030aa5ea62f20384d547f55f9f931cb13b8eb01fa
-- path: plan.md
-  sha256: 4cddfab7d4b4139a217f5d1449baf43741b4e30b13eb0464d9a5de22fdb2d560
-- path: shared/card-back.json
-  sha256: 0d7425f314d817fbfba13ecfca80ec929b20354af2701f09b6828649ff2b391f
-- path: shared/geometry.json
-  sha256: 518eec7e5937fc544ca713b6aabebaf2a49ab74d7b33550c3a0d31abe03a7723
-- path: shared/palette.json
-  sha256: b2df68b3b7f04e5a157fcde67aa833c2e98ba22df12435eb71aef45881a3acec
-- path: shared/typography.json
-  sha256: b744eb70aa6a43d529b41dbb0b78fef2a1ce3406080206d1543906ba741c5ed1
-- path: shared/watermark.json
-  sha256: a490e5e6a91a58651b15ed51a806c783fc891918d3f873c7ab1997bf60a9614f
-- path: source/art/layer.json
-  sha256: 1ce89e8e4897a9470a23d62efbe394eb59cb4dcfb337cc6d744f60ac995662ab
-- path: source/art/placeholder.ppm
-  sha256: 1e13668bcd21bbd67f5a22a9a1c34542003a4b4ffbcbdd6ba7f15e050d75525e
-- path: source/back/layer.json
-  sha256: 34a43ac86c4eb063a5a1b5f354786d16b57987ccf13841a7dcc588188e929a35
-- path: source/border/layer.json
-  sha256: ebe18a2e8f274b6350c7e3de512b87f52edc440f77738763fce54fea1441516c
-- path: source/card-mask/layer.json
-  sha256: 083feede692cdf282ff19fb4780d9aea1128d4d04862cac277b589fce4fba73e
-- path: source/cards.csv
-  sha256: ba15d54f7f90658a4c805593ee0dc5f882c00413f820d23225988bdee73b66b3
-- path: source/frame/layer.json
-  sha256: b2a8b0d9983ff3762e0c62997a5a0da2de579cd678e894482710a774828fd6b9
-- path: source/logo/layer.json
-  sha256: afdf077a8d93c2c4c3dde87ac10bc7ad34ea74dcb4dac4207c381ef9841a2619
-- path: source/nameplate/layer.json
-  sha256: 742f71e8e458712d15ede01d77cbfbef09a4da32678b8720cc33caa40e28d6e3
-- path: source/rules-text/layer.json
-  sha256: 637365dc6cc40622b3b83d55a037c7b18c3cf1d1cc43d47436129bdc0ba88d19
-- path: source/text-box/layer.json
-  sha256: 5cc442311bcbb16e878e00e558427873fb48487650b92839ab5d23a2ba54a7e3
+{
+  "card": {
+    "slug": "sample-card",
+    "name": "SAMPLE SIGIL",
+    "mana_cost": "1U",
+    "rules_text": "WHEN SAMPLE SIGIL ENTERS THE FIELD|SCRY 1.|DRAW A CARD.",
+    "art_ref": "source/art/placeholder.ppm"
+  },
+  "toolchain": {
+    "choice": "Pure Python stdlib raster compositor",
+    "plan": "plan.md"
+  },
+  "export": {
+    "path": "exports/sample-card.png",
+    "dpi": 400,
+    "bleed_in": 0.125,
+    "card_width_in": 2.5,
+    "card_height_in": 3.5,
+    "width_px": 1100,
+    "height_px": 1500,
+    "sha256": "04c8351c0a8515ebf6a763f70f1b15524e763092c82b0daf9a14e17852e06e3d"
+  },
+  "layers": [
+    {
+      "name": "back",
+      "source": "source/back/layer.json",
+      "probe": {
+        "x": 25,
+        "y": 750,
+        "rgba": [
+          28,
+          33,
+          46,
+          255
+        ]
+      },
+      "note": "Bleed-side background remains visible after front compositing."
+    },
+    {
+      "name": "border",
+      "source": "source/border/layer.json",
+      "probe": {
+        "x": 80,
+        "y": 750,
+        "rgba": [
+          32,
+          28,
+          24,
+          255
+        ]
+      },
+      "note": "Outer front border ring."
+    },
+    {
+      "name": "frame",
+      "source": "source/frame/layer.json",
+      "probe": {
+        "x": 770,
+        "y": 115,
+        "rgba": [
+          56,
+          118,
+          107,
+          255
+        ]
+      },
+      "note": "Top title band and box framing."
+    },
+    {
+      "name": "art",
+      "source": "source/art/layer.json",
+      "probe": {
+        "x": 550,
+        "y": 468,
+        "rgba": [
+          240,
+          189,
+          103,
+          255
+        ]
+      },
+      "note": "Placeholder art block resolves from source/art/placeholder.ppm."
+    },
+    {
+      "name": "logo",
+      "source": "source/logo/layer.json",
+      "probe": {
+        "x": 878,
+        "y": 126,
+        "rgba": [
+          250,
+          213,
+          97,
+          255
+        ]
+      },
+      "note": "Set logo glyph in the title band."
+    },
+    {
+      "name": "nameplate",
+      "source": "source/nameplate/layer.json",
+      "probe": {
+        "x": 730,
+        "y": 120,
+        "rgba": [
+          48,
+          51,
+          58,
+          255
+        ]
+      },
+      "note": "Nameplate panel behind the card name."
+    },
+    {
+      "name": "text-box",
+      "source": "source/text-box/layer.json",
+      "probe": {
+        "x": 850,
+        "y": 1140,
+        "rgba": [
+          240,
+          231,
+          209,
+          255
+        ]
+      },
+      "note": "Rules text box with watermark treatment."
+    },
+    {
+      "name": "rules-text",
+      "source": "source/rules-text/layer.json",
+      "probe": {
+        "x": 194,
+        "y": 875,
+        "rgba": [
+          34,
+          30,
+          26,
+          255
+        ]
+      },
+      "note": "Rendered bitmap rules text."
+    },
+    {
+      "name": "card-mask",
+      "source": "source/card-mask/layer.json",
+      "probe": {
+        "x": 60,
+        "y": 60,
+        "rgba": [
+          133,
+          87,
+          52,
+          255
+        ]
+      },
+      "note": "Rounded card body clips the front stack so the back shows through at the corner."
+    }
+  ],
+  "inputs": [
+    {
+      "path": "build.py",
+      "sha256": "b95630411fbda5c1756b0c93df5b83dbc81223a676e76911084e2e23b619b06d"
+    },
+    {
+      "path": "plan.md",
+      "sha256": "10adb46d2431693ee8dfc655433a108d46ba5ff39c793faf256337fcb80b2e4d"
+    },
+    {
+      "path": "shared/card-back.json",
+      "sha256": "0d7425f314d817fbfba13ecfca80ec929b20354af2701f09b6828649ff2b391f"
+    },
+    {
+      "path": "shared/geometry.json",
+      "sha256": "518eec7e5937fc544ca713b6aabebaf2a49ab74d7b33550c3a0d31abe03a7723"
+    },
+    {
+      "path": "shared/palette.json",
+      "sha256": "b2df68b3b7f04e5a157fcde67aa833c2e98ba22df12435eb71aef45881a3acec"
+    },
+    {
+      "path": "shared/typography.json",
+      "sha256": "b744eb70aa6a43d529b41dbb0b78fef2a1ce3406080206d1543906ba741c5ed1"
+    },
+    {
+      "path": "shared/watermark.json",
+      "sha256": "a490e5e6a91a58651b15ed51a806c783fc891918d3f873c7ab1997bf60a9614f"
+    },
+    {
+      "path": "source/art/layer.json",
+      "sha256": "1ce89e8e4897a9470a23d62efbe394eb59cb4dcfb337cc6d744f60ac995662ab"
+    },
+    {
+      "path": "source/art/placeholder.ppm",
+      "sha256": "1e13668bcd21bbd67f5a22a9a1c34542003a4b4ffbcbdd6ba7f15e050d75525e"
+    },
+    {
+      "path": "source/back/layer.json",
+      "sha256": "34a43ac86c4eb063a5a1b5f354786d16b57987ccf13841a7dcc588188e929a35"
+    },
+    {
+      "path": "source/border/layer.json",
+      "sha256": "ebe18a2e8f274b6350c7e3de512b87f52edc440f77738763fce54fea1441516c"
+    },
+    {
+      "path": "source/card-mask/layer.json",
+      "sha256": "083feede692cdf282ff19fb4780d9aea1128d4d04862cac277b589fce4fba73e"
+    },
+    {
+      "path": "source/cards.csv",
+      "sha256": "ba15d54f7f90658a4c805593ee0dc5f882c00413f820d23225988bdee73b66b3"
+    },
+    {
+      "path": "source/frame/layer.json",
+      "sha256": "b2a8b0d9983ff3762e0c62997a5a0da2de579cd678e894482710a774828fd6b9"
+    },
+    {
+      "path": "source/logo/layer.json",
+      "sha256": "afdf077a8d93c2c4c3dde87ac10bc7ad34ea74dcb4dac4207c381ef9841a2619"
+    },
+    {
+      "path": "source/nameplate/layer.json",
+      "sha256": "742f71e8e458712d15ede01d77cbfbef09a4da32678b8720cc33caa40e28d6e3"
+    },
+    {
+      "path": "source/rules-text/layer.json",
+      "sha256": "637365dc6cc40622b3b83d55a037c7b18c3cf1d1cc43d47436129bdc0ba88d19"
+    },
+    {
+      "path": "source/text-box/layer.json",
+      "sha256": "5cc442311bcbb16e878e00e558427873fb48487650b92839ab5d23a2ba54a7e3"
+    }
+  ]
+}

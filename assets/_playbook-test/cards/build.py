@@ -7,8 +7,6 @@ import struct
 import zlib
 from pathlib import Path
 
-import yaml
-
 
 ROOT = Path(__file__).resolve().parent
 EXPORT_PATH = ROOT / "exports" / "sample-card.png"
@@ -332,7 +330,7 @@ def render_card() -> tuple[Canvas, dict]:
     manifest = {
         "card": card,
         "toolchain": {
-            "choice": "Python raster compositor (stdlib + PyYAML manifest I/O)",
+            "choice": "Pure Python stdlib raster compositor",
             "plan": "plan.md",
         },
         "export": {
@@ -364,7 +362,7 @@ def build() -> dict:
         for path in sorted(input_paths, key=lambda path: str(path.relative_to(ROOT)))
         if path.is_file()
     ]
-    MANIFEST_PATH.write_text(yaml.safe_dump(manifest, sort_keys=False))
+    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest
 
 

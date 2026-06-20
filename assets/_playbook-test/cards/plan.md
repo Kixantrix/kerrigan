@@ -2,7 +2,7 @@
 
 ## Toolchain choice
 
-Use a **Python raster compositor (stdlib + PyYAML for manifest I/O)** for this Track A sample instead of HTML/CSS + browser capture.
+Use a **pure Python stdlib raster compositor** for this Track A sample instead of HTML/CSS + browser capture.
 
 ### Why this wins on the playbook criteria
 
@@ -10,7 +10,7 @@ Use a **Python raster compositor (stdlib + PyYAML for manifest I/O)** for this T
 - **Headless + scriptable:** `build.sh` and `smoke.sh` run without a GUI or browser dependency.
 - **Deterministic:** the export is assembled from fixed source files with a deterministic PNG writer and fixed layer order.
 - **Native target format:** the build emits a print-ready PNG with explicit DPI metadata.
-- **License / maturity / team fit:** no new runtime is required beyond Python and the repo's existing PyYAML dependency.
+- **License / maturity / team fit:** no new runtime or third-party package is required beyond Python itself.
 
 ## Declared print geometry
 
