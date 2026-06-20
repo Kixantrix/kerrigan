@@ -1,0 +1,5 @@
+{
+  "name": "back",
+  "probe": [25, 750],
+  "note": "Bleed-side background remains visible after front compositing."
+}

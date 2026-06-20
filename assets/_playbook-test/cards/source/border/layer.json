@@ -1,0 +1,5 @@
+{
+  "name": "border",
+  "probe": [80, 750],
+  "note": "Outer front border ring."
+}

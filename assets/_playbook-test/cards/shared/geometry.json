@@ -1,0 +1,15 @@
+{
+  "dpi": 400,
+  "bleed_in": 0.125,
+  "card_width_in": 2.5,
+  "card_height_in": 3.5,
+  "export_width_px": 1100,
+  "export_height_px": 1500,
+  "body_rect": [50, 50, 1000, 1400],
+  "body_radius": 82,
+  "nameplate_rect": [125, 88, 625, 74],
+  "mana_rect": [785, 88, 170, 74],
+  "art_rect": [120, 188, 860, 560],
+  "text_box_rect": [120, 800, 860, 395],
+  "rules_text_rect": [170, 860, 760, 255]
+}
