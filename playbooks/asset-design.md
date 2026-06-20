@@ -44,7 +44,7 @@ These are **starting points, not a prescribed stack** — pick per project again
 | **Guitar CAD** | **[build123d](https://github.com/gumyr/build123d)** (code-first, strong splines for organic bodies) · CadQuery · FreeCAD (GUI lofting) · OpenSCAD (simple parts) · the [CAD Skills](https://github.com/earthtojake/text-to-cad) library wraps build123d as agent skills | DXF (laser/CNC) + STEP, `sendcutsend` validate, FreeCAD TechDraw | Vendor/Thingiverse DXF plans; off-the-shelf hardware as STEP |
 | **Voxel** | **[Blockbench](https://www.blockbench.net/)** (GPL-3; voxel **+** low-poly **+** UV texture paint, web/desktop, native glTF) · [Goxel](https://github.com/guillaumechereau/goxel) (pure voxel, CLI) · MagicaVoxel (free GUI, great renders) · Blender (advanced bake) | glTF + power-of-two textures | Existing voxel art; Blender for refinement |
 
-> **The repo you linked (`earthtojake/text-to-cad` = "CAD Skills"):** one strong CAD-track option, not the only way. It's an MIT *agent-skills library* ([cadskills.xyz](https://www.cadskills.xyz)) in Kerrigan's own skills format, built on **build123d** (code-first CAD on the OpenCascade kernel). Useful skills: `cad` (text/image → editable **STEP** + STL/3MF/GLB), `dxf` (2D cut templates), `cad-viewer` (local preview), `step.parts` (off-the-shelf hardware as STEP), `sendcutsend` (validate DXF/STEP before ordering brass/metal from the SendCutSend fab service). Install with `npx skills install earthtojake/text-to-cad` or acquire as an `external` skill. **Pick instead** when it fits better: plain CadQuery (mature standalone lib), FreeCAD (GUI lofting for organic bodies), OpenSCAD (simple known parts), or Zoo's hosted `zoo.dev` API (paid jumpstart).
+> **The repo you linked (`earthtojake/text-to-cad` = "CAD Skills"):** one strong CAD-track option, not the only way. It's an MIT *agent-skills library* ([cadskills.xyz](https://www.cadskills.xyz)) in Kerrigan's own skills format, built on **build123d** (code-first CAD on the OpenCascade kernel). Useful skills: `cad` (text/image → editable **STEP** + STL/3MF/GLB), `dxf` (2D cut templates), `cad-viewer` (local preview), `step.parts` (off-the-shelf hardware as STEP), `sendcutsend` (validate DXF/STEP before ordering brass/metal from the SendCutSend fab service). Install with `npx skills add earthtojake/text-to-cad` or acquire as an `external` skill. **Pick instead** when it fits better: plain CadQuery (mature standalone lib), FreeCAD (GUI lofting for organic bodies), OpenSCAD (simple known parts), or Zoo's hosted `zoo.dev` API (paid jumpstart).
 
 ## Choosing a toolchain
 
@@ -149,7 +149,7 @@ A cloud agent that hits a wall writes `.specify/blocks/<task-id>.yaml` and stops
 | Validate | `scripts/smoke.{sh,ps1}` (dims, layers, manifold, units, tolerances) |
 | Approve direction | Human signs off on `previs/` sample before the full set |
 | Physical step done | `local-attested` handoff in `acceptance-tests.md` (photos/measurements) |
-| Try text-to-cad | Acquire CAD Skills (`npx skills install earthtojake/text-to-cad`) or via `kerrigan-acquire`; build123d → STEP/DXF; validate brass with `sendcutsend` |
+| Try text-to-cad | Acquire CAD Skills (`npx skills add earthtojake/text-to-cad`) or via `kerrigan-acquire`; build123d → STEP/DXF; validate brass with `sendcutsend` |
 
 ## Related
 
