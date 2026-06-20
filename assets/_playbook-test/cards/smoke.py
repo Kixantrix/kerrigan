@@ -66,7 +66,9 @@ def main() -> None:
     check("AC3 all named layers contribute visible pixels to the composite", layer_pixels_match)
 
     art_path = ROOT / manifest_on_disk["card"]["art_ref"]
-    art_layer = expected_layers["art"]
+    art_layer = expected_layers.get("art")
+    check("AC4 placeholder art probe is declared in committed source-of-truth", art_layer is not None)
+    assert art_layer is not None
     art_pixel = build.pixel_from_png(parsed, art_layer["probe"]["x"], art_layer["probe"]["y"])
     art_width, art_height, _ = build.read_ppm(art_path)
     check(

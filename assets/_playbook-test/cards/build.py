@@ -97,9 +97,11 @@ class Canvas:
             return
         # Porter-Duff "over" with straight-alpha inputs and straight-alpha output.
         out_denominator = out_a * 255
-        out_r = (src_r * src_a * 255 + dst_r * dst_a * inv_src_a + out_denominator // 2) // out_denominator
-        out_g = (src_g * src_a * 255 + dst_g * dst_a * inv_src_a + out_denominator // 2) // out_denominator
-        out_b = (src_b * src_a * 255 + dst_b * dst_a * inv_src_a + out_denominator // 2) // out_denominator
+        out_rgb = tuple(
+            (src_c * src_a * 255 + dst_c * dst_a * inv_src_a + out_denominator // 2) // out_denominator
+            for src_c, dst_c in ((src_r, dst_r), (src_g, dst_g), (src_b, dst_b))
+        )
+        out_r, out_g, out_b = out_rgb
         self.pixels[idx:idx + 4] = bytes((out_r, out_g, out_b, out_a))
 
 
