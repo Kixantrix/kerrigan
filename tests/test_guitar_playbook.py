@@ -75,7 +75,7 @@ def _dxf_bbox(path: Path, layers: list[str] | None = None):
         layer_set = set(layers)
         entities = [e for e in msp if e.dxf.layer in layer_set]
         from ezdxf.math import BoundingBox2d
-        bb: BoundingBox2d = BoundingBox2d()
+        bb = BoundingBox2d()
         for ent in entities:
             if ent.dxftype() == "LWPOLYLINE":
                 for pt in ent.get_points():
