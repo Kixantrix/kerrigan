@@ -1,0 +1,226 @@
+{
+  "card": {
+    "art_ref": "source/art/placeholder.ppm",
+    "mana_cost": "1U",
+    "name": "SAMPLE SIGIL",
+    "rules_text": "WHEN SAMPLE SIGIL ENTERS THE FIELD|SCRY 1.|DRAW A CARD.",
+    "slug": "sample-card"
+  },
+  "export": {
+    "bleed_in": 0.125,
+    "card_height_in": 3.5,
+    "card_width_in": 2.5,
+    "dpi": 400,
+    "height_px": 1500,
+    "path": "exports/sample-card.png",
+    "sha256": "04c8351c0a8515ebf6a763f70f1b15524e763092c82b0daf9a14e17852e06e3d",
+    "width_px": 1100
+  },
+  "inputs": [
+    {
+      "path": "shared/card-back.json",
+      "sha256": "0d7425f314d817fbfba13ecfca80ec929b20354af2701f09b6828649ff2b391f"
+    },
+    {
+      "path": "shared/geometry.json",
+      "sha256": "518eec7e5937fc544ca713b6aabebaf2a49ab74d7b33550c3a0d31abe03a7723"
+    },
+    {
+      "path": "shared/palette.json",
+      "sha256": "b2df68b3b7f04e5a157fcde67aa833c2e98ba22df12435eb71aef45881a3acec"
+    },
+    {
+      "path": "shared/typography.json",
+      "sha256": "b744eb70aa6a43d529b41dbb0b78fef2a1ce3406080206d1543906ba741c5ed1"
+    },
+    {
+      "path": "shared/watermark.json",
+      "sha256": "a490e5e6a91a58651b15ed51a806c783fc891918d3f873c7ab1997bf60a9614f"
+    },
+    {
+      "path": "source/art/layer.json",
+      "sha256": "1ce89e8e4897a9470a23d62efbe394eb59cb4dcfb337cc6d744f60ac995662ab"
+    },
+    {
+      "path": "source/art/placeholder.ppm",
+      "sha256": "1e13668bcd21bbd67f5a22a9a1c34542003a4b4ffbcbdd6ba7f15e050d75525e"
+    },
+    {
+      "path": "source/back/layer.json",
+      "sha256": "a3a4ff87760aedb079baac1b319e52876014e94f82a79522934486735ba0e57d"
+    },
+    {
+      "path": "source/border/layer.json",
+      "sha256": "ebe18a2e8f274b6350c7e3de512b87f52edc440f77738763fce54fea1441516c"
+    },
+    {
+      "path": "source/card-mask/layer.json",
+      "sha256": "083feede692cdf282ff19fb4780d9aea1128d4d04862cac277b589fce4fba73e"
+    },
+    {
+      "path": "source/cards.csv",
+      "sha256": "ba15d54f7f90658a4c805593ee0dc5f882c00413f820d23225988bdee73b66b3"
+    },
+    {
+      "path": "source/frame/layer.json",
+      "sha256": "b2a8b0d9983ff3762e0c62997a5a0da2de579cd678e894482710a774828fd6b9"
+    },
+    {
+      "path": "source/logo/layer.json",
+      "sha256": "afdf077a8d93c2c4c3dde87ac10bc7ad34ea74dcb4dac4207c381ef9841a2619"
+    },
+    {
+      "path": "source/nameplate/layer.json",
+      "sha256": "742f71e8e458712d15ede01d77cbfbef09a4da32678b8720cc33caa40e28d6e3"
+    },
+    {
+      "path": "source/rules-text/layer.json",
+      "sha256": "637365dc6cc40622b3b83d55a037c7b18c3cf1d1cc43d47436129bdc0ba88d19"
+    },
+    {
+      "path": "source/text-box/layer.json",
+      "sha256": "5cc442311bcbb16e878e00e558427873fb48487650b92839ab5d23a2ba54a7e3"
+    }
+  ],
+  "layers": [
+    {
+      "name": "back",
+      "note": "Bleed-side background remains visible after front compositing.",
+      "probe": {
+        "rgba": [
+          28,
+          33,
+          46,
+          255
+        ],
+        "x": 25,
+        "y": 750
+      },
+      "source": "source/back/layer.json"
+    },
+    {
+      "name": "border",
+      "note": "Outer front border ring.",
+      "probe": {
+        "rgba": [
+          32,
+          28,
+          24,
+          255
+        ],
+        "x": 80,
+        "y": 750
+      },
+      "source": "source/border/layer.json"
+    },
+    {
+      "name": "frame",
+      "note": "Top title band and box framing.",
+      "probe": {
+        "rgba": [
+          56,
+          118,
+          107,
+          255
+        ],
+        "x": 770,
+        "y": 115
+      },
+      "source": "source/frame/layer.json"
+    },
+    {
+      "name": "card-mask",
+      "note": "Rounded card body clips the front stack so the back shows through at the corner.",
+      "probe": {
+        "rgba": [
+          133,
+          87,
+          52,
+          255
+        ],
+        "x": 60,
+        "y": 60
+      },
+      "source": "source/card-mask/layer.json"
+    },
+    {
+      "name": "art",
+      "note": "Placeholder art block resolves from source/art/placeholder.ppm.",
+      "probe": {
+        "rgba": [
+          240,
+          189,
+          103,
+          255
+        ],
+        "x": 550,
+        "y": 468
+      },
+      "source": "source/art/layer.json"
+    },
+    {
+      "name": "logo",
+      "note": "Set logo glyph in the title band.",
+      "probe": {
+        "rgba": [
+          250,
+          213,
+          97,
+          255
+        ],
+        "x": 878,
+        "y": 126
+      },
+      "source": "source/logo/layer.json"
+    },
+    {
+      "name": "nameplate",
+      "note": "Nameplate panel behind the card name.",
+      "probe": {
+        "rgba": [
+          48,
+          51,
+          58,
+          255
+        ],
+        "x": 730,
+        "y": 120
+      },
+      "source": "source/nameplate/layer.json"
+    },
+    {
+      "name": "text-box",
+      "note": "Rules text box with watermark treatment.",
+      "probe": {
+        "rgba": [
+          240,
+          231,
+          209,
+          255
+        ],
+        "x": 850,
+        "y": 1140
+      },
+      "source": "source/text-box/layer.json"
+    },
+    {
+      "name": "rules-text",
+      "note": "Rendered bitmap rules text.",
+      "probe": {
+        "rgba": [
+          34,
+          30,
+          26,
+          255
+        ],
+        "x": 194,
+        "y": 875
+      },
+      "source": "source/rules-text/layer.json"
+    }
+  ],
+  "toolchain": {
+    "choice": "Python stdlib raster compositor",
+    "plan": "plan.md"
+  }
+}

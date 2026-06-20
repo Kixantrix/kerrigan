@@ -1,0 +1,6 @@
+{
+  "name": "back",
+  "source": "shared/card-back.json",
+  "probe": [25, 750],
+  "note": "Bleed-side background remains visible after front compositing."
+}

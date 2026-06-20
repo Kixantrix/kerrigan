@@ -1,0 +1,5 @@
+{
+  "name": "text-box",
+  "probe": [850, 1140],
+  "note": "Rules text box with watermark treatment."
+}
