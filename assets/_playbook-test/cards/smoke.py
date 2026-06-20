@@ -70,13 +70,17 @@ def main() -> None:
     check("AC4 placeholder art probe is declared in committed source-of-truth", art_layer is not None)
     assert art_layer is not None
     art_pixel = build.pixel_from_png(parsed, art_layer["probe"]["x"], art_layer["probe"]["y"])
-    art_width, art_height, _ = build.read_ppm(art_path)
+    art_width, art_height, art_pixels = build.read_ppm(art_path)
     check(
         "AC4 placeholder art reference resolves with no missing source",
         art_path.exists()
         and art_pixel == art_layer["probe"]["rgba"]
         and art_width == 8
         and art_height == 8,
+    )
+    check(
+        "AC4 placeholder art source decodes to the declared sample grid",
+        len(art_pixels) == art_width * art_height,
     )
 
     second_manifest = build.build()
