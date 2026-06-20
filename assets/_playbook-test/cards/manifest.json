@@ -160,7 +160,7 @@
   "inputs": [
     {
       "path": "build.py",
-      "sha256": "b95630411fbda5c1756b0c93df5b83dbc81223a676e76911084e2e23b619b06d"
+      "sha256": "1c67890221e4bb23f2e6ddb992d556960f29c8984da7378fbd19b0108120569c"
     },
     {
       "path": "plan.md",

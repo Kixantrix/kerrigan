@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 EXPORT_PATH = ROOT / "exports" / "sample-card.png"
-MANIFEST_PATH = ROOT / "manifest.yaml"
+MANIFEST_PATH = ROOT / "manifest.json"
 LAYER_ORDER = [
     "back",
     "border",
