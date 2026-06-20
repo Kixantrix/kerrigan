@@ -1,0 +1,5 @@
+{
+  "name": "card-mask",
+  "probe": [60, 60],
+  "note": "Rounded card body clips the front stack so the back shows through at the corner."
+}
