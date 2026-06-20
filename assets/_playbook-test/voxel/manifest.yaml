@@ -1,0 +1,37 @@
+# Asset manifest for assets/_playbook-test/voxel
+# Generated / maintained by build.sh and smoke.sh
+
+version: "1"
+description: "Voxel hero ship — Track C playbook test asset"
+
+assets:
+  - id: hero_ship
+    description: "Hero spaceship — voxel low-poly, UV-textured, engine-ready glTF"
+
+    source:
+      file: source/gen_ship.py
+      type: python_generator
+      deterministic: true
+
+    exports:
+      - file: exports/ship.vox
+        format: magicavoxel_vox
+        description: "MagicaVoxel source (viewable in Blockbench / Goxel)"
+
+      - file: exports/ship.glb
+        format: gltf_binary
+        description: "glTF 2.0 binary — engine-ready"
+        constraints:
+          tri_budget: 2000
+          texture_size_pot: true
+          manifold: true
+          gltf_valid: true
+
+    shared:
+      palette: shared/palette.yaml
+      grid_scale_m: 0.1
+      bounding_box_m: [1.6, 0.4, 1.2]  # width × height × length
+
+smoke_script:
+  bash: smoke.sh
+  powershell: smoke.ps1
