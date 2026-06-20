@@ -95,6 +95,7 @@ class Canvas:
         if out_a == 0:
             self.pixels[idx:idx + 4] = bytes((0, 0, 0, 0))
             return
+        # Porter-Duff "over" with straight-alpha inputs and straight-alpha output.
         out_denominator = out_a * 255
         out_r = (src_r * src_a * 255 + dst_r * dst_a * inv_src_a + out_denominator // 2) // out_denominator
         out_g = (src_g * src_a * 255 + dst_g * dst_a * inv_src_a + out_denominator // 2) // out_denominator
