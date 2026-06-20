@@ -95,9 +95,10 @@ class Canvas:
         if out_a == 0:
             self.pixels[idx:idx + 4] = bytes((0, 0, 0, 0))
             return
-        out_r = (src_r * src_a * 255 + dst_r * dst_a * inv_src_a + (out_a * 255) // 2) // (out_a * 255)
-        out_g = (src_g * src_a * 255 + dst_g * dst_a * inv_src_a + (out_a * 255) // 2) // (out_a * 255)
-        out_b = (src_b * src_a * 255 + dst_b * dst_a * inv_src_a + (out_a * 255) // 2) // (out_a * 255)
+        out_denominator = out_a * 255
+        out_r = (src_r * src_a * 255 + dst_r * dst_a * inv_src_a + out_denominator // 2) // out_denominator
+        out_g = (src_g * src_a * 255 + dst_g * dst_a * inv_src_a + out_denominator // 2) // out_denominator
+        out_b = (src_b * src_a * 255 + dst_b * dst_a * inv_src_a + out_denominator // 2) // out_denominator
         self.pixels[idx:idx + 4] = bytes((out_r, out_g, out_b, out_a))
 
 

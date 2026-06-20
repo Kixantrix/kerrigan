@@ -118,7 +118,7 @@ layers:
   note: Rounded card body clips the front stack so the back shows through at the corner.
 inputs:
 - path: build.py
-  sha256: eec364d29cfb5df67e0bff3758e974279b9460b6a814feaafc988434f38fa22f
+  sha256: 801dd9b6da30810268ffba4ec406863f31d02dc55a3ec843520faed0dfae3053
 - path: plan.md
   sha256: 4cddfab7d4b4139a217f5d1449baf43741b4e30b13eb0464d9a5de22fdb2d560
 - path: shared/card-back.json

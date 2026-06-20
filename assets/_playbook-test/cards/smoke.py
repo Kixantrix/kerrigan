@@ -28,10 +28,10 @@ def read_geometry() -> dict:
 
 def main() -> None:
     print("=== Asset playbook smoke ===")
-    committed_manifest = read_manifest()
+    manifest_on_disk = read_manifest()
     geometry = read_geometry()
-    expected_hash = committed_manifest["export"]["sha256"]
-    expected_layers = {layer["name"]: layer for layer in committed_manifest["layers"]}
+    expected_hash = manifest_on_disk["export"]["sha256"]
+    expected_layers = {layer["name"]: layer for layer in manifest_on_disk["layers"]}
     first_manifest = build.build()
     first_hash = first_manifest["export"]["sha256"]
     parsed = build.read_png(build.EXPORT_PATH)
@@ -65,7 +65,7 @@ def main() -> None:
     )
     check("AC3 all named layers contribute visible pixels to the composite", layer_pixels_match)
 
-    art_path = ROOT / committed_manifest["card"]["art_ref"]
+    art_path = ROOT / manifest_on_disk["card"]["art_ref"]
     art_layer = expected_layers["art"]
     art_pixel = build.pixel_from_png(parsed, art_layer["probe"]["x"], art_layer["probe"]["y"])
     art_width, art_height, _ = build.read_ppm(art_path)
