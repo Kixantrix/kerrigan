@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import csv
 import hashlib
-import json
 import struct
 import zlib
 from pathlib import Path
+
+import yaml
 
 
 ROOT = Path(__file__).resolve().parent
@@ -49,7 +50,7 @@ FONT = {
 
 
 def read_json(path: Path) -> dict:
-    return json.loads(path.read_text())
+    return yaml.safe_load(path.read_text())
 
 
 def load_card() -> dict:
@@ -65,7 +66,7 @@ class Canvas:
     def __init__(self, width: int, height: int, background=(0, 0, 0, 0)) -> None:
         self.width = width
         self.height = height
-        self.pixels = bytearray(background * (width * height))
+        self.pixels = bytearray(background) * (width * height)
 
     def index(self, x: int, y: int) -> int:
         return (y * self.width + x) * 4
@@ -263,15 +264,18 @@ def render_card() -> tuple[Canvas, dict]:
     back_spec = read_json(ROOT / "shared" / "card-back.json")
     watermark = read_json(ROOT / "shared" / "watermark.json")
     card = load_card()
+    transparent = tuple(palette["transparent"])
+    export_width = geometry["export_width_px"]
+    export_height = geometry["export_height_px"]
 
-    back = Canvas(geometry["export_width_px"], geometry["export_height_px"], tuple(palette["transparent"]))
-    fill_rect(back, [0, 0, geometry["export_width_px"], geometry["export_height_px"]], tuple(palette["back_base"]))
-    fill_rect(back, [0, 0, geometry["export_width_px"], back_spec["band_height"]], tuple(palette["back_band"]))
-    fill_rect(back, [0, geometry["export_height_px"] - back_spec["band_height"], geometry["export_width_px"], back_spec["band_height"]], tuple(palette["back_band"]))
+    back = Canvas(export_width, export_height, transparent)
+    fill_rect(back, [0, 0, export_width, export_height], tuple(palette["back_base"]))
+    fill_rect(back, [0, 0, export_width, back_spec["band_height"]], tuple(palette["back_band"]))
+    fill_rect(back, [0, export_height - back_spec["band_height"], export_width, back_spec["band_height"]], tuple(palette["back_band"]))
     fill_circle(back, tuple(back_spec["ring_center"]), back_spec["ring_radius"], tuple(palette["back_ring"]))
     fill_circle(back, tuple(back_spec["ring_center"]), back_spec["ring_radius"] - back_spec["ring_thickness"], tuple(palette["back_base"]))
 
-    front = Canvas(geometry["export_width_px"], geometry["export_height_px"], tuple(palette["transparent"]))
+    front = Canvas(export_width, export_height, transparent)
     fill_round_rect(front, geometry["body_rect"], geometry["body_radius"], tuple(palette["border"]))
     inner = [geometry["body_rect"][0] + 40, geometry["body_rect"][1] + 40, geometry["body_rect"][2] - 80, geometry["body_rect"][3] - 80]
     fill_round_rect(front, inner, geometry["body_radius"] - 28, tuple(palette["frame_base"]))
@@ -290,13 +294,14 @@ def render_card() -> tuple[Canvas, dict]:
     fill_diamond(front, (878, 126), 34, tuple(palette["logo"]))
     fill_circle(front, (878, 126), 12, tuple(palette["logo_accent"]))
     fill_round_rect(front, text_box_rect, 22, tuple(palette["parchment"]))
-    watermark_color = tuple(palette["frame_band"][:3] + [watermark["alpha"]])
+    band_r, band_g, band_b, _ = palette["frame_band"]
+    watermark_color = (band_r, band_g, band_b, watermark["alpha"])
     fill_diamond(front, tuple(watermark["center"]), watermark["diamond_radius"], watermark_color)
     fill_circle(front, tuple(watermark["center"]), watermark["circle_radius"], watermark_color)
     draw_multiline_text(front, card["rules_text"], geometry["rules_text_rect"], typography["rules_scale"], typography["line_gap"], tuple(palette["ink"]))
     mask_canvas(front, geometry["body_rect"], geometry["body_radius"])
 
-    final = Canvas(geometry["export_width_px"], geometry["export_height_px"], tuple(palette["transparent"]))
+    final = Canvas(export_width, export_height, transparent)
     final.pixels[:] = back.pixels[:]
     for y in range(front.height):
         for x in range(front.width):
@@ -344,7 +349,7 @@ def build() -> dict:
         for path in sorted((ROOT / "shared").rglob("*")) + sorted((ROOT / "source").rglob("*"))
         if path.is_file()
     ]
-    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    MANIFEST_PATH.write_text(yaml.safe_dump(manifest, sort_keys=False))
     return manifest
 
 

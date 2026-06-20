@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import math
 import sys
 from pathlib import Path
 
 import build
+import yaml
 
 
 ROOT = Path(__file__).resolve().parent
@@ -18,7 +18,7 @@ def check(name: str, condition: bool) -> None:
 
 
 def read_manifest() -> dict:
-    return json.loads((ROOT / "manifest.yaml").read_text())
+    return yaml.safe_load((ROOT / "manifest.yaml").read_text())
 
 
 def main() -> None:
