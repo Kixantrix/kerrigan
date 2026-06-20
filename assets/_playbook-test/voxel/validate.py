@@ -144,8 +144,13 @@ def check_texture_pot(g: object) -> None:
     try:
         from PIL import Image
 
+        images = list(g.images or [])
+        if not images:
+            _fail("no images found in glTF (expected at least one embedded texture)")
+            return
+
         blob = g.binary_blob()
-        for i, img_node in enumerate(g.images):
+        for i, img_node in enumerate(images):
             bv_idx = img_node.bufferView
             if bv_idx is None:
                 _fail(f"image[{i}] has no bufferView (expected embedded image)")
@@ -171,10 +176,9 @@ def check_texture_pot(g: object) -> None:
 # AC5 — determinism: two builds produce identical bytes
 # ---------------------------------------------------------------------------
 
-def check_determinism(generator_path: Path, exports_dir: Path) -> None:
+def check_determinism(generator_path: Path) -> None:
     """Run the generator twice and compare SHA-256 of outputs."""
     import hashlib
-    import shutil
 
     try:
         with tempfile.TemporaryDirectory() as tmp:
@@ -222,12 +226,12 @@ def main() -> None:
     parser.add_argument(
         "--exports-dir",
         default=None,
-        help="Path to exports/ directory (default: ../exports relative to this script)",
+        help="Path to exports/ directory (default: ./exports relative to this script)",
     )
     parser.add_argument(
         "--source-dir",
         default=None,
-        help="Path to source/ directory (default: ../source relative to this script)",
+        help="Path to source/ directory (default: ./source relative to this script)",
     )
     parser.add_argument(
         "--check-determinism",
@@ -237,8 +241,8 @@ def main() -> None:
     args = parser.parse_args()
 
     script_dir = Path(__file__).resolve().parent
-    exports_dir = Path(args.exports_dir) if args.exports_dir else script_dir.parent / "exports"
-    source_dir = Path(args.source_dir) if args.source_dir else script_dir.parent / "source"
+    exports_dir = Path(args.exports_dir) if args.exports_dir else script_dir / "exports"
+    source_dir = Path(args.source_dir) if args.source_dir else script_dir / "source"
     generator = source_dir / "gen_ship.py"
 
     print("=== voxel hero ship smoke validation ===")
@@ -275,13 +279,18 @@ def main() -> None:
         check_texture_pot(g)
         print("")
 
-    # AC5: determinism (optional, always run in smoke)
-    print("[ AC5: build determinism ]")
-    if generator.exists():
-        check_determinism(generator, exports_dir)
+    # AC5: determinism (optional)
+    if args.check_determinism:
+        print("[ AC5: build determinism ]")
+        if generator.exists():
+            check_determinism(generator)
+        else:
+            _fail(f"generator not found: {generator}")
+        print("")
     else:
-        _fail(f"generator not found: {generator}")
-    print("")
+        print("[ AC5: build determinism ]")
+        print("  -  skipped (use --check-determinism to enable)")
+        print("")
 
     # Summary
     total = _results["pass"] + _results["fail"]

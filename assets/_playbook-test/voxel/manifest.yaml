@@ -1,5 +1,5 @@
 # Asset manifest for assets/_playbook-test/voxel
-# Generated / maintained by build.sh and smoke.sh
+# Maintained in-repo for this playbook test (validated by smoke.sh/smoke.ps1)
 
 version: "1"
 description: "Voxel hero ship — Track C playbook test asset"

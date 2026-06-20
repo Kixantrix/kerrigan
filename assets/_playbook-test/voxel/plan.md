@@ -53,7 +53,7 @@ and regenerates both `exports/ship.vox` and `exports/ship.glb`.
 | AC | Test in smoke |
 |----|---------------|
 | `exports/ship.glb` regenerates from source via `build.*` with no GUI | `build.sh` exits 0 and `exports/ship.glb` exists |
-| glTF validates | `pygltflib.GLTF2().load_file(ship.glb)` loads without exception |
+| glTF validates | `pygltflib.GLTF2().load(str(ship.glb))` loads without exception |
 | Mesh is manifold and within tri-count budget | edge-adjacency check + triangle count ≤ budget |
 | Texture dimensions are power-of-two | PNG width and height are powers of two |
 | Re-running `build.*` is deterministic | SHA-256 of two consecutive builds match |

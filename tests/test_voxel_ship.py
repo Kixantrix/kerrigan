@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-tests/test_voxel_ship.py — pytest integration for the voxel hero ship smoke.
+tests/test_voxel_ship.py — pytest integration for the voxel hero ship asset checks.
 
-Runs the full smoke validation pipeline (build + validate) and maps each
-acceptance criterion to an individual pytest test so CI reports per-criterion
-status.  Mirrors the one-to-one AC→test mapping in smoke.sh / validate.py.
+Builds from source with gen_ship.py and validates each acceptance criterion in
+individual pytest tests so CI reports per-criterion status. Mirrors the AC→test
+mapping used by smoke.sh / validate.py.
 """
 
 from __future__ import annotations
@@ -13,7 +13,6 @@ import io
 import struct
 import subprocess
 import sys
-import tempfile
 import hashlib
 from collections import Counter
 from pathlib import Path
@@ -22,10 +21,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 VOXEL_DIR = REPO_ROOT / "assets" / "_playbook-test" / "voxel"
-EXPORTS_DIR = VOXEL_DIR / "exports"
 GENERATOR = VOXEL_DIR / "source" / "gen_ship.py"
-GLB_PATH = EXPORTS_DIR / "ship.glb"
-VOX_PATH = EXPORTS_DIR / "ship.vox"
 TRI_BUDGET = 2000
 
 
