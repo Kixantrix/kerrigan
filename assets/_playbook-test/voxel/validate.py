@@ -31,19 +31,16 @@ from pathlib import Path
 # Helpers
 # ---------------------------------------------------------------------------
 
-PASS = 0
-FAIL = 0
+_results: dict[str, int] = {"pass": 0, "fail": 0}
 
 
 def _pass(msg: str) -> None:
-    global PASS
-    PASS += 1
+    _results["pass"] += 1
     print(f"  ✓  {msg}")
 
 
 def _fail(msg: str) -> None:
-    global FAIL
-    FAIL += 1
+    _results["fail"] += 1
     print(f"  ✗  {msg}", file=sys.stderr)
 
 
@@ -287,10 +284,10 @@ def main() -> None:
     print("")
 
     # Summary
-    total = PASS + FAIL
-    print(f"=== Results: {PASS}/{total} passed ===")
-    if FAIL > 0:
-        print(f"SMOKE FAILED — {FAIL} check(s) did not pass.", file=sys.stderr)
+    total = _results["pass"] + _results["fail"]
+    print(f"=== Results: {_results['pass']}/{total} passed ===")
+    if _results["fail"] > 0:
+        print(f"SMOKE FAILED — {_results['fail']} check(s) did not pass.", file=sys.stderr)
         sys.exit(1)
     print("SMOKE PASSED")
 
