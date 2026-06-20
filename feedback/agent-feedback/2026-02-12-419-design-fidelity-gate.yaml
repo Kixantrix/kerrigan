@@ -35,7 +35,8 @@ related_files:
 
 related_artifacts:
   - "spec.md"
-  - "smoke.py"
+  - "scripts/smoke.sh"
+  - "scripts/smoke.ps1"
 
 context: |
   Discovered while driving PRs #422/#423/#424 through the merge chain and rendering each
@@ -62,7 +63,7 @@ proposed_solution: |
      outline) + real logo path geometry; voxel asserts silhouette differs from its box.
 
   2. Golden-render regression: commit one approved reference render per asset under
-     previs/golden/; smoke test re-renders from source and diffs against it. Forces a
+     specs/projects/<name>/previs/golden/; smoke test re-renders from source and diffs against it. Forces a
      real render to exist and catches silent drift.
 
   3. Mandatory render-and-eyeball before merge: no asset PR merges without its artifacts
