@@ -91,7 +91,7 @@ class Canvas:
         idx = self.index(x, y)
         dst_r, dst_g, dst_b, dst_a = self.pixels[idx:idx + 4]
         inv_src_a = 255 - src_a
-        out_a = src_a + (dst_a * (255 - src_a) + 127) // 255
+        out_a = src_a + (dst_a * inv_src_a + 127) // 255
         if out_a == 0:
             self.pixels[idx:idx + 4] = bytes((0, 0, 0, 0))
             return
@@ -350,14 +350,15 @@ def build() -> dict:
     write_png(EXPORT_PATH, final, manifest["export"]["dpi"])
     manifest["export"]["sha256"] = sha256(EXPORT_PATH)
     input_paths = [
-        path
-        for path in (sorted((ROOT / "shared").rglob("*")) + sorted((ROOT / "source").rglob("*")))
-        if path.is_file()
+        *sorted((ROOT / "shared").rglob("*")),
+        *sorted((ROOT / "source").rglob("*")),
+        ROOT / "build.py",
+        ROOT / "plan.md",
     ]
-    input_paths.extend([ROOT / "build.py", ROOT / "plan.md"])
     manifest["inputs"] = [
         {"path": str(path.relative_to(ROOT).as_posix()), "sha256": sha256(path)}
         for path in sorted(input_paths, key=lambda path: str(path.relative_to(ROOT)))
+        if path.is_file()
     ]
     MANIFEST_PATH.write_text(yaml.safe_dump(manifest, sort_keys=False))
     return manifest
