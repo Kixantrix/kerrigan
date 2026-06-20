@@ -1,0 +1,49 @@
+assets:
+  - id: headstock-dxf
+    description: "Parametric headstock outline — CNC routing template"
+    source: source/headstock.py
+    params: shared/params.yaml
+    exports:
+      - path: exports/headstock.dxf
+        format: DXF
+        units: mm
+        layers:
+          - OUTLINE   # filleted headstock rectangle (routed profile)
+          - NUT       # reference line: nut_width at y=0
+    notes: >
+      Outline is a rounded rectangle (headstock_width_mm × headstock_length_mm)
+      with corner fillets = bit_radius_mm (router-bit-ready).
+      Re-run build.sh to regenerate from params.
+
+  - id: brass-logo-dxf
+    description: "Brass headstock logo — laser-cut frame, SendCutSend-ready"
+    source: source/brass_logo.py
+    params: shared/params.yaml
+    exports:
+      - path: exports/brass_logo.dxf
+        format: DXF
+        units: mm
+        material: brass
+        thickness: "0.5mm"
+        layers:
+          - LOGO_OUTER   # outer rectangle of the logo frame
+          - LOGO_INNER   # inner rectangle (defines the frame strip)
+          - BRASS_INFO   # text annotation: material + thickness
+    manufacturability:
+      min_feature_mm: 0.508   # 0.02" — SendCutSend brass minimum
+      kerf_mm: 0.300          # mid-range laser kerf
+      wall_mm: 2.0            # actual frame wall (>> minimum)
+      single_piece: true
+    notes: >
+      Logo frame fits inside headstock footprint minus logo_margin_mm.
+      Wall thickness (2 mm) satisfies min_feature + kerf/2 = 0.658 mm.
+      Re-run build.sh to regenerate from params.
+
+build:
+  script_sh: build.sh
+  script_ps1: build.ps1
+
+smoke:
+  script_sh: smoke.sh
+  script_ps1: smoke.ps1
+  test_file: ../../../../tests/test_guitar_playbook.py

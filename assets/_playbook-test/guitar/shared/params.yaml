@@ -1,0 +1,23 @@
+# Shared parameters for the guitar playbook test (Track B).
+# All linear dimensions in millimetres unless noted.
+# Source of truth: change here and re-run build.sh to propagate everywhere.
+
+# --- Neck / nut ---
+nut_width_mm: 43.0          # width of neck at nut; affects headstock bottom profile
+
+# --- Headstock blank ---
+headstock_length_mm: 190.0  # overall headstock length (nut-end to tip)
+headstock_width_mm: 80.0    # maximum headstock width (at the tuner end)
+headstock_thickness_mm: 15.0  # thickness of the headstock blank
+
+# --- CNC routing ---
+stock_thickness_mm: 15.0    # CNC stock thickness (should match headstock_thickness)
+bit_radius_mm: 3.175        # router bit radius = 1/8" (3.175 mm); used for corner fillets
+
+# --- Logo placement ---
+logo_margin_mm: 5.0         # minimum clearance between logo edge and headstock outline
+
+# --- Brass / SendCutSend rules ---
+brass_thickness: "0.5mm"    # declared stocked thickness (SendCutSend C260 brass, 0.5 mm)
+min_feature_mm: 0.508       # minimum feature / bridge width = 0.02" per SendCutSend brass rules
+kerf_mm: 0.3                # mid-range laser kerf estimate (0.008–0.015" → ~0.2–0.38 mm)
