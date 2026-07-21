@@ -80,12 +80,12 @@ Hooks are wired in `.claude/settings.local.json`:
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "hooks": [{ "type": "command", "command": ".claude/hooks/pre-tool-use.sh" }]
+        "hooks": [{ "type": "command", "command": "bash .claude/hooks/pre-tool-use.sh" }]
       }
     ],
     "Stop": [
       {
-        "hooks": [{ "type": "command", "command": ".claude/hooks/stop-verify.sh" }]
+        "hooks": [{ "type": "command", "command": "bash .claude/hooks/stop-verify.sh" }]
       }
     ]
   }
@@ -110,9 +110,24 @@ Or rely on the Git attribute — the scripts are committed with execute bits set
 
 ---
 
+## Cross-platform invocation (Windows)
+
+Hook `command` strings **must** be prefixed with `bash` (e.g.
+`bash .claude/hooks/pre-tool-use.sh`), not a bare `.sh` path.
+
+On Windows a bare `.sh` path is handed to the shell, which has no file
+association for `.sh` and pops the **"How do you want to open this file? /
+Pick an app"** dialog. Because `PreToolUse` fires before every Bash tool call,
+those dialogs pile up. Prefixing with `bash` routes the script through Git Bash
+(shipped with Git for Windows), so it runs instead of prompting. The scripts
+still self-degrade to no-ops outside Claude Code via their environment-variable
+checks.
+
+---
+
 ## Out of scope
 
-- Windows-specific hooks (PowerShell equivalents are not provided; hooks are
-  skipped on Windows because `CLAUDE_TOOL_NAME` / `CLAUDE_SESSION_ID` are not
-  set in that context).
+- Windows-specific hook logic (PowerShell equivalents are not provided; the
+  Bash scripts run under Git Bash and are no-ops when `CLAUDE_TOOL_NAME` /
+  `CLAUDE_SESSION_ID` are not set).
 - Modifying Claude Code itself.
