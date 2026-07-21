@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/pre-tool-use.sh"
+            "command": "bash .claude/hooks/pre-tool-use.sh"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/stop-verify.sh"
+            "command": "bash .claude/hooks/stop-verify.sh"
           }
         ]
       }

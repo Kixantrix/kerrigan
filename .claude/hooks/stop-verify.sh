@@ -12,7 +12,7 @@
 #
 # Usage (configured via .claude/settings.local.json):
 #   { "hooks": { "Stop": [{ "hooks": [{ "type": "command",
-#     "command": ".claude/hooks/stop-verify.sh" }] }] } }
+#     "command": "bash .claude/hooks/stop-verify.sh" }] }] } }
 
 set -euo pipefail
 
