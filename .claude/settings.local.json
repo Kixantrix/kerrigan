@@ -2,11 +2,12 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|bash|shell|powershell",
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/pre-tool-use.sh"
+            "command": ".claude/hooks/pre-tool-use.sh",
+            "powershell": "$in=''; try { $in=[Console]::In.ReadToEnd() } catch { }; if ($in -match 'rm\\s+-(rf|fr)\\s+(/(?![A-Za-z0-9_])|~|\\$HOME)|mkfs\\.|dd\\s[^|]*of=/dev/[sh]d') { Write-Output (@{ permissionDecision = 'deny'; permissionDecisionReason = 'pre-tool-use: destructive command pattern blocked' } | ConvertTo-Json -Compress) }; exit 0"
           }
         ]
       }
@@ -16,7 +17,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/stop-verify.sh"
+            "command": ".claude/hooks/stop-verify.sh",
+            "powershell": "exit 0"
           }
         ]
       }

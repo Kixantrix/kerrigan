@@ -79,13 +79,13 @@ Hooks are wired in `.claude/settings.local.json`:
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [{ "type": "command", "command": ".claude/hooks/pre-tool-use.sh" }]
+        "matcher": "Bash|bash|shell|powershell",
+        "hooks": [{ "type": "command", "command": ".claude/hooks/pre-tool-use.sh", "powershell": "...inline guard..." }]
       }
     ],
     "Stop": [
       {
-        "hooks": [{ "type": "command", "command": ".claude/hooks/stop-verify.sh" }]
+        "hooks": [{ "type": "command", "command": ".claude/hooks/stop-verify.sh", "powershell": "exit 0" }]
       }
     ]
   }
@@ -95,6 +95,44 @@ Hooks are wired in `.claude/settings.local.json`:
 `settings.local.json` is a **repo-level** settings file loaded by Claude Code
 when it opens this repository. It complements (and does not replace) any
 personal `~/.claude/settings.json`.
+
+---
+
+## Cross-tool note: GitHub Copilot CLI reads these hooks too
+
+GitHub Copilot CLI also loads `.claude/settings.json` / `.claude/settings.local.json`
+from the repository as one of its hook sources, and merges them with its own
+(`.github/hooks/*.json`, user-level hooks, etc.). All sources fire; any one of
+them can deny a tool call. That has two consequences on Windows:
+
+1. **`command` is copied to both shells.** Copilot's command-hook schema has
+   `bash`, `powershell`, and a cross-platform `command` fallback. An entry with
+   only `command: "bash …"` is used verbatim on Windows, where `bash` is usually
+   not on `PATH`.
+2. **`preToolUse` is fail-closed.** A hook that crashes (including
+   "command not found") *denies* the tool call. So a missing `bash` turns the
+   guard into a blanket deny of every shell command, reported as
+   `Denied by preToolUse hook from "repo settings" (hook errored)`.
+
+Both entries therefore carry an explicit `powershell` field, which takes
+precedence over `command` on Windows:
+
+- `PreToolUse` — an inline PowerShell twin of the destructive-pattern guard. It
+  reads the payload from stdin, emits a `permissionDecision: deny` object when a
+  destructive pattern matches, and always exits `0` (so it can never fail-closed
+  by accident). It is written inline rather than as a `.ps1` file so it does not
+  depend on `PATH`, the hook's working directory, or PowerShell execution policy.
+  The deny JSON is built with `ConvertTo-Json` instead of a quoted literal,
+  because quotes are stripped when the command is passed through `-Command`.
+- `Stop` — `exit 0`. The verify chain stays Claude-Code-only on purpose: Copilot
+  maps `Stop` to `agentStop`, which fires after **every turn**, not once per
+  session, so running `kerrigan check` there would be wrong (and slow).
+
+The `matcher` is `Bash|bash|shell|powershell` so it matches both Claude's `Bash`
+tool name and the runtime shell tool names Copilot surfaces.
+
+Keep `command` pointing at the bash scripts — that is what Claude Code uses, and
+what Copilot uses on Unix.
 
 ---
 
@@ -112,7 +150,8 @@ Or rely on the Git attribute — the scripts are committed with execute bits set
 
 ## Out of scope
 
-- Windows-specific hooks (PowerShell equivalents are not provided; hooks are
-  skipped on Windows because `CLAUDE_TOOL_NAME` / `CLAUDE_SESSION_ID` are not
-  set in that context).
+- Windows-specific hook *scripts* (no `.ps1` twins of `pre-tool-use.sh` /
+  `stop-verify.sh`). Claude Code on Windows runs the bash scripts through Git
+  Bash; Copilot CLI on Windows uses the inline `powershell` commands described
+  above.
 - Modifying Claude Code itself.
