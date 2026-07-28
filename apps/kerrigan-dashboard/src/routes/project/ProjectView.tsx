@@ -238,8 +238,34 @@ export function ProjectView({
         setChatClient(client);
         setChatStartupError(null);
       } catch (error) {
-        setChatClient(null);
-        setChatStartupError(error instanceof Error ? error.message : "Kerrigan MCP server failed to start.");
+        // Sidecar failed to start, but we can still provide vanilla chat
+        console.warn("[kerrigan] MCP sidecar startup failed, falling back to vanilla chat:", error);
+        
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const isSidecarError = errorMessage.includes("MCP") || errorMessage.includes("kerrigan-mcp");
+        
+        // Fall back to vanilla Copilot chat (no MCP tools)
+        try {
+          client = createChatClientRuntime({});
+          setChatClient(client);
+          
+          // Set a non-blocking error message that distinguishes between sidecar and CLI failures
+          if (isSidecarError) {
+            setChatStartupError(
+              `Kerrigan MCP server unavailable (chat works in vanilla mode): ${errorMessage}`
+            );
+          } else {
+            // This might be a Copilot CLI issue, which is blocking
+            setChatStartupError(errorMessage);
+          }
+        } catch (fallbackError) {
+          // If even vanilla chat fails, this is a Copilot CLI issue (blocking)
+          setChatClient(null);
+          const fallbackMessage = fallbackError instanceof Error 
+            ? fallbackError.message 
+            : "Copilot CLI failed to start.";
+          setChatStartupError(fallbackMessage);
+        }
       }
     })();
 

@@ -26,6 +26,21 @@
         { "path": "$HOME/.kerrigan/**" },
         { "path": "$HOME/**" }
       ]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "copilot",
+          "cmd": "copilot",
+          "sidecar": false
+        },
+        {
+          "name": "kerrigan-mcp",
+          "cmd": "kerrigan-mcp",
+          "sidecar": false
+        }
+      ]
     }
   ]
 }

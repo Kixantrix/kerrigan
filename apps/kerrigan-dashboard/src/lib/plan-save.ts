@@ -103,8 +103,7 @@ function isShellModuleLike(value: unknown): value is ShellModuleLike {
 }
 
 async function defaultShellOut(command: string, args: readonly string[]): Promise<string> {
-  const moduleName = "@tauri-apps/plugin-shell";
-  const shellModuleUnknown: unknown = await import(moduleName);
+  const shellModuleUnknown: unknown = await import("@tauri-apps/plugin-shell");
   if (!isShellModuleLike(shellModuleUnknown)) {
     throw new Error("shell-module-incompatible");
   }

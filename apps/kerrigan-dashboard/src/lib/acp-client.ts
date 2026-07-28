@@ -266,6 +266,8 @@ function getErrorMessage(err: unknown): string {
 
 function toStartupError(err: unknown): AcpClientError {
   const text = getErrorMessage(err).toLowerCase();
+  const originalMessage = getErrorMessage(err);
+  
   if (text.includes("enoent") || text.includes("not found")) {
     return new CopilotCliNotFoundError();
   }
@@ -276,7 +278,19 @@ function toStartupError(err: unknown): AcpClientError {
   ) {
     return new CopilotCliTooOldError();
   }
-  return new AcpProcessCrashedError();
+  if (text.includes("permission") || text.includes("denied")) {
+    return new AcpClientError(
+      "acp-permission-denied",
+      `Copilot CLI spawn permission denied. ${originalMessage ? `Details: ${originalMessage}` : "Check Tauri shell capabilities."}`
+    );
+  }
+  
+  // Include the original error message for diagnostics
+  const crashMessage = originalMessage 
+    ? `Copilot CLI process exited unexpectedly: ${originalMessage}`
+    : "Copilot CLI process exited unexpectedly - restart chat and try again.";
+  
+  return new AcpClientError("acp-process-crashed", crashMessage);
 }
 
 interface PendingRequest {
@@ -582,18 +596,50 @@ function isShellModuleLike(value: unknown): value is ShellModuleLike {
   return typeof command["create"] === "function";
 }
 
+/**
+ * Resolves the copilot CLI command path on Windows.
+ * 
+ * On Windows, npm global installs create shim scripts (copilot.ps1/copilot.cmd) 
+ * in %AppData%\npm. The GUI process PATH may not include this directory, so we
+ * need to help resolve it.
+ * 
+ * Returns the original command if not on Windows or if resolution isn't needed.
+ * 
+ * Note: For now, this is a placeholder that logs and returns the bare command.
+ * The shell capability permissions should allow PATH resolution to work.
+ * Future enhancement: implement full Windows path resolution similar to gh.rs.
+ */
+async function resolveCopilotCommand(command: string): Promise<string> {
+  // Only attempt resolution for the copilot command
+  if (command !== "copilot") {
+    return command;
+  }
+
+  // Check if we're in a Tauri environment
+  if (typeof window === "undefined" || !("__TAURI__" in window)) {
+    return command;
+  }
+
+  // For now, just use the bare command and log a note
+  // The shell:allow-execute capability should enable PATH resolution
+  console.log("[acp-client] Using bare 'copilot' command (will resolve via PATH)");
+  return command;
+}
+
 export function createDefaultAcpSpawn(): AcpSpawn {
   return (command: string, args: readonly string[]): AcpProcess => {
     const pendingProcess: Promise<AcpProcess> = (async () => {
-      const moduleName = "@tauri-apps/plugin-shell";
-      const shellModuleUnknown: unknown = await import(moduleName);
+      const shellModuleUnknown: unknown = await import("@tauri-apps/plugin-shell");
       if (!isShellModuleLike(shellModuleUnknown)) {
         throw new Error(
           "Failed to initialize Copilot CLI: @tauri-apps/plugin-shell module is incompatible.",
         );
       }
 
-      const shellCommand = shellModuleUnknown.Command.create(command, args);
+      // Resolve the command path (especially important on Windows)
+      const resolvedCommand = await resolveCopilotCommand(command);
+
+      const shellCommand = shellModuleUnknown.Command.create(resolvedCommand, args);
       const child = await shellCommand.spawn();
       const stdin = child.stdin;
       if (stdin === undefined) {
