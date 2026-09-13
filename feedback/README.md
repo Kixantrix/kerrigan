@@ -2,6 +2,10 @@
 
 This directory houses the agent feedback backchannel system for continuous improvement of Kerrigan.
 
+Current cross-device investigation: [Framework effectiveness audit (September 2026)](audits/2026-09-framework/README.md) -
+evidence, proposed improvement slices, and a portable handoff. This is an audit,
+not a replacement for the current operating rules.
+
 ## Overview
 
 The feedback system enables agents to report friction points, unclear instructions, and successful patterns encountered during work. This structured feedback drives systematic improvements to agent prompts, artifact contracts, playbooks, and the overall Kerrigan system.
