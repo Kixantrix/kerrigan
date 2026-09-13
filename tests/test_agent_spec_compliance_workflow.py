@@ -73,8 +73,10 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
         
         self.assertIn('pull_request', on_config, "Workflow should trigger on pull_request")
         
-        pr_branches = on_config['pull_request'].get('branches', [])
-        self.assertIn('main', pr_branches, "Workflow should trigger on pull requests to main")
+        self.assertIsNone(
+            on_config['pull_request'],
+            "Workflow must accept all PR targets, including main and dependent branches",
+        )
 
     def test_workflow_triggers_on_relevant_paths(self):
         """Test that the workflow is not path-filtered (full PR verification)."""
@@ -83,8 +85,13 @@ class TestAgentSpecComplianceWorkflow(unittest.TestCase):
         
         # YAML parses 'on:' as boolean True
         on_config = workflow.get('on', workflow.get(True, {}))
-        pr_config = on_config.get('pull_request', {})
+        self.assertIn('pull_request', on_config)
+        pr_config = on_config['pull_request']
+        if pr_config is None:
+            pr_config = {}
+        self.assertIsInstance(pr_config, dict)
         self.assertNotIn('paths', pr_config, "Workflow should run for all pull request file changes")
+        self.assertNotIn('paths-ignore', pr_config, "Workflow must not exclude PR file changes")
 
     def test_spec_reference_job_uses_python(self):
         """Test that validators job uses Python."""
