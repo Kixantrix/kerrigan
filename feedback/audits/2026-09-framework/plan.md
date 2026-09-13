@@ -42,21 +42,24 @@ Choose per slice, not per repository. Cloud offload is not a remedy for shared
 account/model limits. Windows code can be implemented remotely while its actual
 Windows behavior still requires a capable verifier.
 
-## Small PRs without stack proliferation
+## Cohesive PRs without proliferation
 
 Every slice names one outcome, its ACs, tests and a working post-merge state.
 Prefer independently landable vertical slices. Use a dependent PR only for a
 real prerequisite; its session/branch must start from the intended parent and
 its review diff must be against that parent. Record order and owner for restacks.
 Checkpoint scope at planning, first useful result and before opening the PR.
-A second outcome means a new slice or an explicit direction decision.
+A second independent outcome suggests a new slice; tightly coupled prerequisites,
+behavior, tests and documentation normally belong together. Do not ask for a
+direction decision merely because the agent can sequence the split itself.
 
-Pilot a review warning at roughly 400 hand-written changed lines or 10 files,
-not a hard CI limit or a definition of quality. Show generated/fixture changes
-separately without hiding their review requirements. Review dependency depth
-after three unmerged layers; land/unblock foundations before adding more.
-These numbers are tunable hypotheses, not product limits or universal research
-findings. Splitting must not manufacture broken intermediate states.
+Prefer a moderately larger cohesive PR over several mechanically small PRs
+when splitting adds coordination, CI reruns, restacks or serial review without
+independent value. No universal line/file count or mandatory stack-depth limit.
+Use size as a diagnostic alongside outcomes, risk, testability and review effort.
+Show generated/fixture changes separately without hiding their review needs.
+Land/unblock foundations when dependencies impede progress. Splitting must not
+manufacture broken intermediate states or become a new gate on useful work.
 
 Deduplicate review findings by affected behavior and batch related fixes.
 After two non-converging correction rounds, have the conductor reassess scope,
@@ -135,6 +138,32 @@ One mechanism owns each lifecycle. Do not combine Agent merge, another watcher
 and a recurring progress prompt on the same PR. No-op ticks must not send chatter,
 spawn replacement workers or restart completed tasks. Test manually before any
 schedule; check device-online/restart behavior and cloud eligibility first.
+
+### Accountable repository triage
+
+A recurring triage job is an observer and router, not another implementation
+conductor. Its bounded input is the current issue/PR/session state plus the
+last handled event. Detect unowned work, stale promised follow-ups, actionable
+failed checks/reviews, unresolved human decisions and obsolete tracking state.
+Distinguish actual inactivity from a long active turn or a legitimate dependency.
+
+For each exception, record owner, current task/PR/head, next action, blocker or
+dependency, last meaningful progress and next reconciliation condition. Send
+one actionable update to the owning session; the owner fixes/tests/reviews and
+reports resolution. Dedupe unchanged exceptions and avoid repeated nags while
+an owner is actively working. Escalate overdue or ownerless work with evidence;
+do not silently assign a second worker to the same task.
+
+Ownership transfer must be acknowledged; a triage session cannot clear another
+session's responsibility just by sending a message. Offer closure/archive
+candidates only after checking persistent work, PR state, dependencies and
+automations. Idle alone is never a cleanup criterion. Destructive cleanup,
+unapproved publication and shared-state changes retain their authority gates.
+
+Start with a manual read-only triage pass and an exception-only report, then
+enable a bounded recurrence only after verifying its runtime and permissions.
+Measure actionable exceptions resolved, stale-owner duration, duplicate nudges
+and accidental competing work, not number of comments or automated closes.
 
 ## Centralizing learning and adoption
 

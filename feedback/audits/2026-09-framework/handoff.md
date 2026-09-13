@@ -19,6 +19,9 @@ migration; it does not replace the current agent instructions or verification.
 > public sources. Report contradictions, counterexamples and missing data.
 > Coordinate with the current audit owner before implementation or taking over
 > dispatch. Do not assume saying "Kerrigan" changed the app agent picker.
+> Prioritize clear work yourself; do not ask the owner "what next." Prefer
+> cohesive reviewable PRs over a proliferation of small ones. Triage routes
+> actionable exceptions to accountable owners instead of taking their work over.
 
 ## What this device should add
 
@@ -30,7 +33,7 @@ migration; it does not replace the current agent instructions or verification.
 | Verification economics | Workflow/job timings and runner classes, critical path and queue delay, model build frequency, omitted-risk evidence; no guessed billed costs |
 | Long-running coordination | Lead transfers, duplicate work, messages needed per outcome, resources requested/owned/released, observed contention |
 | Availability | Exact sanitized error category, timing, active work, retry results and counterexamples; do not infer an undocumented concurrency cap |
-| Automation | Which mechanism, new vs existing session, owner/scope/stop condition, observed useful/no-op runs, restart and overlap behavior |
+| Automation | Which mechanism, new vs existing session, owner/scope/stop condition, useful/no-op runs, restart/overlap behavior, triage resolution vs duplicate nudges |
 | Learning adoption | Local improvements absent upstream, upstream revision, conflicting overrides, smallest reusable rule and evidence |
 
 ## Contribution format
@@ -45,7 +48,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F16, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F18, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -62,8 +65,8 @@ owner starts. Do not publish private session identifiers here.
 
 Initial publication is an evidence/handoff deliverable, not a claim of completed
 rollout. The owner authorized prioritization and bounded improvements without
-routine "what next" approvals. P0 profile loading and P4a verification guidance
-are executing in separate sessions/PRs; P1 role defaults/follow-through follows.
+routine "what next" approvals. P0/P1 profile loading, role defaults and
+follow-through are one cohesive package; P4a verification guidance is independent.
 No new scheduling, GPU allocation, agent installation, branch-protection
 changes or satellite edits are authorized merely by reading this packet.
 The owner already requested session-first work and local conductor/cloud executor

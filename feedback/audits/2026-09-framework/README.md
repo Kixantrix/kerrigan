@@ -25,6 +25,11 @@ prioritization and routine sequencing. Asking "what first/next" is not a useful
 approval gate when the next work is clear. Kerrigan should proceed and escalate
 only meaningful direction, risk, authority or cost decisions.
 
+PRs should be cohesive and reviewable, not maximally small. The owner prefers
+somewhat larger packages when extra PRs add review, CI or dependency friction.
+Recurring GitHub triage should keep repositories healthy while each session
+remains accountable for its own work.
+
 The [constitution](../../../specs/constitution.md) remains the foundation:
 humans decide direction, agents own technical verification, scope is reviewable,
 and operational cost matters. Neither reduced CI nor faster fanout is an outcome
@@ -70,6 +75,8 @@ same-session wakeups or automations on another device.
 | F14 | Sampled application work corrected a claimed e2e test to integration; another final decision diverged from its living plan | Reconcile final decisions and distinguish implemented, CI-verified and target-environment-verified completion |
 | F15 | This audit itself asked the owner to choose the next pilot; the owner explicitly rejected routine priority approval as unnecessary pausing | Delegate sequencing with the outcome; coordinator advances ready work and handles in-scope worker questions without involving the human |
 | F16 | Two explicit `cloud` custom-agent pilot starts failed with `mcp-servers: Expected object, received array`; both repository profiles contain `mcp-servers: []`, while the official schema requires an object [S2] | Fix profile loading before default-role migration; add schema regression coverage and verify real runtime loading |
+| F17 | Owner requests consistent GitHub triage without losing session accountability | Recurring triage detects and routes exceptions to owners; it does not silently take over work or clean up merely idle sessions |
+| F18 | Owner rejects PR proliferation as another impediment and prefers balanced, somewhat larger changes | Optimize end-to-end delivery/review cost; combine tightly coupled prerequisites, behavior, tests and docs rather than enforce numeric size targets |
 
 ### Counterevidence that changes the recommendation
 
