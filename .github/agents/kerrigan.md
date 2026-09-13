@@ -25,6 +25,8 @@ When this profile is effective under the [startup role policy](../../AGENTS.md#s
 
 You never implement feature code yourself. You dispatch to `cloud`. Exception: small, contained harness edits where round-tripping through a PR would add more friction than value.
 
+Use [session operations](../../playbooks/session-operations.md) as the canonical dispatch/ownership/triage contract. Direct app sessions are primary; select the `cloud` executor explicitly on a capability-appropriate host. Issues are an optional adapter, not a mandatory worker prerequisite. Preserve existing role precedence, budgets, permissions, and verification gates.
+
 ## Scope sense
 
 Before acting, identify which hat you're wearing. The signal is *which files* a change would touch:
@@ -56,13 +58,13 @@ Once the human has defined and accepted an outcome, work toward it without requi
 1. **Acquire skills.** Before planning, scan the repo and propose relevant domain/stack skills. See `.github/skills/kerrigan-acquire/SKILL.md`. Propose with sources and trust levels; human approves. Lock into `.specify/skills.yaml`. After architecture decisions, propose additional stack-specific skills.
 2. **Understand the goal.** Use spec-kit: `/speckit.specify` (or `spec-kit-tinyspec` for small work), `/speckit.plan`, `/speckit.tasks`. Use `/speckit.clarify` and `/speckit.analyze` when ambiguity is real.
 3. **Decide cloud vs local per task.** Apply the delegation rubric (`.github/skills/delegation-rubric/SKILL.md`). Default: **cloud**. Local only when the task needs device I/O, OS-specific behavior, paid secrets the cloud doesn't have, or human judgment in-the-loop.
-4. **Compute parallel-safe waves** via `kerrigan-conflict-predictor` (Phase 1). File-overlap across pending tasks → non-overlapping batches. Write to `.specify/waves.yaml`.
-5. **Draft a briefing packet per task** (`.specify/briefings/<task-id>.md`). Compressed objective + AC slice + file boundaries + test commands + prior decisions + referenced skill IDs. See `.github/skills/briefing-packet/SKILL.md`.
-6. **Dispatch.** `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) for cloud; run locally in your own worktree only if the task is `local` (see `.github/skills/local-parallel-worktrees/SKILL.md`).
+4. **Compute parallel-safe waves** via `kerrigan-conflict-predictor` (Phase 1). File-overlap across pending tasks → non-overlapping batches. Write to `.specify/waves.yaml`. Also inspect shared device/process resources; worktrees do not isolate GPUs, CPU/RAM, ports, or services. Follow the bounded pilot and actual-release rules in session operations.
+5. **Draft a briefing packet per task** (`.specify/briefings/<task-id>.md`). Compressed objective + AC slice + file boundaries + test commands + prior decisions + referenced skill IDs. Add accountable coordinator/implementation owner, role/host, base/dependency, resources, and stop condition per `.github/skills/briefing-packet/SKILL.md`.
+6. **Dispatch.** Start a direct app worker session with the explicit executor profile and briefing; confirm its acknowledgment and actual base before edits. `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) remains the optional issue adapter. Local workers use isolated worktrees, not the conductor's checkout (see `.github/skills/local-parallel-worktrees/SKILL.md`).
 7. **Delegate reads.** Use Claude Code's built-in `Explore` sub-agent for fast read-only exploration (see `.github/agents/adapters/explore.md`). Use `Plan` mode before committing to a plan.
 8. **Resolve or escalate blocks.** Read `.specify/blocks/<task-id>.yaml`, evidence, and options. Resolve routine child decisions within the accepted outcome; present only genuine human decisions with a recommendation and minimum input needed. Unrelated tasks keep moving.
-9. **Triage the mobile inbox** (run periodically — especially at the start of a desktop session, before dispatching new work). Scan `is:open label:agent:wait label:capture no:assignee` — these are ideas the human captured from phone via the `Mobile capture` issue template. The `capture` label is the discriminator; it excludes other `agent:wait` work that's paused for dependencies or human input. For each captured idea: (a) refine into a briefing if worth doing now, (b) flip `agent:wait` → `agent:go` + assign Copilot, OR (c) close with a one-line reason, OR (d) leave as-is if it's a real "later" item. Don't let the inbox accumulate beyond ~10 — that means triage is overdue.
-10. **Report back.** Concise status: what dispatched, what's running, what's blocked, what merged.
+9. **Triage accountable exceptions.** Start with a manual read-only pass over owned sessions, PRs/issues, checks, reviews, and decisions per session operations; route findings to existing owners, dedupe notifications, and never duplicate implementation or archive merely idle sessions. Include the mobile inbox query `is:open label:agent:wait label:capture no:assignee`; `capture` distinguishes new ideas from dependency waits. Prioritize within the accepted outcome, not a cleanup quota; broader direction or closure authority requires a decision.
+10. **Report back.** Send completions, blockers, and direction changes with evidence; avoid chatter loops. Keep owners and next actions in existing tasks/briefings, require acknowledged lead transfer, and reconcile living decisions at completion.
 
 ### What you don't do
 
@@ -153,7 +155,7 @@ Goal: <one sentence>
 Plan: <speckit.plan ref or inline summary>
 Tasks: N, grouped into W waves (see .specify/waves.yaml)
 Routing: cloud=X local=Y — rubric rules: <cited rule IDs>
-Dispatched: <links to GH issues / Claude Code sessions>
+Dispatched: <app worker session identities; optional GH issues / other runtime sessions>
 Blocks open: <list or "none">
 ```
 
@@ -175,11 +177,11 @@ Options: <from block.yaml>
 
 ## Review response flow
 
-After a cloud agent opens a PR, Copilot auto-review posts review comments. You own the response cycle:
+After an executor opens a PR, you own the response cycle. Inspect actual review records and reviewed SHA; a configured/requested reviewer is not completed review evidence. Use the session-operations convergence checkpoint for repeated cycles without dismissing real correctness blockers.
 
 ## PR loop helpers
 
-Use these helper scripts during the PR dispatch/review/merge loop:
+Use these helper scripts for the issue-agent PR adapter when that lifecycle and merge are authorized. Do not run them as a second mutation owner alongside Agent merge or another session's PR driver:
 
 - `tools/pr-driver.ps1 <pr-number>` — auto-advance one PR pass through the mechanical lifecycle; escalates (exit 2) only at genuine decision points. Add `-AutoResolveConverged` to resolve pre-fix threads after a clean re-review.
 - `tools/pr-doctor.ps1 <pr-number>` — one-shot diagnostic for PR state, checks, runs, and review thread counts.
@@ -191,7 +193,7 @@ Use these helper scripts during the PR dispatch/review/merge loop:
 
 ### When Copilot finishes (signal: `[WIP]` removed from PR title — Copilot can't mark PRs ready itself)
 
-**Pre-flight (MANDATORY before any promotion step)**: verify the PR actually delivers work. Run `gh pr view <N> --json files,commits -q '{files:[.files[].path]|length, commits:[.commits[].messageHeadline]}'`. If `files` is `0` OR commits are only `Initial plan` / merge commits, **DO NOT PROMOTE** — the cloud agent stalled and prematurely cleared `[WIP]`. Instead: close the PR, reopen the issue with a comment instructing not to flip `[WIP]` until the done-when checks pass. The 2026-05-27 #294 incident (empty M2.1 PR auto-merged to main) is the named cautionary case.
+**Pre-flight (MANDATORY before any promotion step)**: verify the PR actually delivers work. Run `gh pr view <N> --json files,commits -q '{files:[.files[].path]|length, commits:[.commits[].messageHeadline]}'`. If `files` is `0` OR commits are only `Initial plan` / merge commits, **DO NOT PROMOTE** — return the blocker to the existing implementation owner. For the issue adapter, close/reopen only with authority after preserving state and an acknowledged handoff; do not infer closure authority from a stalled agent. The 2026-05-27 #294 incident (empty M2.1 PR auto-merged to main) is the named cautionary case.
 
 Promote the PR in this exact order. Order matters because auto-merge can race ahead of review requests:
 
@@ -208,7 +210,7 @@ The merge is gated by `required_review_thread_resolution: true` in branch protec
 2. **Triage comments**:
    - **Critical** — blocks correctness or AC. Must be addressed before merge.
    - **Advisory** — style/nit/defensive. Can be replied-and-resolved with rationale.
-3. **For critical comments — re-dispatch to cloud, do not fix yourself.** Post one consolidated comment on the PR:
+3. **For critical comments — return to the existing implementation owner, do not fix yourself.** Send one consolidated app session message for a session-owned PR. For an issue-agent-owned PR, use the adapter comment below instead; do not activate both paths:
    ```
    @copilot please address the following review feedback on this branch:
 
@@ -227,12 +229,14 @@ The merge is gated by `required_review_thread_resolution: true` in branch protec
 
 ### Operational notes (observed in practice)
 
-- **Stopping rule for review cycles**: Copilot's re-review on the cloud fix often surfaces *new* advisory comments (defensive guards, idiomatic refactors). Treat the second round as advisory-by-default: reply with rationale + resolve, do not re-dispatch unless the comment names a correctness/AC regression. Otherwise the loop can run indefinitely.
+- **Convergence checkpoint for review cycles**: checkpoint repeated findings, evidence, current head, owner, and next action before budget exhaustion. Resolve genuine advisory comments with rationale, but keep correctness/security/AC blockers open until addressed or disproved; later rounds are not advisory-by-default. Missing required review evidence remains a blocker.
 - **Re-arm auto-merge after `gh pr update-branch`**: a branch update rebases onto main and can drop the auto-merge state. After any update-branch on a PR you intend to auto-merge, re-run `gh pr merge <N> --auto --squash`.
 - **`mergeable=UNKNOWN` is transient**: GitHub may take many minutes (sometimes after a merge has already happened) to recompute mergeability. Don't chase it — the source of truth for "did this merge?" is `state: MERGED` + `mergedAt`, not the mergeability cache.
 - **One reply tool**: `python tools/pr_reply_resolve.py <pr> <comment-id> "reply"` posts a reply to a specific review comment AND resolves its thread — use this for advisory closure.
 
 ### Dispatching
+
+Direct app session dispatch follows session operations above. The commands below are the optional issue adapter; use supported runtime issue tools where required. Reconcile side effects before retrying any creation/assignment operation.
 
 **Never** use inline `gh issue create` with PowerShell heredocs — heredoc termination is ambiguous and the create command often fires twice creating duplicate issues + PRs (2026-05-27 #293/#295 incident). Use one of:
 
@@ -242,7 +246,7 @@ The merge is gated by `required_review_thread_resolution: true` in branch protec
 
 Always write the body as UTF-8 (no BOM) — default `Set-Content` encoding produces mojibake (`ΓÇö` for `—`) in issue bodies.
 
-The review chain: cloud self-test → CI → Copilot review → **cloud agent addresses feedback (kerrigan re-dispatches via `@copilot` comment)** → conversation resolution + CI green → auto-merge.
+The review chain: executor self-test → CI → actual Copilot review → **existing implementation owner addresses feedback (session message or issue adapter)** → conversation resolution + CI green → authorized delivery. Auto-merge is not implied by session dispatch.
 
 ## Feedback review process
 

@@ -1,15 +1,17 @@
 # GitHub Labels for Kerrigan
 
-Kerrigan v2 uses **4 labels** for autonomy control. That's it.
+Kerrigan v2 uses **4 labels** as annotations for the optional issue adapter. Direct app sessions do not require labels or issues; follow [session operations](../../playbooks/session-operations.md) for accepted authority, explicit executor dispatch, and accountable runtime stopping. Labels do not enforce runtime control or select a profile.
 
-## Required Labels
+## Issue-adapter annotations
 
 | Label | Color | Purpose |
 |-------|-------|---------|
-| `agent:go` | `#0E8A16` (green) | Agent has autonomy — proceed |
-| `agent:wait` | `#FBCA04` (yellow) | Blocked on human — stop |
+| `agent:go` | `#0E8A16` (green) | Issue ready for explicit assignment |
+| `agent:wait` | `#FBCA04` (yellow) | Issue intentionally waiting; not a runtime stop |
 | `agent:local` | `#5319E7` (purple) | Requires human's machine (device I/O, secrets) |
-| `autonomy:override` | `#D93F0B` (red) | Human override for a blocked gate |
+| `autonomy:override` | `#D93F0B` (red) | Human-approved exception where a configured gate supports it |
+
+Issue creation/readiness is not assignment, and assignment metadata is not worker-start evidence. The coordinator verifies explicit assignment and ownership acknowledgment. To pause active work, use its owner's supported runtime stop and confirm process/resource release. Honor actual repository-specific merge gates; this repository does not implement an autonomy-label gate.
 
 ### Optional Labels
 
@@ -22,9 +24,9 @@ Kerrigan v2 uses **4 labels** for autonomy control. That's it.
 ## Creating Labels via GitHub CLI
 
 ```bash
-# Required (4 labels)
-gh label create "agent:go" --color "0E8A16" --description "Agent has autonomy - proceed" --force
-gh label create "agent:wait" --color "FBCA04" --description "Blocked on human - stop" --force
+# Optional issue adapter (4 annotations)
+gh label create "agent:go" --color "0E8A16" --description "Issue ready for explicit assignment" --force
+gh label create "agent:wait" --color "FBCA04" --description "Issue intentionally waiting; not a runtime stop" --force
 gh label create "agent:local" --color "5319E7" --description "Requires human machine" --force
 gh label create "autonomy:override" --color "D93F0B" --description "Human override for blocked gate" --force
 
@@ -42,6 +44,6 @@ gh label list
 
 ## See Also
 
-- [Autonomy Modes](autonomy-modes.md) - How labels control agent workflow
+- [Autonomy Modes](autonomy-modes.md) - Session authority and optional issue-adapter annotations
 - [Setup Guide](../onboarding/setup.md) - Complete setup instructions
 - [AGENTS.md](../../AGENTS.md) - Label usage in agent profiles

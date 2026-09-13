@@ -2,6 +2,8 @@
 
 This guide walks you through setting up Kerrigan from scratch and running your first agent-driven project.
 
+**Primary app path:** open a repo session, give `kerrigan` an outcome, and follow [session operations](../../playbooks/session-operations.md) for explicit executor dispatch and ownership. The label/issue walkthrough below is the optional issue adapter, not a prerequisite for direct app sessions. Repository-specific CI/merge gates still apply; this addendum does not change configuration or authorize bypasses.
+
 ## Prerequisites
 
 Before you begin, ensure you have:
@@ -61,14 +63,14 @@ cd your-kerrigan-repo
 
 ## Step 2: Set Up GitHub Labels
 
-Kerrigan uses labels to control agent autonomy and assign work to agents. Create these labels in your repository:
+For the optional issue adapter, labels annotate work and may be consumed by repository-specific gates. They do not start or stop app sessions. Create these labels if using that adapter:
 
-### Required Labels
+### Issue-adapter annotations
 
 | Label | Description | Color |
 |-------|-------------|-------|
-| `agent:go` | Agent has autonomy — proceed | `#0e8a16` (green) |
-| `agent:wait` | Blocked on human — stop | `#fbca04` (yellow) |
+| `agent:go` | Issue ready for explicit dispatch | `#0e8a16` (green) |
+| `agent:wait` | Issue intentionally waiting; not a runtime stop | `#fbca04` (yellow) |
 | `agent:local` | Requires human's machine | `#d4c5f9` (purple) |
 | `autonomy:override` | Human override for a blocked gate | `#d73a4a` (red) |
 | `allow:large-file` | Bypass large file checks (use sparingly) | `#f9d0c4` (orange) |
@@ -79,7 +81,7 @@ Kerrigan uses labels to control agent autonomy and assign work to agents. Create
 2. Click **"Issues"** → **"Labels"**
 3. Click **"New label"**
 4. Enter name, description, and color
-5. Repeat for all required labels
+5. Repeat for the annotations your issue adapter uses
 
 ### Creating Labels via GitHub CLI (Faster)
 
@@ -95,9 +97,9 @@ Kerrigan uses labels to control agent autonomy and assign work to agents. Create
 # Authenticate
 gh auth login
 
-# Create required labels (v2: 4 labels)
-gh label create "agent:go" --color "0e8a16" --description "Agent has autonomy - proceed" --force
-gh label create "agent:wait" --color "fbca04" --description "Blocked on human - stop" --force
+# Create issue-adapter annotations (v2: 4 labels)
+gh label create "agent:go" --color "0e8a16" --description "Issue ready for explicit dispatch" --force
+gh label create "agent:wait" --color "fbca04" --description "Issue intentionally waiting; not a runtime stop" --force
 gh label create "agent:local" --color "5319e7" --description "Requires human machine" --force
 gh label create "autonomy:override" --color "d73a4a" --description "Human override for blocked gate" --force
 
@@ -109,22 +111,22 @@ gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large 
 
 ## Step 3: Choose Your Autonomy Mode
 
-Kerrigan v2 uses **2 agent profiles** (`kerrigan` conductor + `cloud` executor). Follow the [startup role policy](../../AGENTS.md#startup-role-policy): explicit selection or delegated assignment wins on either host; otherwise local human-facing sessions default to `kerrigan`, and known cloud execution defaults to `cloud`. Labels describe routing and state, not profile selection:
+Kerrigan v2 uses **2 behavioral profiles** (`kerrigan` conductor + `cloud` executor), independent of host. Follow the [startup role policy](../../AGENTS.md#startup-role-policy): explicit selection or delegated assignment wins on either host; otherwise local human-facing sessions default to `kerrigan`, and known cloud execution defaults to `cloud`. Labels describe routing and state, not profile selection. For the issue adapter:
 
-- Add `agent:go` to an issue → cloud agent picks it up
-- Add `agent:wait` to pause → agent stops
+- Add `agent:go` to mark an issue ready; dispatch requires explicit assignment, not the label alone
+- Add `agent:wait` to mark intentional waiting; coordinate an actual stop with the owner
 - Add `agent:local` when the task needs your machine (device I/O, secrets)
-- Add `autonomy:override` to bypass a blocked gate
+- Use `autonomy:override` only for a human-approved exception where the repository gate supports it
 
-**Configuration**: Edit `playbooks/autonomy-modes.md` if you want to customize behavior.
+**Authority and controls**: See [autonomy modes](../operations/autonomy-modes.md); changing an annotation does not change runtime permissions or stop a process.
 
 ## Step 4: Configure Agent Assignment (Optional)
 
-Agent assignment automation is pre-configured but disabled by default. To enable automatic assignment of issues/PRs based on role labels:
+If using optional repository-specific assignment automation, inspect its actual implementation and configuration before enabling it. Labels alone do not dispatch work, and this guide does not enable automation or authorize settings changes.
 
 ### 1. Edit Assignment Configuration
 
-Open `.github/automation/reviewers.json` and add GitHub usernames or teams:
+For an adapter that supports `.github/automation/reviewers.json`, its configuration may include fields like these; confirm the supported contract rather than assuming this example is active:
 
 ```json
 {
@@ -136,12 +138,12 @@ Open `.github/automation/reviewers.json` and add GitHub usernames or teams:
 
 ### 2. How It Works
 
-When you add the `agent:go` label to an issue:
-- Agents with access to the repo can pick up the work
+When an authorized issue adapter explicitly assigns a briefed issue:
+- The assigned issue agent can execute the accepted slice
 - Work follows the spec-kit lifecycle: specify → plan → tasks → implement
 - See [AGENTS.md](../../AGENTS.md) for full details
 
-**Note**: This is optional. You can manually assign issues without labels.
+**Note**: This is optional. Direct app dispatch requires neither this configuration nor an issue. Issue assignment must respect any configured repository gates.
 
 ## Step 5: Understand the Repository Structure
 
@@ -172,7 +174,7 @@ Before creating your first project, review these key documents:
 1. **`README.md`**: Quick start and philosophy
 2. **`specs/constitution.md`**: Non-negotiable principles
 3. **`playbooks/kickoff.md`**: How to start a project
-4. **`playbooks/autonomy-modes.md`**: How agent control works
+4. **`docs/operations/autonomy-modes.md`**: Session authority and optional issue annotations
 5. **`.github/agents/README.md`**: Overview of agent roles
 
 **Time investment**: ~15-20 minutes for initial reading
@@ -210,21 +212,21 @@ cd my-first-project/
    - Tests pass
    - Documentation is clear
    ```
-5. Add label: `agent:go` (to enable agent work)
+5. Add label: `agent:go` (readiness annotation only; explicit assignment happens at dispatch)
 6. Click **"Submit new issue"**
 
 ### 6.3: Dispatch to a cloud agent
 
-In v2, you don't paste prompts into an assistant manually — you dispatch the issue to the GitHub Copilot cloud agent, which runs against a briefing packet generated from your task.
+For this optional issue walkthrough, dispatch the issue to the GitHub Copilot cloud agent with a briefing packet. For direct app sessions, use the primary session-operations path instead.
 
-The quickest path: chat with **`kerrigan`** (the conductor profile). Ask it to plan and dispatch the issue:
+For the issue adapter, chat with **`kerrigan`** (the conductor profile):
 
 ```
 Goal: implement my-first-project per issue #123.
 Please draft a briefing packet and dispatch to @copilot.
 ```
 
-`kerrigan` will run `/speckit.specify` (and `/speckit.plan` / `/speckit.tasks` as needed), generate `.specify/briefings/<task-id>.md`, attach it to the issue, and assign `@copilot`. The cloud agent (`cloud` profile in `.github/agents/cloud.md`) then implements the task in an ephemeral container and opens a PR.
+`kerrigan` prepares the plan/tasks and briefing, then separately performs and verifies authorized `@copilot` assignment. `/speckit.tasks` generates tasks, not dispatch; `/kerrigan.dispatch` creates briefed issues but does not itself assign Copilot. Issue creation or assignment metadata alone is not proof that the worker started: confirm worker-start and ownership acknowledgment before reporting successful execution dispatch. The assigned executor then implements the accepted slice and opens a PR.
 
 See [`AGENTS.md`](../../AGENTS.md) for the canonical lifecycle and `.github/agents/kerrigan.md` for the conductor's instructions.
 
@@ -252,8 +254,8 @@ These are living artifacts — `plan.md` and `tasks.md` are kept current as work
 Follow the workflow defined in `playbooks/kickoff.md`. In short:
 1. `/speckit.specify` (or `spec-kit-tinyspec` for small work) — `kerrigan` produces `spec.md` + `acceptance-tests.md`.
 2. `/speckit.plan` — `kerrigan` produces `plan.md`.
-3. `/speckit.tasks` — `kerrigan` produces `tasks.md` and dispatches to `cloud` via `/kerrigan.dispatch`.
-4. `cloud` agent (Copilot or Claude Code worktree) implements one task slice end-to-end, opens a PR.
+3. `/speckit.tasks` produces `tasks.md`; dispatch is a separate coordinator action through app sessions or the optional issue adapter.
+4. After verified assignment/start and ownership acknowledgment, the `cloud` executor implements one task slice end-to-end and opens a PR. For the issue adapter, `/kerrigan.dispatch` creates issues; the coordinator separately assigns and verifies `@copilot`.
 5. CI + Copilot review + `kerrigan` resolve / re-dispatch the feedback loop.
 6. Human reviews direction; merge.
 
@@ -273,11 +275,11 @@ CI will automatically:
 - ✅ Validate artifact structure
 - ✅ Check for required sections
 - ✅ Enforce quality bar (max file size)
-- ✅ Verify autonomy gates
+- ✅ Verify repository-specific autonomy gates where configured
 
 If CI fails, check:
 1. **Artifact Validator**: Do all required files exist? Do they have exact heading names?
-2. **Autonomy Gates**: Is the issue labeled correctly?
+2. **Autonomy Gates**: What does this repository actually require? Satisfy the configured contract within existing authority.
 3. **Quality Bar**: Are any files >800 lines? Use `allow:large-file` label if justified.
 
 ## Step 9: Work with Pull Requests
@@ -291,9 +293,9 @@ When an agent wants to merge work:
    Implementation of my-first-project milestone 1.
    ```
 
-2. **CI Runs**: Autonomy gates check for labels
-   - PR must reference an issue with `agent:go`
-   - Or PR itself must have `autonomy:override` label
+2. **CI Runs**: Existing required checks apply to both session and issue-adapter PRs
+   - A repository-specific issue/label merge gate may require the optional issue adapter; inspect the actual contract.
+   - `autonomy:override` is only for a human-approved exception supported by that gate, never a routine bypass.
 
 3. **Human Review**: Review the PR and either:
    - ✅ Approve and merge
@@ -302,7 +304,7 @@ When an agent wants to merge work:
 
 ## Step 10: Pause and Resume Work (Optional)
 
-You can control agent workflow state with `status.json`:
+Record project state in `status.json` where used, and coordinate an actual pause/resume with the existing owner and runtime. The file is not an enforced process-control mechanism:
 
 ### Pause Work
 ```bash
@@ -319,7 +321,7 @@ git commit -m "Pause my-first-project for security review"
 git push origin main
 ```
 
-Agents will check `status.json` before starting work and respect the "blocked" status.
+Agents should read the recorded blocker before starting work. Updating `status.json` does not prove an in-flight worker stopped; confirm actual process/resource release with its owner.
 
 ### Resume Work
 ```bash
@@ -339,7 +341,7 @@ git push origin main
 ## Common Issues and Solutions
 
 ### Issue 1: CI Fails with "Autonomy gate blocked"
-**Solution**: Add `agent:go` label to the linked issue, or `autonomy:override` to the PR.
+**Solution**: Inspect the repository-specific gate and satisfy its issue/label contract through the authorized adapter. Do not infer permission to add `autonomy:override`; it requires human approval.
 
 ### Issue 2: Validator fails with "Missing required section"
 **Solution**: Check that section headings match exactly (case-sensitive):
@@ -354,7 +356,7 @@ See `.specify/templates/spec-template.md` and your project's `spec.md` for the h
 - If truly necessary, add `allow:large-file` label to PR
 
 ### Issue 4: Agent doesn't know what to do next
-**Solution**: Check the briefing packet attached to the issue (see [`.github/skills/briefing-packet/SKILL.md`](../../.github/skills/briefing-packet/SKILL.md)) and the closest [`AGENTS.md`](../../AGENTS.md) for context.
+**Solution**: Check the worker session's briefing/task context (or issue body for the optional adapter), [briefing packet](../../.github/skills/briefing-packet/SKILL.md), and closest [`AGENTS.md`](../../AGENTS.md). Route routine questions to the coordinator.
 
 ## Next Steps
 
@@ -378,10 +380,10 @@ Now that you've completed your first project:
 | Need | Command/Action |
 |------|----------------|
 | Start new project | `cp -r specs/projects/_template/ specs/projects/<name>/` |
-| Enable agent work | Add `agent:go` label to issue |
-| Pause project | Create `status.json` with `"status": "blocked"` |
+| Dispatch agent work | Brief an explicit executor session; optional issue adapter uses explicit assignment |
+| Pause project | Coordinate runtime stop with owner; record blocker and confirm process/resource release |
 | Validate locally | `python tools/validators/check_artifacts.py` |
 | Check CI status | View GitHub Actions tab |
-| Override gates | Add `autonomy:override` label to PR |
+| Override gates | Obtain human approval for a supported repository-specific exception |
 
 Happy building with Kerrigan! 🚀

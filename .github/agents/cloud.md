@@ -38,6 +38,8 @@ A task slice is a cohesive accepted outcome, not every tiny implementation subta
 
 Before implementation, require an actionable task context: the accepted outcome, scope boundaries, acceptance criteria, and verification requirements. Read the supplied briefing when present, otherwise establish those details from the assigned issue/chat and referenced artifacts. If required context is missing or conflicting, stop and report the specific gap to the coordinator, or to the human when there is no coordinator; selecting a profile alone is not a task assignment.
 
+Follow [session operations](../../playbooks/session-operations.md): direct app sessions are primary and issues are an optional adapter. Before edits, acknowledge the coordinator (or human for a standalone assignment), implementation owner, role/host, actual base SHA/dependency, resources, and stop condition from the briefing or established task context. Worktrees do not isolate devices/processes; advisory reservation expiry is not proof of resource release. Do not take over another owner's work without an acknowledged transfer.
+
 ## What you do
 
 1. **Read your task context first.** Use the supplied briefing packet (`.specify/briefings/<task-id>.md`) when present, otherwise the actionable issue/chat assignment. Then read `AGENTS.md`, closest nested `AGENTS.md`, and `plan.md` when present. Respect the established scope; don't re-derive it from unrelated repository content.
@@ -75,7 +77,7 @@ Run in this order, and do not open a PR until all required checks are green:
 - Parallel reads where helpful; sequential writes always.
 - Run tests locally (in your container) before pushing.
 - If your runtime provides worktree isolation (Claude Code `isolation: worktree`, Copilot cloud container), use it — don't fight it.
-- For non-Claude-Code local runtimes, use `scripts/worktree.ps1` / `scripts/worktree.sh` — see `.github/skills/local-parallel-worktrees/SKILL.md`.
+- For app-managed worktrees, use the provided isolated checkout. For other local runtimes without managed isolation, use `scripts/worktree.ps1` / `scripts/worktree.sh` — see `.github/skills/local-parallel-worktrees/SKILL.md`.
 
 ## PR body shape (when no pr-bridge extension)
 
@@ -148,6 +150,8 @@ Default 40 turns / 25 premium requests. At 80%, summarize progress and continue 
 
 ## Copilot code review
 
-After you open the PR, GitHub Copilot auto-review will post review comments. The `kerrigan` conductor coordinates review response and assigns implementation fixes back to the executor on the same branch. Report the PR and verification evidence to the coordinator and stop at your assigned delivery boundary; resume only for an explicit coordinator or reviewer assignment. If there is no coordinator, hand the PR and outstanding review work to the human without claiming a conductor received it.
+After you open the PR, the `kerrigan` conductor coordinates review response and assigns implementation fixes back to the executor on the same branch. Report the PR and verification evidence to the coordinator and stop at your assigned delivery boundary; resume only for an explicit coordinator or reviewer assignment. If there is no coordinator, hand the PR and outstanding review work to the human without claiming a conductor received it. Check actual review evidence; do not start a competing review driver or assume a configured reviewer has completed review.
 
-Review chain: cloud self-test → CI → Copilot review → kerrigan coordinates executor fixes → human reviews direction.
+Send completions, blockers, and direction changes, not repeated status pings. Reconcile side effects before retries, and living decisions plus actual process/resource release on completion, per session operations.
+
+Review chain: executor self-test → CI → actual Copilot review → existing implementation owner addresses feedback → human reviews direction. Real correctness/AC blockers and required attestation remain gates.

@@ -3,6 +3,8 @@
 ## Purpose
 This guide provides step-by-step instructions for setting up the Kerrigan agent swarm system in a new repository. Kerrigan is designed to be replicated into different team repositories and organizational settings, enabling effective agent-driven development workflows. This guide ensures someone unfamiliar with Kerrigan can establish the system using only this documentation.
 
+For the current operating contract, follow [session operations](session-operations.md): direct app sessions are primary; issues are an optional adapter. Treat configuration examples as inputs to inspect, not permission to mutate another repository. Copy the current checked-in profiles, validators, and `verify.yml` through the authorized bootstrap rather than recreating retired v1 gates. Confirm worker-start and ownership acknowledgment; setup or issue/session metadata is not execution evidence.
+
 ## Prerequisites
 
 ### Required Tools
@@ -24,7 +26,7 @@ This guide provides step-by-step instructions for setting up the Kerrigan agent 
 1. Create a new GitHub repository for your project
 2. Initialize local repository structure (see [Repository Structure](#repository-structure))
 3. Customize artifacts for your team's needs
-4. Set up GitHub labels (see [GitHub Labels Setup](#github-labels-setup))
+4. Set up annotations only if using the optional issue adapter (see [GitHub Labels Setup](#github-labels-setup))
 5. Configure CI workflows
 6. Validate setup with bootstrap script
 
@@ -35,7 +37,7 @@ This guide provides step-by-step instructions for setting up the Kerrigan agent 
 1. Clone the existing repository: `git clone <repo-url>`
 2. Add Kerrigan structure alongside existing code
 3. Configure validators to accommodate existing code structure
-4. Set up GitHub labels and workflows
+4. Preserve required workflows; configure optional issue-adapter annotations if used
 5. Run bootstrap script: `bash tools/bootstrap.sh`
 6. Gradually migrate project artifacts
 
@@ -52,7 +54,7 @@ This guide provides step-by-step instructions for setting up the Kerrigan agent 
 
 ## Repository Structure
 
-Kerrigan follows this directory layout:
+The following historical layout sketch is retained for orientation, not as a current file manifest or instruction to recreate every listed workflow. Use [AGENTS.md](../AGENTS.md#where-things-live), the checked-in tree, and the [bootstrap guide](v2-bootstrap.md) for current paths. In particular, old `auto-triage-on-assign.yml`, role labels, and autonomy-control workflows are not prerequisites.
 
 ```
 kerrigan/
@@ -180,13 +182,13 @@ touch specs/constitution.md
    - check_quality_bar.py - Enforces quality standards
 
 5. **CI Workflows** (.github/workflows/*.yml)
-   - ci.yml - Main validation workflow
-   - agent-gates.yml - Autonomy control
+   - verify.yml - Existing validators, tests and smoke checks, including dependent PR targets and merge-group support
+   - Preserve other actually configured repository gates; do not recreate retired `agent-gates.yml` from historical instructions
 
 6. **Playbooks** (playbooks/*.md)
    - kickoff.md - Project startup guide
-   - autonomy-modes.md - Control mechanisms
-   - handoffs.md - Agent coordination
+   - session-operations.md - Dispatch, owner acknowledgment, delivery states and accountable handoffs
+   - docs/operations/autonomy-modes.md - Authority and optional issue annotations
 
 7. **Documentation** (docs/*.md)
    - setup.md - Setup walkthrough
@@ -195,50 +197,17 @@ touch specs/constitution.md
 
 ### Step 4: GitHub Labels Setup
 
-Create these labels in your GitHub repository (Settings → Labels):
+Direct app sessions need no issue or label. For the optional issue adapter, use the four annotations in [GitHub labels](../docs/operations/github-labels.md). Retired v1 `agent:sprint` and `role:*` labels are migration history, not current role selection or permission controls.
 
-**Autonomy Control**:
-```
-agent:go          #0e8a16  # Green - On-demand approval
-agent:sprint      #fbca04  # Yellow - Sprint mode approval
-autonomy:override #d73a4a  # Red - Human override
-```
-
-**Role Assignment**:
-```
-role:spec         #d4c5f9  # Purple - Specification work
-role:architect    #c5def5  # Blue - Architecture design
-role:swe          #bfdadc  # Teal - Software engineering
-role:testing      #c2e0c6  # Light green - Testing work
-role:debugging    #fef2c0  # Light yellow - Debugging work
-role:deployment   #f9d0c4  # Orange - Deployment work
-role:security     #e99695  # Light red - Security review
-```
-
-**Special Controls**:
-```
-allow:large-file  #f9d0c4  # Orange - Bypass file size checks
-```
-
-**Using GitHub CLI**:
 ```bash
-# Autonomy control
-gh label create "agent:go" --color "0e8a16" --description "On-demand approval for agent work"
-gh label create "agent:sprint" --color "fbca04" --description "Sprint-mode approval"
-gh label create "autonomy:override" --color "d73a4a" --description "Human override"
-
-# Role assignment
-gh label create "role:spec" --color "d4c5f9" --description "Specification work"
-gh label create "role:architect" --color "c5def5" --description "Architecture design"
-gh label create "role:swe" --color "bfdadc" --description "Software engineering"
-gh label create "role:testing" --color "c2e0c6" --description "Testing work"
-gh label create "role:debugging" --color "fef2c0" --description "Debugging work"
-gh label create "role:deployment" --color "f9d0c4" --description "Deployment work"
-gh label create "role:security" --color "e99695" --description "Security review"
-
-# Special controls
-gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large file checks"
+# Optional issue-adapter annotations, when authorized
+gh label create "agent:go" --color "0e8a16" --description "Issue ready for explicit assignment"
+gh label create "agent:wait" --color "fbca04" --description "Issue intentionally waiting; not a runtime stop"
+gh label create "agent:local" --color "5319e7" --description "Requires local capability"
+gh label create "autonomy:override" --color "d73a4a" --description "Human-approved exception where supported"
 ```
+
+Labels record intent; they do not start/stop app workers or grant permissions. Preserve any actual repository-specific merge gate and require human approval for a supported override.
 
 ### Step 5: Configure CI
 
@@ -251,7 +220,7 @@ gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large 
    - Settings → Branches → Add rule
    - Branch name pattern: `main`
    - Enable "Require status checks to pass before merging"
-   - Select "validate" check
+   - Select the checks declared by the repository's actual protection contract, not a name copied from a historical example
    - Enable "Require branches to be up to date before merging"
 
 3. **Validate CI**:
@@ -278,11 +247,11 @@ python tools/validators/check_quality_bar.py
 
 ### Step 7: Validate Setup
 
-Create a test issue to validate the system:
+Choose one authorized, low-risk pilot outcome:
 
-1. **Create issue** with label `agent:go`
-2. **Chat with `kerrigan`** in VS Code / Claude Code / Copilot CLI to dispatch the issue (`kerrigan` generates a briefing packet and assigns `@copilot`).
-3. **Cloud agent** implements a test project under `specs/projects/test-project/` and opens a PR.
+1. **Chat with `kerrigan`** in an app session; prepare the scope, AC/tests, owner, base, resources, and stop condition.
+2. **Dispatch separately from planning**: `/speckit.tasks` generates tasks, not dispatch. Use an explicit app executor; for the optional issue adapter, `/kerrigan.dispatch` creates issues but does not itself assign Copilot. The coordinator separately performs and verifies authorized assignment.
+3. **Confirm worker-start and ownership acknowledgment** before claiming success. The executor then implements the accepted pilot and opens one PR.
 4. **Verify**:
    - `verify` workflow passes
    - All required artifacts present
@@ -344,7 +313,7 @@ These files are absolutely required for Kerrigan to function:
 - Optionally validates status.json format
 
 #### .github/workflows/ci.yml
-**Purpose**: Runs validators on every PR
+**Historical minimal example, not the current installation contract.** Preserve this illustration for older repositories; do not use it to replace the checked-in `verify.yml`, dependencies, required jobs, or merge-group support. The current verify workflow runs validators, smoke and tests for main and dependent PR targets.
 
 **Minimal content**:
 ```yaml
@@ -422,39 +391,38 @@ python -m unittest discover -s tests -p "test_*.py" -v
 # Check git status
 git status
 
-# Verify CI configuration
-cat .github/workflows/ci.yml
+# Verify current CI configuration
+cat .github/workflows/verify.yml
 ```
 
 ### Manual Validation
 
-1. **Create test issue**:
-   - Title: "Test: Validate Kerrigan recovery"
-   - Add label: `agent:go`
+1. **Define an authorized pilot outcome**:
+   - Brief a direct app worker, or optionally create an issue annotated `agent:go` for explicit assignment.
 
 2. **Dispatch via `kerrigan`**:
    - Chat with the `kerrigan` profile in VS Code / Claude Code / Copilot CLI.
-   - Ask it to plan and dispatch the issue (`kerrigan` runs spec-kit, generates a briefing packet, assigns `@copilot`).
-   - Cloud agent creates a test project in `specs/projects/test-recovery/` and opens a PR.
+   - Task generation, issue creation, assignment and worker-start acknowledgment are separate evidence steps. The issue adapter requires separately verified `@copilot` assignment.
+   - Do not infer successful cloud startup/control from metadata alone. The acknowledged executor performs only the pilot slice and opens one PR.
 
 3. **Verify agent output**:
    - Check that all required files are created
    - Verify `verify` workflow passes on the PR
    - Review artifacts meet quality standards
 
-4. **Clean up**:
-   - Close test issue
-   - Optionally delete test project
+4. **Close out within authority**:
+   - Preserve PRs, commits, unresolved work and handoff evidence; confirm resource release and automation stop.
+   - Close an optional test issue or delete a pilot artifact only when explicitly authorized, not merely because the session is idle.
 
 ### Success Criteria
 
 Kerrigan is fully recovered when:
 - [ ] All critical files present and valid
-- [ ] GitHub labels configured correctly
+- [ ] Optional issue-adapter annotations configured if used
 - [ ] CI workflows active and passing
 - [ ] Validators run successfully
 - [ ] Test suite passes
-- [ ] Agent can complete test issue successfully
+- [ ] Worker started, acknowledged ownership and completed the accepted pilot with evidence
 - [ ] Documentation is accessible and accurate
 
 ## Version Control Best Practices
@@ -504,13 +472,13 @@ diff -r specs/projects/_template/ specs/projects/<project-name>/
 
 **Solution**:
 1. Verify Actions enabled: Settings → Actions → General
-2. Check workflow file syntax: `.github/workflows/ci.yml`
+2. Check actual workflow syntax and PR-target filters: `.github/workflows/verify.yml`
 3. Review Actions tab for errors
-4. Ensure Python version matches CI: `python-version: "3.11"`
+4. Ensure Python version and dependencies match the checked-in workflow
 
 ### Issue: Labels missing or misconfigured
 
-**Symptoms**: Autonomy gates fail, agents can't be assigned
+**Symptoms**: The optional issue adapter's annotations or a configured repository-specific gate do not match expectations; app-session dispatch does not require labels.
 
 **Solution**:
 ```bash
@@ -518,7 +486,7 @@ diff -r specs/projects/_template/ specs/projects/<project-name>/
 gh label list
 
 # Recreate missing labels (see Step 4)
-gh label create "agent:go" --color "0e8a16" --description "On-demand approval"
+gh label create "agent:go" --color "0e8a16" --description "Issue ready for explicit assignment"
 ```
 
 ### Issue: Agent prompts not working
@@ -555,6 +523,5 @@ By following this guide, teams unfamiliar with Kerrigan can establish the agent 
 
 ---
 
-**Last Updated**: 2026-01-15
-**Tested**: Yes - validated in clean environment
+**Historical baseline**: 2026-01-15. The original guide recorded clean-environment validation; this documentation update does not re-attest current cloud startup/control or satellite execution.
 **Maintained by**: Kerrigan Core Team

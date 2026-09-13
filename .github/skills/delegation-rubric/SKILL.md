@@ -3,6 +3,8 @@
 **When:** the `kerrigan` profile decides whether a task runs `cloud` or `local`.
 **Why:** routing must be auditable. Every routed task cites the rule it matched.
 
+Routing chooses a **host**, not a behavioral role or dispatch transport. Direct app sessions are primary; issues remain an optional adapter. Explicit `cloud` executor workers stay executors on local worktrees as well as cloud hosts; preserve the [startup role policy](../../../AGENTS.md#startup-role-policy). Follow [session operations](../../../playbooks/session-operations.md) for ownership, resource checks, and triage; no new routing algorithm or scheduler is implied.
+
 ## Default: cloud
 
 Unless a rule below fires, the task runs in the cloud (Copilot cloud agent or Claude Code team session in an ephemeral container).
@@ -71,6 +73,8 @@ Long builds, large test suites, and heavy compute run in cloud Actions. Faster i
 
 ### R-cloud.multi-agent
 **Parallel local execution:** when running ≥2 agents on the same machine, each agent MUST work in its own git worktree (see `.github/skills/local-parallel-worktrees/SKILL.md`). Without worktree isolation, parallel local runs collide on the working tree and are forbidden — route to cloud instead.
+
+Worktrees are not device/process isolation. In addition to file-conflict prediction, inspect GPU, CPU/RAM, ports, caches and services; serialize exclusive use. Reservations are advisory, not enforced locks. Require actual process exit/resource release, not lease expiry, before reuse. Bound the initial worker pilot and adapt to observed capacity under existing budgets; this is not a service cap.
 
 ## Citation format
 

@@ -1,8 +1,10 @@
 # Skill: briefing-packet
 
-**When:** the `kerrigan` profile dispatches a `cloud` task.
-**Output:** `.specify/briefings/<task-id>.md` attached to the GH issue body.
-**Why:** give the cloud agent full context without re-deriving from the whole repo.
+**When:** the `kerrigan` profile dispatches a `cloud` executor task on either host.
+**Output:** `.specify/briefings/<task-id>.md` delivered to the app worker session; optionally attached to a GH issue body.
+**Why:** give the executor full context without re-deriving from the whole repo.
+
+Follow [session operations](../../../playbooks/session-operations.md). Direct app sessions are primary; issues are an optional adapter. Before live dispatch, append the guide's **Operations** addendum (or link equivalent task fields): coordinator, implementation owner and acknowledgment, role/host, base SHA/dependency, resources, stop condition, and next check. The generator and older examples below are unchanged; they do not populate or enforce this operational state.
 
 ## Contents
 
