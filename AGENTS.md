@@ -28,7 +28,7 @@ Talk to an agent in natural language. An explicit profile selection or delegated
 | Plan work, dispatch tasks, make decisions, shape the harness | `kerrigan` | VS Code chat · Claude Code · Copilot CLI · github.com (mobile) |
 | Implement one task slice, open one PR | `cloud` | GitHub Copilot cloud agent (default for `@copilot`-assigned issues) · Claude Code worktree session |
 
-`kerrigan` is the only interactive profile — the single agent the human talks to. It handles both project work (planning and dispatching) and harness work (maintaining `.github/`, validators, workflows, specs). `cloud` is the executor profile that runs in ephemeral environments to implement one slice at a time.
+`kerrigan` is the only interactive profile — the single agent the human talks to. It handles both project work (planning and dispatching) and harness work (maintaining `.github/`, validators, workflows, specs). `cloud` is the executor profile that runs in an isolated local worktree or cloud environment to implement one slice at a time; its role is independent of host.
 
 Agent profiles: [`.github/agents/`](./.github/agents/). GitHub Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) reads them directly. Claude Code reads from `.claude/agents/` — see [`.claude/agents/README.md`](./.claude/agents/README.md) for the optional mirror setup.
 

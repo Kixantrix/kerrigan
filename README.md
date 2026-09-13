@@ -68,7 +68,7 @@ Human goal → kerrigan → spec-kit lifecycle → worker session → PR → rev
 - **[Kickoff](playbooks/kickoff.md)** — Start a new project
 - **[Project Lifecycle](playbooks/project-lifecycle.md)** — Active → completed → archived
 - **[2D & 3D Asset Design](playbooks/asset-design.md)** — Cards, CAD/CNC, voxel game assets
-- **[Autonomy Modes](docs/operations/autonomy-modes.md)** — Label-based agent control
+- **[Autonomy Modes](docs/operations/autonomy-modes.md)** — Session authority and optional issue-adapter annotations
 - **[PR Review](playbooks/pr-review.md)** — Review guidelines
 - **[Replication Guide](playbooks/replication-guide.md)** — Set up Kerrigan in new repos
 

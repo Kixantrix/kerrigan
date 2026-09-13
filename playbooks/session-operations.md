@@ -63,10 +63,26 @@ expected_next_action: "inspect failed check and route to implementation owner"
 last_meaningful_progress: "UTC timestamp + evidence, or unknown"
 blocker: "observed blocker, or none"
 next_check: "event or UTC time + responsible coordinator"
-dedupe_key: "repository + item + current head/event + finding"
+dedupe_key: "repository + item + stable finding identity"
+observed_head: "full current SHA, or not applicable"
+observed_event: "latest inspected event identity/time"
+finding_state: "open, resolved, or reopened"
+occurrence: "first observation or confirmed reopening identity/time"
+last_notification:
+  at: "UTC timestamp, or never"
+  owner: "recipient identity, or none"
+  finding_state: "state notified, or none"
+  occurrence: "occurrence notified, or none"
+  evidence: "substantive evidence fingerprint notified, or none"
 ```
 
-Route a new actionable finding to its existing owner with the evidence and next action; do not duplicate implementation. If ownerless, the coordinator assigns an owner and obtains acknowledgment. If an owner is unavailable, use the explicit transfer protocol. Retain the dedupe key and last notification in the existing record: the same current head/event/finding must not repeatedly notify or relaunch work. A new head alone is not a new problem; re-check whether the finding still applies. Notify again only on materially changed evidence, an agreed overdue escalation, or resolution needing handoff.
+Route a new actionable finding to its existing owner with the evidence and next action; do not duplicate implementation. If ownerless, the coordinator assigns an owner and obtains acknowledgment. If an owner is unavailable, use the explicit transfer protocol.
+
+Persist the stable dedupe key, observed head/event, finding state/occurrence, and `last_notification` in the existing task/briefing or retained triage handoff that each new-session run reads. Compare against the notified state, owner, occurrence, and substantive evidence fingerprint, not just the latest head. Update notification state only after confirmed delivery; reconcile unknown delivery before retrying.
+
+The stable finding identity excludes head/event. The same finding in the same occurrence/state must not repeatedly notify or relaunch work. A new head alone is not a new problem; update freshness evidence and re-check whether the finding still applies. Notify again only on materially changed evidence, an agreed overdue escalation, an acknowledged owner transfer needing handoff, or a meaningful state transition. Record resolution even when no outward notification is needed. A confirmed reopened/resurfaced finding starts a new occurrence and can notify again; dedupe is not permanent suppression. Do not create a new occurrence just because a push arrived.
+
+Notification dedupe is distinct from side-effect idempotency. Before any mutation or retry, re-read the current head/event and reconcile the specific operation's existing effects; never act on stale evidence just because the notification key is stable. These are documentation contracts, not enforced runtime deduplication.
 
 **Idle alone never permits archive or close.** Preserve persistent work (including unpushed commits/unsaved drafts), automations, open PRs, unresolved issues, and active lifecycle ownership. Closing/archiving requires explicit authority plus inspection of that state and a completed/acknowledged handoff; unresolved actionable items stay owned. Triage reports exceptions, not a cleanup quota.
 
@@ -88,7 +104,7 @@ lifecycle_owner: "one coordinator session"
 mechanism: "new-session automation"
 max_work_per_run: "inspect at most 10 items for at most 5 minutes; no implementation"
 overlap: "check active owner/run; defer if already active or uncertain"
-idempotency: "reconcile current head/event/finding and prior notification before acting"
+idempotency: "reconcile current head/event and operation effects; consult stable finding/notification state"
 no_op: "no new actionable finding means silence"
 expiry: "explicit UTC end time or bounded run count required before enabling"
 stop: "outcome complete, ownership transferred, authorization expired, or unresolved access/budget block"

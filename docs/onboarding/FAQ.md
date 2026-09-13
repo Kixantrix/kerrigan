@@ -34,7 +34,7 @@ Think of it as a "project operating system" that coordinates AI agents while kee
 | **Agents** | Single AI assistant | Multiple specialized agents (Spec, Architect, SWE, Testing, Deploy, etc.) |
 | **Workflow** | Developer-driven | Agent-driven with human checkpoints |
 | **Artifacts** | Code only | Specs, architecture, plans, tests, runbooks, code |
-| **Control** | Always on | Label-based autonomy gates |
+| **Control** | Runtime permissions and assignment | Accepted scope/authority; optional issue annotations and repository-specific gates |
 | **Quality** | Suggestions | Enforced via CI validators |
 
 **In short**: Copilot helps you write code faster. Kerrigan helps agents deliver complete projects independently.
@@ -126,12 +126,12 @@ Give the coordinator an accepted outcome and explicit authority boundary; it bri
 
 | Label | Purpose |
 |-------|---------|
-| `agent:go` | Agent has autonomy — proceed |
-| `agent:wait` | Blocked on human — stop |
+| `agent:go` | Issue ready for explicit dispatch |
+| `agent:wait` | Issue intentionally waiting; not a runtime stop |
 | `agent:local` | Requires human's machine |
 | `autonomy:override` | Human override for a blocked gate |
 
-See [playbooks/autonomy-modes.md](../operations/autonomy-modes.md) for detailed configuration.
+See [autonomy modes](../operations/autonomy-modes.md) for session authority and the optional issue adapter.
 
 ### What if I need to pause agent work?
 
@@ -192,7 +192,7 @@ How this works depends on your setup:
 - **Manual workflow**: You copy agent prompts to your AI tool, which edits files locally, then you commit and push
 - **Automated workflow**: An orchestration tool (like GitHub Copilot Workspace) has repository access and runs agents directly
 
-Kerrigan supports both approaches. The default is manual workflow, which gives maximum human control.
+Kerrigan supports both approaches. Direct app sessions are the primary dispatch surface; the coordinator advances the accepted scope, while the human retains meaningful direction and authority decisions.
 
 ## Quality and Validation
 
@@ -208,9 +208,9 @@ Kerrigan supports both approaches. The default is manual workflow, which gives m
 - Files 400-800 LOC: Warning (still passes CI)
 - Files >800 LOC: Fails CI (unless `allow:large-file` label present)
 
-**Autonomy Gates** (always run):
-- PRs must reference issues with autonomy labels
-- Or PRs must have `autonomy:override` label
+**Repository-specific autonomy gates** (where configured):
+- Follow the actual repository's issue/label merge contract; direct session dispatch itself does not require an issue.
+- Use `autonomy:override` only for an explicitly human-approved exception supported by that gate.
 
 **Custom Checks** (optional):
 - Add your own validators in `tools/validators/`
@@ -225,7 +225,7 @@ Kerrigan supports both approaches. The default is manual workflow, which gives m
 **Step 2: Fix the issue**
 - Artifact errors: Add missing files or fix section names
 - Quality bar: Refactor large files or add `allow:large-file` label
-- Autonomy gates: Add required label to issue or PR
+- Autonomy gates: Inspect the configured contract and satisfy it within existing authority; do not add an override without human approval.
 
 **Step 3: Push again**
 - CI reruns automatically on every push
@@ -255,7 +255,7 @@ Yes! Validators are Python scripts in `tools/validators/`:
 
 ### How do I control when agents work?
 
-v2 uses four GitHub labels as annotations (none are auto-enforced — the functional gate for cloud execution is `@copilot` assignment on the issue):
+Direct app work follows its accepted briefing and owner, not labels. The optional issue adapter uses four GitHub labels as annotations; `@copilot` assignment dispatches that issue agent, not app sessions:
 
 - **`agent:go`** — ready to dispatch (or has been dispatched). `kerrigan` looks here for triaged work.
 - **`agent:wait`** — intentionally undispatched: waiting on a dependency, a wave, or human input.
@@ -264,11 +264,11 @@ v2 uses four GitHub labels as annotations (none are auto-enforced — the functi
 
 The `capture` label (paired with `agent:wait`) marks ideas dropped in via the mobile capture issue template; `kerrigan` triages those at the start of a desktop session.
 
-If you want stricter control, simply don't assign `@copilot` until you're ready — the issue stays inert. See [`AGENTS.md`](../../AGENTS.md#labels-v2) for the canonical label spec.
+For the optional issue adapter, do not assign `@copilot` until dispatch is authorized. This does not pause already-running work. See [`AGENTS.md`](../../AGENTS.md#labels-v2) for the canonical label spec.
 
 ### How do I pause an in-flight task?
 
-Add `agent:wait` to the issue and remove `@copilot` as the assignee. To resume, restore the assignment.
+Contact the existing owner/coordinator and use the owning runtime's supported stop mechanism; confirm process/resource release. For the optional issue adapter, `agent:wait` records the pause and removing assignment avoids further issue dispatch, but neither proves a running worker stopped. Resume through the owner with current scope and explicit runtime action, not by changing a label alone.
 
 ### How do I know what phase my project is in?
 

@@ -21,6 +21,7 @@ ENTRYPOINTS = [
     "playbooks/kickoff.md",
     "docs/onboarding/setup.md",
     "docs/onboarding/FAQ.md",
+    "docs/operations/autonomy-modes.md",
 ]
 
 
@@ -60,7 +61,7 @@ def test_guide_local_links_and_anchors_resolve():
             assert anchor in [heading.lower().replace(" ", "-") for heading in headings]
 
 
-@pytest.mark.parametrize("relative", ENTRYPOINTS[:8])
+@pytest.mark.parametrize("relative", ENTRYPOINTS)
 def test_primary_guidance_does_not_require_issue_dispatch(relative):
     text = (ROOT / relative).read_text(encoding="utf-8")
     obsolete = [
@@ -72,6 +73,12 @@ def test_primary_guidance_does_not_require_issue_dispatch(relative):
         r"A typical flow:.*dispatches via `/kerrigan\.dispatch`",
         r"Each cloud task: one issue",
         r"second round as advisory-by-default",
+        r"linked issue must carry `agent:go`",
+        r"Agent has autonomy [—-] proceed",
+        r"Blocked on human [—-] stop",
+        r"agent:go[^\n]*(?:to enable agent work|cloud agent picks it up)",
+        r"agent:wait[^\n]*→ agent stops",
+        r"\| Enable agent work \| Add `agent:go`",
     ]
     for pattern in obsolete:
         assert not re.search(pattern, text), f"{relative} reintroduced: {pattern}"
@@ -123,7 +130,7 @@ def test_dispatch_and_addendum_cover_closed_scope_and_delivery():
             "checks", "reviews", "decisions",
             "not merely an old timestamp or an idle session",
             "do not duplicate implementation", "explicit transfer protocol",
-            "same current head/event/finding must not repeatedly notify",
+            "same finding in the same occurrence/state must not repeatedly notify",
             "A new head alone is not a new problem",
             "Idle alone never permits archive or close",
             "unpushed commits/unsaved drafts", "automations", "open PRs",
@@ -165,6 +172,8 @@ def test_operational_safeguards(heading, phrases):
         ("Accountable triage", {
             "item", "owner", "expected_next_action", "last_meaningful_progress",
             "blocker", "next_check", "dedupe_key",
+            "observed_head", "observed_event", "finding_state", "occurrence",
+            "last_notification",
         }),
         ("Choose one automation lifecycle owner", {
             "scope", "lifecycle_owner", "mechanism", "max_work_per_run",
@@ -176,8 +185,40 @@ def test_record_examples_are_complete_yaml_without_new_database(heading, keys):
     example = re.search(r"```yaml\n(.*?)```", section(heading), re.S).group(1)
     record = yaml.safe_load(example)
     assert set(record) == keys
-    assert all(isinstance(value, str) and value.strip() for value in record.values())
+    scalar_values = [value for key, value in record.items() if key != "last_notification"]
+    assert all(isinstance(value, str) and value.strip() for value in scalar_values)
+    if heading == "Accountable triage":
+        assert record["dedupe_key"] == "repository + item + stable finding identity"
+        notification = record["last_notification"]
+        assert set(notification) == {"at", "owner", "finding_state", "occurrence", "evidence"}
+        assert all(isinstance(value, str) and value.strip() for value in notification.values())
     assert "no mandatory tracking database" in TEXT
+
+
+def test_triage_separates_stable_identity_freshness_and_delivery_state():
+    triage = section("Accountable triage")
+    for phrase in [
+        "stable finding identity excludes head/event",
+        "existing task/briefing or retained triage handoff that each new-session run reads",
+        "substantive evidence fingerprint, not just the latest head",
+        "Update notification state only after confirmed delivery",
+        "reconcile unknown delivery before retrying",
+        "Record resolution even when no outward notification is needed",
+        "confirmed reopened/resurfaced finding starts a new occurrence",
+        "Do not create a new occurrence just because a push arrived",
+        "Notification dedupe is distinct from side-effect idempotency",
+        "re-read the current head/event",
+        "never act on stale evidence",
+        "not enforced runtime deduplication",
+    ]:
+        assert phrase in triage
+
+
+def test_root_executor_summary_covers_both_hosts():
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    summary = agents.split("### Startup role policy", 1)[0]
+    assert "isolated local worktree or cloud environment" in summary
+    assert "its role is independent of host" in summary
 
 
 def test_briefing_and_routing_preserve_legacy_inputs_and_role_boundary():
