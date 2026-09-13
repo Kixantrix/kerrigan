@@ -4,6 +4,11 @@ This packet is the durable coordination point. Read [findings](README.md),
 [plan](plan.md) and [tasks](tasks.md) before investigating. It proposes a
 migration; it does not replace the current agent instructions or verification.
 
+**Introducing PR and coordination history:**
+[Kerrigan #428](https://github.com/Kixantrix/kerrigan/pull/428).
+Use its current head while open; after merge, read the default-branch packet
+and any follow-up PRs linked from its discussion or [tasks](tasks.md).
+
 ## Continuation prompt
 
 > Act as Kerrigan. Continue the framework-effectiveness audit from this packet
@@ -48,7 +53,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F18, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F19, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.

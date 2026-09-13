@@ -77,6 +77,7 @@ same-session wakeups or automations on another device.
 | F16 | Two explicit `cloud` custom-agent pilot starts failed with `mcp-servers: Expected object, received array`; both repository profiles contain `mcp-servers: []`, while the official schema requires an object [S2] | Fix profile loading before default-role migration; add schema regression coverage and verify real runtime loading |
 | F17 | Owner requests consistent GitHub triage without losing session accountability | Recurring triage detects and routes exceptions to owners; it does not silently take over work or clean up merely idle sessions |
 | F18 | Owner rejects PR proliferation as another impediment and prefers balanced, somewhat larger changes | Optimize end-to-end delivery/review cost; combine tightly coupled prerequisites, behavior, tests and docs rather than enforce numeric size targets |
+| F19 | A pilot's installed CLI ran an extra validator from another installation; checked-in CLI isolation restored the actual 13-validator gate, and explicit shell/interpreter selection resolved smoke invocation | Bind verification to the checked-in tool revision and supported environment before blaming code or weakening a gate |
 
 ### Counterevidence that changes the recommendation
 

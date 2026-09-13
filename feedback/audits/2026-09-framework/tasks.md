@@ -7,6 +7,10 @@ coupled activities when that lowers total review/CI/coordination cost without
 mixing independent outcomes. Research sessions do not change satellite code.
 Dependencies below are logical, not a mandate to stack.
 
+Published delivery: [P4a verification guidance, #429](https://github.com/Kixantrix/kerrigan/pull/429).
+Publication is not merge or proof of CI savings; review/CI and later shadow
+measurement remain separate completion states.
+
 | ID | Slice and boundary | Depends on | Completion evidence |
 |---|---|---|---|
 | A0 | Publish sanitized audit, plan and cross-device handoff under `feedback/`; link intake | None | Sources/gaps explicit, no private evidence, docs checks, non-empty PR |
