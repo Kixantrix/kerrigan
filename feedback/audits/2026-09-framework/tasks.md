@@ -35,7 +35,7 @@ measurement remain separate completion states.
 | P6 | Define accountable exception-only GitHub triage; pilot recurrence after manual read-only pass and permission/runtime check | P3 | Existing work retains owner; no duplicate implementation or repeated nudges; overlap, no-op, transfer, completion and stop behavior demonstrated |
 | P7 | Reconcile feedback retention and publish selective versioned adoption guidance | P1-P4 | Intake/disposition docs aligned in this audit PR; a satellite adoption/rollback remains to demonstrate without overwriting local policy |
 | P8 | Repair advisory budget telemetry within existing Actions policy; make partial/unavailable data explicit | Cloud ownership/access reconciliation | Allowed action dependencies, own-comment update, no false within-budget claim from unknown data; currently blocked by cloud SDK reconnect support |
-| P9 | Prove domain-scoped cross-device messaging/intake before selecting or implementing transport | Authorized participating devices and supported receiver | Correlated receipt/ack across distinct hosts; offline/replay handling; no remote control authority, private data exposure or inferred delivery from a queue |
+| P9 | Prove domain-scoped cross-device messaging/intake before selecting or implementing transport | Authorized participating devices and supported receiver | Active-session extension intake passed locally; idle and distinct-host receipt/ack plus offline/replay remain to verify; no remote control authority or private data exposure |
 
 The initial deliveries are this audit, one P0/P1 startup package, and independent
 P4a testing guidance. The P2/P3/P6 session-operations package is executing above

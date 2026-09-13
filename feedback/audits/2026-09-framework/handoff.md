@@ -57,7 +57,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F25, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F26, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -102,3 +102,7 @@ established. The reconciliation was handled in a normal user turn; any late
 delivery is a duplicate, not authority for another review loop. Do not add a
 replacement timer to hide the delivery gap. See
 [remote coordination](remote-coordination.md) for the receiving-adapter questions.
+The documented extension intake path has since passed one active-session probe
+on this device, with actual agent receipt. Its executable was removed afterward.
+The next useful evidence is idle and distinct-device receipt, not another
+demonstration that a send call returns successfully.

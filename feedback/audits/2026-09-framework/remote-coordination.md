@@ -13,13 +13,26 @@ explicit; machine location should not define the collaboration boundary.
 | Remote control | Official docs describe browser/mobile control of an existing local session | Execution stays on its online host; not a general agent-to-agent bus or execution migration |
 | Synced history | Supports retrospective discovery | Not live presence, a mailbox, or proof a destination is reachable |
 | Cloud continuation | Documented separately from local sessions | This installation's cloud reconnect failed; do not use it as proof of a working bridge |
-| Installed extension API | CLI 1.0.84-4 extension documentation/types describe `joinSession()` and `session.send()` for the current foreground session | A promising supported local intake adapter; not yet exercised here or proven across devices |
+| Installed extension API | A session-scoped `joinSession()` + immediate `session.send()` probe produced a correlated runtime user event and an actual agent receipt | Active-session steering is verified on this installation; idle wakeup, other devices and remote transport are not |
 | Existing satellite primitives | A bounded six-file sample found durable task/event claims, worker interfaces and artifact handoff contracts | Shared-database coordination is not verified deployment, device authentication or GPU fencing |
 | Automation delivery | Owner saw the once-only audit message queued; the agent had no matching turn receipt | Queuing is not agent intake or completed action |
 
 Do not infer that an app-local UUID, a history session ID and a GitHub task ID
 are interchangeable. Keep the mapping from stable logical recipient to its
 current app-local session at the receiving device.
+
+### Local intake probe result
+
+On 2026-09-13 a temporary, no-network/no-credential extension sent exactly one
+fixed harmless message to its joined session. The send-returned message ID
+matched the runtime user event, marked as steering into an active turn. The
+agent then acknowledged the injected nonce through the probe's receipt tool.
+This is evidence beyond send acceptance or UI queuing, not an end-to-end
+cross-device or idle-wakeup test.
+
+The source and private receipt were retained as session artifacts. The executable
+extension was removed from discovery and reloading confirmed zero extensions
+running. No persistent user/project extension or recurring listener was installed.
 
 ## Minimum contract
 
@@ -63,10 +76,11 @@ launch another expensive job.
    sessions on distinct physical hosts and supported enumeration/send surfaces.
    Require verified recipient identity and host, then exchange one harmless
    correlated message and acknowledgement. No guessed IDs or new workload.
-2. **Prove local intake if native routing is insufficient.** The documented
-   extension `joinSession()`/`send()` path is worth a session-scoped, no-network,
-   no-credential probe. Verify actual agent receipt while idle/busy, not just a
-   successful API return or queued UI item. Do not attach via private app ports,
+2. **Extend the bounded intake check if native routing is insufficient.** The
+   documented extension `joinSession()`/`send()` path passed the active-session
+   probe here. Next verify idle receipt and the second device with harmless
+   messages, not just a successful API return or queued UI item.
+   Do not attach via private app ports,
    inject its database, or assume generic SDK sessions attach to arbitrary app
    sessions. No user-wide extension rollout is authorized by this plan.
 3. **Use a private GitHub coordination record for sparse handoffs if appropriate.**

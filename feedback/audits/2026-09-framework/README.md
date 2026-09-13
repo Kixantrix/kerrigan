@@ -86,6 +86,7 @@ same-session wakeups or automations on another device.
 | F23 | One same-session, once-only review follow-up was saved/read back; later the owner saw it queued but no agent-turn receipt was established | Configuration and user-observed queuing are distinct from agent execution; recurrence/overlap/restart remain unverified |
 | F24 | Owner wants domain-related agents on a training device, workstation and laptop to communicate without human relay | Research shared identity, durable message/manifest handoffs and actual receiving-session intake; do not grant remote execution authority implicitly |
 | F25 | The once-only automation was no longer attached and its turn was absent from visible/indexed conversation, while the owner saw a queued message | Reconciliation was handled in a normal user turn; mark late delivery as duplicate instead of creating another timer |
+| F26 | A no-network session extension sent one immediate probe; its accepted message ID matched a steering event and the agent acknowledged the injected nonce | Supported active-session intake is verified locally; preserve this distinction from idle wakeup and cross-device delivery; temporary extension removed |
 
 ### Counterevidence that changes the recommendation
 
