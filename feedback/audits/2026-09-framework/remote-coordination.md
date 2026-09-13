@@ -100,6 +100,13 @@ The satellite sample contains useful shared-database outbox/claim design and
 hash-bound artifact contracts. Reuse those lessons; do not expose a private
 product database or make the generic harness depend on that product.
 
+Two external device notes independently constrain the next check: native
+enumeration did not establish authenticated physical-host identity, and the
+six-brief W1 sample contained host-absolute prerequisites in every brief
+(session-state paths in four). Those paths were valid same-device references;
+they do not demonstrate a failed transfer or prove no portable copy exists.
+Moving a file to a persistent local directory still does not deliver it remotely.
+
 ## Next-device capability check
 
 Record runtime/app and harness revision, physical-device alias, supported
@@ -107,6 +114,13 @@ addressing method, and privacy/authority boundary privately. Exchange a harmless
 nonce with an already authorized peer only after its identity is established.
 Record send acceptance, queue visibility, receiver-turn receipt, acknowledgement
 and correlation, then try one offline/reconnect case without new work.
+
+Use an artifact-dependent briefing as the canary, but substitute a harmless
+synthetic artifact unless private transfer is separately authorized. Verify
+four distinct outcomes: message receipt, authorized access to manifest and
+required bytes, matching content hashes, and recipient acknowledgement that
+all execution prerequisites are available. Do not admit execution from a
+message acknowledgement or matching history text alone.
 
 Success requires receipt and deduplication, not just transport acceptance.
 The automation pilot demonstrated why: its schedule disappeared and the owner

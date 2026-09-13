@@ -50,12 +50,16 @@ if it increases escaped defects or makes the human coordinate machinery.
 | Hardware-heavy satellite | 45 in-window PRs from a latest-60 metadata frame; latest 20 created PRs plus 8 selected stack examples; selected turns from a 318-record coordinator history and two children | Thirty-day window ending September 13; purposive depth sample; no new hardware execution |
 | Application satellite | Fixed 20 PRs updated in August 14-September 13; three workflows and three selected histories | Convenience sample concentrated on August 29-30, not latest-20 or full-month census; one history lacks usable assistant completion content |
 | External research | Two bounded research sessions using primary sources below | Access date is not publication date; preview features vary by installed version/policy |
+| External device note W1 | [Contribution and follow-up](https://github.com/Kixantrix/kerrigan/pull/428#issuecomment-5655288274): 11-session snapshot; nine recently indexed sessions; six child briefs; selected coordinator/worker records | Frozen September 6-13 18:40 UTC window, not rolling 168 hours; 547 indexed rows but only 106 with assistant text, not 547 reviewed conversations |
+| External second device note | [Contribution](https://github.com/Kixantrix/kerrigan/pull/428#issuecomment-5655298288): 116-session snapshot, three local repository-history sessions, corrected-profile probe | App reported 1.0.84-5 and PATH CLI 1.0.12; app-local IDs lack authenticated physical-host identity |
 
 Private satellite observations must be summarized without transcripts, private
 repository identities, machine paths, device addresses or raw logs. Raw history
 stays outside this public repository. Missing evidence is not negative evidence.
 The visible Automations list was empty; that does not establish absence of
 same-session wakeups or automations on another device.
+Do not sum inventories across clients: their overlap and unique physical-host
+coverage are not established.
 
 ## Findings
 
@@ -87,6 +91,17 @@ same-session wakeups or automations on another device.
 | F24 | Owner wants domain-related agents on a training device, workstation and laptop to communicate without human relay | Research shared identity, durable message/manifest handoffs and actual receiving-session intake; do not grant remote execution authority implicitly |
 | F25 | The once-only automation was no longer attached and its turn was absent from visible/indexed conversation, while the owner saw a queued message | Reconciliation was handled in a normal user turn; mark late delivery as duplicate instead of creating another timer |
 | F26 | A no-network session extension sent one immediate probe; its accepted message ID matched a steering event and the agent acknowledged the injected nonce | Supported active-session intake is verified locally; preserve this distinction from idle wakeup and cross-device delivery; temporary extension removed |
+| F27 | W1 measured all nine sampled sessions' latest indexed turns newer than `sessions.updated_at`, with maximum lag 38.5 hours | Triage needs fresh live activity and meaningful progress evidence, not metadata-age-only staleness; this is not evidence of lost execution |
+| F28 | W1's same six startup briefs all referenced host-absolute paths; four referenced session-state artifacts | Message portability and hash identity do not establish recipient access to required bytes; use an artifact-dependent canary |
+| F29 | A second client's baseline reported `No such agent`, not the array-type error; unchanged `.md` profiles were discovered and a harmless prompt succeeded after the #430 correction | Independent corroboration of the fix, with client-specific failure presentation; record client/runtime versions separately |
+
+The device notes preserve positive counterevidence: explicit bounded direct
+briefings, multiple useful preparation lanes, and acknowledgements that a
+prepared packet does not authorize resource execution. These are observed
+conversation contracts, not verified process locks or a universal concurrency
+optimum. W1 also reports lost partial measurements after later validation failure
+and inconsistent timing boundaries; source/fixes were not inspected, so these
+remain candidate oracle-design lessons rather than reproduced defects.
 
 ### Counterevidence that changes the recommendation
 

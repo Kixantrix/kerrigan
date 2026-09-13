@@ -154,6 +154,12 @@ reports resolution. Dedupe unchanged exceptions and avoid repeated nags while
 an owner is actively working. Escalate overdue or ownerless work with evidence;
 do not silently assign a second worker to the same task.
 
+Use fresh supported live activity for current status and meaningful output or
+checkpoint evidence for progress. A device sample found session metadata
+`updated_at` lagging indexed turns by up to 38.5 hours; metadata age alone is
+not a stale-owner oracle. Notifications/acknowledgements are not automatically
+useful progress, and missing evidence remains unknown rather than "stopped."
+
 Ownership transfer must be acknowledged; a triage session cannot clear another
 session's responsibility just by sending a message. Offer closure/archive
 candidates only after checking persistent work, PR state, dependencies and

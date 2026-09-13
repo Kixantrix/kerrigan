@@ -57,7 +57,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F26, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F29, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -106,3 +106,10 @@ The documented extension intake path has since passed one active-session probe
 on this device, with actual agent receipt. Its executable was removed afterward.
 The next useful evidence is idle and distinct-device receipt, not another
 demonstration that a send call returns successfully.
+
+Two device contributions are now incorporated in the audit's evidence table.
+Use separate app, embedded-runtime and standalone-CLI versions; their loader
+diagnostics differed while the same profile correction worked. Do not age work
+from session `updated_at` alone, or treat host-local briefing prerequisites as
+available on another device. The next canary should verify both receipt and
+synthetic artifact availability/hash/prerequisite acceptance.
