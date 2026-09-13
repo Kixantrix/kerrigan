@@ -47,6 +47,15 @@ The following rows are planning examples, not universal thresholds or new gates.
 Replace example limits with AC-specific values agreed before running the test.
 Each evidence cell expands to the evidence record below.
 
+The `model-eval` and `accelerator` suffixes in `cloud-self-hosted-model-eval`
+and `local-attested-accelerator` are illustrative, not registered verifier claims.
+Before copying a row into an AC, replace its environment with a capability-matching
+ID declared in the applicable manifest's `supported_environments`; validation
+requires exact membership. Alternatively, explicitly register that ID only when
+a capable verifier is actually available. Do not add fictitious hosts or select
+a mismatched device merely to pass validation; if no capable verifier is available,
+block or arrange a handoff without claiming completion.
+
 | Risk | Oracle | Threshold | Level | Environment | Trigger | Evidence |
 |---|---|---|---|---|---|---|
 | Incorrect transform or error handling | Expected values and typed errors | All assertions pass, including invalid input | unit | cloud-linux | Every PR for cheap deterministic checks | Test IDs, assertions and log |

@@ -92,6 +92,21 @@ def test_risk_matrix_has_complete_single_axis_rows():
     assert_matrix_contract(section("Risk, trigger and evidence matrix"))
 
 
+def test_matrix_example_environments_require_registered_capable_verifiers():
+    content = " ".join(section("Risk, trigger and evidence matrix").split())
+    for phrase in [
+        "`cloud-self-hosted-model-eval` and `local-attested-accelerator` are illustrative",
+        "not registered verifier claims",
+        "replace its environment with a capability-matching ID",
+        "declared in the applicable manifest's `supported_environments`",
+        "validation requires exact membership",
+        "explicitly register that ID only when a capable verifier is actually available",
+        "Do not add fictitious hosts or select a mismatched device merely to pass validation",
+        "block or arrange a handoff without claiming completion",
+    ]:
+        assert phrase in content, f"Environment examples must retain: {phrase}"
+
+
 @pytest.mark.parametrize("risk", EXPECTED_BOUNDARIES)
 @pytest.mark.parametrize("column", [1, 2], ids=["oracle", "threshold"])
 @pytest.mark.parametrize("placeholder", ["TBD", "<placeholder>"])
