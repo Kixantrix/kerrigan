@@ -244,7 +244,7 @@ kerrigan repos sync my-multi-repo-project --dry-run
 
 ### kerrigan agent
 
-Invoke a v2 agent profile.
+Inspect a v2 agent profile. This command displays or copies repository instructions; it does not select a custom agent in the runtime or persist picker defaults. Follow the [startup role policy](../../AGENTS.md#startup-role-policy) for effective behavior.
 
 **Usage:**
 
@@ -253,7 +253,7 @@ kerrigan agent [PROFILE] [OPTIONS]
 ```
 
 **Arguments:**
-- `PROFILE`: Agent profile (`local`, `cloud`, or `kerrigan`)
+- `PROFILE`: Agent profile (`kerrigan` or `cloud`)
 
 **Options:**
 - `--list`: List all available agent profiles
@@ -266,17 +266,16 @@ kerrigan agent [PROFILE] [OPTIONS]
 # List available agent profiles
 kerrigan agent --list
 
-# Display the local profile
-kerrigan agent local --show
+# Display the conductor profile
+kerrigan agent kerrigan --show
 
 # Copy the cloud profile to clipboard
 kerrigan agent cloud --copy
 ```
 
 **Available Profiles:**
-- `local`: Plans, decides, and dispatches work
+- `kerrigan`: Conductor + shaper; plans, dispatches, coordinates delivery, and maintains the harness
 - `cloud`: Executes one task slice and self-verifies it
-- `kerrigan`: Maintains the harness itself
 
 ## Troubleshooting
 

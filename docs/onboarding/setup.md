@@ -9,7 +9,7 @@ Before you begin, ensure you have:
 - **GitHub Account**: With repository access where you'll use Kerrigan
 - **Git**: Installed and configured on your machine
 - **AI Agent Access**: GitHub Copilot or similar AI coding assistant
-- **Python 3.8+**: For running validators (optional but recommended)
+- **Python 3.8+ with PyYAML**: For running validators (optional but recommended). Install the standalone validator dependency with `python -m pip install -r tools/validators/requirements.txt`; full repository development uses `requirements.txt`.
 - **PowerShell 5.1+**: For local automation scripts (PowerShell 7+ recommended)
 
 ## Step 1: Choose Your Template and Create Repository
@@ -109,7 +109,7 @@ gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large 
 
 ## Step 3: Choose Your Autonomy Mode
 
-Kerrigan v2 uses **2 agent profiles** (local conductor + cloud executor) with label-based gating:
+Kerrigan v2 uses **2 agent profiles** (`kerrigan` conductor + `cloud` executor). Follow the [startup role policy](../../AGENTS.md#startup-role-policy): explicit selection or delegated assignment wins on either host; otherwise local human-facing sessions default to `kerrigan`, and known cloud execution defaults to `cloud`. Labels describe routing and state, not profile selection:
 
 - Add `agent:go` to an issue → cloud agent picks it up
 - Add `agent:wait` to pause → agent stops
@@ -240,7 +240,7 @@ git push origin main
 
 ### 6.5: Iterate on plan and tasks
 
-If `kerrigan` ran `/speckit.specify` only, ask it to follow up with `/speckit.plan` and `/speckit.tasks`. The plan generates:
+For an accepted implementation outcome, `kerrigan` continues from specification through `/speckit.plan` and `/speckit.tasks` without requiring another routine follow-up request. If you requested specification only, that remains the delivery boundary. The plan generates:
 - `plan.md`
 - `tasks.md`
 - (optionally) `test-plan.md`

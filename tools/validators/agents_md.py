@@ -17,7 +17,15 @@ import re
 import sys
 from pathlib import Path
 
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError as exc:
+    if exc.name != "yaml":
+        raise
+    sys.exit(
+        "agents_md validator: PyYAML is required. Install with: "
+        "python -m pip install -r tools/validators/requirements.txt"
+    )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 AGENTS_MD = REPO_ROOT / "AGENTS.md"

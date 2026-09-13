@@ -111,7 +111,7 @@ See [docs/operations/autonomy-modes.md](docs/operations/autonomy-modes.md) for c
 ```
 kerrigan/
 ├── .github/
-│   ├── agents/              # local, cloud, kerrigan profiles + adapters
+│   ├── agents/              # kerrigan, cloud profiles + adapters
 │   ├── skills/              # Built-in skills (briefing, delegation, etc.)
 │   └── workflows/           # CI: validators, autonomy gates, smoke tests
 ├── docs/                    # Setup, architecture, FAQ, guides

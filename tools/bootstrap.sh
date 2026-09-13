@@ -110,6 +110,25 @@ else
     exit 1
 fi
 
+# Standalone validators require PyYAML; validate-only must not install packages.
+VALIDATOR_REQUIREMENTS="tools/validators/requirements.txt"
+if ! python3 -c "import yaml" 2>/dev/null; then
+    if [ "$VALIDATE_ONLY" = true ]; then
+        print_error "PyYAML is required. Install with: python3 -m pip install -r $VALIDATOR_REQUIREMENTS"
+        exit 1
+    fi
+    print_info "Installing standalone validator dependencies from $VALIDATOR_REQUIREMENTS"
+    if ! python3 -m pip install -r "$VALIDATOR_REQUIREMENTS"; then
+        print_error "Validator dependency installation failed; bootstrap cannot continue."
+        exit 1
+    fi
+    if ! python3 -c "import yaml"; then
+        print_error "PyYAML is still unavailable after installation; check the Python environment."
+        exit 1
+    fi
+fi
+print_success "PyYAML available for validators"
+
 # Check GitHub CLI (optional)
 if command -v gh &> /dev/null; then
     GH_VERSION=$(gh --version | head -n1 | awk '{print $3}')
@@ -181,6 +200,7 @@ CRITICAL_FILES=(
     "specs/constitution.md"
     "tools/validators/check_artifacts.py"
     "tools/validators/check_quality_bar.py"
+    "tools/validators/requirements.txt"
     ".github/workflows/ci.yml"
 )
 
@@ -328,8 +348,8 @@ if [ "$TOTAL_ISSUES" -eq 0 ]; then
     echo "Next steps:"
     echo "  1. Create an issue with your project idea"
     echo "  2. Add 'agent:go' and 'role:spec' labels"
-    echo "  3. Open .github/agents/local.md"
-    echo "  4. Let the local profile create your project spec"
+    echo "  3. Open .github/agents/kerrigan.md"
+    echo "  4. Give the kerrigan conductor an outcome to plan and coordinate"
     echo ""
     echo "Documentation:"
     echo "  - Setup guide: docs/onboarding/setup.md"

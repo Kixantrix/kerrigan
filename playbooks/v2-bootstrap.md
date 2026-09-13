@@ -4,7 +4,7 @@
 
 ## Prereqs
 
-- Python 3.11+
+- Python 3.11+ with pip (the standalone validator requires PyYAML)
 - Node.js 20+
 - [uv](https://docs.astral.sh/uv/) (for spec-kit)
 - Git
@@ -32,18 +32,34 @@ specify init . --ai copilot --ai claude
 # 2. Add kerrigan v2 layer (placeholder — real command lands in Phase 1)
 $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) 'kerrigan'
 git clone https://github.com/Kixantrix/kerrigan --depth 1 $tmpDir
-Copy-Item -Recurse -Force `
-    (Join-Path $tmpDir 'AGENTS.md'), `
-    (Join-Path $tmpDir 'CLAUDE.md'), `
-    (Join-Path $tmpDir '.github/agents'), `
-    (Join-Path $tmpDir '.github/skills'), `
-    (Join-Path $tmpDir '.github/copilot-instructions.md'), `
-    (Join-Path $tmpDir 'specs/kerrigan-v2'), `
-    (Join-Path $tmpDir 'scripts/mirror-agents.ps1'), `
-    (Join-Path $tmpDir 'tools/validators/agents_md.py'), `
-    (Join-Path $tmpDir 'tools/pr_comments.py') `
-    .
+$layerPaths = @(
+    'AGENTS.md',
+    'CLAUDE.md',
+    '.github/agents',
+    '.github/skills',
+    '.github/copilot-instructions.md',
+    'specs/kerrigan-v2',
+    'scripts/mirror-agents.ps1',
+    'tools/validators/agents_md.py',
+    'tools/validators/requirements.txt',
+    'tools/pr_comments.py'
+)
+foreach ($relativePath in $layerPaths) {
+    $source = Join-Path $tmpDir $relativePath
+    $destination = Join-Path (Get-Location) $relativePath
+    if (Test-Path $source -PathType Container) {
+        New-Item -ItemType Directory -Force -Path $destination | Out-Null
+        Get-ChildItem $source -Force | Copy-Item -Destination $destination -Recurse -Force
+    } else {
+        New-Item -ItemType Directory -Force -Path (Split-Path $destination -Parent) | Out-Null
+        Copy-Item $source -Destination $destination -Force
+    }
+}
 Remove-Item -Recurse -Force $tmpDir
+
+# Install the copied validator's declared dependency into the selected Python environment
+python -m pip install -r tools/validators/requirements.txt
+if ($LASTEXITCODE -ne 0) { throw 'Validator dependency installation failed' }
 
 # 3. Mirror agents into .claude/ for Claude Code
 # If specify init created .claude/agents/ as a real directory, remove it first
@@ -73,7 +89,9 @@ git mv .github/agents/role.*.md .github/agents/_legacy/ 2>$null
 # 4. Mirror for Claude Code
 pwsh scripts/mirror-agents.ps1
 
-# 5. Validate
+# 5. Install the copied standalone dependency, then validate
+python -m pip install -r tools/validators/requirements.txt
+if ($LASTEXITCODE -ne 0) { throw 'Validator dependency installation failed' }
 python tools/validators/agents_md.py
 ```
 
@@ -92,17 +110,20 @@ python tools/validators/agents_md.py
    ```
 
 4. **Try your first task.** In VS Code chat (or Claude Code, or Copilot CLI), talk to the `kerrigan` profile:
-   > @local I want to add X. Plan it and dispatch.
+   > @kerrigan I want to add X. Plan it and coordinate delivery.
+
+   Explicit profile selection or delegated worker assignment wins on either host; otherwise local human-facing sessions follow `kerrigan`, and known cloud execution follows `cloud`. These are behavioral defaults, not persisted picker settings. See [startup role policy](../AGENTS.md#startup-role-policy).
 
 ## What's installed after this
 
 - `.specify/` — spec-kit state, templates, slash commands.
 - `AGENTS.md` — canonical agent entry.
-- `.github/agents/{local,cloud,kerrigan}.md` + `adapters/` — v2 profiles.
+- `.github/agents/{kerrigan,cloud}.md` + `adapters/` — v2 profiles.
 - `.claude/agents/` — junction into the same files, for Claude Code.
 - `.github/skills/` — briefing-packet, block-report, delegation-rubric, smoke-test.
 - `CLAUDE.md` + `.github/copilot-instructions.md` — redirects to AGENTS.md.
 - `tools/validators/agents_md.py` — frontmatter + AGENTS.md validator.
+- `tools/validators/requirements.txt` — standalone PyYAML dependency, installed before validation.
 
 ## What's *not* yet installed (Phase 1+)
 
@@ -152,4 +173,6 @@ pwsh scripts/smoke.ps1
 
 **Junction fails on Windows:** Make sure `.claude/agents/` doesn't exist as a real directory already. Delete it first.
 
-**Validator fails "name does not match filename":** Your profile's `name:` field and filename must match. `local.md` must have `name: local`.
+**Validator fails "name does not match filename":** Your profile's `name:` field and filename must match. `kerrigan.md` must have `name: kerrigan`.
+
+**Validator reports "PyYAML is required":** Run `python -m pip install -r tools/validators/requirements.txt` in the same Python environment used for validation. A Python-only installation is not sufficient.
