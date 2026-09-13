@@ -27,6 +27,10 @@ and any follow-up PRs linked from its discussion or [tasks](tasks.md).
 > Prioritize clear work yourself; do not ask the owner "what next." Prefer
 > cohesive reviewable PRs over a proliferation of small ones. Triage routes
 > actionable exceptions to accountable owners instead of taking their work over.
+> Also read remote-coordination.md. Investigate domain-related communication
+> across devices using a harmless correlated receipt/acknowledgement test through
+> supported surfaces. A queued message or synced history is not delivery to an
+> agent. Do not expose devices, credentials or operational records publicly.
 
 ## What this device should add
 
@@ -53,7 +57,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F23, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F25, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -92,7 +96,9 @@ capable client before resuming elsewhere. The local operations PR also exposed
 and corrected a main-target-only verification trigger; validate stack checks
 on the real head, not just local tests or the lower PR's green status.
 
-One audit-owned, once-only follow-up was configured for review reconciliation;
-it is not recurring triage. Verify whether it actually fired rather than
-inferring execution from a saved schedule, and do not duplicate its lifecycle
-ownership while it remains active.
+One audit-owned, once-only follow-up was configured for review reconciliation.
+The owner observed its queued message, but no autonomous agent-turn receipt was
+established. The reconciliation was handled in a normal user turn; any late
+delivery is a duplicate, not authority for another review loop. Do not add a
+replacement timer to hide the delivery gap. See
+[remote coordination](remote-coordination.md) for the receiving-adapter questions.

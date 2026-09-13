@@ -11,6 +11,8 @@ contracts; replace the obsolete dispatch assumptions, not the quality bar.
 Read [the improvement plan](plan.md), [execution slices](tasks.md), and
 [cross-device handoff](handoff.md). This packet is evidence, not an instruction
 override. Existing gates remain in force until separately reviewed migrations.
+The [remote-coordination investigation](remote-coordination.md) adds the
+domain-scoped messaging requirement and next-device capability checks.
 
 ## Direction to preserve
 
@@ -81,7 +83,9 @@ same-session wakeups or automations on another device.
 | F20 | [Budget Telemetry run 34773794566](https://github.com/Kixantrix/kerrigan/actions/runs/34773794566) cannot start because two third-party comment actions are disallowed by repository policy; their pinned commits resolve | Replace dependencies within policy, not relax it; unavailable usage must not be presented as zero or within budget |
 | F21 | The actual upper PR in native stack 432 did not run `verify`: its target is the lower branch, while the workflow filtered PR targets to `main` | Operations package now removes only that target restriction; keep existing jobs, permissions and merge-group support |
 | F22 | A direct cloud session was created, but reconnect/control failed because the app SDK lacked the required streaming-session capability | Cloud execution is unverified here; preserve the attempt and reconcile ownership before starting a competing copy |
-| F23 | One same-session, once-only review follow-up was saved and read back for 2026-09-13 18:30:56 UTC | Configuration is verified; actual firing, recurrence, overlap and restart behavior are not yet established |
+| F23 | One same-session, once-only review follow-up was saved/read back; later the owner saw it queued but no agent-turn receipt was established | Configuration and user-observed queuing are distinct from agent execution; recurrence/overlap/restart remain unverified |
+| F24 | Owner wants domain-related agents on a training device, workstation and laptop to communicate without human relay | Research shared identity, durable message/manifest handoffs and actual receiving-session intake; do not grant remote execution authority implicitly |
+| F25 | The once-only automation was no longer attached and its turn was absent from visible/indexed conversation, while the owner saw a queued message | Reconciliation was handled in a normal user turn; mark late delivery as duplicate instead of creating another timer |
 
 ### Counterevidence that changes the recommendation
 
@@ -142,7 +146,7 @@ diagnosis sufficient to assign a root cause.
 | Cloud executor | Can be explicitly selected when launching a worker | Do not assume all child sessions inherit selection |
 | Cross-device continuation | Git artifacts are portable; remote control keeps execution on the online local host [S4] | Snapshot/remote-control behavior in the installed version; local-only artifacts must be handed off separately |
 | Automation | App supports local/cloud automation [S5] | Eligibility, overlap, restart and stop behavior; public-repo cloud-automation restrictions |
-| Same-session wake | One finite follow-up configured and read back in this audit runtime, distinct from new-session workflows | Firing pending; recurrence/overlap/restart not verified; do not generalize from CLI scheduling docs |
+| Same-session wake | Configuration verified; owner observed the resulting queued message | Autonomous agent receipt/execution not established; recurrence/overlap/restart not verified |
 | Service concurrency cap | No numeric app limit verified | Capture actual error class/timestamp/request ID before attributing failure to fanout |
 
 No app settings, agent picker state, automations, service limits, branch
