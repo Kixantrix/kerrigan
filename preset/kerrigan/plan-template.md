@@ -83,7 +83,7 @@ tests/
 
 <!--
   Kerrigan-specific section.
-  Classify this feature's tasks by routing capability so the local profile can
+  Classify this feature's tasks by routing capability so the kerrigan conductor can
   dispatch correctly before calling /speckit.taskstoissues.
   See specs/kerrigan-v2/050-delegation-rubric.md for the full taxonomy.
 -->
@@ -109,7 +109,9 @@ tests/
 |---|---|---|
 | [Setup / scaffolding] | `cloud` | No special capabilities needed |
 | [e.g., Integration tests] | `cloud` | Runs in CI environment |
-| [e.g., Signing / notarization] | `local` | Requires device-io.keychain |
+| [e.g., Signing / notarization] | `cloud` executor on a local host | Requires device-io.keychain; kerrigan coordinates any human approval |
+
+Profile assignment is distinct from execution location: an explicitly delegated `cloud` worker remains an executor on a local host. Follow `AGENTS.md#startup-role-policy`; do not derive profile names from host locations.
 
 ---
 

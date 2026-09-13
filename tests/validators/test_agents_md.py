@@ -183,6 +183,22 @@ class TestCheckAgentProfile(unittest.TestCase):
                     self.assertEqual(len(errors), 1)
                     self.assertIn(message, errors[0])
 
+    def test_multiline_yaml_error_is_one_actionable_line(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._write_profile(
+                Path(td), "cloud.md",
+                "---\nname: cloud\ndescription: Executor\n"
+                "mcp-servers:\n  example: [first,\n    second\n---\n# Body",
+            )
+            errors = []
+            with patch("agents_md.REPO_ROOT", Path(td)):
+                check_agent_profile(p, errors)
+            self.assertEqual(len(errors), 1)
+            self.assertEqual(len(errors[0].splitlines()), 1)
+            self.assertIn("cloud.md: invalid YAML frontmatter:", errors[0])
+            self.assertIn("expected", errors[0])
+            self.assertIn("line", errors[0])
+
 
 class TestCheckAgentsMd(unittest.TestCase):
     """Test AGENTS.md validation."""

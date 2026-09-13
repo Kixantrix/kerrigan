@@ -51,14 +51,16 @@ kerrigan repos sync my-multi-repo-project
 kerrigan repos sync my-multi-repo-project --dry-run
 ```
 
-### Agent invocation
+### Agent profile inspection
+
+These commands display or copy profile instructions; they do not select a runtime agent. See the [startup role policy](../../../AGENTS.md#startup-role-policy) for explicit assignment precedence and host defaults.
 
 ```bash
 # List available agent profiles
 kerrigan agent --list
 
 # Show an agent profile
-kerrigan agent local --show
+kerrigan agent kerrigan --show
 
 # Copy an agent profile to clipboard
 kerrigan agent cloud --copy

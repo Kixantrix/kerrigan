@@ -2,7 +2,7 @@
 
 > For `personal-selfhost`, `vhs-video-stack`, and other repos that use Kerrigan dispatch conventions while keeping their own product codebase.
 
-Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-bootstrap.md). The goal is to remove v1-only surfaces, adopt the `local` + `cloud` profiles, and prove that dispatch works with v2 primitives only.
+Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-bootstrap.md). The goal is to remove v1-only surfaces, adopt the `kerrigan` + `cloud` profiles, and prove that dispatch works with v2 primitives only. Profile selection follows the [startup role policy](../AGENTS.md#startup-role-policy); local/cloud execution locations do not determine profile selection.
 
 ## 1. Pre-flight
 
@@ -27,7 +27,7 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 - [ ] Mirror agent profiles for Claude Code with `pwsh scripts/mirror-agents.ps1`.
 - [ ] Validate the install with `python tools/validators/agents_md.py`.
 - [ ] Confirm humans know the new runtime split:
-  - `local` plans, routes, and surfaces blocks
+  - `kerrigan` plans, routes, coordinates delivery, and surfaces genuine decision blocks
   - `cloud` implements one task slice in an isolated PR
   - Claude Code is the primary local runtime
 
@@ -40,7 +40,7 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 ### `vhs-video-stack`
 
 - [ ] Remove local instructions that imply agents should stack PRs and batch-merge them manually.
-- [ ] Re-orient contributors around planning with `local`, generating ordered tasks, then dispatching safe work in waves.
+- [ ] Re-orient contributors around planning with `kerrigan`, generating ordered tasks, then dispatching safe work in waves.
 
 ## 3. Migrate labels
 

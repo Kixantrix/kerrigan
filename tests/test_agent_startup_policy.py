@@ -113,18 +113,33 @@ def test_real_profiles_keep_permissions_and_loadable_mcp_shape(profile, permissi
         "docs/operations/cli-reference.md", "docs/onboarding/setup.md",
         "playbooks/v2-bootstrap.md", "tools/bootstrap.sh",
         "tools/cli/kerrigan/kerrigan_cli/commands/agent.py",
+        "tools/cli/kerrigan/README.md", "playbooks/upgrade-to-v2.md",
+        "preset/kerrigan/plan-template.md", ".github/skills/README.md",
+        "specs/kerrigan-v2/000-vision.md", "specs/kerrigan-v2/010-phases.md",
+        "specs/kerrigan-v2/050-delegation-rubric.md", "tools/suggest-waves.ps1",
     ],
 )
 def test_active_startup_surfaces_do_not_advertise_absent_profile(path):
     text = ROOT.joinpath(*path.split("/")).read_text(encoding="utf-8")
     for obsolete in (
         "kerrigan agent local", "@local", "agents/local.md",
-        "`local` profile", "`local` agent", "local profile", "local conductor",
+        "`local` profile", "`local` agent", "local profile",
         "local,cloud,kerrigan", "local, cloud, kerrigan", "local addresses feedback",
     ):
         assert obsolete not in text
     for profile in re.findall(r"\.github/agents/([a-z]+)\.md", text):
         assert (PROFILES / f"{profile}.md").is_file()
+
+
+def test_wave_prediction_maps_both_triage_paths_to_existing_conductor():
+    text = (ROOT / "tools" / "suggest-waves.ps1").read_text(encoding="utf-8")
+    keyword = re.search(r"'triage\|playbooks/triage' = @\(([^)]+)\)", text)
+    role = re.search(r"'role:triage'\s*\{[^}]+\$files \+= @\(([^)]+)\)", text)
+    for mapping in (keyword, role):
+        assert mapping is not None
+        profile_paths = re.findall(r"'(\.github/agents/[^']+)'", mapping.group(1))
+        assert profile_paths == [".github/agents/kerrigan.md"]
+        assert ROOT.joinpath(*profile_paths[0].split("/")).is_file()
 
 
 def test_independent_executor_requires_actionable_context_and_hands_off_review():
