@@ -2,6 +2,7 @@
 
 > Status: Draft. Living document.
 > Core decision: **Kerrigan v2 sits on top of GitHub Spec Kit.** We don't replace its lifecycle; we add the delegation + verification glue it doesn't prescribe.
+> Current profile names are `kerrigan` (conductor + shaper) and `cloud` (executor). Local/cloud routing locations are separate from roles; the [canonical startup policy](../../AGENTS.md#startup-role-policy) governs explicit assignments and defaults.
 
 ## Why v2
 
@@ -26,7 +27,7 @@ Meanwhile the ecosystem standardised underneath us:
 ### What this means for Kerrigan
 
 1. **Don't build a parallel lifecycle.** Adopt spec-kit. Its lifecycle + extension system + 30-agent support is better than anything we'd build.
-2. **Don't build a parallel agent taxonomy.** The axis is **local vs cloud**, not role.
+2. **Don't build a parallel agent taxonomy.** Keep two profiles; choose **local vs cloud execution** by capability, not by a proliferation of specialist roles.
 3. **Don't reinvent verification.** Spec-kit already has verification extensions (`verify`, `verify-tasks`, `qa`, `ci-guard`); use them and add our own gap-fillers as extensions, not as new frameworks.
 4. **Don't fight specs rotting.** Either use `spec-kit-tinyspec` for small work, or use `spec-kit-sync` / `spec-kit-reconcile` / `spec-kit-retrospective` to keep specs honest. Specs that serve a purpose stay; the rest get tinyspec'd.
 5. **Kerrigan's value is the harness**, not the schema: local↔cloud delegation, conflict prediction, briefing packets, satellite bootstrap, 2026-shaped conventions layered *on top of* spec-kit.
@@ -42,7 +43,7 @@ Meanwhile the ecosystem standardised underneath us:
                      │ natural language, no mandated labels
                      ▼
    ┌─────────────────────────────────────────────────────────┐
-   │  LOCAL agent profile  (.github/agents/local.md)          │
+   │  KERRIGAN profile (.github/agents/kerrigan.md)            │
    │  - runs spec-kit: /speckit.plan /tasks /analyze          │
    │  - decides cloud vs local per task (delegation rubric)   │
    │  - drafts briefing packets                               │
@@ -77,7 +78,7 @@ Meanwhile the ecosystem standardised underneath us:
 
 ### Three rules that change everything
 
-1. **Delegate by location, not role.** Any task runs either `local` (needs your machine — device I/O, OS, paid secrets) or `cloud` (everything else). The local profile is the conductor; the cloud profile is the executor. No scout/builder/verifier split.
+1. **Route execution by capability.** Any task runs either `local` (needs your machine — device I/O, OS, paid secrets) or `cloud` (everything else). The `kerrigan` profile is conductor + shaper; the `cloud` profile is executor on either host. No scout/builder/verifier split.
 2. **Parallelize only what can't conflict.** The conductor computes file-overlap before dispatch and batches tasks into non-overlapping waves. Dependent PRs auto-rebase on merge.
 3. **Verify everywhere, not once.** Every layer verifies what it can: cloud agent self-tests → CI runs tests + spec-kit verify → Copilot review → human checks scenarios. No single agent owns "verification".
 
@@ -85,12 +86,12 @@ Meanwhile the ecosystem standardised underneath us:
 
 ### 1. Easier to use
 
-- **2 agent profiles + thin adapters.** `.github/agents/local.md` and `.github/agents/cloud.md`. Adapters for Claude Code's `Explore` + `Plan` and for GH Copilot's built-in review/coding agents — one file each, no prompts, just metadata pointing at the built-ins.
+- **2 agent profiles + thin adapters.** `.github/agents/kerrigan.md` and `.github/agents/cloud.md`. Adapters for Claude Code's `Explore` + `Plan` and for GH Copilot's built-in review/coding agents — one file each, no prompts, just metadata pointing at the built-ins.
 - **Spec-kit slash commands are the primary UX.** `/speckit.plan`, `/speckit.tasks`, `/speckit.implement`, `/speckit.taskstoissues` — already supported across 30+ agents. We add one kerrigan slash command (`/kerrigan.dispatch`) as a thin wrapper over `taskstoissues`.
 - **One-command bootstrap**: `specify init --here --ai copilot` then `kerrigan preset add` installs our preset + extensions.
 - **`AGENTS.md` at repo root** is the primary contract. `CLAUDE.md` and `.github/copilot-instructions.md` redirect to it.
 - **Labels shrink to 4.** `agent:go`, `agent:wait`, `agent:local`, `autonomy:override`. Agent selection happens by *which agent you talk to*, not by role labels.
-- **Works on mobile.** Talk to the local agent via github.com chat on mobile; it dispatches cloud work; you watch PRs in the mobile PR list.
+- **Works on mobile.** Talk to the `kerrigan` conductor via github.com chat on mobile; it dispatches cloud work; you watch PRs in the mobile PR list.
 
 ### 2. Lower friction for bigger tasks
 
@@ -99,7 +100,7 @@ Meanwhile the ecosystem standardised underneath us:
 - **`kerrigan-auto-rebase`** — GitHub Action: on `main` merge, find stale agent PRs, request rebase via `@copilot rebase` or dispatch a fresh cloud task. Replaces manual wave wrangling.
 - **`kerrigan-briefing`** (custom spec-kit extension) — compresses `plan.md` + relevant task slice + referenced skills into a single briefing file attached to the dispatched issue. Reduces tokens on the cloud side.
 - **Community extensions we adopt as defaults**: `spec-kit-worktree-parallel`, `spec-kit-pr-bridge`, `spec-kit-checkpoint`.
-- **Cloud-first routing.** Local agent defaults to cloud dispatch unless the task's capability needs trip a `local` rule (see delegation rubric, phase 2).
+- **Cloud-first routing.** The `kerrigan` conductor defaults to cloud dispatch unless the task's capability needs trip a `local` rule (see delegation rubric, phase 2).
 
 ### 3. Trustworthy tests at all scales
 
@@ -143,7 +144,7 @@ Meanwhile the ecosystem standardised underneath us:
 | Plan | `plan.md` (lives) | `/speckit.plan` | **`/speckit.plan`** — primary artifact |
 | Tasks | `tasks.md` (prose) | `/speckit.tasks` | **`/speckit.tasks`** + `kerrigan-conflict-predictor` |
 | AC → test | ad-hoc | `/speckit.analyze` + verify ext | **spec-kit-verify + spec-kit-verify-tasks** (preset default) |
-| Role agents | 10 `role.*.md` | agent-agnostic | **2 profiles** (`local`, `cloud`) + built-in-subagent adapters |
+| Role agents | 10 `role.*.md` | agent-agnostic | **2 profiles** (`kerrigan`, `cloud`) + built-in-subagent adapters |
 | Skills | 2 inline folders | community catalog | **agent-skills spec** + `.github/skills/` |
 | Cloud dispatch | SDK service | `/speckit.taskstoissues` | **`/speckit.taskstoissues`** (wrapped by `/kerrigan.dispatch`) |
 | Local runtime | copy/paste prompts | agent-native | **VS Code chat / Claude Code / Copilot CLI**, same profiles |

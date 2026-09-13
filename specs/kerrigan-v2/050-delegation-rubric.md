@@ -7,7 +7,7 @@
 
 This rubric is the formal spec counterpart to the reusable skill at [`/.github/skills/delegation-rubric/SKILL.md`](../../.github/skills/delegation-rubric/SKILL.md), and is part of the v2 source of truth linked from [`AGENTS.md`](../../AGENTS.md).
 
-Use this document when the `local` profile decides whether a task should execute on `cloud` or `local`.
+Use this document when the `kerrigan` conductor decides whether a task should execute on a `cloud` or `local` host. These are routing locations, not a second profile-selection mechanism; follow the [startup role policy](../../AGENTS.md#startup-role-policy).
 
 ## Capability taxonomy
 

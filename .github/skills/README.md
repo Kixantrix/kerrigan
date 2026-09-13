@@ -8,9 +8,9 @@ Kerrigan-local skills live here (`.github/skills/`). Stack-specific skills live 
 
 | Skill | Purpose | Used by |
 |---|---|---|
-| [briefing-packet](./briefing-packet/SKILL.md) | Shape of a dispatch briefing | `local` |
-| [block-report](./block-report/SKILL.md) | Structured block output schema | `local`, `cloud`, `kerrigan` |
-| [delegation-rubric](./delegation-rubric/SKILL.md) | Cloud vs local routing rules | `local` |
+| [briefing-packet](./briefing-packet/SKILL.md) | Shape of a dispatch briefing | `kerrigan`, `cloud` |
+| [block-report](./block-report/SKILL.md) | Structured block output schema | `kerrigan`, `cloud` |
+| [delegation-rubric](./delegation-rubric/SKILL.md) | Cloud vs local routing rules | `kerrigan`, `cloud` |
 | [smoke-test](./smoke-test/SKILL.md) | End-to-end happy-path test contract | `cloud` |
 | [ui-design-perspective](./ui-design-perspective/SKILL.md) | Pre-vis, references, show-stopper, simplicity | UI projects |
 

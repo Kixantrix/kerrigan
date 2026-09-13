@@ -83,7 +83,8 @@ def check_agent_profile(path: Path, errors: list[str]) -> None:
     try:
         data = yaml.safe_load(m.group(1))
     except yaml.YAMLError as exc:
-        errors.append(f"{rel}: invalid YAML frontmatter: {exc}")
+        detail = " ".join(str(exc).split())
+        errors.append(f"{rel}: invalid YAML frontmatter: {detail}")
         return
     if not isinstance(data, dict):
         errors.append(f"{rel}: YAML frontmatter must be a mapping")

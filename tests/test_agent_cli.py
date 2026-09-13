@@ -45,7 +45,10 @@ class TestAgentCli(unittest.TestCase):
         docs = (REPO_ROOT / "docs" / "operations" / "cli-reference.md").read_text(
             encoding="utf-8"
         )
-        for source in (help_result.output, docs):
+        package_readme = (REPO_ROOT / "tools" / "cli" / "kerrigan" / "README.md").read_text(
+            encoding="utf-8"
+        )
+        for source in (help_result.output, docs, package_readme):
             examples = re.findall(r"kerrigan agent (\w+) --(?:show|copy)", source)
             self.assertEqual(set(examples), {"kerrigan", "cloud"})
             for profile in examples:
