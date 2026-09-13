@@ -4,6 +4,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "tools" / "validators"))
@@ -130,6 +131,73 @@ class TestCheckAgentProfile(unittest.TestCase):
             finally:
                 agents_md.REPO_ROOT = old_root
             self.assertEqual(errors, [])
+
+    def test_mcp_servers_types(self):
+        cases = [
+            ("", True),
+            ("mcp-servers: {}\n", True),
+            ("mcp-servers: {example: {type: local, command: example}}\n", True),
+            ("mcp-servers:\n  example:\n    type: local\n    command: example\n", True),
+            ("mcp-servers: []\n", False),
+            ("mcp-servers: [example]\n", False),
+            ("mcp-servers:\n  - example\n", False),
+            ("mcp-servers: disabled\n", False),
+            ('mcp-servers: "{}"\n', False),
+            ("mcp-servers: false\n", False),
+            ("mcp-servers: 42\n", False),
+            ("mcp-servers: null\n", False),
+            ("mcp-servers:\n", False),
+        ]
+        for filename in ("cloud.md", "speckit.example.agent.md"):
+            for field, valid in cases:
+                with self.subTest(filename=filename, field=field):
+                    with tempfile.TemporaryDirectory() as td:
+                        p = self._write_profile(
+                            Path(td), filename,
+                            "---\nname: cloud\ndescription: Executor\n"
+                            "needs: [cloud-env]\nblocks_on: []\nbudget: {}\n"
+                            f"{field}---\n# Body",
+                        )
+                        errors = []
+                        with patch("agents_md.REPO_ROOT", Path(td)):
+                            check_agent_profile(p, errors)
+                        if valid:
+                            self.assertEqual(errors, [])
+                        else:
+                            self.assertEqual(len(errors), 1)
+                            self.assertIn("'mcp-servers' must be a mapping", errors[0])
+
+    def test_invalid_yaml_frontmatter(self):
+        for content, message in (
+            ("name: cloud\nmcp-servers: [", "invalid YAML frontmatter"),
+            ("- cloud", "YAML frontmatter must be a mapping"),
+        ):
+            with self.subTest(content=content):
+                with tempfile.TemporaryDirectory() as td:
+                    p = self._write_profile(
+                        Path(td), "cloud.md", f"---\n{content}\n---\n# Body",
+                    )
+                    errors = []
+                    with patch("agents_md.REPO_ROOT", Path(td)):
+                        check_agent_profile(p, errors)
+                    self.assertEqual(len(errors), 1)
+                    self.assertIn(message, errors[0])
+
+    def test_multiline_yaml_error_is_one_actionable_line(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._write_profile(
+                Path(td), "cloud.md",
+                "---\nname: cloud\ndescription: Executor\n"
+                "mcp-servers:\n  example: [first,\n    second\n---\n# Body",
+            )
+            errors = []
+            with patch("agents_md.REPO_ROOT", Path(td)):
+                check_agent_profile(p, errors)
+            self.assertEqual(len(errors), 1)
+            self.assertEqual(len(errors[0].splitlines()), 1)
+            self.assertIn("cloud.md: invalid YAML frontmatter:", errors[0])
+            self.assertIn("expected", errors[0])
+            self.assertIn("line", errors[0])
 
 
 class TestCheckAgentsMd(unittest.TestCase):

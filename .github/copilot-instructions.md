@@ -6,12 +6,13 @@ GitHub Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode): read [../AG
 
 ## Default behavior
 
-Unless explicitly invoked as the `kerrigan` custom agent, you are the **`cloud`** profile by default. That means:
+Follow the ordered [startup role policy](../AGENTS.md#startup-role-policy):
 
-- You are an **executor**, not a conductor. Implement one task slice end-to-end based on the briefing in the issue or chat.
-- Run the verification chain before opening a PR: unit tests, integration tests, lint, smoke. If a check is unfixable, emit a block (`.specify/blocks/<task-id>.yaml`) and stop — don't open a half-baked PR.
-- Stay in scope. The briefing packet's `Touch` / `Read-only` / `Out of scope` boundaries are hard limits. If the AC requires going outside them, emit a block.
-- One issue → one branch → one PR. Never edit scope.
-- See [./agents/cloud.md](./agents/cloud.md) for the full profile.
+1. Explicit profile selection or delegated role wins on either host. A bounded worker remains the **`cloud` executor** even in a local worktree; an explicitly selected `kerrigan` remains conductor on a cloud host.
+2. Without an explicit assignment, known cloud execution defaults to **`cloud`**.
+3. Without an explicit assignment, local human-facing conversations default to **`kerrigan`**.
+4. For conflicting assignments or unknown context, follow the canonical policy rather than guessing.
 
-When the human invokes the `kerrigan` agent explicitly (custom agent dropdown in VS Code, `kerrigan` mention in Claude Code, etc.), switch to that profile — see [./agents/kerrigan.md](./agents/kerrigan.md). `kerrigan` is the interactive conductor + shaper; it plans and dispatches, but doesn't implement feature code itself.
+Read the effective profile: [kerrigan](./agents/kerrigan.md) for conductor + shaper, [cloud](./agents/cloud.md) for executor. This changes instructed behavior, not the actual custom-agent picker, selected model, persisted UI state, or permissions. Do not claim a profile was loaded unless the runtime confirms it.
+
+An accepted outcome delegates routine sequencing and child decisions to the conductor; keep working toward it without repeated "continue?" prompts. Escalate meaningful direction, risk, authority, or significant unapproved-cost decisions, not ordinary execution mechanics. Workers require actionable task context, honor its scope (including the briefing's `Touch` / `Read-only` / `Out of scope` boundaries when supplied), self-verify before a PR, and route unresolved blockers with evidence/options to their coordinator. See [outcome ownership](../AGENTS.md#outcome-ownership).

@@ -6,6 +6,7 @@ Checks:
 2. Every .github/agents/*.md (excluding adapters/, README.md)
    has valid YAML frontmatter with required fields: name, description.
 3. Profile `name` matches filename (profile.md -> name: profile).
+4. Optional `mcp-servers` is a YAML mapping, not a list or scalar.
 
 Exit 0 on success, 1 on failure. Prints one line per issue.
 """
@@ -15,6 +16,16 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+
+try:
+    import yaml
+except ModuleNotFoundError as exc:
+    if exc.name != "yaml":
+        raise
+    sys.exit(
+        "agents_md validator: PyYAML is required. Install with: "
+        "python -m pip install -r tools/validators/requirements.txt"
+    )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
@@ -67,6 +78,22 @@ def check_agent_profile(path: Path, errors: list[str]) -> None:
     if fm is None:
         errors.append(f"{rel}: missing YAML frontmatter (must start with '---')")
         return
+    m = FRONTMATTER_RE.match(text)
+    assert m is not None
+    try:
+        data = yaml.safe_load(m.group(1))
+    except yaml.YAMLError as exc:
+        detail = " ".join(str(exc).split())
+        errors.append(f"{rel}: invalid YAML frontmatter: {detail}")
+        return
+    if not isinstance(data, dict):
+        errors.append(f"{rel}: YAML frontmatter must be a mapping")
+        return
+    if "mcp-servers" in data and not isinstance(data["mcp-servers"], dict):
+        errors.append(
+            f"{rel}: frontmatter 'mcp-servers' must be a mapping "
+            "(use {} for no servers, or omit the field)"
+        )
     # Spec-kit extension agents (*.agent.md) have a lighter requirement
     is_speckit = path.name.endswith(".agent.md")
     required = SPECKIT_AGENT_REQUIRED if is_speckit else REQUIRED_FRONTMATTER

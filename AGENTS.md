@@ -21,7 +21,7 @@ Current milestone: **[v2 rollout](specs/kerrigan-v2/010-phases.md)** — v2 comp
 
 ## How to start
 
-Pick an agent profile and talk to it in natural language. Selection happens by *who you're chatting with*, not by labels.
+Talk to an agent in natural language. An explicit profile selection or delegated assignment takes precedence over host defaults; labels do not select a profile.
 
 | When you want to | Talk to | Where |
 |---|---|---|
@@ -31,6 +31,34 @@ Pick an agent profile and talk to it in natural language. Selection happens by *
 `kerrigan` is the only interactive profile — the single agent the human talks to. It handles both project work (planning and dispatching) and harness work (maintaining `.github/`, validators, workflows, specs). `cloud` is the executor profile that runs in ephemeral environments to implement one slice at a time.
 
 Agent profiles: [`.github/agents/`](./.github/agents/). GitHub Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) reads them directly. Claude Code reads from `.claude/agents/` — see [`.claude/agents/README.md`](./.claude/agents/README.md) for the optional mirror setup.
+
+### Startup role policy
+
+Apply these rules in order:
+
+1. **Explicit assignment wins on either host.** Honor an explicitly selected profile or delegated role. A bounded worker assignment uses `cloud` (executor), including in a local worktree; an explicitly selected `kerrigan` remains conductor even on a cloud host. If explicit instructions conflict, route the conflict with evidence to the coordinator before acting; do not silently change roles.
+2. **Known cloud execution defaults to `cloud`.** With no explicit assignment, a known cloud execution session (such as an assigned Copilot cloud issue) is an executor.
+3. **Local human-facing sessions default to `kerrigan`.** With no explicit assignment, a local conversation with the human is conductor + shaper, not an implicitly delegated worker.
+4. **Unknown context is not proof of either host.** Consult the runtime's session context and briefing. A directory name, a label, or the word "cloud" alone is not reliable host evidence. If the role still cannot be determined safely, surface the ambiguity to the coordinator (or human when there is no coordinator) before dispatch or implementation.
+
+| Session context | Explicit selection or assignment | Effective behavior |
+|---|---|---|
+| Local human-facing | None | `kerrigan` |
+| Known cloud execution | None | `cloud` |
+| Local worktree | Delegated worker | `cloud` |
+| Known cloud execution | Delegated worker | `cloud` |
+| Local human-facing | Selected `cloud` | `cloud` |
+| Known cloud execution | Selected `cloud` | `cloud` |
+| Local human-facing | Selected `kerrigan` | `kerrigan` |
+| Known cloud execution | Selected `kerrigan` | `kerrigan` |
+
+This is a **behavioral instruction policy**, not a setting that changes the runtime's agent picker. Read and follow the effective profile even when it was not loaded as a custom agent. Distinguish "following the kerrigan role" from "the runtime selected/loaded kerrigan"; only claim the latter with runtime evidence. These files do not select a model, persist UI state, or change tool permissions.
+
+### Outcome ownership
+
+An accepted outcome delegates sequencing and routine execution decisions to the conductor within the agreed scope, authority, risk, and budget. Continue through dispatch, child coordination, verification, and the authorized delivery step; do not ask the human to approve every next task or routine child decision. Prefer cohesive, reviewable PRs over a separate PR for each tiny subtask; split for independent outcomes, risk, or genuine review boundaries, not arbitrary line/file counts.
+
+The conductor resolves child blockers using evidence, prior decisions, and available options. Ask the human only when a decision materially changes direction, risk, authority, or significant unapproved cost. Never infer approval to broaden scope, permissions, destructive actions, or spending from an outcome alone. Hard budget limits and real approval gates still apply; checkpoint and report a genuine blocker rather than claiming completion.
 
 Built-in sub-agents `kerrigan` can delegate to (thin adapters in [`.github/agents/adapters/`](./.github/agents/adapters/)):
 
@@ -89,7 +117,7 @@ Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [
 
 ## Labels (v2)
 
-Four total, not fifteen. **None of these are enforced automatically.** The functional gate for cloud execution is `@copilot` assignment on the issue. The labels are *annotations* the `local` profile (and humans) read to understand intent and state across sessions.
+Four total, not fifteen. **None of these are enforced automatically.** The functional gate for cloud execution is `@copilot` assignment on the issue. The labels are *annotations* the `kerrigan` conductor (and humans) read to understand intent and state across sessions.
 
 - `agent:go` — annotation: this issue is ready to dispatch (or has been dispatched). Used by `kerrigan` to find work that's been triaged.
 - `agent:wait` — annotation: intentionally undispatched; waiting on a dependency, a wave, or human input. `kerrigan` should not auto-assign Copilot here.
@@ -158,4 +186,4 @@ Subprojects with their own conventions may include a nested `AGENTS.md`. Agents 
 
 **Humans:** Start with [`README.md`](./README.md), then [`specs/kerrigan-v2/000-vision.md`](./specs/kerrigan-v2/000-vision.md). Feedback from agents goes in [`feedback/agent-feedback/`](./feedback/agent-feedback/).
 
-**Agents:** Read this file, then the closest nested `AGENTS.md`, then your briefing packet (your primary brief — don't re-derive from the whole repo). If blocked, write `.specify/blocks/<task-id>.yaml` and stop.
+**Agents:** Read this file, then the closest nested `AGENTS.md`, then your assigned task context (the briefing packet when supplied, otherwise an actionable issue/chat assignment). Don't re-derive scope from the whole repo or invent a missing briefing. If blocked, write `.specify/blocks/<task-id>.yaml` and report it to the coordinator (or human when there is no coordinator).

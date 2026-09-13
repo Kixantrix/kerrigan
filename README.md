@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Kixantrix/kerrigan/actions/workflows/ci.yml/badge.svg)](https://github.com/Kixantrix/kerrigan/actions/workflows/ci.yml)
 
-A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.com/github/spec-kit). Two agent profiles (`local` conductor + `cloud` executor), spec-driven lifecycle, and automated verification.
+A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.com/github/spec-kit). Two agent profiles (`kerrigan` conductor + `cloud` executor), spec-driven lifecycle, and automated verification.
 
 > Agents read [AGENTS.md](AGENTS.md). Humans start here.
 
@@ -24,6 +24,8 @@ A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.
 3. **Create an issue** with your goal and add the `agent:go` label
 4. **Point your agent** at the repo — it reads [AGENTS.md](AGENTS.md) and starts working
 
+**Startup defaults:** explicit profile selection or delegated worker assignment wins on either host. Otherwise, local human-facing conversations follow `kerrigan`, and known cloud execution follows `cloud`. These instructions govern behavior, not the app's picker or permissions. Give the conductor an outcome; it owns routine sequencing and child decisions through authorized delivery. See [startup role policy](AGENTS.md#startup-role-policy) and [outcome ownership](AGENTS.md#outcome-ownership).
+
 **CI enforces**: artifact structure, quality bar (800 LOC max), autonomy gates.
 
 📖 **[Full setup guide](docs/onboarding/setup.md)** · **[FAQ](docs/onboarding/FAQ.md)**
@@ -33,7 +35,7 @@ A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.
 ## Architecture
 
 ```
-Human goal → local agent → spec-kit lifecycle → cloud dispatch → PR → review → merge
+Human goal → kerrigan → spec-kit lifecycle → cloud dispatch → PR → review → merge
               (plans)      (specify → plan       (one task,       (CI + Copilot
                             → tasks)              one PR)          review → human
                                                                    reviews direction)
@@ -41,7 +43,7 @@ Human goal → local agent → spec-kit lifecycle → cloud dispatch → PR → 
 
 **Key principles** ([constitution](specs/constitution.md)):
 - **Artifact-driven** — all work in repo files, validated by CI
-- **Two profiles** — `local` plans and dispatches, `cloud` implements and self-verifies
+- **Two profiles** — `kerrigan` plans and dispatches, `cloud` implements and self-verifies
 - **Human-in-loop for direction** — agents handle technical quality; humans verify intent
 - **Stack-agnostic** — works with any language, framework, or toolchain
 
@@ -57,7 +59,7 @@ Human goal → local agent → spec-kit lifecycle → cloud dispatch → PR → 
 
 ### Agent Profiles
 - **[AGENTS.md](AGENTS.md)** — Canonical entry point for all agents
-- **[Agent Profiles](.github/agents/README.md)** — `local`, `cloud`, `kerrigan` + adapters
+- **[Agent Profiles](.github/agents/README.md)** — `kerrigan`, `cloud` + adapters
 - **[Skills Library](.github/skills/README.md)** — Briefing packets, delegation rubric, etc.
 - **[Skills Framework](skills/README.md)** — Project-specific skill templates
 
@@ -109,7 +111,7 @@ See [docs/operations/autonomy-modes.md](docs/operations/autonomy-modes.md) for c
 ```
 kerrigan/
 ├── .github/
-│   ├── agents/              # local, cloud, kerrigan profiles + adapters
+│   ├── agents/              # kerrigan, cloud profiles + adapters
 │   ├── skills/              # Built-in skills (briefing, delegation, etc.)
 │   └── workflows/           # CI: validators, autonomy gates, smoke tests
 ├── docs/                    # Setup, architecture, FAQ, guides

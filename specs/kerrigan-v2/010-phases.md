@@ -2,6 +2,7 @@
 
 > Each phase is independently valuable. Ship → use → feedback → next.
 > v2 stands on top of GitHub Spec Kit; we don't build a parallel lifecycle.
+> Profile references below use the current `kerrigan` conductor + shaper and `cloud` executor. The [canonical startup policy](../../AGENTS.md#startup-role-policy) takes precedence over historical rollout assumptions; local/cloud remain execution locations.
 
 ## Phase 0 — Foundation (this PR wave)
 
@@ -11,10 +12,9 @@
 
 - Install spec-kit: `specify init --here --ai copilot --ai claude` at the repo root. Generates `.specify/`, slash commands for Copilot + Claude, `AGENTS.md` skeleton.
 - Merge spec-kit's `AGENTS.md` with the kerrigan-specific content: repo-level principles, delegation rubric pointer, runtime matrix, 4 labels. Keep ≤200 lines.
-- `.github/agents/local.md` — conductor profile. Universal Copilot-custom-agent frontmatter + Claude-Code-extended fields. Points at spec-kit slash commands as its primary tools.
+- `.github/agents/kerrigan.md` — conductor + swarm-shaper profile. Universal Copilot-custom-agent frontmatter + Claude-Code-extended fields. Points at spec-kit slash commands as its primary tools.
 - `.github/agents/cloud.md` — executor profile. Same format. Defaults to running `/speckit.implement` inside a worktree/container.
 - `.github/agents/adapters/` — thin one-page pointers to Claude Code's `Explore` and `Plan` built-ins and to GH Copilot's built-in review/coding agents. No prompt bodies — just "when to delegate to this built-in".
-- `.github/agents/kerrigan.md` — meta profile (swarm shaper). Rewrite frontmatter, trim body.
 - `.claude/agents/` symlinks (PowerShell junctions via `scripts/mirror-agents.ps1`) to `.github/agents/`.
 - Retire the remaining v1 role-prompt files in favor of the v2 profiles + skills/extensions.
 - Add 4 v2 labels (`agent:go`, `agent:wait`, `agent:local`, `autonomy:override`). Leave v1 labels in place; migrate in Phase 4.
@@ -49,7 +49,7 @@
 
 **Exit criteria:**
 
-- A greenfield repo: `specify init --here --ai copilot && specify preset add kerrigan` then talking to the `local` profile produces a plan, tasks, and dispatches a wave of 3 parallel-safe cloud tasks.
+- A greenfield repo: `specify init --here --ai copilot && specify preset add kerrigan` then talking to the `kerrigan` profile produces a plan, tasks, and dispatches a wave of 3 parallel-safe cloud tasks.
 - Satellites (`personal-selfhost`, `vhs-video-stack`) can adopt via two commands.
 
 ## Phase 2 — Trust (distributed verification)
@@ -90,7 +90,7 @@
 **Exit criteria:**
 
 - Task needing a paid-API secret that isn't configured emits a block naming the exact secret.
-- Local profile refuses to dispatch a `local_required` task to cloud and explains why.
+- The `kerrigan` conductor refuses to dispatch a `local_required` task to a cloud host and explains why.
 
 ## Phase 4 — Cleanup & satellite migration
 

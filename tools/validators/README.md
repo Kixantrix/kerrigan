@@ -1,5 +1,7 @@
 # Kerrigan Validators
 
+For a standalone copy of `agents_md.py`, also copy `tools/validators/requirements.txt` and install it with `python -m pip install -r tools/validators/requirements.txt` before running `python tools/validators/agents_md.py`. PyYAML is required; there is no untyped parser fallback. Full repository development installs the root `requirements.txt`, which includes the same dependency.
+
 All validators are run through the unified entry point:
 
 ```bash
@@ -20,7 +22,7 @@ The single CI entry point is `kerrigan check`
 
 | Validator | Description |
 |---|---|
-| `agents_md.py` | Validates `AGENTS.md` exists and every `.github/agents/*.md` profile has valid YAML frontmatter (`name`, `description`). |
+| `agents_md.py` | Validates `AGENTS.md` exists and every `.github/agents/*.md` profile has valid YAML frontmatter (`name`, `description`). Optional `mcp-servers` must be a mapping (`{}` for no servers), never an array or scalar. |
 | `check_artifacts.py` | Validates that required artifact files exist and contain required sections for each project in `specs/projects/`. |
 | `check_dependencies.py` | Validates task dependency syntax in `tasks.md` files and detects circular dependencies. |
 | `block_validator.py` | Validates block files in `.specify/blocks/` have correct YAML structure. |

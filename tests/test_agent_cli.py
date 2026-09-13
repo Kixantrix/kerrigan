@@ -1,5 +1,6 @@
 import unittest
 from pathlib import Path
+import re
 import sys
 
 from click.testing import CliRunner
@@ -33,4 +34,27 @@ class TestAgentCli(unittest.TestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Agent profile: kerrigan", result.output)
-        self.assertIn("File: .github/agents/kerrigan.md", result.output)
+        relative_path = Path(".github") / "agents" / "kerrigan.md"
+        self.assertIn(f"File: {relative_path}", result.output)
+        self.assertIn((REPO_ROOT / relative_path).read_text(encoding="utf-8"), result.output)
+
+    def test_help_and_documented_examples_resolve_real_profiles(self):
+        help_result = self.runner.invoke(agent, ["--help"], catch_exceptions=False)
+        self.assertEqual(help_result.exit_code, 0)
+        self.assertIn("does not select a runtime agent", help_result.output)
+        docs = (REPO_ROOT / "docs" / "operations" / "cli-reference.md").read_text(
+            encoding="utf-8"
+        )
+        package_readme = (REPO_ROOT / "tools" / "cli" / "kerrigan" / "README.md").read_text(
+            encoding="utf-8"
+        )
+        for source in (help_result.output, docs, package_readme):
+            examples = re.findall(r"kerrigan agent (\w+) --(?:show|copy)", source)
+            self.assertEqual(set(examples), {"kerrigan", "cloud"})
+            for profile in examples:
+                with self.subTest(profile=profile):
+                    result = self.runner.invoke(
+                        agent, [profile, "--show"], catch_exceptions=False
+                    )
+                    self.assertEqual(result.exit_code, 0)
+                    self.assertIn(f"Agent profile: {profile}", result.output)

@@ -1,4 +1,4 @@
-"""Agent command - invoke a v2 agent profile."""
+"""Agent command - inspect a v2 agent profile."""
 
 import click
 from pathlib import Path
@@ -13,13 +13,13 @@ from pathlib import Path
 @click.option('--copy', is_flag=True,
               help='Copy prompt to clipboard (requires pyperclip)')
 def agent(profile, list_profiles, show, copy):
-    """Invoke a v2 agent profile.
+    """Inspect a v2 agent profile (does not select a runtime agent).
     
     Loads and displays v2 agent profiles from .github/agents/
     
     Example:
         kerrigan agent --list
-        kerrigan agent local --show
+        kerrigan agent kerrigan --show
         kerrigan agent cloud --copy
     """
     # Find repository root
@@ -54,7 +54,7 @@ def agent(profile, list_profiles, show, copy):
             
             # Try to extract description from first line
             try:
-                with open(profile_file, 'r') as f:
+                with open(profile_file, 'r', encoding='utf-8') as f:
                     first_line = f.readline().strip()
                     if first_line.startswith('#'):
                         description = first_line.lstrip('#').strip()
@@ -84,7 +84,7 @@ def agent(profile, list_profiles, show, copy):
         raise click.Abort()
     
     # Read prompt
-    with open(profile_file, 'r') as f:
+    with open(profile_file, 'r', encoding='utf-8') as f:
         prompt = f.read()
     
     if copy:
