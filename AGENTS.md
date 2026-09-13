@@ -119,7 +119,7 @@ Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [
 
 ## Labels (v2)
 
-Four total, not fifteen. **None of these are enforced automatically.** For the issue-dispatch adapter, `@copilot` assignment starts the issue agent. Direct app sessions do not require that assignment. The labels are *annotations* the `kerrigan` profile (and humans) read to understand intent and state; they do not control app session execution. Existing repository-specific merge gates still apply.
+Four total, not fifteen. **None of these are enforced automatically.** For the issue-dispatch adapter, `@copilot` assignment starts the issue agent. Direct app sessions do not require that assignment. The labels are *annotations* the `kerrigan` conductor (and humans) read to understand intent and state; they do not control app session execution. Existing repository-specific merge gates still apply.
 
 - `agent:go` — annotation: this issue is ready to dispatch (or has been dispatched). Used by `kerrigan` to find work that's been triaged.
 - `agent:wait` — annotation: intentionally undispatched; waiting on a dependency, a wave, or human input. `kerrigan` should not auto-assign Copilot here.
@@ -189,4 +189,4 @@ Subprojects with their own conventions may include a nested `AGENTS.md`. Agents 
 
 **Humans:** Start with [`README.md`](./README.md), then [`specs/kerrigan-v2/000-vision.md`](./specs/kerrigan-v2/000-vision.md). Feedback from agents goes in [`feedback/agent-feedback/`](./feedback/agent-feedback/).
 
-**Agents:** Read this file, then the closest nested `AGENTS.md`, then your briefing packet (your primary brief — don't re-derive from the whole repo). If blocked, write `.specify/blocks/<task-id>.yaml` and stop.
+**Agents:** Read this file, then the closest nested `AGENTS.md`, then your assigned task context (the briefing packet when supplied, otherwise an actionable issue/chat assignment). Don't re-derive scope from the whole repo or invent a missing briefing. If blocked, write `.specify/blocks/<task-id>.yaml` and report it to the coordinator (or human when there is no coordinator).

@@ -1,6 +1,7 @@
 """Static instruction-contract checks, not runtime agent-picker assertions."""
 
 from pathlib import Path
+import re
 
 import pytest
 import yaml
@@ -102,3 +103,45 @@ def test_real_profiles_keep_permissions_and_loadable_mcp_shape(profile, permissi
     assert frontmatter["mcp-servers"] == {}
     assert frontmatter["permissionMode"] == permission
     assert frontmatter["isolation"] == isolation
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "AGENTS.md", "README.md", ".github/agents/README.md",
+        ".github/agents/cloud.md", ".github/agents/kerrigan.md",
+        "docs/operations/cli-reference.md", "docs/onboarding/setup.md",
+        "playbooks/v2-bootstrap.md", "tools/bootstrap.sh",
+        "tools/cli/kerrigan/kerrigan_cli/commands/agent.py",
+    ],
+)
+def test_active_startup_surfaces_do_not_advertise_absent_profile(path):
+    text = ROOT.joinpath(*path.split("/")).read_text(encoding="utf-8")
+    for obsolete in (
+        "kerrigan agent local", "@local", "agents/local.md",
+        "`local` profile", "`local` agent", "local profile", "local conductor",
+        "local,cloud,kerrigan", "local, cloud, kerrigan", "local addresses feedback",
+    ):
+        assert obsolete not in text
+    for profile in re.findall(r"\.github/agents/([a-z]+)\.md", text):
+        assert (PROFILES / f"{profile}.md").is_file()
+
+
+def test_independent_executor_requires_actionable_context_and_hands_off_review():
+    text = (PROFILES / "cloud.md").read_text(encoding="utf-8")
+    assert "If the `kerrigan` coordinator dispatched you" in text
+    assert "otherwise the actionable issue/chat assignment" in text
+    assert "Before implementation, require an actionable task context" in text
+    assert "outcome, scope boundaries, acceptance criteria, and verification requirements" in text
+    assert "selecting a profile alone is not a task assignment" in text
+    assert "If required context is missing or conflicting, stop" in text
+    assert "`kerrigan` conductor coordinates review response" in text
+    assert "assigns implementation fixes back to the executor on the same branch" in text
+    assert "If there is no coordinator, hand the PR" in text
+
+
+def test_validation_claim_names_actual_entrypoints_not_dispatch_preflight():
+    text = (PROFILES / "README.md").read_text(encoding="utf-8")
+    assert "`kerrigan check` and the verify CI workflow" in text
+    assert "current dispatch preflight does not invoke this validator" in text
+    assert "validates this before dispatch" not in text

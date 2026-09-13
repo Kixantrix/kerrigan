@@ -11,7 +11,7 @@ Before you begin, ensure you have:
 - **GitHub Account**: With repository access where you'll use Kerrigan
 - **Git**: Installed and configured on your machine
 - **AI Agent Access**: GitHub Copilot or similar AI coding assistant
-- **Python 3.8+**: For running validators (optional but recommended)
+- **Python 3.8+ with PyYAML**: For running validators (optional but recommended). Install the standalone validator dependency with `python -m pip install -r tools/validators/requirements.txt`; full repository development uses `requirements.txt`.
 - **PowerShell 5.1+**: For local automation scripts (PowerShell 7+ recommended)
 
 ## Step 1: Choose Your Template and Create Repository
@@ -111,7 +111,7 @@ gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large 
 
 ## Step 3: Choose Your Autonomy Mode
 
-Kerrigan v2 uses **2 behavioral profiles** (`kerrigan` conductor + `cloud` executor), independent of host. For the issue adapter:
+Kerrigan v2 uses **2 behavioral profiles** (`kerrigan` conductor + `cloud` executor), independent of host. Follow the [startup role policy](../../AGENTS.md#startup-role-policy): explicit selection or delegated assignment wins on either host; otherwise local human-facing sessions default to `kerrigan`, and known cloud execution defaults to `cloud`. Labels describe routing and state, not profile selection. For the issue adapter:
 
 - Add `agent:go` to mark an issue ready; dispatch requires explicit assignment, not the label alone
 - Add `agent:wait` to mark intentional waiting; coordinate an actual stop with the owner
@@ -242,7 +242,7 @@ git push origin main
 
 ### 6.5: Iterate on plan and tasks
 
-Within the accepted outcome, `kerrigan` follows `/speckit.specify` with `/speckit.plan` and `/speckit.tasks` without requiring routine "what next" prompts. The plan generates:
+For an accepted implementation outcome, `kerrigan` continues from specification through `/speckit.plan` and `/speckit.tasks` without requiring another routine follow-up request. If you requested specification only, that remains the delivery boundary. The plan generates:
 - `plan.md`
 - `tasks.md`
 - (optionally) `test-plan.md`

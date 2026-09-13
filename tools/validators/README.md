@@ -1,5 +1,7 @@
 # Kerrigan Validators
 
+For a standalone copy of `agents_md.py`, also copy `tools/validators/requirements.txt` and install it with `python -m pip install -r tools/validators/requirements.txt` before running `python tools/validators/agents_md.py`. PyYAML is required; there is no untyped parser fallback. Full repository development installs the root `requirements.txt`, which includes the same dependency.
+
 All validators are run through the unified entry point:
 
 ```bash

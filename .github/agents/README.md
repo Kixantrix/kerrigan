@@ -12,7 +12,7 @@ Following a profile's instructions is distinct from the runtime actually selecti
 
 All profiles use the GitHub Copilot custom-agent format (YAML frontmatter + Markdown body). Claude Code reads extended fields in the same frontmatter (`model`, `isolation`, `hooks`, `skills`, etc.) and ignores what Copilot doesn't recognize, and vice versa — **one file, all runtimes**.
 
-Optional `mcp-servers` must be a YAML mapping: use `{}` for no servers or omit the field. An array such as `[]` prevents the Copilot custom-agent loader from accepting the profile; `agents_md` validates this before dispatch.
+Optional `mcp-servers` must be a YAML mapping: use `{}` for no servers or omit the field. An array such as `[]` prevents the Copilot custom-agent loader from accepting the profile. `agents_md` validates this through `kerrigan check` and the verify CI workflow; the current dispatch preflight does not invoke this validator.
 
 Kerrigan-specific capability-manifest fields (`role`, `needs`, `verifies_before_pr`, `delegates`, `budget`, `blocks_on`) are ignored by both runtimes but read by kerrigan tooling (validators, conflict predictor, delegation rubric).
 
@@ -22,7 +22,7 @@ Claude Code looks in `.claude/agents/` by default. `scripts/mirror-agents.ps1` c
 
 ## See also: task instructions
 
-Agent profiles describe **who the agent is and how it runs**. The per-task instructions ("what should the agent do right now?") live in **briefing packets** at `.specify/briefings/<task-id>.md`, delivered to the worker session or attached to an optional GitHub issue. See [`../skills/briefing-packet/SKILL.md`](../skills/briefing-packet/SKILL.md).
+Agent profiles describe **who the agent is and how it runs**. Dispatched per-task instructions ("what should the agent do right now?") live in **briefing packets** at `.specify/briefings/<task-id>.md`, delivered to the worker session or attached to an optional GitHub issue. An explicitly selected executor or known cloud session can instead start from an actionable issue/chat assignment; it must establish the outcome, scope boundaries, and verification criteria before implementation, not invent a prior dispatch. See [`../skills/briefing-packet/SKILL.md`](../skills/briefing-packet/SKILL.md).
 
 A typical flow: `kerrigan` plans → prepares a briefing packet → starts an explicit `cloud` executor app session on a capability-appropriate host → confirms acknowledgment → the worker executes one coherent slice. Verify actual custom-profile loading separately from instructed behavior. `/kerrigan.dispatch` remains the optional issue adapter.
 
