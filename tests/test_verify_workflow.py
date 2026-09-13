@@ -100,11 +100,58 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         on_config = workflow["on"] if "on" in workflow else workflow.get(True, {})
         self.assertIn("pull_request", on_config)
         self.assertIn("merge_group", on_config)
+        self.assertEqual(on_config["merge_group"], {"branches": ["main"]})
+        self.assertEqual(workflow["permissions"], {"contents": "read"})
 
         jobs = workflow["jobs"]
+        self.assertEqual(set(jobs), {"validators", "tests", "smoke"})
         self.assertEqual(jobs["validators"]["name"], "kerrigan check")
         self.assertEqual(jobs["tests"]["name"], "tests")
         self.assertEqual(jobs["smoke"]["name"], "smoke")
+        for job_name, job in jobs.items():
+            with self.subTest(job=job_name):
+                self.assertNotIn("if", job, "required jobs must not exclude dependent PRs")
+
+    def test_verify_workflow_accepts_main_and_dependent_pr_targets(self):
+        """An unrestricted PR trigger includes main and every dependent base."""
+        workflow = yaml.safe_load(self.workflow_path.read_text(encoding="utf-8"))
+        on_config = workflow["on"] if "on" in workflow else workflow.get(True, {})
+        self.assertIn("pull_request", on_config)
+        self.assertIsNone(
+            on_config["pull_request"],
+            "pull_request must be unrestricted: main and non-main dependent targets "
+            "need the same verification, with no branch/path/type filters",
+        )
+
+    def test_verify_workflow_retains_required_commands(self):
+        """Expanding PR targets must not replace existing verification gates."""
+        workflow = yaml.safe_load(self.workflow_path.read_text(encoding="utf-8"))
+        required = {
+            "validators": {"Run validators": ["kerrigan check"]},
+            "smoke": {
+                "Run smoke test (if present)": [
+                    "bash scripts/smoke.sh", "pwsh -File scripts/smoke.ps1",
+                ],
+            },
+            "tests": {
+                "Run tests (if tests/ exists)": ["python -m pytest tests/ -v"],
+                "Check Python test dependencies": [
+                    "python -m tools.validators.check_python_deps",
+                ],
+            },
+        }
+        for job_name, commands in required.items():
+            steps = {
+                step["name"]: step
+                for step in workflow["jobs"][job_name]["steps"]
+                if "name" in step
+            }
+            for name, fragments in commands.items():
+                with self.subTest(job=job_name, step=name):
+                    self.assertIn(name, steps)
+                    self.assertNotIn("if", steps[name])
+                    for fragment in fragments:
+                        self.assertIn(fragment, steps[name]["run"])
 
 
 if __name__ == "__main__":

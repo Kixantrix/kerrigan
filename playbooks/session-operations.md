@@ -1,6 +1,6 @@
 # Session operations
 
-**Start here for dispatch and triage in the GitHub Copilot app.** Direct app session dispatch is primary; GitHub issues are an optional contextual adapter, not a prerequisite for starting a worker. This is an operating contract, not an enforced scheduler, resource lock, new tool, or permission grant. Existing issue scripts, generated briefings, CI, and repository gates remain valid and unchanged.
+**Start here for dispatch and triage in the GitHub Copilot app.** Direct app session dispatch is primary; GitHub issues are an optional contextual adapter, not a prerequisite for starting a worker. This is an operating contract, not an enforced scheduler, resource lock, new tool, or permission grant. Existing issue scripts, generated briefings, CI jobs, and repository gates remain valid; the verify PR-target trigger includes dependent branches as described below.
 
 Use the existing [startup role policy](../AGENTS.md#startup-role-policy), [briefing packet](../.github/skills/briefing-packet/SKILL.md), [routing rubric](../.github/skills/delegation-rubric/SKILL.md), and [test strategy](../docs/test-strategy.md). Keep state in the existing plan, tasks, briefing, and [block](../.github/skills/block-report/SKILL.md) primitives; no mandatory tracking database or separate per-run artifact set.
 
@@ -14,6 +14,8 @@ The human defines the outcome; the coordinator prioritizes, sequences, advances,
 4. Record the returned session identity and implementation owner in the existing task/briefing. The worker acknowledges its role, scope, base, delivery boundary, and resources before starting. A submitted request is not an acknowledged dispatch.
 
 The [issue adapter](../.github/prompts/kerrigan.dispatch.prompt.md) (`/kerrigan.dispatch` / `/speckit.taskstoissues`, existing issue scripts and `@copilot` assignment) remains available when useful or when direct sessions are unavailable. Labels annotate that path; they do not start, stop, or select profiles in app sessions. An issue body can carry the same briefing. An issue-only merge gate, where configured, still applies: satisfy it through an authorized adapter or report the blocker, never bypass it because dispatch was session-first.
+
+**Dependent-PR verification:** native stack registration does not override workflow target filters or prove CI ran. The former `pull_request.branches: [main]` filter in [verify](../.github/workflows/verify.yml) blocked actual verification on a PR targeting its parent branch. The PR trigger now accepts all target branches, retaining the same validators, smoke, tests, permissions, and `merge_group` support. Inspect runs for the current head after pushing; do not retarget a dependent PR to `main` merely to get checks.
 
 ### Briefing operations addendum
 
