@@ -1,14 +1,18 @@
 # Agent profiles
 
-Kerrigan v2 defines agents by **location**, not role.
+Kerrigan v2 has two behavioral profiles, usable on either host. Follow the ordered [startup role policy](../../AGENTS.md#startup-role-policy): explicit selection or delegated assignment first, then known cloud execution defaults to `cloud`, then local human-facing conversations default to `kerrigan`. A local worktree worker does not become a conductor merely because it is local.
 
 - [`kerrigan.md`](./kerrigan.md) — **conductor + shaper**. The single interactive profile. Plans, decides, dispatches project work; also maintains the harness itself (this directory, validators, workflows, specs). Runs in your chat (VS Code / Claude Code / Copilot CLI / github.com).
 - [`cloud.md`](./cloud.md) — **executor**. Implements one task slice in a cloud container or isolated worktree. Opens one PR. Default for `@copilot`-assigned issues.
 - [`adapters/`](./adapters/) — thin pointers to built-in sub-agents (Claude Code `Explore` / `Plan`, GH Copilot review / coding agent).
 
+Following a profile's instructions is distinct from the runtime actually selecting/loading that custom agent. Repository instructions do not persist picker state, select models, or broaden permissions. Conductor [outcome ownership](../../AGENTS.md#outcome-ownership) covers routine sequencing and child decisions; executor blockers go to the coordinator with evidence and options.
+
 ## Format
 
 All profiles use the GitHub Copilot custom-agent format (YAML frontmatter + Markdown body). Claude Code reads extended fields in the same frontmatter (`model`, `isolation`, `hooks`, `skills`, etc.) and ignores what Copilot doesn't recognize, and vice versa — **one file, all runtimes**.
+
+Optional `mcp-servers` must be a YAML mapping: use `{}` for no servers or omit the field. An array such as `[]` prevents the Copilot custom-agent loader from accepting the profile; `agents_md` validates this before dispatch.
 
 Kerrigan-specific capability-manifest fields (`role`, `needs`, `verifies_before_pr`, `delegates`, `budget`, `blocks_on`) are ignored by both runtimes but read by kerrigan tooling (validators, conflict predictor, delegation rubric).
 
