@@ -78,6 +78,9 @@ same-session wakeups or automations on another device.
 | F17 | Owner requests consistent GitHub triage without losing session accountability | Recurring triage detects and routes exceptions to owners; it does not silently take over work or clean up merely idle sessions |
 | F18 | Owner rejects PR proliferation as another impediment and prefers balanced, somewhat larger changes | Optimize end-to-end delivery/review cost; combine tightly coupled prerequisites, behavior, tests and docs rather than enforce numeric size targets |
 | F19 | A pilot's installed CLI ran an extra validator from another installation; checked-in CLI isolation restored the actual 13-validator gate, and explicit shell/interpreter selection resolved smoke invocation | Bind verification to the checked-in tool revision and supported environment before blaming code or weakening a gate |
+| F20 | [Budget Telemetry run 34773794566](https://github.com/Kixantrix/kerrigan/actions/runs/34773794566) cannot start because two third-party comment actions are disallowed by repository policy; their pinned commits resolve | Replace dependencies within policy, not relax it; unavailable usage must not be presented as zero or within budget |
+| F21 | The actual upper PR in native stack 432 did not run `verify`: its target is the lower branch, while the workflow filtered PR targets to `main` | Operations package now removes only that target restriction; keep existing jobs, permissions and merge-group support |
+| F22 | A direct cloud session was created, but reconnect/control failed because the app SDK lacked the required streaming-session capability | Cloud execution is unverified here; preserve the attempt and reconcile ownership before starting a competing copy |
 
 ### Counterevidence that changes the recommendation
 
@@ -132,7 +135,7 @@ diagnosis sufficient to assign a root cause.
 
 | Capability | Established | Still to verify |
 |---|---|---|
-| Direct local/cloud session | App supports both; cloud sandbox is preview Linux execution [S1, S4] | Account access, repo policy, cost and task dependencies |
+| Direct local/cloud session | App documents both; local starts exercised; cloud metadata creation succeeded but reconnect failed in this installation [S1, S4] | Cloud execution/control, SDK compatibility, account access, policy and cost |
 | Custom agent | Picker and `/agent`; both corrected profiles constructed via CLI, and explicit app-native Kerrigan startup succeeded on #430 | Picker discovery/refresh/default persistence across devices and worker inheritance |
 | Local default Kerrigan | Requested behavioral policy | Actual picker default; no documented per-host config key found |
 | Cloud executor | Can be explicitly selected when launching a worker | Do not assume all child sessions inherit selection |
@@ -154,6 +157,11 @@ A manual read-only Kerrigan triage pass found older open/draft PRs needing
 ownership/disposition reconciliation, alongside currently owned audit deliveries.
 No PR was closed and no session was archived on age or idle status. This is a
 triage observation, not proof of a functioning recurring automation.
+
+The cloud error specifically required a Rust SDK sync exposing
+`sessions.connect` as a high-level event-streaming session. No successful
+execution or repair was inferred from session creation, and no competing local
+telemetry worker was started while the cloud attempt's ownership was unresolved.
 
 ## Primary references
 

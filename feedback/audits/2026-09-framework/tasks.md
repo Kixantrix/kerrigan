@@ -10,6 +10,8 @@ Dependencies below are logical, not a mandate to stack.
 Published deliveries:
 [P0/P1 startup and follow-through, #430](https://github.com/Kixantrix/kerrigan/pull/430),
 and [P4a verification guidance, #429](https://github.com/Kixantrix/kerrigan/pull/429).
+The [session-operations package, #431](https://github.com/Kixantrix/kerrigan/pull/431)
+is linked above #430 in native stack 432, ordered bottom-to-top as 430, 431.
 Both passed their initial CI. Corrected profiles constructed successfully in
 the CLI; an explicitly selected app-native Kerrigan session also started on
 the P0/P1 branch. Picker default persistence remains unverified.
@@ -28,6 +30,7 @@ measurement remain separate completion states.
 | P5 | Strengthen existing attestation contract/validator/workflow in a dedicated implementation PR | P4 | Wrong SHA/model/input, missing log, unauthorized/stale evidence rejected; expected ACs and merge-candidate semantics tested |
 | P6 | Define accountable exception-only GitHub triage; pilot recurrence after manual read-only pass and permission/runtime check | P3 | Existing work retains owner; no duplicate implementation or repeated nudges; overlap, no-op, transfer, completion and stop behavior demonstrated |
 | P7 | Reconcile feedback retention and publish selective versioned adoption guidance | P1-P4 | One learning promoted to canonical rule; one satellite adoption/rollback demonstrated without overwriting local policy |
+| P8 | Repair advisory budget telemetry within existing Actions policy; make partial/unavailable data explicit | Cloud ownership/access reconciliation | Allowed action dependencies, own-comment update, no false within-budget claim from unknown data; currently blocked by cloud SDK reconnect support |
 
 The initial deliveries are this audit, one P0/P1 startup package, and independent
 P4a testing guidance. The P2/P3/P6 session-operations package is executing above
@@ -37,6 +40,13 @@ balanced PR size, rather than creating a stack for a small prerequisite.
 P2/P3/P6 guidance can form a later coherent session-operations package; actual
 scheduler/locking code and live CI changes need their own evidence and scope.
 The owner delegated routine sequencing, not meaningful direction changes.
+
+The operations package includes one evidence-driven CI exception: remove the
+`pull_request` target-branch filter that prevented upper layers from running
+the existing verification. It does not add jobs, weaken checks, or alter
+permissions/merge-group coverage. Confirm real current-head execution after sync.
+The telemetry cloud attempt is not treated as completed or successfully running;
+do not dispatch a duplicate local implementation until ownership is reconciled.
 
 ## Measurement and promotion
 

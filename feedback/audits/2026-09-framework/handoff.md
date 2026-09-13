@@ -53,7 +53,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F19, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F22, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -83,3 +83,11 @@ ownership rather than asking the human to replan. Bring the human only a genuine
 direction, authority, material risk/cost or reserved-judgment decision. Broader
 CI and resource changes wait for measured evidence; do not quietly weaken
 technical verification to reduce cost.
+
+Cloud continuation has an additional open platform boundary: session metadata
+creation worked, but reconnect required SDK streaming-session support unavailable
+in this installation. Do not assume the telemetry worker completed, failed
+remotely, or never started. Reconcile its actual ownership/execution through a
+capable client before resuming elsewhere. The local operations PR also exposed
+and corrected a main-target-only verification trigger; validate stack checks
+on the real head, not just local tests or the lower PR's green status.
