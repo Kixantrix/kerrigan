@@ -65,3 +65,17 @@ def test_skills_preserve_selection_and_handoff_safeguards(skill_name, required):
                        .read_text(encoding="utf-8").split())
     for phrase in required:
         assert phrase in content, f"{skill_name} must retain: {phrase}"
+
+
+def test_scenario_contract_preserves_manual_human_completion_without_attestation():
+    root = Path(__file__).resolve().parents[2]
+    content = (root / ".github" / "skills" / "scenario-test" / "SKILL.md").read_text(encoding="utf-8")
+    contract = content.split("## Contract\n", 1)[1].split("\n## ", 1)[0]
+    bullets = [" ".join(bullet.split()) for bullet in contract.split("\n- ")]
+    attestation = [bullet for bullet in bullets if "pending-attestation:" in bullet]
+    assert len(attestation) == 1
+    assert attestation[0].startswith("For `local-attested-*` only,")
+    manual = next(bullet for bullet in bullets if bullet.startswith("For `manual-human`,"))
+    assert "close the AC when a qualified reviewer accepts all named rubric criteria" in manual
+    assert "retains the decision with matching evidence" in manual
+    assert "no local-attestation marker is required" in manual

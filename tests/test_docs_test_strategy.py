@@ -8,6 +8,40 @@ import yaml
 
 
 DOC = Path(__file__).resolve().parent.parent / "docs" / "test-strategy.md"
+EXPECTED_BOUNDARIES = {
+    "Incorrect transform or error handling": (
+        "Expected values and typed errors",
+        "All assertions pass, including invalid input",
+    ),
+    "Broken model interface": (
+        "Pinned tiny fixture reference shapes, dtypes and error cases",
+        "Exact shape/dtype; output tolerance <= 1e-6",
+    ),
+    "Broken service or transitive consumer": (
+        "Consumer contract against changed producer",
+        "All affected contracts pass",
+    ),
+    "Unbuildable or unlaunchable application": (
+        "Normal build/package and launch happy path",
+        "Build/package exit 0 and health assertion passes",
+    ),
+    "Broken user workflow": (
+        "Real interface checkpoints and persisted end state",
+        "All affected journey assertions pass",
+    ),
+    "Real model quality regression": (
+        "Real pinned checkpoint on versioned evaluation set",
+        "Example accuracy >= 0.90",
+    ),
+    "Device correctness or performance regression": (
+        "Real target backend/device against reference and timing budget",
+        "Example max error <= 1e-4 and p95 <= 50 ms",
+    ),
+    "Outcome requires human judgment": (
+        "Named review rubric and qualified reviewer",
+        "All rubric criteria accepted",
+    ),
+}
 
 
 def section(heading):
@@ -35,25 +69,44 @@ def test_doc_present_and_has_sections():
     assert "scenario-test" in content
 
 
-def test_risk_matrix_has_complete_single_axis_rows():
-    content = section("Risk, trigger and evidence matrix")
+def assert_matrix_contract(content):
     lines = [line for line in content.splitlines() if line.startswith("|")]
     rows = [[cell.strip() for cell in line.strip("|").split("|")] for line in lines]
     assert rows[0] == ["Risk", "Oracle", "Threshold", "Level", "Environment", "Trigger", "Evidence"]
-    assert len(rows[2:]) == 8
+    assert len(rows[2:]) == len(EXPECTED_BOUNDARIES)
+    assert {row[0] for row in rows[2:]} == EXPECTED_BOUNDARIES.keys()
     for risk, oracle, threshold, level, environment, trigger, evidence in rows[2:]:
         assert all((risk, oracle, threshold, trigger, evidence))
+        assert (oracle, threshold) == EXPECTED_BOUNDARIES[risk], f"{risk}: oracle/threshold boundary"
         assert level in {"unit", "integration", "smoke", "e2e", "scenario"}
         assert environment in {
             "cloud-linux", "cloud-windows", "cloud-self-hosted-model-eval",
             "local-attested-accelerator", "manual-human",
         }
     by_risk = {row[0]: dict(zip(rows[0], row)) for row in rows[2:]}
-    assert "1e-6" in by_risk["Broken model interface"]["Threshold"]
-    assert "0.90" in by_risk["Real model quality regression"]["Threshold"]
     device = by_risk["Device correctness or performance regression"]
-    assert "1e-4" in device["Threshold"] and "p95 <= 50 ms" in device["Threshold"]
     assert device["Environment"] == "local-attested-accelerator"
+
+
+def test_risk_matrix_has_complete_single_axis_rows():
+    assert_matrix_contract(section("Risk, trigger and evidence matrix"))
+
+
+@pytest.mark.parametrize("risk", EXPECTED_BOUNDARIES)
+@pytest.mark.parametrize("column", [1, 2], ids=["oracle", "threshold"])
+@pytest.mark.parametrize("placeholder", ["TBD", "<placeholder>"])
+def test_matrix_rejects_unmeasurable_boundaries_in_every_row(risk, column, placeholder):
+    lines = section("Risk, trigger and evidence matrix").splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith(f"| {risk} |"):
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            cells[column] = placeholder
+            lines[index] = "| " + " | ".join(cells) + " |"
+            break
+    else:
+        pytest.fail(f"Missing matrix row: {risk}")
+    with pytest.raises(AssertionError, match="oracle/threshold boundary"):
+        assert_matrix_contract("\n".join(lines))
 
 
 def test_evidence_template_captures_reproducible_identity_and_result():

@@ -14,8 +14,12 @@
   digests, device/runtime, policy version, command, actual metrics and retained logs.
 - Predeclare tolerances and performance conditions (warmup, sample count, timing);
   require real model/device checks for change-critical risks, not tiny-fixture substitutes.
-- Keep `pending-attestation: <ac-id>` until authorized matching evidence exists.
-  Missing/stale logs or mismatched source/inputs cannot close the AC.
+- For `local-attested-*` only, keep `pending-attestation: <ac-id>` until authorized
+  matching evidence exists.
+- For `manual-human`, close the AC when a qualified reviewer accepts all named
+  rubric criteria and retains the decision with matching evidence; no
+  local-attestation marker is required.
+- Missing/stale logs or mismatched source/inputs cannot close the AC.
 
 ## Shape
 
