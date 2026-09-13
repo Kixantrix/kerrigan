@@ -203,6 +203,21 @@ def test_record_examples_are_complete_yaml_without_new_database(heading, keys):
     assert "no mandatory tracking database" in TEXT
 
 
+def test_triage_progress_uses_live_and_meaningful_evidence_not_metadata_age():
+    triage = section("Accountable triage")
+    for phrase in [
+        "fresh supported live activity for current status",
+        "recent meaningful output/checkpoint evidence for last progress",
+        "metadata `updated_at` alone cannot establish a stale, idle, or dead owner",
+        "System notifications and acknowledgments alone are not useful progress",
+        "substantive results, decisions, verification, or a documented blocker/next action",
+        "missing or conflicting, keep the state unknown",
+        "record the evidence gap and next check",
+        "do not infer inactivity or apply a global timestamp threshold",
+    ]:
+        assert phrase in triage
+
+
 def test_triage_separates_stable_identity_freshness_and_delivery_state():
     triage = section("Accountable triage")
     for phrase in [

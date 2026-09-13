@@ -56,6 +56,8 @@ Run the existing file-conflict predictor for parallel candidates and respect dep
 
 Perform a manual read-only pass first, before proposing recurring automation. Read current app session status, PR/issue state, checks, review threads/evidence, and pending decisions within the authorized repositories. Reconcile them with existing task/briefing owners; do not use conversation memory as live status.
 
+Use fresh supported live activity for current status and recent meaningful output/checkpoint evidence for last progress. Session metadata `updated_at` alone cannot establish a stale, idle, or dead owner; it can lag continuing work. System notifications and acknowledgments alone are not useful progress on the accepted outcome: look for substantive results, decisions, verification, or a documented blocker/next action. If live activity or progress evidence is missing or conflicting, keep the state unknown and record the evidence gap and next check; do not infer inactivity or apply a global timestamp threshold.
+
 Look for ownerless or stale actionable PRs, issues, failing/pending checks, unresolved reviews, and decisions. Stale means an expected action/check is overdue without meaningful progress, not merely an old timestamp or an idle session. Capture the exception in the existing task/briefing or retained triage handoff, not a new mandatory database. Minimum example shape:
 
 ```yaml
