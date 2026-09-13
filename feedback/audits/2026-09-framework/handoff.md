@@ -53,7 +53,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F22, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F23, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -91,3 +91,8 @@ remotely, or never started. Reconcile its actual ownership/execution through a
 capable client before resuming elsewhere. The local operations PR also exposed
 and corrected a main-target-only verification trigger; validate stack checks
 on the real head, not just local tests or the lower PR's green status.
+
+One audit-owned, once-only follow-up was configured for review reconciliation;
+it is not recurring triage. Verify whether it actually fired rather than
+inferring execution from a saved schedule, and do not duplicate its lifecycle
+ownership while it remains active.

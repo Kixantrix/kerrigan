@@ -81,6 +81,7 @@ same-session wakeups or automations on another device.
 | F20 | [Budget Telemetry run 34773794566](https://github.com/Kixantrix/kerrigan/actions/runs/34773794566) cannot start because two third-party comment actions are disallowed by repository policy; their pinned commits resolve | Replace dependencies within policy, not relax it; unavailable usage must not be presented as zero or within budget |
 | F21 | The actual upper PR in native stack 432 did not run `verify`: its target is the lower branch, while the workflow filtered PR targets to `main` | Operations package now removes only that target restriction; keep existing jobs, permissions and merge-group support |
 | F22 | A direct cloud session was created, but reconnect/control failed because the app SDK lacked the required streaming-session capability | Cloud execution is unverified here; preserve the attempt and reconcile ownership before starting a competing copy |
+| F23 | One same-session, once-only review follow-up was saved and read back for 2026-09-13 18:30:56 UTC | Configuration is verified; actual firing, recurrence, overlap and restart behavior are not yet established |
 
 ### Counterevidence that changes the recommendation
 
@@ -141,7 +142,7 @@ diagnosis sufficient to assign a root cause.
 | Cloud executor | Can be explicitly selected when launching a worker | Do not assume all child sessions inherit selection |
 | Cross-device continuation | Git artifacts are portable; remote control keeps execution on the online local host [S4] | Snapshot/remote-control behavior in the installed version; local-only artifacts must be handed off separately |
 | Automation | App supports local/cloud automation [S5] | Eligibility, overlap, restart and stop behavior; public-repo cloud-automation restrictions |
-| Same-session wake | Present in this audit runtime's tool contract, distinct from new-session workflows | Not exercised; do not generalize persistence or schedule semantics from CLI documentation |
+| Same-session wake | One finite follow-up configured and read back in this audit runtime, distinct from new-session workflows | Firing pending; recurrence/overlap/restart not verified; do not generalize from CLI scheduling docs |
 | Service concurrency cap | No numeric app limit verified | Capture actual error class/timestamp/request ID before attributing failure to fanout |
 
 No app settings, agent picker state, automations, service limits, branch
@@ -162,6 +163,10 @@ The cloud error specifically required a Rust SDK sync exposing
 `sessions.connect` as a high-level event-streaming session. No successful
 execution or repair was inferred from session creation, and no competing local
 telemetry worker was started while the cloud attempt's ownership was unresolved.
+
+The once-only follow-up is owned by this audit session and limited to review/CI
+reconciliation. It cannot create workers, merge/close/archive work, or reschedule
+itself. This is not an enabled recurring triage service or a new GitHub workflow.
 
 ## Primary references
 

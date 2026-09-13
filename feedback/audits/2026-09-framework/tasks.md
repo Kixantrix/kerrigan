@@ -12,7 +12,11 @@ Published deliveries:
 and [P4a verification guidance, #429](https://github.com/Kixantrix/kerrigan/pull/429).
 The [session-operations package, #431](https://github.com/Kixantrix/kerrigan/pull/431)
 is linked above #430 in native stack 432, ordered bottom-to-top as 430, 431.
-Both passed their initial CI. Corrected profiles constructed successfully in
+The current startup and strategy heads passed their required CI; the operations
+head also passed real Linux verification after its trigger/consumer corrections.
+Reported review findings have been addressed; final operations convergence
+assessment is being reconciled without another unbounded review loop.
+Corrected profiles constructed successfully in
 the CLI; an explicitly selected app-native Kerrigan session also started on
 the P0/P1 branch. Picker default persistence remains unverified.
 Publication is not merge or proof of CI savings; review and later shadow
@@ -47,6 +51,8 @@ the existing verification. It does not add jobs, weaken checks, or alter
 permissions/merge-group coverage. Confirm real current-head execution after sync.
 The telemetry cloud attempt is not treated as completed or successfully running;
 do not dispatch a duplicate local implementation until ownership is reconciled.
+A once-only same-session follow-up is configured to finish review reconciliation;
+actual firing and broader automation semantics remain unverified at publication.
 
 ## Measurement and promotion
 
