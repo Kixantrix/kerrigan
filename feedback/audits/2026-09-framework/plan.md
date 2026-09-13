@@ -13,6 +13,15 @@ separately. Local human-facing conversations should default behaviorally to
 Kerrigan; explicitly delegated workers remain executors on either host.
 Unknown host/role must not silently grant wider permissions.
 
+An accepted outcome delegates prioritization. Kerrigan chooses and advances
+the next ready slice, resolves in-scope child plans/questions, and continues
+through verification and review. Do not ask the human to choose routine order
+or reapprove work already within the outcome. Escalate a material scope/product
+tradeoff, conflicting evidence that changes direction, authority/privacy
+boundary, significant unapproved cost, or irreversible/shared-state action.
+When independent authorized work remains, continue it while a real decision
+is pending. Notifications and ordinary idle states are not approval gates.
+
 Use direct app sessions as the normal dispatch path. An issue is optional
 tracking/context, not an execution prerequisite. Keep AC/test mapping, closed
 file scope, decisions, verification and blocks from the existing briefing.

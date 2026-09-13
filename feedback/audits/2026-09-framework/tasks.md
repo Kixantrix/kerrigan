@@ -8,16 +8,21 @@ change satellite code. Dependencies below are logical, not a mandate to stack.
 |---|---|---|---|
 | A0 | Publish sanitized audit, plan and cross-device handoff under `feedback/`; link intake | None | Sources/gaps explicit, no private evidence, docs checks, non-empty PR |
 | A1 | Collect second-device evidence using the handoff; append only new/redacted observations | A0 | Coverage/version recorded; contradictions and failed attempts preserved; no duplicate audit |
-| P1 | Align role defaults and agent discovery guidance in entry points/profiles and their tests | A0 + direction checkpoint | Local human-facing session behaves as conductor; explicit local/cloud worker remains executor; picker observed separately; unknown default support reported, not simulated |
+| P0 | Repair invalid MCP-server frontmatter in both profiles and add validator regression cases | A0 | Mapping/omitted accepted, arrays/scalars rejected with actionable errors; actual runtime load succeeds |
+| P1 | Align role defaults, autonomous follow-through and agent discovery guidance in entry points/profiles and their tests | P0 | Local human-facing session behaves as conductor; explicit local/cloud worker remains executor; routine sequencing stays with coordinator; picker observed separately |
 | P2 | Make briefing/dispatch guidance session-first; optional issue adapter retained; small-PR and review-convergence checkpoints | P1 | One direct-session slice and one legacy issue briefing preserve identical scope/AC gates; parent-relative diff checked; actual review and final decision evidence recorded; relevant routing/briefing tests updated |
 | P3 | Define single-owner handoff, bounded fanout and resource protocol in coordination skills/playbooks | A1 | One lead-transfer drill, no duplicate dispatch, no device overlap; future locking code is a separate implementation slice |
-| P4 | Add risk/trigger/evidence matrix to test guidance; one satellite affected-CI shadow pilot | A1 | Ten candidate PRs compared with unchanged broad gates; missed failures tracked; no required checks removed |
+| P4a | Add risk/trigger/evidence matrix to existing test guidance with documentation contract tests | A0 | Existing levels/environments preserved; triggers, real oracles, evidence identity and conservative fallback explicit; no actual gates changed |
+| P4 | Run one satellite affected-CI shadow pilot | A1 + P4a | Ten candidate PRs compared with unchanged broad gates; missed failures tracked; no required checks removed |
 | P5 | Strengthen existing attestation contract/validator/workflow in a dedicated implementation PR | P4 | Wrong SHA/model/input, missing log, unauthorized/stale evidence rejected; expected ACs and merge-candidate semantics tested |
 | P6 | Pilot one bounded automation only after selecting its concrete job and authorization | P3 | Manual run first; overlap, no-op, owner transfer, completion, error and restart/expiry behavior demonstrated |
 | P7 | Reconcile feedback retention and publish selective versioned adoption guidance | P1-P4 | One learning promoted to canonical rule; one satellite adoption/rollback demonstrated without overwriting local policy |
 
-P1 is the recommended first behavior change because the local executor default
-directly contradicts the requested workstyle. Do not bundle all entry points,
+P0 became the immediate prerequisite when actual custom-agent startup failed.
+P0 and independent P4a are executing; P1 follows without another priority vote.
+The owner explicitly delegated sequencing, not meaningful direction changes.
+P1 addresses the local executor default and unnecessary approval pauses.
+Do not bundle all entry points,
 dispatch tooling, CI redesign and resource scheduling into that PR. If a slice
 has two independent outcomes, split it further before execution.
 
@@ -34,5 +39,6 @@ has two independent outcomes, split it further before execution.
 Rollback means revert the isolated pilot/policy change and restore the previous
 gate/dispatch behavior, preserving evidence and user work. Stop expansion on a
 missed relevant failure, duplicate mutation, unowned resource access, or ambiguous
-permission boundary. Shared CI/permissions and new cloud spend need explicit
-direction approval; no automatic broad rollout follows this audit.
+permission boundary. Shared CI/permissions and significant unapproved cloud
+spend need direction approval; routine sequencing within the accepted outcome
+does not. No automatic broad rollout follows this audit.

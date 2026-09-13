@@ -20,6 +20,11 @@ local Kerrigan coordination and explicit executor delegation; cloud offload when
 appropriate; smaller PRs; deep but efficient verification; useful automations;
 less chatter and resource contention; portable learning across machines.
 
+**Owner clarification during this audit:** an accepted outcome delegates
+prioritization and routine sequencing. Asking "what first/next" is not a useful
+approval gate when the next work is clear. Kerrigan should proceed and escalate
+only meaningful direction, risk, authority or cost decisions.
+
 The [constitution](../../../specs/constitution.md) remains the foundation:
 humans decide direction, agents own technical verification, scope is reviewable,
 and operational cost matters. Neither reduced CI nor faster fanout is an outcome
@@ -63,6 +68,8 @@ same-session wakeups or automations on another device.
 | F12 | Historical hook repairs were repeatedly reported complete before the owner reported continued failure; public #427 later changed Windows handling | Verify the actual host/runtime, report uncertainty, and canary before cross-repo propagation |
 | F13 | Satellite review evidence varies: useful defect-finding reviews and a sustained review loop in one sample; no formal reviews returned for 20 PRs in another despite declared review expectations | Verify actual review evidence separately from configured intent; preserve useful review and add a non-convergence checkpoint |
 | F14 | Sampled application work corrected a claimed e2e test to integration; another final decision diverged from its living plan | Reconcile final decisions and distinguish implemented, CI-verified and target-environment-verified completion |
+| F15 | This audit itself asked the owner to choose the next pilot; the owner explicitly rejected routine priority approval as unnecessary pausing | Delegate sequencing with the outcome; coordinator advances ready work and handles in-scope worker questions without involving the human |
+| F16 | Two explicit `cloud` custom-agent pilot starts failed with `mcp-servers: Expected object, received array`; both repository profiles contain `mcp-servers: []`, while the official schema requires an object [S2] | Fix profile loading before default-role migration; add schema regression coverage and verify real runtime loading |
 
 ### Counterevidence that changes the recommendation
 
@@ -128,6 +135,11 @@ diagnosis sufficient to assign a root cause.
 
 No app settings, agent picker state, automations, service limits, branch
 protection or satellite code are changed by this evidence packet.
+
+The F16 failure is directly reproduced loader evidence, not a concurrency
+diagnosis. Subsequent continuation messages were delivered to the created pilot
+workspaces without repeating the failed explicit custom-agent kickoff; this
+does not itself prove that a corrected profile loads or that the picker is fixed.
 
 ## Primary references
 

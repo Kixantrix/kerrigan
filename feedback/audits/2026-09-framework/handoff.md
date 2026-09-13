@@ -45,7 +45,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F14, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F16, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -61,13 +61,17 @@ owner starts. Do not publish private session identifiers here.
 ## Current boundaries and decisions
 
 Initial publication is an evidence/handoff deliverable, not a claim of completed
-rollout. No new scheduling, cloud spending, GPU allocation, agent installation,
-branch-protection changes or satellite edits are authorized by this packet.
+rollout. The owner authorized prioritization and bounded improvements without
+routine "what next" approvals. P0 profile loading and P4a verification guidance
+are executing in separate sessions/PRs; P1 role defaults/follow-through follows.
+No new scheduling, GPU allocation, agent installation, branch-protection
+changes or satellite edits are authorized merely by reading this packet.
 The owner already requested session-first work and local conductor/cloud executor
 defaults. The unresolved product question is **how the installed app exposes and
 persists selection**, not whether to preserve that preference.
 
-The next direction checkpoint should choose the P1 pilot scope and a
-representative device/repo, then execute a separate small PR. Broader CI and
-resource changes wait for measured evidence; do not quietly weaken technical
-verification to reduce cost.
+The current conductor owns priority and next-ready-slice selection. Coordinate
+ownership rather than asking the human to replan. Bring the human only a genuine
+direction, authority, material risk/cost or reserved-judgment decision. Broader
+CI and resource changes wait for measured evidence; do not quietly weaken
+technical verification to reduce cost.
