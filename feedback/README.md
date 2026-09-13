@@ -27,7 +27,12 @@ feedback/
     └── *.md                    # Feedback from satellite installations
 ```
 
-**Note:** Feedback files remain in `agent-feedback/` indefinitely. The daily self-improvement workflow uses date-based filtering (`--since-days 7`) to automatically skip older feedback during analysis. Files older than 30 days should be periodically deleted to keep the directory manageable.
+**Retention is outcome-based, not age-based.** Keep unresolved feedback until
+its decision and accountable next action are recorded. Once the lesson is
+absorbed into a canonical rule/change or a durable tracked follow-up, record
+that link and disposition before removing the intake file through normal
+review. Git history retains it; `processed/` is temporary staging, not an archive.
+Do not delete unresolved evidence merely because it is old.
 
 ## Quick Start
 
@@ -70,7 +75,25 @@ See `feedback/satellite/README.md` for detailed instructions.
 
 3. **Take action**: Update prompts, contracts, or playbooks based on analysis
 
-4. **Monitor automated workflow**: Daily self-improvement workflow creates issues for high/medium priority items
+4. **Close the loop**: Record the canonical rule/change, owner and adoption outcome.
+   Kerrigan's checked-in workflows do not provide a daily self-improvement
+   automation; verify any satellite-specific automation rather than assuming
+   one is running. Any recurring triage needs an explicit owner,
+   bounded scope and stop conditions.
+
+### From Observation to Reusable Learning
+
+Use the existing feedback entry's context and notes (or a Markdown contribution),
+not another mandatory artifact. Record what was observed versus reported or
+proposed, the applicable runtime/harness revision and scope, counterexamples,
+the decision owner, and the target canonical skill/playbook/rule. Keep private
+source receipts outside public feedback.
+
+When adopted, link the canonical change and record the satellite's adopted
+revision, local overrides and observed result. A merged harness PR is not proof
+that every repository or device adopted it. Keep domain-specific lessons local;
+promote validated general lessons centrally. See the
+[cross-device handoff](audits/2026-09-framework/handoff.md) for a concrete example.
 
 ## Feedback Categories
 
@@ -113,7 +136,8 @@ See `feedback/satellite/README.md` for detailed instructions.
 
 ## Examples
 
-See `processed/` directory for examples of feedback that has been reviewed and acted upon, demonstrating:
+See the [framework audit](audits/2026-09-framework/README.md) and Git history for
+examples of feedback and its disposition, demonstrating:
 - How to write clear, actionable feedback
 - What kinds of issues are valuable to report
 - How feedback leads to system improvements

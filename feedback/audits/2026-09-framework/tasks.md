@@ -29,7 +29,7 @@ measurement remain separate completion states.
 | P4 | Run one satellite affected-CI shadow pilot | A1 + P4a | Ten candidate PRs compared with unchanged broad gates; missed failures tracked; no required checks removed |
 | P5 | Strengthen existing attestation contract/validator/workflow in a dedicated implementation PR | P4 | Wrong SHA/model/input, missing log, unauthorized/stale evidence rejected; expected ACs and merge-candidate semantics tested |
 | P6 | Define accountable exception-only GitHub triage; pilot recurrence after manual read-only pass and permission/runtime check | P3 | Existing work retains owner; no duplicate implementation or repeated nudges; overlap, no-op, transfer, completion and stop behavior demonstrated |
-| P7 | Reconcile feedback retention and publish selective versioned adoption guidance | P1-P4 | One learning promoted to canonical rule; one satellite adoption/rollback demonstrated without overwriting local policy |
+| P7 | Reconcile feedback retention and publish selective versioned adoption guidance | P1-P4 | Intake/disposition docs aligned in this audit PR; a satellite adoption/rollback remains to demonstrate without overwriting local policy |
 | P8 | Repair advisory budget telemetry within existing Actions policy; make partial/unavailable data explicit | Cloud ownership/access reconciliation | Allowed action dependencies, own-comment update, no false within-budget claim from unknown data; currently blocked by cloud SDK reconnect support |
 
 The initial deliveries are this audit, one P0/P1 startup package, and independent
