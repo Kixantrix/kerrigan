@@ -226,7 +226,7 @@ Goal: implement my-first-project per issue #123.
 Please draft a briefing packet and dispatch to @copilot.
 ```
 
-`kerrigan` will run `/speckit.specify` (and `/speckit.plan` / `/speckit.tasks` as needed), generate `.specify/briefings/<task-id>.md`, attach it to the issue, and assign `@copilot`. The cloud agent (`cloud` profile in `.github/agents/cloud.md`) then implements the task in an ephemeral container and opens a PR.
+`kerrigan` prepares the plan/tasks and briefing, then separately performs and verifies authorized `@copilot` assignment. `/speckit.tasks` generates tasks, not dispatch; `/kerrigan.dispatch` creates briefed issues but does not itself assign Copilot. Issue creation or assignment metadata alone is not proof that the worker started: confirm worker-start and ownership acknowledgment before reporting successful execution dispatch. The assigned executor then implements the accepted slice and opens a PR.
 
 See [`AGENTS.md`](../../AGENTS.md) for the canonical lifecycle and `.github/agents/kerrigan.md` for the conductor's instructions.
 
@@ -254,8 +254,8 @@ These are living artifacts — `plan.md` and `tasks.md` are kept current as work
 Follow the workflow defined in `playbooks/kickoff.md`. In short:
 1. `/speckit.specify` (or `spec-kit-tinyspec` for small work) — `kerrigan` produces `spec.md` + `acceptance-tests.md`.
 2. `/speckit.plan` — `kerrigan` produces `plan.md`.
-3. `/speckit.tasks` — `kerrigan` produces `tasks.md` and dispatches explicit executor sessions, or uses `/kerrigan.dispatch` for this issue adapter.
-4. `cloud` agent (Copilot or Claude Code worktree) implements one task slice end-to-end, opens a PR.
+3. `/speckit.tasks` produces `tasks.md`; dispatch is a separate coordinator action through app sessions or the optional issue adapter.
+4. After verified assignment/start and ownership acknowledgment, the `cloud` executor implements one task slice end-to-end and opens a PR. For the issue adapter, `/kerrigan.dispatch` creates issues; the coordinator separately assigns and verifies `@copilot`.
 5. CI + Copilot review + `kerrigan` resolve / re-dispatch the feedback loop.
 6. Human reviews direction; merge.
 

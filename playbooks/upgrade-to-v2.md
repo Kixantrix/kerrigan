@@ -4,6 +4,8 @@
 
 Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-bootstrap.md). The goal is to remove v1-only surfaces, adopt the `kerrigan` + `cloud` profiles, and prove that dispatch works with v2 primitives only. Profile selection follows the [startup role policy](../AGENTS.md#startup-role-policy); local/cloud execution locations do not determine profile selection.
 
+Use [session operations](session-operations.md) for primary app-session dispatch and the optional issue adapter. This migration checklist does not authorize live satellite changes or retirement of an owned process: obtain authority, preserve state, and verify an acknowledged replacement before removal. Historical v1 names below identify migration inputs, not current execution controls.
+
 ## 1. Pre-flight
 
 - [ ] Confirm the repo already has the v2 bootstrap files from [`playbooks/v2-bootstrap.md`](./v2-bootstrap.md): `AGENTS.md`, `.github/agents/`, `.github/skills/`, `.claude/agents/`, validators.
@@ -29,7 +31,7 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 - [ ] Confirm humans know the new runtime split:
   - `kerrigan` plans, routes, coordinates delivery, and surfaces genuine decision blocks
   - `cloud` implements one task slice in an isolated PR
-  - Claude Code is the primary local runtime
+  - Direct app sessions are primary; Claude Code remains an alternative local runtime
 
 ### `personal-selfhost`
 
@@ -39,12 +41,12 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 
 ### `vhs-video-stack`
 
-- [ ] Remove local instructions that imply agents should stack PRs and batch-merge them manually.
+- [ ] Retire unowned batch-merge instructions; genuine dependent PR layers may use an explicitly owned native stack with actual verification on each target branch.
 - [ ] Re-orient contributors around planning with `kerrigan`, generating ordered tasks, then dispatching safe work in waves.
 
 ## 3. Migrate labels
 
-- [ ] Add the four v2 labels from [`AGENTS.md`](../AGENTS.md):
+- [ ] If using the optional issue adapter, add the four v2 annotations from [`AGENTS.md`](../AGENTS.md):
   - `agent:go`
   - `agent:wait`
   - `agent:local`
@@ -55,10 +57,12 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 
 ### Label mapping guidance
 
-- Use **`agent:go`** when the agent can proceed autonomously.
-- Use **`agent:wait`** when a human decision is required.
+- Use **`agent:go`** to mark an issue ready for explicit assignment, not to start a worker.
+- Use **`agent:wait`** to record intentional waiting (dependency, owner action, or decision), not to stop a runtime.
 - Use **`agent:local`** when the task must run on the human's machine.
-- Use **`autonomy:override`** only when a human intentionally bypasses a normal gate.
+- Use **`autonomy:override`** only for a human-approved exception supported by the actual gate.
+
+Labels and `status.json` are records, not enforced runtime controls. The owner confirms explicit assignment/start or stop/resource release; do not infer these from metadata.
 
 ## 4. Retire v1 workflows and custom dispatch surfaces
 
@@ -86,13 +90,15 @@ Use this after the initial bootstrap in [`playbooks/v2-bootstrap.md`](./v2-boots
 
 - [ ] Pick one low-risk task and run it end-to-end with v2 only.
 - [ ] Start from the `kerrigan` profile and have it plan, route, and dispatch.
+- [ ] Distinguish preparation from execution: `/speckit.tasks` generates tasks; `/kerrigan.dispatch` creates issues but does not itself assign Copilot. For the issue adapter, perform and verify authorized assignment separately.
+- [ ] Confirm worker-start and ownership acknowledgment with actual base/scope before claiming dispatch success; cloud startup/control remains unverified until observed.
 - [ ] Verify the task routes by capability, not by old repo role names.
-- [ ] Confirm the result opens one reviewable PR, not a stacked or batch-merged bundle.
+- [ ] Confirm the accepted slice opens one reviewable PR; any genuine dependency has an explicit base and its own current-head verification, not an unowned batch merge.
 - [ ] If the task blocks, require a structured block file instead of ad-hoc chat instructions.
 
 ### Dispatch test expectations
 
-- **`personal-selfhost`** passes when it completes a task without `claude-dispatch.sh`, using Claude Code locally and the `cloud` profile for remote execution.
+- **`personal-selfhost`** passes when an authorized pilot completes a task without `claude-dispatch.sh`, using an acknowledged `cloud` executor on the capability-appropriate host; app sessions are primary and Claude Code is an alternative.
 - **`vhs-video-stack`** passes when it dispatches by wave, uses conflict prediction up front, and avoids the old batch-merge/cascade-rebase loop.
 
 ## Key v2 reference documents (Phase 3 artifacts)

@@ -11,9 +11,11 @@ The human defines the outcome; the coordinator prioritizes, sequences, advances,
 1. Reuse the living plan/tasks and generate or refine the briefing. Name scope (`Touch`, `Read-only`, `Out of scope`), AC IDs, test commands and evidence, owner, base/dependency, resources, and stop condition before dispatch.
 2. Select the `cloud` executor explicitly for implementation. Role is independent of host: a local worktree worker is still an executor. Use capability-appropriate local/cloud execution under the rubric; app transport alone does not authorize local-only resources or change routing defaults.
 3. Use the app's available session-creation surface with the briefing and explicit role. Do not invent unavailable tools, assume a profile loaded, or infer a concurrency limit from a failed kickoff. Default to the project default branch for independent work; set a dependent base explicitly only when the slice genuinely depends on it. Verify the actual base branch and SHA before edits and the PR target before delivery.
-4. Record the returned session identity and implementation owner in the existing task/briefing. The worker acknowledges its role, scope, base, delivery boundary, and resources before starting. A submitted request is not an acknowledged dispatch.
+4. Record the returned session identity and implementation owner in the existing task/briefing. Before edits, confirm worker-start evidence and the worker's acknowledgment of role, scope, base, delivery boundary, and resources. Session metadata or issue creation alone is not successful dispatch. A submitted request is not an acknowledged dispatch; report startup/control as unverified until evidence arrives, including on a cloud host.
 
 The [issue adapter](../.github/prompts/kerrigan.dispatch.prompt.md) (`/kerrigan.dispatch` / `/speckit.taskstoissues`, existing issue scripts and `@copilot` assignment) remains available when useful or when direct sessions are unavailable. Labels annotate that path; they do not start, stop, or select profiles in app sessions. An issue body can carry the same briefing. An issue-only merge gate, where configured, still applies: satisfy it through an authorized adapter or report the blocker, never bypass it because dispatch was session-first.
+
+Keep tool side effects explicit: `/speckit.tasks` generates tasks, not dispatch. The checked-in `/kerrigan.dispatch` prompt creates issues but does not assign Copilot. The coordinator separately performs and verifies authorized assignment, then confirms worker-start and ownership acknowledgment. The existing `new-issue.ps1` helper passes an assignee only with `-Assignee`; `create_issues.py` uses only explicitly supplied `assignees`. Neither helper proves the worker started. Preserve these optional adapters without inferring extra side effects from their names.
 
 **Dependent-PR verification:** native stack registration does not override workflow target filters or prove CI ran. The former `pull_request.branches: [main]` filter in [verify](../.github/workflows/verify.yml) blocked actual verification on a PR targeting its parent branch. The PR trigger now accepts all target branches, retaining the same validators, smoke, tests, permissions, and `merge_group` support. Inspect runs for the current head after pushing; do not retarget a dependent PR to `main` merely to get checks.
 
@@ -111,6 +113,18 @@ stop: "outcome complete, ownership transferred, authorization expired, or unreso
 ```
 
 Define who disables/clears the automation at expiry/stop and verify that it stopped. No-op silence means no outward nag or fresh work; retain enough run evidence for accountability. If overlap cannot be ruled out, defer rather than treating an expired advisory lease as a lock release. Never layer a watcher, same-session wake, and Agent merge as competing mutation owners. This guide creates no live schedules and grants no new permissions, models, budgets, or cross-repository access.
+
+Track finite delivery states in the existing task/briefing or retained handoff, with the delivery identity, intended owner/scope, expiry, and evidence for each observed transition:
+
+| State | Required evidence; what it does not prove |
+|---|---|
+| configured | Schedule/wake configuration accepted; no delivery or execution yet. |
+| queued | Runtime accepted a pending delivery; a queued wake is not execution. |
+| received | The intended owner actually received the delivery; no action completed yet. |
+| acted | The owner performed a scoped action (or recorded a deduplicated no-op) with evidence. |
+| completed | The bounded run's result, handoff, and required resource release are verified; not proof the overall outcome is complete. |
+
+Do not infer later states from earlier ones or manufacture missing receipts. On late delivery, re-check expiry, current ownership/head, stable finding/notification state, and existing operation effects before acting. An expired or superseded delivery must not replay mutations; record a no-op/stop reason in the retained handoff. Deduplicate still-valid late deliveries against work already performed, preserving the distinction between received, acted, and completed. Delivery-state tracking is guidance, not new runtime infrastructure.
 
 ## Diagnose failure before retry
 

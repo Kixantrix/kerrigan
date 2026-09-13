@@ -4,89 +4,58 @@
 
 Kerrigan is a multi-agent orchestration system that coordinates specialized AI agents through artifact-driven workflows. The system enables teams to deliver software projects with high quality and minimal human intervention, while maintaining strict human control over key decisions.
 
+The active contract is [session operations](../../playbooks/session-operations.md): direct app sessions are primary and issues are an optional adapter. Two behavioral profiles (`kerrigan` coordinator/shaper and `cloud` executor) run on capability-appropriate hosts. No scheduler, enforced label control, or device isolation is implied by this diagram.
+
 ## Architecture Diagram
 
 **Note**: This diagram is rendered using Mermaid syntax. If viewing on GitHub, the diagram should display automatically. If not rendering, see the text description below.
 
 ```mermaid
 flowchart TD
-    %% Human Inputs
-    Human([Human: Goal]) --> Local[Local Agent<br/>Plans & Dispatches]
-    
-    %% Planning
-    Local --> SpecKit[Spec-Kit Lifecycle]
+    Human([Human: Accepted outcome]) --> Coordinator[Kerrigan<br/>Plans and coordinates]
+    Coordinator --> SpecKit[Spec-Kit Lifecycle]
     SpecKit -->|specify → plan → tasks| Tasks[(Task List)]
-    
-    %% Dispatch
     Tasks --> Routing{Delegation Rubric}
-    Routing -->|Cloud-safe| Cloud[Cloud Agent<br/>Implements & Self-verifies]
-    Routing -->|Needs device/secrets| LocalExec[Local Execution]
-    
-    %% Cloud Agent Work
-    Cloud -->|One task, one PR| PR[Pull Request]
-    
-    %% Verification Chain
+    Routing -->|Host and scope| Brief[(Briefing and owner)]
+    Brief -->|App session or optional issue adapter| Start{Worker start acknowledged?}
+    Start -->|Yes| Executor[Cloud profile<br/>Local worktree or cloud host]
+    Start -->|No| Block[Owned startup block]
+    Block --> Coordinator
+    Executor -->|Self-verified slice| PR[Pull Request]
     PR --> CI{CI Validation}
     CI -->|Pass| CopilotReview[Copilot Review]
-    CI -->|Fail| Fix[Cloud fixes]
-    Fix --> CI
-    
-    CopilotReview --> LocalReview[Local Agent<br/>Addresses feedback]
-    LocalReview --> HumanReview[Human Reviews<br/>Direction & Intent]
-    
+    CI -->|Fail| Executor
+    CopilotReview --> Review{Actual review and threads checked}
+    Review -->|Scoped fix via coordinator| Executor
+    Review -->|Ready| HumanReview[Human Reviews<br/>Direction and Intent]
     HumanReview -->|Approved| Merge[Merge]
-    HumanReview -->|Direction change| Local
-    
-    %% Feedback Loops
-    Merge --> Complete[✅ Project Complete]
-    Blocked2 --> Debug[Debugging Agent]
-    Debug --> AgentFlow
-    
-    %% Styling
-    classDef humanNode fill:#e1f5ff,stroke:#0066cc,stroke-width:2px
-    classDef agentNode fill:#fff4e6,stroke:#ff9800,stroke-width:2px
-    classDef controlNode fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
-    classDef artifactNode fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
-    classDef gateNode fill:#ffebee,stroke:#f44336,stroke-width:2px
-    
-    class Human,Review humanNode
-    class Spec,Architect,Kerrigan,SWE,Testing,Deploy,Debug agentNode
-    class ControlPlane,StatusCheck,LabelCheck,CI,Gates controlNode
-    class Artifacts1,Artifacts2,Artifacts3,Artifacts4,Artifacts5,Artifacts6 artifactNode
-    class Blocked,Blocked2,Blocked3,Paused gateNode
+    HumanReview -->|Direction change| Coordinator
+    Merge --> Complete[Reconcile outcome and release resources]
 ```
 
 ## Key Components
 
 ### 1. Control Plane
 
-The control plane manages workflow execution and ensures human oversight:
+The coordinator manages accepted work using existing tasks, briefings, blocks and runtime evidence:
 
-- **Autonomy Gates** (`agent-gates.yml`): Label-based workflow control
-  - `agent:go`: Agent has autonomy — proceed
-  - `agent:wait`: Blocked on human — stop
+- **Optional issue annotations**: not session control or an implemented autonomy-label gate
+  - `agent:go`: Issue ready for explicit assignment
+  - `agent:wait`: Issue intentionally waiting
   - `agent:local`: Requires human's machine
-  - `autonomy:override`: Human override for blocked gate
+  - `autonomy:override`: Human-approved exception supported by an actual configured gate
   
-- **Status Tracking** (`status.json`): Per-project workflow state
-  - `active`: Agents may proceed
-  - `blocked`: Work paused, awaiting human action
-  - `on-hold`: Temporary pause
-  - `completed`: Project finished
+- **Status Tracking** (`status.json` where used): records project state, not process control. The owner must explicitly stop/resume the runtime and verify resource release; writing `blocked` or `completed` does not prove those actions happened.
+- **Dispatch evidence**: task generation and issue/session creation do not prove worker start. Require ownership acknowledgment, actual base, and scoped execution evidence.
 
 ### 2. Agent Roles
 
-Each agent has a specialized role and produces specific artifacts:
+Two profiles own the lifecycle; planning/testing/deployment are responsibilities, not separate required profiles:
 
 | Agent | Primary Artifacts | Responsibility |
 |-------|------------------|----------------|
-| **Spec Agent** | spec.md, acceptance-tests.md | Define project goals and success criteria |
-| **Architect Agent** | architecture.md, plan.md, tasks.md, test-plan.md | Design system and create implementation roadmap |
-| **Kerrigan Meta-Agent** | Validation feedback | Ensure constitution compliance and artifact quality |
-| **SWE Agent** | Code, tests, linting config | Implement features with TDD approach |
-| **Testing Agent** | Enhanced tests, coverage reports | Strengthen test harness and coverage |
-| **Debugging Agent** | Bug fixes, regression tests | Respond to failures and prevent regressions |
-| **Deploy Agent** | runbook.md, cost-plan.md | Production readiness and operational docs |
+| **kerrigan** | Plans, tasks, briefings, decisions, blocks | Coordinate accepted outcomes and routine child decisions; maintain the harness |
+| **cloud** | Scoped code, tests, documentation, verification evidence, PR | Implement one accepted slice; fix assigned feedback on the same branch |
 
 ### 3. Artifact Layer
 
@@ -109,7 +78,7 @@ Automated validation ensures consistency and quality:
   
 - **CI Workflows** (`.github/workflows/`):
   - Artifact validation on every PR
-  - Autonomy gate enforcement
+  - Actual configured checks, not presumed autonomy-label enforcement
   - Security scanning
 
 ### 5. Human Checkpoints
@@ -118,41 +87,40 @@ Strategic human involvement at key decision points:
 
 1. **Scope Approval**: Review spec.md goals and non-goals
 2. **Architecture Review**: Approve design tradeoffs in architecture.md
-3. **Autonomy Control**: Grant/revoke agent work permissions via labels
-4. **PR Review**: Final quality check before merge
-5. **Status Management**: Pause/resume work via status.json
+3. **Authority**: Reserve meaningful risk/privacy/permission/cost decisions; labels do not grant runtime permissions
+4. **PR Review**: Direction and spec alignment after automated technical verification
+5. **Status Management**: Coordinator routes runtime pause/resume to the existing owner and records state
 
 ## Workflow Phases
 
 ### Phase 1: Specification
-- Human creates issue with project goals
-- Spec Agent drafts spec.md with clear acceptance criteria
+- Human supplies the accepted outcome in a session (issue context optional)
+- `kerrigan` uses Spec Kit to draft scope and clear acceptance criteria
 - Human approves scope and non-goals
 
 ### Phase 2: Architecture
-- Architect Agent designs system and creates implementation plan
-- Kerrigan Meta-Agent validates constitution alignment
+- `kerrigan` creates the implementation plan and tasks, checking constitution alignment
 - Human approves architecture tradeoffs
 
 ### Phase 3: Implementation
-- SWE Agent implements features with tests (TDD approach)
-- Testing Agent strengthens coverage and edge case handling
+- Coordinator separately dispatches an explicit executor after task generation
+- The acknowledged executor implements features with tests and edge-case coverage
 - CI enforces quality bar on every commit
 
 ### Phase 4: Deployment
-- Deploy Agent creates operational runbooks
+- The assigned executor creates operational runbooks within the accepted slice
 - Human reviews production readiness
 - Deployment proceeds with documented rollback plan
 
 ### Phase 5: Maintenance
-- Debugging Agent responds to failures
+- The existing implementation owner responds to assigned failures
 - All bug fixes include regression tests
-- Status tracking enables pause/resume control
+- Status records reflect owner-confirmed runtime actions; they do not enforce pause/resume
 
 ## Design Principles
 
 ### Artifact-Driven Collaboration
-All communication between agents happens through repository files. This ensures:
+Durable scope, ownership, decisions and evidence live in repository artifacts or retained handoffs; runtime messages carry acknowledged delivery. This ensures:
 - **Traceability**: Full audit trail of decisions
 - **Persistence**: Work survives across sessions
 - **Reviewability**: Humans can inspect any stage
@@ -190,7 +158,9 @@ The system scales naturally:
 - **Incremental Adoption**: Start with one project, expand gradually
 - **Cost Control**: Track and limit agent API usage per project
 
-## Future Enhancements (Post-v1)
+## Historical v1 roadmap (not current operating instructions)
+
+The following original roadmap is retained as history; it is not a claim that these capabilities remain unimplemented or a replacement for the current session-operations contract.
 
 - **Multi-repo Support**: Orchestrate work across multiple repositories
 - **Status Dashboard**: Web UI for workflow visibility

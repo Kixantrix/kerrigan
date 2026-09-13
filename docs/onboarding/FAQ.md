@@ -170,7 +170,7 @@ The artifact-driven approach means nothing is lost — all work is in Git, and y
 - Use smaller models (GPT-4o-mini vs GPT-4) for routine tasks
 - Limit agent retries with clear prompts
 - Review and approve PRs before agents iterate further
-- Use `status.json` to pause work if budgets are tight
+- Record a budget blocker in `status.json` where used; the owner must stop the runtime and confirm process/resource release. The file alone does not pause execution.
 
 ### Can I use different LLM providers?
 

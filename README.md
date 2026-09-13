@@ -26,7 +26,7 @@ A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.
 
 **Startup defaults:** explicit profile selection or delegated worker assignment wins on either host. Otherwise, local human-facing conversations follow `kerrigan`, and known cloud execution follows `cloud`. These instructions govern behavior, not the app's picker or permissions. Give the conductor an outcome; it owns routine sequencing and child decisions through authorized delivery. See [startup role policy](AGENTS.md#startup-role-policy) and [outcome ownership](AGENTS.md#outcome-ownership).
 
-**CI enforces**: artifact structure, quality bar (800 LOC max), autonomy gates.
+**CI enforces**: the checked-in validators, tests, and smoke checks, including artifact structure and quality rules. There is no implemented autonomy-label gate in this repository; honor any additional gates actually configured in a consuming repository.
 
 📖 **[Full setup guide](docs/onboarding/setup.md)** · **[FAQ](docs/onboarding/FAQ.md)**
 
@@ -114,7 +114,7 @@ kerrigan/
 ├── .github/
 │   ├── agents/              # kerrigan, cloud profiles + adapters
 │   ├── skills/              # Built-in skills (briefing, delegation, etc.)
-│   └── workflows/           # CI: validators, autonomy gates, smoke tests
+│   └── workflows/           # CI: validators, tests, smoke checks
 ├── docs/                    # Setup, architecture, FAQ, guides
 ├── playbooks/               # Process guides (kickoff, lifecycle, review)
 ├── skills/                  # Project-specific skill templates

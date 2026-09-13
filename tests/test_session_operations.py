@@ -22,6 +22,10 @@ ENTRYPOINTS = [
     "docs/onboarding/setup.md",
     "docs/onboarding/FAQ.md",
     "docs/operations/autonomy-modes.md",
+    "docs/architecture/architecture.md",
+    "docs/operations/github-labels.md",
+    "playbooks/replication-guide.md",
+    "playbooks/upgrade-to-v2.md",
 ]
 
 
@@ -79,6 +83,10 @@ def test_primary_guidance_does_not_require_issue_dispatch(relative):
         r"agent:go[^\n]*(?:to enable agent work|cloud agent picks it up)",
         r"agent:wait[^\n]*→ agent stops",
         r"\| Enable agent work \| Add `agent:go`",
+        r"Use `status\.json` to pause work",
+        r"\*\*CI enforces\*\*:[^\n]*autonomy gates",
+        r"still creates issues and assigns `@copilot`",
+        r"`/speckit\.tasks`[^\n]*produces `tasks\.md` and dispatches",
     ]
     for pattern in obsolete:
         assert not re.search(pattern, text), f"{relative} reintroduced: {pattern}"
@@ -219,6 +227,61 @@ def test_root_executor_summary_covers_both_hosts():
     summary = agents.split("### Startup role policy", 1)[0]
     assert "isolated local worktree or cloud environment" in summary
     assert "its role is independent of host" in summary
+
+
+def test_dispatch_requires_start_and_acknowledgment_not_creation_metadata():
+    dispatch = section("Dispatch one coherent outcome")
+    for phrase in [
+        "worker-start evidence",
+        "Session metadata or issue creation alone is not successful dispatch",
+        "report startup/control as unverified until evidence arrives",
+        "`/speckit.tasks` generates tasks, not dispatch",
+        "`/kerrigan.dispatch` prompt creates issues but does not assign Copilot",
+        "separately performs and verifies authorized assignment",
+        "`new-issue.ps1` helper passes an assignee only with `-Assignee`",
+        "`create_issues.py` uses only explicitly supplied `assignees`",
+        "Neither helper proves the worker started",
+    ]:
+        assert phrase in dispatch
+    for relative in [
+        "docs/onboarding/setup.md", "playbooks/kickoff.md",
+        "playbooks/replication-guide.md", "playbooks/upgrade-to-v2.md",
+    ]:
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        assert "does not itself assign Copilot" in text
+        assert "worker-start and ownership acknowledgment" in text
+
+
+def test_automation_states_require_evidence_and_late_delivery_reconciliation():
+    automation = section("Choose one automation lifecycle owner")
+    states = re.findall(
+        r"^\| (configured|queued|received|acted|completed) \| (.+) \|$",
+        automation, re.M,
+    )
+    assert [state for state, _ in states] == [
+        "configured", "queued", "received", "acted", "completed",
+    ]
+    for phrase in [
+        "existing task/briefing or retained handoff",
+        "delivery identity, intended owner/scope, expiry",
+        "a queued wake is not execution",
+        "Do not infer later states from earlier ones",
+        "On late delivery, re-check expiry, current ownership/head",
+        "expired or superseded delivery must not replay mutations",
+        "Deduplicate still-valid late deliveries against work already performed",
+        "guidance, not new runtime infrastructure",
+    ]:
+        assert phrase in automation
+
+
+def test_active_guide_inventory_keeps_historical_exceptions_explicit():
+    replication = (ROOT / "playbooks/replication-guide.md").read_text(encoding="utf-8")
+    architecture = (ROOT / "docs/architecture/architecture.md").read_text(encoding="utf-8")
+    assert "Historical minimal example, not the current installation contract" in replication
+    assert "does not re-attest current cloud startup/control" in replication
+    assert "Historical v1 roadmap (not current operating instructions)" in architecture
+    labels = (ROOT / "docs/operations/github-labels.md").read_text(encoding="utf-8")
+    assert "this repository does not implement an autonomy-label gate" in labels
 
 
 def test_briefing_and_routing_preserve_legacy_inputs_and_role_boundary():

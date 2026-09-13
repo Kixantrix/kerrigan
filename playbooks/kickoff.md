@@ -36,7 +36,7 @@ Use [session operations](session-operations.md): direct app sessions are primary
 3. Start bounded worker sessions and obtain acknowledgment before implementation.
 4. Keep routine questions, blockers, and verified completion accountable to the coordinator.
 
-The optional issue adapter `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) still creates issues and assigns `@copilot` in parallel-safe waves. Each accepted slice has one implementation owner, one branch, and one PR; the worker never edits scope. Existing gates are unchanged.
+The optional issue adapter `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) creates briefed issues in parallel-safe waves; it does not itself assign Copilot. The coordinator separately performs authorized `@copilot` assignment, verifies the assignment, and confirms worker-start and ownership acknowledgment. `/speckit.tasks` generates tasks, not dispatch. Each accepted slice has one implementation owner, one branch, and one PR; the worker never edits scope. Existing gates are unchanged.
 
 ## 4) Resolve blocks
 
