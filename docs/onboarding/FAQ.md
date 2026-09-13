@@ -1,5 +1,7 @@
 # Frequently Asked Questions (FAQ)
 
+For current app dispatch, ownership, resources, and recurring triage, start with [session operations](../../playbooks/session-operations.md). Direct app sessions are primary; issue/label examples here describe the optional issue adapter and any repository-specific gates, not prerequisites for starting app workers.
+
 ## 🔥 Most Common Questions
 
 New to Kerrigan? Start here:
@@ -120,7 +122,7 @@ Kerrigan can manage projects that live in separate repositories. The `specs/proj
 
 ### How do I control when agents can work?
 
-Kerrigan uses **4 labels** for autonomy control:
+Give the coordinator an accepted outcome and explicit authority boundary; it briefs and dispatches executor sessions. The optional issue adapter uses **4 labels** as annotations (repository-specific gates may read them):
 
 | Label | Purpose |
 |-------|---------|
@@ -133,18 +135,11 @@ See [playbooks/autonomy-modes.md](../operations/autonomy-modes.md) for detailed 
 
 ### What if I need to pause agent work?
 
-Remove the `agent:go` label from the issue, or add `agent:wait`. Agents check labels before starting work. For blocks during execution, agents write `.specify/blocks/<task-id>.yaml` and stop — the local agent surfaces these to the human.
+Contact the current owner/coordinator and use the runtime's supported stop mechanism. A label or idle indicator does not prove process exit. For the issue adapter, `agent:wait` records intentional waiting but does not stop an app session. Agents emit `.specify/blocks/<task-id>.yaml` for unresolved blocks; the coordinator handles routine decisions and escalates meaningful ones.
 
 ### Can different agents work on the same project simultaneously?
 
-No, by design. The workflow is **sequential**:
-1. Spec Agent produces spec.md and acceptance-tests.md
-2. Architect Agent reads those and produces architecture.md, plan.md, etc.
-3. SWE Agent implements based on architecture
-4. Testing Agent strengthens coverage
-5. Deploy Agent creates operational docs
-
-This ensures each agent has the artifacts it needs from the previous phase. Parallel agent work on different projects is fine and encouraged.
+Yes, for independent slices with explicit owners, dependency/file-conflict checks, isolated worktrees, and compatible resource needs. Start with a small bounded pilot per session operations. Worktrees do not isolate devices, ports, or processes; resource conflicts must be serialized. Do not run competing implementations of the same slice.
 
 ### What if an agent makes a mistake?
 

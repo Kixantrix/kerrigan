@@ -32,6 +32,8 @@ Talk to an agent in natural language. An explicit profile selection or delegated
 
 Agent profiles: [`.github/agents/`](./.github/agents/). GitHub Copilot (cloud agent, VS Code, CLI, JetBrains/Eclipse/Xcode) reads them directly. Claude Code reads from `.claude/agents/` — see [`.claude/agents/README.md`](./.claude/agents/README.md) for the optional mirror setup.
 
+**Session-first operations:** direct GitHub Copilot app sessions are the primary dispatch path, with an explicit executor role on a capability-appropriate local/cloud host. GitHub issues remain an optional adapter. Follow [session operations](./playbooks/session-operations.md) for briefing ownership/base/stop conditions, acknowledged handoff, resource coordination, accountable triage, automation lifecycle ownership, and review convergence. This guidance does not implement a scheduler or change existing gates.
+
 ### Startup role policy
 
 Apply these rules in order:
@@ -76,7 +78,7 @@ Once Spec Kit is installed ([playbook](playbooks/v2-bootstrap.md)), the standard
 - `/speckit.plan` — how to build (living artifact; primary)
 - `/speckit.tasks` — actionable tasks
 - `/speckit.analyze` — cross-artifact consistency
-- `/speckit.taskstoissues` — convert tasks to GH issues (dispatch entry point)
+- `/speckit.taskstoissues` — convert tasks to GH issues (optional issue-dispatch adapter)
 - `/speckit.implement` — execute (cloud profile's main command)
 
 Kerrigan adds:
@@ -117,7 +119,7 @@ Reusable agent knowledge lives in [`.github/skills/`](./.github/skills/) (open [
 
 ## Labels (v2)
 
-Four total, not fifteen. **None of these are enforced automatically.** The functional gate for cloud execution is `@copilot` assignment on the issue. The labels are *annotations* the `local` profile (and humans) read to understand intent and state across sessions.
+Four total, not fifteen. **None of these are enforced automatically.** For the issue-dispatch adapter, `@copilot` assignment starts the issue agent. Direct app sessions do not require that assignment. The labels are *annotations* the `kerrigan` profile (and humans) read to understand intent and state; they do not control app session execution. Existing repository-specific merge gates still apply.
 
 - `agent:go` — annotation: this issue is ready to dispatch (or has been dispatched). Used by `kerrigan` to find work that's been triaged.
 - `agent:wait` — annotation: intentionally undispatched; waiting on a dependency, a wave, or human input. `kerrigan` should not auto-assign Copilot here.
@@ -128,8 +130,9 @@ v1 role labels are archived. v2 uses these four annotations only.
 
 ## Runtimes
 
-- **Primary cloud delegate:** GitHub Copilot cloud agent (one issue → one ephemeral container → one branch → one PR).
-- **Primary local runtime:** Claude Code (`isolation: worktree` built-in, rich hook/memory model).
+- **Primary dispatch surface:** GitHub Copilot app sessions (one coherent outcome → explicit executor → one branch → one PR); select local/cloud host by capability.
+- **Issue adapter:** GitHub Copilot cloud agent (`@copilot`-assigned issue → ephemeral container → branch → PR).
+- **Other local runtime:** Claude Code (`isolation: worktree` built-in, rich hook/memory model).
 - **Pluggable:** anything that reads `AGENTS.md` (Codex, Cursor, Jules, Aider, Amp, Junie, Kilo Code, Warp, Goose, Gemini CLI, Factory, Phoenix, …).
 
 Platform-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) redirect here rather than duplicate content.

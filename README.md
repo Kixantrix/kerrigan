@@ -20,9 +20,9 @@ A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.
 ### Setup
 
 1. **[Use this template](https://github.com/Kixantrix/kerrigan/generate)** and choose your branch
-2. **Create 4 labels**: `agent:go`, `agent:wait`, `agent:local`, `autonomy:override` ([details](docs/onboarding/setup.md))
-3. **Create an issue** with your goal and add the `agent:go` label
-4. **Point your agent** at the repo — it reads [AGENTS.md](AGENTS.md) and starts working
+2. **Open a GitHub Copilot app session** in the repo and give `kerrigan` your outcome
+3. **Let the conductor brief and dispatch explicit executor sessions** on capability-appropriate local/cloud hosts — see [session operations](playbooks/session-operations.md)
+4. **Use issues optionally** for context or issue-agent dispatch; labels and `@copilot` assignment belong to that adapter ([setup](docs/onboarding/setup.md)). Existing repository gates still apply.
 
 **Startup defaults:** explicit profile selection or delegated worker assignment wins on either host. Otherwise, local human-facing conversations follow `kerrigan`, and known cloud execution follows `cloud`. These instructions govern behavior, not the app's picker or permissions. Give the conductor an outcome; it owns routine sequencing and child decisions through authorized delivery. See [startup role policy](AGENTS.md#startup-role-policy) and [outcome ownership](AGENTS.md#outcome-ownership).
 
@@ -35,7 +35,7 @@ A stack-agnostic coding-swarm harness built on [GitHub Spec Kit](https://github.
 ## Architecture
 
 ```
-Human goal → kerrigan → spec-kit lifecycle → cloud dispatch → PR → review → merge
+Human goal → kerrigan → spec-kit lifecycle → worker session → PR → review → merge
               (plans)      (specify → plan       (one task,       (CI + Copilot
                             → tasks)              one PR)          review → human
                                                                    reviews direction)
@@ -64,6 +64,7 @@ Human goal → kerrigan → spec-kit lifecycle → cloud dispatch → PR → rev
 - **[Skills Framework](skills/README.md)** — Project-specific skill templates
 
 ### Process
+- **[Session Operations](playbooks/session-operations.md)** — Primary app dispatch, ownership, resources, triage, and automation boundaries
 - **[Kickoff](playbooks/kickoff.md)** — Start a new project
 - **[Project Lifecycle](playbooks/project-lifecycle.md)** — Active → completed → archived
 - **[2D & 3D Asset Design](playbooks/asset-design.md)** — Cards, CAD/CNC, voxel game assets
@@ -80,12 +81,12 @@ Human goal → kerrigan → spec-kit lifecycle → cloud dispatch → PR → rev
 
 ## Autonomy Control
 
-Four labels control agent work:
+Four labels annotate the optional issue path; they do not control app sessions or grant permissions:
 
 | Label | Purpose |
 |-------|---------|
-| `agent:go` | Agent has autonomy — proceed |
-| `agent:wait` | Blocked on human — stop |
+| `agent:go` | Issue ready for dispatch |
+| `agent:wait` | Issue intentionally undispatched |
 | `agent:local` | Requires human's machine (device I/O, secrets) |
 | `autonomy:override` | Human override for a blocked gate |
 
@@ -99,7 +100,7 @@ See [docs/operations/autonomy-modes.md](docs/operations/autonomy-modes.md) for c
 |------|-----|
 | Start new project | `kerrigan init <name>` or copy `specs/projects/_template/` |
 | Check project status | `kerrigan status <name>` |
-| Enable agent work | Add `agent:go` label to issue |
+| Dispatch agent work | Brief an explicit executor session; issue adapter optional |
 | Validate locally | `kerrigan check` or `python tools/validators/check_artifacts.py` |
 | Bootstrap environment | `bash tools/bootstrap.sh` |
 | Install CLI | `cd tools/cli/kerrigan && pip install -e .` ([reference](docs/operations/cli-reference.md)) |
@@ -111,7 +112,7 @@ See [docs/operations/autonomy-modes.md](docs/operations/autonomy-modes.md) for c
 ```
 kerrigan/
 ├── .github/
-│   ├── agents/              # local, cloud, kerrigan profiles + adapters
+│   ├── agents/              # kerrigan, cloud profiles + adapters
 │   ├── skills/              # Built-in skills (briefing, delegation, etc.)
 │   └── workflows/           # CI: validators, autonomy gates, smoke tests
 ├── docs/                    # Setup, architecture, FAQ, guides

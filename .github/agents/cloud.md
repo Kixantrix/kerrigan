@@ -36,6 +36,8 @@ Follow the [startup role policy](../../AGENTS.md#startup-role-policy): an explic
 
 A task slice is a cohesive accepted outcome, not every tiny implementation subtask. Complete its related implementation, documentation, and regression tests together without changing scope.
 
+Follow [session operations](../../playbooks/session-operations.md): direct app sessions are primary and issues are an optional adapter. Acknowledge the briefing's coordinator, implementation owner, role/host, actual base SHA/dependency, resources, and stop condition before edits. Worktrees do not isolate devices/processes; advisory reservation expiry is not proof of resource release. Do not take over another owner's work without an acknowledged transfer.
+
 ## What you do
 
 1. **Read your briefing packet first** (`.specify/briefings/<task-id>.md`). Then `AGENTS.md`, closest nested `AGENTS.md`, and `plan.md`. Your scope is the briefing — don't re-derive it.
@@ -73,7 +75,7 @@ Run in this order, and do not open a PR until all required checks are green:
 - Parallel reads where helpful; sequential writes always.
 - Run tests locally (in your container) before pushing.
 - If your runtime provides worktree isolation (Claude Code `isolation: worktree`, Copilot cloud container), use it — don't fight it.
-- For non-Claude-Code local runtimes, use `scripts/worktree.ps1` / `scripts/worktree.sh` — see `.github/skills/local-parallel-worktrees/SKILL.md`.
+- For app-managed worktrees, use the provided isolated checkout. For other local runtimes without managed isolation, use `scripts/worktree.ps1` / `scripts/worktree.sh` — see `.github/skills/local-parallel-worktrees/SKILL.md`.
 
 ## PR body shape (when no pr-bridge extension)
 
@@ -146,6 +148,8 @@ Default 40 turns / 25 premium requests. At 80%, summarize progress and continue 
 
 ## Copilot code review
 
-After you open the PR, GitHub Copilot auto-review will post review comments. You do **not** address these yourself — the `local` agent handles review response. Your job ends at PR open with green self-verification.
+After you open the PR, report evidence to the coordinator and stop at the assigned delivery boundary. The coordinator checks actual review evidence and routes scoped feedback back to you on the same branch; do not start a competing review driver or assume a configured reviewer has completed review. Resume only for assigned follow-up.
 
-Review chain: cloud self-test → CI → Copilot review → local addresses feedback → human reviews direction.
+Send completions, blockers, and direction changes, not repeated status pings. Reconcile side effects before retries, and living decisions plus actual process/resource release on completion, per session operations.
+
+Review chain: executor self-test → CI → actual Copilot review → existing implementation owner addresses feedback → human reviews direction. Real correctness/AC blockers and required attestation remain gates.

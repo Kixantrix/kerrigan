@@ -29,18 +29,18 @@ Chat with the `kerrigan` profile and drive the standard Spec Kit commands:
 
 ## 3) Dispatch
 
-Ask `kerrigan` to run `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`). It will:
+Use [session operations](session-operations.md): direct app sessions are primary, with an explicit `cloud` executor on a capability-appropriate host. `kerrigan` carries the accepted outcome forward:
 
-1. Run the conflict predictor → write `.specify/waves.yaml`.
-2. Generate one briefing packet per task in `.specify/briefings/<task-id>.md`.
-3. Open one GitHub issue per task, labelled `agent:go`.
-4. Assign `@copilot` to issues in the first parallel-safe wave.
+1. Run the file-conflict predictor and also check shared device/process resources.
+2. Generate a briefing per coherent slice in `.specify/briefings/<task-id>.md`, with ownership/base/dependency/stop-condition addendum.
+3. Start bounded worker sessions and obtain acknowledgment before implementation.
+4. Keep routine questions, blockers, and verified completion accountable to the coordinator.
 
-Each cloud task: one issue → one branch → one PR. Never edits scope.
+The optional issue adapter `/kerrigan.dispatch` (wraps `/speckit.taskstoissues`) still creates issues and assigns `@copilot` in parallel-safe waves. Each accepted slice has one implementation owner, one branch, and one PR; the worker never edits scope. Existing gates are unchanged.
 
 ## 4) Resolve blocks
 
-When a `cloud` task emits `.specify/blocks/<task-id>.yaml`, `kerrigan` surfaces the block with the minimum human input needed. Unrelated tasks keep moving.
+When a `cloud` task emits `.specify/blocks/<task-id>.yaml`, `kerrigan` resolves routine decisions from evidence/options and surfaces only meaningful direction, risk, privacy, authority, or material unapproved-cost decisions. Unrelated tasks keep moving.
 
 ## 5) Human approvals
 

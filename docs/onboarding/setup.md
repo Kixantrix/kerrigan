@@ -2,6 +2,8 @@
 
 This guide walks you through setting up Kerrigan from scratch and running your first agent-driven project.
 
+**Primary app path:** open a repo session, give `kerrigan` an outcome, and follow [session operations](../../playbooks/session-operations.md) for explicit executor dispatch and ownership. The label/issue walkthrough below is the optional issue adapter, not a prerequisite for direct app sessions. Repository-specific CI/merge gates still apply; this addendum does not change configuration or authorize bypasses.
+
 ## Prerequisites
 
 Before you begin, ensure you have:
@@ -61,7 +63,7 @@ cd your-kerrigan-repo
 
 ## Step 2: Set Up GitHub Labels
 
-Kerrigan uses labels to control agent autonomy and assign work to agents. Create these labels in your repository:
+For the optional issue adapter, labels annotate work and may be consumed by repository-specific gates. They do not start or stop app sessions. Create these labels if using that adapter:
 
 ### Required Labels
 
@@ -109,12 +111,12 @@ gh label create "allow:large-file" --color "f9d0c4" --description "Bypass large 
 
 ## Step 3: Choose Your Autonomy Mode
 
-Kerrigan v2 uses **2 agent profiles** (local conductor + cloud executor) with label-based gating:
+Kerrigan v2 uses **2 behavioral profiles** (`kerrigan` conductor + `cloud` executor), independent of host. For the issue adapter:
 
-- Add `agent:go` to an issue → cloud agent picks it up
-- Add `agent:wait` to pause → agent stops
+- Add `agent:go` to mark an issue ready; dispatch requires explicit assignment, not the label alone
+- Add `agent:wait` to mark intentional waiting; coordinate an actual stop with the owner
 - Add `agent:local` when the task needs your machine (device I/O, secrets)
-- Add `autonomy:override` to bypass a blocked gate
+- Use `autonomy:override` only for a human-approved exception where the repository gate supports it
 
 **Configuration**: Edit `playbooks/autonomy-modes.md` if you want to customize behavior.
 
@@ -215,9 +217,9 @@ cd my-first-project/
 
 ### 6.3: Dispatch to a cloud agent
 
-In v2, you don't paste prompts into an assistant manually — you dispatch the issue to the GitHub Copilot cloud agent, which runs against a briefing packet generated from your task.
+For this optional issue walkthrough, dispatch the issue to the GitHub Copilot cloud agent with a briefing packet. For direct app sessions, use the primary session-operations path instead.
 
-The quickest path: chat with **`kerrigan`** (the conductor profile). Ask it to plan and dispatch the issue:
+For the issue adapter, chat with **`kerrigan`** (the conductor profile):
 
 ```
 Goal: implement my-first-project per issue #123.
@@ -240,7 +242,7 @@ git push origin main
 
 ### 6.5: Iterate on plan and tasks
 
-If `kerrigan` ran `/speckit.specify` only, ask it to follow up with `/speckit.plan` and `/speckit.tasks`. The plan generates:
+Within the accepted outcome, `kerrigan` follows `/speckit.specify` with `/speckit.plan` and `/speckit.tasks` without requiring routine "what next" prompts. The plan generates:
 - `plan.md`
 - `tasks.md`
 - (optionally) `test-plan.md`
@@ -252,7 +254,7 @@ These are living artifacts — `plan.md` and `tasks.md` are kept current as work
 Follow the workflow defined in `playbooks/kickoff.md`. In short:
 1. `/speckit.specify` (or `spec-kit-tinyspec` for small work) — `kerrigan` produces `spec.md` + `acceptance-tests.md`.
 2. `/speckit.plan` — `kerrigan` produces `plan.md`.
-3. `/speckit.tasks` — `kerrigan` produces `tasks.md` and dispatches to `cloud` via `/kerrigan.dispatch`.
+3. `/speckit.tasks` — `kerrigan` produces `tasks.md` and dispatches explicit executor sessions, or uses `/kerrigan.dispatch` for this issue adapter.
 4. `cloud` agent (Copilot or Claude Code worktree) implements one task slice end-to-end, opens a PR.
 5. CI + Copilot review + `kerrigan` resolve / re-dispatch the feedback loop.
 6. Human reviews direction; merge.
