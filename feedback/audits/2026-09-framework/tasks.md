@@ -7,8 +7,13 @@ coupled activities when that lowers total review/CI/coordination cost without
 mixing independent outcomes. Research sessions do not change satellite code.
 Dependencies below are logical, not a mandate to stack.
 
-Published delivery: [P4a verification guidance, #429](https://github.com/Kixantrix/kerrigan/pull/429).
-Publication is not merge or proof of CI savings; review/CI and later shadow
+Published deliveries:
+[P0/P1 startup and follow-through, #430](https://github.com/Kixantrix/kerrigan/pull/430),
+and [P4a verification guidance, #429](https://github.com/Kixantrix/kerrigan/pull/429).
+Both passed their initial CI. Corrected profiles constructed successfully in
+the CLI; an explicitly selected app-native Kerrigan session also started on
+the P0/P1 branch. Picker default persistence remains unverified.
+Publication is not merge or proof of CI savings; review and later shadow
 measurement remain separate completion states.
 
 | ID | Slice and boundary | Depends on | Completion evidence |
@@ -25,7 +30,9 @@ measurement remain separate completion states.
 | P7 | Reconcile feedback retention and publish selective versioned adoption guidance | P1-P4 | One learning promoted to canonical rule; one satellite adoption/rollback demonstrated without overwriting local policy |
 
 The initial deliveries are this audit, one P0/P1 startup package, and independent
-P4a testing guidance. P0/P1 are combined following the owner's preference for
+P4a testing guidance. The P2/P3/P6 session-operations package is executing above
+the P0/P1 branch because it depends on the corrected startup/role contract.
+P0/P1 are combined following the owner's preference for
 balanced PR size, rather than creating a stack for a small prerequisite.
 P2/P3/P6 guidance can form a later coherent session-operations package; actual
 scheduler/locking code and live CI changes need their own evidence and scope.

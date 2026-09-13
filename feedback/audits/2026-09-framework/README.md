@@ -133,7 +133,7 @@ diagnosis sufficient to assign a root cause.
 | Capability | Established | Still to verify |
 |---|---|---|
 | Direct local/cloud session | App supports both; cloud sandbox is preview Linux execution [S1, S4] | Account access, repo policy, cost and task dependencies |
-| Custom agent | Picker and `/agent`; profiles under `.github/agents/` [S2] | Installed-device discovery, refresh, persisted default and worker inheritance |
+| Custom agent | Picker and `/agent`; both corrected profiles constructed via CLI, and explicit app-native Kerrigan startup succeeded on #430 | Picker discovery/refresh/default persistence across devices and worker inheritance |
 | Local default Kerrigan | Requested behavioral policy | Actual picker default; no documented per-host config key found |
 | Cloud executor | Can be explicitly selected when launching a worker | Do not assume all child sessions inherit selection |
 | Cross-device continuation | Git artifacts are portable; remote control keeps execution on the online local host [S4] | Snapshot/remote-control behavior in the installed version; local-only artifacts must be handed off separately |
@@ -145,9 +145,15 @@ No app settings, agent picker state, automations, service limits, branch
 protection or satellite code are changed by this evidence packet.
 
 The F16 failure is directly reproduced loader evidence, not a concurrency
-diagnosis. Subsequent continuation messages were delivered to the created pilot
-workspaces without repeating the failed explicit custom-agent kickoff; this
-does not itself prove that a corrected profile loads or that the picker is fixed.
+diagnosis. Default-runtime continuation unblocked the repair; after #430 was
+pushed, both profiles passed CLI construction and a genuine dependent work
+session started with Kerrigan explicitly selected in the app. This verifies
+loading on the corrected branch, not installed-device picker default persistence.
+
+A manual read-only Kerrigan triage pass found older open/draft PRs needing
+ownership/disposition reconciliation, alongside currently owned audit deliveries.
+No PR was closed and no session was archived on age or idle status. This is a
+triage observation, not proof of a functioning recurring automation.
 
 ## Primary references
 
