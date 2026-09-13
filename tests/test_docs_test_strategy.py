@@ -3,6 +3,16 @@
 
 from pathlib import Path
 
+import pytest
+import yaml
+
+
+DOC = Path(__file__).resolve().parent.parent / "docs" / "test-strategy.md"
+
+
+def section(heading):
+    return DOC.read_text(encoding="utf-8").split(f"## {heading}\n", 1)[1].split("\n## ", 1)[0]
+
 
 def test_doc_present_and_has_sections():
     repo_root = Path(__file__).resolve().parent.parent
@@ -23,3 +33,98 @@ def test_doc_present_and_has_sections():
     assert "test-environment" in content
     assert "e2e-test" in content
     assert "scenario-test" in content
+
+
+def test_risk_matrix_has_complete_single_axis_rows():
+    content = section("Risk, trigger and evidence matrix")
+    lines = [line for line in content.splitlines() if line.startswith("|")]
+    rows = [[cell.strip() for cell in line.strip("|").split("|")] for line in lines]
+    assert rows[0] == ["Risk", "Oracle", "Threshold", "Level", "Environment", "Trigger", "Evidence"]
+    assert len(rows[2:]) == 8
+    for risk, oracle, threshold, level, environment, trigger, evidence in rows[2:]:
+        assert all((risk, oracle, threshold, trigger, evidence))
+        assert level in {"unit", "integration", "smoke", "e2e", "scenario"}
+        assert environment in {
+            "cloud-linux", "cloud-windows", "cloud-self-hosted-model-eval",
+            "local-attested-accelerator", "manual-human",
+        }
+    by_risk = {row[0]: dict(zip(rows[0], row)) for row in rows[2:]}
+    assert "1e-6" in by_risk["Broken model interface"]["Threshold"]
+    assert "0.90" in by_risk["Real model quality regression"]["Threshold"]
+    device = by_risk["Device correctness or performance regression"]
+    assert "1e-4" in device["Threshold"] and "p95 <= 50 ms" in device["Threshold"]
+    assert device["Environment"] == "local-attested-accelerator"
+
+
+def test_evidence_template_captures_reproducible_identity_and_result():
+    content = section("Evidence record and validity")
+    record = yaml.safe_load(content.split("```yaml\n", 1)[1].split("```", 1)[0])
+    required = {
+        "ac_id", "test_id", "risk", "oracle", "threshold", "level", "environment",
+        "trigger", "tested_commit", "worktree_state", "patch_digest", "inputs",
+        "runtime_device", "test_policy_version", "command", "measurement_conditions",
+        "result", "observed", "logs", "executed_at", "verifier", "retention",
+    }
+    assert required <= record.keys()
+    assert all(record[key] for key in required)
+    assert record["tested_commit"] == "<full-commit-sha>"
+    assert record["worktree_state"] == "<clean-or-dirty>"
+    assert set(record["inputs"]) == {"model", "data", "fixture", "artifact"}
+    assert all("sha256" in identity for identity in record["inputs"].values())
+    assert "sha256" in record["patch_digest"] and "sha256" in record["logs"]
+    assert "owner-access-policy-and-expiry" in record["retention"]
+
+
+@pytest.mark.parametrize(("heading", "required_phrases"), [
+    ("Affected consumers and conservative fallback", [
+        "affected transitive consumers", "unit/contract/integration",
+        "Shared code/schema/config", "dependency manifests/lockfiles",
+        "build/toolchain", "workflows and selection-policy",
+        "missing/stale graph", "failed diff/planning", "unclassified",
+        "run broader tests, not pass", "existing broad suite",
+        "block or hand off", "skip, cancellation, missing result",
+        "build/packaging checks", "Scheduled deep tests supplement, not replace",
+    ]),
+    ("Model fixtures and real target checks", [
+        "tiny deterministic fixtures", "SHA-256", "provenance/license",
+        "input/reference-output digests", "verify checksums before use",
+        "Reuse unchanged pinned artifacts", "new identity",
+        "Tiny fixtures do not establish real-checkpoint quality",
+        "real change-critical model/device checks", "preprocessing/tokenizer",
+        "quantization/precision", "runtime/driver", "pending attestation",
+        "seeds, warmup, sample count",
+    ]),
+    ("Evidence record and validity", [
+        "New code or inputs invalidate evidence by default",
+        "Dirty-worktree evidence requires the exact patch",
+        "Retest the combined merge candidate", "merge_group",
+        "relevant-input equivalence policy", "combined-source integration",
+        "pending-attestation: <ac-id>", "authorized verifier",
+        "Missing logs, mismatched SHA/model/input, stale or unauthorized",
+        "not cryptographic assurance",
+        "current attestation parser does not enforce all these fields",
+    ]),
+    ("Shadow selection before gate reduction", [
+        "shadow alongside unchanged broad gates", "10 candidate PRs",
+        "does not run that pilot", "selected and omitted checks with reasons",
+        "false negatives", "execution time separately from queue time",
+        "runner/OS cost", "same source and inputs",
+        "incomplete broad runs are inconclusive",
+        "Stop expansion on any missed relevant failure",
+        "tested dependency rules", "explicit direction decision",
+        "rollback restoring broad gates", "not proof of safety",
+        "reject failed planning, absent evidence",
+        "failed/cancelled/incorrectly skipped required jobs",
+        "merge_group", "Never return unconditional success",
+    ]),
+])
+def test_safety_boundaries_are_explicit(heading, required_phrases):
+    content = " ".join(section(heading).split())
+    for phrase in required_phrases:
+        assert phrase in content, f"{heading} must retain: {phrase}"
+
+
+def test_document_does_not_claim_runtime_enforcement():
+    content = " ".join(DOC.read_text(encoding="utf-8").split())
+    assert "not an implemented affected-test selector or stronger attestation validator" in content
+    assert "Existing required checks remain unchanged" in content
