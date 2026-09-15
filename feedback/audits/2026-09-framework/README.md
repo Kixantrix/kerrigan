@@ -94,6 +94,7 @@ coverage are not established.
 | F27 | W1 measured all nine sampled sessions' latest indexed turns newer than `sessions.updated_at`, with maximum lag 38.5 hours | Triage needs fresh live activity and meaningful progress evidence, not metadata-age-only staleness; this is not evidence of lost execution |
 | F28 | W1's same six startup briefs all referenced host-absolute paths; four referenced session-state artifacts | Message portability and hash identity do not establish recipient access to required bytes; use an artifact-dependent canary |
 | F29 | A second client's baseline reported `No such agent`, not the array-type error; unchanged `.md` profiles were discovered and a harmless prompt succeeded after the #430 correction | Independent corroboration of the fix, with client-specific failure presentation; record client/runtime versions separately |
+| F30 | The idle-triggered probe remained armed past its deadline with no send attempt when the owner returned; no qualifying event or agent receipt was recorded | The audit was idle, not progressing autonomously. Close the observation honestly and remove the probe; do not infer that an unattempted send proves idle delivery impossible |
 
 The device notes preserve positive counterevidence: explicit bounded direct
 briefings, multiple useful preparation lanes, and acknowledgements that a

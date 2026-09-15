@@ -34,6 +34,22 @@ The source and private receipt were retained as session artifacts. The executabl
 extension was removed from discovery and reloading confirmed zero extensions
 running. No persistent user/project extension or recurring listener was installed.
 
+### Idle-triggered probe: no send observed
+
+A separate one-shot probe was armed on September 13 for the next qualifying
+root `session.idle` event, with a five-minute eligibility deadline. When the
+owner returned on September 14 (user-local date), its receipt still recorded
+`send_attempted: false`: no qualifying idle event, send acceptance, or agent
+receipt had been recorded. The deadline had elapsed. Its executable was then
+removed and extension reload confirmed zero running extensions; source and
+receipt were retained privately.
+
+This does not prove that SDK delivery to an idle session is impossible: the
+probe never reached its send step, and the event/filter/host-lifecycle cause was
+not established. It does prove that this experiment did not provide background
+continuation. An armed probe must not be presented as active coordination or
+left as an unexplained in-progress task after its observation window.
+
 ## Minimum contract
 
 Use a compact envelope: schema version, message ID, correlation/reply-to ID,

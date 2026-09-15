@@ -55,6 +55,10 @@ do not dispatch a duplicate local implementation until ownership is reconciled.
 The once-only follow-up reached a user-observed queue but agent receipt was not
 established. Its review reconciliation was handled in a normal user turn; no
 replacement timer was created. P9 carries the receiving/delivery question forward.
+The later idle-event probe also did not reach its send step before the owner
+returned. It has been removed. Core implementation PRs remain open; no audit
+worker or verified background continuation is running while those capabilities
+and cross-device recipient registration remain unresolved.
 
 ## Measurement and promotion
 

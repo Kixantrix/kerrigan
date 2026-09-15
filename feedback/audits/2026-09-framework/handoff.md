@@ -57,7 +57,7 @@ Each note should state:
 
 - Evidence date, app/runtime and harness revision, collection method/window/count,
   visible/missing sources, and exclusions (including review sessions).
-- Findings keyed to F1-F29, or a new stable finding ID: observed vs reported vs
+- Findings keyed to F1-F30, or a new stable finding ID: observed vs reported vs
   proposed; source type; sanitized example; counterexample; confidence.
 - A bounded recommendation, alternative considered, measurement, and whether it
   changes the current plan. Unknown should remain unknown.
@@ -113,3 +113,9 @@ diagnostics differed while the same profile correction worked. Do not age work
 from session `updated_at` alone, or treat host-local briefing prerequisites as
 available on another device. The next canary should verify both receipt and
 synthetic artifact availability/hash/prerequisite acceptance.
+
+The subsequent idle-triggered local probe did not attempt a send before its
+deadline. On the owner's next visit its receipt still had no qualifying idle
+event or agent acknowledgement; the executable was removed. There is no working
+background audit loop to inherit. Treat idle continuation and cloud control as
+unresolved capabilities, not running work or permission to duplicate workers.
