@@ -105,7 +105,7 @@ while IFS=$'\t' read -r number state assignee_count labels_csv; do
 
   remove_labels=()
   for label in "${V1_LABELS[@]}"; do
-    if has_label "$label" "${labels[@]}"; then
+    if has_label "$label" ${labels[@]+"${labels[@]}"}; then
       remove_labels+=("$label")
     fi
   done
@@ -115,15 +115,15 @@ while IFS=$'\t' read -r number state assignee_count labels_csv; do
   fi
 
   add_labels=()
-  if has_label "agent-ready" "${labels[@]}" &&
+  if has_label "agent-ready" ${labels[@]+"${labels[@]}"} &&
      [[ "$state" == "OPEN" ]] &&
      [[ "$assignee_count" == "0" ]] &&
-     ! has_label "agent:go" "${labels[@]}"; then
+     ! has_label "agent:go" ${labels[@]+"${labels[@]}"}; then
     add_labels=("agent:go")
   fi
 
   remove_csv="$(join_by , "${remove_labels[@]}")"
-  add_csv="$(join_by , "${add_labels[@]}")"
+  add_csv="$(join_by , ${add_labels[@]+"${add_labels[@]}"})"
 
   if [[ "$dry_run" == true ]]; then
     if [[ -n "$add_csv" ]]; then

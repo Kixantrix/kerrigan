@@ -1,3 +1,8 @@
+---
+name: kerrigan-acquire
+description: "Use when starting a new project or feature, or after a major architectural decision. Agents need domain knowledge before planning, and stack knowledge before implementing."
+---
+
 # Skill: kerrigan-acquire
 
 **When:** Starting a new project or feature, or after a major architectural decision.

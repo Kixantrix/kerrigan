@@ -17,12 +17,12 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         self.requirements_path = self.repo_root / "requirements.txt"
         self.workflow_path = self.repo_root / ".github" / "workflows" / "verify.yml"
 
-    def test_tool_versions_pins_python_3_13_2(self):
+    def test_tool_versions_pins_python_3_13(self):
         """The repo should pin the CI/runtime Python version."""
         self.assertTrue(self.tool_versions_path.exists(), ".tool-versions should exist")
         self.assertEqual(
             self.tool_versions_path.read_text(encoding="utf-8").strip(),
-            "python 3.13.2",
+            "python 3.13.18",
         )
 
     def test_root_requirements_are_fully_pinned(self):

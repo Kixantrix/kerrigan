@@ -1,3 +1,8 @@
+---
+name: briefing-packet
+description: "Use when the kerrigan profile dispatches a cloud task. Give the cloud agent full context without re-deriving from the whole repo."
+---
+
 # Skill: briefing-packet
 
 **When:** the `kerrigan` profile dispatches a `cloud` task.

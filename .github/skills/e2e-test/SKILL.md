@@ -1,3 +1,8 @@
+---
+name: e2e-test
+description: "Use when an AC describes user-visible workflow through UI/CLI/API boundaries. Catch breakages that unit/integration tests can miss."
+---
+
 # Skill: e2e-test
 
 **When:** an AC describes user-visible workflow through UI/CLI/API boundaries.

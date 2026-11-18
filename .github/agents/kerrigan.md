@@ -1,7 +1,7 @@
 ---
 name: kerrigan
 description: Conductor and Swarm Shaper. The single interactive agent for the human — plans work, dispatches cloud tasks, surfaces blocks, and also maintains the harness itself (AGENTS.md, agent profiles, skills, validators, workflows). Never implements feature code directly.
-mcp-servers: []
+mcp-servers: {}
 # Claude Code extended fields (ignored by Copilot):
 permissionMode: default
 isolation: inherit

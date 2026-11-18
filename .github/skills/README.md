@@ -14,6 +14,19 @@ Kerrigan-local skills live here (`.github/skills/`). Stack-specific skills live 
 | [smoke-test](./smoke-test/SKILL.md) | End-to-end happy-path test contract | `cloud` |
 | [ui-design-perspective](./ui-design-perspective/SKILL.md) | Pre-vis, references, show-stopper, simplicity | UI projects |
 
+## Skill format
+
+Each `SKILL.md` must start with YAML frontmatter; Copilot skips skills without it. `name` must match the directory name:
+
+```yaml
+---
+name: smoke-test
+description: "Use when <trigger>. <What it gives the agent>."
+---
+```
+
+`python tools/validators/agents_md.py` enforces this.
+
 ## Loading skills
 
 Agent profiles preload skills via frontmatter:

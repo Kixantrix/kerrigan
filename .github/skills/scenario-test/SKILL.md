@@ -1,3 +1,8 @@
+---
+name: scenario-test
+description: "Use when an AC depends on platform-only behavior, hardware, or human judgment. Preserve trust when cloud cannot execute the complete validation path."
+---
+
 # Skill: scenario-test
 
 **When:** an AC depends on platform-only behavior, hardware, or human judgment.
