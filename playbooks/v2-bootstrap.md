@@ -72,7 +72,8 @@ if (Test-Path '.claude/agents' -PathType Container) {
 }
 pwsh scripts/mirror-agents.ps1
 
-# Sanity check
+# Sanity check (the validator needs PyYAML)
+python -m pip install pyyaml
 python tools/validators/agents_md.py
 ```
 
@@ -92,7 +93,8 @@ git mv .github/agents/role.*.md .github/agents/_legacy/ 2>$null
 # 4. Mirror for Claude Code
 pwsh scripts/mirror-agents.ps1
 
-# 5. Validate
+# 5. Validate (the validator needs PyYAML)
+python -m pip install pyyaml
 python tools/validators/agents_md.py
 ```
 
