@@ -73,6 +73,11 @@ def check_agent_profile(path: Path, errors: list[str]) -> None:
     for key in required:
         if key not in fm or not fm[key]:
             errors.append(f"{rel}: frontmatter missing required field '{key}'")
+    # Copilot CLI silently drops profiles whose mcp-servers is a list.
+    if fm.get("mcp-servers", "").startswith("["):
+        errors.append(
+            f"{rel}: 'mcp-servers' must be a mapping (use '{{}}' for none), not a list"
+        )
     # Name/filename match only for kerrigan profiles (not spec-kit agents)
     if not is_speckit:
         expected_name = path.stem

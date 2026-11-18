@@ -131,6 +131,20 @@ class TestCheckAgentProfile(unittest.TestCase):
                 agents_md.REPO_ROOT = old_root
             self.assertEqual(errors, [])
 
+    def test_mcp_servers_list_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._write_profile(Path(td), "x.agent.md",
+                "---\ndescription: X\nmcp-servers: []\n---\n# x")
+            errors = []
+            import agents_md
+            old_root = agents_md.REPO_ROOT
+            agents_md.REPO_ROOT = Path(td)
+            try:
+                check_agent_profile(p, errors)
+            finally:
+                agents_md.REPO_ROOT = old_root
+            self.assertTrue(any("mcp-servers" in e for e in errors))
+
 
 class TestCheckAgentsMd(unittest.TestCase):
     """Test AGENTS.md validation."""
