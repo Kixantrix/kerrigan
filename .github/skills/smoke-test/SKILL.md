@@ -1,3 +1,8 @@
+---
+name: smoke-test
+description: "Use when any project that gets deployed (service, CLI, library consumed by others). One fast end-to-end happy-path check that gates PR merge."
+---
+
 # Skill: smoke-test
 
 **When:** any project that gets deployed (service, CLI, library consumed by others).

@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "tools" / "validators"))
 
-from agents_md import parse_frontmatter, check_agent_profile, check_agents_md
+from agents_md import parse_frontmatter, check_agent_profile, check_agents_md, check_skill
 
 
 class TestParseFrontmatter(unittest.TestCase):
@@ -144,6 +144,37 @@ class TestCheckAgentProfile(unittest.TestCase):
             finally:
                 agents_md.REPO_ROOT = old_root
             self.assertTrue(any("mcp-servers" in e for e in errors))
+
+
+class TestCheckSkill(unittest.TestCase):
+    """Test .github/skills/*/SKILL.md validation."""
+
+    def _check(self, dirname, text):
+        import agents_md
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / dirname / "SKILL.md"
+            p.parent.mkdir()
+            p.write_text(text, encoding="utf-8")
+            errors = []
+            old_root = agents_md.REPO_ROOT
+            agents_md.REPO_ROOT = Path(td)
+            try:
+                check_skill(p, errors)
+            finally:
+                agents_md.REPO_ROOT = old_root
+            return errors
+
+    def test_valid_skill(self):
+        self.assertEqual(self._check("smoke-test",
+            "---\nname: smoke-test\ndescription: \"Use when X.\"\n---\n# Skill"), [])
+
+    def test_missing_frontmatter(self):
+        errors = self._check("smoke-test", "# Skill: smoke-test\n")
+        self.assertTrue(any("missing YAML frontmatter" in e for e in errors))
+
+    def test_name_must_match_directory(self):
+        errors = self._check("smoke-test", "---\nname: smoke\ndescription: d\n---\n")
+        self.assertTrue(any("name must be 'smoke-test'" in e for e in errors))
 
 
 class TestCheckAgentsMd(unittest.TestCase):

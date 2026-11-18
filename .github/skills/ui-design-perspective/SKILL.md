@@ -1,3 +1,8 @@
+---
+name: ui-design-perspective
+description: "Use when any project that produces user-facing UI (web, dashboard, app, embedded widget). Kerrigan's UI projects should look intentional, not accidental. Curated taste prevents bland defaults."
+---
+
 # Skill: ui-design-perspective
 
 **When:** any project that produces user-facing UI (web, dashboard, app, embedded widget).

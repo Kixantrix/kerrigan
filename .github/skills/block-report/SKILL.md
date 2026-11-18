@@ -1,3 +1,8 @@
+---
+name: block-report
+description: "Use when an agent can't proceed with a task. Structured, machine-readable blocks so the kerrigan profile can surface them and other tasks keep moving."
+---
+
 # Skill: block-report
 
 **When:** an agent can't proceed with a task.

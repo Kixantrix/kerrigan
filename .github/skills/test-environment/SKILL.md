@@ -1,3 +1,8 @@
+---
+name: test-environment
+description: "Use when selecting execution environment for each AC test. Ensure tests run where behavior actually exists."
+---
+
 # Skill: test-environment
 
 **When:** selecting execution environment for each AC test.

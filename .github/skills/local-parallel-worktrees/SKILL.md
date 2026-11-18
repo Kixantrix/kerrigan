@@ -1,3 +1,8 @@
+---
+name: local-parallel-worktrees
+description: "Use when running >=2 local agents on one machine, or when you want an isolated experiment branch without disturbing the main checkout. Each local agent needs an isolated working tree/branch to avoid collisions in branch state, build artifacts, and dependency directories."
+---
+
 # Skill: local-parallel-worktrees
 
 **When:** running >=2 local agents on one machine, or when you want an isolated experiment branch without disturbing the main checkout.

@@ -1,3 +1,8 @@
+---
+name: delegation-rubric
+description: "Use when the kerrigan profile decides whether a task runs cloud or local. Routing must be auditable. Every routed task cites the rule it matched."
+---
+
 # Skill: delegation-rubric
 
 **When:** the `kerrigan` profile decides whether a task runs `cloud` or `local`.

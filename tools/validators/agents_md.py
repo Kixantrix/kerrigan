@@ -6,6 +6,8 @@ Checks:
 2. Every .github/agents/*.md (excluding adapters/, README.md)
    has valid YAML frontmatter with required fields: name, description.
 3. Profile `name` matches filename (profile.md -> name: profile).
+4. Every .github/skills/*/SKILL.md has frontmatter with `description`
+   and a `name` matching its directory (Copilot skips skills without it).
 
 Exit 0 on success, 1 on failure. Prints one line per issue.
 """
@@ -19,6 +21,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
 AGENTS_DIR = REPO_ROOT / ".github" / "agents"
+SKILLS_DIR = REPO_ROOT / ".github" / "skills"
 
 REQUIRED_FRONTMATTER = ("name", "description")
 # Spec-kit extension agents use *.agent.md and only require "description"
@@ -98,6 +101,18 @@ def check_agent_profile(path: Path, errors: list[str]) -> None:
                     )
 
 
+def check_skill(path: Path, errors: list[str]) -> None:
+    rel = path.relative_to(REPO_ROOT)
+    fm = parse_frontmatter(path.read_text(encoding="utf-8"))
+    if fm is None:
+        errors.append(f"{rel}: missing YAML frontmatter (name, description)")
+        return
+    if not fm.get("description"):
+        errors.append(f"{rel}: frontmatter missing required field 'description'")
+    if fm.get("name") != path.parent.name:
+        errors.append(f"{rel}: frontmatter name must be '{path.parent.name}'")
+
+
 def iter_agent_profiles() -> list[Path]:
     if not AGENTS_DIR.exists():
         return []
@@ -124,12 +139,15 @@ def main() -> int:
         errors.append(f"{AGENTS_DIR.relative_to(REPO_ROOT)}: no agent profiles found")
     for p in profiles:
         check_agent_profile(p, errors)
+    skills = sorted(SKILLS_DIR.glob("*/SKILL.md")) if SKILLS_DIR.exists() else []
+    for s in skills:
+        check_skill(s, errors)
     if errors:
         print("agents_md validator: FAIL")
         for e in errors:
             print(f"  {e}")
         return 1
-    print(f"agents_md validator: OK ({len(profiles)} profiles)")
+    print(f"agents_md validator: OK ({len(profiles)} profiles, {len(skills)} skills)")
     return 0
 
 

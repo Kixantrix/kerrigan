@@ -1,3 +1,8 @@
+---
+name: test-ladder
+description: "Use when selecting test depth for an AC in a briefing packet. Prevent under-testing (missing e2e/scenario) and over-testing (slow noisy suites)."
+---
+
 # Skill: test-ladder
 
 **When:** selecting test depth for an AC in a briefing packet.
