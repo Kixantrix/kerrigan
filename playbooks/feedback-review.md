@@ -18,6 +18,11 @@ This playbook ensures all feedback is reviewed systematically and drives meaning
 - More frequent if actively working on meta-improvements
 - Can be triggered by agent notification in PR or issue
 
+This is a review cadence, not a claim that an automation is installed. Keep an
+explicit owner for intake and disposition. Recurring triage should route an
+actionable exception to the existing owner, not start a competing implementation.
+An accepted improvement outcome delegates routine prioritization to Kerrigan.
+
 **Quarterly analysis**: Analyze patterns and trends every quarter
 - Identify systemic issues
 - Prioritize major improvements
@@ -112,7 +117,8 @@ Choose appropriate response:
 1. Create PR with fix
 2. Link to feedback file in PR description
 3. Update feedback file with status and PR number
-4. Move to processed/ after PR merges
+4. Record the canonical change and adoption evidence; remove the resolved intake
+   through normal review once its lesson and disposition are durable
 
 #### For tracked issues:
 
@@ -126,7 +132,8 @@ Choose appropriate response:
 
 1. Add detailed notes explaining the decision in the feedback file
 2. Document workaround if available
-3. Delete the file (the decision is the outcome; git history retains it)
+3. Retain the decision in a reviewed change or durable tracking record before
+   removing the intake file; do not rely on uncommitted notes surviving deletion
 
 ### 6. Update Status
 
@@ -160,7 +167,10 @@ git rm feedback/agent-feedback/2026-01-15-42-heading-names.yaml
 ```
 
 The `feedback/processed/` directory is a short-lived staging area only — a file
-lives there only while mid-resolution, then it is removed, not kept.
+lives there only while mid-resolution, then it is removed, not kept. Never
+delete an unresolved item solely because of age. Record a durable decision,
+owner and follow-up link before removing an intake entry; do not mistake a
+merged harness change for adoption on another device or satellite.
 
 ## Implementation Patterns
 
@@ -172,7 +182,7 @@ lives there only while mid-resolution, then it is removed, not kept.
 1. Update relevant agent prompt file
 2. Add specific examples
 3. Cross-check other prompts for same issue
-4. Update handoffs.md if affects multiple agents
+4. Link the canonical change from the affected task's existing handoff
 
 **Example**:
 ```markdown
@@ -205,7 +215,7 @@ Create the following artifacts:
 1. Update relevant playbook
 2. Simplify or streamline process
 3. Update agent prompts with new workflow
-4. Document rationale in handoffs.md
+4. Record rationale and the canonical revision in the existing task handoff
 
 **Example**: Reduce required artifacts for small changes
 
@@ -217,7 +227,7 @@ Create the following artifacts:
 1. Document pattern in relevant playbook
 2. Add to agent prompt as recommended approach
 3. Create example in examples/ if valuable
-4. Share in handoffs.md
+4. Link the canonical pattern and adoption result from the existing handoff
 
 **Example**: Effective TDD workflow that caught bugs early
 
@@ -395,7 +405,8 @@ When processing feedback:
 ```
 Thanks for the feedback! You're right that the heading names weren't clear.
 I've updated the `cloud` agent profile with specific examples in #44.
-The feedback has been processed and moved to the archive.
+The decision and canonical change are linked; the resolved intake can now be
+removed through normal review, with its history retained in Git.
 ```
 
 ### To Satellites
@@ -455,7 +466,7 @@ Create `tools/feedback/summarize.py` to:
 - ❌ Ignore low-severity items indefinitely
 - ❌ Fix symptoms without addressing root cause
 - ❌ Make changes without updating docs
-- ❌ Forget to move processed feedback to archive
+- ❌ Remove intake before its decision, owner and canonical follow-up are durable
 
 ## Examples
 
