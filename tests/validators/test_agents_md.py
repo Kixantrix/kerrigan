@@ -145,6 +145,31 @@ class TestCheckAgentProfile(unittest.TestCase):
                 agents_md.REPO_ROOT = old_root
             self.assertTrue(any("mcp-servers" in e for e in errors))
 
+    def _profile_errors(self, text):
+        import agents_md
+        with tempfile.TemporaryDirectory() as td:
+            p = self._write_profile(Path(td), "x.agent.md", text)
+            errors = []
+            old_root = agents_md.REPO_ROOT
+            agents_md.REPO_ROOT = Path(td)
+            try:
+                check_agent_profile(p, errors)
+            finally:
+                agents_md.REPO_ROOT = old_root
+            return errors
+
+    def test_mcp_servers_block_list_rejected(self):
+        errors = self._profile_errors("---\ndescription: X\nmcp-servers:\n  - foo\n---\n# x")
+        self.assertTrue(any("mcp-servers" in e for e in errors))
+
+    def test_mcp_servers_empty_or_mapping_accepted(self):
+        self.assertEqual(self._profile_errors("---\ndescription: X\nmcp-servers:\n---\n"), [])
+        self.assertEqual(self._profile_errors("---\ndescription: X\nmcp-servers: {}\n---\n"), [])
+
+    def test_profile_with_invalid_yaml_rejected(self):
+        errors = self._profile_errors('---\ndescription: "unterminated\n---\n# x')
+        self.assertTrue(any("not valid YAML" in e for e in errors))
+
 
 class TestCheckSkill(unittest.TestCase):
     """Test .github/skills/*/SKILL.md validation."""
@@ -175,6 +200,10 @@ class TestCheckSkill(unittest.TestCase):
     def test_name_must_match_directory(self):
         errors = self._check("smoke-test", "---\nname: smoke\ndescription: d\n---\n")
         self.assertTrue(any("name must be 'smoke-test'" in e for e in errors))
+
+    def test_invalid_yaml_rejected(self):
+        errors = self._check("smoke-test", '---\nname: smoke-test\ndescription: "unterminated\n---\n')
+        self.assertTrue(any("not valid YAML" in e for e in errors))
 
 
 class TestCheckAgentsMd(unittest.TestCase):

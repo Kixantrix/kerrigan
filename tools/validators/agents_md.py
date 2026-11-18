@@ -4,9 +4,11 @@
 Checks:
 1. AGENTS.md exists at repo root.
 2. Every .github/agents/*.md (excluding adapters/, README.md)
-   has valid YAML frontmatter with required fields: name, description.
+   has frontmatter that parses as YAML (Copilot silently drops profiles
+   that don't), with required fields: name, description, and an
+   `mcp-servers` that is a mapping when present.
 3. Profile `name` matches filename (profile.md -> name: profile).
-4. Every .github/skills/*/SKILL.md has frontmatter with `description`
+4. Every .github/skills/*/SKILL.md has YAML frontmatter with `description`
    and a `name` matching its directory (Copilot skips skills without it).
 
 Exit 0 on success, 1 on failure. Prints one line per issue.
@@ -17,6 +19,8 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
@@ -63,6 +67,24 @@ def parse_frontmatter(text: str) -> dict[str, str] | None:
     return fm
 
 
+def load_frontmatter_yaml(text: str) -> tuple[dict | None, str | None]:
+    """Strictly parse frontmatter as YAML, the way Copilot does.
+
+    Returns (mapping, None) on success or (None, reason) when Copilot would
+    silently drop the file.
+    """
+    m = FRONTMATTER_RE.match(text)
+    if not m:
+        return None, "missing YAML frontmatter (must start with '---')"
+    try:
+        data = yaml.safe_load(m.group(1))
+    except yaml.YAMLError as exc:
+        return None, f"frontmatter is not valid YAML ({str(exc).splitlines()[0]})"
+    if not isinstance(data, dict):
+        return None, "frontmatter must be a YAML mapping"
+    return data, None
+
+
 def check_agent_profile(path: Path, errors: list[str]) -> None:
     rel = path.relative_to(REPO_ROOT)
     text = path.read_text(encoding="utf-8")
@@ -70,17 +92,20 @@ def check_agent_profile(path: Path, errors: list[str]) -> None:
     if fm is None:
         errors.append(f"{rel}: missing YAML frontmatter (must start with '---')")
         return
+    data, problem = load_frontmatter_yaml(text)
+    if problem:
+        errors.append(f"{rel}: {problem}")
+    # Copilot drops profiles whose mcp-servers is anything but a mapping or empty.
+    elif data.get("mcp-servers") is not None and not isinstance(data["mcp-servers"], dict):
+        errors.append(
+            f"{rel}: 'mcp-servers' must be a mapping (use '{{}}' for none), not a list"
+        )
     # Spec-kit extension agents (*.agent.md) have a lighter requirement
     is_speckit = path.name.endswith(".agent.md")
     required = SPECKIT_AGENT_REQUIRED if is_speckit else REQUIRED_FRONTMATTER
     for key in required:
         if key not in fm or not fm[key]:
             errors.append(f"{rel}: frontmatter missing required field '{key}'")
-    # Copilot CLI silently drops profiles whose mcp-servers is a list.
-    if fm.get("mcp-servers", "").startswith("["):
-        errors.append(
-            f"{rel}: 'mcp-servers' must be a mapping (use '{{}}' for none), not a list"
-        )
     # Name/filename match only for kerrigan profiles (not spec-kit agents)
     if not is_speckit:
         expected_name = path.stem
@@ -103,13 +128,14 @@ def check_agent_profile(path: Path, errors: list[str]) -> None:
 
 def check_skill(path: Path, errors: list[str]) -> None:
     rel = path.relative_to(REPO_ROOT)
-    fm = parse_frontmatter(path.read_text(encoding="utf-8"))
-    if fm is None:
-        errors.append(f"{rel}: missing YAML frontmatter (name, description)")
+    data, problem = load_frontmatter_yaml(path.read_text(encoding="utf-8"))
+    if problem:
+        errors.append(f"{rel}: {problem}")
         return
-    if not fm.get("description"):
+    description = data.get("description")
+    if not isinstance(description, str) or not description.strip():
         errors.append(f"{rel}: frontmatter missing required field 'description'")
-    if fm.get("name") != path.parent.name:
+    if data.get("name") != path.parent.name:
         errors.append(f"{rel}: frontmatter name must be '{path.parent.name}'")
 
 

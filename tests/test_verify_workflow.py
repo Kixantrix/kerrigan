@@ -22,7 +22,7 @@ class TestDeterministicVerifyWorkflow(unittest.TestCase):
         self.assertTrue(self.tool_versions_path.exists(), ".tool-versions should exist")
         self.assertEqual(
             self.tool_versions_path.read_text(encoding="utf-8").strip(),
-            "python 3.13.18",
+            "python 3.13.17",
         )
 
     def test_root_requirements_are_fully_pinned(self):
