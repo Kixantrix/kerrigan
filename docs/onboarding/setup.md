@@ -9,8 +9,10 @@ Before you begin, ensure you have:
 - **GitHub Account**: With repository access where you'll use Kerrigan
 - **Git**: Installed and configured on your machine
 - **AI Agent Access**: GitHub Copilot or similar AI coding assistant
-- **Python 3.8+**: For running validators (optional but recommended)
-- **PowerShell 5.1+**: For local automation scripts (PowerShell 7+ recommended)
+- **Python 3.11+**: For running validators (optional but recommended)
+- **PowerShell 5.1+**: For local automation scripts (PowerShell 7+ recommended; on macOS/Linux install `pwsh` 7+)
+
+macOS users: see the Homebrew one-time setup in [playbooks/v2-bootstrap.md](../../playbooks/v2-bootstrap.md#macos-homebrew).
 
 ## Step 1: Choose Your Template and Create Repository
 

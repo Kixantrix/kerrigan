@@ -22,6 +22,25 @@ winget install --id=astral-sh.uv -e
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
+### macOS (Homebrew)
+
+The stock macOS toolchain is not enough: system Python is 3.9 (validators need
+3.10+), there is no `pwsh` (the `tools/*.ps1` PR helpers and this repo's
+spec-kit scripts are PowerShell), and `/bin/bash` is 3.2. One-time setup:
+
+```bash
+xcode-select --install                       # if not already installed
+brew install powershell python@3.13 node pnpm uv rustup  # pwsh 7+, Python, dashboard, spec-kit, Tauri
+rustup default stable                        # only needed for the Tauri dashboard
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+uv tool update-shell                         # puts ~/.local/bin (specify) on PATH
+
+# Kerrigan CLI + validator deps (from repo root, in a venv)
+python3.13 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt && pip install -e tools/cli/kerrigan
+bash scripts/smoke.sh
+```
+
 ## New repo: 3 commands
 
 ```powershell
@@ -149,6 +168,8 @@ pwsh scripts/smoke.ps1
 ## Troubleshooting
 
 **`specify` not found after install:** Check `uv tool list`. Add `%USERPROFILE%\.local\bin` to PATH (Windows) or `~/.local/bin` (Unix).
+
+**`bad substitution` from a spec-kit `.sh` script on macOS:** `/bin/bash` is 3.2 and some upstream spec-kit bash scripts use bash 4+ syntax. Use the PowerShell variants via `pwsh`, or `brew install bash`.
 
 **Junction fails on Windows:** Make sure `.claude/agents/` doesn't exist as a real directory already. Delete it first.
 

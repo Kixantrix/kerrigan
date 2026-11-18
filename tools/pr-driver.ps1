@@ -231,8 +231,16 @@ $stateDict = [ordered]@{
 
 $stateJson = $stateDict | ConvertTo-Json -Depth 10 -Compress
 
+# macOS/Linux ship only `python3`; on Windows `python3` may be the Store stub.
+$pythonCandidates = if ($IsWindows -or $env:OS -eq 'Windows_NT') { @('python', 'python3') } else { @('python3', 'python') }
+$PythonCmd = $pythonCandidates | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
+if (-not $PythonCmd) {
+    Write-Error "Python not found on PATH (tried: $($pythonCandidates -join ', '))"
+    exit 1
+}
+
 $decideScript = Join-Path $ScriptDir "pr_driver_decide.py"
-$actionJson = $stateJson | python $decideScript --json-stdin 2>&1
+$actionJson = $stateJson | & $PythonCmd $decideScript --json-stdin 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "pr_driver_decide.py failed: $actionJson"
     exit 1
@@ -310,7 +318,7 @@ switch ($action) {
             Write-Host ("[AUTO] Resolving {0} converged thread(s) for PR #{1}" -f $threadIds.Count, $PrNumber)
             foreach ($tid in $threadIds) {
                 if ($DryRun) {
-                    Write-Host "[dry-run] python $ScriptDir/pr_reply_resolve.py (resolve thread $tid)"
+                    Write-Host "[dry-run] $PythonCmd $ScriptDir/pr_reply_resolve.py (resolve thread $tid)"
                 } else {
                     # Resolve the thread directly via GraphQL (no reply needed for converged threads)
                     $mutation = 'mutation($threadId: ID!) { resolveReviewThread(input: {threadId: $threadId}) { thread { id isResolved } } }'
