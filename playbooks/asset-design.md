@@ -87,6 +87,8 @@ Keep heavy binaries out of git history where possible (Git LFS or an `exports/` 
 
 **Goal:** parametric guitars decomposed into CNC-ready component templates that match real plans and fit together, plus a headstock logo ready to be CNC'd from brass within its physical footprint.
 
+> Building an *assembled* product (several parts, fasteners, electronics) rather than templates? Use [`hardware-product.md`](hardware-product.md) and the [`dfma`](../.github/skills/dfma/SKILL.md) skill on top of this track.
+
 1. **Work from existing plans.** Import vendor/Thingiverse/community DXF plans as references into `design-references.md`; capture the real dimensions and how parts mate (neck pocket, scale length, nut width, bridge spacing). Pull standard hardware (tuners, bridge, truss rod) as off-the-shelf STEP — vendor downloads, or the CAD Skills `step.parts` skill — so your pockets match real parts.
 2. **Parametric source-of-truth.** Model each part in **build123d** or CadQuery (FreeCAD for organic curves you'd rather loft in a GUI; the CAD Skills `cad` skill is a convenient agent wrapper over build123d) using shared parameters (`scale_length`, `nut_width`, `body_thickness`, `stock_thickness`, `bit_radius`). Parts that share a parameter import it from `shared/` so they stay consistent — a change to scale length propagates everywhere. Preview locally (CAD Skills `cad-viewer`, FreeCAD, or any STEP viewer) as your pre-vis.
 3. **Component templates** as independent models: `body`, `neck`, `fretboard`, `headstock`, `neck-pocket-template`, `brass-logo`. Export a 2D **DXF** per template (build123d/CadQuery 2D export or the CAD Skills `dxf` skill — CNC outline, correct units, bit-radius-aware fillets) and/or 3D **STEP**.
@@ -173,6 +175,7 @@ A cloud agent that hits a wall writes `.specify/blocks/<task-id>.yaml` and stops
 
 ## Related
 
+- [`hardware-product.md`](hardware-product.md): multi-part physical products (CAD + PCB + firmware → orderable kit), gated by the [`dfma`](../.github/skills/dfma/SKILL.md) skill.
 - [`design-iteration.md`](design-iteration.md) — iteration loop for UI *design systems* (complements this).
 - [`.github/skills/ui-design-perspective/SKILL.md`](../.github/skills/ui-design-perspective/SKILL.md) — the four principles this adapts.
 - [`docs/test-strategy.md`](../docs/test-strategy.md) — test levels + environment taxonomy (`local-attested-*`, `manual-human`).

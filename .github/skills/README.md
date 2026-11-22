@@ -13,6 +13,7 @@ Kerrigan-local skills live here (`.github/skills/`). Stack-specific skills live 
 | [delegation-rubric](./delegation-rubric/SKILL.md) | Cloud vs local routing rules | `local` |
 | [smoke-test](./smoke-test/SKILL.md) | End-to-end happy-path test contract | `cloud` |
 | [ui-design-perspective](./ui-design-perspective/SKILL.md) | Pre-vis, references, show-stopper, simplicity | UI projects |
+| [dfma](./dfma/SKILL.md) | Design for manufacture/assembly: builder profile, sourcing ladder, assembly ledger | Physical-product projects |
 
 ## Skill format
 

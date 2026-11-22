@@ -61,6 +61,7 @@ def check(verbose: bool, fast: bool) -> None:
       - tools/validators/test_capability_matrix.py (if present)
       - tools/validators/show_status.py (if present)
       - tools/validators/check_test_environment.py (if present)
+      - tools/validators/check_assembly_ledger.py (if present)
 
     Skipped with --fast (heavy / PR-context validators):
       - tools/validators/check_quality_bar.py
@@ -190,6 +191,19 @@ def check(verbose: bool, fast: bool) -> None:
         ok = _run_validator(
             "check_merge_queue.py",
             [python, str(check_merge_queue), "--repo-root", str(root)],
+            root,
+            verbose,
+        )
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+
+    check_assembly_ledger = validators_dir / "check_assembly_ledger.py"
+    if check_assembly_ledger.exists():
+        ok = _run_validator(
+            "check_assembly_ledger.py",
+            [python, str(check_assembly_ledger), "--repo-root", str(root)],
             root,
             verbose,
         )

@@ -1,0 +1,65 @@
+# Agent Feedback
+timestamp: "2026-11-22T05:30:00Z"
+issue_number: 0              # no issue; distilled from the alethiometer hardware session (Kixantrix/alethiometer)
+agent_role: "kerrigan"
+category: "workflow_friction"
+severity: "high"
+title: "CAD agent optimised for geometric correctness; the builder kept pulling it back to assemblability"
+
+description: |
+  A single long session designed a brass alethiometer: a SendCutSend laser-cut and bent
+  case, gear train, AS5600 sensors, an X27 needle, a KiCad carrier PCB, ESP32 firmware and
+  voice API endpoints. The CadQuery model had interference and fab-rule checks and stayed
+  green throughout. The friction came from repeated rounds where the human had to steer the
+  design back toward easy manufacture and assembly:
+
+  - Custom-by-default. Thumbwheels were five stacked laser-cut gears glued together. The gear
+    module was 0.7, which no catalogue stocks. Arbors used odd K&S tube sizes. The human asked
+    "why can't we use stock sizes?" three times before the train moved to module 0.8 with bought
+    Misumi gears.
+  - Precision pushed onto the builder. About 35 tubes had to be hand-cut to roughly 0.1 mm. Gears
+    were soldered or glued at measured heights, and the crown was stacked from discs. The human
+    said "I can cut but I CANNOT do it precisely. I am not a watchmaker." The fix was a turned-parts
+    kit with shoulders, so every step became "push until it stops".
+  - A requirement with a hidden cost. A 135° lid stop added blocks, brackets and a rod. Opening
+    flat to 180°, with the hinge leaves as the stop, removed all of it.
+  - Model gaps. Screws were described but not modelled. The PCB was shown as boxes with no
+    through-holes. Speaker and mic wiring and mounting were absent. Holes were pierced in two of
+    three hands only because of a width threshold. Each gap produced a "how is this held?" question.
+  - Decision questions without enough information. "Do all of them?" got the answer "not enough
+    information". Options were only decidable once each listed the hand work, precision and tools.
+  - Late supplier facts overturned proposals. Spring steel comes only in .015". SendCutSend doesn't
+    countersink thin brass. Closed 8-sided trays need manual review.
+  - The tool list was requested late ("keep a list in the BoM of tools needed").
+  - Long full builds (6-7 min) and two context compactions. At one point the human asked "Did you
+    stop?" while work was still queued.
+
+  Patterns that worked and should be kept: a single parametric source of truth; one shared layout
+  file feeding both CAD and the PCB generator; one tolerance-budget block; a local three.js layer
+  viewer as the review surface; laser-cut fixtures (drill guide, trim gauge); a SETUP.md for moving
+  to another computer; copyrighted art generated into a git-ignored local folder.
+
+related_files:
+  - ".github/skills/dfma/SKILL.md"
+  - "playbooks/hardware-product.md"
+  - "tools/validators/check_assembly_ledger.py"
+
+context: |
+  Source: Copilot session "Brass alethiometer hardware" (2026-11-21/22), branch
+  kixantrix-brass-alethiometer-hardware in Kixantrix/alethiometer.
+
+proposed_solution: |
+  Make DFMA the default lens for physical-product work. It is implemented in this change:
+  - dfma skill: builder profile, sourcing ladder, precision-in-the-part, simplicity tests,
+    part completeness (source, retention, connection, step, tool), and hand-work-framed decisions.
+  - assembly-ledger.yaml plus check_assembly_ledger.py: every hand operation is checked against
+    the builder profile, and --strict is the ready-to-order gate.
+  - hardware-product playbook: phases and gates, a fast check loop, the viewer as review surface,
+    a supplier-facts log, and the CAD model treated as a serial resource.
+
+status: "implemented"
+reviewed_by: "kerrigan"
+reviewed_date: "2026-11-22"
+implementation_pr: null
+notes: |
+  Next step: generate the ledger from the CAD model (part kinds + joints) instead of hand-maintaining it.
