@@ -80,6 +80,10 @@ mappings:
     tests: "tests/validators/test_check_test_environment.py"
     notes: "Test environment validator and its tests"
 
+  - source: "tools/validators/check_assembly_ledger.py"
+    tests: "tests/validators/test_check_assembly_ledger.py"
+    notes: "Assembly ledger validator (dfma skill) and its tests"
+
   - source: "tools/validators/check_merge_queue.py"
     tests: "tests/test_check_merge_queue.py"
     notes: "Merge-queue readiness invariant validator and its tests"

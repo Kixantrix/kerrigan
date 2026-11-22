@@ -26,6 +26,7 @@ The single CI entry point is `kerrigan check`
 | `block_validator.py` | Validates block files in `.specify/blocks/` have correct YAML structure. |
 | `test_capability_matrix.py` | Validates the agent capability matrix is well-formed. |
 | `show_status.py` | Displays `status.json` information for all projects (informational; always passes). |
+| `check_assembly_ledger.py` | Validates every `assembly-ledger.yaml` (hand operations of a physical build) against its builder profile; `--strict` is the ready-to-order gate. See the `dfma` skill. |
 
 ### Skipped with `--fast`
 

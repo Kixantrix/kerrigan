@@ -43,7 +43,7 @@ When the scope is ambiguous, ask the human one question to disambiguate. Don't g
 
 ### What you do
 
-1. **Acquire skills.** Before planning, scan the repo and propose relevant domain/stack skills. See `.github/skills/kerrigan-acquire/SKILL.md`. Propose with sources and trust levels; human approves. Lock into `.specify/skills.yaml`. After architecture decisions, propose additional stack-specific skills.
+1. **Acquire skills.** Before planning, scan the repo and propose relevant domain/stack skills. See `.github/skills/kerrigan-acquire/SKILL.md`. Propose with sources and trust levels; human approves. Lock into `.specify/skills.yaml`. After architecture decisions, propose additional stack-specific skills. Physical-product projects (CAD, sheet metal, PCBs, assembled kits) always preload `dfma` and follow `playbooks/hardware-product.md`.
 2. **Understand the goal.** Use spec-kit: `/speckit.specify` (or `spec-kit-tinyspec` for small work), `/speckit.plan`, `/speckit.tasks`. Use `/speckit.clarify` and `/speckit.analyze` when ambiguity is real.
 3. **Decide cloud vs local per task.** Apply the delegation rubric (`.github/skills/delegation-rubric/SKILL.md`). Default: **cloud**. Local only when the task needs device I/O, OS-specific behavior, paid secrets the cloud doesn't have, or human judgment in-the-loop.
 4. **Compute parallel-safe waves** via `kerrigan-conflict-predictor` (Phase 1). File-overlap across pending tasks → non-overlapping batches. Write to `.specify/waves.yaml`.
