@@ -20,7 +20,7 @@ Projects currently maintained and referenced in documentation.
 |---------|---------|--------|--------------|
 | [kerrigan](kerrigan/) | Meta-project for Kerrigan itself — building the agent swarm system | Active | 2026-01-15 |
 | [docs-reorganization](docs-reorganization/) | Reorganize the `docs/` directory into a hierarchical structure | Active | 2026-05-12 |
-| [michael-bench](michael-bench/spec.md) | Personalized agent/model evaluation across laptop, self-hosted, and cloud setups; implementation proposed | Active | 2026-11-23 |
+| [michael-bench](michael-bench/spec.md) | Personalized agent/model evaluation across laptop, self-hosted, and cloud setups; first offline import slice implemented | Active | 2026-11-23 |
 
 ---
 

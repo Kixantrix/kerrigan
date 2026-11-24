@@ -1,6 +1,6 @@
 # Spec: Michael Bench
 
-Status: proposed implementation plan; no reusable runner or new model evaluation has been delivered.
+Status: MB-001a historical import boundary implemented; full manifests, reusable runner, and new model evaluations remain pending.
 
 ## Goal
 

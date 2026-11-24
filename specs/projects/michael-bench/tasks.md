@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Proposed tasks, not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets after the engine decision.
+Implementation roadmap: MB-001a is complete; remaining slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
 
 ## Milestone 1
 
@@ -8,7 +8,7 @@ Proposed tasks, not issued or dispatched. Suggested implementation paths below a
   - Done when: AC-MB-001 and the manifest portion of AC-MB-003 pass; imports preserve originals and corrections.
   - Scope: future `benchmarks/michael/contracts/` and focused contract tests. Raw pilot evidence remains read-only/local.
   - Dependencies: none.
-  - First bounded slice: MB-001a historical-evidence import contract ([briefing](../../../.specify/briefings/MB-001a.md)); other manifest contracts remain pending.
+  - Completed bounded slice: MB-001a historical-evidence import contract, commit `857004c` ([briefing](../../../.specify/briefings/MB-001a.md)); other manifest contracts remain pending.
 - [ ] MB-002: Prove one offline task in an existing engine and select the smallest compatible foundation.
   - Done when: hidden verification, complete native-event transport, interrupted-ledger recovery, and offline execution are demonstrated; engine choice cites evidence.
   - Scope: future `benchmarks/michael/` adapter spike and fixture tests; no model downloads or live endpoints.

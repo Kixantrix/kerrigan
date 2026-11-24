@@ -1,6 +1,6 @@
 # Plan: Michael Bench
 
-Status: direction confirmed; implementation architecture and dispatch remain pending review.
+Status: direction confirmed; MB-001a historical import boundary completed. Remaining contracts, engine selection, and broader dispatch are pending.
 
 ## Prior decisions
 
@@ -8,7 +8,7 @@ Status: direction confirmed; implementation architecture and dispatch remain pen
 - Compare controlled model capability separately from practical native-agent systems.
 - Preserve original Local AI Setup evidence and additive corrections; do not restart or take over its running research.
 - Use trusted Kerrigan test-ladder, test-environment, scenario-test, and smoke-test skills.
-- No new execution, downloads, spending, or production changes are part of this planning increment.
+- The initial planning increment authorized no model execution, downloads, spending, or production changes. The November 23 overnight handoff authorizes off-laptop implementation with synthetic fixtures, not additional laptop benchmarks.
 - Include recurring hardware-aware discovery of models, runtimes, quantizations, caching/speculation options, and agent compatibility; propose evaluations before changing the working setup.
 - Evaluate Kerrigan's own instruction/skill/tool/orchestration overhead and configuration effectiveness; preserve comparison portability to a future custom harness without selecting migration now.
 
@@ -35,6 +35,8 @@ Start with one research-only recurring job, not an automation group. Execution l
 Deliverable: hardware-aware candidate changes and finite evaluation proposals. The source scout may operate before the full bench is ready, but must label its proposals as not yet executable when runner prerequisites are missing.
 
 ## Milestone 1: Evidence contract and offline engine fit
+
+Completed first slice: MB-001a, commit `857004c`, provides a pure-standard-library import boundary that retains exact source bytes, SHA-256, opaque source payloads/conditions/attempts/denominators, unknown telemetry, and separate additive corrections. It was implemented and verified in the isolated cloud session; the reviewed four-file change is integrated on the Michael Bench branch. No real pilot data or local model services were accessed. This is not completion of the remaining task/target/condition contracts or engine proof.
 
 Inventory the actual pilot source and sanitized evidence schema. Preserve historic outcome labels and additive corrections; establish an importable contract using synthetic/redacted fixtures. Exercise one tiny fake-model task in the smallest candidate engine and prove hidden-verifier separation, native-event preservation, offline reproducibility, and report export.
 
@@ -74,7 +76,7 @@ Begin family-specific recommendations for interactive, background, offline/priva
 
 ## Dispatch and routing
 
-Implementation tasks are listed in [tasks.md](tasks.md); none are dispatched yet. At dispatch, create scoped briefings and run conflict prediction before parallel assignment. Artifact planning does not imply an implemented CLI.
+Implementation tasks are listed in [tasks.md](tasks.md). MB-001a was dispatched and completed under its [closed briefing](../../../.specify/briefings/MB-001a.md); remaining slices are not dispatched. Create scoped briefings and run conflict prediction before parallel assignment. Completing the import boundary does not imply an implemented CLI.
 
 Offline contracts, fixtures, reporting, and fake-model smoke work: `R-cloud-default`, using sanitized repository-contained materials.
 
