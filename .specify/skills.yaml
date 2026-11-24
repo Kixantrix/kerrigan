@@ -1,0 +1,23 @@
+project: michael-bench
+acquired_at: "2026-11-23T17:11:58Z"
+skills:
+  - id: test-ladder
+    source: repo
+    path: .github/skills/test-ladder/SKILL.md
+    trust: trusted
+    phase: both
+  - id: test-environment
+    source: repo
+    path: .github/skills/test-environment/SKILL.md
+    trust: trusted
+    phase: both
+  - id: scenario-test
+    source: repo
+    path: .github/skills/scenario-test/SKILL.md
+    trust: trusted
+    phase: both
+  - id: smoke-test
+    source: repo
+    path: .github/skills/smoke-test/SKILL.md
+    trust: trusted
+    phase: implementation
