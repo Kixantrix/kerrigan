@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "task": {"id": "synthetic-replay", "version": "fixture-1"},
+  "target": {"id": "synthetic-target", "runtime": null},
+  "condition": {
+    "id": "historical-policy",
+    "track": "controlled-capability",
+    "response_cap": 100,
+    "cache_policy": "unknown"
+  },
+  "provenance": {"source_id": "synthetic-only", "acquisition": "authored fixture"},
+  "denominators": {"attempts": 4, "tasks": 1, "graded": 2},
+  "attempts": [
+    {
+      "id": "failed",
+      "verdict": "fail",
+      "completion": "incomplete",
+      "stop_reason": "stop",
+      "usage": {"kind": "native", "output_tokens": 100}
+    },
+    {
+      "id": "cancelled",
+      "verdict": "ungraded",
+      "completion": "cancelled",
+      "stop_reason": "controller_interruption",
+      "usage": {"kind": "unknown", "output_tokens": null}
+    },
+    {
+      "id": "retry",
+      "retry_of": "cancelled",
+      "verdict": "pass",
+      "completion": "complete",
+      "usage": {"kind": "derived", "output_tokens": 90, "method": "fixture-retokenization"}
+    },
+    {
+      "id": "evaluator-failure",
+      "verdict": "ungraded",
+      "evaluator": {"status": "error", "reason": "OOM"},
+      "telemetry": {"watts": null, "scope": "unavailable"}
+    }
+  ],
+  "unknown_source_field": {"nested": ["keep", null, 0, false]}
+}
