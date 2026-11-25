@@ -495,34 +495,47 @@ def test_mb006l_javascript_admission_synthetic_files_only(tmp_path):
     assert b"validator_approval_stale" in invoke().stderr
 
 
-@pytest.mark.parametrize("mode", ["hang", "overflow", "deadline", "actions"])
+@pytest.mark.parametrize("mode", ["hang", "overflow", "deadline", "actions", "runaway", "retained"])
 def test_mb006l_review_native_feedback_and_partial(native_owned, tmp_path, mode):
     source = "while True: pass\n" if mode in ("hang", "deadline") else "print('x'*40000)\n"
+    if mode == "runaway":
+        source = "while True: print('x'*8192)\n"
     diagnostics = [{"op": "write", "path": "self_test.py", "data": source},
         {"op": "run", "path": "self_test.py"},
         {"op": "write", "path": "self_test.py", "data": "assert True\n"},
         {"op": "run", "path": "self_test.py"}]
     if mode == "actions":
         diagnostics = [{"op": "read", "path": "requirements.txt"}] * 128
+    if mode == "retained":
+        diagnostics = [{"op": "write", "path": "self_test.py", "data": "print('x'*32767)\n"}] + [
+            {"op": "run", "path": "self_test.py"}] * 32
     run = validator.prepare(native_owned, tmp_path / "run", diagnostics=diagnostics,
                             seconds=3 if mode == "deadline" else 45)
     native = mb006l_wait(run)
     assert native["wholeProcessQuiescent"] and native["cleanupSeconds"] < 15
     assert native["nativePrompts"] == 0
-    if mode in ("hang", "overflow"):
+    assert native["taskOutputRetainedBytes"] <= 1048576
+    if mode in ("hang", "overflow", "runaway"):
         result = json.loads((run / "receipt/action-result-2.json").read_bytes())["result"]
-        assert result["timedOut"] if mode == "hang" else result["feedback"]["stdout"]["truncated"]
+        assert result["timedOut"] if mode in ("hang", "runaway") else result["feedback"]["stdout"]["truncated"]
         if mode == "overflow":
             assert result["feedback"]["stdout"] == {"emitted": 40001, "retained": 32768, "truncated": True}
+        if mode == "runaway":
+            assert result["feedback"]["stdout"]["emitted"] > 1048576
+            assert result["feedback"]["stdout"]["retained"] == 32768
+            assert (run / "receipt/task-2-stdout.bin").stat().st_size == 32768
+            assert native["taskOutputRetainedBytes"] < 65536
         assert json.loads((run / "receipt/action-result-4.json").read_bytes())["result"]["exitCode"] == 0
     else:
         assert native["partialBudgetExhausted"]
+        if mode == "retained":
+            assert native["stopReason"] == "broker:task_output_budget"
     final = json.loads((run / f"receipt/owned-start-{len(native['records'])-1}.json").read_bytes())
     assert final["startedMs"] >= native["records"][0]["finishedMs"]
     collected = trial.collect(run)
     graded = trial.grader.grade(collected, run / "independent-grader")
     assert graded["status"] == "graded" and len(graded["assertions"]) == 25
-    if mode in ("deadline", "actions"):
+    if mode in ("deadline", "actions", "retained"):
         frozen = handoff.bundle(native_owned, mode + "-fixture", synthetic=True)
         ledger = handoff.Ledger(tmp_path / "synthetic-partial.jsonl")
         ledger.start(mode, frozen, attempt_id="attempt-1", origin="synthetic")

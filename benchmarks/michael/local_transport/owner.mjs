@@ -20,7 +20,7 @@ let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, 
 let cli, input, events = 0, toolQueue = Promise.resolve();
 let finishing = false, spawning = 0, finalSourceError;
 const partialBudget = () => config.validatorTask &&
-    ["timeout", "broker:agent_action_budget"].includes(stopping);
+    ["timeout", "broker:agent_action_budget", "broker:task_output_budget"].includes(stopping);
 const budget = { actions, bytes: 0 };
 const counts = {}, messages = [], requests = [];
 function persist(name, value) {
@@ -45,20 +45,22 @@ function stop(reason) {
     }
 }
 function bounded(name, bytes, limit = 65536, truncate = false, final = false) {
-    if (stopping && !final) return false;
-    if (config.validatorTask && name.startsWith("task-")) {
-        taskOutputBytes += bytes.length;
-        if (taskOutputBytes > TASK_VALIDATOR.outputAggregate) {
-            stop("task_output_aggregate"); return false;
-        }
-    }
     counts[name] = (counts[name] || 0) + bytes.length;
+    if (stopping && !final) return null;
     const room = Math.max(0, limit - (counts[name] - bytes.length));
-    const retained = bytes.subarray(0, room);
-    try { claimDisk(retained.length); } catch { return false; }
-    appendFileSync(`${config.receipt}/${name}.bin`, retained, { mode: 0o600 });
-    if (bytes.length > room && !truncate) { stop(`output_overflow:${name}`); return false; }
-    return true;
+    const task = config.validatorTask && name.startsWith("task-");
+    const available = task ? Math.max(0, TASK_VALIDATOR.outputAggregate -
+        (final ? 0 : TASK_VALIDATOR.finalOutputReserve) - taskOutputBytes) : Infinity;
+    const retained = bytes.subarray(0, Math.min(room, available));
+    if (retained.length) {
+        try { claimDisk(retained.length); } catch { return null; }
+        appendFileSync(`${config.receipt}/${name}.bin`, retained, { mode: 0o600 });
+        if (task) taskOutputBytes += retained.length;
+    }
+    if (task && !final && taskOutputBytes >= TASK_VALIDATOR.outputAggregate - TASK_VALIDATOR.finalOutputReserve)
+        stop("broker:task_output_budget");
+    if (bytes.length > room && !truncate) { stop(`output_overflow:${name}`); return null; }
+    return retained;
 }
 async function owned(kind, command, profile, payload, run = false, final = false) {
     const expires = final ? cleanupStart + 15000 : until;
@@ -90,9 +92,10 @@ async function owned(kind, command, profile, payload, run = false, final = false
     stdout.on("data", bytes => {
         const name = `${kind}-${id}-stdout`;
         const limit = kind === "cli" ? PROTOCOL.total : config.validatorTask ? TASK_VALIDATOR.channel : 65536;
-        if (bounded(name, bytes, limit, run, final)) {
-            if (kind === "cli") parse(bytes);
-            else output.push(bytes.subarray(0, Math.max(0, limit - (counts[name] - bytes.length))));
+        const retained = bounded(name, bytes, limit, run, final);
+        if (retained !== null && retained.length) {
+            if (kind === "cli") parse(retained);
+            else output.push(retained);
         }
     });
     stdout.on("end", () => {
@@ -102,8 +105,8 @@ async function owned(kind, command, profile, payload, run = false, final = false
     });
     stderr.on("data", bytes => {
         const name = `${kind}-${id}-stderr`, limit = config.validatorTask ? TASK_VALIDATOR.channel : 65536;
-        if (bounded(name, bytes, limit, run, final))
-            errors.push(bytes.subarray(0, Math.max(0, limit - (counts[name] - bytes.length))));
+        const retained = bounded(name, bytes, limit, run, final);
+        if (retained !== null && retained.length) errors.push(retained);
     });
     if (kind !== "cli") stdin.end(payload);
     const wait = child.wait().then(result => {
@@ -384,7 +387,7 @@ finally {
         unparsedProtocolBytesLowerBound: Math.max(0, (counts["cli-0-stdout"] || 0) - protocol.total),
         requestedModel: config.model || null, observedModel: observed.length ? observed : "unknown",
         usage: usage.length ? usage : "unknown", ownerRetries: 0,
-        nativeStarts, taskOutputBytesBeforeCutoff: taskOutputBytes,
+        nativeStarts, taskOutputBytesBeforeCutoff: taskOutputBytes, taskOutputRetainedBytes: taskOutputBytes,
         nativePrompts: config.promptSent ? 1 : 0, replayedActions: 0, verdict: "ungraded" });
     process.stdin.destroy();
 }

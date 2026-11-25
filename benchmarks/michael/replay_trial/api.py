@@ -118,7 +118,7 @@ def collect(run):
     offline = config.get("model") is None
     policy = json.loads((runner.HERE / "validator-task-policy.json").read_bytes()) if real else POLICY
     partial = (real and terminal.get("partialBudgetExhausted") is True
-               and terminal.get("stopReason") in ("timeout", "broker:agent_action_budget")
+               and terminal.get("stopReason") in ("timeout", "broker:agent_action_budget", "broker:task_output_budget")
                and not terminal.get("finalSourceError"))
     if (terminal.get("wholeProcessQuiescent") is not True or terminal.get("cleanupSeconds", 16) > 15
             or terminal.get("finalSourceError")
