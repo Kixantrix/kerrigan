@@ -14,6 +14,7 @@ sys.path.insert(0, str(MICHAEL))
 sys.path.insert(0, str(LOCAL))
 from replay_trial import api as trial
 import validator_worker as worker
+from replay_trial import validator, handoff
 
 
 def test_exact_export_closed_profile_and_support(tmp_path):
@@ -261,3 +262,231 @@ def test_real_native_tool_path_escape_stops_before_worker(native_owned, tmp_path
     terminal = json.loads((run / "receipt/terminal.json").read_bytes())
     assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
     assert terminal["stopReason"] != "diagnostics_complete" and not terminal["actions"]
+
+
+def test_mb006l_staging_and_absent_live_authority(tmp_path):
+    run = validator.prepare(tmp_path, tmp_path / "offline")
+    binding = json.loads((run / "trial-start.json").read_bytes())
+    config = json.loads((run / "config.json").read_bytes())
+    assert "fixtureSourceSha256" not in binding and config["validatorTask"]
+    assert config["seconds"] == 3600 and "prompt" not in config
+    assert sorted(p.relative_to(run / "task").as_posix() for p in (run / "task").rglob("*")
+                  if p.is_file()) == sorted(validator.POLICY["read"])
+    with pytest.raises(FileNotFoundError):
+        validator.prepare_live(tmp_path, tmp_path / "forbidden", "mai-code-2")
+    assert not (tmp_path / validator.NAMESPACE).exists()
+
+
+def mb006l_seal(tmp_path, monkeypatch):
+    condition = validator.frozen(tmp_path)
+    root = tmp_path / validator.NAMESPACE
+    root.mkdir()
+    trial.grader.persist(root / "approval.json", {"synthetic": True})
+    trial.grader.persist(root / "safety.json", {"conditionSha256": validator.digest(condition),
+        "passed": True, "attester": "authorized-local-executor", "nativePrompts": 0})
+    seal = {"condition": "MB-006l", "conditionSha256": validator.digest(condition),
+            "frozen": condition, "source": condition["source"], "directHuman": True,
+            "humanDecision": {"source": "direct-executor-ask_user", "requestId": "synthetic-only",
+                             "answer": "Authorize exact frozen MB-006l condition"},
+            "approvalSha256": trial.sha((root / "approval.json").read_bytes()),
+            "safetySha256": trial.sha((root / "safety.json").read_bytes())}
+    path = tmp_path / "synthetic-seal.json"
+    trial.grader.persist(path, seal)
+    monkeypatch.setattr(validator, "SEAL", path)
+    return root, path, seal
+
+
+@pytest.mark.parametrize("damage", ["source", "environment", "limits", "approval", "provenance", "condition"])
+def test_mb006l_stale_authority_fails_before_allocation(tmp_path, monkeypatch, damage):
+    root, path, seal = mb006l_seal(tmp_path, monkeypatch)
+    if damage in ("source", "environment", "limits"):
+        seal["frozen"][damage]["synthetic-mutation"] = True
+    elif damage == "approval":
+        (root / "approval.json").write_text("modified")
+    elif damage == "provenance":
+        seal["humanDecision"]["source"] = "coordinator"
+    else:
+        seal["condition"] = "MB-006h"
+    trial.grader.persist(path, seal)
+    with pytest.raises(trial.TrialError):
+        validator.prepare_live(tmp_path, tmp_path / "denied", "mai-code-2")
+    assert not (root / "slots").exists() and not (tmp_path / "denied").exists()
+
+
+def test_mb006l_exclusive_temporary_slots_and_unreaped_sequence(tmp_path, monkeypatch):
+    root, path, seal = mb006l_seal(tmp_path, monkeypatch)
+    run = validator.prepare_live(tmp_path, tmp_path / "first", "mai-code-2")
+    with pytest.raises(trial.TrialError, match="spent"):
+        validator.prepare_live(tmp_path, tmp_path / "again", "mai-code-2")
+    trial.grader.persist(run / "receipt/terminal.json", {"wholeProcessQuiescent": False})
+    trial.grader.persist(run / "controller-terminal.json", {"ownerExited": False})
+    with pytest.raises(trial.TrialError, match="cleanup"):
+        validator.prepare_live(tmp_path, tmp_path / "second", "claude-sonnet-5.5")
+    assert sorted(p.name for p in (root / "slots").iterdir()) == ["mai-code-2.json"]
+
+
+def mb006l_wait(run):
+    child = trial.runner.launch(run)
+    try:
+        child.wait(timeout=45)
+    finally:
+        child.stdin.close()
+    return json.loads((run / "receipt/terminal.json").read_bytes())
+
+
+def test_mb006l_native_unknown_repair_and_contracts(native_owned, tmp_path):
+    ledger = handoff.Ledger(tmp_path / "synthetic-ledger.jsonl")
+    for label, source, passes in (
+        ("base", trial.packages.agent_files("validator")[trial.SOURCE] + b"\n# unknown final bytes\n", 22),
+        ("reference", trial.packages.verifier_files("validator")["reference"], 25)):
+        began = time.monotonic()
+        run = validator.prepare(native_owned, tmp_path / label, diagnostics=[
+            {"op": "read", "path": "TASK.md"},
+            {"op": "write", "path": "self_test.py", "data": "assert False, 'public test failure'\n"},
+            {"op": "run", "path": "self_test.py"},
+            {"op": "write", "path": "self_test.py", "data": "import yaml; assert yaml.__version__=='6.0.2'\n"},
+            {"op": "run", "path": "self_test.py"},
+            {"op": "write", "path": trial.SOURCE, "data": source.decode()},
+            {"op": "run", "path": trial.SOURCE}], seconds=20)
+        frozen = handoff.bundle(native_owned, label + "-fixture", synthetic=True)
+        ledger.start(label, frozen, attempt_id="attempt-1", origin="synthetic")
+        setup_seconds = time.monotonic() - began
+        native = mb006l_wait(run)
+        assert native["wholeProcessQuiescent"] and native["nativePrompts"] == 0
+        assert json.loads((run / "receipt/action-result-3.json").read_bytes())["result"]["exitCode"] == 1
+        path = run / "task" / trial.SOURCE
+        path.write_bytes(source + b"\n# trusted post-stop tamper\n")
+        with pytest.raises(trial.TrialError, match="binding"):
+            trial.collect(run)
+        path.write_bytes(source)
+        verification_began = time.monotonic()
+        collected = trial.collect(run)
+        assert collected == source
+        graded = trial.grader.grade(collected, run / "independent-grader")
+        assert graded["status"] == "graded" and sum(a["passed"] for a in graded["assertions"]) == passes
+        timings = {"setup": setup_seconds, "agent_work": native["activeSeconds"],
+                   "verification": time.monotonic() - verification_began,
+                   "end_to_end": time.monotonic() - began}
+        result = handoff.terminal(frozen, native, graded, timings, owner_exited=True,
+                                  source_sha=trial.sha(collected), synthetic=True)
+        ledger.finalize(label, result)
+        trial.grader.persist(run / "synthetic-result.json", result)
+        capped = handoff.terminal(frozen, {**native, "stopReason": "output_overflow:task"},
+            graded, timings, owner_exited=True, source_sha=trial.sha(collected), synthetic=True)
+        assert capped["attempts"][0]["verdict"] == "ungraded"
+        assert capped["attempts"][0]["time_to_verified_completion"]["status"] == "unknown"
+    report = handoff.compare(ledger, cohorts={"base-fixture": ["base"], "reference-fixture": ["reference"]},
+                            suite=[handoff.ref(frozen["task"])])
+    assert report["cohorts"]["reference-fixture"]["first_attempt_verified"] == 1
+    assert report["both_success_complete_time_subset"]["paired_denominator"] == 0
+    trial.grader.persist(tmp_path / "synthetic-comparison.json", report)
+
+
+@pytest.mark.parametrize("mode", ["escape", "timeout", "kernel"])
+def test_mb006l_native_boundaries(native_owned, tmp_path, mode):
+    script = ("import os,socket\nfrom pathlib import Path\n"
+              "for p in ['TASK.md','../config.json']:\n"
+              " try: Path(p).write_text('denied')\n"
+              " except PermissionError: pass\n else: raise RuntimeError('write escaped')\n"
+              "try: os.fork()\nexcept PermissionError: pass\nelse: os._exit(9)\n"
+              "try:\n s=socket.socket(); s.connect(('192.0.2.1',443))\nexcept PermissionError: pass\n"
+              "else: raise RuntimeError('network allowed')\n")
+    diagnostics = ([{"op": "read", "path": "../config.json"}] if mode == "escape" else [
+        {"op": "write", "path": "self_test.py", "data": "while True: pass\n" if mode == "timeout" else script},
+        {"op": "run", "path": "self_test.py"}])
+    run = validator.prepare(native_owned, tmp_path / "run", diagnostics=diagnostics,
+                            seconds=3 if mode == "timeout" else 20)
+    native = mb006l_wait(run)
+    assert native["wholeProcessQuiescent"] and native["cleanupSeconds"] < 15
+    assert native["nativePrompts"] == 0
+    if mode == "kernel":
+        assert native["stopReason"] == "diagnostics_complete"
+        assert json.loads((run / "receipt/action-result-2.json").read_bytes())["result"]["exitCode"] == 0
+        trial.collect(run)
+    else:
+        with pytest.raises(trial.TrialError):
+            trial.collect(run)
+
+
+def test_mb006l_native_owner_survives_controller_loss(native_owned, tmp_path):
+    run = tmp_path / "run"
+    code = ("from benchmarks.michael.replay_trial import validator,api\n"
+            f"r=validator.prepare({str(native_owned)!r},{str(run)!r},"
+            "diagnostics=[{'op':'read','path':'TASK.md'}],seconds=8,hold=True)\n"
+            "api.runner.launch(r).wait(timeout=30)\n")
+    controller = subprocess.Popen([sys.executable, "-c", code], cwd=trial.packages.ROOT)
+    try:
+        until = time.monotonic() + 15
+        while not (run / "receipt/action-result-1.json").exists():
+            assert time.monotonic() < until
+            time.sleep(.025)
+        controller.kill()
+        controller.wait(timeout=5)
+        until = time.monotonic() + 20
+        while not (run / "receipt/terminal.json").exists():
+            assert time.monotonic() < until
+            time.sleep(.025)
+        native = json.loads((run / "receipt/terminal.json").read_bytes())
+        assert native["wholeProcessQuiescent"] and native["stopReason"] == "controller_lost"
+    finally:
+        if controller.poll() is None:
+            controller.kill()
+        controller.wait(timeout=5)
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_mb006l_synthetic_owner_tool_loop(tmp_path, failure):
+    run = validator.prepare(tmp_path, tmp_path / "run", diagnostics=[
+        {"op": "write", "path": "self_test.py", "data": "synthetic-only"},
+        {"op": "run", "path": "self_test.py"},
+        {"op": "read", "path": trial.SOURCE}])
+    for name in ("synthetic_sdk.mjs", "protocol.mjs", "budgets.json"):
+        (run / "trusted" / name).write_bytes((trial.runner.HERE / name).read_bytes())
+    trial.grader.persist(run / "trusted/fixture.json", {"failure": failure, "modelLoop": True, "fragment": 11})
+    config = json.loads((run / "config.json").read_bytes())
+    config["sdk"] = str(run / "trusted/synthetic_sdk.mjs")
+    trial.grader.persist(run / "config.json", config)
+    native = mb006l_wait(run)
+    assert native["wholeProcessQuiescent"] and native["nativePrompts"] == 0
+    assert len(native["nativeStarts"]) == 1 and native["usage"] != "unknown"
+    assert native["stopReason"] == ("native_model_failure:model.call_failure" if failure else "diagnostics_complete")
+    assert len(native["actions"]) == (0 if failure else 4)
+
+
+def test_mb006l_javascript_admission_synthetic_files_only(tmp_path):
+    module = tmp_path / "synthetic/local_transport"
+    module.mkdir(parents=True)
+    for name in ("validator_admission.mjs", "limits.mjs", "validator-policy.json", "validator-task-policy.json"):
+        (module / name).write_bytes((trial.runner.HERE / name).read_bytes())
+    authority = module.parent / "replay_trial"
+    authority.mkdir()
+    root = tmp_path / "synthetic-mb006l-slots"
+    (root / "slots").mkdir(parents=True)
+    for name in ("approval.json", "safety.json", "copilot", "sdk/dist/v1/index.js", "sdk/bin/arm64/mxc-exec-mac", "ca"):
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("synthetic public bytes; never executed")
+    node = subprocess.check_output(["node", "-p", "process.execPath"], text=True).strip()
+    runtime = {"cli": root / "copilot", "sdk": root / "sdk/dist/v1/index.js",
+               "executor": root / "sdk/bin/arm64/mxc-exec-mac", "node": Path(node), "taskPython": Path(sys.executable)}
+    frozen = {"namespace": root.name, "models": ["mai-code-2"], "source": {},
+              "runtime": {name: trial.sha(path.read_bytes()) for name, path in runtime.items()},
+              "caSha256": trial.sha((root / "ca").read_bytes())}
+    seal = {"frozen": frozen, "conditionSha256": validator.digest(frozen), "source": {}, "directHuman": True,
+            "approvalSha256": trial.sha((root / "approval.json").read_bytes()),
+            "safetySha256": trial.sha((root / "safety.json").read_bytes())}
+    trial.grader.persist(authority / "mb006l-authorization.json", seal)
+    config = {"validatorTask": True, "validatorReplay": False, "condition": "MB-006l", "seconds": 3600,
+              "model": "mai-code-2", "approved": True, "slot": str(root / "slots/mai-code-2.json"),
+              "receipt": str(root), "conditionSha256": seal["conditionSha256"], "sdk": str(runtime["sdk"]),
+              "command": str(runtime["cli"]), "python": str(runtime["taskPython"]),
+              "environment": {"SSL_CERT_FILE": str(root / "ca")}}
+    trial.grader.persist(Path(config["slot"]), {"model": config["model"],
+        "configSha256": validator.digest(config), "sealSha256": validator.digest(seal)})
+    script = f"import {{admission}} from {json.dumps((module/'validator_admission.mjs').as_uri())}; admission({json.dumps(config)});"
+    def invoke():
+        return subprocess.run(["node", "--input-type=module", "-e", script], capture_output=True, timeout=5)
+    assert invoke().returncode == 0
+    assert b"EEXIST" in invoke().stderr
+    (root / "approval.json").write_text("trusted synthetic mutation")
+    assert b"validator_approval_stale" in invoke().stderr

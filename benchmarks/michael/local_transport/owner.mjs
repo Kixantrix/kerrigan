@@ -2,10 +2,12 @@ import { readFileSync, writeFileSync, appendFileSync, openSync, fsyncSync, close
 import { pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
 import { createHash } from "node:crypto";
-import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATOR } from "./limits.mjs";
+import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATOR, TASK_VALIDATOR } from "./limits.mjs";
+import { admission } from "./validator_admission.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
+admission(config);
 if (config.validatorReplay && (config.model !== null || config.approved !== false ||
     config.transportProbe || config.prompt !== undefined || config.condition !== "MB-006k-offline"))
     throw new Error("validator_replay_forbids_inference");
@@ -14,8 +16,9 @@ const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const { spawn } = await import(pathToFileURL(config.sdk));
 const began = performance.now(), until = began + config.seconds * 1000;
 const live = new Set(), records = [], actions = new Set(), pending = new Map();
-let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0;
+let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, taskOutputBytes = 0;
 let cli, input, events = 0, toolQueue = Promise.resolve();
+let finishing = false;
 const budget = { actions, bytes: 0 };
 const counts = {}, messages = [], requests = [];
 function persist(name, value) {
@@ -41,6 +44,12 @@ function stop(reason) {
 }
 function bounded(name, bytes, limit = 65536) {
     if (stopping) return false;
+    if (config.validatorTask && name.startsWith("task-")) {
+        taskOutputBytes += bytes.length;
+        if (taskOutputBytes > TASK_VALIDATOR.outputAggregate) {
+            stop("task_output_aggregate"); return false;
+        }
+    }
     counts[name] = (counts[name] || 0) + bytes.length;
     const room = Math.max(0, limit - (counts[name] - bytes.length));
     const retained = bytes.subarray(0, room);
@@ -73,7 +82,8 @@ async function owned(kind, command, profile, payload) {
     stderr.on("error", error => stop(`stderr:${error.message}`));
     const output = [], errors = [];
     stdout.on("data", bytes => {
-        if (bounded(`${kind}-${id}-stdout`, bytes, kind === "cli" ? PROTOCOL.total : 65536)) {
+        if (bounded(`${kind}-${id}-stdout`, bytes, kind === "cli" ? PROTOCOL.total :
+            config.validatorTask ? TASK_VALIDATOR.channel : 65536)) {
             if (kind === "cli") parse(bytes); else output.push(bytes);
         }
     });
@@ -82,7 +92,8 @@ async function owned(kind, command, profile, payload) {
             try { protocol.finish(); } catch (error) { stop(`protocol:${error.message}`); }
         }
     });
-    stderr.on("data", bytes => { if (bounded(`${kind}-${id}-stderr`, bytes)) errors.push(bytes); });
+    stderr.on("data", bytes => { if (bounded(`${kind}-${id}-stderr`, bytes,
+        config.validatorTask ? TASK_VALIDATOR.channel : 65536)) errors.push(bytes); });
     if (kind !== "cli") stdin.end(payload);
     const wait = child.wait().then(result => {
         record.result = result; record.warnings = [...child.warnings]; record.reaped = true;
@@ -153,7 +164,13 @@ const protocol = new Protocol(message => {
                 } else if (event.type === "user.message" && config.promptSent) {
                     config.turnStarted = true;
                 } else if (event.type === "session.idle" && config.model && config.turnStarted) {
-                    stop("session_idle");
+                    if (config.validatorTask) {
+                        if (!finishing) {
+                            finishing = true;
+                            toolQueue = toolQueue.then(() => finish("session_idle"))
+                                .catch(error => stop(`final_source:${error.message}`));
+                        }
+                    } else stop("session_idle");
                 }
             }
             return !stopping;
@@ -161,17 +178,26 @@ const protocol = new Protocol(message => {
 function parse(bytes) {
     try { protocol.feed(bytes); } catch (error) { stop(`protocol:${error.message}`); }
 }
-async function action(id, args) {
+async function action(id, args, final = false) {
     if (!gate || stopping) throw new Error("execution_gated");
-    const payload = validateAction(id, args, budget, config.validatorReplay === true);
+    if (config.validatorTask && !final &&
+        (id === "controller-final-source" || actions.size >= TASK_VALIDATOR.actions - 1))
+        throw new Error("reserved_final_source_budget");
+    const payload = validateAction(id, args, budget, config.validatorTask ? "task" : config.validatorReplay === true);
     persist(`action-${actions.size}`, { id, args, atMs: performance.now() - began });
     const process = await owned("task", `${config.python} -I -B ${config.worker}`,
         config.taskProfile, payload);
     const result = await process.wait;
     persist(`action-result-${actions.size}`, { id, result });
     if (result.timedOut) stop("task_timeout");
-    if (result.exitCode !== 0) throw new Error("worker_failed");
+    if (result.exitCode !== 0 && !(config.validatorTask && args.op === "run" &&
+        !result.timedOut && [1, 2].includes(result.exitCode))) throw new Error("worker_failed");
     return result;
+}
+async function finish(reason) {
+    if (config.validatorTask)
+        await action("controller-final-source", {op: "read", path: TASK_VALIDATOR.source}, true);
+    stop(reason);
 }
 let controllerBuffer = Buffer.alloc(0);
 process.stdin.on("data", bytes => {
@@ -201,11 +227,15 @@ try {
         workspace: { workingDirectory: config.task }, workingDirectory: config.task,
         permissions: { sandbox: config.sandbox, request: true },
         tools: { availableTools: ["mb_action"], definitions: [{
-            name: "mb_action", description: "No-network no-fork confined Python/file action. Maximum 8 actions.",
+            name: "mb_action", description: config.validatorTask ?
+                "Closed validator read/write/run; public self_test.py; maximum 128 actions." :
+                "No-network no-fork confined Python/file action. Maximum 8 actions.",
             hasHandler: true, parameters: { type: "object", additionalProperties: false,
                 properties: { op: { enum: ["read", "write", "run"] },
-                    path: { enum: config.validatorReplay ? VALIDATOR.read : ["candidate.py", "result.txt"] },
-                    data: { type: "string", maxLength: config.validatorReplay ? VALIDATOR.bytes : 7000 } },
+                    path: { enum: config.validatorTask ? TASK_VALIDATOR.read :
+                        config.validatorReplay ? VALIDATOR.read : ["candidate.py", "result.txt"] },
+                    data: { type: "string", maxLength: config.validatorTask ? TASK_VALIDATOR.bytes :
+                        config.validatorReplay ? VALIDATOR.bytes : 7000 } },
                     required: ["op", "path"] } }] },
         extensions: { enabled: false }, mcp: { servers: {} },
         hooks: { hasHandlers: false, enableRepositoryHooks: false },
@@ -229,7 +259,8 @@ try {
         state.userPolicy?.network?.allowLocalNetwork !== false ||
         state.userPolicy?.seatbelt?.keychainAccess !== false ||
         state.allowDevToolAccess !== false || sandbox.autoApproveBypass !== false ||
-        (config.validatorReplay && !state.userPolicy?.filesystem?.readonlyPaths?.includes(config.support)) ||
+        ((config.validatorReplay || config.validatorTask) &&
+            !state.userPolicy?.filesystem?.readonlyPaths?.includes(config.support)) ||
         !config.sandbox.userPolicy.filesystem.deniedPaths.every(
             path => state.userPolicy?.filesystem?.deniedPaths?.includes(path)) ||
         Object.values(created.capabilities?.ui || {}).some(value => value !== false) ||
@@ -292,7 +323,7 @@ try {
         }
         if (config.hold) {
             while (!stopping) await new Promise(resolve => setTimeout(resolve, 10));
-        } else stop("diagnostics_complete");
+        } else await finish("diagnostics_complete");
     }
 } catch (error) { stop(`runtime:${error.message}`); }
 finally {
@@ -319,7 +350,7 @@ finally {
         unparsedProtocolBytesLowerBound: Math.max(0, (counts["cli-0-stdout"] || 0) - protocol.total),
         requestedModel: config.model || null, observedModel: observed.length ? observed : "unknown",
         usage: usage.length ? usage : "unknown", ownerRetries: 0,
-        nativeStarts,
+        nativeStarts, taskOutputBytesBeforeCutoff: taskOutputBytes,
         nativePrompts: config.promptSent ? 1 : 0, replayedActions: 0, verdict: "ungraded" });
     process.stdin.destroy();
 }

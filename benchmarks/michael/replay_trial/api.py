@@ -114,21 +114,26 @@ def collect(run):
     terminal = json.loads((run / "receipt/terminal.json").read_bytes())
     config = json.loads((run / "config.json").read_bytes())
     binding = json.loads((run / "trial-start.json").read_bytes())
+    real = config.get("validatorTask") is True
+    offline = config.get("model") is None
+    policy = json.loads((runner.HERE / "validator-task-policy.json").read_bytes()) if real else POLICY
     if (terminal.get("wholeProcessQuiescent") is not True or terminal.get("cleanupSeconds", 16) > 15
-            or terminal.get("stopReason") != "diagnostics_complete"
-            or terminal.get("nativePrompts") != 0
+            or terminal.get("stopReason") != ("session_idle" if real and not offline else "diagnostics_complete")
+            or terminal.get("nativePrompts") != (1 if real and not offline else 0)
             or not terminal.get("records")
-            or [item.get("kind") for item in terminal["records"]] != ["cli"] + ["task"] * 4
-            or len(terminal.get("actions", [])) != 4
+            or [item.get("kind") for item in terminal["records"]] !=
+                ["cli"] + ["task"] * (len(terminal.get("actions", [])) if real else 4)
+            or not terminal.get("actions") or (not real and len(terminal["actions"]) != 4)
             or any(not item.get("reaped") or item.get("warnings") for item in terminal["records"])
-            or config.get("model") is not None or not config.get("validatorReplay")
+            or (not real and (not offline or not config.get("validatorReplay")))
+            or (real and (config.get("condition") != "MB-006l" or binding.get("mode") != "MB-006l"))
             or sha(packages.encoded(config)) != binding["policySha256"]):
         raise TrialError("native completion/quiescence/configuration unproven")
     expected = {name: sha((runner.HERE / name).read_bytes()) for name in runner.SOURCES}
     if json.loads((run / "receipt/start.json").read_bytes())["source"] != expected:
         raise TrialError("native source changed")
-    if binding["trialSource"] != {
-            name: sha((HERE / name).read_bytes()) for name in ("__init__.py", "api.py")}:
+    if binding["trialSource"] != {name: sha((HERE / name).read_bytes()) for name in (
+            sorted(p.name for p in HERE.glob("*.py")) if real else ("__init__.py", "api.py"))}:
         raise TrialError("trial source changed")
     if (not all(binding["nativeRuntime"].values())
             or runtime(binding["ownedInstallation"]) != binding["nativeRuntime"]):
@@ -139,19 +144,24 @@ def collect(run):
             raise TrialError("read-only dependency changed")
     if sha((run / "trusted/native-run.py").read_bytes()) != binding["supportProbeSha256"]:
         raise TrialError("public diagnostic support changed")
+    if real:
+        for name, digest in binding["supportFiles"].items():
+            path = run / "trusted" / name
+            if path.is_symlink() or sha(path.read_bytes()) != digest:
+                raise TrialError("real-task support changed")
     root = (run / "task").lstat()
     if [root.st_dev, root.st_ino] != binding["taskRoot"]:
         raise TrialError("task root changed")
     for name, digest in binding["agentFiles"].items():
-        if name != SOURCE and sha(read_source(run / "task", name)) != digest:
+        if name != SOURCE and sha(read_source(run / "task", name, policy=policy)) != digest:
             raise TrialError("read-only export changed")
-    data = read_source(run / "task", SOURCE)
+    data = read_source(run / "task", SOURCE, policy=policy)
     last = len(terminal["actions"])
     action = json.loads((run / f"receipt/action-{last}.json").read_bytes())
     result = json.loads((run / f"receipt/action-result-{last}.json").read_bytes())["result"]
     if (action["args"] != {"op": "read", "path": SOURCE} or result["exitCode"] != 0
             or result["timedOut"] or base64.b64decode(result["stdout"], validate=True) != data
-            or sha(data) != binding["fixtureSourceSha256"]):
+            or (not real and sha(data) != binding["fixtureSourceSha256"])):
         raise TrialError("collected artifact/fixture binding mismatch")
     with (run / "collected-source.bin").open("xb") as stream:
         stream.write(data)

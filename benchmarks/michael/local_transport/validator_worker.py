@@ -8,8 +8,9 @@ import sys
 POLICY = json.loads(Path(__file__).with_name("validator-policy.json").read_text())
 
 
-def opened(root, name, flags=os.O_RDONLY):
-    if name not in POLICY["read"]:
+def opened(root, name, flags=os.O_RDONLY, *, policy=None):
+    policy = POLICY if policy is None else policy
+    if name not in policy["read"]:
         raise ValueError("path denied")
     parts = name.split("/")
     directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
@@ -29,14 +30,15 @@ def opened(root, name, flags=os.O_RDONLY):
         os.close(directory)
 
 
-def read_source(root, name):
-    fd = opened(root, name)
+def read_source(root, name, *, policy=None):
+    policy = POLICY if policy is None else policy
+    fd = opened(root, name, policy=policy)
     with os.fdopen(fd, "rb") as stream:
         before = os.fstat(stream.fileno())
-        data = stream.read(POLICY["bytes"] + 1)
+        data = stream.read(policy["bytes"] + 1)
         after = os.fstat(stream.fileno())
     fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns", "st_nlink")
-    if (len(data) > POLICY["bytes"] or before.st_nlink != 1 or after.st_nlink != 1
+    if (len(data) > policy["bytes"] or before.st_nlink != 1 or after.st_nlink != 1
             or any(getattr(before, k) != getattr(after, k) for k in fields)):
         raise ValueError("artifact overflow or changed during read")
     return data

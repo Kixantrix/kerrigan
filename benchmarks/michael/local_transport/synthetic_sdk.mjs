@@ -60,6 +60,10 @@ export async function spawn(options) {
         switch (method) {
         case "session.create":
             sandbox = params.permissions.sandbox;
+            if (fixture.modelLoop) {
+                event("model.model_call_started", { model: null, synthetic: true });
+                event("assistant.usage", { model: "synthetic-not-a-model", inputTokens: 1, outputTokens: 1 });
+            }
             event("system.message", { synthetic: true, text: "s".repeat(90000) });
             if (fixture.largeResponse) {
                 for (let call = 0; call < 9; call++) {
