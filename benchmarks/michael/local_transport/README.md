@@ -171,3 +171,49 @@ been reached; [the scoped block](MB-006c-block.yaml) requests a bounded
 continuation rather than silently exceeding it or calling this slice complete.
 The conductor may file that block in canonical `.specify/blocks`; this executor
 keeps repository writes inside the briefing's closed Touch scope.
+
+## MB-006d: integrated boundary, failed canaries
+
+`runner.py` exports fresh outside-history tasks; the independently running
+`owner.mjs` alone holds live MXC CLI/task handles. Only `mb_action` exists in the
+actual SDK inventory. Its fixed `worker.py` performs **all** reads/writes inside
+MXC, rejects symlinks, and execs candidate Python in the same no-fork process.
+Limits are 8 unique actions, 8,192 input bytes/action, 32,768 aggregate action
+bytes, 65,536 retained bytes/channel and 512 native frames/events. Starts precede
+execution. EOF after actual controller death, cancellation and deadline all
+kill live owned handles; warnings/missing acknowledgements cannot prove cleanup.
+Recovery only reads protected receipts: no PID signals, replay or model launch.
+
+The integrated proof is in [verification.json](verification.json) and
+[integrated evidence](integrated-evidence.tar.gz). Actual fork/detached spawn,
+credential/keychain, network, TTY and securityd denials passed; broker duplicate,
+symlink and output-limit cases passed. Controller **SIGKILL**, attempted task
+`setsid`, external cancellation and deadline left CLI/task handles reaped with
+no warnings. Human local-platform attestation remains pending.
+
+| One controller canary per pin | Active / cleanup | Observed native starts (lower bound) | Result |
+| --- | --- | --- | --- |
+| `mai-code-2` | 5.824s / 0.105s | 2 | Native TLS failed; stream cap stopped CLI; no action |
+| `claude-sonnet-5.5` | 6.362s / 0.088s | 3 | Native TLS failed; stream cap stopped CLI; no action |
+
+Native call-start events name the requested pins, but backend execution identity
+and usage/cost remain **unknown**. The first failure was
+`native trust store read was incomplete and provided no usable roots`.
+CLI-internal streaming retries occurred despite zero controller retries: this
+violated the intended no-retry condition and is preserved, not relabeled success.
+The revised owner stops on the first native failure/retry event or model mismatch;
+that correction has no fresh canary validation because both slots are spent.
+
+Offline-only evaluation of the documented `SSL_CERT_FILE`/`NODE_EXTRA_CA_CERTS`
+settings with the public OS PEM and a SHA-pinned Mozilla PEM still failed native
+HTTPS with `bad certificate format`. No Keychain item, private auth state,
+shared setting or system trust configuration was read/copied/changed.
+The explicit PEM is **not a proven workaround**. Model preparation now also
+requires a positive bound `transportReady` receipt; no such receipt exists.
+The remaining decision is in [MB-006d-block.yaml](MB-006d-block.yaml).
+
+Native byte-exact captures remain private in owned state. Published projections
+omit native system/instruction text and HTTP bodies/headers; hashes, counts,
+monotonic times, actual inventory/policy and all observed model starts/failures/
+retries are retained. Original partial/negative receipts remain historical.
+No scored tasks, substitution, further canary or GitHub PR/merge ran.

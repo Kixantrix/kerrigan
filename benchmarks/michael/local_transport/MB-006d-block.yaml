@@ -1,0 +1,24 @@
+{
+  "task_id": "MB-006d",
+  "emitted_by": "cloud",
+  "emitted_at": "2026-11-25T06:07:42.376393+00:00",
+  "reason": "out_of_budget",
+  "severity": "high",
+  "summary": "Both canary slots are spent after native TLS failures and unexpected CLI-internal retries.",
+  "details": "Integrated strict broker and owned-handle containment/cutoff cases passed. No candidate action ran in either canary. Native starts/failures/retries and cleanup are preserved. Documented public PEM CA options were evaluated offline without Keychain/trust-setting changes and still failed native HTTPS. First native failure now cuts off the owner, and model preparation also requires positive bound native TLS evidence. No such evidence or canary allowance remains.",
+  "decision_needed": "Retain the gated runner, or authorize a separately bounded strict-TLS continuation with an explicit new canary allowance.",
+  "options": [
+    {
+      "id": "A",
+      "description": "Retain failed canaries and the inference gate.",
+      "implication": "No further spending or execution; no benchmark/scoring claim."
+    },
+    {
+      "id": "B",
+      "description": "Authorize a separate strict-TLS continuation and specified canary allowance.",
+      "implication": "New scope/budget decision; no implicit retries or Keychain exceptions."
+    }
+  ],
+  "recommendation": "A",
+  "minimum_human_input": "A, or B with explicit scope and canary budget."
+}

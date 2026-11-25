@@ -13,7 +13,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "benchmarks/michael/local_transport"))
-from proof import LIMIT, ProofError, capture, environment, fixture, recover
+from proof import LIMIT, ProofError, capture, digest, environment, fixture, recover
+from runner import HERE, SOURCES, prepare, recovery
 
 
 def test_native_cannot_launch_before_inventory_and_tree_proof(tmp_path):
@@ -147,3 +148,56 @@ def test_fixture_has_no_shared_environment_or_bypass(tmp_path):
     assert settings["sandbox"]["auth"] == {"git": False, "gh": False}
     assert settings["sandbox"]["userPolicy"]["network"] == {
         "allowOutbound": False, "allowLocalNetwork": False}
+
+
+def test_canary_cannot_start_without_exact_current_safety_source(tmp_path):
+    with pytest.raises(ProofError, match="approval required"):
+        prepare(tmp_path, tmp_path / "run", model="mai-code-2")
+    assert not (tmp_path / "canary-slots").exists()
+    receipt = recovery(tmp_path / "run")
+    assert receipt == {"wholeProcessQuiescent": False, "signalsSent": 0,
+                       "replayedActions": 0, "status": "unknown; no relaunch"}
+
+
+def test_broker_rejects_traversal_duplicates_and_all_budgets():
+    script = """
+import {validateAction,nativeFailure} from './benchmarks/michael/local_transport/limits.mjs';
+import assert from 'node:assert/strict';
+const state=()=>({actions:new Set(),bytes:0});
+const good={op:'read',path:'candidate.py'};
+for(const bad of [{...good,path:'../candidate.py'},{...good,extra:true},
+                  {...good,op:'shell'},{op:'run',path:'result.txt'},
+                  {op:'write',path:'candidate.py',data:5}])
+    assert.throws(()=>validateAction('a',bad,state()),/denied/);
+const s=state();validateAction('a',good,s);
+assert.throws(()=>validateAction('a',good,s),/duplicate/);
+assert.throws(()=>validateAction('b',{op:'write',path:'candidate.py',data:'x'.repeat(8192)},s),/budget/);
+const count=state();
+for(let i=0;i<8;i++) validateAction('a'+i,good,count);
+assert.throws(()=>validateAction('overflow',good,count),/budget/);
+const bytes=state();
+for(let i=0;i<4;i++)validateAction('b'+i,{op:'write',path:'candidate.py',data:'x'.repeat(7000)},bytes);
+assert.throws(()=>validateAction('aggregate',{op:'write',path:'candidate.py',data:'x'.repeat(7000)},bytes),/budget/);
+for(const type of ['model.call_failure','model.model_call_failure','model.turn_retry','assistant.turn_retry'])
+    assert.match(nativeFailure({type},'mai-code-2'),/native_model_failure/);
+assert.equal(nativeFailure({type:'model.model_call_started',data:{model:'other'}},'mai-code-2'),
+             'native_model_identity_mismatch');
+assert.equal(nativeFailure({type:'model.model_call_started',data:{model:'mai-code-2'}},'mai-code-2'),null);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script],
+                   cwd=ROOT, check=True, timeout=5)
+
+
+def test_tls_proof_and_exclusive_canary_slot_are_required(tmp_path):
+    approval = tmp_path / "approval.json"
+    value = {"source": {name: digest(HERE / name) for name in SOURCES},
+             "passed": True, "transportReady": False}
+    approval.write_text(json.dumps(value))
+    with pytest.raises(ProofError, match="TLS transport unproven"):
+        prepare(tmp_path, tmp_path / "denied", model="mai-code-2", approval=approval)
+    assert not (tmp_path / "canary-slots").exists()
+    value["transportReady"] = True
+    approval.write_text(json.dumps(value))
+    prepare(tmp_path, tmp_path / "reserved", model="mai-code-2", approval=approval)
+    with pytest.raises(FileExistsError):
+        prepare(tmp_path, tmp_path / "retry", model="mai-code-2", approval=approval)
