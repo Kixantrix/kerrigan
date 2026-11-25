@@ -301,23 +301,81 @@ def _semantic(value):
     return value
 
 
-def _aggregate(evidence, timing=False):
+def _aggregate(evidence, timing=False, additive=True):
     complete, partial, known_sum, statuses = 0, 0, 0, {}
     for item in evidence:
         statuses[item["status"]] = statuses.get(item["status"], 0) + 1
         if item["status"] == "known":
             value = item["value"]
-            known_sum += value["seconds"] if timing else value
+            if additive:
+                known_sum += value["seconds"] if timing else value
             if timing and value["coverage"] == "partial":
                 partial += 1
             else:
                 complete += 1
     return {"denominator": len(evidence), "complete": complete, "partial": partial,
-            "statuses": statuses, "observed_sum": known_sum if complete + partial else None,
-            "total": known_sum if evidence and complete == len(evidence) else None}
+            "statuses": statuses, "observed_sum": known_sum if additive and complete + partial else None,
+            "total": known_sum if additive and evidence and complete == len(evidence) else None}
 
 
-def compare(ledger, *, cohorts, suite, factor="target"):
+_ADDITIVE_UNITS = {"count": {"tokens", "credits", "calls", "bytes"},
+                   "total_spend": {"USD", "EUR", "GBP"},
+                   "energy": {"joules", "watt_hours"}}
+
+
+def _usage_semantics(state, selected_ids, declarations):
+    if not isinstance(declarations, list):
+        raise LedgerError("usage declarations must be an array")
+    bound, consistent = {}, {}
+    for declaration in declarations:
+        _fields(declaration, {"trial_id", "attempt_id", "result", "metric", "quantity", "unit", "source"})
+        for field in ("trial_id", "attempt_id", "metric", "quantity", "unit", "source"):
+            _text(declaration[field])
+        _ref(declaration["result"])
+        trial_id, attempt_id, metric = (declaration[k] for k in ("trial_id", "attempt_id", "metric"))
+        if trial_id not in selected_ids:
+            raise LedgerError("usage declaration must bind a selected trial")
+        terminal = next((t for t in state[trial_id]["terminals"]
+                         if t["result"]["attempts"][-1]["id"] == attempt_id), None)
+        if terminal is None or declaration["result"] != manifest_reference(terminal["result"]):
+            raise LedgerError("usage declaration must bind exact terminal result/current attempt")
+        usage = terminal["result"]["attempts"][-1]["usage"]
+        if metric not in usage:
+            raise LedgerError("usage declaration references absent metric")
+        quantity, unit = declaration["quantity"], declaration["unit"]
+        if quantity not in {*_ADDITIVE_UNITS, "gauge", "rate", "unit_price"}:
+            raise LedgerError("unsupported usage quantity")
+        if quantity in _ADDITIVE_UNITS and unit not in _ADDITIVE_UNITS[quantity]:
+            raise LedgerError("unsupported additive quantity/unit pair")
+        if quantity == "count" and usage[metric]["status"] == "known" and type(usage[metric]["value"]) is not int:
+            raise LedgerError("count quantity requires integer evidence")
+        key = (trial_id, attempt_id, metric)
+        if key in bound:
+            raise LedgerError("duplicate usage declaration")
+        semantics = (quantity, unit)
+        if metric in consistent and consistent[metric] != semantics:
+            raise LedgerError("inconsistent usage quantity/unit semantics across comparison")
+        consistent[metric] = semantics
+        bound[key] = declaration
+    return bound
+
+
+def _usage_aggregate(attempts, metric, semantics):
+    evidence = [a["attempt"]["usage"].get(metric, _unknown()) for a in attempts]
+    declarations = [semantics.get((a["trial_id"], a["attempt"]["id"], metric)) for a in attempts]
+    measured = [d for d, e in zip(declarations, evidence) if e["status"] == "known"]
+    declared = [d for d in declarations if d is not None]
+    quantity = declared[0]["quantity"] if declared else None
+    additive = bool(measured) and all(d is not None for d in measured) and quantity in _ADDITIVE_UNITS
+    summary = _aggregate(evidence, additive=additive)
+    summary.update(declarations=deepcopy(declared), quantity=quantity,
+                   unit=declared[0]["unit"] if declared else None,
+                   aggregation="additive" if additive else "nonadditive" if quantity in {
+                       "gauge", "rate", "unit_price"} else "missing_semantics")
+    return summary
+
+
+def compare(ledger, *, cohorts, suite, factor="target", usage_declarations=None):
     """Compare named cohorts against one explicit frozen eligible suite; no rankings.
 
     A trial owns all retries. At most one trial per task per cohort. Only the
@@ -376,6 +434,7 @@ def compare(ledger, *, cohorts, suite, factor="target"):
             within[label] = varying
             disclosures.append({"cohort": label, "trial_id": trial_id, "bundle": bundle,
                                 "origin": trial["origin"]})
+    semantics = _usage_semantics(state, used, [] if usage_declarations is None else usage_declarations)
     reports, rows, differences = {}, [], []
     for label, trials in selected.items():
         attempts, first, eventual = [], 0, 0
@@ -400,9 +459,8 @@ def compare(ledger, *, cohorts, suite, factor="target"):
         raw = [a["attempt"] for a in attempts]
         phases = {p: _aggregate([a["timing"].get(p, _unknown()) for a in raw], True)
                   for p in ("queue", "provisioning", "setup", "agent_work", "verification", "end_to_end")}
-        usage = {k: _aggregate([a["usage"].get(k, _unknown()) for a in raw])
+        usage = {k: _usage_aggregate(attempts, k, semantics)
                  for k in {"price", "credits", "power", *(k for a in raw for k in a["usage"])}}
-        usage["power"].update(total=None, observed_sum=None, nonadditive=True)
         partials = [a["partial"] for a in attempts if a["partial"] is not None]
         reports[label] = {"eligible_tasks": len(suite), "started_trials": len(trials),
                           "started_attempts": len(raw), "first_attempt_verified": first,

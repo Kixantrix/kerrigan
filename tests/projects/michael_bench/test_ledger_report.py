@@ -145,7 +145,7 @@ def test_retry_accounting_partial_binding_and_undefined_zero_success(tmp_path, b
     ra, rb = report["cohorts"]["A"], report["cohorts"]["B"]
     assert (ra["started_attempts"], ra["first_attempt_verified"], ra["eventual_verified"]) == (2, 0, 1)
     assert ra["phases"]["end_to_end"]["total"] == 50
-    assert ra["usage"]["price"]["total"] == 4
+    assert ra["usage"]["price"]["total"] is None
     assert ra["partial_assertions"] == {"attempt_denominator": 2, "measured_attempts": 1,
                                       "observed_passed": 2, "observed_total": 3}
     assert rb["all_attempt_seconds_per_verified_task"] is None
@@ -278,3 +278,88 @@ def test_explicit_configuration_factor_not_arbitrary_pooling(tmp_path, bundle):
         comparison(ledger, ["a"], ["a"])
     with pytest.raises(LedgerError, match="ineligible"):
         comparison(ledger, ["a"], ["b"], suite=[{**manifest_reference(a["task"]), "sha256": "0" * 64}])
+
+
+def usage_declaration(trial_id, terminal, metric, quantity, unit):
+    return {"trial_id": trial_id, "attempt_id": terminal["attempts"][-1]["id"],
+            "result": manifest_reference(terminal), "metric": metric,
+            "quantity": quantity, "unit": unit, "source": "synthetic-unit-receipt"}
+
+
+@pytest.mark.parametrize("metric,quantity,unit", [
+    ("cpu_power_watts", "gauge", "watts"), ("rail_watts", "gauge", "watts"),
+    ("tokens_per_second", "rate", "tokens/second"), ("price", "unit_price", "USD/token"),
+])
+def test_nonliteral_power_rates_and_unit_prices_never_sum(tmp_path, bundle, metric, quantity, unit):
+    ledger = Ledger(tmp_path / "ledger.jsonl")
+    declarations, suite = [], []
+    for task in ("t1", "t2"):
+        for label in ("A", "B"):
+            value = frozen(bundle, task=task, target="model-" + label)
+            terminal = result(value)
+            terminal["attempts"][0]["usage"][metric] = known(3.5)
+            trial_id = task + label
+            ledger.start(trial_id, value, attempt_id="a1", origin="synthetic")
+            ledger.finalize(trial_id, terminal)
+            declarations.append(usage_declaration(trial_id, terminal, metric, quantity, unit))
+        suite.append(manifest_reference(value["task"]))
+    before = ledger.snapshot()
+    for declared in (None, declarations):
+        report = compare(ledger, cohorts={"A": ["t1A", "t2A"], "B": ["t1B", "t2B"]},
+                         suite=suite, usage_declarations=declared)
+        summary = report["cohorts"]["A"]["usage"][metric]
+        assert summary["total"] is None and summary["observed_sum"] is None
+        assert summary["complete"] == 2 and summary["denominator"] == 2
+        assert report["cohorts"]["A"]["attempts"][0]["attempt"]["usage"][metric] == known(3.5)
+    assert ledger.snapshot() == before
+
+
+def test_additive_usage_requires_consistent_bound_semantics_for_every_known_value(tmp_path, bundle):
+    ledger = Ledger(tmp_path / "ledger.jsonl")
+    declarations, suite = [], []
+    for task in ("t1", "t2"):
+        for label in ("A", "B"):
+            value = frozen(bundle, task=task, target="model-" + label)
+            terminal = result(value, stop="success" if task == "t1" else "timeout")
+            terminal["attempts"][0]["usage"].update(spend=known(2.5), tokens=known(10))
+            trial_id = task + label
+            ledger.start(trial_id, value, attempt_id="a1", origin="synthetic")
+            ledger.finalize(trial_id, terminal)
+            declarations.extend([usage_declaration(trial_id, terminal, "spend", "total_spend", "USD"),
+                                 usage_declaration(trial_id, terminal, "tokens", "count", "tokens")])
+        suite.append(manifest_reference(value["task"]))
+    kwargs = dict(cohorts={"A": ["t1A", "t2A"], "B": ["t1B", "t2B"]}, suite=suite)
+    report = compare(ledger, **kwargs, usage_declarations=declarations)
+    assert report["cohorts"]["A"]["usage"]["spend"]["total"] == 5
+    assert report["cohorts"]["A"]["usage"]["tokens"]["total"] == 20
+    assert report["cohorts"]["A"]["usage"]["price"]["total"] is None
+    missing = compare(ledger, **kwargs, usage_declarations=declarations[1:])
+    assert missing["cohorts"]["A"]["usage"]["spend"]["total"] is None
+    assert missing["cohorts"]["A"]["usage"]["spend"]["observed_sum"] is None
+    assert missing["cohorts"]["A"]["usage"]["spend"]["aggregation"] == "missing_semantics"
+    for change in ("currency", "missing_unit", "watts", "binding"):
+        invalid = deepcopy(declarations)
+        if change == "currency":
+            invalid[0]["unit"] = "EUR"
+        elif change == "missing_unit":
+            invalid[0].pop("unit")
+        elif change == "watts":
+            invalid[0].update(quantity="energy", unit="watts")
+        else:
+            invalid[0]["result"]["sha256"] = "0" * 64
+        with pytest.raises(LedgerError):
+            compare(ledger, **kwargs, usage_declarations=invalid)
+
+
+def test_count_semantics_reject_fractional_evidence(tmp_path, bundle):
+    ledger = Ledger(tmp_path / "ledger.jsonl")
+    a, b = frozen(bundle), frozen(bundle, target="model-B")
+    terminal = result(a)
+    terminal["attempts"][0]["usage"]["price"] = known(2.5)
+    ledger.start("a", a, attempt_id="a1", origin="synthetic")
+    ledger.finalize("a", terminal)
+    add(ledger, "b", b)
+    declaration = usage_declaration("a", terminal, "price", "count", "credits")
+    with pytest.raises(LedgerError, match="integer evidence"):
+        compare(ledger, cohorts={"A": ["a"], "B": ["b"]}, suite=[manifest_reference(a["task"])],
+                usage_declarations=[declaration])

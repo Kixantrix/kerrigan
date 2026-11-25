@@ -145,10 +145,32 @@ observability differences remain visible in complete bundle disclosures.
 Reports retain all starts, attempts, retries, terminal references, events,
 artifacts, stop/verifier states, and auxiliary counts. Completion coverage uses
 eligible tasks, including absent tasks. Per-task pairs retain failures and expose
-both-success complete-time subset denominators. Phase totals and named usage
-totals exist only with complete all-attempt evidence; observed sums are labeled,
-not estimates. Usage names must denote consistent units across selected records.
-Power is nonadditive: per-attempt evidence survives but no watt total is emitted.
+both-success complete-time subset denominators. Phase totals exist only with
+complete all-attempt evidence; observed sums are labeled, not estimates.
+Usage names carry no unit/additivity semantics: even `price` is not assumed to
+be spend. Without report-side declarations every usage sum/total stays unknown,
+while raw measurements and coverage counts survive.
+
+Optional `compare(..., usage_declarations=[...])` declarations require exactly
+`trial_id`, `attempt_id`, `result` (exact terminal manifest reference for that
+attempt), `metric`, `quantity`, `unit`, and nonempty `source`. Each binds one
+existing metric; duplicates, absent metrics, incorrect result bindings, and
+inconsistent quantity/unit pairs across the comparison fail explicitly.
+All known values contributing to a sum require declarations. Supported additive
+pairs are `count` with `tokens`, `credits`, `calls`, or `bytes` (integer values);
+`total_spend` with `USD`, `EUR`, or `GBP`; and `energy` with `joules` or
+`watt_hours`. Other units remain raw rather than being guessed or converted.
+`gauge`, `rate`, and `unit_price` declarations preserve arbitrary nonempty unit
+labels but never yield sums. Watts are not energy; prices per token are not spend.
+Declarations are source-attributed claims, not measurement attestations.
+
+For example, a declaration for a raw `expense` measurement can be:
+`{"trial_id":"trial-a","attempt_id":"a1","result":result_ref,"metric":"expense",
+"quantity":"total_spend","unit":"USD","source":"synthetic-receipt"}`.
+Two declared USD expenses of 2.5 yield a total of 5; two undeclared `price`
+values of 2.5, or two `rail_watts` gauge values, yield no sum or total.
+Complete totals still require every attempt, including failures/retries, to
+have known evidence. Missing quantities remain unknown, never zero.
 No overlapping phases are summed into end-to-end time, no unknown becomes zero,
 and zero-success time ratios are undefined. No universal ranking is produced.
 
