@@ -1,6 +1,6 @@
 # Plan: Michael Bench
 
-Status: MB-001a/b contracts and the bounded MB-002 offline engine proof are integrated. MB-004 ledger/report is next; calibrated packages, full-trial controls, and scored cloud-session trials remain gated.
+Status: MB-001a/b contracts, bounded MB-002 offline engine proof, and MB-004 ledger/report are integrated. MB-003 replay calibration is next; public CLI, full-trial controls, and scored cloud-session trials remain gated.
 
 ## Prior decisions
 
@@ -68,6 +68,8 @@ The #409 pilot is an offline adaptation of a historical live-GitHub requirement;
 
 First report should explain correctness and incomplete attempts without model inference: synthetic success, regression, cap exhaustion, evaluator failure, cancellation, and missing telemetry cohorts. Import historic pilot results only as a separately labeled cohort.
 
+MB-004 is integrated through `0e81c63`: a durable locked/hash-chained ledger and explicit compatible-cohort comparison API retain starts, retries, incomplete trials, partial assertions, and paired completion-time coverage. Review corrected nonadditive telemetry aggregation and nested configuration-payload compatibility; 142 focused checks pass. Usage sums require result-bound unit/quantity declarations; watts, rates, and unit prices are not summed. Synthetic reports are report-math evidence, not model results. The API does not execute trials, enforce deadlines, or establish native session identity/isolation.
+
 Deliverable: a reproducible three-case coding suite and report contract.
 
 ## Milestone 3: Laptop-native practical baseline
@@ -92,7 +94,7 @@ Begin family-specific recommendations for interactive, background, offline/priva
 
 ## Dispatch and routing
 
-Implementation tasks are listed in [tasks.md](tasks.md). MB-001a/b and bounded MB-002 are integrated. MB-004 is the next closed ledger/report slice; replay calibration, runnable CLI, and actual cloud-session safety/identity proofs remain required before scored execution. Create scoped briefings and run conflict prediction before parallel assignment. Contracts and a fake-model fixture do not imply an implemented benchmark.
+Implementation tasks are listed in [tasks.md](tasks.md). MB-001a/b, bounded MB-002, and MB-004 are integrated. MB-003 is the next closed replay-calibration slice; runnable CLI and actual cloud-session safety/identity proofs remain required before scored execution. Create scoped briefings and run conflict prediction before parallel assignment. Contracts, reporting math, and a fake-model fixture do not imply an implemented benchmark.
 
 Offline contracts, fixtures, reporting, and fake-model smoke work: `R-cloud-default`, using sanitized repository-contained materials.
 

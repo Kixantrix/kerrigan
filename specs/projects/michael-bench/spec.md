@@ -1,6 +1,6 @@
 # Spec: Michael Bench
 
-Status: MB-001a historical import and MB-001b versioned manifests implemented; reusable runner, calibrated packages, reporting, and new model evaluations remain pending.
+Status: historical import, versioned manifests, bounded offline engine proof, and ledger/report API implemented; reusable CLI, calibrated packages, native cloud-session controls, and model evaluations remain pending.
 
 ## Goal
 

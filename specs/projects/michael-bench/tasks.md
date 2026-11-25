@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Implementation roadmap: MB-001a/b and bounded MB-002 are integrated; MB-004 is the next scoped dispatch. Subsequent slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
+Implementation roadmap: MB-001a/b, bounded MB-002, and MB-004 are integrated; MB-003 is the next scoped dispatch. Subsequent slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
 
 ## Milestone 1
 
@@ -23,12 +23,14 @@ Implementation roadmap: MB-001a/b and bounded MB-002 are integrated; MB-004 is t
   - Done when: AC-MB-002 passes for every task, including preservation tests and solution-leakage checks.
   - Scope: future `benchmarks/michael/tasks/` with approved exact-base archives and verifier-only references.
   - Dependencies: MB-001, MB-002.
+  - Closed next slice: [MB-003 briefing](../../../.specify/briefings/MB-003.md), requiring fresh baseline/regression/reference calibration and answer-free agent exports.
 - [ ] MB-004: Implement the bounded trial ledger and cohort-aware report.
   - Done when: AC-MB-003, AC-MB-004, and AC-MB-005 pass with success, incomplete, infrastructure-failure, and missing-data fixtures.
   - Scope: future runner/report modules and focused tests; preserve all attempts and separate diagnostic/practical/historical cohorts.
   - Dependencies: MB-001, MB-002.
   - Timing requirement: actual time to independently verified completion, with queue/setup/agent/verification phases, paired per-task times, all-attempt elapsed accounting, and unfinished trials reported without completion times. Success-only statistics must disclose denominators.
-  - Closed next slice: [MB-004 briefing](../../../.specify/briefings/MB-004.md); offline ledger/report fixtures only, not permission to execute the cloud comparison.
+  - Closed implemented slice: [MB-004 briefing](../../../.specify/briefings/MB-004.md); offline ledger/report fixtures only, not permission to execute the cloud comparison.
+  - Implemented API through `0e81c63`, 142 focused checks passed; actual controller/event transport and full runtime AC-MB-004 remain gated on executable integration. Typed additivity and configuration-payload compatibility were corrected before integration.
 - [ ] MB-005: Add the offline CLI smoke path.
   - Done when: AC-MB-008 passes from clean isolated state twice without credentials; CLI invocation is documented with its verified command.
   - Scope: future CLI entry point, project smoke script, and operator documentation.

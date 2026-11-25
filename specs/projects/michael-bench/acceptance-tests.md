@@ -1,6 +1,6 @@
 # Acceptance tests: Michael Bench
 
-MB-001a historical-import and MB-001b manifest contract tests are implemented. Execution, calibration, ledger, and report tests below remain planned; contract portions do not close runtime ACs.
+Historical-import, manifest, bounded sandbox-proof, and ledger/report API tests are implemented. Replay calibration and full CLI/native runtime tests remain planned; the implemented portions do not close native runtime ACs.
 
 | AC | Planned test ID | Given / when / then |
 |---|---|---|
