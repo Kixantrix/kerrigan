@@ -145,6 +145,15 @@ cutoff evidence are retained. No model prompt ran and old approvals stay stale.
 [MB-006h](../../../.specify/briefings/MB-006h.md) proposes two fresh live tool-loop
 checks under the new fixed limits, pending direct human authorization.
 
+MB-006h was directly authorized and integrated at `9febde3`. Sonnet completed
+the real native write/run/result/idle readiness loop with `5\n`, 4.357 active
+seconds plus 0.041 cleanup, three natural calls and native token counters.
+This is not independently graded historical work or comparative performance.
+MAI stopped before actions on the separate native HTTP-response 65,536-byte
+limit, 3.746 active plus 0.073 cleanup seconds. Six slots are now spent.
+[MB-006i](../../../.specify/briefings/MB-006i.md) reviews the full budget chain
+and source/environment binding offline, without new prompts.
+
 After the bench reliably grades real tasks, measures independently verified
 completion time and preserves lifecycle/cost evidence, coordinate with the
 existing **Local AI setup** session to evaluate its models. Freeze the current
