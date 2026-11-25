@@ -162,6 +162,16 @@ All six existing slots stay spent. Next,
 [MB-006j](../../../.specify/briefings/MB-006j.md) implements independent grading
 for the real validator replay offline, without waiting on another canary.
 
+MB-006j integrated at `9c35f62` after correcting controller-loss containment.
+The independent Docker observation grader preserves 15 preservation plus 10
+regression assertions; base15/15+7/10 and reference25/25 reproduced twice.
+Independent owner deadline/liveness covers running and create/start-gap
+controller loss; owner/proof loss stays ungraded with cleanup unproven.
+Parent verified all 141 evidence-member hashes and executed-policy bindings.
+[MB-006k](../../../.specify/briefings/MB-006k.md) connects native task staging,
+bounded candidate collection and this grader offline, zero inference, before
+proposing an actual model-driven replay.
+
 After the bench reliably grades real tasks, measures independently verified
 completion time and preserves lifecycle/cost evidence, coordinate with the
 existing **Local AI setup** session to evaluate its models. Freeze the current
