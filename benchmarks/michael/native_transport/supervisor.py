@@ -186,20 +186,25 @@ def recover(directory):
         result = json.loads(terminal.read_text())
         if "error" in result["cleanup"]:
             raise BoundaryError(f"retained terminal has incomplete cleanup: {result['cleanup']['error']}")
+        if (result["cleanup"].get("processes", {}).get("remaining") != {}
+                or result["cleanup"].get("sandbox", {}).get("remaining") != []):
+            raise BoundaryError("retained terminal lacks durable cleanup proof; quiescence is unproven")
         return result
     start = json.loads((directory / "start.json").read_text())
     progress = directory / "progress.json"
     if not progress.exists():
         raise BoundaryError("retained start lacks supervisor receipt; quiescence is unproven")
-    if progress.exists():
-        pid = json.loads(progress.read_text())["supervisor_pid"]
-        if Path(f"/proc/{pid}").exists():
-            raise BoundaryError("supervisor still owns cleanup; recovery must wait")
-    cleanup = remove(start["run_id"], time.monotonic() + 15)
-    state = {"run_id": start["run_id"], "state": "stopped", "verdict": "ungraded",
-             "stop_reason": "recovered_interruption", "cleanup": cleanup, "replayed_actions": 0}
-    persist(terminal, state)
-    return state
+    pid = json.loads(progress.read_text())["supervisor_pid"]
+    if Path(f"/proc/{pid}").exists():
+        raise BoundaryError("recorded supervisor PID is present; ownership/quiescence is unproven")
+    recovery = directory / "recovery.json"
+    if not recovery.exists():
+        cleanup = remove(start["run_id"], time.monotonic() + 15)
+        persist(recovery, {"run_id": start["run_id"], "state": "quiescence_unproven",
+                          "verdict": "ungraded", "sandbox_cleanup": cleanup,
+                          "reason": "supervisor_lost_without_durable_process_cleanup",
+                          "replayed_actions": 0})
+    raise BoundaryError("supervisor lost; process quiescence is unproven; retained start requires attestation")
 
 
 if __name__ == "__main__":

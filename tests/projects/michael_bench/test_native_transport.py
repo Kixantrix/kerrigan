@@ -235,3 +235,81 @@ def test_transport_rejects_checkout_and_unproven_recovery(tmp_path):
     (pending / "start.json").write_text(json.dumps({"run_id": uuid.uuid4().hex}))
     with pytest.raises(BoundaryError, match="quiescence is unproven"):
         recover(pending)
+    (pending / "terminal.json").write_text(json.dumps({"cleanup": {"remaining": []}}))
+    with pytest.raises(BoundaryError, match="quiescence is unproven"):
+        recover(pending)
+
+
+def test_supervisor_loss_retains_start_when_detached_client_quiescence_is_unproven(tmp_path):
+    driver = tmp_path / "driver.py"
+    driver.write_text(
+        "import json,os,subprocess,sys,time\nfrom pathlib import Path\n"
+        "p=subprocess.Popen([sys.executable,'-c','import time;time.sleep(60)'],"
+        "start_new_session=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\n"
+        "d=Path(sys.argv[1]);(d/'launches.txt').open('a').write('one-launch\\n')\n"
+        "(d/'owned.json').write_text(json.dumps({'driver':os.getpid(),'child':p.pid}))\n"
+        "time.sleep(60)\n")
+    directory = tmp_path / "evidence"
+    controller = tmp_path / "controller.py"
+    controller.write_text(
+        f"import ctypes,os,sys,time\nfrom pathlib import Path\nsys.path.insert(0,{str(TRANSPORT)!r})\n"
+        "from supervisor import BoundaryError,run,terminate\n"
+        "assert ctypes.CDLL(None).prctl(36,1,0,0,0)==0\n"
+        "try:\n"
+        f" try:\n  run([sys.executable,{str(driver)!r},'{{directory}}'],"
+        f"{str(tmp_path)!r},{str(directory)!r},seconds=30)\n"
+        " except BoundaryError as exc:\n"
+        f"  Path({str(tmp_path / 'controller-error.json')!r}).write_text(str(exc))\n"
+        " until=time.monotonic()+15\n"
+        f" while not Path({str(tmp_path / 'release-cleanup')!r}).exists():\n"
+        "  assert time.monotonic()<until\n  time.sleep(0.02)\n"
+        "finally:\n terminate(time.monotonic()+5)\n"
+        " while True:\n"
+        "  try:\n"
+        "   if os.waitpid(-1,os.WNOHANG)[0]==0:\n    break\n"
+        "  except ChildProcessError:\n   break\n")
+    process = subprocess.Popen([sys.executable, str(controller)], start_new_session=True)
+    handles = []
+    try:
+        wait_file(directory / "owned.json")
+        owned = json.loads((directory / "owned.json").read_text())
+        watcher = json.loads((directory / "progress.json").read_text())["supervisor_pid"]
+        for pid, parent in ((watcher, process.pid), (owned["driver"], watcher),
+                            (owned["child"], owned["driver"])):
+            path = Path(f"/proc/{pid}/stat")
+            original = path.read_text().rsplit(")", 1)[1].split()
+            assert int(original[1]) == parent
+            fd = os.pidfd_open(pid)
+            handles.append(fd)
+            assert path.read_text().rsplit(")", 1)[1].split()[19] == original[19]
+        signal.pidfd_send_signal(handles[0], signal.SIGKILL)
+        wait_file(tmp_path / "controller-error.json")
+        signal.pidfd_send_signal(handles[2], 0)
+        start = (directory / "start.json").read_bytes()
+        for _ in range(2):
+            with pytest.raises(BoundaryError, match="quiescence is unproven"):
+                recover(directory)
+            assert not (directory / "terminal.json").exists()
+            assert (directory / "start.json").read_bytes() == start
+            assert (directory / "launches.txt").read_text() == "one-launch\n"
+        receipt = json.loads((directory / "recovery.json").read_text())
+        assert receipt["state"] == "quiescence_unproven"
+        assert receipt["sandbox_cleanup"]["remaining"] == []
+        signal.pidfd_send_signal(handles[2], 0)
+    finally:
+        (tmp_path / "release-cleanup").touch()
+        try:
+            process.wait(timeout=10)
+        finally:
+            for fd in handles:
+                try:
+                    signal.pidfd_send_signal(fd, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.close(fd)
+            if process.poll() is None:
+                process.kill()
+                process.wait(timeout=5)
+            if (directory / "start.json").exists():
+                run_id = json.loads((directory / "start.json").read_text())["run_id"]
+                remove(run_id, time.monotonic() + 15)

@@ -191,3 +191,48 @@ Receipts under `native-tests-verified/` remain session-owned, synthetic-only.
 Both native models still have **zero attempts**, unknown observed identity,
 unknown effective native inventory, and unknown native usage. These checks
 establish offline transport capability, not model capability or rankings.
+
+## Supervisor-loss recovery correction
+
+Follow-up on `7b35c5f`, November 25 at 05:18 UTC. The new real-process fixture
+reproduced a gap: killing the supervisor itself left a detached client alive,
+but recovery previously published a stopped terminal after Docker cleanup.
+The pre-fix regression failed as expected and its receipt remains under
+`supervisor-loss-before/`; the original native DNS evidence is unchanged.
+
+Recovery now removes only known owned Docker resources, persists
+`recovery.json` with `state: quiescence_unproven`, and raises explicitly.
+It retains the original start and does **not** synthesize `terminal.json`,
+signal a recorded PID, or replay any tool/model. Repeated recovery preserves
+the first partial receipt. A present recorded PID also establishes neither
+ownership nor quiescence, so recovery refuses rather than guessing.
+Previously synthesized terminals lacking durable process/sandbox cleanup
+proof are rejected too; the original evidence is not deleted or rewritten.
+
+The regression uses a separate fixture-only subreaper controller. It verifies
+the watcher/driver/child parent chain and process birth identities before
+opening PID-fds, kills only the bound owned watcher, observes the detached
+child still alive, and requires both recovery calls to refuse completion.
+The fixture harness subsequently terminates/reaps its owned processes; this
+is test cleanup, not a claim that production recovery proved quiescence.
+
+Exact final invocation uses the same session-owned validation Python:
+
+```bash
+python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py tests/projects/michael_bench/test_native_transport.py -q --basetemp=/root/.copilot/session-state/7cde2236da934302bbaa594be2b596e6/files/supervisor-loss-verified
+python -m tools.validators.check_artifacts
+python -m tools.validators.check_python_deps
+git diff --check
+docker ps -a --filter label=mb-native --format '{{.ID}} {{.Names}}'
+```
+
+**129 tests passed**, no skips; validators and whitespace checks passed;
+the owned-container query was empty. Final evidence directory:
+`supervisor-loss-final/test_supervisor_loss_retains_s0/evidence/` is the earlier
+passed follow-up receipt (hashes below); the final strengthened run is retained
+separately under `supervisor-loss-verified/`.
+SHA-256 of `start.json`:
+`c73843799848ba99c7edd246b0aca42a7667a24435f1ac91e413f32ceeabe75d`;
+SHA-256 of `recovery.json`:
+`b4c16df620cec2b1a3908c87737f561b88e0f84656cebbb700ca2d3d96ffb0f1`.
+No network diagnosis, native access recheck, or canary was repeated.
