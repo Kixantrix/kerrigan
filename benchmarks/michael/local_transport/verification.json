@@ -1,0 +1,53 @@
+{
+  "status": "native containment verified; inference remains blocked",
+  "canaryAllowance": {
+    "controllerStarts": 2,
+    "remaining": 0,
+    "controllerRetries": 0,
+    "nativeRetriesObserved": true
+  },
+  "nativeCallStartsLowerBound": {
+    "mai-code-2": 2,
+    "claude-sonnet-5.5": 3
+  },
+  "nativeFailure": "native trust store read was incomplete and provided no usable roots",
+  "publicPemOfflineResult": "OS PEM and pinned Mozilla PEM: bad certificate format",
+  "currentSourceSha256": {
+    "owner.mjs": "cb2af6573275e0452b28b8986d100c4b4ef030da9a07e9c115406579e9897bc4",
+    "worker.py": "607090ae5927b75288e4e1de3dcbb3c0a1ba3ae6030cf63dacf0a5f5401a83c9",
+    "runner.py": "96e70951a8d08a1495479ac4e33dcdc494684c310141be7f7dedbb261b72d285",
+    "limits.mjs": "de98e7a55ca530fdde7eda5fdf909659bbb1c599570a3de3e0943d995fde95db",
+    "runtime.json": "fd6a8d5e218f28bf7a1e6224b3f1f0d0db8a86e990dc62f725ba1eb5dc038eff",
+    "package.json": "3c123e1ded6398d7cef5d3b8105705d68177d7200d1a60259720325802878327"
+  },
+  "canaryTestedSource": {
+    "owner.mjs": {
+      "expectedSha256": "640a9009fab41dd172bb67e63d9b7e643d0cb0ccfd03dc2772a033dd23e670c9",
+      "exactRecovered": true
+    },
+    "worker.py": {
+      "expectedSha256": "607090ae5927b75288e4e1de3dcbb3c0a1ba3ae6030cf63dacf0a5f5401a83c9",
+      "exactRecovered": true
+    },
+    "runner.py": {
+      "expectedSha256": "1dd76bbc6330b324eaad82cb927483450353e9a3730c98c1826b112fba5e4ad0",
+      "exactRecovered": true
+    },
+    "limits.mjs": {
+      "expectedSha256": "cc325167c212201fc36f03fba205836aca6c6ad4e5b28946a575b3cff800f267",
+      "exactRecovered": true
+    }
+  },
+  "archiveSha256": "ca89647cfd05fb5e8f0c4fb0f6d0e5c9fa3e6605882611becc739d87a462fde0",
+  "backendIdentity": "unknown",
+  "usageCost": "unknown",
+  "sourceCorrelatedNativeProof": "boundary-suite-5",
+  "humanAttestation": "pending",
+  "scoredTasks": 0,
+  "verification": {
+    "unitIntegration": "127 passed; no skips",
+    "command": "python -m pytest tests/projects/michael_bench/test_local_transport.py tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py -q",
+    "nativeCommand": "python owned/local-mxc/boundary_suite.py",
+    "nativeResult": "seven containment/cutoff cases passed; native HTTPS failed"
+  }
+}

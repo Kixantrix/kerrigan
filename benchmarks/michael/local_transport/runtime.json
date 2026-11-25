@@ -14,5 +14,11 @@
     "archive_member": "package/bin/arm64/mxc-exec-mac",
     "executable_sha256": "4c68a4ff34ed14134a94a4312a8ec172bd2099dd26453e4a7893d91515f42687",
     "note": "Initial proof uses the standalone executor. The continued lifetime prototypes use the same pinned Node SDK; exact owned install manifests are preserved in the addendum archive."
+  },
+  "public_transport_ca": {
+    "url": "https://curl.se/ca/cacert.pem",
+    "mozilla_date": "2026-11-05",
+    "sha256": "427c064216761a1e72a8b30f0d954d08cb6e4435a82091fb865afd20c8497285",
+    "scope": "exact owned trust/cacert.pem, trusted CLI only; no Keychain/trust settings changes"
   }
 }
