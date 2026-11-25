@@ -154,6 +154,14 @@ limit, 3.746 active plus 0.073 cleanup seconds. Six slots are now spent.
 [MB-006i](../../../.specify/briefings/MB-006i.md) reviews the full budget chain
 and source/environment binding offline, without new prompts.
 
+MB-006i integrated at `460fa55` binds `proof.py` and explicit cross-layer budgets
+and validates large synthetic observations/tool-result handoff. Its expanded
+resource envelope is offline-proposed, not an authorized live condition;
+native acceptance/counting of the changed HTTP limit remains unverified.
+All six existing slots stay spent. Next,
+[MB-006j](../../../.specify/briefings/MB-006j.md) implements independent grading
+for the real validator replay offline, without waiting on another canary.
+
 After the bench reliably grades real tasks, measures independently verified
 completion time and preserves lifecycle/cost evidence, coordinate with the
 existing **Local AI setup** session to evaluate its models. Freeze the current
