@@ -16,6 +16,10 @@ Status: contracts, bounded engine proof, ledger/report, and three calibrated rep
 
 ## First cloud pilot
 
+Native preflight found documented CLI model/tool filtering, including `strict-tools-list: true`, but no executed proof of app-native answer isolation or external session cancellation. The parent's app schema supports cloud/model selection; child host-local schemas do not disprove those parent capabilities. Effective host kind and observed model identity were not attested by worktree paths or self-identification.
+
+The user approved proving a supervised Copilot CLI runner inside a cloud session as the initial route, with future local models in mind. Treat this as a distinct practical-system harness condition, not app-native evidence. The trusted supervisor owns provider transport, cancellation, incremental evidence, and sandbox tool routing; evaluated agents get only checked answer-free exports through a broker. Keep task/result/verification contracts transport-neutral. Do not change existing local services or presume Copilot credentials/entitlements are portable to another model provider.
+
 The user delegated the initial screening size and limits. Start with the three calibrated coding replays, one fresh session/attempt per task per model: six trials, sequential execution, a 60-minute active-trial safety cutoff, no automatic retries or cap continuations, and no human implementation assistance. Record intervention if a trial requires it. Stop the pilot on isolation, identity, or evidence-accounting failure; do not silently rerun. Use only existing authorized Copilot cloud-session access, with no new paid API, infrastructure, or model downloads.
 
 Freeze exact task packages, harness/configuration receipts, timeout enforcement, model identities, verifier isolation, task order, and cost/credit observability before starting. Alternate model order across tasks to reduce systematic order bias. Record hidden or changing host/harness settings as limits on practical-system comparability, not matched controls. Provisioning and verifier failures remain in coverage.
