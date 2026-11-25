@@ -47,6 +47,7 @@ Implementation roadmap: contracts, bounded engine proof, ledger/report, MB-003 p
   - Dependencies: MB-005; external: approved local run conditions and budgets.
   - Selected next slice: [MB-006c briefing](../../../.specify/briefings/MB-006c.md), direct CLI/MXC on this laptop with cloud inference. Prove session-owned setup, authentication, actual Seatbelt/tool containment and bounded native canaries before scored tasks. Shared canary allowance remains two total; cloud canaries are paused at zero.
   - Explicit bounded continuation: [MB-006d briefing](../../../.specify/briefings/MB-006d.md), integrate the evaluated strict SDK session and no-fork MXC/lifetime mechanisms. Reuse the existing local executor and two-canary allowance; no additional inference budget or scored historical task.
+  - TLS follow-up: [MB-006e briefing](../../../.specify/briefings/MB-006e.md), at most 20 implementation turns and zero model prompts. Both original canary slots failed before task actions and remain spent; native trust readiness must be established without weakening containment.
 - [ ] MB-007: Prove one self-hosted and one cloud target.
   - Done when: AC-MB-007 has target-specific attestation and identical contract versions, with unavailable cloud telemetry explicitly unknown.
   - Scope: approved disposable target adapters and capability scenarios; no production operations.

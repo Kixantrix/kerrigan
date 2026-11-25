@@ -104,6 +104,15 @@ receipts do not prove integrated execution/recovery. Its implementation-turn
 block is resolved by the explicit MB-006d continuation, using the same local
 executor and unchanged two-canary allowance.
 
+MB-006d's integrated native runner is retained through `5129a98`. Both original
+canaries stopped on TLS trust-store initialization before candidate actions:
+MAI active/cleanup 5.824s/0.105s, Sonnet 6.362s/0.088s. Native starts were at
+least two/three due CLI-internal retries despite zero controller retries.
+Requested model-call pins were observed, but backend invocation identity and
+usage remain unknown. These are failed capability attempts, not model scores.
+Their allowance is exhausted. MB-006e is a separate 20-turn **non-inference**
+TLS diagnosis; it grants no replacement canary or scoring attempt.
+
 Run a bounded baseline with the actual agent/provider the user uses, after environment and execution-budget approval. Attribute calls from native counters/logs, verify tools and outcome independently, record actual context/cache/reasoning transport, and restore all owned temporary changes.
 
 Then compare another explicitly chosen target under a frozen matched condition. Do not infer native-agent quality from the existing endpoint pilot. Use a small screening batch before funding repetitions; freeze repeats/order/deadline/intervention policy before execution.
