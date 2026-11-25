@@ -64,8 +64,11 @@ def terminal(bundle, native, graded, timings, *, owner_exited, source_sha, synth
                 for phase, seconds in timings.items() if seconds is not None}
     attempt = {"id": "attempt-1", "verdict": status if verified else "ungraded",
                "state": "completed" if verified else "stopped", "stop_reason": stop,
-               "verifier": {"status": status, "independent": verified, "source": "independent Docker grader"},
-               "events": [{"category": "runtime", "code": reason, "source": "native owner"}],
+               "verifier": {"status": status, "independent": verified,
+                            "source": "No completion verdict; independent partial diagnostics retained separately"
+                            if native.get("partialBudgetExhausted") else "independent Docker grader"},
+               "events": [{"category": "runtime", "code": "not-completed-within-budget"
+                           if native.get("partialBudgetExhausted") else reason, "source": "native owner"}],
                "timing": measured, "usage": {key: unknown() for key in ("tokens", "price", "credits", "power")},
                "time_to_verified_completion": measured.get("end_to_end", unknown())
                     if status == "passed" else unknown()}
@@ -103,15 +106,15 @@ def execute(owned, directory, model, ledger_path):
             verification = time.monotonic() - begin
         api.grader.persist(run / "controller-error.json", {"error": str(error)})
         if child is not None and child.poll() is None:
-            if child is not None:
-                child.stdin.close()
+            child.stdin.close()
             try:
                 child.wait(timeout=15)
                 exited = True
             except subprocess.TimeoutExpired:
                 exited = False
     finally:
-        child.stdin.close()
+        if child is not None:
+            child.stdin.close()
     path = run / "receipt/terminal.json"
     native = json.loads(path.read_bytes()) if path.exists() else {}
     timings = {"setup": setup, "agent_work": native.get("activeSeconds"),
@@ -121,5 +124,12 @@ def execute(owned, directory, model, ledger_path):
         "ownerExited": exited, "conditionSha256": json.loads((run / "config.json").read_bytes())["conditionSha256"],
         "nativeTerminalSha256": api.sha(path.read_bytes()) if path.exists() else None,
         "nativeCleanup": native.get("cleanupSeconds"), "verifier": graded, "result": result})
-    ledger.finalize(trial_id, result)
+    partial = None
+    if native.get("partialBudgetExhausted") and graded and graded.get("status") == "graded":
+        path = run / "independent-grader/report.json"
+        partial = {"result": ref(result), "attempt_id": "attempt-1",
+            "passed": sum(a["passed"] for a in graded["assertions"]), "total": len(graded["assertions"]),
+            "source": "independent partial diagnostics; not completed within budget",
+            "artifacts": [{"uri": str(path), "sha256": api.sha(path.read_bytes())}]}
+    ledger.finalize(trial_id, result, partial=partial)
     return result

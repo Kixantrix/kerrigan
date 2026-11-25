@@ -18,7 +18,9 @@ const began = performance.now(), until = began + config.seconds * 1000;
 const live = new Set(), records = [], actions = new Set(), pending = new Map();
 let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, taskOutputBytes = 0;
 let cli, input, events = 0, toolQueue = Promise.resolve();
-let finishing = false;
+let finishing = false, spawning = 0, finalSourceError;
+const partialBudget = () => config.validatorTask &&
+    ["timeout", "broker:agent_action_budget"].includes(stopping);
 const budget = { actions, bytes: 0 };
 const counts = {}, messages = [], requests = [];
 function persist(name, value) {
@@ -42,8 +44,8 @@ function stop(reason) {
         pending.clear();
     }
 }
-function bounded(name, bytes, limit = 65536) {
-    if (stopping) return false;
+function bounded(name, bytes, limit = 65536, truncate = false, final = false) {
+    if (stopping && !final) return false;
     if (config.validatorTask && name.startsWith("task-")) {
         taskOutputBytes += bytes.length;
         if (taskOutputBytes > TASK_VALIDATOR.outputAggregate) {
@@ -55,24 +57,28 @@ function bounded(name, bytes, limit = 65536) {
     const retained = bytes.subarray(0, room);
     try { claimDisk(retained.length); } catch { return false; }
     appendFileSync(`${config.receipt}/${name}.bin`, retained, { mode: 0o600 });
-    if (bytes.length > room) { stop(`output_overflow:${name}`); return false; }
+    if (bytes.length > room && !truncate) { stop(`output_overflow:${name}`); return false; }
     return true;
 }
-async function owned(kind, command, profile, payload) {
-    if (stopping || performance.now() >= until) throw new Error(stopping || "timeout");
+async function owned(kind, command, profile, payload, run = false, final = false) {
+    const expires = final ? cleanupStart + 15000 : until;
+    if ((stopping && !final) || performance.now() >= expires) throw new Error(stopping || "timeout");
     const id = records.length;
     persist(`owned-start-${id}`, { kind, command, startedMs: performance.now() - began, profile });
+    spawning++;
     const child = await spawn({
         command, workingDirectory: config.task,
         containment: { type: "seatbelt", config: { profileOverride: profile,
             nestedPty: false, keychainAccess: false } },
-        timeoutMs: Math.max(1, Math.floor(until - performance.now())),
+        timeoutMs: Math.max(1, Math.min(Math.floor(expires - performance.now()),
+            final ? TASK_VALIDATOR.finalReadSeconds * 1000 :
+                run ? TASK_VALIDATOR.runSeconds * 1000 : Infinity)),
         environment: kind === "cli" ? config.environment : {
             PATH: "/usr/bin:/bin", HOME: config.task, TMPDIR: config.task,
             PYTHONDONTWRITEBYTECODE: "1" }
-    });
+    }).finally(() => spawning--);
     live.add(child);
-    if (stopping) child.kill();
+    if ((stopping && !final) || performance.now() >= expires) child.kill();
     const record = { kind, id, reaped: false };
     records.push(record);
     const stdin = child.standardInput, stdout = child.standardOutput, stderr = child.standardError;
@@ -82,9 +88,11 @@ async function owned(kind, command, profile, payload) {
     stderr.on("error", error => stop(`stderr:${error.message}`));
     const output = [], errors = [];
     stdout.on("data", bytes => {
-        if (bounded(`${kind}-${id}-stdout`, bytes, kind === "cli" ? PROTOCOL.total :
-            config.validatorTask ? TASK_VALIDATOR.channel : 65536)) {
-            if (kind === "cli") parse(bytes); else output.push(bytes);
+        const name = `${kind}-${id}-stdout`;
+        const limit = kind === "cli" ? PROTOCOL.total : config.validatorTask ? TASK_VALIDATOR.channel : 65536;
+        if (bounded(name, bytes, limit, run, final)) {
+            if (kind === "cli") parse(bytes);
+            else output.push(bytes.subarray(0, Math.max(0, limit - (counts[name] - bytes.length))));
         }
     });
     stdout.on("end", () => {
@@ -92,18 +100,28 @@ async function owned(kind, command, profile, payload) {
             try { protocol.finish(); } catch (error) { stop(`protocol:${error.message}`); }
         }
     });
-    stderr.on("data", bytes => { if (bounded(`${kind}-${id}-stderr`, bytes,
-        config.validatorTask ? TASK_VALIDATOR.channel : 65536)) errors.push(bytes); });
+    stderr.on("data", bytes => {
+        const name = `${kind}-${id}-stderr`, limit = config.validatorTask ? TASK_VALIDATOR.channel : 65536;
+        if (bounded(name, bytes, limit, run, final))
+            errors.push(bytes.subarray(0, Math.max(0, limit - (counts[name] - bytes.length))));
+    });
     if (kind !== "cli") stdin.end(payload);
     const wait = child.wait().then(result => {
         record.result = result; record.warnings = [...child.warnings]; record.reaped = true;
         record.finishedMs = performance.now() - began;
         live.delete(child); child.dispose();
         if (record.warnings.length) stop("native_cleanup_warning");
-        if (kind === "cli" && !stopping) stop("unexpected_cli_exit");
+        if (kind === "cli" && !stopping)
+            stop(config.validatorTask && result.timedOut ? "timeout" : "unexpected_cli_exit");
         persist(`owned-end-${id}`, record);
-        return { ...result, stdout: Buffer.concat(output).toString("base64"),
-            stderr: Buffer.concat(errors).toString("base64") };
+        const stdout = Buffer.concat(output), stderr = Buffer.concat(errors);
+        return { ...result, stdout: stdout.toString("base64"), stderr: stderr.toString("base64"),
+            ...(run ? { feedback: {
+                stdout: { emitted: counts[`task-${id}-stdout`] || 0, retained: stdout.length,
+                    truncated: (counts[`task-${id}-stdout`] || 0) > stdout.length },
+                stderr: { emitted: counts[`task-${id}-stderr`] || 0, retained: stderr.length,
+                    truncated: (counts[`task-${id}-stderr`] || 0) > stderr.length },
+                marker: "Public test feedback; output beyond channel limit is truncated; not a verdict." }} : {}) };
     }, error => { record.error = error.message; stop(`native_wait:${error.message}`); throw error; });
     record.wait = wait;
     return { child, stdin, wait };
@@ -179,24 +197,25 @@ function parse(bytes) {
     try { protocol.feed(bytes); } catch (error) { stop(`protocol:${error.message}`); }
 }
 async function action(id, args, final = false) {
-    if (!gate || stopping) throw new Error("execution_gated");
-    if (config.validatorTask && !final &&
-        (id === "controller-final-source" || actions.size >= TASK_VALIDATOR.actions - 1))
-        throw new Error("reserved_final_source_budget");
+    if (!gate || (stopping && !final)) throw new Error("execution_gated");
+    if (config.validatorTask && !final && id === "controller-final-source")
+        throw new Error("reserved_source_identifier");
+    if (config.validatorTask && !final && actions.size >= TASK_VALIDATOR.actions - 1)
+        throw new Error("agent_action_budget");
     const payload = validateAction(id, args, budget, config.validatorTask ? "task" : config.validatorReplay === true);
-    persist(`action-${actions.size}`, { id, args, atMs: performance.now() - began });
+    const index = actions.size;
+    persist(`action-${index}`, { id, args, atMs: performance.now() - began });
     const process = await owned("task", `${config.python} -I -B ${config.worker}`,
-        config.taskProfile, payload);
+        config.taskProfile, payload, config.validatorTask && args.op === "run", final);
     const result = await process.wait;
-    persist(`action-result-${actions.size}`, { id, result });
+    persist(`action-result-${index}`, { id, result });
+    if (config.validatorTask && args.op === "run" && result.timedOut) return result;
     if (result.timedOut) stop("task_timeout");
     if (result.exitCode !== 0 && !(config.validatorTask && args.op === "run" &&
         !result.timedOut && [1, 2].includes(result.exitCode))) throw new Error("worker_failed");
     return result;
 }
 async function finish(reason) {
-    if (config.validatorTask)
-        await action("controller-final-source", {op: "read", path: TASK_VALIDATOR.source}, true);
     stop(reason);
 }
 let controllerBuffer = Buffer.alloc(0);
@@ -333,8 +352,22 @@ finally {
     let cleanupTimer;
     const settled = await Promise.race([
         Promise.allSettled(records.map(record => record.wait)),
-        new Promise(resolve => { cleanupTimer = setTimeout(() => resolve(null), 15000); }) ]);
+        new Promise(resolve => { cleanupTimer = setTimeout(() => resolve(null),
+            Math.max(1, cleanupStart + 15000 - performance.now())); }) ]);
     clearTimeout(cleanupTimer);
+    if (settled !== null && spawning === 0 && config.validatorTask && gate &&
+        (partialBudget() || ["session_idle", "diagnostics_complete"].includes(stopping)) &&
+        !actions.has("controller-final-source")) {
+        let timer;
+        try {
+            await Promise.race([
+                action("controller-final-source", {op: "read", path: TASK_VALIDATOR.source}, true),
+                new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("final_read_cleanup_deadline")),
+                    Math.max(1, cleanupStart + 15000 - performance.now())); })
+            ]);
+        } catch (error) { finalSourceError = error.message; }
+        finally { clearTimeout(timer); }
+    }
     const cleanupSeconds = (performance.now() - cleanupStart) / 1000;
     const usage = messages.filter(item => item.message.params?.event?.type === "assistant.usage")
         .map(item => item.message.params.event.data);
@@ -342,7 +375,8 @@ finally {
     const nativeStarts = messages.filter(item => item.message.params?.event?.type === "model.model_call_started")
         .map(item => ({ receivedMs: item.receivedMs, model: item.message.params.event.data.model }));
     persist("terminal", { stopReason: stopping, activeSeconds: (activeEnd - began) / 1000,
-        cleanupSeconds, wholeProcessQuiescent: settled !== null && records.length > 0 &&
+        partialBudgetExhausted: partialBudget(), finalSourceError,
+        cleanupSeconds, wholeProcessQuiescent: settled !== null && spawning === 0 && records.length > 0 &&
             records.every(record => record.reaped && record.warnings?.length === 0),
         records: records.map(({ wait, ...record }) => record),
         actions: [...actions], actionBytes: budget.bytes,         counts, events, messages, requests, protocolCondition: PROTOCOL,

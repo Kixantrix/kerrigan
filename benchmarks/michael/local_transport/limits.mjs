@@ -19,7 +19,8 @@ export function validateAction(id, args, state, validatorReplay = false) {
         throw new Error("action_denied");
     const payload = Buffer.from(JSON.stringify(args));
     if (payload.length > (policy?.payload || 8192) ||
-        state.bytes + payload.length > (policy?.aggregate || 32768) ||
+        state.bytes + payload.length > (policy?.aggregate || 32768) -
+            (policy === TASK_VALIDATOR && id !== "controller-final-source" ? 128 : 0) ||
         state.actions.size >= (policy?.actions || 8) ||
         (policy === TASK_VALIDATOR && args.op === "write" && Buffer.byteLength(args.data) > policy.bytes))
         throw new Error("action_budget");

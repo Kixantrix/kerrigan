@@ -117,8 +117,13 @@ def collect(run):
     real = config.get("validatorTask") is True
     offline = config.get("model") is None
     policy = json.loads((runner.HERE / "validator-task-policy.json").read_bytes()) if real else POLICY
+    partial = (real and terminal.get("partialBudgetExhausted") is True
+               and terminal.get("stopReason") in ("timeout", "broker:agent_action_budget")
+               and not terminal.get("finalSourceError"))
     if (terminal.get("wholeProcessQuiescent") is not True or terminal.get("cleanupSeconds", 16) > 15
-            or terminal.get("stopReason") != ("session_idle" if real and not offline else "diagnostics_complete")
+            or terminal.get("finalSourceError")
+            or (not partial and terminal.get("stopReason") !=
+                ("session_idle" if real and not offline else "diagnostics_complete"))
             or terminal.get("nativePrompts") != (1 if real and not offline else 0)
             or not terminal.get("records")
             or [item.get("kind") for item in terminal["records"]] !=
