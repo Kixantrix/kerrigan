@@ -172,6 +172,16 @@ Parent verified all 141 evidence-member hashes and executed-policy bindings.
 bounded candidate collection and this grader offline, zero inference, before
 proposing an actual model-driven replay.
 
+MB-006k integrated at `789cc3f`: real native task staging/write/run/collection
+hands exact source to independent Docker grading only after owned quiescence.
+Trusted base/reference fixtures retain 15/15+7/10 versus25/25, not model scores.
+Parent verified all 94 archive-member hashes, 23 source bindings and 32 preserved
+historical artifacts. The macOS task boundary and post-stop tamper rejection
+have actual offline evidence; no new model prompt or slot was used.
+[MB-006l](../../../.specify/briefings/MB-006l.md) prepares and freezes the real
+model-driven condition, public self-test/repair workflow and result/ledger
+handoff offline. Fresh direct human authorization remains necessary afterward.
+
 After the bench reliably grades real tasks, measures independently verified
 completion time and preserves lifecycle/cost evidence, coordinate with the
 existing **Local AI setup** session to evaluate its models. Freeze the current
