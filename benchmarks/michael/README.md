@@ -1,12 +1,124 @@
-# Michael Bench: offline contracts and engine proof
+# Michael Bench: offline contracts, engine proof and replay packages
 
 MB-001a preserves historical imports; MB-001b adds engine-neutral manifests.
 MB-002 adds a bounded [Inspect offline compatibility proof](engine_proof/README.md).
 MB-004 adds the offline [ledger/report API](ledger_report/api.py).
+MB-003 adds three [historical replay packages](tasks/packages.py), with
+requirement-only exports and separately retained verification/calibration.
 The contracts alone provide no runtime attestation. Neither the proof nor this
-API is a general runner, public CLI, historical calibration, live telemetry,
+API is a general runner, public CLI, live telemetry,
 or scored model trial.
 See the [plan](../../specs/projects/michael-bench/plan.md).
+
+## Historical replay packaging (MB-003)
+
+Only `tasks/<name>/TASK.md`, allowlisted exact-base Git source/direct type-only
+imports, pinned dependency files, and generated `policy.json` enter an agent
+export. `tasks/<name>/manifest.json`, `calibration.json`, `tasks/hidden/`, this
+README, the packaging code, and repository/history access are **verifier-only**.
+Never launch an evaluated agent in this checkout: it contains the answers.
+Deliver only the checked export to a separately proven isolated host/session.
+Packaging labels do not enforce native Copilot tools, mounts, network, history
+access, or process isolation. That proof is still outstanding.
+
+The three frozen v1 task descriptors use the existing task manifest contract.
+Their provenance holds exact base/reference commits, source/material digests,
+selected pre-existing checks and exposure limits. Calibration copies the actual
+reference implementation for the single writable file, not reference docs,
+toolchain changes, a toy implementation, or gold tests. Independent hidden
+behavior assertions are authored here; preservation tests are unchanged bytes
+from the base. The validator's existing AGENTS.md sanity test uses a minimal
+`.github/agents/` fixture outside the agent export, not this harness's full docs.
+Legacy parser compatibility assertions remain in both the pre-existing and
+hidden suites.
+
+| Task | Coverage | Limit |
+| --- | --- | --- |
+| grouping | Current-major filtering, mixed references, ordering, legacy API | Pure logic from public historical PR #405; no UI/browser evidence |
+| status | Docs/plan/briefing filtering, closing references, implementation/status preservation | Offline adaptation of public historical PR #409; no live GitHub E2E |
+| validator | Malformed YAML, block/inline lists, empty/mapping MCP values, skill checks, legacy helper | Public historical PR #434; no whole-toolchain change |
+
+All three have known public historical exposure/recognition risk. They are not
+a contamination-free leaderboard or representative working-day suite. Exact
+direct type-only imports are supplied for context, but their transitive runtime
+dependencies are not loaded by Vitest; this is not a full dashboard build/type
+check. No model, MAI Code 2/Sonnet trial, private pilot evidence, or hardware is
+used. Calibration durations are trusted host subprocess timings, **not** time
+to agent-verified completion.
+
+From this repository root, first fetch the six full Git object IDs in the
+verifier-only manifests (a shallow clone may not have them). Do not expose those
+IDs, closing PR references, or a Git clone/history to the evaluated agent.
+Create an isolated Python environment and install
+`benchmarks/michael/tasks/dependencies/requirements.txt` (pytest 8.3.5,
+PyYAML 6.0.2). Node dependencies are Vitest 3.2.4 and its exact integrity-pinned
+lockfile closure; Python also pins iniconfig 2.3.1, packaging 26.4 and pluggy
+1.7.0. Calibration runs `npm ci --ignore-scripts --no-audit --no-fund`.
+Dependency provisioning may use network **before** agent work; agent network
+policy is denied. No shared/global settings are changed.
+
+With that Python interpreter on PATH, for each name (`grouping`, `status`,
+`validator`), run:
+
+```bash
+python -m benchmarks.michael.tasks.packages stage grouping /owned/new/agent-export
+python -m benchmarks.michael.tasks.packages check grouping /owned/new/agent-export
+python -m benchmarks.michael.tasks.packages calibrate grouping /owned/new/receipt.json
+```
+
+Use a nonexistent owned export directory, outside this repository. `stage`
+copies exact Git bytes, then checks the full path/content allowlist, unexpected
+directories, symlinks, pinned digests, historical solution references and full
+hidden material leakage. `check` repeats those checks on the delivered view.
+Both print SHA-256 of canonical sorted path-to-content-SHA-256 JSON (compact
+UTF-8 with trailing LF). This is an export-content digest, not a tar digest.
+The manifests remain outside the export; their `agent/` and `hidden/` URIs are
+logical references resolved by the trusted packager, not public download URLs.
+
+`calibrate` creates an owned temporary workspace, checks the export, installs
+declared dependencies, and executes baseline preservation, baseline regression,
+then reference preservation plus regression. Expected regression failure is
+mandatory; any preservation failure, skip, error, missing dependency or missing
+report blocks calibration. Receipts retain exact commands, versions, stdout/
+stderr, exit codes, test-case counts, failure names/messages, report digests and
+monotonic durations. Counts are test cases, not individual expect/assert calls.
+Temporary workspaces are cleaned after the trusted runs. `freeze` is a
+maintainer-only operation for deliberate new package revisions; never silently
+refreeze to resolve a validation mismatch.
+
+Fresh cloud-host calibration receipts are in `tasks/<name>/calibration.json`.
+The first status fixture omitted the required stage label and failed with
+verifier TypeErrors; it was corrected to the exact stage interface before the
+retained successful calibration. No historical implementation or compatibility
+assertion was changed to obtain a pass. The first system-Python check lacked
+pytest; dependencies were installed only in an owned session venv.
+
+Run package integration/legacy compatibility checks with:
+
+```bash
+python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py tests/projects/michael_bench/test_task_packages.py -q
+```
+
+The package tests rerun trusted calibration and compare retained denominators,
+as well as reject contaminated exports. These are `integration` / `cloud-linux`
+checks. MB-005 owns the public CLI smoke; no general runner/controller/report
+API is added here.
+
+Retained calibration counts (passed/total test cases):
+
+| Task | Baseline preservation | Baseline regression | Reference full |
+| --- | --- | --- | --- |
+| grouping | 4/4 | 0/2 | 6/6 |
+| status | 32/32 | 0/8 | 40/40 |
+| validator | 15/15 | 7/10 | 25/25 |
+
+No phase has skipped tests or evaluator errors. The 124 selected package/import/
+contract checks and artifact/dependency validators passed. The dependency
+validator initially lacked installed distribution metadata and flagged the new
+namespace import; the test now follows the existing direct-import-root pattern,
+and root-manifest dependencies were restored only in the owned session venv.
+No shared dependency configuration or live code was changed.
+
 ## Historical import v1
 
 `contracts/historical_import.py` exposes

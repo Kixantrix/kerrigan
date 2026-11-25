@@ -1,0 +1,9 @@
+{
+  "name": "michael-offline-replay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "vitest": "3.2.4"
+  }
+}
