@@ -1,0 +1,18 @@
+{
+  "copilot": {
+    "version": "1.0.115",
+    "platform": "darwin-arm64",
+    "url": "https://github.com/github/copilot-cli/releases/download/v1.0.115/copilot-darwin-arm64.tar.gz",
+    "archive_sha256": "f0858bbff5e35c4fe92d97a0061cb4a2a12b06defacf5512b77ca294175a12cf",
+    "executable_sha256": "b8994d1f61f83e8f820409f363518b07fe9027b0d4699b04fb585bb76496d4f6"
+  },
+  "mxc_executor": {
+    "package": "@microsoft/mxc-sdk",
+    "version": "1.1.0",
+    "url": "https://registry.npmjs.org/@microsoft/mxc-sdk/-/mxc-sdk-1.1.0.tgz",
+    "archive_integrity": "sha512-tSOPZ14ddCiXHc4hVNQp5Yi22HSQEfXh58Z4O/tLzERi+23rfRmMrJoxVK5jZYhlll68u4eF/UlQSaXWyUMj4w==",
+    "archive_member": "package/bin/arm64/mxc-exec-mac",
+    "executable_sha256": "4c68a4ff34ed14134a94a4312a8ec172bd2099dd26453e4a7893d91515f42687",
+    "note": "Standalone executor only; no Node SDK imports or runtime dependencies."
+  }
+}

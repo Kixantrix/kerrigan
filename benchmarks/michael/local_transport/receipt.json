@@ -1,0 +1,56 @@
+{
+  "archive_sha256": "e4f149a3b982546ab0f84615902fb08c545f7f64174eb9110f87a2827a19c4f8",
+  "attestation": "operator observations; human attestation pending",
+  "checks": {
+    "artifacts": "passed",
+    "focused_and_preservation": "124 passed, zero skips",
+    "python_dependencies": "passed",
+    "smoke": "not run: no deployable native entry point; existing smoke is Linux/Docker",
+    "whitespace": "passed"
+  },
+  "condition": "local agent/tools with cloud inference",
+  "cost": "unknown",
+  "debug_capture_sha256": "fdec9e47f555831bdb53580c84a87d2a266a764c0af8ebcf4b967ac5643df062",
+  "effective_native_tools": "unknown",
+  "environment": "local-attested-macos",
+  "foundation": "2df6f85",
+  "generated_main_profile_sha256": "ba0ab08f4f1153fd069bba1c01fdce691723ba4c7ba233a6009f596845c67f98",
+  "historical_invalid_evidence": [
+    "owned/offline-1/summary.json: process-relative negative durations"
+  ],
+  "native_canaries_consumed": 0,
+  "native_catalog_requested_models": [
+    {
+      "_meta": {
+        "copilotEnablement": "enabled",
+        "copilotPriceCategory": "medium",
+        "copilotUsage": "1x"
+      },
+      "description": "Versatile \u00b7 Medium cost",
+      "modelId": "claude-sonnet-5.5",
+      "name": "Claude Sonnet 5.5"
+    },
+    {
+      "_meta": {
+        "copilotEnablement": "enabled",
+        "copilotPriceCategory": "low",
+        "copilotUsage": "1x"
+      },
+      "description": "Powerful \u00b7 Low cost",
+      "modelId": "mai-code-2",
+      "name": "MAI Code 2"
+    }
+  ],
+  "native_session_creation": "succeeded after parent-observed OAuth completion",
+  "observed_invocation_model": "unknown",
+  "profile_appendix": "Per-run cleanup rules retained in hash-bound raw debug capture, not reconstructed.",
+  "scored_runs": 0,
+  "source_sha256": {
+    "benchmarks/michael/local_transport/probe.py": "72a0acb01415a6e246a543786afedca9717e11ba0b297ec0b981c31a0d42acef",
+    "benchmarks/michael/local_transport/proof.py": "f9be64934549a95190e7be284e11bbe7b13359ffe12c2255b5f34c200faa9848",
+    "benchmarks/michael/local_transport/runtime.json": "02e66db93d582ed270c2b9ed06a4cee4418b2c19a64397fa21d11ee65a03e2ce",
+    "tests/projects/michael_bench/test_local_transport.py": "0ff3f1695710e6387181cf3059c1fc7b845d1862e49dab6508f9ca939cc44b63"
+  },
+  "usage": "unknown",
+  "whole_process_cleanup": "unproven"
+}
