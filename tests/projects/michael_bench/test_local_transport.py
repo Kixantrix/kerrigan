@@ -18,28 +18,39 @@ from runner import HERE, SOURCES, prepare, recovery
 import runner
 
 
-def test_frozen_corrected_allowance_rejects_missing_stale_modified_reused_and_unreaped(tmp_path, monkeypatch):
+@pytest.mark.parametrize("live", [False, True])
+def test_frozen_corrected_allowance_rejects_missing_stale_modified_reused_and_unreaped(tmp_path, monkeypatch, live):
     source = {name: digest(HERE / name) for name in SOURCES}
-    approval = tmp_path / "mb006f/approval.json"
+    condition, namespace = ("MB-006h", "mb006h") if live else ("MB-006f", "mb006f")
+    def allowance(expected):
+        return runner.corrected_allowance(
+            tmp_path, "mai-code-2", approval, expected, live_condition=live)
+    approval = tmp_path / namespace / "approval.json"
     approval.parent.mkdir()
-    value = {"condition": "MB-006f", "attester": "authorized-local-executor",
+    value = {"condition": condition, "attester": "authorized-local-executor",
              "evidenceClass": "local-agent-attested"}
     approval.write_text(json.dumps(value))
     frozen = tmp_path / "frozen.json"
-    monkeypatch.setattr(runner, "FROZEN_APPROVAL", frozen)
+    monkeypatch.setattr(runner, "LIVE_APPROVAL" if live else "FROZEN_APPROVAL", frozen)
     with pytest.raises(ProofError, match="required"):
-        runner.corrected_allowance(tmp_path, "mai-code-2", approval, source)
-    seal = {"condition": "MB-006f", "models": ["mai-code-2", "claude-sonnet-5.5"],
+        allowance(source)
+    seal = {"condition": condition, "models": ["mai-code-2", "claude-sonnet-5.5"],
             "controllerPromptsPerModel": 1, "activeSeconds": 180, "cleanupSeconds": 15,
             "source": source, "approvalSha256": digest(approval)}
+    if live:
+        seal["protocolLimits"] = {**runner.MB006H_LIMITS, "total": 2097153}
+        frozen.write_text(json.dumps(seal))
+        with pytest.raises(ProofError, match="modified"):
+            allowance(source)
+        seal["protocolLimits"] = runner.MB006H_LIMITS
     frozen.write_text(json.dumps(seal))
     with pytest.raises(ProofError, match="stale"):
-        runner.corrected_allowance(tmp_path, "mai-code-2", approval, {})
+        allowance({})
     approval.write_text(json.dumps({**value, "modified": True}))
     with pytest.raises(ProofError, match="modified"):
-        runner.corrected_allowance(tmp_path, "mai-code-2", approval, source)
+        allowance(source)
     approval.write_text(json.dumps(value))
-    slots, _ = runner.corrected_allowance(tmp_path, "mai-code-2", approval, source)
+    slots, _ = allowance(source)
     receipt = tmp_path / "first/receipt"
     receipt.mkdir(parents=True)
     from proof import persist
@@ -48,10 +59,10 @@ def test_frozen_corrected_allowance_rejects_missing_stale_modified_reused_and_un
         persist(slots / "mai-code-2.json", {"receipt": str(receipt)})
     (receipt / "terminal.json").write_text(json.dumps({"wholeProcessQuiescent": False}))
     with pytest.raises(ProofError, match="cleanup"):
-        runner.corrected_allowance(tmp_path, "claude-sonnet-5.5", approval, source)
+        runner.corrected_allowance(tmp_path, "claude-sonnet-5.5", approval, source, live_condition=live)
     (receipt / "terminal.json").write_text(json.dumps({
         "wholeProcessQuiescent": True, "cleanupSeconds": 0.1}))
-    runner.corrected_allowance(tmp_path, "claude-sonnet-5.5", approval, source)
+    runner.corrected_allowance(tmp_path, "claude-sonnet-5.5", approval, source, live_condition=live)
     assert not (tmp_path / "canary-slots").exists()
 
 

@@ -13,34 +13,40 @@ PYTHON = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framewo
 CLI_FLAGS = ("--headless --stdio --sandbox --no-auto-update --disable-builtin-mcps "
              "--no-ask-user --disallow-temp-dir --sync-session=off --log-level=none")
 FROZEN_APPROVAL = HERE / "mb006f-authorization.json"
+LIVE_APPROVAL = HERE / "mb006h-authorization.json"
+MB006H_LIMITS = {"header": 1024, "frame": 131072, "total": 2097152, "events": 512, "disk": 16777216}
 
 
-def corrected_allowance(owned, model, approval, source):
-    if not FROZEN_APPROVAL.is_file() or not approval:
-        raise ProofError("MB-006f frozen authorization required")
-    seal = json.loads(FROZEN_APPROVAL.read_text())
+def corrected_allowance(owned, model, approval, source, *, live_condition=False):
+    condition = "MB-006h" if live_condition else "MB-006f"
+    namespace = "mb006h" if live_condition else "mb006f"
+    frozen = LIVE_APPROVAL if live_condition else FROZEN_APPROVAL
+    if not frozen.is_file() or not approval:
+        raise ProofError(f"{condition} frozen authorization required")
+    seal = json.loads(frozen.read_text())
     proof = json.loads(Path(approval).read_text())
-    if (Path(approval).resolve() != owned / "mb006f/approval.json"
-            or seal.get("condition") != "MB-006f"
+    if (Path(approval).resolve() != owned / namespace / "approval.json"
+            or seal.get("condition") != condition
             or seal.get("models") != list(MODELS)
             or seal.get("controllerPromptsPerModel") != 1
             or seal.get("activeSeconds") != 180 or seal.get("cleanupSeconds") != 15
             or seal.get("source") != source
             or seal.get("approvalSha256") != digest(Path(approval))
-            or proof.get("condition") != "MB-006f"
+            or proof.get("condition") != condition
             or proof.get("attester") != "authorized-local-executor"
             or proof.get("evidenceClass") != "local-agent-attested"
-            or model not in MODELS):
-        raise ProofError("MB-006f stale or modified authorization")
-    slots = owned / "mb006f/slots"
+            or model not in MODELS
+            or (live_condition and seal.get("protocolLimits") != MB006H_LIMITS)):
+        raise ProofError(f"{condition} stale or modified authorization")
+    slots = owned / namespace / "slots"
     slots.mkdir(exist_ok=True)
     if model == "claude-sonnet-5.5":
         prior = json.loads((slots / "mai-code-2.json").read_text())
         terminal = json.loads((Path(prior["receipt"]) / "terminal.json").read_text())
         if (terminal.get("wholeProcessQuiescent") is not True
                 or terminal.get("cleanupSeconds", 16) > 15):
-            raise ProofError("MB-006f prior owned cleanup unproven")
-    return slots, digest(FROZEN_APPROVAL)
+            raise ProofError(f"{condition} prior owned cleanup unproven")
+    return slots, digest(frozen)
 
 
 def profile(task, credential, *, transport=False):
@@ -142,13 +148,16 @@ def bound_transport(value, expected, owned):
 
 
 def prepare(owned, path, *, seconds=10, diagnostics=(), model=None, approval=None,
-            hold=False, duplicate_ids=False, transport_probe=False, corrected_condition=False):
+            hold=False, duplicate_ids=False, transport_probe=False, corrected_condition=False,
+            live_condition=False):
     owned = Path(owned).resolve()
     if not 0 < seconds <= 180 or model not in (None, *MODELS):
         raise ValueError("budget/model denied")
-    if corrected_condition and (model is None or seconds != 180 or diagnostics
+    if corrected_condition and live_condition:
+        raise ProofError("mutually exclusive frozen conditions")
+    if (corrected_condition or live_condition) and (model is None or seconds != 180 or diagnostics
                                 or hold or duplicate_ids or transport_probe):
-        raise ProofError("MB-006f exact canary condition required")
+        raise ProofError("exact frozen canary condition required")
     pins = json.loads((HERE / "runtime.json").read_text())
     if (owned / "install/copilot").exists():
         if digest(owned / "install/copilot") != pins["copilot"]["executable_sha256"]:
@@ -173,8 +182,9 @@ def prepare(owned, path, *, seconds=10, diagnostics=(), model=None, approval=Non
         if not bound_transport(proof, expected, owned):
             raise ProofError("native TLS transport unproven; inference remains gated")
         slots = owned / "canary-slots"
-        if corrected_condition:
-            slots, authorization_sha = corrected_allowance(owned, model, approval, expected)
+        if corrected_condition or live_condition:
+            slots, authorization_sha = corrected_allowance(
+                owned, model, approval, expected, live_condition=live_condition)
         else:
             slots.mkdir(exist_ok=True)
         persist(slots / f"{model}.json", {"model": model, "receipt": str(run / "receipt"),
@@ -186,7 +196,7 @@ def prepare(owned, path, *, seconds=10, diagnostics=(), model=None, approval=Non
         "environment": {**environment(credential), "SSL_CERT_FILE": str(owned / "trust/cacert.pem"),
                         "NODE_EXTRA_CA_CERTS": str(owned / "trust/cacert.pem")},
         "model": model, "approved": approved, "transportProbe": transport_probe,
-        "condition": "MB-006f" if corrected_condition else None,
+        "condition": "MB-006h" if live_condition else ("MB-006f" if corrected_condition else None),
         "authorizationSha256": authorization_sha,
         "command": f"{owned / 'install/copilot'} {CLI_FLAGS}"
         + (f" --model {model}" if model else ""),

@@ -1,0 +1,35 @@
+{
+  "activeSeconds": 180,
+  "approvalSha256": "8fd469961e7b68cf919de217360a369310e5b2b270fdcc9c581f63a71faa4698",
+  "cleanupSeconds": 15,
+  "condition": "MB-006h",
+  "controllerPromptsPerModel": 1,
+  "models": [
+    "mai-code-2",
+    "claude-sonnet-5.5"
+  ],
+  "priorSlots": {
+    "canary-slots/claude-sonnet-5.5.json": "5d324c806ccc6079f294d32534ae1269c6018216d9d42779b72b3630232d2be8",
+    "canary-slots/mai-code-2.json": "74cbee487c3948102e7b6c7fa0de94886dac81110949aa63d92fe4dd90b5b983",
+    "mb006f/slots/claude-sonnet-5.5.json": "8785037b95b8c914fed83f7ea7e70e64053fbd0e3cb54108defcb8706f83a161",
+    "mb006f/slots/mai-code-2.json": "d0cb709f87baa362c5804b5f601068f5429546188bbc55441ad110fb5bed5c0d"
+  },
+  "protocolLimits": {
+    "disk": 16777216,
+    "events": 512,
+    "frame": 131072,
+    "header": 1024,
+    "total": 2097152
+  },
+  "retry": false,
+  "scored": false,
+  "source": {
+    "limits.mjs": "cb6ddb0719e253c2a47d475aa05000993dd71148285c95cfdadddb096a7f32f2",
+    "owner.mjs": "05b0c15850819b072c71635bdf8e9b37801eba459121f258a41b8b37b710dd84",
+    "package.json": "3c123e1ded6398d7cef5d3b8105705d68177d7200d1a60259720325802878327",
+    "protocol.mjs": "02e2f673a19ab32b3badf8105062250f25235b9ed73cfb1c6caaf95c83ad9a5e",
+    "runner.py": "c2d1d73f42996c3f171f4260d8f8ce70df09d6dc73d83ca54c1500b5a4f312dc",
+    "runtime.json": "fd6a8d5e218f28bf7a1e6224b3f1f0d0db8a86e990dc62f725ba1eb5dc038eff",
+    "worker.py": "607090ae5927b75288e4e1de3dcbb3c0a1ba3ae6030cf63dacf0a5f5401a83c9"
+  }
+}

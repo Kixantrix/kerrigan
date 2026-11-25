@@ -297,3 +297,37 @@ cleanup passed. All four historical slots and old archives remain unchanged,
 and MB-006f's source-bound authorization is stale. No new prompt, slot or
 ready-to-infer authorization was emitted. A live model tool loop under this
 new condition remains unvalidated and requires separate authorization.
+
+### MB-006h: native Sonnet tool loop observed; MAI still bounded out
+
+After direct human approval, MB-006h froze one new controller prompt per pin,
+MAI then Sonnet, under unchanged MB-006g protocol limits and unchanged task/
+action limits. The final-source local-executor attestation, fresh native
+HTTPS/denial/cutoff proof and exact allowance are in `mb006h-attestation.json`,
+`mb006h-safety.tar.gz` and `mb006h-authorization.json`. These do not modify any
+of the four earlier spent slots.
+
+MAI stopped on its first native `model.call_failure`: **"Native model HTTP
+response exceeds the 65536-byte limit"**. This is the separately configured
+native HTTP response bound (`COPILOT_LLM_RESPONSE_MAX_BYTES=65536`), not the
+new 2 MiB protocol budget. No task action ran. Active/cleanup seconds were
+3.746/0.073. Private offline inspection of all received bytes retained the
+additional `model.model_call_failure` in the cutoff tail, with no second start
+or retry event observed. Events never received after cutoff remain unknown.
+
+Sonnet completed actual `mb_action` write/run/result/idle, with native MXC task
+stdout `5\n`, in 4.357 active/0.041 cleanup seconds. Its three native starts
+were natural calls within one controller prompt, not replacement prompts or
+observed retries. Native usage reports `model=claude-sonnet-5.5` and
+`responseModel=claude-sonnet-5-5`, 18,808 input and 184 output tokens across
+the three calls, with retry/attempt indices zero. Reported native cost counters
+are preserved without inventing monetary units; independent backend identity
+and fiat cost are not established.
+
+`mb006h-outcomes.json`, `mb006h-audit.json` and `mb006h-canaries.tar.gz`
+contain safe source/config/runtime/CA-bound projections. Account-wide quota
+snapshots, hidden native instructions, raw streams and auth state are excluded.
+Both owned exits were proved before proceeding; all six slots are now spent.
+This establishes one controlled Sonnet readiness loop, not a scored historical
+task or a comparative result. MAI readiness remains blocked by its native HTTP
+bound. No post-start tuning, retry, extra prompt or scoring was performed.
