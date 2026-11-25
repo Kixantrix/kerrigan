@@ -89,6 +89,14 @@ tasks. MXC is not a VM and does not OS-sandbox the CLI's in-process file tools;
 those side channels must be mechanically excluded. Existing locked test skills
 cover this route; no additional skill installation is needed.
 
+MB-006c partial proof is integrated at `9790949`: official session-owned CLI
+1.0.115 and MXC executor 1.1.0, actual synthetic Seatbelt denials, and successful
+post-login access-only native session creation. Both selected models are
+advertised enabled, but no invocation identity, model response or score exists.
+Full effective native tool policy and escaped-descendant cutoff remain unproven;
+the executor is continuing those gates. Direct-child reaping is explicitly
+insufficient and does not permit canaries.
+
 Run a bounded baseline with the actual agent/provider the user uses, after environment and execution-budget approval. Attribute calls from native counters/logs, verify tools and outcome independently, record actual context/cache/reasoning transport, and restore all owned temporary changes.
 
 Then compare another explicitly chosen target under a frozen matched condition. Do not infer native-agent quality from the existing endpoint pilot. Use a small screening batch before funding repetitions; freeze repeats/order/deadline/intervention policy before execution.
