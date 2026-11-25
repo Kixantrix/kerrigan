@@ -6,9 +6,23 @@ MB-004 adds the offline [ledger/report API](ledger_report/api.py).
 MB-003 adds three [historical replay packages](tasks/packages.py), with
 requirement-only exports and separately retained verification/calibration.
 The contracts alone provide no runtime attestation. Neither the proof nor this
-API is a general runner, public CLI, live telemetry,
+API is a general runner, live telemetry,
 or scored model trial.
 See the [plan](../../specs/projects/michael-bench/plan.md).
+
+## Public offline CLI (MB-005)
+
+The synthetic integer fixture reuses Inspect, MB-002 materials and ledger/report APIs; **not** native identity/isolation proof, a replay trial or model performance. Cloud Linux prerequisites: owned venv with `engine_proof/requirements.txt`, Docker, Compose, pinned `cli/compose.yaml` image and credential-free `DOCKER_CONFIG` (no `config.json`) containing the plugin. Provisioning is timed separately; no local fallback.
+```bash
+python -m benchmarks.michael.cli compare /owned/new/comparison
+bash benchmarks/michael/scripts/smoke.sh /owned/new/smoke-1
+python -m benchmarks.michael.cli recover /owned/interrupted/trial
+```
+
+Modes: success/negative/runtime_error/timeout/background/symlink/special/extra_output/outside/evaluator_error. `--seconds`: default 45, finite 0.1–90. The monotonic cap starts before worker launch, covering imports/setup, agent and verification, independently of the 30-second tool timeout. A **15-second alarm** bounds cleanup/evidence; exhaustion leaves an explicitly recoverable start.
+End-to-end ends after cleanup/evidence collection, before terminal persistence. Queue/provisioning are unknown; setup includes imports. Phases are not summed; deadlines are not completion times. Agent root is read-only, network denied, capabilities dropped; only an owned `/work` volume is mounted, never host checkout/home/socket. Background workers are rejected and the whole agent killed before reading output/staging assertions.
+Only regular `answer.py` (64 KiB; archive 1 MiB) enters a fresh separate verifier; no host archive extraction. Recovery kills owned resources and records interruption without replay. Exit: 0 verified, 2 failed/ungraded, 3 cutoff/interruption/recovery, 4 invalid input/preflight/reserve. Stdout: `{"synthetic":true,"directory":"/owned/new/comparison","exit_status":0}`.
+Retain raw Inspect JSON, immutable checkpoints, process receipts, terminals, SHA-256 bindings, ledgers and reports. Stable descriptors bind fixture/adapter bytes; both arms are synthetic. Reports keep paired times/coverage, failures and unknown/nonadditive usage. Native identity/tools, replay delivery and credits remain gated.
 
 ## Historical replay packaging (MB-003)
 
@@ -211,8 +225,7 @@ elapsed time without invented completion time. Safety cutoffs are separate.
 
 `contracts/fixtures/pilot-v1.json` contains no real pilot data.
 Run `python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py -q`.
-These integration checks run on `cloud-linux`; smoke is not applicable until
-MB-005 provides the offline CLI.
+These integration checks run on `cloud-linux`; MB-005 CLI smoke is documented above.
 
 ## Offline ledger and explicit comparisons (MB-004)
 
