@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Implementation roadmap: contracts, bounded engine proof, ledger/report, MB-003 packages, and MB-005 offline CLI are integrated. Native model trials remain gated; MB-006b is blocked before inference by endpoint DNS resolution. Suggested implementation paths below are to be finalized in briefing packets.
+Implementation roadmap: contracts, bounded engine proof, ledger/report, MB-003 packages, MB-005 offline CLI, and MB-006b fake-client broker/supervision proof are integrated. Cloud native trials remain gated by endpoint DNS resolution. The selected next route is direct local CLI/MXC, scoped in MB-006c; no native model scores exist.
 
 ## Milestone 1
 
@@ -45,6 +45,7 @@ Implementation roadmap: contracts, bounded engine proof, ledger/report, MB-003 p
   - Done when: AC-MB-006 has an attested receipt covering provider attribution, tool calls, grading, resource scope, and restoration.
   - Scope: an authorized local integration procedure and bounded adapter changes, not global provider replacement.
   - Dependencies: MB-005; external: approved local run conditions and budgets.
+  - Selected next slice: [MB-006c briefing](../../../.specify/briefings/MB-006c.md), direct CLI/MXC on this laptop with cloud inference. Prove session-owned setup, authentication, actual Seatbelt/tool containment and bounded native canaries before scored tasks. Shared canary allowance remains two total; cloud canaries are paused at zero.
 - [ ] MB-007: Prove one self-hosted and one cloud target.
   - Done when: AC-MB-007 has target-specific attestation and identical contract versions, with unavailable cloud telemetry explicitly unknown.
   - Scope: approved disposable target adapters and capability scenarios; no production operations.
