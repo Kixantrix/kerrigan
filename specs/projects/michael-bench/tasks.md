@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Implementation roadmap: MB-001a/b, bounded MB-002, and MB-004 are integrated; MB-003 is the next scoped dispatch. Subsequent slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
+Implementation roadmap: contracts, bounded engine proof, ledger/report, and MB-003 packages are integrated; MB-005 is the next scoped dispatch. Native model trials remain gated. Suggested implementation paths below are to be finalized in briefing packets.
 
 ## Milestone 1
 
@@ -19,11 +19,12 @@ Implementation roadmap: MB-001a/b, bounded MB-002, and MB-004 are integrated; MB
 
 ## Milestone 2
 
-- [ ] MB-003: Package and calibrate the three existing coding replays.
+- [x] MB-003: Package and calibrate the three existing coding replays.
   - Done when: AC-MB-002 passes for every task, including preservation tests and solution-leakage checks.
   - Scope: future `benchmarks/michael/tasks/` with approved exact-base archives and verifier-only references.
   - Dependencies: MB-001, MB-002.
   - Closed next slice: [MB-003 briefing](../../../.specify/briefings/MB-003.md), requiring fresh baseline/regression/reference calibration and answer-free agent exports.
+  - Implemented `cac8e3d`; all three reference packages pass preservation plus held-out checks. Packaging is not actual native cloud-session isolation. Calibration times are not model completion times.
 - [ ] MB-004: Implement the bounded trial ledger and cohort-aware report.
   - Done when: AC-MB-003, AC-MB-004, and AC-MB-005 pass with success, incomplete, infrastructure-failure, and missing-data fixtures.
   - Scope: future runner/report modules and focused tests; preserve all attempts and separate diagnostic/practical/historical cohorts.
@@ -35,6 +36,7 @@ Implementation roadmap: MB-001a/b, bounded MB-002, and MB-004 are integrated; MB
   - Done when: AC-MB-008 passes from clean isolated state twice without credentials; CLI invocation is documented with its verified command.
   - Scope: future CLI entry point, project smoke script, and operator documentation.
   - Dependencies: MB-003, MB-004.
+  - Closed next slice: [MB-005 briefing](../../../.specify/briefings/MB-005.md); integrate the fake-model CLI/ledger/report path and whole-trial sandbox cutoff/quiescence proof, without native scored model calls.
 
 ## Milestones 3 and 4
 

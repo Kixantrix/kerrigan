@@ -1,6 +1,6 @@
 # Spec: Michael Bench
 
-Status: historical import, versioned manifests, bounded offline engine proof, and ledger/report API implemented; reusable CLI, calibrated packages, native cloud-session controls, and model evaluations remain pending.
+Status: historical import, versioned manifests, bounded offline engine proof, ledger/report API, and three calibrated replay packages implemented; reusable CLI, native cloud-session controls, and model evaluations remain pending.
 
 ## Goal
 
