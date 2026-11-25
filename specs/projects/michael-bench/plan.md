@@ -228,3 +228,18 @@ Laptop-native integration and telemetry: `R-local.os-specific` / `R-local.device
 Self-hosted/cloud adapters are cloud-safe when configured capabilities and approved credentials are available. Actual target access and spending must be authorized separately; never move private pilot material merely to make a task cloud-runnable.
 
 Public-source discovery with approved sanitized profiles: `R-cloud-default`. Reading current local inventory or locally running services: `R-local.device-io`; OS telemetry also matches `R-local.os-specific`. Scheduling location is an availability decision, not a reason to bypass data eligibility.
+
+## Standing autonomy (user direction, 2026-11-25)
+
+User: "I don't want to be asked ANYTHING in the process. The bench should be
+set it and you run through and learn what you need to about the models and tell
+me afterwards how they stack up for my use case."
+
+This is the standing authorization for frozen, reviewed Michael Bench
+conditions. Executors do not ask the human. Before each live run the
+coordinator reviews the exact frozen condition, and the executor records the
+condition digest plus this direction as its authorization. Safety boundaries
+still apply: credential state stays uninspected, there is no host execution of
+generated code, and limits are finite and frozen per condition. Attempts,
+retries and errors are preserved, and unknowns are never treated as zero. The
+human receives a single comparative report afterwards.
