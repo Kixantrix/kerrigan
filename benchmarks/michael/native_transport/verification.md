@@ -1,4 +1,7 @@
-# MB-006b blocked native-access preflight
+# MB-006b native transport verification
+
+The original access-only record below is retained historically. The resumed
+offline implementation and current native gates are recorded in the final section.
 
 Cloud Linux, November 25, 2026; foundation `49684ff`.
 **No transport proof or model benchmark is complete.**
@@ -121,3 +124,70 @@ Before implementation resumes, authorized native session creation must work
 from an isolated session-owned workspace, without credential, shared-config,
 or network workarounds. A resumed slice must still prove fake/sandbox
 boundaries before any model prompt; this preflight authorizes no canary.
+
+## Resumed independent implementation
+
+Foundation `0dbd56d` integrates MB-005 through `a41376d` and the revised briefing.
+Offline stoppage is resolved; the original native access failure remains open.
+Existing benchmark modules are read-only and unchanged by this implementation.
+
+`broker.py` implements one stdio MCP tool, `action`, with durable unique action
+IDs, no replay, exact read/write allowlists, input/action/output budgets, and
+actual Docker execution as UID 65534. The pinned image has no host mounts,
+network `none`, read-only root, dropped capabilities, no-new-privileges,
+256 MiB memory/swap, one CPU, 64 PIDs, bounded tmpfs, and no Docker log driver.
+Model source can edit only the existing `solution.py` in the root-owned work
+directory; requirements cannot be rewritten. Host paths and network operations
+are not broker operations.
+
+`supervisor.py` persists/fsyncs start before subprocess execution. An independent
+Linux child-subreaper owns cancellation, controller-pipe loss, bounded stream
+capture, monotonic deadline checks, PID-fd-bound descendant termination
+(including detached children), sandbox removal, and durable ungraded terminal.
+Recovery never launches a tool or model. `native.py` creates fixture-only
+required-model profiles and requested filters/config hashes outside history.
+It does not attest effective native inventory. Native launches remain gated;
+no caller-supplied fake inventory can authorize them.
+
+Public diagnosis (unauthenticated; no shared setting changes):
+
+```bash
+getent ahosts api.enterprise.githubcopilot.com
+getent ahosts api.githubcopilot.com
+curl -q --max-time 15 --silent --show-error --output /dev/null --write-out 'enterprise_meta http=%{http_code} remote=%{remote_ip}\n' https://api.enterprise.githubcopilot.com/meta
+curl -q --max-time 15 --silent --show-error --output /dev/null --write-out 'copilot_ping http=%{http_code} remote=%{remote_ip}\n' https://api.githubcopilot.com/_ping
+curl -q --max-time 15 --silent --show-error --output /dev/null --write-out 'proxy_ping http=%{http_code} remote=%{remote_ip}\n' https://copilot-proxy.githubusercontent.com/_ping
+curl -q --max-time 15 --silent --show-error 'https://dns.google/resolve?name=api.enterprise.githubcopilot.com&type=A'
+```
+
+Enterprise resolution still fails; regular API resolution succeeds, and both
+pings return HTTP 200 (curl reports peer `127.0.0.1`). Public DNS lookup service
+resolution also fails, so no independent authoritative DNS result is claimed.
+The official allowlist includes `*.enterprise.githubcopilot.com`: the observed
+endpoint is covered, not demonstrated wrong. Reachable pings do not establish
+reachability of the selected authorized account route. No supported correction
+or changed enterprise reachability was found; no ACP recheck or inference ran.
+References: [network diagnosis](https://docs.github.com/en/copilot/how-tos/troubleshoot-copilot/troubleshoot-network-errors)
+and [allowlist](https://docs.github.com/en/copilot/reference/copilot-allowlist-reference).
+
+Exact final command uses the session-owned validation environment above:
+
+```bash
+python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py tests/projects/michael_bench/test_native_transport.py -q --basetemp=/root/.copilot/session-state/7cde2236da934302bbaa594be2b596e6/files/native-tests-verified
+python -m tools.validators.check_artifacts
+python -m tools.validators.check_python_deps
+git diff --check
+docker ps -a --filter label=mb-native --format '{{.ID}} {{.Names}}'
+```
+
+Final checks passed: **128 tests**, no skips; both validators and whitespace
+checks passed; no owned sandbox remains. This includes supervised fake MCP
+read/edit/execute, actual write/network denial, both output channels' overflow,
+external cancellation, killed controller plus detached-child cleanup, no
+replay, and requested-model fixture/gating checks. The initial run found a
+test probe incorrectly treating denied container `/root` access as failure;
+the corrected probe requires denial and the complete suite passes.
+Receipts under `native-tests-verified/` remain session-owned, synthetic-only.
+Both native models still have **zero attempts**, unknown observed identity,
+unknown effective native inventory, and unknown native usage. These checks
+establish offline transport capability, not model capability or rankings.

@@ -1,0 +1,2 @@
+# Transport and narrow stdio MCP implementation use Python 3.12 standard library only.
+# Docker image is immutable and pinned in broker.py; no provider SDK or paid API.
