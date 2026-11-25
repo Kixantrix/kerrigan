@@ -15,6 +15,44 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "benchmarks/michael/local_transport"))
 from proof import LIMIT, ProofError, capture, digest, environment, fixture, recover
 from runner import HERE, SOURCES, prepare, recovery
+import runner
+
+
+def test_frozen_corrected_allowance_rejects_missing_stale_modified_reused_and_unreaped(tmp_path, monkeypatch):
+    source = {name: digest(HERE / name) for name in SOURCES}
+    approval = tmp_path / "mb006f/approval.json"
+    approval.parent.mkdir()
+    value = {"condition": "MB-006f", "attester": "authorized-local-executor",
+             "evidenceClass": "local-agent-attested"}
+    approval.write_text(json.dumps(value))
+    frozen = tmp_path / "frozen.json"
+    monkeypatch.setattr(runner, "FROZEN_APPROVAL", frozen)
+    with pytest.raises(ProofError, match="required"):
+        runner.corrected_allowance(tmp_path, "mai-code-2", approval, source)
+    seal = {"condition": "MB-006f", "models": ["mai-code-2", "claude-sonnet-5.5"],
+            "controllerPromptsPerModel": 1, "activeSeconds": 180, "cleanupSeconds": 15,
+            "source": source, "approvalSha256": digest(approval)}
+    frozen.write_text(json.dumps(seal))
+    with pytest.raises(ProofError, match="stale"):
+        runner.corrected_allowance(tmp_path, "mai-code-2", approval, {})
+    approval.write_text(json.dumps({**value, "modified": True}))
+    with pytest.raises(ProofError, match="modified"):
+        runner.corrected_allowance(tmp_path, "mai-code-2", approval, source)
+    approval.write_text(json.dumps(value))
+    slots, _ = runner.corrected_allowance(tmp_path, "mai-code-2", approval, source)
+    receipt = tmp_path / "first/receipt"
+    receipt.mkdir(parents=True)
+    from proof import persist
+    persist(slots / "mai-code-2.json", {"receipt": str(receipt)})
+    with pytest.raises(FileExistsError):
+        persist(slots / "mai-code-2.json", {"receipt": str(receipt)})
+    (receipt / "terminal.json").write_text(json.dumps({"wholeProcessQuiescent": False}))
+    with pytest.raises(ProofError, match="cleanup"):
+        runner.corrected_allowance(tmp_path, "claude-sonnet-5.5", approval, source)
+    (receipt / "terminal.json").write_text(json.dumps({
+        "wholeProcessQuiescent": True, "cleanupSeconds": 0.1}))
+    runner.corrected_allowance(tmp_path, "claude-sonnet-5.5", approval, source)
+    assert not (tmp_path / "canary-slots").exists()
 
 
 def test_native_cannot_launch_before_inventory_and_tree_proof(tmp_path):

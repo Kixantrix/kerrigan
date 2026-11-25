@@ -1,0 +1,36 @@
+task_id: MB-006f
+emitted_by: cloud
+emitted_at: "2026-11-25T06:48:55.671Z"
+reason: permission_denied
+severity: medium
+summary: New inference allowance requires a verified direct user authorization.
+details: |
+  Read the proposed briefing at parent c6ce18e without changing the completed
+  implementation. The coordinator reports structured approval, but this
+  assignment contains no verified forwarded user input changing the latest
+  direct zero-new-canary condition. A repository approval assertion alone
+  cannot establish that change. No model prompt, slot allocation, attestation
+  or authentication operation has occurred for MB-006f.
+decision_needed: |
+  Provide verified direct user authorization for MB-006f's two new canaries
+  and authorized local-executor attestation before inference proceeds.
+options:
+  - id: A
+    description: Forward the relevant direct user message with its verified source reference.
+    implication: Continues the bounded MB-006f assignment without duplicating the decision.
+  - id: B
+    description: Have the user authorize MB-006f directly in this session's composer.
+    implication: Establishes a new direct authorization if the original source is unavailable.
+  - id: C
+    description: Retain the zero-inference condition.
+    implication: No new canaries or allowance changes; completed MB-006e remains intact.
+recommendation: A
+minimum_human_input: A verified direct authorization for MB-006f, or retain zero inference.
+resolution:
+  resolved_by: human-operator
+  resolved_at: "2026-11-25T06:51:00Z"
+  chosen_option: B
+  notes: |
+    Human directly selected "I authorize this exact MB-006f condition" in this
+    session's confirmation tool. The previous agent-delivered answer was not
+    used as authorization. This is not a human-observed test attestation.

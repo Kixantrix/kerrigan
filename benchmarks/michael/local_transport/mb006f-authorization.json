@@ -1,0 +1,25 @@
+{
+  "activeSeconds": 180,
+  "approvalSha256": "fe243a18000b3b723fee3cb93b3c78c3fdd043ed43d23b33458acde0df538aff",
+  "cleanupSeconds": 15,
+  "condition": "MB-006f",
+  "controllerPromptsPerModel": 1,
+  "models": [
+    "mai-code-2",
+    "claude-sonnet-5.5"
+  ],
+  "priorSlots": {
+    "canary-slots/claude-sonnet-5.5.json": "5d324c806ccc6079f294d32534ae1269c6018216d9d42779b72b3630232d2be8",
+    "canary-slots/mai-code-2.json": "74cbee487c3948102e7b6c7fa0de94886dac81110949aa63d92fe4dd90b5b983"
+  },
+  "retry": false,
+  "scored": false,
+  "source": {
+    "limits.mjs": "cb6ddb0719e253c2a47d475aa05000993dd71148285c95cfdadddb096a7f32f2",
+    "owner.mjs": "187d279f9461eeee01c7836eaa4f65fa66b827f054428643c6cf234fc587d00a",
+    "package.json": "3c123e1ded6398d7cef5d3b8105705d68177d7200d1a60259720325802878327",
+    "runner.py": "afb34179184cb8f0f1bd1c3aa8b0fec5701e98e3d8167678da2a716edd6fee38",
+    "runtime.json": "fd6a8d5e218f28bf7a1e6224b3f1f0d0db8a86e990dc62f725ba1eb5dc038eff",
+    "worker.py": "607090ae5927b75288e4e1de3dcbb3c0a1ba3ae6030cf63dacf0a5f5401a83c9"
+  }
+}

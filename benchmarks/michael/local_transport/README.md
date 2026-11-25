@@ -228,3 +228,33 @@ No scored tasks, substitution, further canary or GitHub PR/merge ran.
 > readiness; every future invocation must also verify HTTPS in its own live
 > confined session before sending a prompt. Both old slots remain spent.
 > No additional inference, model identity proof or platform attestation is claimed.
+
+### MB-006f: corrected-condition attempts, not completed readiness
+
+The human separately authorized local-executor attestation and exactly two new
+controller prompts. `mb006f-authorization.json` freezes the source/approval hash
+and one slot per selected pin in the owned `mb006f/slots` namespace; old slots
+are untouched. Modified/stale approvals and reused slots fail closed. The
+authorized local executor (not a human observer) attests the exact preserved
+macOS evidence plus fresh source-bound native HTTPS, task denial and owned
+controller-loss/deadline proofs in `mb006f-attestation.json` and
+`mb006f-safety.tar.gz`.
+
+Both actual sessions passed strict effective SDK sandbox/single-tool inventory
+and verified native HTTPS before their one prompt. MAI then Sonnet each emitted
+one observed native start, but reached the unchanged 65,536-byte CLI stdout cap
+before any `mb_action` executed. Active/cleanup seconds were 3.863/0.055 and
+2.820/0.048 respectively; both owned exits were proved before proceeding.
+`mb006f-outcomes.json`, `mb006f-canaries.tar.gz` and `mb006f-audit.json` preserve
+all observed starts, safe stream-shape counts and source/config/runtime/CA
+bindings. Native system/instruction text, raw streams and credential state are
+not published.
+
+Both new slots are spent, with no controller retry or substitution. No native
+retry event was observed; events beyond the overflow cutoff are unknown.
+Observed streaming output is not independent backend identity or completed
+task verification. Usage/cost remain unknown, and all results are ungraded.
+The next capability gap is a separately reviewed bounded native event-stream
+configuration that can complete the tool loop without relaxing containment or
+quietly enlarging this budget. Any additional prompts or scoring need new
+authorization; none are enabled by this receipt.
