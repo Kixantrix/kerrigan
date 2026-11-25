@@ -6,9 +6,27 @@ MB-004 adds the offline [ledger/report API](ledger_report/api.py).
 MB-003 adds three [historical replay packages](tasks/packages.py), with
 requirement-only exports and separately retained verification/calibration.
 The contracts alone provide no runtime attestation. Neither the proof nor this
-API is a general runner, public CLI, live telemetry,
+API is a general runner, live telemetry,
 or scored model trial.
 See the [plan](../../specs/projects/michael-bench/plan.md).
+
+## Public offline CLI (MB-005)
+
+The synthetic integer fixture reuses Inspect, MB-002 materials and ledger/report APIs; **not** native identity/isolation proof, a replay trial or model performance. Cloud Linux prerequisites: owned venv with `engine_proof/requirements.txt`, Docker, Compose, pinned `cli/compose.yaml` image and credential-free `DOCKER_CONFIG` (no `config.json`) containing the plugin. Provisioning is timed separately; no local fallback.
+```bash
+python -m benchmarks.michael.cli compare /owned/new/comparison
+bash benchmarks/michael/scripts/smoke.sh /owned/new/smoke-1
+python -m benchmarks.michael.cli recover /owned/interrupted/trial
+```
+
+Modes: success/negative/runtime_error/timeout/background/symlink/special/extra_output/outside/evaluator_error/sentinel_spoof/verifier_tamper/oversized_stdout/oversized_stderr. `--seconds`: default 45, finite 0.1–90. The monotonic cap starts before worker launch, covering imports/setup, agent and verification, independently of the 30-second tool timeout. A **15-second alarm** bounds cleanup/evidence; exhaustion leaves an explicitly recoverable start.
+End-to-end ends after cleanup/evidence collection, before terminal persistence. Queue/provisioning are unknown; setup includes imports. Phases are not summed; deadlines are not completion times. Agent root is read-only, network denied, capabilities dropped; only an owned `/work` volume is mounted, never host checkout/home/socket. Background workers are rejected and the whole agent killed before reading output/staging assertions.
+Only regular `answer.py` (64 KiB; archive 1 MiB) enters a fresh candidate-execution container, without hidden assertions. After it stops, trusted validation consumes only a JSON array of three integers. A separate fresh grader runs the unchanged hidden assertions against a trusted response proxy, never candidate code. Candidate exit/stdout cannot establish a verdict; malformed responses are failed, assertion failure is failed, and evaluator errors are ungraded/error. No success sentinel or secret marker is used. No host archive extraction. Recovery kills owned resources and records interruption without replay. Exit: 0 verified, 2 failed/ungraded, 3 cutoff/interruption/recovery, 4 invalid input/preflight/reserve. Stdout: `{"synthetic":true,"directory":"/owned/new/comparison","exit_status":0}`.
+Candidate and grader stdout **and** stderr are captured incrementally, with separate 65,536-byte limits. Overflow stops the owned attach process/container before grading and records `safety_stop`, an explicit channel-specific output-limit event, CLI exit 3 (comparison exit 2), and unknown completion time. `candidate-capture.json`/`verifier-capture.json` retain capped exact-byte Base64 prefixes, observed lower bounds (not invented stream totals), termination state and capture timing. Docker logging is disabled for these containers; no uncapped daemon log is retained. Existing whole-trial and cleanup reserves still apply.
+The [stream-limit receipt](cli/evidence/stream-proof.json) and [raw proof archive](cli/evidence/stream-proof.tar.gz) retain both overflow cases, cutoff/recovery, two fresh smokes and byte-verified source bindings.
+Retain raw Inspect JSON, immutable checkpoints, process receipts, terminals, SHA-256 bindings, ledgers and reports. Stable descriptors bind fixture/adapter bytes; both arms are synthetic. Reports keep paired times/coverage, failures and unknown/nonadditive usage. Native identity/tools, replay delivery and credits remain gated.
+
+The [grading proof receipt](cli/evidence/grading-proof.json) records exact commands, durations and file hashes for the [raw synthetic archive](cli/evidence/grading-proof.tar.gz). It includes unchanged vulnerable-before receipts (explicitly **invalid completion evidence**), corrected spoof/tamper outcomes, evaluator error, cutoff/recovery, two fresh smokes and the exact tested adapter source snapshot.
 
 ## Historical replay packaging (MB-003)
 
@@ -211,8 +229,7 @@ elapsed time without invented completion time. Safety cutoffs are separate.
 
 `contracts/fixtures/pilot-v1.json` contains no real pilot data.
 Run `python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py -q`.
-These integration checks run on `cloud-linux`; smoke is not applicable until
-MB-005 provides the offline CLI.
+These integration checks run on `cloud-linux`; MB-005 CLI smoke is documented above.
 
 ## Offline ledger and explicit comparisons (MB-004)
 
