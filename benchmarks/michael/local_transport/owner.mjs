@@ -1,9 +1,12 @@
 import { readFileSync, writeFileSync, appendFileSync, openSync, fsyncSync, closeSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
-import { validateAction, nativeFailure } from "./limits.mjs";
+import { createHash } from "node:crypto";
+import { validateAction, nativeFailure, verifiedPublicHttps, canonical } from "./limits.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
+const initialConfig = structuredClone(config);
+const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const { spawn } = await import(pathToFileURL(config.sdk));
 const began = performance.now(), until = began + config.seconds * 1000;
 const live = new Set(), records = [], actions = new Set(), pending = new Map();
@@ -218,16 +221,45 @@ try {
         throw new Error("effective_policy_denied");
     gate = true;
     persist("ready", { nativePrompts: 0, gate: "strict actual inventory/policy" });
-    if (config.transportProbe) {
-        const request = await rpc("gitHubFetch.allocateRequestId");
-        const response = await rpc("gitHubFetch.request", { requestId: request.requestId,
+    if (config.transportProbe || config.model) {
+        const pins = JSON.parse(readFileSync(new URL("./runtime.json", import.meta.url)));
+        const runtime = {
+            cliSha256: hash(readFileSync(config.command.split(" ")[0])),
+            mxcSha256: hash(readFileSync(new URL("../../bin/arm64/mxc-exec-mac", pathToFileURL(config.sdk)))),
+            mxcVersion: JSON.parse(readFileSync(new URL("../../package.json", pathToFileURL(config.sdk)))).version,
+            nodeVersion: process.version, nodeSha256: hash(readFileSync(process.execPath))
+        };
+        const publicCaSha256 = hash(readFileSync(config.environment.SSL_CERT_FILE));
+        if (runtime.cliSha256 !== pins.copilot.executable_sha256 ||
+            runtime.mxcSha256 !== pins.mxc_executor.executable_sha256 ||
+            runtime.mxcVersion !== pins.mxc_executor.version ||
+            publicCaSha256 !== pins.public_transport_ca.sha256 ||
+            config.environment.SSL_CERT_FILE !== config.environment.NODE_EXTRA_CA_CERTS)
+            throw new Error("transport_runtime_pin_mismatch");
+        const allocated = await rpc("gitHubFetch.allocateRequestId");
+        const request = { requestId: allocated.requestId,
             sessionId, method: "HEAD", url: "https://api.github.com/meta", headers: [],
             apiName: "mb_offline_public_ca_probe", timeoutMs: 5000, bodyLimitBytes: 8192,
-            retryOptions: { maxRetries: 0, enableCircuitBreaker: false } });
-        persist("transport", { status: response.status ?? response.response?.status,
-            kind: response.kind, error: response.message, responseKeys: Object.keys(response) });
-        stop(response.kind === "failed" ? "transport_probe_failed" : "transport_probe_complete");
-    } else if (config.model) {
+            retryOptions: { maxRetries: 0, enableCircuitBreaker: false } };
+        const response = await rpc("gitHubFetch.request", request);
+        const verified = verifiedPublicHttps(response);
+        persist("transport", {
+            transportReady: verified, nativePrompts: 0, runtime, publicCaSha256,
+            source: JSON.parse(readFileSync(`${config.receipt}/start.json`)).source,
+            config: initialConfig, configSha256: hash(JSON.stringify(canonical(initialConfig))), request,
+            response: { verified, kind: response?.kind, status: response?.status, url: response?.url,
+                responseKeys: Object.keys(response || {}).sort(),
+                headersCount: Array.isArray(response?.headers) ? response.headers.length : null,
+                bodyBytes: response?.bodyBase64 === "" ? 0 : null,
+                sha256: hash(JSON.stringify(response ?? null)) }
+        });
+        if (!verified) {
+            stop("transport_probe_failed");
+            throw new Error("invalid_native_https_response");
+        }
+        if (config.transportProbe) stop("transport_probe_complete");
+    }
+    if (config.model && !stopping) {
         if (config.approved !== true) throw new Error("containment_not_approved");
         persist("prompt-start", { model: config.model, atMs: performance.now() - began,
             prompt: config.prompt, retries: 0 });
@@ -235,7 +267,7 @@ try {
         await rpc("session.send", { sessionId, prompt: config.prompt,
             agentAuthored: true, source: "agent-MB006d", requiredTool: "mb_action" });
         await transport.wait;
-    } else {
+    } else if (!stopping) {
         for (const [index, item] of (config.diagnostics || []).entries()) {
             const result = await rpc("session.tools.execute", { sessionId, name: "mb_action",
                 toolCallId: config.duplicateIds ? "offline-duplicate" : `offline-${index}`, arguments: item });

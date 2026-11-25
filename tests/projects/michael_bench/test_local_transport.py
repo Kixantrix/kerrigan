@@ -198,6 +198,94 @@ def test_tls_proof_and_exclusive_canary_slot_are_required(tmp_path):
     assert not (tmp_path / "canary-slots").exists()
     value["transportReady"] = True
     approval.write_text(json.dumps(value))
+    with pytest.raises(ProofError, match="TLS transport unproven"):
+        prepare(tmp_path, tmp_path / "unbound", model="mai-code-2", approval=approval)
+    probe = prepare(tmp_path, tmp_path / "probe", transport_probe=True)
+    config = json.loads((probe / "config.json").read_text())
+    pins = json.loads((HERE / "runtime.json").read_text())
+    import hashlib
+    value["transport"] = {
+        "transportReady": True, "nativePrompts": 0, "source": value["source"], "config": config,
+        "configSha256": hashlib.sha256(json.dumps(
+            config, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest(),
+        "publicCaSha256": pins["public_transport_ca"]["sha256"],
+        "runtime": {"cliSha256": pins["copilot"]["executable_sha256"],
+                    "mxcSha256": pins["mxc_executor"]["executable_sha256"],
+                    "mxcVersion": "1.1.0", "nodeVersion": "fixture", "nodeSha256": "0" * 64},
+        "request": {"method": "HEAD", "url": "https://api.github.com/meta", "headers": [],
+                    "timeoutMs": 5000, "bodyLimitBytes": 8192,
+                    "retryOptions": {"maxRetries": 0, "enableCircuitBreaker": False}},
+        "response": {"verified": True, "kind": "response", "status": 200,
+                     "url": "https://api.github.com/meta", "headersCount": 0, "bodyBytes": 0,
+                     "responseKeys": ["bodyBase64", "headers", "kind", "status", "statusText", "url"]},
+    }
+    original = value["transport"]["configSha256"]
+    value["transport"]["configSha256"] = "0" * 64
+    approval.write_text(json.dumps(value))
+    with pytest.raises(ProofError, match="TLS transport unproven"):
+        prepare(tmp_path, tmp_path / "modified", model="mai-code-2", approval=approval)
+    value["transport"]["configSha256"] = original
+    approval.write_text(json.dumps(value))
     prepare(tmp_path, tmp_path / "reserved", model="mai-code-2", approval=approval)
     with pytest.raises(FileExistsError):
         prepare(tmp_path, tmp_path / "retry", model="mai-code-2", approval=approval)
+
+
+def test_native_https_union_fails_closed():
+    script = """
+import {verifiedPublicHttps} from './benchmarks/michael/local_transport/limits.mjs';
+import assert from 'node:assert/strict';
+const good={kind:'response',status:200,statusText:'OK',url:'https://api.github.com/meta',
+            headers:[{name:'content-type',value:'application/json'}],bodyBase64:''};
+assert.equal(verifiedPublicHttps(good),true);
+for(const bad of [null,'ok',{}, {kind:'failed'},{kind:'proxy-response',status:200},
+    {kind:'circuit-breaker'}, {kind:'response',status:200},
+    {...good,status:'200'}, {...good,status:302}, {...good,url:'http://api.github.com/meta'},
+    {...good,bodyBase64:'AA=='}, {...good,headers:[{name:'x',value:3}]},
+    {...good,httpError:{}}, {...good,unexpected:true}])
+    assert.equal(verifiedPublicHttps(bad),false);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script],
+                   cwd=ROOT, check=True, timeout=5)
+
+
+def test_first_failure_cutoff_replays_retained_native_canary_events():
+    import tarfile
+    types = {"model.call_failure", "model.model_call_failure", "model.turn_retry", "assistant.turn_retry"}
+
+    def walk(value):
+        if isinstance(value, dict):
+            if value.get("type") in types:
+                yield value
+            for child in value.values():
+                yield from walk(child)
+        elif isinstance(value, list):
+            for child in value:
+                yield from walk(child)
+
+    fixtures = []
+    with tarfile.open(HERE / "integrated-evidence.tar.gz") as archive:
+        for member in archive.getmembers():
+            if not member.name.endswith("terminal-safe.json"):
+                continue
+            retained = json.load(archive.extractfile(member))
+            if retained.get("requestedModel") in ("mai-code-2", "claude-sonnet-5.5"):
+                events = list(walk(retained))
+                assert events and any(event["type"] == "model.call_failure" for event in events)
+                fixtures.append({"model": retained["requestedModel"], "events": events})
+    assert len(fixtures) == 2
+    script = """
+import {nativeFailure} from './benchmarks/michael/local_transport/limits.mjs';
+import assert from 'node:assert/strict';
+for(const fixture of JSON.parse(process.argv[1])) {
+    let calls=0, stopped=false;
+    for(const event of fixture.events) {
+        if(stopped) continue;
+        calls++;
+        stopped=Boolean(nativeFailure(event,fixture.model));
+    }
+    assert.equal(stopped,true); assert.equal(calls,1);
+}
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(fixtures)],
+                   cwd=ROOT, check=True, timeout=5)

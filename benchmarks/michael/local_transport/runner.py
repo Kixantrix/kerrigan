@@ -1,4 +1,5 @@
 """Local scenario controller; the separate Node owner alone holds MXC handles."""
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -9,6 +10,8 @@ from proof import MODELS, ProofError, digest, environment, fresh, persist
 HERE = Path(__file__).resolve().parent
 SOURCES = ("owner.mjs", "worker.py", "runner.py", "limits.mjs", "runtime.json", "package.json")
 PYTHON = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3"
+CLI_FLAGS = ("--headless --stdio --sandbox --no-auto-update --disable-builtin-mcps "
+             "--no-ask-user --disallow-temp-dir --sync-session=off --log-level=none")
 
 
 def profile(task, credential, *, transport=False):
@@ -40,6 +43,8 @@ def profile(task, credential, *, transport=False):
         rules.append(f'(deny file-read* file-read-metadata file-write* (subpath "{path}"))')
     if transport:
         rules.extend([
+            '(allow mach-lookup (global-name "com.apple.SecurityServer") '
+            '(global-name "com.apple.trustd") (global-name "com.apple.trustd.agent"))',
             f'(allow file-read* (subpath "{credential.parent / "install"}"))',
             f'(allow file-read* (literal "{credential.parent / "trust/cacert.pem"}"))',
             f'(allow file-read* file-write* (subpath "{credential / "cli"}") '
@@ -50,6 +55,61 @@ def profile(task, credential, *, transport=False):
     else:
         rules.append(f'(deny file-read* file-read-metadata file-write* (subpath "{credential}"))')
     return "\n".join(rules) + "\n"
+
+
+def bound_transport(value, expected, owned):
+    if not isinstance(value, dict):
+        return False
+    witness = value.get("transport")
+    if value.get("transportReady") is not True or not isinstance(witness, dict):
+        return False
+    config, response, request = (witness.get(key) for key in ("config", "response", "request"))
+    runtime = witness.get("runtime")
+    if not all(isinstance(item, dict) for item in (config, response, request, runtime)):
+        return False
+    pins = json.loads((HERE / "runtime.json").read_text())
+    encoded = json.dumps(config, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    env = config.get("environment", {})
+    credential = Path(owned) / "access-only"
+    task = config.get("task")
+    if not isinstance(task, str) or not isinstance(env, dict):
+        return False
+    if (Path(owned) / "install/copilot").exists():
+        if (runtime.get("cliSha256") != digest(Path(owned) / "install/copilot")
+                or runtime.get("mxcSha256") != digest(
+                    Path(owned) / "sdk/node_modules/@microsoft/mxc-sdk/bin/arm64/mxc-exec-mac")
+                or runtime.get("nodeSha256") != digest(Path("/opt/homebrew/bin/node"))):
+            return False
+    return (
+        witness.get("transportReady") is True and witness.get("nativePrompts") == 0
+        and witness.get("source") == expected
+        and witness.get("configSha256") == hashlib.sha256(encoded).hexdigest()
+        and witness.get("publicCaSha256") == pins["public_transport_ca"]["sha256"]
+        and runtime.get("cliSha256") == pins["copilot"]["executable_sha256"]
+        and runtime.get("mxcSha256") == pins["mxc_executor"]["executable_sha256"]
+        and runtime.get("mxcVersion") == pins["mxc_executor"]["version"]
+        and isinstance(runtime.get("nodeVersion"), str)
+        and isinstance(runtime.get("nodeSha256"), str) and len(runtime["nodeSha256"]) == 64
+        and config.get("model") is None and config.get("transportProbe") is True
+        and config.get("command") == f"{Path(owned) / 'install/copilot'} {CLI_FLAGS}"
+        and config.get("diagnostics") == [] and config.get("hold") is False
+        and config.get("sdk") == str(Path(owned) / "sdk/node_modules/@microsoft/mxc-sdk/dist/v1/index.js")
+        and env == {**environment(credential), "SSL_CERT_FILE": str(Path(owned) / "trust/cacert.pem"),
+                    "NODE_EXTRA_CA_CERTS": str(Path(owned) / "trust/cacert.pem")}
+        and env.get("SSL_CERT_FILE") == env.get("NODE_EXTRA_CA_CERTS") ==
+            str(Path(owned) / "trust/cacert.pem")
+        and config.get("cliProfile") == profile(Path(task), credential, transport=True)
+        and config.get("taskProfile") == profile(Path(task), credential)
+        and request.get("url") == "https://api.github.com/meta" and request.get("method") == "HEAD"
+        and request.get("headers") == [] and request.get("timeoutMs") == 5000
+        and request.get("bodyLimitBytes") == 8192
+        and request.get("retryOptions") == {"maxRetries": 0, "enableCircuitBreaker": False}
+        and response.get("verified") is True and response.get("kind") == "response"
+        and response.get("status") == 200 and response.get("url") == request["url"]
+        and response.get("responseKeys") == ["bodyBase64", "headers", "kind", "status", "statusText", "url"]
+        and response.get("bodyBytes") == 0
+        and type(response.get("headersCount")) is int and response["headersCount"] >= 0
+    )
 
 
 def prepare(owned, path, *, seconds=10, diagnostics=(), model=None, approval=None,
@@ -72,12 +132,13 @@ def prepare(owned, path, *, seconds=10, diagnostics=(), model=None, approval=Non
     approved = False
     if model:
         expected = {name: digest(HERE / name) for name in SOURCES}
-        if not approval or json.loads(Path(approval).read_text()).get("source") != expected:
+        proof = json.loads(Path(approval).read_text()) if approval else None
+        if not isinstance(proof, dict) or proof.get("source") != expected:
             raise ProofError("bound containment approval required")
-        approved = json.loads(Path(approval).read_text()).get("passed") is True
+        approved = proof.get("passed") is True
         if not approved:
             raise ProofError("containment failed")
-        if json.loads(Path(approval).read_text()).get("transportReady") is not True:
+        if not bound_transport(proof, expected, owned):
             raise ProofError("native TLS transport unproven; inference remains gated")
         slots = owned / "canary-slots"
         slots.mkdir(exist_ok=True)
@@ -90,8 +151,7 @@ def prepare(owned, path, *, seconds=10, diagnostics=(), model=None, approval=Non
         "environment": {**environment(credential), "SSL_CERT_FILE": str(owned / "trust/cacert.pem"),
                         "NODE_EXTRA_CA_CERTS": str(owned / "trust/cacert.pem")},
         "model": model, "approved": approved, "transportProbe": transport_probe,
-        "command": f"{owned / 'install/copilot'} --headless --stdio --sandbox --no-auto-update "
-        "--disable-builtin-mcps --no-ask-user --disallow-temp-dir --sync-session=off --log-level=none"
+        "command": f"{owned / 'install/copilot'} {CLI_FLAGS}"
         + (f" --model {model}" if model else ""),
         "cliProfile": profile(task, credential, transport=True),
         "taskProfile": profile(task, credential), "diagnostics": list(diagnostics), "hold": hold,

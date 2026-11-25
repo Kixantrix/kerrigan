@@ -22,3 +22,22 @@ export function nativeFailure(event, expectedModel) {
         return "native_model_identity_mismatch";
     return null;
 }
+
+export function verifiedPublicHttps(response) {
+    const keys = "bodyBase64,headers,kind,status,statusText,url";
+    return response !== null && typeof response === "object" && !Array.isArray(response) &&
+        Object.keys(response).sort().join(",") === keys && response.kind === "response" &&
+        response.status === 200 && typeof response.statusText === "string" &&
+        response.url === "https://api.github.com/meta" && response.bodyBase64 === "" &&
+        Array.isArray(response.headers) && response.headers.every(header =>
+            header !== null && typeof header === "object" &&
+            Object.keys(header).sort().join(",") === "name,value" &&
+            typeof header.name === "string" && typeof header.value === "string");
+}
+
+export function canonical(value) {
+    if (Array.isArray(value)) return value.map(canonical);
+    if (value !== null && typeof value === "object")
+        return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])]));
+    return value;
+}

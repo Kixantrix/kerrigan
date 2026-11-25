@@ -209,7 +209,8 @@ settings with the public OS PEM and a SHA-pinned Mozilla PEM still failed native
 HTTPS with `bad certificate format`. No Keychain item, private auth state,
 shared setting or system trust configuration was read/copied/changed.
 The explicit PEM is **not a proven workaround**. Model preparation now also
-requires a positive bound `transportReady` receipt; no such receipt exists.
+requires a positive bound `transportReady` receipt; none existed at MB-006d
+closure. The MB-006e receipt below does not restore either spent slot.
 The remaining decision is in [MB-006d-block.yaml](MB-006d-block.yaml).
 
 Native byte-exact captures remain private in owned state. Published projections
@@ -217,3 +218,13 @@ omit native system/instruction text and HTTP bodies/headers; hashes, counts,
 monotonic times, actual inventory/policy and all observed model starts/failures/
 retries are retained. Original partial/negative receipts remain historical.
 No scored tasks, substitution, further canary or GitHub PR/merge ran.
+
+> **MB-006e, non-inference:** native HTTPS works with the pinned public PEM and
+> the smallest tested trusted-CLI IPC grant: `com.apple.SecurityServer`,
+> `com.apple.trustd`, `com.apple.trustd.agent`. No-fork, `securityd`/Keychain-file
+> denials and the separate task profile remain intact. See `tls-diagnosis.json`
+> and `tls-evidence.tar.gz` for source/config-bound controls and current native
+> verification. Unknown/malformed/proxy/failure responses cannot establish
+> readiness; every future invocation must also verify HTTPS in its own live
+> confined session before sending a prompt. Both old slots remain spent.
+> No additional inference, model identity proof or platform attestation is claimed.
