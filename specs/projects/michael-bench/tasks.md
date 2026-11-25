@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Implementation roadmap: contracts, bounded engine proof, ledger/report, and MB-003 packages are integrated; MB-005 is the next scoped dispatch. Native model trials remain gated. Suggested implementation paths below are to be finalized in briefing packets.
+Implementation roadmap: contracts, bounded engine proof, ledger/report, MB-003 packages, and MB-005 offline CLI are integrated. Native model trials remain gated; MB-006b is blocked before inference by endpoint DNS resolution. Suggested implementation paths below are to be finalized in briefing packets.
 
 ## Milestone 1
 
@@ -32,11 +32,12 @@ Implementation roadmap: contracts, bounded engine proof, ledger/report, and MB-0
   - Timing requirement: actual time to independently verified completion, with queue/setup/agent/verification phases, paired per-task times, all-attempt elapsed accounting, and unfinished trials reported without completion times. Success-only statistics must disclose denominators.
   - Closed implemented slice: [MB-004 briefing](../../../.specify/briefings/MB-004.md); offline ledger/report fixtures only, not permission to execute the cloud comparison.
   - Implemented API through `0e81c63`, 142 focused checks passed; actual controller/event transport and full runtime AC-MB-004 remain gated on executable integration. Typed additivity and configuration-payload compatibility were corrected before integration.
-- [ ] MB-005: Add the offline CLI smoke path.
+- [x] MB-005: Add the offline CLI smoke path.
   - Done when: AC-MB-008 passes from clean isolated state twice without credentials; CLI invocation is documented with its verified command.
   - Scope: future CLI entry point, project smoke script, and operator documentation.
   - Dependencies: MB-003, MB-004.
   - Closed next slice: [MB-005 briefing](../../../.specify/briefings/MB-005.md); integrate the fake-model CLI/ledger/report path and whole-trial sandbox cutoff/quiescence proof, without native scored model calls.
+  - Implemented through `a41376d`: two fresh owned-state synthetic smoke runs pass with dependencies/image preprovisioned; 161 cloud checks cover independent grading, false-success rejection, bounded stdout/stderr, cutoff and recovery. See committed CLI evidence receipts. No model scores or native transport proof.
 
 ## Milestones 3 and 4
 
