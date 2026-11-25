@@ -1,6 +1,6 @@
 # Plan: Michael Bench
 
-Status: MB-001a historical import and MB-001b versioned contracts completed. MB-002 offline engine/isolation proof is next; scored trials remain gated.
+Status: MB-001a/b contracts and the bounded MB-002 offline engine proof are integrated. MB-004 ledger/report is next; calibrated packages, full-trial controls, and scored cloud-session trials remain gated.
 
 ## Prior decisions
 
@@ -56,6 +56,8 @@ Inventory the actual pilot source and sanitized evidence schema. Preserve histor
 
 Prefer Inspect for broader evaluation composition or Harbor for task/environment packaging only after the compatibility evidence. If neither preserves requirements with a small adapter, document the specific gap before proposing a custom runner. No speculative framework rewrite.
 
+MB-002, commit `fe63f63`, demonstrated one Inspect AI 0.3.292 scripted mock task in a digest-pinned Docker sandbox, positive/negative independent verification after solver stop, event/timing export, failure fixtures, and killed-controller recovery. The full run retained 109 contract and six sandbox passes; the strengthened interruption test passed separately after its probe was corrected. No cases were skipped. This selects Inspect only for the bounded fixture: whole-trial deadlines, adversarial process quiescence, and native Copilot-session identity/isolation are not proven. Raw synthetic receipts remain on the execution host; committed verification.md records exact commands, digests, cleanup, and limitations. No model performance result exists yet.
+
 Deliverable: reproducible offline runner slice and a documented engine decision. No inference required.
 
 ## Milestone 2: Three coding replays and honest reporting
@@ -90,7 +92,7 @@ Begin family-specific recommendations for interactive, background, offline/priva
 
 ## Dispatch and routing
 
-Implementation tasks are listed in [tasks.md](tasks.md). MB-001a and MB-001b are integrated. MB-002 is the next closed engine/isolation proof; subsequent calibration/report slices remain gated on its verified handoff. Create scoped briefings and run conflict prediction before parallel assignment. Contracts do not imply an implemented CLI.
+Implementation tasks are listed in [tasks.md](tasks.md). MB-001a/b and bounded MB-002 are integrated. MB-004 is the next closed ledger/report slice; replay calibration, runnable CLI, and actual cloud-session safety/identity proofs remain required before scored execution. Create scoped briefings and run conflict prediction before parallel assignment. Contracts and a fake-model fixture do not imply an implemented benchmark.
 
 Offline contracts, fixtures, reporting, and fake-model smoke work: `R-cloud-default`, using sanitized repository-contained materials.
 

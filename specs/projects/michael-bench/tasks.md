@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Implementation roadmap: MB-001a and MB-001b are integrated; MB-002 is the next scoped dispatch. Subsequent slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
+Implementation roadmap: MB-001a/b and bounded MB-002 are integrated; MB-004 is the next scoped dispatch. Subsequent slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
 
 ## Milestone 1
 
@@ -15,6 +15,7 @@ Implementation roadmap: MB-001a and MB-001b are integrated; MB-002 is the next s
   - Scope: future `benchmarks/michael/` adapter spike and fixture tests; no model downloads or live endpoints.
   - Dependencies: MB-001.
   - Closed execution scope: [MB-002 briefing](../../../.specify/briefings/MB-002.md). Synthetic evidence only; prove real sandbox/verifier separation rather than relying on descriptor labels.
+  - Implemented bounded fixture: `fe63f63`, Inspect AI 0.3.292/Docker, executed success/failure/cancellation/timeout/interruption evidence. Whole-trial caps, adversarial quiescence, and actual Copilot-session isolation/identity remain unproven; see `benchmarks/michael/engine_proof/verification.md`.
 
 ## Milestone 2
 
@@ -27,6 +28,7 @@ Implementation roadmap: MB-001a and MB-001b are integrated; MB-002 is the next s
   - Scope: future runner/report modules and focused tests; preserve all attempts and separate diagnostic/practical/historical cohorts.
   - Dependencies: MB-001, MB-002.
   - Timing requirement: actual time to independently verified completion, with queue/setup/agent/verification phases, paired per-task times, all-attempt elapsed accounting, and unfinished trials reported without completion times. Success-only statistics must disclose denominators.
+  - Closed next slice: [MB-004 briefing](../../../.specify/briefings/MB-004.md); offline ledger/report fixtures only, not permission to execute the cloud comparison.
 - [ ] MB-005: Add the offline CLI smoke path.
   - Done when: AC-MB-008 passes from clean isolated state twice without credentials; CLI invocation is documented with its verified command.
   - Scope: future CLI entry point, project smoke script, and operator documentation.
