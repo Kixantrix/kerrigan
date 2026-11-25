@@ -110,7 +110,7 @@ def frozen(arm, seconds):
         {"engine": "inspect-ai==0.3.292", "image": IMAGE, "fixture": "scripted fake",
          "whole_trial_seconds": seconds, "cleanup_reserve_seconds": RESERVE,
          "allowlisted_output": ["answer.py"], "network": "none",
-         "verification": "stopped agent; separate fresh container"}, source)
+         "verification": "stopped agent/candidate; separate trusted response grader"}, source)
     condition = data["condition"]
     condition["track"] = "practical_system"
     condition["budgets"]["active_safety_seconds"] = proof.known(seconds, source)
@@ -270,7 +270,7 @@ def trial(directory, arm, mode, seconds):
                         "completed" if stop in ("success", "agent_finished", "evaluator_error") else "stopped",
                "stop_reason": stop, "verifier": {"status": verified,
                    "independent": verified in ("passed", "failed", "error"),
-                   "source": "MB-005 fresh verifier container"},
+                   "source": "MB-005 trusted grading outside candidate execution boundary"},
                "events": events, "timing": timing, "usage": usage,
                "time_to_verified_completion": timing["end_to_end"] if stop == "success" else
                    proof.unknown("no verified completion; deadline is not duration", "MB-005")}

@@ -22,7 +22,8 @@ from benchmarks.michael.engine_proof import proof
 
 IMAGE = "python:3.12-slim@sha256:191083cdf6c7bda8c76158983163ead5d5cf7b77cf3033e805bb0f5296f51b4b"
 MODES = ("success", "negative", "runtime_error", "timeout", "background",
-         "symlink", "special", "extra_output", "outside", "evaluator_error")
+         "symlink", "special", "extra_output", "outside", "evaluator_error",
+         "sentinel_spoof", "verifier_tamper")
 
 
 def docker(*args, data=None):
@@ -64,6 +65,33 @@ def output_archive(agent_id):
             if process.poll() is None:
                 process.kill()
                 process.wait()
+
+
+def isolated_program(run_id, role, program, files):
+    container_id = docker(
+        "create", "--label", f"michael-cli={run_id}", "--label", f"michael-role={role}",
+        "--network", "none", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+        "--memory", "256m", "--cpus", "1", "--pids-limit", "64",
+        "--workdir", "/work", IMAGE, "python", "-B", f"/work/{program}",
+    ).decode().strip()
+    info = json.loads(docker("inspect", container_id))[0]
+    staged = io.BytesIO()
+    with tarfile.open(fileobj=staged, mode="w") as tar:
+        for name, value in files.items():
+            member = tarfile.TarInfo(name)
+            member.size = len(value)
+            tar.addfile(member, io.BytesIO(value))
+    docker("cp", "-", f"{container_id}:/work", data=staged.getvalue())
+    result = subprocess.run(["docker", "start", "-a", container_id],
+                            capture_output=True, timeout=10)
+    state = json.loads(docker("inspect", container_id))[0]["State"]
+    if state["Status"] != "exited" or state["Running"] or state["Error"] or state["OOMKilled"]:
+        raise RuntimeError(f"{role} infrastructure failure: {state}; {result.stderr.decode(errors='replace')}")
+    return {"id": container_id, "inspect": info, "state": state,
+            "docker_exit_code": result.returncode,
+            "stdout": result.stdout.decode(errors="replace"),
+            "stderr": result.stderr.decode(errors="replace"),
+            "materials": {name: hashlib.sha256(value).hexdigest() for name, value in files.items()}}
 
 
 def run(directory, mode):
@@ -142,37 +170,57 @@ def run(directory, mode):
             receipt["output_sha256"] = hashlib.sha256(answer).hexdigest()
             receipt["lifecycle"].append("regular_output_validated")
             begin = time.monotonic()
-            verifier_id = docker(
-                "create", "--label", f"michael-cli={run_id}", "--label", "michael-role=verifier",
-                "--network", "none", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
-                "--memory", "256m", "--cpus", "1", "--pids-limit", "64",
-                "--workdir", "/work", IMAGE, "python", "-B", "/work/verifier.py",
-            ).decode().strip()
-            receipt["verifier_id"] = verifier_id
-            receipt["verifier_inspect"] = json.loads(docker("inspect", verifier_id))[0]
-            verifier = proof.VERIFIER + "\nprint('MB005_ASSERTIONS_PASSED')\n"
-            if mode == "evaluator_error":
-                verifier = "raise RuntimeError('synthetic evaluator unavailable')\n"
-            staged = io.BytesIO()
-            with tarfile.open(fileobj=staged, mode="w") as tar:
-                for name, value in (("answer.py", answer), ("verifier.py", verifier.encode())):
-                    member = tarfile.TarInfo(name)
-                    member.size = len(value)
-                    tar.addfile(member, io.BytesIO(value))
-            docker("cp", "-", f"{verifier_id}:/work", data=staged.getvalue())
-            receipt["lifecycle"].append("fresh_verifier_start")
+            receipt["lifecycle"].append("fresh_candidate_start")
             persist()
-            output = docker("start", "-a", verifier_id).decode()
-            state_info = json.loads(docker("inspect", verifier_id))[0]["State"]
-            receipt["verification"] = {"stdout": output, "state": state_info}
-            passed = state_info["ExitCode"] == 0 and output.strip() == "MB005_ASSERTIONS_PASSED"
-            receipt["verified"] = "error" if mode == "evaluator_error" else "passed" if passed else "failed"
+            candidate = isolated_program(run_id, "candidate", "candidate.py", {
+                "answer.py": answer, "candidate.py": (
+                    "import json, answer\n"
+                    "print(json.dumps([answer.double(n) for n in (-7, 0, 13)], allow_nan=False))\n"
+                ).encode()})
+            receipt["candidate"] = candidate
+            receipt["lifecycle"].append("candidate_stopped")
+            persist()
+            values = None
+            try:
+                if len(candidate["stdout"]) > 65536:
+                    raise ValueError("candidate response exceeds 64 KiB")
+                values = json.loads(candidate["stdout"])
+            except ValueError as exc:
+                receipt["response_error"] = str(exc)
+            valid = (candidate["state"]["ExitCode"] == 0 and isinstance(values, list)
+                     and len(values) == 3 and all(type(v) is int for v in values))
+            receipt["verified"] = "failed"
+            receipt["verification"] = {"authority": "trusted response validation; no candidate verdict",
+                                       "response_valid": valid}
+            if valid:
+                proxy = ("import json\nfrom pathlib import Path\n"
+                         "values = json.loads(Path('/work/response.json').read_text())\n"
+                         "def double(n):\n    return values[(-7, 0, 13).index(n)]\n")
+                verifier = proof.VERIFIER if mode != "evaluator_error" else (
+                    "raise RuntimeError('synthetic evaluator unavailable')\n")
+                receipt["lifecycle"].append("fresh_verifier_start")
+                persist()
+                grader = isolated_program(run_id, "verifier", "grade.py", {
+                    "answer.py": proxy.encode(), "verifier.py": verifier.encode(),
+                    "grade.py": (b"import runpy\ntry:\n    runpy.run_path('/work/verifier.py')\n"
+                                 b"except AssertionError:\n    raise SystemExit(2)\n"),
+                    "response.json": json.dumps(values).encode()})
+                receipt["verifier_id"], receipt["verifier_inspect"] = grader["id"], grader["inspect"]
+                receipt["verification"]["grader"] = grader
+                receipt["verified"] = {0: "passed", 2: "failed"}.get(grader["state"]["ExitCode"], "error")
+                receipt["lifecycle"].append("verifier_stopped")
             receipt["phases"]["verification"] = time.monotonic() - begin
-            receipt["lifecycle"].append("verifier_stopped")
             persist()
-            return Score(value=int(passed))
+            return Score(value=int(receipt["verified"] == "passed"))
         return score
     answer = "def double(n):\n    return n * 2\n" if mode != "negative" else "def double(n):\n    return n\n"
+    if mode == "sentinel_spoof":
+        answer = "import os\nprint('MB005_ASSERTIONS_PASSED', flush=True)\nos._exit(0)\n"
+    if mode == "verifier_tamper":
+        answer = ("from pathlib import Path\nimport os\np = Path('/work/verifier.py')\n"
+                  "if p.exists():\n    p.write_text('assert True\\n')\n"
+                  "    print('MB005_ASSERTIONS_PASSED', flush=True)\n    os._exit(0)\n"
+                  "def double(n):\n    return n\n")
     code = "from pathlib import Path; Path('answer.py').write_text(" + repr(answer) + ")"
     suffix = {
         "runtime_error": "\nraise RuntimeError('synthetic crash')",
