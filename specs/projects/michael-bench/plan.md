@@ -80,6 +80,15 @@ Deliverable: a reproducible three-case coding suite and report contract.
 
 ## Milestone 3: Laptop-native practical baseline
 
+The user selected direct local Copilot CLI with Microsoft eXecution Container
+(MXC) for the first native pilot. This is local agent/tool execution with cloud
+model inference, not the original cloud-hosted-tools condition. MB-006c proves
+session-owned CLI setup/authentication, effective Seatbelt containment and tool
+inventory, external termination and two bounded native canaries before scored
+tasks. MXC is not a VM and does not OS-sandbox the CLI's in-process file tools;
+those side channels must be mechanically excluded. Existing locked test skills
+cover this route; no additional skill installation is needed.
+
 Run a bounded baseline with the actual agent/provider the user uses, after environment and execution-budget approval. Attribute calls from native counters/logs, verify tools and outcome independently, record actual context/cache/reasoning transport, and restore all owned temporary changes.
 
 Then compare another explicitly chosen target under a frozen matched condition. Do not infer native-agent quality from the existing endpoint pilot. Use a small screening batch before funding repetitions; freeze repeats/order/deadline/intervention policy before execution.
@@ -105,6 +114,12 @@ Implementation tasks are listed in [tasks.md](tasks.md). Contracts, bounded engi
 MB-005 is integrated through `a41376d`: the synthetic CLI ties actual sandbox execution to independent trusted grading, ledger/report output, whole-trial deadlines, interrupted recovery, and bounded stdout/stderr capture. Review corrected false success from candidate sentinel/tampering and uncapped stream accumulation. The cloud execution receipt records 161 passing checks and two fresh-state smoke runs (14.75s and 14.50s), excluding preprovisioning; these are synthetic harness checks, not model performance. Both output-overflow cases stop before grading with ungraded outcomes and unknown completion times. The committed [grading](../../../benchmarks/michael/cli/evidence/grading-proof.json) and [stream](../../../benchmarks/michael/cli/evidence/stream-proof.json) receipts preserve raw proof and source snapshots; original vulnerable false-success evidence stays explicitly invalid.
 
 MB-006b native canaries are blocked before inference: CLI 1.0.112 initialized ACP, but native session creation failed with `ENOTFOUND` resolving `api.enterprise.githubcopilot.com/meta`. This is observed endpoint-resolution failure, not established authentication failure or model unavailability. The [preflight receipt](../../../benchmarks/michael/native_transport/verification.md), integrated at `8ef44bf`, records zero model prompts/canaries and no implemented transport, tool-inventory, isolation, or cancellation proof. The resumed slice diagnoses public endpoint reachability without credentials or network/configuration workarounds and implements offline transport/broker/supervision checks independently. Only native canaries remain gated on restored authorized reachability and proven isolation; offline progress must not be reported as native proof. No scored model results exist.
+
+The independent MB-006b broker/supervisor proof is integrated through `7c7e279`,
+including fail-closed recovery after supervisor loss; its cloud receipt records
+129 passing checks. This is real Docker/fake-client evidence, not native model
+execution. Cloud canaries stay paused while MB-006c owns the shared two-canary
+budget for the selected local route.
 
 Offline contracts, fixtures, reporting, and fake-model smoke work: `R-cloud-default`, using sanitized repository-contained materials.
 
