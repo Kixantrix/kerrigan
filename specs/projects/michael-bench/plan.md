@@ -243,3 +243,12 @@ still apply: credential state stays uninspected, there is no host execution of
 generated code, and limits are finite and frozen per condition. Attempts,
 retries and errors are preserved, and unknowns are never treated as zero. The
 human receives a single comparative report afterwards.
+
+User, follow-up: "That doesn't mean btw that if something fails you skip it. You
+are expected to make the system work."
+
+Harness, transport, provider-limit or environment failures do not end the
+evaluation. The executor diagnoses each one, fixes it, re-freezes the condition
+and reruns as a new, disclosed attempt. The failed attempt is preserved and is
+never relabeled as a model outcome. A model's own failure on the task is a
+result, so it is not "fixed" by rerunning; it is preserved.
