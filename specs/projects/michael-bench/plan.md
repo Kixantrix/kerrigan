@@ -102,6 +102,8 @@ Begin family-specific recommendations for interactive, background, offline/priva
 
 Implementation tasks are listed in [tasks.md](tasks.md). Contracts, bounded engine proof, ledger/report, and calibrated packages are integrated. MB-005 is the next closed offline CLI/full-trial-control slice. Native cloud-session identity and tool-boundary isolation must still be demonstrated before scored execution. Create scoped briefings and run conflict prediction before parallel assignment.
 
+MB-006b is blocked before inference: CLI 1.0.112 initialized ACP, but native session creation failed with `ENOTFOUND` resolving `api.enterprise.githubcopilot.com/meta`. This is observed endpoint-resolution failure, not established authentication failure or model unavailability. The [preflight receipt](../../../benchmarks/michael/native_transport/verification.md), integrated at `8ef44bf`, records zero model prompts/canaries and no implemented transport, tool-inventory, isolation, or cancellation proof. Resume only after authorized endpoint reachability is restored outside this slice; all proof gates remain required. No scored model results exist.
+
 Offline contracts, fixtures, reporting, and fake-model smoke work: `R-cloud-default`, using sanitized repository-contained materials.
 
 Laptop-native integration and telemetry: `R-local.os-specific` / `R-local.device-io`. Personal credentials, if required, additionally match `R-local.paid-secret`. Local attestation applies to hardware evidence.
