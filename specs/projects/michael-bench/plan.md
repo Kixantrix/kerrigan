@@ -129,6 +129,15 @@ authorized local-agent attestation and two fresh, sequential 180+15-second
 canaries, one per selected model. Preserve exhausted MB-006d slots separately;
 this is readiness evidence, not a scored benchmark.
 
+MB-006f is retained through `6fc4794`. Both sessions passed live HTTPS and
+effective sandbox/tool checks and emitted matching native model-call starts,
+but the 65,536-byte aggregate CLI stdout cap stopped them before tool execution.
+MAI active/cleanup was 3.863s/0.055s; Sonnet 2.820s/0.048s. These are cutoff
+durations, not completion times. Both new slots are spent, no retry event was
+observed before cutoff, later events and full usage/backend identity remain
+unknown. [MB-006g](../../../.specify/briefings/MB-006g.md) addresses protocol
+versus candidate-output budgets with offline evidence only, zero new prompts.
+
 After the bench reliably grades real tasks, measures independently verified
 completion time and preserves lifecycle/cost evidence, coordinate with the
 existing **Local AI setup** session to evaluate its models. Freeze the current
