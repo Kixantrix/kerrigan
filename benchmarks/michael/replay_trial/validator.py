@@ -19,7 +19,9 @@ PROMPT = (
     "Each public run has a 30-second deadline; timeouts and truncated output are feedback. "
     "No subprocesses, network, other files or hidden grading queries. "
     "At most 127 agent actions (one final source read reserved), 32 KiB per file/channel, "
-    "256 KiB/action, 4 MiB aggregate input, 1 MiB aggregate task output, 3600 active seconds. "
+    "256 KiB/action, 4 MiB aggregate input, 1 MiB aggregate retained task output "
+    "(32 KiB reserved for final collection); excess emitted output is drained, counted and discarded. "
+    "Retained-output exhaustion stops for partial grading, not completion. 3600 active seconds. "
     "Stop when finished; the independent verifier runs only after native cleanup."
 )
 TASK_RUN = (
