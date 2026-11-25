@@ -97,6 +97,13 @@ Full effective native tool policy and escaped-descendant cutoff remain unproven;
 the executor is continuing those gates. Direct-child reaping is explicitly
 insufficient and does not permit canaries.
 
+The MB-006c addendum at `b386fa8` records actual single external-tool inventory,
+explicit SDK-session sandbox policy, fork/posix_spawn denials and live-handle
+cancellation of a non-forking task. The handler is still a stub; those component
+receipts do not prove integrated execution/recovery. Its implementation-turn
+block is resolved by the explicit MB-006d continuation, using the same local
+executor and unchanged two-canary allowance.
+
 Run a bounded baseline with the actual agent/provider the user uses, after environment and execution-budget approval. Attribute calls from native counters/logs, verify tools and outcome independently, record actual context/cache/reasoning transport, and restore all owned temporary changes.
 
 Then compare another explicitly chosen target under a frozen matched condition. Do not infer native-agent quality from the existing endpoint pilot. Use a small screening batch before funding repetitions; freeze repeats/order/deadline/intervention policy before execution.

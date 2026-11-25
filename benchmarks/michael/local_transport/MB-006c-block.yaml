@@ -25,3 +25,11 @@ options:
     implication: No further execution or spending; the benchmark remains incomplete.
 recommendation: A
 minimum_human_input: "Authorize continuation and state its implementation-turn cap."
+resolution:
+  resolved_by: kerrigan
+  resolved_at: "2026-11-25T05:43:27.695Z"
+  chosen_option: A
+  notes: |
+    MB-006d explicitly grants a separate continuation of at most 40 implementation
+    turns in the existing executor. The two-total native canary allowance is
+    unchanged; no additional model, retry or scored task is authorized.
