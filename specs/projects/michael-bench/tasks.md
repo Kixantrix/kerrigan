@@ -49,6 +49,8 @@ Implementation roadmap: contracts, bounded engine proof, ledger/report, MB-003 p
   - Explicit bounded continuation: [MB-006d briefing](../../../.specify/briefings/MB-006d.md), integrate the evaluated strict SDK session and no-fork MXC/lifetime mechanisms. Reuse the existing local executor and two-canary allowance; no additional inference budget or scored historical task.
   - TLS follow-up: [MB-006e briefing](../../../.specify/briefings/MB-006e.md), at most 20 implementation turns and zero model prompts. Both original canary slots failed before task actions and remain spent; native trust readiness must be established without weakening containment.
   - MB-006e integrated at `fd776dc`: source/config-bound native HTTPS passed with the three-service public-trust grant confined to the trusted transport. Task policy and original evidence are preserved. Platform attestation and separately frozen fresh-canary authorization remain pending.
+  - [MB-006f](../../../.specify/briefings/MB-006f.md) authorizes local-agent attestation and two fresh corrected-condition canaries, one per selected model, 180+15 seconds each. Do not reuse original spent slots or claim scored-task completion.
+  - After reliable real-task grading, completion timing and lifecycle evidence, coordinate with **Local AI setup** on its frozen model/runtime inventory and separate local-model conditions. Preserve the historical pilot without relabeling or pooling.
 - [ ] MB-007: Prove one self-hosted and one cloud target.
   - Done when: AC-MB-007 has target-specific attestation and identical contract versions, with unavailable cloud telemetry explicitly unknown.
   - Scope: approved disposable target adapters and capability scenarios; no production operations.

@@ -124,6 +124,18 @@ platform attestation and a separately authorized fresh canary condition remain
 pending; neither original slot is restored, and model usage/identity remain
 unknown. See `benchmarks/michael/local_transport/tls-diagnosis.json`.
 
+The corrected-condition follow-up is [MB-006f](../../../.specify/briefings/MB-006f.md):
+authorized local-agent attestation and two fresh, sequential 180+15-second
+canaries, one per selected model. Preserve exhausted MB-006d slots separately;
+this is readiness evidence, not a scored benchmark.
+
+After the bench reliably grades real tasks, measures independently verified
+completion time and preserves lifecycle/cost evidence, coordinate with the
+existing **Local AI setup** session to evaluate its models. Freeze the current
+model/runtime/hardware inventory and run separate local-model conditions through
+the same applicable task/verdict contracts. Canary success alone does not close
+this gate. Keep the original ad hoc pilot read-only, historical and unpooled.
+
 Run a bounded baseline with the actual agent/provider the user uses, after environment and execution-budget approval. Attribute calls from native counters/logs, verify tools and outcome independently, record actual context/cache/reasoning transport, and restore all owned temporary changes.
 
 Then compare another explicitly chosen target under a frozen matched condition. Do not infer native-agent quality from the existing endpoint pilot. Use a small screening batch before funding repetitions; freeze repeats/order/deadline/intervention policy before execution.
