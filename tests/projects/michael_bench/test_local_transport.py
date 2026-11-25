@@ -327,3 +327,84 @@ for(const fixture of JSON.parse(process.argv[1])) {
 """
     subprocess.run(["node", "--input-type=module", "-e", script, json.dumps(fixtures)],
                    cwd=ROOT, check=True, timeout=5)
+
+
+def test_protocol_fragmentation_limits_and_first_failure():
+    script = """
+import {Protocol,PROTOCOL} from './benchmarks/michael/local_transport/protocol.mjs';
+import {nativeFailure} from './benchmarks/michael/local_transport/limits.mjs';
+import assert from 'node:assert/strict';
+const frame=m=>{const b=Buffer.from(JSON.stringify(m));return Buffer.concat([
+    Buffer.from(`Content-Length: ${b.length}\\r\\n\\r\\n`),b]);};
+const frames=[{jsonrpc:'2.0',method:'one',text:'é'},
+              {jsonrpc:'2.0',method:'two',text:'x'.repeat(90000)}].map(frame);
+const all=Buffer.concat(frames);
+for(const size of [1,2,7,31,65536,all.length]) {
+    const got=[], p=new Protocol(m=>got.push(m));
+    for(let i=0;i<all.length;i+=size)p.feed(all.subarray(i,i+size));
+    p.finish();assert.equal(got.length,2);assert.equal(p.total,all.length);
+}
+const message={jsonrpc:'2.0',method:'ok'}, f=frame(message), n=JSON.stringify(message).length;
+const exact={...PROTOCOL,frame:n,total:f.length,events:1};
+const p=new Protocol(()=>{},exact);p.feed(f);p.finish();
+assert.throws(()=>p.feed(Buffer.from('x')),/total_overflow/);
+assert.throws(()=>new Protocol(()=>{},{...PROTOCOL,frame:n-1}).feed(f),/frame_denied/);
+assert.throws(()=>new Protocol(()=>{},{...PROTOCOL,events:1}).feed(Buffer.concat([f,f])),/event_overflow/);
+const full=frame({...message,text:'x'.repeat(PROTOCOL.frame-JSON.stringify({...message,text:''}).length)});
+const max=new Protocol(()=>{});max.feed(full);max.finish();
+assert.throws(()=>new Protocol(()=>{}).feed(frame({...message,text:'x'.repeat(PROTOCOL.frame)})),/frame_denied/);
+const many=new Protocol(()=>{});many.feed(Buffer.concat(Array(PROTOCOL.events).fill(f)));many.finish();
+assert.throws(()=>many.feed(f),/event_overflow/);
+const header=new Protocol(()=>{});
+header.feed(Buffer.alloc(PROTOCOL.header,120));
+assert.throws(()=>header.feed(Buffer.from('x')),/header_overflow/);
+assert.throws(()=>new Protocol(()=>{}).feed(Buffer.from([0xc3,0x6f,0x6e,0x74,13,10,13,10])),/frame_denied/);
+for(const value of ['x'.repeat(PROTOCOL.header+1),'Content-Length: 0\\r\\n\\r\\n',
+    'Content-Length: 99999999999999999999\\r\\n\\r\\n','Content-Length: -1\\r\\n\\r\\n',
+    'Content-Length: 2\\r\\n\\r\\n[]','Content-Length: 2\\r\\n\\r\\n{}',
+    'Content-Length: 2\\r\\n\\r\\nxx'])assert.throws(()=>new Protocol(()=>{}).feed(Buffer.from(value)));
+for(const value of ['Content-L','Content-Length: 99\\r\\n\\r\\n{}']) {
+    const q=new Protocol(()=>{});q.feed(Buffer.from(value));assert.throws(()=>q.finish(),/truncated/);
+}
+const seen=[], q=new Protocol(m=>{seen.push(m.type);return !nativeFailure(m,'synthetic');});
+q.feed(Buffer.concat(['model.call_failure','model.turn_retry'].map(type=>frame({jsonrpc:'2.0',type}))));
+assert.deepEqual(seen,['model.call_failure']);assert.equal(q.halted,true);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=ROOT, check=True, timeout=10)
+
+
+@pytest.mark.parametrize("variant,expected", [
+    ({}, "diagnostics_complete"), ({"fragment": 7}, "diagnostics_complete"),
+    ({"failure": True}, "native_model_failure:model.call_failure"),
+    ({"duplicate": True}, "broker:duplicate_or_invalid_action"),
+    ({"sideChannel": True}, 'runtime:diagnostic_failed:{"resultType":"side_channel_denied"}'),
+    ({"taskOverflow": True}, "output_overflow:task-2-stdout"),
+])
+def test_actual_owner_broker_with_labeled_synthetic_sdk(tmp_path, variant, expected):
+    import shutil
+    run = prepare(tmp_path, tmp_path / "run", seconds=3, diagnostics=(
+        {"op": "write", "path": "candidate.py", "data": "print(2+3)"},
+        {"op": "run", "path": "candidate.py"}))
+    for name in ("synthetic_sdk.mjs", "protocol.mjs"):
+        shutil.copyfile(HERE / name, tmp_path / name)
+    (tmp_path / "fixture.json").write_text(json.dumps(variant))
+    config = json.loads((run / "config.json").read_text())
+    config["sdk"] = str(tmp_path / "synthetic_sdk.mjs")
+    (run / "config.json").write_text(json.dumps(config))
+    child = runner.launch(run)
+    try:
+        child.wait(timeout=10)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_text())
+    assert terminal["stopReason"] == expected
+    assert terminal["nativePrompts"] == 0 and terminal["wholeProcessQuiescent"] is True
+    assert terminal["protocolBytes"] > 65536
+    assert terminal["protocolCondition"]["condition"] == "MB-006g-offline"
+    if expected == "diagnostics_complete":
+        assert terminal["actions"] == ["synthetic-1", "synthetic-2"]
+        result = json.loads((run / "receipt/action-result-2.json").read_text())["result"]
+        assert base64.b64decode(result["stdout"]) == b"5\n"
+        assert any(item["message"].get("params", {}).get("event", {}).get("type") == "session.idle"
+                   for item in terminal["messages"])
+    assert not (tmp_path / "mb006f").exists()

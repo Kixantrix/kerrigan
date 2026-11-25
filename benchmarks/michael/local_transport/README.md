@@ -258,3 +258,42 @@ The next capability gap is a separately reviewed bounded native event-stream
 configuration that can complete the tool loop without relaxing containment or
 quietly enlarging this budget. Any additional prompts or scoring need new
 authorization; none are enabled by this receipt.
+
+### MB-006g: offline-only, separate protocol condition
+
+The schema-bound choice is to preserve all pushed events: supported
+`SessionOpenEventOptions.streaming` controls deltas, while event-log `types`
+filters pull/history reads, not the existing push channel. No guessed
+subscription filter or event suppression is used.
+
+`protocol.mjs` now separates native framing from candidate output: at most
+1,024 header bytes, 131,072 body bytes/frame, 2,097,152 total native stdout
+bytes and 512 delivered frames. The frame bound accommodates the observed
+34,282-byte native system message and the labeled 90,000-byte synthetic case;
+the aggregate permits sixteen maximum frames, not an unbounded tool loop.
+Task stdout/stderr remain 65,536 bytes/channel, eight actions, 8,192 bytes/action
+and 32,768 aggregate action input. CLI stderr and sent input also retain their
+old 65,536-byte bounds. This is a new condition, not MB-006f compatibility.
+
+Framing copies at most one body plus a 1,024-byte header, independently of
+chunk coalescing; retained decoded messages are bounded by the aggregate wire
+budget and event count. This bounds protocol-owned state, not OS process RSS.
+Action buffers remain separately bounded. All owner-written raw streams,
+action/ownership receipts and terminal metadata share a 16,777,216-byte disk
+budget. Malformed/truncated/oversized frames or aggregate/event/disk overflow
+stop the owner; explicit unparsed-byte lower bounds prevent cutoff tails from
+being represented as clean completion. No lifecycle/model/error/retry/usage/
+permission/tool event is filtered. First failure halts the same chunk before
+later retry/tool callbacks can run.
+
+`mb006g-verification.json`, `mb006g-offline.tar.gz` and
+`mb006g-safety.tar.gz` preserve source/schema/hash/count bindings. Private
+MB-006d/f byte streams were replayed without inference. Labeled synthetic
+CLI/task handles exercised the actual owner/parser/broker write/run/result/
+idle path, fragmentation, duplicate actions, failure/retry cutoff, side-channel
+denial and unchanged task-output cutoff; they do not prove native task execution.
+Fresh native non-inference HTTPS, task denials and controller-loss/deadline
+cleanup passed. All four historical slots and old archives remain unchanged,
+and MB-006f's source-bound authorization is stale. No new prompt, slot or
+ready-to-infer authorization was emitted. A live model tool loop under this
+new condition remains unvalidated and requires separate authorization.

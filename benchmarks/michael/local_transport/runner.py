@@ -8,7 +8,7 @@ import uuid
 from proof import MODELS, ProofError, digest, environment, fresh, persist
 
 HERE = Path(__file__).resolve().parent
-SOURCES = ("owner.mjs", "worker.py", "runner.py", "limits.mjs", "runtime.json", "package.json")
+SOURCES = ("owner.mjs", "worker.py", "runner.py", "limits.mjs", "protocol.mjs", "runtime.json", "package.json")
 PYTHON = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3"
 CLI_FLAGS = ("--headless --stdio --sandbox --no-auto-update --disable-builtin-mcps "
              "--no-ask-user --disallow-temp-dir --sync-session=off --log-level=none")

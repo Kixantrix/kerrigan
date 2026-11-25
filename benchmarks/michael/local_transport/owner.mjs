@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
 import { createHash } from "node:crypto";
 import { validateAction, nativeFailure, verifiedPublicHttps, canonical } from "./limits.mjs";
+import { PROTOCOL, Protocol } from "./protocol.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 const initialConfig = structuredClone(config);
@@ -10,13 +11,22 @@ const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const { spawn } = await import(pathToFileURL(config.sdk));
 const began = performance.now(), until = began + config.seconds * 1000;
 const live = new Set(), records = [], actions = new Set(), pending = new Map();
-let stopping, activeEnd, cleanupStart, serial = 0, wire = Buffer.alloc(0), gate = false;
+let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0;
 let cli, input, events = 0, toolQueue = Promise.resolve();
 const budget = { actions, bytes: 0 };
 const counts = {}, messages = [], requests = [];
 function persist(name, value) {
+    const bytes = Buffer.from(JSON.stringify(value));
+    claimDisk(bytes.length);
     const fd = openSync(`${config.receipt}/${name}.json`, "wx", 0o600);
-    try { writeFileSync(fd, JSON.stringify(value)); fsyncSync(fd); } finally { closeSync(fd); }
+    try { writeFileSync(fd, bytes); fsyncSync(fd); } finally { closeSync(fd); }
+}
+function claimDisk(size) {
+    if (diskBytes + size > PROTOCOL.disk) {
+        stop("evidence_disk_overflow");
+        throw new Error("evidence_disk_overflow");
+    }
+    diskBytes += size;
 }
 function stop(reason) {
     if (!stopping) {
@@ -26,10 +36,13 @@ function stop(reason) {
         pending.clear();
     }
 }
-function bounded(name, bytes) {
+function bounded(name, bytes, limit = 65536) {
+    if (stopping) return false;
     counts[name] = (counts[name] || 0) + bytes.length;
-    const room = Math.max(0, 65536 - (counts[name] - bytes.length));
-    appendFileSync(`${config.receipt}/${name}.bin`, bytes.subarray(0, room), { mode: 0o600 });
+    const room = Math.max(0, limit - (counts[name] - bytes.length));
+    const retained = bytes.subarray(0, room);
+    try { claimDisk(retained.length); } catch { return false; }
+    appendFileSync(`${config.receipt}/${name}.bin`, retained, { mode: 0o600 });
     if (bytes.length > room) { stop(`output_overflow:${name}`); return false; }
     return true;
 }
@@ -57,8 +70,13 @@ async function owned(kind, command, profile, payload) {
     stderr.on("error", error => stop(`stderr:${error.message}`));
     const output = [], errors = [];
     stdout.on("data", bytes => {
-        if (bounded(`${kind}-${id}-stdout`, bytes)) {
+        if (bounded(`${kind}-${id}-stdout`, bytes, kind === "cli" ? PROTOCOL.total : 65536)) {
             if (kind === "cli") parse(bytes); else output.push(bytes);
+        }
+    });
+    stdout.on("end", () => {
+        if (kind === "cli" && !stopping) {
+            try { protocol.finish(); } catch (error) { stop(`protocol:${error.message}`); }
         }
     });
     stderr.on("data", bytes => { if (bounded(`${kind}-${id}-stderr`, bytes)) errors.push(bytes); });
@@ -91,18 +109,9 @@ function rpc(method, params = {}) {
         catch (error) { pending.delete(id); reject(error); }
     });
 }
-function parse(bytes) {
-    try {
-        wire = Buffer.concat([wire, bytes]);
-        while (wire.includes("\r\n\r\n")) {
-            const end = wire.indexOf("\r\n\r\n");
-            const match = /^Content-Length: ([0-9]+)\r\n\r\n$/.exec(wire.subarray(0, end + 4).toString());
-            if (!match || +match[1] > 65536) throw new Error("frame_overflow");
-            const size = +match[1];
-            if (wire.length < end + 4 + size) break;
-            const message = JSON.parse(wire.subarray(end + 4, end + 4 + size));
-            wire = wire.subarray(end + 4 + size);
-            if (++events > 512) throw new Error("event_overflow");
+const protocol = new Protocol(message => {
+            if (stopping) return false;
+            events++;
             messages.push({ receivedMs: performance.now() - began, message });
             if (message.method && message.id !== undefined) {
                 send({ jsonrpc: "2.0", id: message.id,
@@ -117,7 +126,7 @@ function parse(bytes) {
                 const event = message.params.event;
                 if (event.agentId) throw new Error("delegation_denied");
                 const failure = nativeFailure(event, config.model);
-                if (failure) stop(failure);
+                if (failure) { stop(failure); return false; }
                 if (event.type === "external_tool.requested") {
                     toolQueue = toolQueue.then(async () => {
                         const data = event.data;
@@ -143,9 +152,10 @@ function parse(bytes) {
                     stop("session_idle");
                 }
             }
-        }
-        if (wire.length > 65536) throw new Error("frame_overflow");
-    } catch (error) { stop(`protocol:${error.message}`); }
+            return !stopping;
+});
+function parse(bytes) {
+    try { protocol.feed(bytes); } catch (error) { stop(`protocol:${error.message}`); }
 }
 async function action(id, args) {
     if (!gate || stopping) throw new Error("execution_gated");
@@ -297,7 +307,9 @@ finally {
         cleanupSeconds, wholeProcessQuiescent: settled !== null && records.length > 0 &&
             records.every(record => record.reaped && record.warnings?.length === 0),
         records: records.map(({ wait, ...record }) => record),
-        actions: [...actions], actionBytes: budget.bytes, counts, events, messages, requests,
+        actions: [...actions], actionBytes: budget.bytes,         counts, events, messages, requests, protocolCondition: PROTOCOL,
+        protocolBytes: protocol.total, evidenceDiskBytesBeforeTerminal: diskBytes,
+        unparsedProtocolBytesLowerBound: Math.max(0, (counts["cli-0-stdout"] || 0) - protocol.total),
         requestedModel: config.model || null, observedModel: observed.length ? observed : "unknown",
         usage: usage.length ? usage : "unknown", ownerRetries: 0,
         nativeStarts,
