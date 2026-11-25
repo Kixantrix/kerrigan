@@ -1,11 +1,10 @@
-# Michael Bench: offline historical import
+# Michael Bench: offline contracts
 
-MB-001a implements only the engine-neutral historical-evidence import boundary.
-It does **not** complete MB-001's task/target/condition manifests, select an engine,
-or provide a runner, CLI, reporting, discovery, or live telemetry collection.
+MB-001a preserves historical imports; MB-001b adds engine-neutral manifests.
+Neither selects an engine or provides a runner, ledger, CLI, reporting,
+isolation proof, discovery, live telemetry, or scored model trials.
 See the [plan](../../specs/projects/michael-bench/plan.md).
-
-## Contract v1
+## Historical import v1
 
 `contracts/historical_import.py` exposes
 `import_historical(source_bytes, *, expected_sha256, corrections=None)`.
@@ -43,9 +42,59 @@ Reimporting the same bytes and ordered corrections yields the same record.
 Adding corrections yields a distinct record; persistence is caller-owned and
 must be append-only, retaining earlier envelopes. No evidence writer exists here.
 
+## Manifests v1
+
+`contracts/manifests.py` exposes `validate_manifest(value)`,
+`manifest_reference(value)`, and keyword-only
+`validate_bundle(task=..., target=..., agent=..., condition=..., result=None)`.
+These I/O-free standard-library APIs consume parsed JSON objects, raise
+`ManifestError` with field paths, and return independent copies. Each descriptor
+requires `schema_version: 1`, `kind`, `id`, `revision`, and `provenance.source_id`.
+References contain `id`, `revision`, and SHA-256 of validated canonical JSON
+(sorted keys, compact separators, UTF-8). Bundle validation checks exact matches.
+Unknown structural fields/versions are rejected; provenance metadata is open.
+
+Task descriptors declare `base` (`uri`, `sha256`) and nonempty `agent_material`
+and `verifier_material` arrays (`uri`, `sha256`, `audience`), respectively
+`requirement_only` and `verifier_only`, without shared URI/content digests.
+Targets separate `requested_identity`
+from evidenced `observed_identity` and `runtime`. Agents declare a frozen
+`harness` reference and evidenced `configuration`.
+
+Conditions reference task/target/agent and declare three `hosts` roles
+(`inference`, `agent`, `verifier`), `track` (`practical_system`,
+`controlled_capability`, `harness_configuration`), `cache_policy`, `budgets`
+(`active_safety_seconds`, `response_tokens`, `reasoning_tokens`, `attempt_limit`),
+`retry_policy` (`no_automatic_retries`, `declared_retries`), `capabilities`,
+`observability`, and `required_semantics`. Required capabilities must be known
+true; token/reasoning budgets need not be matched across practical systems.
+Evidence uses `{status, source, value}` when `known`, otherwise
+`{status, source, reason}` with `unknown`, `unsupported`, or `not_applicable`.
+No unavailable value is converted to zero. Declarations are not proof of
+provider identity, capability enforcement, or actual verifier isolation.
+
+Results reference a condition and retain every attempt, with unique `id`,
+optional earlier `retry_of`, independent `verdict`, `state`, `stop_reason`,
+`verifier`, `events`, `timing`, and evidenced numeric `usage`. The synthetic
+tests demonstrate exact shapes and failure cases. Runtime/infrastructure/safety
+event codes remain source-attributed strings (including native stream errors).
+Validation does not enforce budgets, persist a ledger, or score performance.
+
+Timing phases are `queue`, `provisioning`, `setup`, `agent_work`, `verification`,
+and `end_to_end`. Known measurements contain `seconds`, `scope`, `clock`,
+`host_ids`, and `coverage` (`complete` or `partial`), inside source evidence.
+`monotonic` is single-host only; `correlated_wall` requires `correlation_id`.
+Durations are supplied, never computed by subtracting cross-host clocks or
+summing possibly overlapping phases. Same-clock phases cannot exceed a complete
+end-to-end duration. Missing timing/completion fields remain
+unknown. `time_to_verified_completion`, when known, must equal the complete
+end-to-end measurement of a completed, independently verified success.
+Failed, capped, interrupted, cancelled, or ungraded attempts retain observed
+elapsed time without invented completion time. Safety cutoffs are separate.
+
 ## Synthetic verification
 
 `contracts/fixtures/pilot-v1.json` contains no real pilot data.
-Run `python -m pytest tests/projects/michael_bench/test_historical_import.py -q`.
+Run `python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py -q`.
 These integration checks run on `cloud-linux`; smoke is not applicable until
 MB-005 provides the offline CLI.
