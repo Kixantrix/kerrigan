@@ -113,6 +113,17 @@ usage remain unknown. These are failed capability attempts, not model scores.
 Their allowance is exhausted. MB-006e is a separate 20-turn **non-inference**
 TLS diagnosis; it grants no replacement canary or scoring attempt.
 
+MB-006e is integrated through `fd776dc`. The native HTTPS failure was isolated
+to missing public-trust IPC in the custom trusted-CLI profile. With the pinned
+public PEM and exactly three documented service grants, the installed native
+transport returned a strictly validated HTTP 200. Parent review verified source,
+archive and configuration bindings, the exact transport-only delta and unchanged
+task profile. Live task credential/Keychain/trust-service/fork denials and owned
+controller-loss/deadline cleanup are retained. No model prompt ran. Native
+platform attestation and a separately authorized fresh canary condition remain
+pending; neither original slot is restored, and model usage/identity remain
+unknown. See `benchmarks/michael/local_transport/tls-diagnosis.json`.
+
 Run a bounded baseline with the actual agent/provider the user uses, after environment and execution-budget approval. Attribute calls from native counters/logs, verify tools and outcome independently, record actual context/cache/reasoning transport, and restore all owned temporary changes.
 
 Then compare another explicitly chosen target under a frozen matched condition. Do not infer native-agent quality from the existing endpoint pilot. Use a small screening batch before funding repetitions; freeze repeats/order/deadline/intervention policy before execution.
