@@ -1,6 +1,7 @@
 """AC-MB-002/003/004/005/008: real Docker integration/e2e, cloud-linux, no inference."""
 
 import hashlib
+import base64
 import importlib.util
 import io
 import json
@@ -118,6 +119,32 @@ def test_candidate_exit_and_verifier_tampering_cannot_establish_a_verdict(tmp_pa
         assert receipt["verification"]["grader"]["state"]["ExitCode"] == 2
         assert receipt["verification"]["grader"]["materials"]["verifier.py"] == (
             hashlib.sha256(sys.modules["benchmarks.michael.cli.worker"].proof.VERIFIER.encode()).hexdigest())
+
+
+@pytest.mark.parametrize("channel", ["stdout", "stderr"])
+def test_candidate_streams_are_capped_while_running_and_stop_before_grading(tmp_path, channel):
+    path = tmp_path / channel
+    invoke(path, "run", "--mode", f"oversized_{channel}", expected=3)
+    assert_clean(path)
+    receipt = read(path, "receipt.json")
+    capture = read(path, "candidate-capture.json")
+    assert capture["output_limit"] == {"role": "candidate", "channel": channel, "limit_bytes": 65536}
+    assert not capture["complete"]
+    assert capture["attach_process_stopped"]
+    assert not capture["state"]["Running"]
+    assert capture["seconds"] < 10
+    for name in ("stdout", "stderr"):
+        raw = base64.b64decode(capture["bytes_base64"][name], validate=True)
+        assert len(raw) == capture["retained_bytes"][name] <= 65536
+    assert capture["retained_bytes"][channel] == 65536
+    assert capture["observed_bytes_lower_bound"][channel] == 65537
+    assert "fresh_verifier_start" not in receipt["lifecycle"]
+    assert not (path / "verifier-capture.json").exists()
+    attempt = read(path, "terminal.json")["attempts"][0]
+    assert attempt["state"] == "stopped" and attempt["stop_reason"] == "safety_stop"
+    assert attempt["verdict"] == "ungraded" and attempt["verifier"]["status"] == "not_run"
+    assert attempt["time_to_verified_completion"]["status"] == "unknown"
+    assert any(event["code"] == f"candidate_output_limit_{channel}" for event in attempt["events"])
 
 
 def sleeping_trial(path):

@@ -18,7 +18,7 @@ import uuid
 from benchmarks.michael.contracts.manifests import manifest_reference, validate_bundle
 from benchmarks.michael.engine_proof import proof
 from benchmarks.michael.ledger_report.api import Ledger, compare
-from benchmarks.michael.cli.worker import IMAGE, MODES
+from benchmarks.michael.cli.worker import IMAGE, MODES, STREAM_LIMIT
 
 HERE = Path(__file__).resolve().parent
 RESERVE = 15
@@ -109,6 +109,7 @@ def frozen(arm, seconds):
     agent["configuration"] = proof.known(
         {"engine": "inspect-ai==0.3.292", "image": IMAGE, "fixture": "scripted fake",
          "whole_trial_seconds": seconds, "cleanup_reserve_seconds": RESERVE,
+         "stream_limit_bytes_per_channel": STREAM_LIMIT,
          "allowlisted_output": ["answer.py"], "network": "none",
          "verification": "stopped agent/candidate; separate trusted response grader"}, source)
     condition = data["condition"]
@@ -231,6 +232,18 @@ def trial(directory, arm, mode, seconds):
     if (not receipt_path.exists() or process is None or process.returncode != 0
             or receipt.get("engine_status") != "success" or receipt.get("sample_error")):
         verified = "not_run"
+    limits = []
+    for role in ("candidate", "verifier"):
+        capture_path = directory / f"{role}-capture.json"
+        if capture_path.exists():
+            limit = json.loads(capture_path.read_text()).get("output_limit")
+            if limit is not None:
+                limits.append(limit)
+                events.append({"category": "safety", "code": f"{role}_output_limit_{limit['channel']}",
+                               "source": f"MB-005 streaming cap: {limit['limit_bytes']} bytes per channel"})
+    if stop is None and limits:
+        stop = "safety_stop"
+        verified = "error" if any(limit["role"] == "verifier" for limit in limits) else "not_run"
     if stop is None:
         stop = {"passed": "success", "failed": "agent_finished", "error": "evaluator_error"}.get(
             verified, "runtime_error")
@@ -263,7 +276,7 @@ def trial(directory, arm, mode, seconds):
             for metric, value in values.items():
                 if isinstance(value, (int, float)):
                     usage[f"synthetic_{metric}"] = proof.known(value, f"raw:{path.name}:{model}")
-    events.append({"category": "safety" if stop == "timeout" else "runtime", "code": stop,
+    events.append({"category": "safety" if stop in ("timeout", "safety_stop") else "runtime", "code": stop,
                    "source": "MB-005 outer controller; not native engine stop"})
     attempt = {"id": "a1", "verdict": {"passed": "passed", "failed": "failed"}.get(verified, "ungraded"),
                "state": "interrupted" if stop == "interruption" else
@@ -325,7 +338,7 @@ def main():
         elif args.operation == "run":
             _, _, result = trial(directory, "A", args.mode, args.seconds)
             code = 0 if result["attempts"][0]["stop_reason"] == "success" else 3 if (
-                result["attempts"][0]["stop_reason"] in ("timeout", "interruption")) else 2
+                result["attempts"][0]["stop_reason"] in ("timeout", "interruption", "safety_stop")) else 2
         else:
             directory.mkdir(parents=True, exist_ok=False)
             ledger = Ledger(directory / "ledger.jsonl")

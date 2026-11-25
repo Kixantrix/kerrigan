@@ -1,0 +1,291 @@
+{
+  "task": "MB-005 streaming resource correction",
+  "synthetic": true,
+  "limits": "Each channel retains at most 65536 bytes; overflow read is at most one additional byte; totals remain lower bounds. Docker logging disabled.",
+  "verification": {
+    "command": "python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py tests/projects/michael_bench/test_ledger_report.py tests/projects/michael_bench/test_cli.py -q --basetemp=/root/.copilot/session-state/5f4eab60028540ce893d763e8158f271/files/mb005-stream-final-tests",
+    "passed": 161,
+    "seconds": 154.19
+  },
+  "smoke": [
+    {
+      "command": [
+        "bash",
+        "benchmarks/michael/scripts/smoke.sh",
+        "/root/.copilot/session-state/5f4eab60028540ce893d763e8158f271/files/mb005-stream-smoke1"
+      ],
+      "seconds": 14.746713738999915,
+      "returncode": 0,
+      "stdout": "{\"synthetic\": true, \"directory\": \"/root/.copilot/session-state/5f4eab60028540ce893d763e8158f271/files/mb005-stream-smoke1\", \"exit_status\": 0}\nsmoke: ok; synthetic only; evidence retained\nreport_sha256=48f58405b445b043fa6d8349a82c4cdde2ec13f3de7c4325a2db777d18a7e45a\nledger_sha256=b90c10941b4f12974d293b2fbbc29e4ef70aff46b7e9ab1baebd1731c9c223d3\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "benchmarks/michael/scripts/smoke.sh",
+        "/root/.copilot/session-state/5f4eab60028540ce893d763e8158f271/files/mb005-stream-smoke2"
+      ],
+      "seconds": 14.502627728999869,
+      "returncode": 0,
+      "stdout": "{\"synthetic\": true, \"directory\": \"/root/.copilot/session-state/5f4eab60028540ce893d763e8158f271/files/mb005-stream-smoke2\", \"exit_status\": 0}\nsmoke: ok; synthetic only; evidence retained\nreport_sha256=6fd89f0b307344d071cfbb49d1d65b7f10198994d91aa885ec1284be2f526a60\nledger_sha256=ac674360055a7e3ec5ded115ab8e1db9638c287e5d7126a94b17d86f5b957517\n",
+      "stderr": ""
+    }
+  ],
+  "checks": [
+    "python -m tools.validators.check_artifacts",
+    "python -m tools.validators.check_python_deps",
+    "git diff --check"
+  ],
+  "archive": {
+    "path": "stream-proof.tar.gz",
+    "sha256": "634f2e59e762d1a965db7133706de960f3d95544d5dcea784521d80bfcda03e4",
+    "files": {
+      "stdout-overflow/candidate-capture.json": "3419207a0b7c4ff6423bcdd257f9704018992710db09b8f23c45811871d6c442",
+      "stdout-overflow/checkpoint-0.json": "a858a4571bc23b655cbc5db39e6074527e0072cfe5386bc194420ed24f8b2071",
+      "stdout-overflow/checkpoint-1.json": "db78354179e66a6138c3515d29a19e65236c76d57b605cc0e174069c2db77dd6",
+      "stdout-overflow/checkpoint-2.json": "f3c3aab682c7906bc088f63fca14f5d0dc1adc7fbb5d252014ad148ef1661197",
+      "stdout-overflow/checkpoint-3.json": "8f2878974fda3696d947b8fd6c707a6d9005625ecedb18c00dc97613f116ef2e",
+      "stdout-overflow/checkpoint-4.json": "ebf234979e74cac7e6b940c04f2e98c88ee9ea242df043bebb5cbb0c649457e7",
+      "stdout-overflow/cleanup.json": "df218e7b13855964b4af2d3c62e64b2956c764545bbd819f6a553beea2493141",
+      "stdout-overflow/controller.log": "567106458af6c084abea4ffd2d41b8ae981671b49a5df8933fb56e5346318cc9",
+      "stdout-overflow/evidence.json": "a753f89d1a87d49152a8a808b42d92e20f284b6f9d7b052dcd2a8313f3e21b4d",
+      "stdout-overflow/ledger.jsonl": "dd19ec8402050a271d2b68716a2c773c99b5a9940588a232a708310184c3cd28",
+      "stdout-overflow/output.tar": "e8e5546ca3811b6daa9fc0e946c07dab56578df7d0661db7c5929b016fd21409",
+      "stdout-overflow/progress.json": "ebf234979e74cac7e6b940c04f2e98c88ee9ea242df043bebb5cbb0c649457e7",
+      "stdout-overflow/raw/2026-11-25T04-55-15-00-00_mb005-offline_YgM8ejENJMPsfGvf3Lmv4C.json": "06bb6ccd7e61194ca968bdb2f965efcf44c48c2618538b81ed4b53209ce776cd",
+      "stdout-overflow/receipt.json": "bd3baf5b2b8603066391af205aa0f295e8f6728a3190d722baddf6cd41e014fa",
+      "stdout-overflow/start.json": "a2159dcf44b531daefd3fe2e095cf8116c257e587534fc8d079b4cc277684a61",
+      "stdout-overflow/terminal.json": "fd4a2ca853d49b4f5d6cc625bfe127ca1fddffd75fb4a1545780570308529ac9",
+      "stderr-overflow/candidate-capture.json": "93b4adbbf3230a138ed59960b87eabface39a8d6e1ab3071db6cc7b65e46a28c",
+      "stderr-overflow/checkpoint-0.json": "c3bd1ea7621de6c7ba5add6a927089ad93e9afffbf9e33863d86eb1a33a83ad0",
+      "stderr-overflow/checkpoint-1.json": "9ea0d3556a143c3eda9da14f4cb468cd59d8a2c7d002ce26b00b148db7af0294",
+      "stderr-overflow/checkpoint-2.json": "531b285864d7d6a11b8546d580fa3f99bc61b6d2b7a1941f8bceb1b103f7a0eb",
+      "stderr-overflow/checkpoint-3.json": "8e848854473594aa1ab64d41bed4ab6c1fbea34a131421ff63c68005da24482e",
+      "stderr-overflow/checkpoint-4.json": "5f7ab5ed12a318f1e0ba7fcf61b8ff7d44f2ecee681e6b8b4b7fc49d1822cc37",
+      "stderr-overflow/cleanup.json": "73d71b6ba109d6d5731caa17901b9f27ddfabbd10a31e2b664e13ecfffcf82e6",
+      "stderr-overflow/controller.log": "567106458af6c084abea4ffd2d41b8ae981671b49a5df8933fb56e5346318cc9",
+      "stderr-overflow/evidence.json": "2b10e6150fab35d99ba88fcac4f06a24d7720706b9fe42fe8bc8ce764bdac001",
+      "stderr-overflow/ledger.jsonl": "752c5605389e9595e73df2b6dc3d81a993ddc8c0caa0e7e934ff51f70257c93a",
+      "stderr-overflow/output.tar": "372f374cf834ec96c8e73f245817fd61e56d00b270b81e92a7ea0933746ab01e",
+      "stderr-overflow/progress.json": "5f7ab5ed12a318f1e0ba7fcf61b8ff7d44f2ecee681e6b8b4b7fc49d1822cc37",
+      "stderr-overflow/raw/2026-11-25T04-55-22-00-00_mb005-offline_ZrUhZ6GKG3nsNroma5k2ya.json": "a82a9ce4d31a8f6356033e080ec66682f7f0ee05e5d05f1e4381a993b85f69ee",
+      "stderr-overflow/receipt.json": "1b77a6d01c3e1123899df2d3095bc1e626f4b9a2987fd0eca3d6c5c8b75995db",
+      "stderr-overflow/start.json": "1c8627513681028a87c9a32db1e545b217669dc36259830d73328cb17653da4a",
+      "stderr-overflow/terminal.json": "4e364736e0fb88d381635c3ba065eb95d453bc7060dab9bdf82f236349ac4b65",
+      "smoke1/A/candidate-capture.json": "247f1374315fd93ccf3af5c4de33996b114a843c657144706a2c0b1cfc9764b6",
+      "smoke1/A/checkpoint-0.json": "32091f8b3d69c7dc5135f824f44d1f70b5ff47e5c407a3732f4e312c852e0d3b",
+      "smoke1/A/checkpoint-1.json": "e6a450d47d958c95d5f67f3be6d4162a6640bb646484c05d238c70a1163b680d",
+      "smoke1/A/checkpoint-2.json": "4d4f34e0cc9a4eafc328ed1cb1956e8885d2166856780544af5710f5fd2daa25",
+      "smoke1/A/checkpoint-3.json": "230f5cd7178aa4db379185bbb6cb9142d46881ead583ec1d380e4fed1f45e9fa",
+      "smoke1/A/checkpoint-4.json": "4fb47253603c51571c18353ae62b8c2d30c1cd18ebe5e5cedc886d5e31db0e67",
+      "smoke1/A/checkpoint-5.json": "8ce3d4c40ca5234de903e7c2800bb08d23da371e6a32485e9fa1bae01e058382",
+      "smoke1/A/cleanup.json": "6cbd3feee4d0c8eed44824bc18572cece6f5033d5d4f4c23466ca36e984d5c92",
+      "smoke1/A/controller.log": "567106458af6c084abea4ffd2d41b8ae981671b49a5df8933fb56e5346318cc9",
+      "smoke1/A/evidence.json": "add96cfd5084c1bf9ec0f9ce739209a51695a897c89f0c33f7f3fa7b5e138a33",
+      "smoke1/A/ledger.jsonl": "0ab3490328a3ecdaae36739218f9b866705f87c3d12a01ac3d68dc878b38d63b",
+      "smoke1/A/output.tar": "2e8256285e1c252d877514d7e9b8da17b1787390a36e969b1f9539355293189f",
+      "smoke1/A/progress.json": "8ce3d4c40ca5234de903e7c2800bb08d23da371e6a32485e9fa1bae01e058382",
+      "smoke1/A/raw/2026-11-25T04-55-56-00-00_mb005-offline_n4YsyAHySYRSL7kaM4Nw7X.json": "0afd717e71bd990483500fc8e7d15d520201d83761f53e6e5e703e15f5ffa017",
+      "smoke1/A/receipt.json": "2dd03ceae35390c4360ddd4190d6b67dc9f0f6dbd3d25eca7eda960d745c425f",
+      "smoke1/A/start.json": "4b10769ffdad45cda55a67a976cfba74688858ef793d15e14b078d8b229d7c6f",
+      "smoke1/A/terminal.json": "90953c5f530146994793df18a2122d052487ef3ecd1ad794a504f76dad95d261",
+      "smoke1/A/verifier-capture.json": "d0c27ea43e9fbb2695f6c3a079b46abb3e8d2c77523f249c61515d08f58eb275",
+      "smoke1/B/candidate-capture.json": "9dc18d8dc84a78098ed1a955caa82244aa7ce67b285fcb09fcbff97249c7b1c1",
+      "smoke1/B/checkpoint-0.json": "1c90b09faea05d5f9f93a29c67ff398b12fe2177ea1078e6c9e3deb145c59010",
+      "smoke1/B/checkpoint-1.json": "3b9209ce86eeb737384330b5ef46e3cc05aac4cd30649db704323a592cb4cfd0",
+      "smoke1/B/checkpoint-2.json": "a709779d5063c4c0f72b6ff257b174a732209c059767d87f597411a98c945199",
+      "smoke1/B/checkpoint-3.json": "f1caf5313926b9cd2e3e96785992bb7bdca24eb9aa767a049cc6fc2af49b58fb",
+      "smoke1/B/checkpoint-4.json": "a66c3dd235f2ce68380377867d515b54398d239155b1430a26807b4e635319aa",
+      "smoke1/B/checkpoint-5.json": "f9627b108db20369bd911dcf8cac4df11f6454f07ad5ea35346dea8e13606369",
+      "smoke1/B/checkpoint-6.json": "c02a9c3692f0ed72bc69a2c4b313b0cf03e52cd3850757d7fd6a09ebd3543236",
+      "smoke1/B/cleanup.json": "ec0c1e404cbb6fe783abec9b2e1bd1c3e7710ddd70cb79d66700b7df1c88d115",
+      "smoke1/B/controller.log": "567106458af6c084abea4ffd2d41b8ae981671b49a5df8933fb56e5346318cc9",
+      "smoke1/B/evidence.json": "5ca4f824597e72fb7e8012cae55383ad886b19851005964ab841222c771e5db1",
+      "smoke1/B/ledger.jsonl": "dcf765fb8de3465069067c063fee32cd3ef6fcf16650984312090e8b697a406d",
+      "smoke1/B/output.tar": "19d8bcf9326ac910b9a36bb222e3636156895fdb12df6cd4a43e3336ee4a3684",
+      "smoke1/B/progress.json": "c02a9c3692f0ed72bc69a2c4b313b0cf03e52cd3850757d7fd6a09ebd3543236",
+      "smoke1/B/raw/2026-11-25T04-56-03-00-00_mb005-offline_FozLWB6WUV5R3hVfWqALuQ.json": "22e2117b321a81cf454d70c999173746d90e1daee6c681e778d04a65fa451431",
+      "smoke1/B/receipt.json": "e03519131c846c2f6029c638f52248733dce947a78b4cabbc67459cc63980b68",
+      "smoke1/B/start.json": "daadfaf585f695c4f8b8d28d5021ec12f66bba65f48ff8010770613e167f63a6",
+      "smoke1/B/terminal.json": "e70f16279d2b501dfe08b1ffa43a96d87b817025c166b42c61b06ee73ea06196",
+      "smoke1/B/verifier-capture.json": "8f18567948b29db7eeea9949c68176318c53e4407f45fa200e323ecdd4a70de8",
+      "smoke1/ledger.jsonl": "b90c10941b4f12974d293b2fbbc29e4ef70aff46b7e9ab1baebd1731c9c223d3",
+      "smoke1/report.json": "48f58405b445b043fa6d8349a82c4cdde2ec13f3de7c4325a2db777d18a7e45a",
+      "smoke2/A/candidate-capture.json": "582ca8a45b3dadbceeb824bf7cdfa025cc8d739f5a3e1538fc2d5b07965e360b",
+      "smoke2/A/checkpoint-0.json": "5ecd5c106669ea4c2e6ff1b90af9abeb3bb6e1885a91e69618015b7def8fdb99",
+      "smoke2/A/checkpoint-1.json": "742eb67d0dab8067be0067d76060a6c7e43b89ea1af765bf8158b9eaf24d4d22",
+      "smoke2/A/checkpoint-2.json": "342d76bc67f132b134e45c572d924a1179705adcac7e30b3544504411ec0e44d",
+      "smoke2/A/checkpoint-3.json": "d8332830a78d4881cc1e2c4764b6921514363884b60a6208c69f3c78e408f6b9",
+      "smoke2/A/checkpoint-4.json": "4515653fbcf5e03afb1396b317ed5ec16a8493264d2d09f6bb1c9ec699a6daaa",
+      "smoke2/A/checkpoint-5.json": "407867680b7b779c4e035c7925dd9b5d3a407a5555f13d121564f1426b1267d2",
+      "smoke2/A/cleanup.json": "3bfb11ae699dd13619f0a3365adbaa28e3b006643ec530cad771f26f619533d3",
+      "smoke2/A/controller.log": "567106458af6c084abea4ffd2d41b8ae981671b49a5df8933fb56e5346318cc9",
+      "smoke2/A/evidence.json": "3675dd3faf109b189adbbb57c392206fd339e9990ea1b76b50ec2ffba3aaee49",
+      "smoke2/A/ledger.jsonl": "dffbe4f7aa90af1dda5107b07b015d56b762946d49e73af4a35e0480f0b40792",
+      "smoke2/A/output.tar": "1fc98d31ba7759940479ddb9e823b2820dd7da6b440a628bdd382e333deed949",
+      "smoke2/A/progress.json": "407867680b7b779c4e035c7925dd9b5d3a407a5555f13d121564f1426b1267d2",
+      "smoke2/A/raw/2026-11-25T04-56-11-00-00_mb005-offline_4RgUBw2LQNzcyuNiF8JUYw.json": "0bb9de81eb7af656a6bde6d5ae1efe7c2e67d91dde5cb70bf977f842b8479260",
+      "smoke2/A/receipt.json": "b91e7384122f5a594f6fba9619cd4375b1d07ddcfbc3f620ec7e6d204fa98274",
+      "smoke2/A/start.json": "b8eba680d5adae725944063a0f827fcfcf14bb7571f8ab85a00669f71ff750a7",
+      "smoke2/A/terminal.json": "444b15e55f1091a2e16ca7e89b3c203f545f9f1f9ec3cf73699311d35b4da580",
+      "smoke2/A/verifier-capture.json": "280ddf53a7beb4eeb741c048da4f992cde4501d3519b07b09015139ebf8becb3",
+      "smoke2/B/candidate-capture.json": "157a91ed830c3b400e3521110477f3a507a03d88eace42cbff0cc6539936e027",
+      "smoke2/B/checkpoint-0.json": "42f8c67c53d745fab3ab9939efd23c73430edc2366d4e33d9d73554942b572b7",
+      "smoke2/B/checkpoint-1.json": "0b9217785ec94a4399b780baad8857ecc2ed9e6e64bf34238d10b8eca250ca36",
+      "smoke2/B/checkpoint-2.json": "c183fe318a1e4ef36a223fb6f72051827cf045d4ad41369b30b7c84b8dd43400",
+      "smoke2/B/checkpoint-3.json": "bc74757a6ab7120cd742228e9dd9d055cc5a1a08d756ee6705761e2939c05b39",
+      "smoke2/B/checkpoint-4.json": "c8ad111d5a583ecf82638286c971390aa1315675bdf53373976123454c703f53",
+      "smoke2/B/checkpoint-5.json": "6f20a26621370d185e5b0a09ec6a8892878ca591900972e826f5e23bbca2626a",
+      "smoke2/B/checkpoint-6.json": "64c9cad3f581d665bf668b1be9af027ff52e03a73925c1c241708c884026f6c4",
+      "smoke2/B/cleanup.json": "ec23a97545bcf6dc12518a77c0fdc1ef07cd7cda3234b6f707fc261b279d7318",
+      "smoke2/B/controller.log": "567106458af6c084abea4ffd2d41b8ae981671b49a5df8933fb56e5346318cc9",
+      "smoke2/B/evidence.json": "758ac032a4333491fa514481f18443e967d5f58cea3c5d4014e31637942546b6",
+      "smoke2/B/ledger.jsonl": "7bd1c88a017083c4d535089d9b502a62068452028fd48a9db820ec5d06e581ec",
+      "smoke2/B/output.tar": "4aaa52b50234130b27705c7419e2b2fe11a8f3c441e858f1aedb16c4a2b1004c",
+      "smoke2/B/progress.json": "64c9cad3f581d665bf668b1be9af027ff52e03a73925c1c241708c884026f6c4",
+      "smoke2/B/raw/2026-11-25T04-56-18-00-00_mb005-offline_N5axiD4pC8rujxUBxXofdP.json": "7f0c26e82d4dc0be8e5cabe6b7480223e94780df13bb8130fc1051f95a0e53c6",
+      "smoke2/B/receipt.json": "ada765d49e12db4ef99592710b81b74f575791379bb79ffc670facf4d5f33d5c",
+      "smoke2/B/start.json": "7987f28a0b88faf1a687fffe2f21ba7d932f652b5bc481498d460e16a94ade6e",
+      "smoke2/B/terminal.json": "897d9126500ab33ba273b13cda7b6eeed33fc619e2ae6d154e7982ff250c83e0",
+      "smoke2/B/verifier-capture.json": "3874cb8bbd3d78337b1a9527304a42bdc4b2a60b1f3eadd6227401d14e3e5963",
+      "smoke2/ledger.jsonl": "ac674360055a7e3ec5ded115ab8e1db9638c287e5d7126a94b17d86f5b957517",
+      "smoke2/report.json": "6fd89f0b307344d071cfbb49d1d65b7f10198994d91aa885ec1284be2f526a60",
+      "cutoff/checkpoint-0.json": "d88ccf506db94ebcaced046bb47efde79b9351dfc08f801670297393ce8150e3",
+      "cutoff/checkpoint-1.json": "1da7d55f654630bf23a8327ef4cf9c90f57db04516daded8ab7d785c6a0c5996",
+      "cutoff/cleanup.json": "defb7f93e3c15c55733d761ba12e24a241c69ae7af772dac5b9ff3cc60f872a0",
+      "cutoff/controller.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cutoff/evidence.json": "3fb1511c2e25abe9546dcfd27bc2ada7d2fd54f2ac8a9a1ae4f8d73a2956fc52",
+      "cutoff/ledger.jsonl": "28cf6f6290acc285daad743e206af33feadd7addccb7a3f47fd3ceab8b7db4aa",
+      "cutoff/progress.json": "1da7d55f654630bf23a8327ef4cf9c90f57db04516daded8ab7d785c6a0c5996",
+      "cutoff/raw/2026-11-25T04-55-30-00-00_mb005-offline_BXBTxbL9TZ5SDhG2kbuwut.json": "662e83ba42a77a51bdac34d5a3bdfa83de3a3a2ca8ea633e27a120acf230a6d7",
+      "cutoff/start.json": "0b56a6514f833a05af7cfe8667e5f65d64f1e57d0211f967779d14f37ed32e3f",
+      "cutoff/terminal.json": "ba592e25db4893a0c7770afb9ca49a3434341a7934da0c1a7118b3c1994fd485",
+      "interrupted/checkpoint-0.json": "0593375e92f3784a729e9bcb585f9137eb56d9ad269763a4c2675fd6c84d7017",
+      "interrupted/checkpoint-1.json": "4bbd460a2d504ad7439ea36ed1efdf007204b381b946268aea4b2f881c2e4a5d",
+      "interrupted/cleanup.json": "5c494b3a3ba5c6042b0bc84a8008b93b67de7b315cc3ce4e5be70fda659c72ac",
+      "interrupted/controller.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interrupted/ledger.jsonl": "fcb4e1fd2f7f3096a2af73a42fb9c9a7fb1712b0d4d9b46105c563e1f06d74fb",
+      "interrupted/progress.json": "4bbd460a2d504ad7439ea36ed1efdf007204b381b946268aea4b2f881c2e4a5d",
+      "interrupted/raw/2026-11-25T04-55-44-00-00_mb005-offline_j3nuoFiWVspzTnPK3LTsSJ.json": "56aab324d75e0112b6b06fc4b0541307794126d278ccb5d6f4ec7c1ee5c054ad",
+      "interrupted/start.json": "e9bdd7efdab42257ce12a6f4dca52f59ce7a0338697187318d0cfa8eaea900fa",
+      "interrupted/terminal.json": "cd67a24907193353e439f2dfd1951ae577d38301e02db5fc53184003de92831e",
+      "adapter/__main__.py": "2a5b899f290ae8c3ab5b8f6b1054728a9b565cd7a976dbda451a83c6d612f10f",
+      "adapter/worker.py": "f53521c9161295db281333ad66158643d4623bdb81b9071ce42e06beed28a6fe",
+      "adapter/compose.yaml": "00f2f88e836d39aa137f7e33cb3f0ad04fea1365a10c6821d8023862037c983d",
+      "adapter/proof.py": "f3d91a021f904bd721baff0285a09193e4644d42e2eaa46f8df4ad791401b3f1",
+      "smoke-results.json": "5acf2afbe57cdd3351de7b10bb2de8db2c54772157f05be1a2c683aea5416715"
+    }
+  },
+  "outcomes": {
+    "stdout-overflow": {
+      "verdict": "ungraded",
+      "stop_reason": "safety_stop",
+      "verifier": {
+        "independent": false,
+        "source": "MB-005 trusted grading outside candidate execution boundary",
+        "status": "not_run"
+      },
+      "time_to_verified_completion": {
+        "reason": "no verified completion; deadline is not duration",
+        "source": "MB-005",
+        "status": "unknown"
+      },
+      "output_limit": {
+        "role": "candidate",
+        "channel": "stdout",
+        "limit_bytes": 65536
+      },
+      "retained_bytes": {
+        "stdout": 65536,
+        "stderr": 0
+      },
+      "observed_bytes_lower_bound": {
+        "stdout": 65537,
+        "stderr": 0
+      },
+      "capture_seconds": 0.36372323100022186,
+      "container_exit": 137,
+      "attach_exit": -9,
+      "capture_complete": false
+    },
+    "stderr-overflow": {
+      "verdict": "ungraded",
+      "stop_reason": "safety_stop",
+      "verifier": {
+        "independent": false,
+        "source": "MB-005 trusted grading outside candidate execution boundary",
+        "status": "not_run"
+      },
+      "time_to_verified_completion": {
+        "reason": "no verified completion; deadline is not duration",
+        "source": "MB-005",
+        "status": "unknown"
+      },
+      "output_limit": {
+        "role": "candidate",
+        "channel": "stderr",
+        "limit_bytes": 65536
+      },
+      "retained_bytes": {
+        "stdout": 13,
+        "stderr": 65536
+      },
+      "observed_bytes_lower_bound": {
+        "stdout": 13,
+        "stderr": 65537
+      },
+      "capture_seconds": 0.3568625970001449,
+      "container_exit": 137,
+      "attach_exit": -9,
+      "capture_complete": false
+    },
+    "smoke1": {
+      "completion_coverage": {
+        "synthetic-A": 1.0,
+        "synthetic-B": 1.0
+      },
+      "paired_denominator": 1
+    },
+    "smoke2": {
+      "completion_coverage": {
+        "synthetic-A": 1.0,
+        "synthetic-B": 1.0
+      },
+      "paired_denominator": 1
+    },
+    "cutoff": {
+      "verdict": "ungraded",
+      "stop_reason": "timeout",
+      "verifier": {
+        "independent": false,
+        "source": "MB-005 trusted grading outside candidate execution boundary",
+        "status": "not_run"
+      },
+      "time_to_verified_completion": {
+        "reason": "no verified completion; deadline is not duration",
+        "source": "MB-005",
+        "status": "unknown"
+      }
+    },
+    "interrupted": {
+      "verdict": "ungraded",
+      "stop_reason": "interruption",
+      "verifier": {
+        "independent": false,
+        "source": "ledger recovery",
+        "status": "not_run"
+      },
+      "time_to_verified_completion": {
+        "reason": "not measured",
+        "source": "ledger",
+        "status": "unknown"
+      }
+    }
+  },
+  "remaining_gates": [
+    "native model identity",
+    "native session/tool isolation",
+    "calibrated replay delivery",
+    "cost observability"
+  ]
+}

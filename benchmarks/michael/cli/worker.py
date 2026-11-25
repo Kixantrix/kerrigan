@@ -1,11 +1,13 @@
 """Trusted Inspect adapter subprocess; evaluated Python runs only inside Docker."""
 
 import argparse
+import base64
 import hashlib
 import io
 import json
 import os
 from pathlib import Path
+import selectors
 import subprocess
 import tarfile
 import time
@@ -23,7 +25,8 @@ from benchmarks.michael.engine_proof import proof
 IMAGE = "python:3.12-slim@sha256:191083cdf6c7bda8c76158983163ead5d5cf7b77cf3033e805bb0f5296f51b4b"
 MODES = ("success", "negative", "runtime_error", "timeout", "background",
          "symlink", "special", "extra_output", "outside", "evaluator_error",
-         "sentinel_spoof", "verifier_tamper")
+         "sentinel_spoof", "verifier_tamper", "oversized_stdout", "oversized_stderr")
+STREAM_LIMIT = 65536
 
 
 def docker(*args, data=None):
@@ -67,12 +70,80 @@ def output_archive(agent_id):
                 process.wait()
 
 
-def isolated_program(run_id, role, program, files):
+def bounded_capture(container_id, directory, role):
+    started = time.monotonic()
+    deadline = started + 10
+    buffers = {"stdout": bytearray(), "stderr": bytearray()}
+    observed = {"stdout": 0, "stderr": 0}
+    capture = {"limit_bytes_per_channel": STREAM_LIMIT, "output_limit": None, "complete": False}
+    process = subprocess.Popen(["docker", "start", "-a", container_id],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
+    capture["attach_pid"] = process.pid
+
+    def persist():
+        capture.update({name: bytes(value).decode(errors="replace") for name, value in buffers.items()})
+        capture["bytes_base64"] = {
+            name: base64.b64encode(value).decode() for name, value in buffers.items()}
+        capture["retained_bytes"] = {name: len(value) for name, value in buffers.items()}
+        capture["observed_bytes_lower_bound"] = observed.copy()
+        proof.write(directory / f"{role}-capture.json", capture)
+
+    try:
+        with selectors.DefaultSelector() as selector:
+            for name in buffers:
+                selector.register(getattr(process, name), selectors.EVENT_READ, name)
+            while selector.get_map() and capture["output_limit"] is None:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(process.args, 10)
+                for key, _ in selector.select(remaining):
+                    name = key.data
+                    room = STREAM_LIMIT - len(buffers[name])
+                    chunk = os.read(key.fd, min(8192, room + 1))
+                    if not chunk:
+                        selector.unregister(key.fileobj)
+                        continue
+                    observed[name] += len(chunk)
+                    buffers[name].extend(chunk[:room])
+                    if len(chunk) > room:
+                        capture["output_limit"] = {"role": role, "channel": name,
+                                                   "limit_bytes": STREAM_LIMIT}
+                        persist()
+                        break
+        if capture["output_limit"] is None:
+            process.wait(timeout=max(0.01, deadline - time.monotonic()))
+            capture["complete"] = True
+    except (OSError, subprocess.SubprocessError) as exc:
+        capture["capture_error"] = str(exc)
+        raise
+    finally:
+        try:
+            if process.poll() is None:
+                process.kill()
+            process.wait(timeout=2)
+            state = json.loads(docker("inspect", container_id))[0]["State"]
+            if state["Running"]:
+                capture["stopped_by_controller"] = True
+                docker("kill", container_id)
+                state = json.loads(docker("inspect", container_id))[0]["State"]
+            capture.update(state=state, docker_exit_code=process.returncode,
+                           attach_process_stopped=True, seconds=time.monotonic() - started)
+        except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
+            capture["termination_error"] = str(exc)
+            raise
+        finally:
+            process.stdout.close()
+            process.stderr.close()
+            persist()
+    return capture
+
+
+def isolated_program(run_id, role, program, files, directory):
     container_id = docker(
         "create", "--label", f"michael-cli={run_id}", "--label", f"michael-role={role}",
         "--network", "none", "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
         "--memory", "256m", "--cpus", "1", "--pids-limit", "64",
-        "--workdir", "/work", IMAGE, "python", "-B", f"/work/{program}",
+        "--log-driver", "none", "--workdir", "/work", IMAGE, "python", "-B", f"/work/{program}",
     ).decode().strip()
     info = json.loads(docker("inspect", container_id))[0]
     staged = io.BytesIO()
@@ -82,15 +153,12 @@ def isolated_program(run_id, role, program, files):
             member.size = len(value)
             tar.addfile(member, io.BytesIO(value))
     docker("cp", "-", f"{container_id}:/work", data=staged.getvalue())
-    result = subprocess.run(["docker", "start", "-a", container_id],
-                            capture_output=True, timeout=10)
-    state = json.loads(docker("inspect", container_id))[0]["State"]
+    capture = bounded_capture(container_id, directory, role)
+    state = capture["state"]
     if state["Status"] != "exited" or state["Running"] or state["Error"] or state["OOMKilled"]:
-        raise RuntimeError(f"{role} infrastructure failure: {state}; {result.stderr.decode(errors='replace')}")
+        raise RuntimeError(f"{role} infrastructure failure: {state}; {capture['stderr']}")
     return {"id": container_id, "inspect": info, "state": state,
-            "docker_exit_code": result.returncode,
-            "stdout": result.stdout.decode(errors="replace"),
-            "stderr": result.stderr.decode(errors="replace"),
+            **capture,
             "materials": {name: hashlib.sha256(value).hexdigest() for name, value in files.items()}}
 
 
@@ -176,14 +244,18 @@ def run(directory, mode):
                 "answer.py": answer, "candidate.py": (
                     "import json, answer\n"
                     "print(json.dumps([answer.double(n) for n in (-7, 0, 13)], allow_nan=False))\n"
-                ).encode()})
+                ).encode()}, directory)
             receipt["candidate"] = candidate
             receipt["lifecycle"].append("candidate_stopped")
             persist()
+            if candidate["output_limit"] is not None:
+                receipt["output_limit"] = candidate["output_limit"]
+                receipt["verified"] = "not_run"
+                receipt["phases"]["verification"] = time.monotonic() - begin
+                persist()
+                return Score(value=0)
             values = None
             try:
-                if len(candidate["stdout"]) > 65536:
-                    raise ValueError("candidate response exceeds 64 KiB")
                 values = json.loads(candidate["stdout"])
             except ValueError as exc:
                 receipt["response_error"] = str(exc)
@@ -204,10 +276,14 @@ def run(directory, mode):
                     "answer.py": proxy.encode(), "verifier.py": verifier.encode(),
                     "grade.py": (b"import runpy\ntry:\n    runpy.run_path('/work/verifier.py')\n"
                                  b"except AssertionError:\n    raise SystemExit(2)\n"),
-                    "response.json": json.dumps(values).encode()})
+                    "response.json": json.dumps(values).encode()}, directory)
                 receipt["verifier_id"], receipt["verifier_inspect"] = grader["id"], grader["inspect"]
                 receipt["verification"]["grader"] = grader
-                receipt["verified"] = {0: "passed", 2: "failed"}.get(grader["state"]["ExitCode"], "error")
+                if grader["output_limit"] is not None:
+                    receipt["output_limit"] = grader["output_limit"]
+                    receipt["verified"] = "error"
+                else:
+                    receipt["verified"] = {0: "passed", 2: "failed"}.get(grader["state"]["ExitCode"], "error")
                 receipt["lifecycle"].append("verifier_stopped")
             receipt["phases"]["verification"] = time.monotonic() - begin
             persist()
@@ -221,6 +297,10 @@ def run(directory, mode):
                   "if p.exists():\n    p.write_text('assert True\\n')\n"
                   "    print('MB005_ASSERTIONS_PASSED', flush=True)\n    os._exit(0)\n"
                   "def double(n):\n    return n\n")
+    if mode in ("oversized_stdout", "oversized_stderr"):
+        channel = 1 if mode == "oversized_stdout" else 2
+        answer = ("import os\nos.write(1, b'[-14, 0, 26]\\n')\n"
+                  f"while True:\n    os.write({channel}, b'x' * 8192)\n")
     code = "from pathlib import Path; Path('answer.py').write_text(" + repr(answer) + ")"
     suffix = {
         "runtime_error": "\nraise RuntimeError('synthetic crash')",
