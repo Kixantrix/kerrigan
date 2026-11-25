@@ -31,6 +31,12 @@ can remove labeled sandboxes but cannot assert missing owner quiescence.
 Docker/host/owner availability remains trusted infrastructure; this is not
 crash resilience against simultaneous owner/daemon/host failure.
 
+On Linux, registration retains the exact `/proc/self/stat` start-ticks identity.
+On macOS, `process_start_ticks` is null and identity explicitly unknown; current
+PID/platform are observational metadata, never a recovered process handle.
+No saved-PID signaling or substitute `ps` identity is introduced. Prior Linux
+receipts/source snapshots remain archived unchanged.
+
 Only after container exit does the host validate observations and apply hidden
 clauses. Malformed/duplicate/missing/truncated/overflow data, nonzero exit, OOM,
 timeout and evaluator errors are ungraded, not ordinary assertion failures.

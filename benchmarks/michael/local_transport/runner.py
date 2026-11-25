@@ -5,11 +5,15 @@ from pathlib import Path
 import subprocess
 import uuid
 
-from proof import MODELS, ProofError, digest, environment, fresh, persist
+if __package__:
+    from .proof import MODELS, ProofError, digest, environment, fresh, persist
+else:
+    from proof import MODELS, ProofError, digest, environment, fresh, persist
 
 HERE = Path(__file__).resolve().parent
 SOURCES = ("owner.mjs", "worker.py", "runner.py", "proof.py", "limits.mjs",
-           "protocol.mjs", "budgets.json", "runtime.json", "package.json")
+           "protocol.mjs", "budgets.json", "runtime.json", "package.json",
+           "validator-policy.json", "validator_worker.py")
 PYTHON = "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3"
 CLI_FLAGS = ("--headless --stdio --sandbox --no-auto-update --disable-builtin-mcps "
              "--no-ask-user --disallow-temp-dir --sync-session=off --log-level=none")

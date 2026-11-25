@@ -9,6 +9,14 @@ import time
 from benchmarks.michael.replay_grader import api
 
 
+def identity():
+    if sys.platform == "linux":
+        return {"process_start_ticks": Path("/proc/self/stat").read_text().rsplit(")", 1)[1].split()[19],
+                "process_identity_kind": "linux-proc-stat"}
+    return {"process_start_ticks": None, "process_identity_kind": "unknown-no-pid-signals",
+            "platform": sys.platform}
+
+
 def run(directory, controller_fd):
     start = json.loads((directory / "start.json").read_bytes())
     source = (directory / "source.bin").read_bytes()
@@ -17,7 +25,7 @@ def run(directory, controller_fd):
     api.CONTROLLER_FD = controller_fd
     api.persist(directory / "owner.json", {
         "run_id": start["run_id"], "pid": os.getpid(),
-        "process_start_ticks": Path("/proc/self/stat").read_text().rsplit(")", 1)[1].split()[19],
+        **identity(),
         "registered_monotonic": time.monotonic(),
         "candidate_seconds": start["seconds"], "state": "registered_before_create"})
     # This process owns creation, attach, deadline and cleanup. The liveness

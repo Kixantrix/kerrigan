@@ -2,10 +2,13 @@ import { readFileSync, writeFileSync, appendFileSync, openSync, fsyncSync, close
 import { pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
 import { createHash } from "node:crypto";
-import { validateAction, nativeFailure, verifiedPublicHttps, canonical } from "./limits.mjs";
+import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATOR } from "./limits.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
+if (config.validatorReplay && (config.model !== null || config.approved !== false ||
+    config.transportProbe || config.prompt !== undefined || config.condition !== "MB-006k-offline"))
+    throw new Error("validator_replay_forbids_inference");
 const initialConfig = structuredClone(config);
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const { spawn } = await import(pathToFileURL(config.sdk));
@@ -160,7 +163,7 @@ function parse(bytes) {
 }
 async function action(id, args) {
     if (!gate || stopping) throw new Error("execution_gated");
-    const payload = validateAction(id, args, budget);
+    const payload = validateAction(id, args, budget, config.validatorReplay === true);
     persist(`action-${actions.size}`, { id, args, atMs: performance.now() - began });
     const process = await owned("task", `${config.python} -I -B ${config.worker}`,
         config.taskProfile, payload);
@@ -192,7 +195,8 @@ try {
     cli = transport.child; input = transport.stdin;
     const sessionId = config.sessionId;
     const created = await rpc("session.create", {
-        sessionId, model: config.model || undefined, clientName: "MB-006d",
+        sessionId, model: config.model || undefined,
+        clientName: config.validatorReplay ? "MB-006k-offline" : "MB-006d",
         policy: config.model ? { allowedModels: [config.model] } : undefined,
         workspace: { workingDirectory: config.task }, workingDirectory: config.task,
         permissions: { sandbox: config.sandbox, request: true },
@@ -200,8 +204,9 @@ try {
             name: "mb_action", description: "No-network no-fork confined Python/file action. Maximum 8 actions.",
             hasHandler: true, parameters: { type: "object", additionalProperties: false,
                 properties: { op: { enum: ["read", "write", "run"] },
-                    path: { enum: ["candidate.py", "result.txt"] },
-                    data: { type: "string", maxLength: 7000 } }, required: ["op", "path"] } }] },
+                    path: { enum: config.validatorReplay ? VALIDATOR.read : ["candidate.py", "result.txt"] },
+                    data: { type: "string", maxLength: config.validatorReplay ? VALIDATOR.bytes : 7000 } },
+                    required: ["op", "path"] } }] },
         extensions: { enabled: false }, mcp: { servers: {} },
         hooks: { hasHandlers: false, enableRepositoryHooks: false },
         skills: { enabled: false }, git: { enableHostGitOperations: false },
@@ -224,6 +229,7 @@ try {
         state.userPolicy?.network?.allowLocalNetwork !== false ||
         state.userPolicy?.seatbelt?.keychainAccess !== false ||
         state.allowDevToolAccess !== false || sandbox.autoApproveBypass !== false ||
+        (config.validatorReplay && !state.userPolicy?.filesystem?.readonlyPaths?.includes(config.support)) ||
         !config.sandbox.userPolicy.filesystem.deniedPaths.every(
             path => state.userPolicy?.filesystem?.deniedPaths?.includes(path)) ||
         Object.values(created.capabilities?.ui || {}).some(value => value !== false) ||

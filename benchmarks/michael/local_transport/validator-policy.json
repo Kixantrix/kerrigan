@@ -1,0 +1,8 @@
+{
+  "kind": "validator-replay-v1",
+  "source": "tools/validators/agents_md.py",
+  "read": ["TASK.md", "policy.json", "requirements.txt", "tools/validators/agents_md.py"],
+  "bytes": 8192,
+  "aggregate": 32768,
+  "actions": 8
+}

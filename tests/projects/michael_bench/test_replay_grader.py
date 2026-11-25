@@ -23,6 +23,17 @@ from policy import cases
 packages = api.packages
 
 
+def test_owner_registration_preserves_linux_ticks_and_honest_macos_unknown(monkeypatch):
+    import owner
+    monkeypatch.setattr(owner.sys, "platform", "darwin")
+    assert owner.identity() == {"process_start_ticks": None,
+                                "process_identity_kind": "unknown-no-pid-signals", "platform": "darwin"}
+    monkeypatch.setattr(owner.sys, "platform", "linux")
+    monkeypatch.setattr(owner.Path, "read_text", lambda *_: "1 (name with spaces) " + " ".join(
+        str(i) for i in range(25)))
+    assert owner.identity()["process_start_ticks"] == "19"
+
+
 def fault_grade(source, directory):
     """Direct trusted-worker failure injection; candidate still runs only in Docker."""
     directory.mkdir()
