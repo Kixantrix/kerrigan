@@ -2,8 +2,9 @@
 
 MB-001a preserves historical imports; MB-001b adds engine-neutral manifests.
 MB-002 adds a bounded [Inspect offline compatibility proof](engine_proof/README.md).
-The contracts alone provide no runtime attestation. The proof is not a general
-runner, ledger, public CLI, report, historical calibration, live telemetry,
+MB-004 adds the offline [ledger/report API](ledger_report/api.py).
+The contracts alone provide no runtime attestation. Neither the proof nor this
+API is a general runner, public CLI, historical calibration, live telemetry,
 or scored model trial.
 See the [plan](../../specs/projects/michael-bench/plan.md).
 ## Historical import v1
@@ -100,3 +101,57 @@ elapsed time without invented completion time. Safety cutoffs are separate.
 Run `python -m pytest tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_manifests.py -q`.
 These integration checks run on `cloud-linux`; smoke is not applicable until
 MB-005 provides the offline CLI.
+
+## Offline ledger and explicit comparisons (MB-004)
+
+Import `Ledger`, `LedgerError`, and `compare` from
+`benchmarks.michael.ledger_report.api` with the repository on Python's path.
+`Ledger(path)` owns a caller-selected JSONL file in an existing directory.
+It uses Linux advisory locks, append/fsync, sequence numbers, and a SHA-256 chain.
+Every read revalidates all records and frozen bundle references. Corrupt/torn
+writes raise explicit errors; there is no silent repair. Identical operations
+return `False` without appending. Conflicting starts/events/terminals fail.
+Retain an external final digest/receipt if detection of whole-tail deletion is
+required: a hash chain alone cannot detect removal of a valid suffix.
+
+Call `start(trial_id, bundle, attempt_id=..., origin="synthetic"|"new_trial")`
+before execution elsewhere. The bundle must omit `result`. `checkpoint` requires
+the active attempt, a unique event ID, a contract event, timing evidence, and
+`artifacts` containing URI/SHA-256 references. No referenced artifact is opened.
+`finalize(trial_id, result, partial=None)` consumes a validated cumulative result,
+retaining prior attempts unchanged and checkpoint events/elapsed observations.
+Retries require another explicit start bound by `retry_of` and the frozen retry
+policy/attempt limit. This records declarations; it cannot enforce runtime caps.
+`recover(trial_id)` explicitly finalizes an unfinished start as interrupted/
+ungraded, preserving events/artifact provenance and observed elapsed time, with
+partial end-to-end coverage. It never creates another start or replays tools.
+
+Optional auxiliary `partial` evidence has exactly `result` (manifest reference),
+`attempt_id`, integer `passed`/positive `total`, `source`, and nonempty `artifacts`
+(URI/SHA-256 references). It binds the exact cumulative result/current attempt.
+Counts are not task passes; missing assertion measurements are not zero passes.
+
+`compare(ledger, cohorts={"A": ["trial-a"], "B": ["trial-b"]}, suite=[task_ref])`
+requires two named cohorts and an explicit frozen eligible suite; it never
+auto-groups records. The default varying factor is `target`; alternatively
+`factor="agent_configuration"` fixes the target and harness while allowing
+configuration changes. Task digests, track, harness, budgets, retry/cache
+policies, capabilities, and required semantics must match. Within-cohort
+factor changes and synthetic/new-trial pooling fail. Historical envelopes remain
+separate; they cannot be passed off as starts. Controlled tracks require known
+matched controls/hosts and matched observability/runtime. Practical host and
+observability differences remain visible in complete bundle disclosures.
+
+Reports retain all starts, attempts, retries, terminal references, events,
+artifacts, stop/verifier states, and auxiliary counts. Completion coverage uses
+eligible tasks, including absent tasks. Per-task pairs retain failures and expose
+both-success complete-time subset denominators. Phase totals and named usage
+totals exist only with complete all-attempt evidence; observed sums are labeled,
+not estimates. Usage names must denote consistent units across selected records.
+Power is nonadditive: per-attempt evidence survives but no watt total is emitted.
+No overlapping phases are summed into end-to-end time, no unknown becomes zero,
+and zero-success time ratios are undefined. No universal ranking is produced.
+
+Run the historical-import, manifests, and `test_ledger_report.py` tests together
+with `python -m pytest ... -q` (exact paths in MB-004's briefing).
+All are synthetic `cloud-linux` integration tests; CLI smoke belongs to MB-005.
