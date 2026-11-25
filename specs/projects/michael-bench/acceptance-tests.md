@@ -1,6 +1,6 @@
 # Acceptance tests: Michael Bench
 
-MB-001a historical-import tests are implemented; other tests below are planned. Planned test IDs specify required behavior, not an existing test suite.
+MB-001a historical-import and MB-001b manifest contract tests are implemented. Execution, calibration, ledger, and report tests below remain planned; contract portions do not close runtime ACs.
 
 | AC | Planned test ID | Given / when / then |
 |---|---|---|

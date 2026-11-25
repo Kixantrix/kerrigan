@@ -1,6 +1,6 @@
 # Plan: Michael Bench
 
-Status: direction confirmed; MB-001a historical import boundary completed. Remaining contracts, engine selection, and broader dispatch are pending.
+Status: MB-001a historical import and MB-001b versioned contracts completed. MB-002 offline engine/isolation proof is next; scored trials remain gated.
 
 ## Prior decisions
 
@@ -50,6 +50,8 @@ Deliverable: hardware-aware candidate changes and finite evaluation proposals. T
 
 Completed first slice: MB-001a, commit `857004c`, provides a pure-standard-library import boundary that retains exact source bytes, SHA-256, opaque source payloads/conditions/attempts/denominators, unknown telemetry, and separate additive corrections. It was implemented and verified in the isolated cloud session; the reviewed four-file change is integrated on the Michael Bench branch. No real pilot data or local model services were accessed. This is not completion of the remaining task/target/condition contracts or engine proof.
 
+MB-001b, commit `c2c73df`, adds validated versioned task/target/agent/condition/result descriptors and frozen cross-references, separate unknown/unsupported/not-applicable evidence, capability requirements, attempt/verifier/stop states, and source/clock-attributed completion timing. The historical importer remains unchanged; 109 focused contract tests pass. Descriptors are not runtime identity, budget enforcement, isolation, or persistence attestations. Actual private pilot ingestion remains outside these synthetic slices.
+
 Inventory the actual pilot source and sanitized evidence schema. Preserve historic outcome labels and additive corrections; establish an importable contract using synthetic/redacted fixtures. Exercise one tiny fake-model task in the smallest candidate engine and prove hidden-verifier separation, native-event preservation, offline reproducibility, and report export.
 
 Prefer Inspect for broader evaluation composition or Harbor for task/environment packaging only after the compatibility evidence. If neither preserves requirements with a small adapter, document the specific gap before proposing a custom runner. No speculative framework rewrite.
@@ -88,7 +90,7 @@ Begin family-specific recommendations for interactive, background, offline/priva
 
 ## Dispatch and routing
 
-Implementation tasks are listed in [tasks.md](tasks.md). MB-001a was dispatched and completed under its [closed briefing](../../../.specify/briefings/MB-001a.md). MB-001b is the next closed contract slice; subsequent runner/calibration/report slices remain gated on its verified handoff. Create scoped briefings and run conflict prediction before parallel assignment. Completing the import boundary does not imply an implemented CLI.
+Implementation tasks are listed in [tasks.md](tasks.md). MB-001a and MB-001b are integrated. MB-002 is the next closed engine/isolation proof; subsequent calibration/report slices remain gated on its verified handoff. Create scoped briefings and run conflict prediction before parallel assignment. Contracts do not imply an implemented CLI.
 
 Offline contracts, fixtures, reporting, and fake-model smoke work: `R-cloud-default`, using sanitized repository-contained materials.
 

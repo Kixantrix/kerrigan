@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Implementation roadmap: MB-001a is complete; MB-001b is the next scoped dispatch. Remaining slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
+Implementation roadmap: MB-001a and MB-001b are integrated; MB-002 is the next scoped dispatch. Subsequent slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
 
 ## Milestone 1
 
@@ -9,11 +9,12 @@ Implementation roadmap: MB-001a is complete; MB-001b is the next scoped dispatch
   - Scope: future `benchmarks/michael/contracts/` and focused contract tests. Raw pilot evidence remains read-only/local.
   - Dependencies: none.
   - Completed bounded slice: MB-001a historical-evidence import contract, commit `857004c` ([briefing](../../../.specify/briefings/MB-001a.md)); other manifest contracts remain pending.
-  - Next bounded slice: MB-001b task/target/agent/condition/result contracts, including timing provenance and interrupted-trial semantics ([briefing](../../../.specify/briefings/MB-001b.md)). Pure offline contracts; no runner or scored model trials.
+  - Completed bounded slice: MB-001b task/target/agent/condition/result contracts, including timing provenance and interrupted-trial semantics, commit `c2c73df` ([briefing](../../../.specify/briefings/MB-001b.md)). Pure offline contracts; no runner or scored model trials. Private pilot ingestion is not completed by synthetic contract tests.
 - [ ] MB-002: Prove one offline task in an existing engine and select the smallest compatible foundation.
   - Done when: hidden verification, complete native-event transport, interrupted-ledger recovery, and offline execution are demonstrated; engine choice cites evidence.
   - Scope: future `benchmarks/michael/` adapter spike and fixture tests; no model downloads or live endpoints.
   - Dependencies: MB-001.
+  - Closed execution scope: [MB-002 briefing](../../../.specify/briefings/MB-002.md). Synthetic evidence only; prove real sandbox/verifier separation rather than relying on descriptor labels.
 
 ## Milestone 2
 

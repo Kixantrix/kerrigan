@@ -1,6 +1,6 @@
 # Spec: Michael Bench
 
-Status: MB-001a historical import boundary implemented; full manifests, reusable runner, and new model evaluations remain pending.
+Status: MB-001a historical import and MB-001b versioned manifests implemented; reusable runner, calibrated packages, reporting, and new model evaluations remain pending.
 
 ## Goal
 
