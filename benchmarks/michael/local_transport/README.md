@@ -29,7 +29,7 @@ Copilot authorization or successful authenticated API calls. It differs from
 the earlier cloud host's DNS failure.
 
 The official MXC **1.1.0** package supplied the standalone ARM64
-`mxc-exec-mac`; no Node SDK imports are used. The archive integrity and exact
+`mxc-exec-mac`; the initial proof uses no Node SDK imports. The archive integrity and exact
 native executable bytes are pinned in runtime.json. Initial acquisition used
 an owned npm installation with scripts disabled; a subsequent `npm pack`
 retained the identical integrity-pinned package. Only the standalone executor
@@ -132,3 +132,42 @@ The first Python 3.9 run also exposed its process-relative `time.monotonic`
 epoch; its negative phase durations are **invalid timing evidence**, retained
 historically in the bundle. The fix uses `clock_gettime(CLOCK_MONOTONIC)`;
 cross-process positive durations and cutoff now have regression coverage.
+
+## Continued supported-mechanism evaluation
+
+The [addendum receipt](addendum.json) and [raw addendum](containment-addendum.tar.gz)
+supersede the earlier unknown-tool observation, not the native execution gate:
+
+| Mechanism | Actual result without inference |
+| --- | --- |
+| Official SDK `session.tools.initializeAndValidate` / `getCurrentMetadata` | Exactly one external `mb_action` stub; no built-in file, shell or delegation tools |
+| Native invocation of removed `view` | `not_found`; only `mb_action` offered |
+| SDK `permissions.sandbox` / `session.sandbox.getState` | Enabled; no bypass, task network or git/gh auth; credential/keychain paths denied |
+| Preserved deny-default profile with `process-fork` denied | Actual `fork()` and `posix_spawn` both failed EPERM |
+| External cancellation through a live MXC SDK native handle | Non-forking synthetic task stopped in 0.355s; no warnings; no saved-PID/name signals |
+| CLI itself under outer MXC no-fork profile | Native session/tool/policy introspection succeeded; normal exit 0, no warnings |
+
+Important corrections: `--sandbox` alone did **not** enable the SDK-created
+session; its initial `getState` reported disabled. The documented per-session
+`permissions.sandbox` request fixed this without changing settings.
+The native API field does not expose `nestedPty`; the returned effective state,
+not a requested setting, is authoritative.
+
+MXC documents generic macOS cleanup as best-effort, including a five-second
+scan limit. Its native SDK `kill()`/`wait()` retains an owned process handle;
+the no-fork policy is a compatible way to eliminate detached descendants, not
+a claim that scanning proves arbitrary-tree quiescence.
+`profileOverride` ignores filesystem/network/UI profile generation: the
+prototype therefore preserves the entire observed deny-default profile and
+explicit credential denials. Outer CLI transport networking is distinct from
+the denied task networking; normal CLI authorization state is accessible only
+to the trusted transport, never the task.
+
+These are **compatible supported mechanisms**, not an unsupported-MXC finding.
+The external tool is still a stub, and the integrated bounded action broker,
+whole CLI/task cancellation and crash recovery are not implemented/proven.
+No canary or scored attempt ran. The original 40-implementation-turn cap has
+been reached; [the scoped block](MB-006c-block.yaml) requests a bounded
+continuation rather than silently exceeding it or calling this slice complete.
+The conductor may file that block in canonical `.specify/blocks`; this executor
+keeps repository writes inside the briefing's closed Touch scope.

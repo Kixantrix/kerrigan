@@ -13,6 +13,6 @@
     "archive_integrity": "sha512-tSOPZ14ddCiXHc4hVNQp5Yi22HSQEfXh58Z4O/tLzERi+23rfRmMrJoxVK5jZYhlll68u4eF/UlQSaXWyUMj4w==",
     "archive_member": "package/bin/arm64/mxc-exec-mac",
     "executable_sha256": "4c68a4ff34ed14134a94a4312a8ec172bd2099dd26453e4a7893d91515f42687",
-    "note": "Standalone executor only; no Node SDK imports or runtime dependencies."
+    "note": "Initial proof uses the standalone executor. The continued lifetime prototypes use the same pinned Node SDK; exact owned install manifests are preserved in the addendum archive."
   }
 }

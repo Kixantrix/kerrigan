@@ -1,0 +1,27 @@
+task_id: MB-006c
+emitted_by: cloud
+emitted_at: "2026-11-25T05:41:45Z"
+reason: out_of_budget
+severity: medium
+summary: Supported native containment mechanisms are proven, but integrated execution exceeds the briefing's 40-turn cap.
+details: |
+  Pinned CLI setup, human OAuth and native access succeeded.
+  Actual native tool inventory was only mb_action; removed view failed not_found.
+  Explicit SDK permissions.sandbox returned enabled with bypass, task network
+  and git/gh authentication disabled. MXC no-fork policy denied fork and spawn.
+  Live native-handle cancellation stopped a non-forking task without warnings.
+  The CLI also initialized and exited normally under an outer MXC no-fork policy.
+  Remaining: implement the real bounded action broker and integrated external
+  CLI/task cancellation and crash recovery before the two permitted canaries.
+  No model prompt, canary or scored trial has run. This is not a capability gap.
+decision_needed: |
+  Authorize a bounded continuation briefing or explicitly increase the implementation-turn cap.
+options:
+  - id: A
+    description: Authorize a continuation slice with an explicit turn cap.
+    implication: Integrate the verified mechanisms; preserve the unused two-canary allowance.
+  - id: B
+    description: Retain the partial proof and keep native execution gated.
+    implication: No further execution or spending; the benchmark remains incomplete.
+recommendation: A
+minimum_human_input: "Authorize continuation and state its implementation-turn cap."

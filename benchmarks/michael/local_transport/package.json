@@ -1,0 +1,8 @@
+{
+  "name": "michael-local-containment-proof",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "@microsoft/mxc-sdk": "1.1.0"
+  }
+}

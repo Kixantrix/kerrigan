@@ -1,0 +1,69 @@
+{
+  "archive_sha256": "e3ac158139907757665ab1cd9ecfd74ff6f6adfa7d5f9e11a2cb3b7f1d1a76a9",
+  "canaries_consumed": 0,
+  "dated_observations": "2026-11-25",
+  "effective_native_tools": [
+    "mb_action"
+  ],
+  "external_tool_handler": "stub; no generated execution",
+  "full_integrated_cutoff_recovery": "unproven; continuation required",
+  "kernel_process_policy": "actual fork and posix_spawn both denied EPERM",
+  "lifetime": {
+    "activeSeconds": 0.35453091700000006,
+    "errorOutput": "",
+    "externalCancellationReceived": true,
+    "identity": "live MXC native process handle, no recorded PID signals",
+    "nativePrompts": 0,
+    "output": "ready\n",
+    "result": {
+      "exitCode": -1,
+      "timedOut": false
+    },
+    "scope": "non-forking task process only; CLI lifetime still unproven",
+    "verdict": "ungraded",
+    "warnings": []
+  },
+  "native_policy": "explicit permissions.sandbox enabled; task network/auth/bypass disabled",
+  "native_prompts": 0,
+  "official_schema_reference": {
+    "installed_cli_version_verified": "1.0.115",
+    "observed_sha256": "1d0585b5b0d56ab5e4a0356a0cca1a2e7dbda9295b20cb7752045799520fe889",
+    "url": "https://raw.githubusercontent.com/github/copilot-sdk/main/nodejs/src/generated/rpc.ts"
+  },
+  "removed_native_view": "not_found",
+  "safe_file_sha256": {
+    "inventory-receipt-2/receipt.json": "9b14b80ef0caf08eef5dd866e2df2b1b3dc2a8f4271291e3cec1b0c13e2d4f04",
+    "inventory-receipt-2/start.json": "fbab2985f15fca90e26f297d32d1184a8ce2f8fd7881277114c7d2b89fdf2b89",
+    "inventory-receipt-3/receipt.json": "eefaa7c4dd63d0cae8331f1515a35a8ed0f35ce1de9f1be46e89eb40d9e768fc",
+    "inventory-receipt-3/start.json": "b4f08491e0d0bf6d716d67f3877cdb1d4dac3beaeba6bb2fa28aced788018ece",
+    "inventory-receipt/receipt.json": "8ba66624859650cdd0372f6b3d489376097252cf1320acfdef4a0495cedfb1b3",
+    "inventory-receipt/start.json": "465b11204e5197f6c01e3050e757ce6eaa6ff41739f69d56f1fb6b49850b9a96",
+    "inventory_probe.py": "fa96ff4d3fc4450021d0ceb9e2da9eb393ddcbf62c19893633d95c001ea2877b",
+    "lifetime-receipt.json": "b20b042ef3e2871a585f5d33f91e4f4767e808cc73b4bc0e97a6d4b483f9b92e",
+    "lifetime-start.json": "64e7e77dc66a676c13e0510dcf4837d9a73309ecb6b1511b0372330c9a63d782",
+    "lifetime_controller.py": "5d03ccdcf5e39e155daae019cd62ee911093c000bace6bc191e21607ce6e85ef",
+    "lifetime_probe.mjs": "9de8f20a46e57f7317e924f25da18fbe5cee534d346a5247b94de1620d1d6e4f",
+    "sdk/package-lock.json": "b5f573dd30daf05167347961d37f76a5d104e8f05523cffd67dab0767c67bf40",
+    "sdk/package.json": "3c123e1ded6398d7cef5d3b8105705d68177d7200d1a60259720325802878327",
+    "sealed-cli-lifetime.json": "eb44fad84cfbf01f3b367332cbd7ab0833ffd3b57bd17d31f3a4a5224072b437",
+    "sealed-cli-profile.sb": "30c6c9c2fd0e112f718e10a748facee4274c06e357f5ecb56c78b80d30d0a284",
+    "sealed_cli.mjs": "f5758ad960e6afb035092060e06f915e49baf01ac8e4d1bdfd97f71fe9f87085",
+    "strict-probe/policy.json": "2cbe1c759e4c3e3181af5bc99ef5820cefffc3636e3dcd7763306bc5a0b673a7",
+    "strict-probe/receipt/capture.json": "09852b9f05510027c7aa1b02472686804045227369ea6fdb8f59cd7c56cc2ff4",
+    "strict-probe/receipt/process.json": "55754a6197bdf2b779f645c3324554ee7b10127d5b360bb5386e78314c2726a4",
+    "strict-probe/receipt/start.json": "c3b95f99a578a571dbc9182cad43339fa6d9e0bf313556792df2944459c12151",
+    "strict-probe/receipt/terminal.json": "b6be23f78a985d5f6f7d58de2ec035ade03f3c784c6fd3b2b61da4d2265132b5",
+    "strict-probe/task/probe.py": "9f60f8003b3c336234149ba0c0160e07e45e95bf6b9b819be8ffad271f803a82",
+    "strict_probe.py": "080e4d157acdaa74fae799de2034e6ae71b81084c72e30b7ae4f7cd2bb4c2a7d"
+  },
+  "sealed_cli": {
+    "nativePrompts": 0,
+    "result": {
+      "exitCode": 0,
+      "timedOut": false
+    },
+    "scope": "MXC native CLI root under process-fork denial",
+    "warnings": []
+  },
+  "stop": "40 implementation-turn cap reached; supported mechanisms compatible"
+}
