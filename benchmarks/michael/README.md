@@ -1,8 +1,10 @@
-# Michael Bench: offline contracts
+# Michael Bench: offline contracts and engine proof
 
 MB-001a preserves historical imports; MB-001b adds engine-neutral manifests.
-Neither selects an engine or provides a runner, ledger, CLI, reporting,
-isolation proof, discovery, live telemetry, or scored model trials.
+MB-002 adds a bounded [Inspect offline compatibility proof](engine_proof/README.md).
+The contracts alone provide no runtime attestation. The proof is not a general
+runner, ledger, public CLI, report, historical calibration, live telemetry,
+or scored model trial.
 See the [plan](../../specs/projects/michael-bench/plan.md).
 ## Historical import v1
 
