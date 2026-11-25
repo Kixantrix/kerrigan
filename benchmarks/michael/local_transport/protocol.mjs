@@ -1,7 +1,6 @@
-export const PROTOCOL = Object.freeze({
-    condition: "MB-006g-offline", header: 1024, frame: 131072,
-    total: 2097152, events: 512, disk: 16777216
-});
+import { readFileSync } from "node:fs";
+export const PROTOCOL = Object.freeze(JSON.parse(
+    readFileSync(new URL("./budgets.json", import.meta.url), "utf8")));
 
 export class Protocol {
     constructor(deliver, limits = PROTOCOL) {

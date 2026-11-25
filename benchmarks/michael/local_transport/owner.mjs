@@ -96,7 +96,8 @@ async function owned(kind, command, profile, payload) {
 }
 function send(message) {
     const body = Buffer.from(JSON.stringify(message));
-    if (body.length > 65536 || !bounded("sent", body)) throw new Error("input_overflow");
+    if (body.length > PROTOCOL.sentFrame || !bounded("sent", body, PROTOCOL.sentTotal))
+        throw new Error("input_overflow");
     if (stopping) throw new Error(stopping);
     input.write(Buffer.concat([Buffer.from(`Content-Length: ${body.length}\r\n\r\n`), body]));
 }

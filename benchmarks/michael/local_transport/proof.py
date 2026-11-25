@@ -15,6 +15,7 @@ import uuid
 LIMIT = 65536
 INPUT_LIMIT = 8192
 MODELS = ("mai-code-2", "claude-sonnet-5.5")
+BUDGETS = json.loads((Path(__file__).with_name("budgets.json")).read_text())
 
 
 def monotonic():
@@ -51,7 +52,7 @@ def environment(state):
         "COPILOT_DISABLE_LOGIN_SHELL_ENV": "true",
         "COPILOT_PLUGIN_DIR_ONLY": "true", "COPILOT_MCP_TOOL_CACHE": "false",
         "COPILOT_ALLOW_ALL": "false", "USE_TGREP": "false",
-        "COPILOT_LLM_RESPONSE_MAX_BYTES": str(LIMIT),
+        "COPILOT_LLM_RESPONSE_MAX_BYTES": str(BUDGETS["modelResponse"]),
     }
 
 

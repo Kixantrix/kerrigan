@@ -331,3 +331,47 @@ Both owned exits were proved before proceeding; all six slots are now spent.
 This establishes one controlled Sonnet readiness loop, not a scored historical
 task or a comparative result. MAI readiness remains blocked by its native HTTP
 bound. No post-start tuning, retry, extra prompt or scoring was performed.
+
+### MB-006i: offline proposed cross-layer budget, not inference readiness
+
+`budgets.json` now supplies the process-local model-response setting and native
+protocol budgets; `proof.py` and that file are included in execution source
+hashes. No allowance was added. Both frozen f/h approvals are source-stale.
+All six spent slots and h's genuine Sonnet readiness / MAI harness cutoff are
+preserved. These are **proposed limits**, not a new authorized live condition.
+
+| Layer | Finite limit | Accounting / rationale |
+|---|---:|---|
+| Native model HTTP response | 128 KiB | `COPILOT_LLM_RESPONSE_MAX_BYTES`, isolated child environment only |
+| Native frame header / JSON body | 1 KiB / 8 MiB | Nine 128 KiB responses in one cumulative snapshot, 6x JSON escaping plus 128 KiB metadata |
+| Native received protocol | 96 MiB | Nine snapshots (sum 1..9), six other copies/response, 6x escaping plus 8 MiB control headroom |
+| Native frames/events | 16,384 | Nine calls with 128-byte mean deltas, 64 metadata events/call plus 512 setup events; smaller deltas may intentionally hit the cap |
+| Native sent frame / total | 1 MiB / 16 MiB | Eight max-sized tool results plus setup; separate from candidate input |
+| Task input / total / actions | 8 KiB / 32 KiB / 8 | Unchanged; reasoning and native controls cannot consume or expand this allowance |
+| Task stdout/stderr, CLI stderr | 64 KiB/channel | Unchanged; max tool-result JSON/base64/escaping fits the separately bounded sent frame |
+| Owner evidence disk | 1 GiB | At least 7x received+sent wire bounds plus 16 MiB task/config/record headroom, including terminal serialization |
+
+This envelope admits nine natural model calls (eight actions plus final turn),
+not arbitrary full-context output or an assertion that the CLI emits at most
+six copies. Oversized snapshots, more copies, finer streaming or unexpected
+metadata still fail closed; lifecycle/failure/retry/model/usage/tool/permission
+events remain unfiltered. The envelope is tested with a labeled synthetic SDK
+through the unchanged owner/broker algorithm: nine large escaped streams and
+cumulative snapshots, usage/starts, full task output, and first-failure cutoff.
+It does not replay inference or establish native model-response parsing.
+Parsed retention is bounded by wire bytes and event count, with at most one
+8 MiB frame plus header in the parser; this is **not an OS RSS guarantee**.
+
+Supported-semantics boundary: the preserved h native failure establishes that
+the process-local setting enforces a native HTTP-response byte ceiling, not
+candidate output or RPC aggregate traffic. Installed `copilot-rpc.ts` documents
+`gitHubFetch.bodyLimitBytes` separately and push event options expose streaming,
+not filtering. It does not expose the model-response environment parser or
+whether that counter applies before/after content decoding. Static inspection
+of the pinned opaque executable found neither UTF-8 nor UTF-16 literals; an
+embedded apparent Zstandard marker was not a valid complete frame. No guessed
+defaults, decoding semantics, new variables, filtering or TLS changes are
+claimed. Exact native counting/acceptance of the proposed response ceiling and
+end-to-end MAI readiness remain **unvalidated**; a separately authorized native
+check would be required. No live request, prompt, slot or scoring is authorized
+by this offline correction.

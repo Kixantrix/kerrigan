@@ -51,6 +51,17 @@ def test_frozen_corrected_allowance_rejects_missing_stale_modified_reused_and_un
         allowance(source)
     approval.write_text(json.dumps(value))
     slots, _ = allowance(source)
+    for filename, changed_bytes in (
+        ("proof.py", (HERE / "proof.py").read_bytes().replace(
+            b'str(BUDGETS["modelResponse"])', b'"262144"')),
+        ("budgets.json", json.dumps({
+            **json.loads((HERE / "budgets.json").read_text()), "modelResponse": 262144
+        }).encode()),
+    ):
+        modified = tmp_path / filename
+        modified.write_bytes(changed_bytes)
+        with pytest.raises(ProofError, match="stale"):
+            allowance({**source, filename: digest(modified)})
     receipt = tmp_path / "first/receipt"
     receipt.mkdir(parents=True)
     from proof import persist
@@ -390,13 +401,18 @@ assert.deepEqual(seen,['model.call_failure']);assert.equal(q.halted,true);
     ({"duplicate": True}, "broker:duplicate_or_invalid_action"),
     ({"sideChannel": True}, 'runtime:diagnostic_failed:{"resultType":"side_channel_denied"}'),
     ({"taskOverflow": True}, "output_overflow:task-2-stdout"),
+    ({"taskFullOutput": True}, "diagnostics_complete"),
+    ({"largeResponse": True}, "diagnostics_complete"),
+    ({"largeResponse": True, "fragment": 65536, "failure": True},
+     "native_model_failure:model.call_failure"),
+    ({"frameOverflow": 8388608}, "protocol:protocol_frame_denied"),
 ])
 def test_actual_owner_broker_with_labeled_synthetic_sdk(tmp_path, variant, expected):
     import shutil
-    run = prepare(tmp_path, tmp_path / "run", seconds=3, diagnostics=(
+    run = prepare(tmp_path, tmp_path / "run", seconds=10, diagnostics=(
         {"op": "write", "path": "candidate.py", "data": "print(2+3)"},
         {"op": "run", "path": "candidate.py"}))
-    for name in ("synthetic_sdk.mjs", "protocol.mjs"):
+    for name in ("synthetic_sdk.mjs", "protocol.mjs", "budgets.json"):
         shutil.copyfile(HERE / name, tmp_path / name)
     (tmp_path / "fixture.json").write_text(json.dumps(variant))
     config = json.loads((run / "config.json").read_text())
@@ -404,18 +420,61 @@ def test_actual_owner_broker_with_labeled_synthetic_sdk(tmp_path, variant, expec
     (run / "config.json").write_text(json.dumps(config))
     child = runner.launch(run)
     try:
-        child.wait(timeout=10)
+        child.wait(timeout=25)
     finally:
         child.stdin.close()
     terminal = json.loads((run / "receipt/terminal.json").read_text())
     assert terminal["stopReason"] == expected
     assert terminal["nativePrompts"] == 0 and terminal["wholeProcessQuiescent"] is True
     assert terminal["protocolBytes"] > 65536
-    assert terminal["protocolCondition"]["condition"] == "MB-006g-offline"
+    assert terminal["protocolCondition"]["condition"] == "MB-006i-offline-proposed"
+    if variant.get("largeResponse"):
+        assert terminal["protocolBytes"] > 32 * 1024 * 1024
+        assert len(terminal["nativeStarts"]) == 9
+        assert len(terminal["usage"]) == 9
+    if variant.get("failure"):
+        types = [item["message"].get("params", {}).get("event", {}).get("type")
+                 for item in terminal["messages"]]
+        assert "model.call_failure" in types and "model.turn_retry" not in types
+        assert terminal["unparsedProtocolBytesLowerBound"] > 0
     if expected == "diagnostics_complete":
         assert terminal["actions"] == ["synthetic-1", "synthetic-2"]
         result = json.loads((run / "receipt/action-result-2.json").read_text())["result"]
-        assert base64.b64decode(result["stdout"]) == b"5\n"
+        assert base64.b64decode(result["stdout"]) == (
+            b"\x01" * LIMIT if variant.get("taskFullOutput") else b"5\n")
+        if variant.get("taskFullOutput"):
+            assert terminal["counts"]["sent"] > LIMIT
         assert any(item["message"].get("params", {}).get("event", {}).get("type") == "session.idle"
                    for item in terminal["messages"])
     assert not (tmp_path / "mb006f").exists()
+    assert not (tmp_path / "mb006h").exists()
+
+
+def test_cross_layer_budget_headroom_and_environment_provenance(tmp_path):
+    from proof import BUDGETS
+    b = BUDGETS
+    assert all(isinstance(value, int) and value > 0 for key, value in b.items() if key != "condition")
+    response, calls = b["modelResponse"], 9
+    assert b["frame"] >= 6 * calls * response + 131072
+    assert b["total"] >= 6 * response * (sum(range(1, calls + 1)) + 6 * calls) + 8388608
+    assert b["events"] >= calls * (response // 128 + 64) + 512
+    assert b["sentFrame"] >= 12 * LIMIT + 2 * ((LIMIT + 2) // 3) * 4 + 8192
+    assert b["sentTotal"] >= 8 * b["sentFrame"] + 65536
+    assert b["disk"] >= 7 * (b["total"] + b["sentTotal"]) + 16777216
+    assert environment(tmp_path)["COPILOT_LLM_RESPONSE_MAX_BYTES"] == str(response)
+    assert {"proof.py", "budgets.json"} <= set(SOURCES)
+    source = {name: digest(HERE / name) for name in SOURCES}
+    for condition, namespace, frozen in (
+        ("MB-006f", "mb006f", runner.FROZEN_APPROVAL),
+        ("MB-006h", "mb006h", runner.LIVE_APPROVAL),
+    ):
+        old = json.loads(frozen.read_text())
+        assert old["source"] != source and "proof.py" not in old["source"]
+        approval = tmp_path / namespace / "approval.json"
+        approval.parent.mkdir()
+        approval.write_text(json.dumps({"condition": condition,
+            "attester": "authorized-local-executor", "evidenceClass": "local-agent-attested"}))
+        with pytest.raises(ProofError, match="stale"):
+            runner.corrected_allowance(
+                tmp_path, "mai-code-2", approval, source, live_condition=condition == "MB-006h")
+        assert not (approval.parent / "slots").exists()

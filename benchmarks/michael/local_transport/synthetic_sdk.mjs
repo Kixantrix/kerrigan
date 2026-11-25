@@ -40,7 +40,8 @@ export async function spawn(options) {
                 const args = JSON.parse(Buffer.concat(chunks));
                 queueMicrotask(() => {
                     standardOutput.write(args.op === "run" ?
-                        (fixture.taskOverflow ? "x".repeat(65537) : "5\n") : "written\n");
+                        (fixture.taskOverflow ? "x".repeat(65537) :
+                            fixture.taskFullOutput ? "\u0001".repeat(65536) : "5\n") : "written\n");
                     handle.kill();
                 });
                 done();
@@ -60,6 +61,18 @@ export async function spawn(options) {
         case "session.create":
             sandbox = params.permissions.sandbox;
             event("system.message", { synthetic: true, text: "s".repeat(90000) });
+            if (fixture.largeResponse) {
+                for (let call = 0; call < 9; call++) {
+                    event("model.model_call_started", { model: null, synthetic: true });
+                    event("assistant.streaming_delta", { text: "\u0001".repeat(131072) });
+                    event("model.messages_snapshot", { text: "\u0001".repeat(131072 * (call + 1)) });
+                    event("assistant.usage", { model: "synthetic", inputTokens: 1, outputTokens: 1 });
+                }
+            }
+            if (fixture.frameOverflow) {
+                event("model.messages_snapshot", { text: "x".repeat(fixture.frameOverflow) });
+                break;
+            }
             reply(id, { capabilities: { ui: {}, extensions: false } }); break;
         case "session.tools.initializeAndValidate": reply(id, {}); break;
         case "session.tools.getCurrentMetadata": reply(id, { tools: [{ name: "mb_action" }] }); break;
@@ -68,8 +81,12 @@ export async function spawn(options) {
         case "session.tools.execute":
             if (params.name === "view") { reply(id, { resultType: "not_found" }); break; }
             if (fixture.failure) {
-                event("model.call_failure", { model: "synthetic", errorMessage: "synthetic failure" });
-                event("model.turn_retry");
+                const frames = ["model.call_failure", "model.turn_retry"].map(type => {
+                    const body = Buffer.from(JSON.stringify({ jsonrpc: "2.0", method: "session.event",
+                        params: { event: { type, data: { synthetic: true } } } }));
+                    return Buffer.concat([Buffer.from(`Content-Length: ${body.length}\r\n\r\n`), body]);
+                });
+                standardOutput.write(Buffer.concat(frames));
                 break;
             }
             if (fixture.sideChannel) {
