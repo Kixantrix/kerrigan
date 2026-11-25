@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import selectors
 import subprocess
+import sys
 import tarfile
 import time
 import uuid
@@ -25,7 +26,8 @@ LABEL = "michael-replay-grader"
 SOURCE_LIMIT = 262144
 OUTPUT_LIMIT = 131072
 FRAME_LIMIT = 8192
-POLICY_FILES = ("api.py", "policy.py", "harness.py", "bootstrap.py", "Dockerfile")
+POLICY_FILES = ("api.py", "owner.py", "policy.py", "harness.py", "bootstrap.py", "Dockerfile")
+CONTROLLER_FD = None
 
 
 class GraderError(RuntimeError):
@@ -40,6 +42,20 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def persist(path, data):
+    temporary = path.with_suffix(".tmp")
+    with temporary.open("wb") as stream:
+        stream.write(encoded(data))
+        stream.flush()
+        os.fsync(stream.fileno())
+    temporary.replace(path)
+    fd = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
 def command(args, *, seconds=15, payload=None, limit=OUTPUT_LIMIT):
     """Bound both pipes in aggregate, and reap only this owned CLI child."""
     with subprocess.Popen(args, stdin=subprocess.PIPE if payload is not None else subprocess.DEVNULL,
@@ -48,6 +64,11 @@ def command(args, *, seconds=15, payload=None, limit=OUTPUT_LIMIT):
         end = time.monotonic() + seconds
         try:
             with selectors.DefaultSelector() as selector:
+                # Let create finish registration even on controller loss. It cannot
+                # execute code; subsequent operations observe EOF before start.
+                monitor = CONTROLLER_FD if args[:2] != ["docker", "create"] else None
+                if monitor is not None:
+                    selector.register(monitor, selectors.EVENT_READ)
                 for stream in output:
                     os.set_blocking(stream.fileno(), False)
                     selector.register(stream, selectors.EVENT_READ)
@@ -55,12 +76,14 @@ def command(args, *, seconds=15, payload=None, limit=OUTPUT_LIMIT):
                 if pending is not None:
                     os.set_blocking(process.stdin.fileno(), False)
                     selector.register(process.stdin, selectors.EVENT_WRITE)
-                while selector.get_map():
+                while any(key.fileobj != monitor for key in selector.get_map().values()):
                     remaining = end - time.monotonic()
                     if remaining <= 0:
                         raise GraderError("timeout")
                     for key, _ in selector.select(remaining):
-                        if key.fileobj is process.stdin:
+                        if key.fileobj == monitor:
+                            raise GraderError("controller_lost")
+                        elif key.fileobj is process.stdin:
                             count = os.write(process.stdin.fileno(), pending[:65536])
                             pending = pending[count:]
                             if not pending:
@@ -112,7 +135,14 @@ def recover(directory):
     """Remove only label-owned containers; never restart/replay candidate actions."""
     start = json.loads((Path(directory) / "start.json").read_bytes())
     receipt = cleanup(start["run_id"])
-    (Path(directory) / "recovery.json").write_bytes(encoded(receipt))
+    persist(Path(directory) / "recovery.json", receipt)
+    if (Path(directory) / "owner.json").exists():
+        terminal = Path(directory) / "terminal.json"
+        report = Path(directory) / "report.json"
+        if (not terminal.exists() or not report.exists()
+                or json.loads(terminal.read_bytes()).get("run_id") != start["run_id"]
+                or json.loads(terminal.read_bytes()).get("report_sha256") != sha(report.read_bytes())):
+            raise GraderError("owner/proof lost: sandbox removed, owner quiescence unproven")
     return receipt
 
 
@@ -173,13 +203,55 @@ def grade(source, directory, *, seconds=10):
         raise ValueError("candidate source byte limit")
     if not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or not 0 < seconds <= 30:
         raise ValueError("candidate execution budget must be finite and <=30 seconds")
-    directory = Path(directory)
+    directory = Path(directory).resolve()
     directory.mkdir(mode=0o700, parents=True, exist_ok=False)
     run_id = uuid.uuid4().hex
+    with (directory / "source.bin").open("wb") as stream:
+        stream.write(source)
+        stream.flush()
+        os.fsync(stream.fileno())
+    persist(directory / "start.json", {"run_id": run_id, "seconds": seconds,
+                                       "source_sha256": sha(source)})
+    reader, writer = os.pipe()
+    process = None
+    try:
+        process = subprocess.Popen(
+            [sys.executable, "-m", "benchmarks.michael.replay_grader.owner",
+             str(directory), str(reader)], pass_fds=(reader,), start_new_session=True,
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            cwd=packages.ROOT)
+        os.close(reader)
+        reader = None
+        process.wait(timeout=seconds + 120)
+        terminal = directory / "terminal.json"
+        if process.returncode or not terminal.exists():
+            raise GraderError("owner/proof lost; cleanup unknown")
+        proof = json.loads(terminal.read_bytes())
+        report = json.loads((directory / "report.json").read_bytes())
+        if (proof["run_id"] != run_id or proof["report_sha256"] != sha((directory / "report.json").read_bytes())):
+            raise GraderError("owner terminal binding mismatch")
+        return report
+    except (GraderError, OSError, ValueError, subprocess.SubprocessError) as exc:
+        if process is not None and process.poll() is None:
+            process.kill()
+            process.wait()
+        report = {"run_id": run_id, "status": "ungraded", "verdict": None,
+                  "counts": None, "assertions": [], "error": str(exc),
+                  "cleanup": {"proven": False, "error": "owner/proof lost"}}
+        persist(directory / "report.json", report)
+        return report
+    finally:
+        os.close(writer)
+        if reader is not None:
+            os.close(reader)
+
+
+def _grade(source, directory, *, seconds=10):
+    global CONTROLLER_FD
+    run_id = json.loads((directory / "start.json").read_bytes())["run_id"]
     report = {"run_id": run_id, "status": "ungraded", "verdict": None,
               "assertions": [], "counts": None, "timings": {},
-              "timing_scope": "same controller host, monotonic seconds; no model or task-completion time"}
-    (directory / "start.json").write_bytes(encoded({"run_id": run_id}))
+              "timing_scope": "same trusted owner host, monotonic seconds; no model or task-completion time"}
     phase = "staging"
     begin = time.monotonic()
     try:
@@ -219,7 +291,10 @@ def grade(source, directory, *, seconds=10):
                                   "Memory", "MemorySwap", "NanoCpus", "PidsLimit", "Tmpfs", "Binds")}
         report["timings"][phase] = time.monotonic() - begin
         phase, begin = "candidate_execution", time.monotonic()
-        code, stdout, stderr = command(["docker", "start", "-ai", name], seconds=seconds,
+        deadline = begin + seconds
+        persist(directory / "execution.json", {"run_id": run_id, "deadline_monotonic": deadline})
+        code, stdout, stderr = command(["docker", "start", "-ai", name],
+                                       seconds=max(.001, deadline - time.monotonic()),
                                        payload=archive.getvalue())
         report["candidate_output"] = {"stdout_bytes": len(stdout), "stderr_bytes": len(stderr),
                                        "stderr_excerpt": stderr[:2048].decode(errors="replace")}
@@ -251,6 +326,7 @@ def grade(source, directory, *, seconds=10):
     except (GraderError, OSError, ValueError, KeyError, subprocess.SubprocessError) as exc:
         report["error"] = f"{type(exc).__name__}:{str(exc)[:1024]}"
     finally:
+        CONTROLLER_FD = None
         report["timings"][phase] = time.monotonic() - begin
         begin = time.monotonic()
         try:
@@ -261,7 +337,7 @@ def grade(source, directory, *, seconds=10):
         report["timings"]["cleanup"] = time.monotonic() - begin
         for missing in ("staging", "candidate_execution", "verification"):
             report["timings"].setdefault(missing, None)
-        (directory / "report.json").write_bytes(encoded(report))
+        persist(directory / "report.json", report)
     return report
 
 

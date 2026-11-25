@@ -3,9 +3,13 @@
 import ast
 import copy
 import json
+import os
 from pathlib import Path
+import subprocess
+import shutil
 import sys
 import types
+import time
 import unittest
 import uuid
 
@@ -17,6 +21,13 @@ import api
 from policy import cases
 
 packages = api.packages
+
+
+def fault_grade(source, directory):
+    """Direct trusted-worker failure injection; candidate still runs only in Docker."""
+    directory.mkdir()
+    api.persist(directory / "start.json", {"run_id": uuid.uuid4().hex})
+    return api._grade(source, directory)
 
 
 @pytest.fixture(scope="module")
@@ -199,7 +210,7 @@ def test_evaluator_failure_and_budget_limits(tmp_path, monkeypatch):
     with pytest.raises(ValueError):
         api.cleanup("not-an-owned-uuid")
     monkeypatch.setattr(api, "clause_passes", lambda *_: (_ for _ in ()).throw(ValueError("evaluator fault")))
-    report = api.grade(packages.verifier_files("validator")["reference"], tmp_path / "evaluator")
+    report = fault_grade(packages.verifier_files("validator")["reference"], tmp_path / "evaluator")
     assert report["status"] == "ungraded" and report["verdict"] is None
     assert "evaluator fault" in report["error"] and report["cleanup"]["proven"]
     assert json.loads((tmp_path / "evaluator/report.json").read_bytes()) == report
@@ -228,6 +239,106 @@ def test_unproven_cleanup_cannot_authorize_success(tmp_path, monkeypatch):
         raise api.GraderError("synthetic cleanup proof failure")
 
     monkeypatch.setattr(api, "cleanup", failed_proof)
-    report = api.grade(packages.verifier_files("validator")["reference"], tmp_path / "receipt")
+    report = fault_grade(packages.verifier_files("validator")["reference"], tmp_path / "receipt")
     assert report["status"] == "ungraded" and report["verdict"] is None
     assert not report["cleanup"]["proven"] and not api.owned(report["run_id"])
+
+
+def test_corrupt_owner_terminal_cannot_prove_recovery(tmp_path):
+    directory = tmp_path / "receipt"
+    report = api.grade(packages.verifier_files("validator")["reference"], directory)
+    assert report["verdict"] == "pass"
+    api.persist(directory / "terminal.json", {})
+    with pytest.raises(api.GraderError, match="unproven"):
+        api.recover(directory)
+
+
+def wait_for(predicate, seconds=10):
+    end = time.monotonic() + seconds
+    while time.monotonic() < end:
+        value = predicate()
+        if value:
+            return value
+        time.sleep(.025)
+    raise AssertionError("bounded fixture wait expired")
+
+
+@pytest.mark.parametrize("stage", ["create", "running", "deadline", "owner-loss"])
+def test_independent_owner_survives_controller_loss(stage, tmp_path):
+    import signal
+
+    directory = tmp_path / "receipt"
+    source = b"import os\nos.fork()\nwhile True: pass\n"
+    code = (
+        "from pathlib import Path\n"
+        "from benchmarks.michael.replay_grader import api\n"
+        f"api.grade({source!r},Path({str(directory)!r}),seconds=3)\n")
+    other = uuid.uuid4().hex
+    api.docker("create", "--label", f"{api.LABEL}={other}", "--network", "none",
+               api.IMAGE, "python", "--version")
+    environment = os.environ.copy()
+    if stage == "create":
+        wrapper = tmp_path / "docker"
+        wrapper.write_text(
+            f"#!{sys.executable}\nimport subprocess,sys,time\nfrom pathlib import Path\n"
+            f"code=subprocess.call([{shutil.which('docker')!r},*sys.argv[1:]])\n"
+            f"if sys.argv[1]=='create':\n Path({str(tmp_path / 'created')!r}).touch()\n time.sleep(.5)\n"
+            "raise SystemExit(code)\n")
+        wrapper.chmod(0o700)
+        environment["PATH"] = str(tmp_path) + os.pathsep + environment["PATH"]
+    controller = subprocess.Popen([sys.executable, "-c", code], env=environment,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    run_id = None
+    try:
+        wait_for(lambda: (directory / "owner.json").exists())
+        run_id = json.loads((directory / "start.json").read_bytes())["run_id"]
+        owner = json.loads((directory / "owner.json").read_bytes())
+        assert owner["state"] == "registered_before_create"
+        if stage == "create":
+            wait_for(lambda: (tmp_path / "created").exists())
+        cid = wait_for(lambda: api.owned(run_id))
+        if stage != "create":
+            wait_for(lambda: json.loads(api.docker("inspect", cid[0]))[0]["State"]["Running"])
+            wait_for(lambda: len(api.docker("top", cid[0], "-eo", "pid").splitlines()) >= 3)
+        if stage == "owner-loss":
+            # pidfd binds this recorded live process, never a guessed/reused PID.
+            fd = os.pidfd_open(owner["pid"])
+            try:
+                assert Path(f"/proc/{owner['pid']}/stat").read_text().rsplit(")", 1)[1].split()[19] == owner["process_start_ticks"]
+                signal.pidfd_send_signal(fd, signal.SIGKILL)
+            finally:
+                os.close(fd)
+            controller.wait(timeout=10)
+            report = json.loads((directory / "report.json").read_bytes())
+            assert report["verdict"] is None and not report["cleanup"]["proven"]
+            with pytest.raises(api.GraderError, match="unproven"):
+                api.recover(directory)
+        else:
+            began = time.monotonic()
+            if stage == "deadline":
+                controller.send_signal(signal.SIGSTOP)
+            else:
+                controller.kill()
+                controller.wait(timeout=5)
+            wait_for(lambda: (directory / "terminal.json").exists())
+            assert time.monotonic() - began < 5
+            report = json.loads((directory / "report.json").read_bytes())
+            assert report["verdict"] is None and report["cleanup"]["proven"], report
+            assert ("timeout" if stage == "deadline" else "controller_lost") in report["error"], report
+            # No recover() call has occurred: the independent owner removed it.
+            assert not api.owned(run_id)
+        assert len(api.owned(other)) == 1
+        api.persist(directory / "controller-loss-proof.json", {
+            "fixture": stage, "controller_pid": controller.pid,
+            "controller_returncode": controller.poll(), "owner": owner,
+            "candidate_run_id": run_id, "candidate_remaining": api.owned(run_id),
+            "independent_stop_seconds": time.monotonic() - began if stage != "owner-loss" else None,
+            "termination_required_recover": stage == "owner-loss",
+            "unrelated_owner_preserved": len(api.owned(other)) == 1})
+    finally:
+        if controller.poll() is None:
+            controller.kill()
+            controller.wait()
+        if run_id:
+            api.cleanup(run_id)
+        api.cleanup(other)

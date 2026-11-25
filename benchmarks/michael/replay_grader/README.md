@@ -17,6 +17,20 @@ and <=128 KiB combined stdout/stderr. Docker logging is disabled. Execution
 (including stdin staging) has a finite <=30s wall deadline; every Docker control
 operation has a 15s deadline. Only owned CLI children are killed/reaped.
 
+An independent host process owns the entire Docker lifecycle. Durable start and
+owner registration precede `docker create`; an absolute monotonic deadline is
+persisted before `start`. Only the controller holds the liveness pipe's writer.
+The owner watches its reader while bounding execution, so controller SIGKILL
+triggers cleanup and controller SIGSTOP cannot suspend the deadline. Creation
+is allowed to finish registering before responding to controller loss; it
+cannot execute code, and only the already-registered owner may subsequently
+start it. Candidate code has no access to the owner, pipe, receipts or Docker.
+The controller accepts results only after owner exit and a hash-bound durable
+terminal receipt. Owner/proof loss is ungraded with cleanup unknown; recovery
+can remove labeled sandboxes but cannot assert missing owner quiescence.
+Docker/host/owner availability remains trusted infrastructure; this is not
+crash resilience against simultaneous owner/daemon/host failure.
+
 Only after container exit does the host validate observations and apply hidden
 clauses. Malformed/duplicate/missing/truncated/overflow data, nonzero exit, OOM,
 timeout and evaluator errors are ungraded, not ordinary assertion failures.
@@ -46,7 +60,9 @@ unchanged validator manifest beforehand. Smoke never provisions dependencies
 or pulls an image. Receipt directories must be new. Candidate image dependencies
 are Python 3.12 from the pinned base and PyYAML 6.0.2; immutable image IDs bind
 their exact installed bytes. Host tests use the package's complete pinned list.
-`verification.json` and `evidence.tar.gz` retain the actual commands and receipts.
+`verification.json` and `evidence.tar.gz` retain the current commands and receipts.
+`superseded-1d94a73.*` preserve the earlier evidence, which lacked independent
+controller-loss containment and must not be used to claim that guarantee.
 
 Passing these finite held-out observations is not proof of general correctness,
 non-hardcoding, contamination-free evaluation, model performance, laptop speed/
