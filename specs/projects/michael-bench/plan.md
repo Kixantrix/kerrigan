@@ -11,6 +11,18 @@ Status: direction confirmed; MB-001a historical import boundary completed. Remai
 - The initial planning increment authorized no model execution, downloads, spending, or production changes. The November 23 overnight handoff authorizes off-laptop implementation with synthetic fixtures, not additional laptop benchmarks.
 - Include recurring hardware-aware discovery of models, runtimes, quantizations, caching/speculation options, and agent compatibility; propose evaluations before changing the working setup.
 - Evaluate Kerrigan's own instruction/skill/tool/orchestration overhead and configuration effectiveness; preserve comparison portability to a future custom harness without selecting migration now.
+- November 24: proceed with offline implementation, then evaluate first bench versions in cloud Copilot sessions explicitly pinned to MAI Code 2 (`mai-code-2`) and Claude Sonnet 5.5 (`claude-sonnet-5.5`). Cloud-hosted agent execution is not proof of a directly controlled model API. Retain requested versus observed model identity and unsupported controls.
+- Actual time to verified completion is a primary comparison output, not only completion before a deadline. Separate queue/provisioning/setup, agent work, verification, and end-to-end elapsed time.
+
+## First cloud pilot
+
+The user delegated the initial screening size and limits. Start with the three calibrated coding replays, one fresh session/attempt per task per model: six trials, sequential execution, a 60-minute active-trial safety cutoff, no automatic retries or cap continuations, and no human implementation assistance. Record intervention if a trial requires it. Stop the pilot on isolation, identity, or evidence-accounting failure; do not silently rerun. Use only existing authorized Copilot cloud-session access, with no new paid API, infrastructure, or model downloads.
+
+Freeze exact task packages, harness/configuration receipts, timeout enforcement, model identities, verifier isolation, task order, and cost/credit observability before starting. Alternate model order across tasks to reduce systematic order bias. Record hidden or changing host/harness settings as limits on practical-system comparability, not matched controls. Provisioning and verifier failures remain in coverage.
+
+This screen tests whether the bench captures meaningful task outcomes and timing differences. Three historical coding cases are not full working-day representation or evidence of statistical superiority. Inspect per-task traces and failure attribution, then add fresh multi-file implementation, planning, research, review, and disposable operations cases before a broader recommendation. Do not increase repetitions or expand the live matrix automatically.
+
+Prerequisites: remaining MB-001 contracts, MB-002 isolation/engine proof, MB-003 calibrated packages, MB-004 ledger/report, and MB-005 offline smoke. Dispatch these as small dependency-ordered increments; do not launch scored model sessions with answers or verifier material available in their repository/history.
 
 ## Parallel foundation: Harness audit and configuration experiments
 
@@ -76,7 +88,7 @@ Begin family-specific recommendations for interactive, background, offline/priva
 
 ## Dispatch and routing
 
-Implementation tasks are listed in [tasks.md](tasks.md). MB-001a was dispatched and completed under its [closed briefing](../../../.specify/briefings/MB-001a.md); remaining slices are not dispatched. Create scoped briefings and run conflict prediction before parallel assignment. Completing the import boundary does not imply an implemented CLI.
+Implementation tasks are listed in [tasks.md](tasks.md). MB-001a was dispatched and completed under its [closed briefing](../../../.specify/briefings/MB-001a.md). MB-001b is the next closed contract slice; subsequent runner/calibration/report slices remain gated on its verified handoff. Create scoped briefings and run conflict prediction before parallel assignment. Completing the import boundary does not imply an implemented CLI.
 
 Offline contracts, fixtures, reporting, and fake-model smoke work: `R-cloud-default`, using sanitized repository-contained materials.
 

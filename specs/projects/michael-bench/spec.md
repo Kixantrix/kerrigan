@@ -80,6 +80,8 @@ Every criterion maps to a planned test in [acceptance-tests.md](acceptance-tests
 
 Primary: verified task completion within a declared deadline and human-intervention allowance, by workload family. Secondary: time to correct completion, completed tasks per elapsed batch hour, intervention minutes, spend per successful task, and measured energy per successful task.
 
+Time to verified completion is a first-class outcome, not just a pass-before-deadline check. Record provisioning/queue/setup separately from agent elapsed time and independent verification; also report end-to-end elapsed time. Use monotonic elapsed clocks within an execution host and correlated wall timestamps across hosts, retaining unavailable timing as unknown. A failed or unfinished trial has observed elapsed time and a stop reason, not a fabricated completion time. Show per-task paired times and completion coverage together; success-only averages must disclose their selected denominator.
+
 Failures, retries, and abandoned attempts contribute to total time and cost. Partial assertions explain failures but are not interchangeable task successes. Report Pareto tradeoffs and recommendations for interactive versus unattended work; do not impose arbitrary personal weights or a single composite score.
 
 Useful context is context at which representative tasks complete correctly under realistic budgets, not the maximum admitted prompt.

@@ -8,7 +8,9 @@ Report paid API token/request charges with provider price/version/time provenanc
 
 ## Baseline estimate
 
-No new inference or cloud spending is authorized by this planning increment. Dollar and energy estimates require selected targets and measured usage.
+The initial planning increment authorized no inference or cloud spending. Dollar and energy estimates require selected targets and measured usage; the subsequent bounded authorization is recorded below.
+
+November 24 update: the user authorized implementation and an initial model-pinned Copilot cloud-session pilot and delegated screening limits. The initial condition is six trials (three tasks each for MAI Code 2 and Claude Sonnet 5.5), sequential, one attempt per pairing, at most 60 active minutes per trial, no automatic retries. It remains gated on runner/isolation/calibration/report readiness. This does not authorize new paid API accounts, separately billed endpoints, infrastructure, downloads, or laptop measurements. Record observable Copilot credits/billing separately from unavailable dollar estimates. Further matrix expansion requires review.
 
 Recurring discovery itself consumes agent credits and research time even without benchmark inference. Bound each pass, prioritize source deltas, and publish only a small actionable shortlist. A single research job is the initial design; additional automations need a demonstrated benefit and separate approval.
 

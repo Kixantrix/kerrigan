@@ -1,6 +1,6 @@
 # Acceptance tests: Michael Bench
 
-All tests are planned and unexecuted. Test IDs specify required behavior, not an existing test suite.
+MB-001a historical-import tests are implemented; other tests below are planned. Planned test IDs specify required behavior, not an existing test suite.
 
 | AC | Planned test ID | Given / when / then |
 |---|---|---|
@@ -20,6 +20,10 @@ All tests are planned and unexecuted. Test IDs specify required behavior, not an
 | AC-MB-014 | `skill_activation_canaries` | Given relevant, unrelated, overlapping, ambiguous, repeated, and missing-resource tasks, activation/resource events and duplicate loads are recorded alongside held-out outcomes and intervention; required permission/verification constraints remain enforced. |
 | AC-MB-015 | `paired_harness_ablation` | Given frozen B0 and a single-dimension candidate plus an intentionally confounded variant, comparisons retain all attempts, paired conditions, predeclared promotion criteria, and held-out confirmation; confounded evidence cannot support an isolated harness improvement claim. |
 | AC-MB-016 | `portable_harness_event_contract` | Given fake-model/tool traces for supported semantics, cancellation, duplicate action identity, checkpoint/resume, compaction loss, and unavailable GHCP controls, both adapters produce the common contract or an explicit incompatibility, with independent verifier state intact. |
+
+## Completion timing
+
+AC-MB-003/004/005 timing fixtures must include two successful tasks with different durations, a timeout, a retry, an evaluator failure, and missing cross-host timing. Verify that queue/setup, agent elapsed, verification, and end-to-end timing remain distinct with clock/source provenance; unfinished trials never receive a time-to-success. A quick failed task must not appear faster-to-completion than a slower successful task. Reports show paired task outcomes/times, all-attempt cost/time, graded coverage, and explicit denominators for success-only timing summaries.
 
 ## Scenario evidence
 

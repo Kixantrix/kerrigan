@@ -1,6 +1,6 @@
 # Tasks: Michael Bench
 
-Implementation roadmap: MB-001a is complete; remaining slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
+Implementation roadmap: MB-001a is complete; MB-001b is the next scoped dispatch. Remaining slices are not issued or dispatched. Suggested implementation paths below are to be finalized in briefing packets.
 
 ## Milestone 1
 
@@ -9,6 +9,7 @@ Implementation roadmap: MB-001a is complete; remaining slices are not issued or 
   - Scope: future `benchmarks/michael/contracts/` and focused contract tests. Raw pilot evidence remains read-only/local.
   - Dependencies: none.
   - Completed bounded slice: MB-001a historical-evidence import contract, commit `857004c` ([briefing](../../../.specify/briefings/MB-001a.md)); other manifest contracts remain pending.
+  - Next bounded slice: MB-001b task/target/agent/condition/result contracts, including timing provenance and interrupted-trial semantics ([briefing](../../../.specify/briefings/MB-001b.md)). Pure offline contracts; no runner or scored model trials.
 - [ ] MB-002: Prove one offline task in an existing engine and select the smallest compatible foundation.
   - Done when: hidden verification, complete native-event transport, interrupted-ledger recovery, and offline execution are demonstrated; engine choice cites evidence.
   - Scope: future `benchmarks/michael/` adapter spike and fixture tests; no model downloads or live endpoints.
@@ -24,6 +25,7 @@ Implementation roadmap: MB-001a is complete; remaining slices are not issued or 
   - Done when: AC-MB-003, AC-MB-004, and AC-MB-005 pass with success, incomplete, infrastructure-failure, and missing-data fixtures.
   - Scope: future runner/report modules and focused tests; preserve all attempts and separate diagnostic/practical/historical cohorts.
   - Dependencies: MB-001, MB-002.
+  - Timing requirement: actual time to independently verified completion, with queue/setup/agent/verification phases, paired per-task times, all-attempt elapsed accounting, and unfinished trials reported without completion times. Success-only statistics must disclose denominators.
 - [ ] MB-005: Add the offline CLI smoke path.
   - Done when: AC-MB-008 passes from clean isolated state twice without credentials; CLI invocation is documented with its verified command.
   - Scope: future CLI entry point, project smoke script, and operator documentation.
