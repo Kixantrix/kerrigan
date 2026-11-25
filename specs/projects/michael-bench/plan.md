@@ -138,6 +138,13 @@ observed before cutoff, later events and full usage/backend identity remain
 unknown. [MB-006g](../../../.specify/briefings/MB-006g.md) addresses protocol
 versus candidate-output budgets with offline evidence only, zero new prompts.
 
+MB-006g integrated at `5761e49` separates finite native protocol budgets from
+unchanged candidate output/action budgets. Retained-stream replay and a labeled
+synthetic owner/broker loop passed; fresh native HTTPS, task denials and owned
+cutoff evidence are retained. No model prompt ran and old approvals stay stale.
+[MB-006h](../../../.specify/briefings/MB-006h.md) proposes two fresh live tool-loop
+checks under the new fixed limits, pending direct human authorization.
+
 After the bench reliably grades real tasks, measures independently verified
 completion time and preserves lifecycle/cost evidence, coordinate with the
 existing **Local AI setup** session to evaluate its models. Freeze the current
