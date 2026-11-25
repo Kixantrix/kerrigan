@@ -141,6 +141,9 @@ factor changes and synthetic/new-trial pooling fail. Historical envelopes remain
 separate; they cannot be passed off as starts. Controlled tracks require known
 matched controls/hosts and matched observability/runtime. Practical host and
 observability differences remain visible in complete bundle disclosures.
+Compatibility ignores `source`/`reason` only on evidence envelopes, never inside
+their `value` payloads. Configuration/control payload keys and descriptor
+provenance remain intact, including keys named `source` and `reason`.
 
 Reports retain all starts, attempts, retries, terminal references, events,
 artifacts, stop/verifier states, and auxiliary counts. Completion coverage uses

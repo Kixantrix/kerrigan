@@ -280,6 +280,27 @@ def test_explicit_configuration_factor_not_arbitrary_pooling(tmp_path, bundle):
         comparison(ledger, ["a"], ["b"], suite=[{**manifest_reference(a["task"]), "sha256": "0" * 64}])
 
 
+@pytest.mark.parametrize("field", ["source", "reason"])
+@pytest.mark.parametrize("nested", [False, True])
+def test_configuration_payload_keys_remain_controlled_unless_explicit_factor(tmp_path, bundle, field, nested):
+    ledger = Ledger(tmp_path / "ledger.jsonl")
+    a, b = frozen(bundle), frozen(bundle)
+    for value, instructions in ((a, "instructions-A.md"), (b, "instructions-B.md")):
+        payload = {field: instructions}
+        if nested:
+            payload = {"nested": payload}
+        value["agent"]["configuration"] = known(payload)
+        value["condition"]["agent"] = manifest_reference(value["agent"])
+    add(ledger, "a", a)
+    add(ledger, "b", b)
+    kwargs = dict(cohorts={"A": ["a"], "B": ["b"]}, suite=[manifest_reference(a["task"])])
+    with pytest.raises(LedgerError, match="incompatible"):
+        compare(ledger, **kwargs, factor="target")
+    report = compare(ledger, **kwargs, factor="agent_configuration")
+    assert report["both_success_complete_time_subset"]["paired_denominator"] == 1
+    assert report["disclosures"][0]["bundle"]["agent"]["configuration"] == a["agent"]["configuration"]
+
+
 def usage_declaration(trial_id, terminal, metric, quantity, unit):
     return {"trial_id": trial_id, "attempt_id": terminal["attempts"][-1]["id"],
             "result": manifest_reference(terminal), "metric": metric,

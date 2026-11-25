@@ -295,7 +295,10 @@ def _success(attempt):
 
 def _semantic(value):
     if isinstance(value, dict):
-        return {k: _semantic(v) for k, v in value.items() if k not in {"source", "reason"}}
+        if (value.get("status") in {"known", "unknown", "unsupported", "not_applicable"}
+                and "source" in value and not value.keys() - {"status", "source", "reason", "value"}):
+            return {k: deepcopy(v) for k, v in value.items() if k not in {"source", "reason"}}
+        return {k: deepcopy(v) if k == "provenance" else _semantic(v) for k, v in value.items()}
     if isinstance(value, list):
         return [_semantic(v) for v in value]
     return value
