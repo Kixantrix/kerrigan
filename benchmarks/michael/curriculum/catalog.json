@@ -218,10 +218,13 @@
    "long_horizon": true,
    "summary": "Full-size photos caused slow loads and layout jitter. Agent adds a thumbnail-generation function, extends the listing API with dimensions, and updates the gallery to pre-size containers.",
    "history_status": "merged",
-   "package": "emv-thumbnails-gallery",
+   "package": "emv-thumbnails-gallery-v2",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
-   "estimated_human_minutes": 75
+   "estimated_human_minutes": 75,
+   "pending_reaudit_packages": [
+    "emv-thumbnails-gallery"
+   ]
   },
   {
    "id": "te-browser-mvp-plan",
@@ -1084,10 +1087,13 @@
    "long_horizon": true,
    "summary": "Agent builds the measurement harness (not the ranker) for item relevance; the real run surfaced a data defect where venue logistics were classified as subject matter.",
    "history_status": "merged",
-   "package": "yv-relevance-instrument",
+   "package": "yv-relevance-instrument-v2",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
-   "estimated_human_minutes": 90
+   "estimated_human_minutes": 90,
+   "pending_reaudit_packages": [
+    "yv-relevance-instrument"
+   ]
   },
   {
    "id": "aleth-thinner-case",

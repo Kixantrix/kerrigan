@@ -1,0 +1,42 @@
+{
+ "id": "yv-relevance-instrument-v2",
+ "family": "Experiment",
+ "title": "Build a blind relevance-rating instrument that can find the ranker wrong",
+ "source": {
+  "repo": "Kixantrix/your-voice",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 224,
+  "base_ref": "bba55b3308dcafb745b0c1d77a1db96564c63f87",
+  "reference_ref": "dd533670f8c5f1c4ac0251934f274914a28df9f4",
+  "history_status": "merged"
+ },
+ "derivation": "Private civic-assistant app PR #224 (blind rating harness: evaluative-field stripping enforced on the produced object, seeded shuffle, metrics that expose misses and wrong reasons beyond an m-of-n count, and a corpus audit that found government items carry no subject matter) re-synthesized as a sanitized TypeScript specification, synthetic corpus and held-out data. No private code, items, ratings or names are included. v2 (MB-010c follow-up, native admission finding): the specification required rejecting any own evaluative key, but the oracle (Object.entries) and checks inspect only own enumerable string keys; the specification now says so. Oracle and hidden checks are unchanged.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Three new modules checked on held-out corpora, ratings and seeds; expected values come from an independent Python implementation of the specification.",
+ "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
+ "outcome_evidence": "metric_within_tolerance",
+ "estimated_agent_minutes": 45,
+ "estimated_human_minutes": 90,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Interpretation write-ups (findings documents) are not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "evals/relevance/blind.ts",
+  "candidates": [
+   "evals/relevance/audit.ts",
+   "evals/relevance/blind.ts",
+   "evals/relevance/score.ts"
+  ],
+  "denominators": {
+   "blind": 5,
+   "score": 4,
+   "audit": 3
+  }
+ },
+ "supersedes": "yv-relevance-instrument"
+}

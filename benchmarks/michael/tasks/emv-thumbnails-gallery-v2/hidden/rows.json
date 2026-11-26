@@ -1,0 +1,498 @@
+[
+ {
+  "original_id": "thumbnail size planning honors orientation and never upscales",
+  "group": "thumbnails",
+  "probe": {
+   "scenario": "plan"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    [
+     {
+      "width": 600,
+      "height": 450
+     },
+     {
+      "width": 600,
+      "height": 450
+     },
+     {
+      "width": 500,
+      "height": 300
+     },
+     {
+      "width": 600,
+      "height": 1
+     },
+     {
+      "width": 333,
+      "height": 1000
+     },
+     {
+      "width": 300,
+      "height": 150
+     },
+     "thumbnails/events/e/a/x.jpg",
+     "thumbnails/events/e/a/y.final.jpg",
+     600
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "every new album image gets a planned thumbnail",
+  "group": "thumbnails",
+  "probe": {
+   "scenario": "generate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "resized"
+    ],
+    [
+     [
+      600,
+      450
+     ],
+     [
+      600,
+      450
+     ],
+     [
+      480,
+      640
+     ],
+     [
+      400,
+      1200
+     ]
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "thumbBytes"
+    ],
+    "jpeg:600x450"
+   ],
+   [
+    "path_match",
+    [
+     "thumbs"
+    ],
+    [
+     {
+      "name": "thumbnails/events/wed/ceremony/IMG_01.jpg",
+      "metadata": {
+       "width": "600",
+       "height": "450"
+      }
+     },
+     {
+      "name": "thumbnails/events/wed/ceremony/IMG_02.jpg",
+      "metadata": {
+       "width": "600",
+       "height": "450"
+      }
+     },
+     {
+      "name": "thumbnails/events/wed/ceremony/IMG_03.jpg",
+      "metadata": {
+       "width": "480",
+       "height": "640"
+      }
+     },
+     {
+      "name": "thumbnails/events/wed/ceremony/IMG_05.jpg",
+      "metadata": {
+       "width": "400",
+       "height": "1200"
+      }
+     },
+     {
+      "name": "thumbnails/events/wed/ceremony/IMG_06.jpg"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "one bad image is reported and does not stop the album",
+  "group": "thumbnails",
+  "probe": {
+   "scenario": "generate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "summary"
+    ],
+    {
+     "created": 4,
+     "skipped": 1,
+     "failed": 1,
+     "errors": 1,
+     "namesFailed": true
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "originals record oriented dimensions and keep other metadata",
+  "group": "thumbnails",
+  "probe": {
+   "scenario": "generate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "originals",
+     "IMG_01.JPG"
+    ],
+    {
+     "uploader": "guest-3",
+     "width": "4032",
+     "height": "3024"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "originals",
+     "IMG_02.heic"
+    ],
+    {
+     "width": "4032",
+     "height": "3024"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "originals",
+     "IMG_05.webp"
+    ],
+    {
+     "width": "400",
+     "height": "1200"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "originals",
+     "IMG_04.jpeg"
+    ],
+    {}
+   ]
+  ]
+ },
+ {
+  "original_id": "reruns skip existing thumbnails; force regenerates",
+  "group": "thumbnails",
+  "probe": {
+   "scenario": "rerunAndForce"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "second"
+    ],
+    {
+     "created": 0,
+     "skipped": 5,
+     "failed": 1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "secondResizes"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "forced"
+    ],
+    {
+     "created": 5,
+     "skipped": 0,
+     "failed": 1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "forcedResizes"
+    ],
+    5
+   ],
+   [
+    "path_equal",
+    [
+     "oldThumbReplaced"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "media list exposes thumbnails and dimensions",
+  "group": "api",
+  "probe": {
+   "scenario": "listAfter"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    [
+     {
+      "name": "IMG_01.JPG",
+      "url": "https://cdn.example.test/events/wed/ceremony/IMG_01.JPG",
+      "type": "image",
+      "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_01.jpg",
+      "width": 4032,
+      "height": 3024
+     },
+     {
+      "name": "IMG_02.heic",
+      "url": "https://cdn.example.test/events/wed/ceremony/IMG_02.heic",
+      "type": "image",
+      "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_02.jpg",
+      "width": 4032,
+      "height": 3024
+     },
+     {
+      "name": "IMG_03.png",
+      "url": "https://cdn.example.test/events/wed/ceremony/IMG_03.png",
+      "type": "image",
+      "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_03.jpg",
+      "width": 480,
+      "height": 640
+     },
+     {
+      "name": "IMG_04.jpeg",
+      "url": "https://cdn.example.test/events/wed/ceremony/IMG_04.jpeg",
+      "type": "image"
+     },
+     {
+      "name": "IMG_05.webp",
+      "url": "https://cdn.example.test/events/wed/ceremony/IMG_05.webp",
+      "type": "image",
+      "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_05.jpg",
+      "width": 400,
+      "height": 1200
+     },
+     {
+      "name": "IMG_06.jpg",
+      "url": "https://cdn.example.test/events/wed/ceremony/IMG_06.jpg",
+      "type": "image",
+      "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_06.jpg"
+     },
+     {
+      "name": "clip.mov",
+      "url": "https://cdn.example.test/events/wed/ceremony/clip.mov",
+      "type": "video"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "thumbnail without recorded dimensions adds only its URL",
+  "group": "api",
+  "probe": {
+   "scenario": "listBefore"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0
+    ],
+    {
+     "name": "IMG_01.JPG",
+     "url": "https://cdn.example.test/events/wed/ceremony/IMG_01.JPG",
+     "type": "image",
+     "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_01.jpg"
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "items without thumbnails keep the original shape and order",
+  "group": "preservation",
+  "probe": {
+   "scenario": "listBefore"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     1
+    ],
+    {
+     "name": "IMG_02.heic",
+     "url": "https://cdn.example.test/events/wed/ceremony/IMG_02.heic",
+     "type": "image"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     2
+    ],
+    {
+     "name": "IMG_03.png",
+     "url": "https://cdn.example.test/events/wed/ceremony/IMG_03.png",
+     "type": "image"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     3
+    ],
+    {
+     "name": "IMG_04.jpeg",
+     "url": "https://cdn.example.test/events/wed/ceremony/IMG_04.jpeg",
+     "type": "image"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     4
+    ],
+    {
+     "name": "IMG_05.webp",
+     "url": "https://cdn.example.test/events/wed/ceremony/IMG_05.webp",
+     "type": "image"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     6
+    ],
+    {
+     "name": "clip.mov",
+     "url": "https://cdn.example.test/events/wed/ceremony/clip.mov",
+     "type": "video"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "*",
+     "name"
+    ],
+    [
+     "IMG_01.JPG",
+     "IMG_02.heic",
+     "IMG_03.png",
+     "IMG_04.jpeg",
+     "IMG_05.webp",
+     "IMG_06.jpg",
+     "clip.mov"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "other albums are untouched",
+  "group": "preservation",
+  "probe": {
+   "scenario": "generate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "otherAlbum"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "carousel containers are pre-sized from dimensions and use thumbnails",
+  "group": "web",
+  "probe": {
+   "scenario": "layout"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "rows"
+    ],
+    [
+     {
+      "name": "a.jpg",
+      "type": "image",
+      "src": "https://x/t/a.jpg",
+      "height": 240,
+      "width": 320,
+      "presized": true
+     },
+     {
+      "name": "b.jpg",
+      "type": "image",
+      "src": "https://x/t/b.jpg",
+      "height": 240,
+      "width": 180,
+      "presized": true
+     },
+     {
+      "name": "c.jpg",
+      "type": "image",
+      "src": "https://x/c.jpg",
+      "height": 240,
+      "width": 240,
+      "presized": false
+     },
+     {
+      "name": "d.mov",
+      "type": "video",
+      "src": "https://x/d.mov",
+      "height": 240,
+      "width": 240,
+      "presized": false
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "fullscreen always loads the full-size original",
+  "group": "web",
+  "probe": {
+   "scenario": "layout"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "full"
+    ],
+    [
+     "https://x/a.jpg",
+     "https://x/b.jpg",
+     "https://x/c.jpg",
+     "https://x/d.mov"
+    ]
+   ]
+  ]
+ }
+]

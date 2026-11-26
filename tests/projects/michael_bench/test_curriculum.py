@@ -611,3 +611,24 @@ def test_plan_queue_v2_states_at_least_once_semantics():
     assert curriculum.rows("kerrigan-plan-conflict-queue-v2") == curriculum.rows("kerrigan-plan-conflict-queue")
     cleanup = [r for r in curriculum.rows("kerrigan-plan-conflict-queue-v2") if r["probe"]["scenario"] == "replayCleanupFailure"]
     assert len(cleanup) == 1 and not any(c[1][:1] == ["second"] for c in cleanup[0]["clauses"])
+
+
+@pytest.mark.parametrize("v2,v1,phrase", [
+    ("yv-relevance-instrument-v2", "yv-relevance-instrument", "own enumerable"),
+    ("emv-thumbnails-gallery-v2", "emv-thumbnails-gallery", "is not isolated"),
+])
+def test_instruction_only_v2_keeps_oracle_and_checks(v2, v1, phrase):
+    assert curriculum.meta(v2)["supersedes"] == v1
+    assert curriculum.verifier_files(v2) == curriculum.verifier_files(v1)
+    assert curriculum.rows(v2) == curriculum.rows(v1)
+    text = b"".join(data for path, data in curriculum.agent_files(v2).items() if path.endswith(".md")).decode()
+    assert phrase in text
+    changed = {p for p, d in curriculum.agent_files(v2).items() if curriculum.agent_files(v1).get(p) != d}
+    assert changed <= {"TASK.md", "evals/relevance/SPEC.md", "policy.json"}
+
+
+def test_emv_v2_states_real_height_and_exists_abort():
+    task = curriculum.agent_files("emv-thumbnails-gallery-v2")["TASK.md"].decode()
+    assert "sets `height` to\n`rowHeight`" in task and "whole run rejects" in task
+    scenarios = curriculum.verifier_files("emv-thumbnails-gallery-v2")["sandbox/scenarios.mjs"].decode()
+    assert "exists" not in scenarios.replace("thumbnail exists", "")
