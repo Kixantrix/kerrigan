@@ -356,5 +356,188 @@
    "python -m pytest tests/projects/michael_bench/test_manifests.py tests/projects/michael_bench/test_ledger_report.py tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_native_transport.py -q -p no:cacheprovider  -> 162 passed",
    "git status --short -> clean; no *.pyc under tasks/*/agent"
   ]
+ },
+ "mb010c": {
+  "calibration": {
+   "plan-dashboard-waves-v2": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 0,
+     "total": 10
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 10,
+     "total": 10
+    }
+   },
+   "review-conflict-predictor-v2": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 11,
+     "total": 25
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 25,
+     "total": 25
+    }
+   },
+   "research-serverless-cost": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 1,
+     "total": 12
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 12,
+     "total": 12
+    }
+   },
+   "design-alethiometer-case": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 3,
+     "total": 12
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 12,
+     "total": 12
+    }
+   },
+   "orchestrate-voice-integration": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 1,
+     "total": 13
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 13,
+     "total": 13
+    }
+   },
+   "kerrigan-plan-conflict-queue": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 1,
+     "total": 20
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 20,
+     "total": 20
+    }
+   },
+   "yv-relevance-instrument": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 0,
+     "total": 12
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 12,
+     "total": 12
+    }
+   },
+   "emv-thumbnails-gallery": {
+    "baseline": {
+     "verdict": "fail",
+     "passed": 2,
+     "total": 11
+    },
+    "reference": {
+     "verdict": "pass",
+     "passed": 11,
+     "total": 11
+    }
+   }
+  },
+  "harbor": {
+   "tasks": 15,
+   "lint_findings_select_all": 0,
+   "harbor_task_model_parses": 15,
+   "admission": {
+    "kixantrix/michael-design-alethiometer-case": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-emv-thumbnails-gallery": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-grouping": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-kerrigan-plan-conflict-queue": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-orchestrate-voice-integration": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-plan-dashboard-waves": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "retired"
+    },
+    "kixantrix/michael-plan-dashboard-waves-v2": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-research-serverless-cost": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-review-conflict-predictor": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "retired"
+    },
+    "kixantrix/michael-review-conflict-predictor-v2": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-selfhost-redeploy-state": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-sr-temporal-assay": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-status": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-validator": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    },
+    "kixantrix/michael-yv-relevance-instrument": {
+     "oracle_passes": true,
+     "base_fails": true,
+     "state": "provisional"
+    }
+   }
+  },
+  "models_run": 0
  }
 }

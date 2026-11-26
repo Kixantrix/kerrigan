@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/PLAN.json"]
+
+[task]
+name = "kixantrix/michael-plan-dashboard-waves-v2"
+version = "1.0.0"
+description = "Decide parallel-safe dispatch waves for dashboard Milestone 2"
+keywords = ["michael-bench", "understand-and-plan"]
+
+[metadata]
+family = "Understand and plan"
+source_repo = "Kixantrix/kerrigan"
+base_ref = "44510543aa18176a13b61b08c26cc5fbc1300937"
+reference_ref = "7544e0592041f725375dccfa7d265499d57a096a"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "required_facts_checklist"
+estimated_agent_minutes = 15
+denominators = "{\"constraint\": 4, \"required\": 6}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

@@ -218,9 +218,10 @@
    "long_horizon": true,
    "summary": "Full-size photos caused slow loads and layout jitter. Agent adds a thumbnail-generation function, extends the listing API with dimensions, and updates the gallery to pre-size containers.",
    "history_status": "merged",
-   "package": null,
+   "package": "emv-thumbnails-gallery",
    "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with node 22 + jest/sharp"
+   "grader_image": "available: michael-replay-grader-node:mb008",
+   "estimated_human_minutes": 75
   },
   {
    "id": "te-browser-mvp-plan",
@@ -442,9 +443,10 @@
    "long_horizon": true,
    "summary": "The ticket-drop watcher was projected at $0/month but cost about $2. Agent measures cost per resource from usage data and writes a design proposal for the next goals.",
    "history_status": "merged",
-   "package": null,
+   "package": "research-serverless-cost",
    "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with node 22 + cloud billing exports (fixture)"
+   "grader_image": "available: michael-replay-grader:mb006j",
+   "estimated_human_minutes": 45
   },
   {
    "id": "kirkland-ecosystem-scan",
@@ -504,9 +506,13 @@
    "long_horizon": false,
    "summary": "The parser only understood legacy inline annotations, so real tasks.md files parsed as zero tasks and produced an empty, falsely-safe wave plan. Agent finds and repairs the parser and adds a fail-loud guard.",
    "history_status": "merged",
-   "package": "review-conflict-predictor",
+   "package": "review-conflict-predictor-v2",
    "provenance_kind": "mined-history",
-   "grader_image": "available: michael-replay-grader:mb006j"
+   "grader_image": "available: michael-replay-grader:mb006j",
+   "retired_packages": [
+    "review-conflict-predictor"
+   ],
+   "estimated_human_minutes": 25
   },
   {
    "id": "cs-test-mapping-dangling",
@@ -1077,9 +1083,10 @@
    "long_horizon": true,
    "summary": "Agent builds the measurement harness (not the ranker) for item relevance; the real run surfaced a data defect where venue logistics were classified as subject matter.",
    "history_status": "merged",
-   "package": null,
+   "package": "yv-relevance-instrument",
    "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with node 22 + vitest"
+   "grader_image": "available: michael-replay-grader-node:mb008",
+   "estimated_human_minutes": 90
   },
   {
    "id": "aleth-thinner-case",
@@ -1110,9 +1117,10 @@
    "long_horizon": true,
    "summary": "Lighter hands freed height. Agent changes parametric CAD to reduce standoffs, keeps clearances, widens a relief, and regenerates flats/renders and BOM/assembly text.",
    "history_status": "unmerged-branch",
-   "package": null,
+   "package": "design-alethiometer-case",
    "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with python3.12 + cadquery/ezdxf"
+   "grader_image": "available: michael-replay-grader:mb006j",
+   "estimated_human_minutes": 45
   },
   {
    "id": "aleth-gear-mesh-analysis",
@@ -1198,19 +1206,21 @@
     "kotlin"
    ],
    "toolchain": "node 22 + python3.12 + android gradle",
-   "grader_container_ok": false,
+   "grader_container_ok": true,
    "required_environment": "cloud-linux-docker",
    "outcome_evidence": "integrated_outcome",
    "evidence_detail": "Integrated stack CI green: provider-neutral core tests, LiveKit service in docker, benchmark/topology, authenticated admission boundary, handshake tests, Android JVM tests, plus final verification evidence.",
    "privacy": "private-sanitized",
-   "privacy_note": "Private; sanitize vendor credentials and endpoints. Base = state before the planning PR.",
+   "privacy_note": "Private; sanitize vendor credentials and endpoints. Base = state before the planning PR. The full original stack is not container-gradable; the packaged synthetic stand-in is.",
    "estimated_agent_minutes": 480,
    "long_horizon": true,
    "summary": "From briefing (#246) through 9 stacked layer PRs (#247-#259) landing as one merge, the agent must plan the layers, brief them, dispatch, repair a cross-layer handshake break, and integrate.",
    "history_status": "merged",
-   "package": null,
+   "package": "orchestrate-voice-integration",
    "provenance_kind": "mined-history",
-   "grader_image": "not-containerizable: requires cloud-linux-docker (node 22 + python3.12 + android gradle)"
+   "grader_image": "available: michael-replay-grader-node:mb008",
+   "estimated_human_minutes": 90,
+   "original_environment": "cloud-linux-docker"
   },
   {
    "id": "ga2-cockpit-rebuild",
@@ -1429,9 +1439,45 @@
    "long_horizon": false,
    "summary": "Given the real Milestone 2 task list, manifest and an empty predictor output, the agent decides waves, finds the implicit package.json conflict, excludes delivered work and distrusts the predictor.",
    "history_status": "merged",
-   "package": "plan-dashboard-waves",
+   "package": "plan-dashboard-waves-v2",
    "provenance_kind": "mined-history",
-   "grader_image": "available: michael-replay-grader:mb006j"
+   "grader_image": "available: michael-replay-grader:mb006j",
+   "retired_packages": [
+    "plan-dashboard-waves"
+   ],
+   "estimated_human_minutes": 15
+  },
+  {
+   "id": "kerrigan-plan-conflict-queue",
+   "family": "Implement",
+   "title": "M6.3: plan-save conflict detection and crash-safe offline edit queue",
+   "repo": "Kixantrix/kerrigan",
+   "visibility": "public",
+   "source": {
+    "kind": "pr",
+    "pr": 365,
+    "issue": null
+   },
+   "base_ref": "822993442330ceaacaa549d9637bdae74dc8f05e",
+   "reference_ref": "44c2938acf63ceaa402c23eac06c5b024d589afa",
+   "stack": [
+    "typescript"
+   ],
+   "toolchain": "node 24 (type stripping)",
+   "grader_container_ok": true,
+   "required_environment": "cloud-linux-docker",
+   "outcome_evidence": "held_out_tests",
+   "evidence_detail": "20 held-out fake-fs/GitHub scenario checks re-expressing the PR's 21 vitest cases.",
+   "privacy": "public",
+   "privacy_note": "Public repository; historical exposure risk recorded in the package manifest.",
+   "estimated_agent_minutes": 40,
+   "estimated_human_minutes": 90,
+   "long_horizon": true,
+   "summary": "Implement two new modules from the historical briefing: conflict detection against agent:go plan-edit PRs, and a crash-safe offline edit queue with ordered, idempotent replay.",
+   "history_status": "merged",
+   "package": "kerrigan-plan-conflict-queue",
+   "provenance_kind": "mined-history",
+   "grader_image": "available: michael-replay-grader-node:mb008"
   }
  ]
 }

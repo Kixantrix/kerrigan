@@ -67,10 +67,17 @@ def task_files(name: str) -> dict[str, bytes]:
     spec = specs.spec(name)
     agent, verifier, _, _ = specs.package(name)
     candidate = spec["candidate"]
+    paths = specs.candidate_files(name)
+    multi = len(paths) > 1
     info = _meta(name)
     instruction = agent["TASK.md"].decode()
-    instruction += (f"\n\n---\nWork in `/app`. Only `/app/{candidate}` is collected for grading "
-                    "(declared artifact); the verifier runs separately with no network.\n")
+    if multi:
+        listed = ", ".join(f"`/app/{path}`" for path in paths)
+        instruction += (f"\n\n---\nWork in `/app`. Only {listed} are collected for grading "
+                        "(declared artifacts); the verifier runs separately with no network.\n")
+    else:
+        instruction += (f"\n\n---\nWork in `/app`. Only `/app/{candidate}` is collected for grading "
+                        "(declared artifact); the verifier runs separately with no network.\n")
     files = {"instruction.md": instruction.encode()}
     for path, data in agent.items():
         if path != "TASK.md":
@@ -79,11 +86,19 @@ def task_files(name: str) -> dict[str, bytes]:
     files["environment/Dockerfile"] = (
         f"{base}COPY workspace/ /app/\nRUN chown -R 65534:65534 /app\n"
         "WORKDIR /app\nUSER 65534:65534\n").encode()
-    reference = base64.b64encode(verifier["reference"]).decode()
-    files["solution/solve.sh"] = (
-        "#!/bin/bash\nset -euo pipefail\n"
-        f"mkdir -p \"$(dirname /app/{candidate})\"\n"
-        f"base64 -d > /app/{candidate} <<'MB_ORACLE'\n{reference}\nMB_ORACLE\n").encode()
+    if multi:
+        script = "#!/bin/bash\nset -euo pipefail\n"
+        for path, data in specs.unbundle(name, verifier["reference"]).items():
+            encoded_data = base64.b64encode(data).decode()
+            script += (f"mkdir -p \"$(dirname /app/{path})\"\n"
+                       f"base64 -d > /app/{path} <<'MB_ORACLE'\n{encoded_data}\nMB_ORACLE\n")
+        files["solution/solve.sh"] = script.encode()
+    else:
+        reference = base64.b64encode(verifier["reference"]).decode()
+        files["solution/solve.sh"] = (
+            "#!/bin/bash\nset -euo pipefail\n"
+            f"mkdir -p \"$(dirname /app/{candidate})\"\n"
+            f"base64 -d > /app/{candidate} <<'MB_ORACLE'\n{reference}\nMB_ORACLE\n").encode()
     rows = spec["rows"]()
     files["tests/private/rows.json"] = packages.encoded(
         [{"original_id": r["original_id"], "group": r["group"], "clauses": [list(c) for c in r["clauses"]]}
@@ -93,9 +108,9 @@ def task_files(name: str) -> dict[str, bytes]:
     files[f"tests/sandbox/{spec['harness_target']}"] = (GRADER / spec["harness"]).read_bytes()
     for path, data in spec["extra"]().items():
         files[f"tests/sandbox/{path}"] = data
-    files["tests/grade.py"] = (HERE / "harbor_grade.py").read_bytes()
+    files["tests/grade.py"] = (HERE / ("harbor_grade_multi.py" if multi else "harbor_grade.py")).read_bytes()
     files["tests/test.sh"] = (b"#!/bin/bash\nset -uo pipefail\nmkdir -p /logs/verifier\n"
-                              + f"exec python3 /tests/grade.py {shlex.quote(candidate)} "
+                              + f"exec python3 /tests/grade.py {shlex.quote(','.join(paths))} "
                                 f"{spec['runtime']} {shlex.quote(spec['harness_target'])}\n".encode())
     verifier_base = BASES["python"] + (
         "COPY --from=node:24-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530 "
@@ -107,7 +122,7 @@ def task_files(name: str) -> dict[str, bytes]:
     source = info["source"]
     files["task.toml"] = "\n".join([
         f"schema_version = {_toml(SCHEMA_VERSION)}",
-        f"artifacts = [{_toml('/app/' + candidate)}]",
+        f"artifacts = [{', '.join(_toml('/app/' + path) for path in paths)}]",
         "",
         "[task]",
         f"name = {_toml('kixantrix/michael-' + name)}",

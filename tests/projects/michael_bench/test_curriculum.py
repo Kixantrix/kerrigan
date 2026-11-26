@@ -72,7 +72,12 @@ def test_user_excluded_repositories_absent():
 
 def test_catalog_packages_match_their_sources():
     packaged = {c["package"]: c for c in CANDIDATES if c["package"]}
-    assert set(packaged) == {*packages.CASES, *curriculum.PACKAGES}
+    retired = {name: c for c in CANDIDATES for name in c.get("retired_packages", [])}
+    assert set(packaged) | set(retired) == {*packages.CASES, *curriculum.PACKAGES}
+    assert set(retired) == set(curriculum.retired()) and not set(packaged) & set(retired)
+    for name, item in retired.items():
+        assert curriculum.retired()[name]["superseded_by"] == item["package"]
+        assert curriculum.meta(item["package"])["supersedes"] == name
     for name, item in packaged.items():
         if name in packages.CASES:
             case = packages.CASES[name]
@@ -166,13 +171,15 @@ def test_hidden_expected_values_cannot_leak_into_export(tmp_path, monkeypatch):
 def test_native_policy_matches_existing_trial_shape(name):
     directory = curriculum.HERE if name in curriculum.PACKAGES else packages.HERE
     policy = json.loads((directory / name / "native-policy.json").read_text())
-    assert set(policy) == set(VALIDATOR_POLICY)
+    multi = name in curriculum.PACKAGES and len(curriculum.candidates(name)) > 1
+    assert set(policy) == set(VALIDATOR_POLICY) | ({"artifacts"} if multi else set())
     for key, value in VALIDATOR_POLICY.items():
         if key not in {"condition", "source", "scratch", "read", "write"}:
             assert policy[key] == value, key
     agent = curriculum.agent_files(name) if name in curriculum.PACKAGES else packages.agent_files(name)
     assert policy["source"] in agent and policy["source"] in policy["write"]
-    assert set(policy["write"]) == {policy["source"], policy["scratch"]}
+    artifacts = policy.get("artifacts", [policy["source"]])
+    assert set(policy["write"]) == {*artifacts, policy["scratch"]} and set(artifacts) <= set(agent)
     assert set(policy["read"]) == {*agent, policy["scratch"]}
     if name in curriculum.PACKAGES:
         assert policy == curriculum.native_policy(name)
@@ -320,7 +327,7 @@ def test_harbor_export_is_current_and_well_formed(name, tmp_path):
     assert config["verifier"]["environment_mode"] == "separate"
     assert config["verifier"]["network_mode"] == config["agent"]["network_mode"] == "no-network"
     assert config["agent"]["user"] == "65534"
-    assert config["artifacts"] == ["/app/" + specs.spec(name)["candidate"]]
+    assert config["artifacts"] == ["/app/" + path for path in specs.candidate_files(name)]
     for dockerfile in ("environment/Dockerfile", "tests/Dockerfile"):
         assert all("@sha256:" in line for line in (committed / dockerfile).read_text().splitlines()
                    if line.startswith(("FROM", "COPY --from")))
@@ -366,7 +373,8 @@ def test_retained_admission_records():
     for record in records:
         assert record["deterministic"]["oracle_passes"] and record["deterministic"]["base_fails"]
         assert record["deterministic"]["verifier_network"] == "none"
-        assert record["decision"]["state"] == "provisional"
+        name = record["task"].removeprefix("kixantrix/michael-")
+        assert record["decision"]["state"] == ("retired" if name in curriculum.retired() else "provisional")
         families = {a["family"] for a in record["model_gates"]["audits"]}
         assert len(families) >= 2
         assert record["model_gates"]["blind_reimplementation"]["family"] not in families
@@ -487,3 +495,69 @@ def test_obscured_calibration_is_distinct_without_private_functions():
     assert b'"descriptive_name"' in variant and b"return _q0" in variant
     with pytest.raises(ValueError, match="distinct"):
         automation.degrade(b"def public():\n    return 1\n")
+
+
+# --- MB-010c: harder, broader curriculum ------------------------------------------------
+
+V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
+NON_PYTHON = {"typescript", "javascript"}
+APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
+                     "Kixantrix/sunday-league", "Kixantrix/foal-rescue-meadow", "Kixantrix/voxel-solar-wallpaper"}
+
+
+def test_v1_retired_and_preserved_v2_corrections():
+    retired = curriculum.retired()
+    assert set(retired) == set(V2.values())
+    for v2, v1 in V2.items():
+        assert retired[v1]["superseded_by"] == v2 and "contradiction" in retired[v1]["reason"]
+        assert curriculum.meta(v2)["supersedes"] == v1
+        # v1 package bytes stay frozen and calibrated; v2 is a separate package.
+        assert curriculum.descriptor(v1) == json.loads((curriculum.HERE / v1 / "manifest.json").read_text())
+        assert curriculum.descriptor(v2)["id"] != curriculum.descriptor(v1)["id"]
+    plan = json.loads(curriculum.verifier_files("plan-dashboard-waves-v2")["reference"])
+    assert sorted("|".join(sorted(c["tasks"])) for c in plan["conflicts"]) == ["M2.2|M2.3", "M2.2|M2.4", "M2.3|M2.4"]
+    review = curriculum.agent_files("review-conflict-predictor-v2")["TASK.md"].decode()
+    assert "contains task lines" in review and "remains a clean zero-wave success" in review
+    rows = {r["original_id"]: r for r in curriculum.rows("review-conflict-predictor-v2")}
+    fail_loud = rows["tests/test_conflict_predictor.py::TestRun::test_task_lines_without_touch_annotations_fail_loud"]
+    assert not any("/work/" in json.dumps(c) for c in fail_loud["clauses"])
+    assert rows["tests/test_conflict_predictor.py::TestRun::test_missing_tasks_file_returns_1"]["clauses"] == [
+        ("path_equal", [0, "rc"], 1)]
+
+
+def test_every_family_has_a_calibrated_package():
+    families = {curriculum.meta(name)["family"] for name in curriculum.PACKAGES if name not in curriculum.retired()}
+    families |= {"Implement"}
+    assert families == set(curriculum.FAMILIES)
+    for family in ("Research", "Orchestrate", "Design", "Understand and plan"):
+        packaged = [n for n in curriculum.PACKAGES if curriculum.meta(n)["family"] == family and n not in curriculum.retired()]
+        assert packaged and all(curriculum.meta(n)["outcome_evidence"] != "model_judge" for n in packaged)
+
+
+def test_long_horizon_set_spans_repos_languages_and_apps():
+    long = [n for n in curriculum.PACKAGES if curriculum.meta(n).get("long_horizon")]
+    assert len(long) >= 4
+    for name in long:
+        info = curriculum.meta(name)
+        assert info["estimated_human_minutes"] >= 60
+        assert len(curriculum.candidates(name)) >= 2, "long-horizon packages require multi-file changes"
+    repos = {curriculum.meta(n)["source"]["repo"] for n in long}
+    suffix = {".ts": "typescript", ".mjs": "javascript", ".js": "javascript", ".py": "python"}
+    languages = {suffix.get(Path(p).suffix) for n in long for p in curriculum.candidates(n)}
+    assert len(repos) >= 3 and len(languages & NON_PYTHON) >= 2
+    assert repos & APP_OR_GAME_REPOS
+    assert any(curriculum.meta(n)["source"]["history_status"] == "merged"
+               and curriculum.meta(n)["privacy"] == "public" for n in long), "at least one exact merged public PR"
+
+
+@pytest.mark.parametrize("name", [n for n in curriculum.PACKAGES if len(curriculum.candidates(n)) > 1])
+def test_multi_artifact_bundles_are_exact(name, tmp_path):
+    base = specs.base(name)
+    files = specs.unbundle(name, base)
+    assert sorted(files) == sorted(curriculum.candidates(name))
+    with pytest.raises(ValueError, match="bundle"):
+        specs.unbundle(name, specs.bundle({**files, "extra.txt": b"x"}))
+    with pytest.raises(ValueError, match="bundle"):
+        specs.unbundle(name, specs.bundle({k: v for k, v in list(files.items())[1:]}))
+    report = api.grade(specs.bundle({**files, "extra.txt": b"x"}), tmp_path / "receipt", task=name)
+    assert report["status"] == "ungraded" and report["cleanup"]["proven"]

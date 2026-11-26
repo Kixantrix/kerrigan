@@ -1,0 +1,35 @@
+{
+ "id": "research-serverless-cost",
+ "family": "Research",
+ "title": "Explain a nonzero bill for a 'free' serverless watcher and recommend an option",
+ "source": {
+  "repo": "Kixantrix/personal-selfhost",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 174,
+  "base_ref": "c09b00bf258230db8c799ecc18d3aa1455b10880",
+  "reference_ref": "d9f0ed3ac348b38e85bbc9ec95087a143ca55692",
+  "history_status": "merged"
+ },
+ "derivation": "Private measured-cost analysis (projected $0, measured nonzero; per-tick container creation found in the transaction breakdown; timer-interval trade-off; email/table costs outside the evidence) re-synthesized as six sanitized synthetic sources with invented quantities. No private code, resource names, hostnames or bills are included.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Deterministic required-facts checklist: numeric synthesis within one cent, closed-vocabulary causes, a constrained recommendation, explicit unknowns and required citations. No model judge.",
+ "historical_exposure": "Private history; synthetic sources have low recognition risk.",
+ "outcome_evidence": "required_facts_checklist",
+ "estimated_agent_minutes": 30,
+ "estimated_human_minutes": 45,
+ "residual_rubric": [
+  "Prose quality of any written rationale is not graded; recorded for later review only."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "harness": "json_artifact.py",
+  "candidate": "FINDINGS.json",
+  "denominators": {
+   "synthesis": 6,
+   "decision": 1,
+   "uncertainty": 2,
+   "evidence": 3
+  }
+ }
+}

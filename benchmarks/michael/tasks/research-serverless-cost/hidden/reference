@@ -1,0 +1,59 @@
+{
+  "blob_cost_before_usd": 4.3787,
+  "blob_cost_after_fix_usd": 2.5824,
+  "functions_cost_usd": 0.0,
+  "logs_cost_usd": 0.0,
+  "dominant_cost": "blob_transactions",
+  "excess_cause": "container-created-per-tick",
+  "projection_error": "storage-transactions-omitted",
+  "two_minute_timer_savings_usd": 1.1262,
+  "option_c_monthly_usd": null,
+  "email_service_monthly_usd": null,
+  "recommendation": "A",
+  "unknowns": [
+    "email_service_monthly_usd",
+    "option_c_monthly_usd"
+  ],
+  "citations": {
+    "blob_cost_before_usd": [
+      "S2",
+      "S4"
+    ],
+    "blob_cost_after_fix_usd": [
+      "S2",
+      "S4",
+      "S5"
+    ],
+    "functions_cost_usd": [
+      "S2",
+      "S3"
+    ],
+    "logs_cost_usd": [
+      "S2",
+      "S3"
+    ],
+    "dominant_cost": [
+      "S2",
+      "S3",
+      "S4"
+    ],
+    "excess_cause": [
+      "S4",
+      "S5"
+    ],
+    "projection_error": [
+      "S1",
+      "S2",
+      "S4"
+    ],
+    "two_minute_timer_savings_usd": [
+      "S2",
+      "S4",
+      "S6"
+    ],
+    "recommendation": [
+      "S1",
+      "S6"
+    ]
+  }
+}

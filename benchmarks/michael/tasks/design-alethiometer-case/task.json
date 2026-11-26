@@ -1,0 +1,41 @@
+{
+ "id": "design-alethiometer-case",
+ "family": "Design",
+ "title": "Thin the alethiometer case within clearance and relief rules, with consistent documents",
+ "source": {
+  "repo": "Kixantrix/alethiometer",
+  "visibility": "public",
+  "kind": "commit",
+  "pr": null,
+  "base_ref": "7f8b4bbc8fc49395d775bd4d5442d87a03e86189",
+  "reference_ref": "4528e967d970045fb1366c5310843178a99c115b",
+  "history_status": "unmerged-branch"
+ },
+ "derivation": "Public hardware-branch commit 4528e96 (5 mm hand standoffs, 1.5 mm crystal clearance, P2 hinge relief widened to clear screw tips, README/BOM/ASSEMBLY updates). The CAD module needs cadquery/shapely, so its Z stack-up and hinge-relief constants are excerpted verbatim into a stdlib model; document excerpts are lightly normalized to be consistent with that model (upper-shell flange stated as the model's shell height).",
+ "privacy": "public",
+ "coverage": "Constraint validator over a multi-file design change: optimal catalog choice, design-rule relief derivation (perturbation-tested), preserved fixed parts, and document/model consistency.",
+ "historical_exposure": "Public repository branch; exposure/recognition risk.",
+ "outcome_evidence": "constraint_validator",
+ "estimated_agent_minutes": 30,
+ "estimated_human_minutes": 45,
+ "residual_rubric": [
+  "Physical manufacturability beyond the stated rules (renders, DXF/STEP regeneration) is out of scope and not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "harness": "design_alethiometer_case.py",
+  "candidate": "hardware/stack.py",
+  "candidates": [
+   "hardware/ASSEMBLY.md",
+   "hardware/BOM.md",
+   "hardware/README.md",
+   "hardware/stack.py"
+  ],
+  "denominators": {
+   "design": 3,
+   "rules": 2,
+   "preservation": 2,
+   "docs": 5
+  }
+ }
+}

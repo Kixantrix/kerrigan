@@ -1,0 +1,4 @@
+meter,unit,monthly_quantity
+function_executions,executions,41760
+function_compute,GB-s,6200
+log_ingestion,GB,0.58

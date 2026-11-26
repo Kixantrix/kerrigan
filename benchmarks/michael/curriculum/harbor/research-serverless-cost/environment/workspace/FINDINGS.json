@@ -1,0 +1,15 @@
+{
+  "blob_cost_before_usd": null,
+  "blob_cost_after_fix_usd": null,
+  "functions_cost_usd": null,
+  "logs_cost_usd": null,
+  "dominant_cost": null,
+  "excess_cause": null,
+  "projection_error": null,
+  "two_minute_timer_savings_usd": null,
+  "option_c_monthly_usd": null,
+  "email_service_monthly_usd": null,
+  "recommendation": null,
+  "unknowns": [],
+  "citations": {}
+}

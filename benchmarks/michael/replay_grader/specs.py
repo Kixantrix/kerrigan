@@ -55,10 +55,37 @@ def register_curriculum():
     for name in curriculum.PACKAGES:
         meta = curriculum.meta(name)
         grader = meta["grader"]
-        SPECS[name] = _python(
+        spec = _python(
             name, grader["candidate"], f"harnesses/{grader['harness']}",
             lambda name=name: curriculum.rows(name), grader["denominators"],
             extra=lambda name=name: curriculum.sandbox_fixtures(name))
+        if grader.get("runtime", "python") == "node":
+            spec.update(runtime="node", image=NODE_IMAGE, harness_target="harness.mjs")
+        if len(grader.get("candidates", [grader["candidate"]])) > 1:
+            spec["candidates"] = list(grader["candidates"])
+        SPECS[name] = spec
+
+
+def candidate_files(name):
+    spec = SPECS[name]
+    return spec.get("candidates", [spec["candidate"]])
+
+
+def bundle(files):
+    """Canonical multi-artifact candidate encoding: sorted JSON {path: utf-8 text}."""
+    return packages.encoded({path: data.decode() for path, data in sorted(files.items())})
+
+
+def unbundle(name, source):
+    """Return {path: bytes} for a candidate; multi-artifact sources must be exact bundles."""
+    paths = candidate_files(name)
+    if len(paths) == 1:
+        return {paths[0]: source}
+    value = json.loads(source)
+    if not isinstance(value, dict) or sorted(value) != sorted(paths) or not all(
+            isinstance(text, str) for text in value.values()):
+        raise ValueError("multi-artifact candidate must be a bundle of exactly the declared files")
+    return {path: text.encode() for path, text in value.items()}
 
 
 def spec(name):
@@ -82,7 +109,10 @@ def reference(name):
 
 
 def base(name):
-    return package(name)[0][spec(name)["candidate"]]
+    agent = package(name)[0]
+    if "candidates" in spec(name):
+        return bundle({path: agent[path] for path in spec(name)["candidates"]})
+    return agent[spec(name)["candidate"]]
 
 
 register_curriculum()

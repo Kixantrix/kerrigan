@@ -1,0 +1,229 @@
+[
+ {
+  "original_id": "every remaining task scheduled exactly once and nothing else",
+  "group": "required",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_keys",
+    [
+     "wave_of"
+    ],
+    [
+     "M2.2",
+     "M2.3",
+     "M2.4",
+     "M2.5"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "duplicates"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "scaffold task already delivered is excluded with a reason",
+  "group": "required",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "excluded"
+    ],
+    [
+     "M2.1"
+    ]
+   ],
+   [
+    "path_absent",
+    [
+     "wave_of",
+     "M2.1"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "excluded_reasons_ok"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "shared manifest conflict M2.2|M2.3 identified",
+  "group": "required",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "conflict_files",
+     "M2.2|M2.3"
+    ],
+    [
+     "apps/kerrigan-dashboard/package.json"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "shared manifest conflict M2.2|M2.4 identified",
+  "group": "required",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "conflict_files",
+     "M2.2|M2.4"
+    ],
+    [
+     "apps/kerrigan-dashboard/package.json"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "shared manifest conflict M2.3|M2.4 identified",
+  "group": "required",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "conflict_files",
+     "M2.3|M2.4"
+    ],
+    [
+     "apps/kerrigan-dashboard/package.json"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "empty predictor output recognized as untrustworthy",
+  "group": "required",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "trusted"
+    ],
+    false
+   ]
+  ]
+ },
+ {
+  "original_id": "M2.2 and M2.3 are serialized",
+  "group": "constraint",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "paths_differ",
+    [
+     "wave_of",
+     "M2.2"
+    ],
+    [
+     "wave_of",
+     "M2.3"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "M2.4 follows both of its dependencies",
+  "group": "constraint",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "paths_less",
+    [
+     "wave_of",
+     "M2.2"
+    ],
+    [
+     "wave_of",
+     "M2.4"
+    ]
+   ],
+   [
+    "paths_less",
+    [
+     "wave_of",
+     "M2.3"
+    ],
+    [
+     "wave_of",
+     "M2.4"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "minimal wave count under the constraints",
+  "group": "constraint",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "wave_count"
+    ],
+    3
+   ]
+  ]
+ },
+ {
+  "original_id": "conflict list is exactly the real shared-file pairs",
+  "group": "constraint",
+  "probe": {
+   "op": "plan"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "conflict_pairs"
+    ],
+    [
+     "M2.2|M2.3",
+     "M2.2|M2.4",
+     "M2.3|M2.4"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "bad_paths"
+    ],
+    []
+   ]
+  ]
+ }
+]

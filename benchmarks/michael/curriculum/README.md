@@ -139,3 +139,62 @@ admission and mining results.
   SWE-bench Pro difficulty labels are not in the registry, so the subset is
   not a verified HARD subset.
 - None of this is a model result. No model was run.
+
+## MB-010c: harder, broader curriculum (v2)
+
+Results v1 saturated (both models 5/5), so v2 adds harder, multi-file work and
+fills the empty families. Every package has a Harbor export with
+`harbor lint --select ALL` reporting 0 findings, and Harbor admission where the
+oracle passes and the base fails. Each also has a retained Docker calibration
+receipt and a fresh-clone reproduction. Base → reference independent checks:
+
+| Package | Family | Source | Lang / files | Human min | Base | Reference |
+|---|---|---|---|---:|---:|---:|
+| plan-dashboard-waves-v2 | Understand and plan | kerrigan #306 (public, exact) | JSON / 1 | 15 | 0/10 | 10/10 |
+| review-conflict-predictor-v2 | Review and repair | kerrigan #312 (public, exact) | Python / 1 | 25 | 11/25 | 25/25 |
+| research-serverless-cost | Research | personal-selfhost #174 (synthetic) | JSON / 1 | 45 | 1/12 | 12/12 |
+| design-alethiometer-case | Design | alethiometer 4528e96 (public branch) | Python+Markdown / 4 | 45 | 3/12 | 12/12 |
+| orchestrate-voice-integration | Orchestrate, long | personal-selfhost T012 (synthetic) | TS+JSON / 4 | 90 | 1/13 | 13/13 |
+| kerrigan-plan-conflict-queue | Implement, long | kerrigan #365 (public, exact merged PR) | TS / 2 | 90 | 1/20 | 20/20 |
+| yv-relevance-instrument | Experiment, long | your-voice #224 app (synthetic) | TS / 3 | 90 | 0/12 | 12/12 |
+| emv-thumbnails-gallery | Implement, long | event-media-vault #8 app (synthetic) | JS / 3 | 75 | 2/11 | 11/11 |
+
+- **Retired v1** (`retired.json`): `plan-dashboard-waves` and
+  `review-conflict-predictor` remain byte-for-byte frozen but are recorded as
+  `retired` in admission. v2 fixes each contradiction the MB-009r audits
+  found. The plan oracle now includes the M2.2|M2.4 and M2.3|M2.4 manifest
+  conflicts and checks the exact conflict set. The review instruction scopes
+  fail-loud to files that contain task lines, matching the historical
+  prose-only success. v2 also removes the over-specified stderr-path and
+  missing-file wording checks, adds CLI, partial-annotation and finding-shape
+  checks, and requires nonempty exclusion reasons.
+- **Multi-artifact candidates**: a package can declare `grader.candidates`.
+  The candidate is then a canonical bundle, sorted JSON `{path: text}`
+  (`specs.bundle`/`unbundle`). The Docker grader rejects any bundle whose
+  file set differs from the declaration. Harbor exports declare every file
+  as an artifact and use `harbor_grade_multi.py`. Existing single-artifact
+  exports are byte-identical.
+- **Node scenario harness** (`harnesses/scenarios.mjs`): trusted, answer-free
+  `scenarios.mjs` fixtures, such as fake fs, GitHub, blob stores and held-out
+  data, drive the candidate modules. Only observations leave the sandbox.
+- **No model judge.** Research, plan, design and orchestration answers are
+  graded by numeric tolerances, closed vocabularies, exact sets, required
+  citations, honest-unknown checks and perturbation tests (for example, the
+  hinge relief is re-evaluated with other screw lengths). Your-voice expected
+  values come from an independent Python implementation of its spec.
+- The long-horizon set has 4 packages, each 75–90 estimated human minutes and
+  multi-file. They span 4 repositories and TypeScript plus JavaScript, and
+  include the your-voice and event-media-vault apps. One is an exact merged
+  public PR (#365). The estimated human minutes are recorded for METR-style
+  horizon reporting.
+- **Model gates**: the two-family LLM audits and blind re-implementation are
+  left `provisional` for the native executor, as frozen requests in
+  `admission.json`. No model was run here.
+
+Native-path gap (outside this slice's scope): `replay_trial/curriculum.collect`
+reads only `policy["source"]`. For multi-artifact packages, native policies
+list every file under `artifacts`, and the native collector must read each
+file after quiescence and pass `specs.bundle(files)` to the grader.
+`replay_trial.curriculum.sources()` also hashes only `harnesses/*.py`; it
+should include `harnesses/*.mjs`. The native closure test was generalized to
+accept `artifacts`.

@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/api/media-list.mjs", "/app/api/thumbnails.mjs", "/app/web/gallery-layout.mjs"]
+
+[task]
+name = "kixantrix/michael-emv-thumbnails-gallery"
+version = "1.0.0"
+description = "Thumbnails, media API dimensions and pre-sized gallery containers for a self-hosted media vault"
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/event-media-vault"
+base_ref = "d1a6ac17fdf95350765c2fc751a8a5c7c0fe82ba"
+reference_ref = "6ae018ac5eb0004d5b736b214f7a3af05a782aca"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 40
+denominators = "{\"api\": 2, \"preservation\": 2, \"thumbnails\": 5, \"web\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

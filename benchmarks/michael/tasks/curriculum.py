@@ -73,7 +73,7 @@ def agent_files(name: str) -> dict[str, bytes]:
         raise ValueError("policy.json is generated, never stored")
     policy = {
         "read": sorted([*files, "policy.json"]),
-        "write": [info["grader"]["candidate"]],
+        "write": candidates(name),
         "tools": ["local file read/edit", "offline python3 stdlib self-tests"],
         "network": "denied during agent work",
         "history": "not provided",
@@ -82,6 +82,16 @@ def agent_files(name: str) -> dict[str, bytes]:
     }
     files["policy.json"] = encoded(policy)
     return dict(sorted(files.items()))
+
+
+def candidates(name: str) -> list[str]:
+    grader = meta(name)["grader"]
+    return list(grader.get("candidates", [grader["candidate"]]))
+
+
+def retired() -> dict:
+    path = HERE.parent / "curriculum" / "retired.json"
+    return json.loads(path.read_text())["retired"] if path.exists() else {}
 
 
 def verifier_files(name: str) -> dict[str, bytes]:
@@ -107,9 +117,8 @@ def sandbox_fixtures(name: str) -> dict[str, bytes]:
     fixtures = {path.removeprefix("sandbox/"): data for path, data in verifier_files(name).items()
                 if path.startswith("sandbox/")}
     agent = agent_files(name)
-    candidate = meta(name)["grader"]["candidate"]
     for path in meta(name)["grader"].get("agent_support", []):
-        if path == candidate:
+        if path in candidates(name):
             raise ValueError("candidate cannot be support material")
         fixtures[path] = agent[path]
     return fixtures
@@ -132,7 +141,10 @@ def descriptor(name: str) -> dict:
             "outcome_evidence": info["outcome_evidence"],
             "limitations": "No model trial, representative-day coverage, native isolation, or contamination-free claim.",
         },
-        "base": {"uri": f"package:{name}/agent/{candidate}", "sha256": sha(agent[candidate])},
+        "base": ({"uri": f"package:{name}/agent/{candidate}", "sha256": sha(agent[candidate])}
+                 if len(candidates(name)) == 1 else
+                 {"uri": f"package:{name}/agent-bundle", "sha256": sha(encoded(
+                     {path: agent[path].decode() for path in sorted(candidates(name))}))}),
         "agent_material": [
             {"uri": f"agent/{path}", "sha256": digest, "audience": "requirement_only"}
             for path, digest in inventory(agent).items()
@@ -149,9 +161,13 @@ def native_policy(name: str) -> dict:
     info = meta(name)
     candidate = info["grader"]["candidate"]
     files = sorted(agent_files(name))
-    return {"condition": f"MB-008-{name}", "source": candidate, "scratch": "self_test.py",
-            "read": [*files, "self_test.py"], "write": [candidate, "self_test.py"],
-            **NATIVE_LIMITS}
+    scratch = "self_test.mjs" if info["grader"].get("runtime") == "node" else "self_test.py"
+    policy = {"condition": f"MB-008-{name}", "source": candidate, "scratch": scratch,
+              "read": [*files, scratch], "write": [*candidates(name), scratch], **NATIVE_LIMITS}
+    if len(candidates(name)) > 1:
+        # Multi-artifact: the native collector must collect every listed artifact (bundle).
+        policy["artifacts"] = candidates(name)
+    return policy
 
 
 def forbidden_tokens(name: str) -> list[bytes]:

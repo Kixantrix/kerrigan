@@ -1,0 +1,45 @@
+{
+ "id": "orchestrate-voice-integration",
+ "family": "Orchestrate",
+ "title": "Integrate four parallel realtime-voice layers against the plan and record requirement retention",
+ "source": {
+  "repo": "Kixantrix/personal-selfhost",
+  "visibility": "private",
+  "kind": "issue+pr",
+  "pr": 246,
+  "base_ref": "55153c05dd2c5925b70526dc773a5c6afcdb84ba",
+  "reference_ref": "ca42585b770156eef207f3e660e60c9a3572c83d",
+  "history_status": "merged"
+ },
+ "derivation": "Private T012 realtime push-to-talk slice (plan #246, stacked layer PRs landing as one merge, a cross-layer repair) re-synthesized as a sanitized TypeScript stand-in: a canonical protocol plus three parallel layer outputs carrying realistic cross-layer integration defects (renamed handshake field, protocol version skew, a requirement dropped by a mis-split brief, content leaking into telemetry, a seconds/milliseconds mismatch). No private code, providers, hostnames or credentials are included.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Integrated end-to-end behavior for all 8 plan requirements, 2 preservation checks and a requirement-retention/defect ledger (closed vocabulary, exact set).",
+ "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
+ "outcome_evidence": "integrated_outcome",
+ "estimated_agent_minutes": 45,
+ "estimated_human_minutes": 90,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Quality of integration notes and dispatch follow-ups is not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "src/session.ts",
+  "candidates": [
+   "INTEGRATION.json",
+   "src/server.ts",
+   "src/session.ts",
+   "src/transport.ts"
+  ],
+  "agent_support": [
+   "src/protocol.ts"
+  ],
+  "denominators": {
+   "integration": 8,
+   "preservation": 2,
+   "ledger": 3
+  }
+ }
+}

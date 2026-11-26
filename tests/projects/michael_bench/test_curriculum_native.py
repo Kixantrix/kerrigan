@@ -72,7 +72,8 @@ def test_package_policy_closure_and_node_pin():
     for name in native.NAMES:
         agent, policy, _ = native.material(name)
         assert set(policy["read"]) == set(agent) | {policy["scratch"]}
-        assert len(policy["write"]) == 2 and policy["source"] in policy["write"]
+        artifacts = policy.get("artifacts", [policy["source"]])
+        assert policy["source"] in artifacts and set(policy["write"]) == {*artifacts, policy["scratch"]}
         assert policy["runSeconds"] == 30 and policy["actions"] == 128
         assert policy["readonlySizes"] == {p: len(b) for p, b in agent.items() if p not in policy["write"]}
     assert native.NODE_VERSION.startswith("24.") and len(native.NODE_SHA256) == 64

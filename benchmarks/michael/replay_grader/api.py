@@ -270,7 +270,7 @@ def _grade(source, directory, *, seconds=10):
         with tarfile.open(fileobj=archive, mode="w") as tar:
             for name, data in {
                 **spec["extra"](),
-                spec["candidate"]: source,
+                **specs.unbundle(task, source),
                 spec["harness_target"]: (HERE / spec["harness"]).read_bytes(),
                 "probes.json": encoded([row["probe"] for row in rows]),
             }.items():

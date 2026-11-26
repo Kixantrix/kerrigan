@@ -20,6 +20,9 @@ def record(task_dir: Path) -> dict:
                                payload={**payload, "visible": ["instruction.md", "environment/"]})
     decision = automation.admission(oracle_passes=gates["oracle_passes"], base_fails=gates["base_fails"],
                                     audits=None, blind=None)
+    retired = harbor.curriculum.retired().get(task_dir.name)
+    if retired:
+        decision = {"state": "retired", "reasons": [retired["reason"]], "superseded_by": retired["superseded_by"]}
     return {"task": gates["task"], "task_sha256": digest,
             "deterministic": {"oracle_passes": gates["oracle_passes"], "base_fails": gates["base_fails"],
                               "oracle_reward": gates["oracle"]["reward"], "base_reward": gates["base"]["reward"],
