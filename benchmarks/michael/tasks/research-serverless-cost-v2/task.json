@@ -11,7 +11,7 @@
   "reference_ref": "d9f0ed3ac348b38e85bbc9ec95087a143ca55692",
   "history_status": "merged"
  },
- "derivation": "Private measured-cost analysis (projected $0, measured nonzero; per-tick container creation found in the transaction breakdown; timer-interval trade-off; email/table costs outside the evidence) re-synthesized as six sanitized synthetic sources with invented quantities. No private code, resource names, hostnames or bills are included. v2 (MB-010c follow-up): a live trial failed only the unknowns check, which compared the array in alphabetical order although the instruction asks only for the exact undeterminable key names. The check is now set-based (exact set, no duplicates, any order); the instruction, oracle and all other checks are unchanged. An audit of every array check in the research, plan, design and orchestrate packages found no other order over-specification.",
+ "derivation": "Private measured-cost analysis (projected $0, measured nonzero; per-tick container creation found in the transaction breakdown; timer-interval trade-off; email/table costs outside the evidence) re-synthesized as six sanitized synthetic sources with invented quantities. No private code, resource names, hostnames or bills are included. v2 (MB-010c follow-up): a live trial failed only the unknowns check, which compared the array in alphabetical order although the instruction asks only for the exact undeterminable key names. The check is now set-based (exact set, no duplicates, any order); the instruction, oracle and all other checks are unchanged. An audit of every array check in the research, plan, design and orchestrate packages found no other order over-specification. Live v1 evidence: benchmarks/michael/curriculum/MB-010r-research-serverless-cost-v1-outcomes.json (sha256 33b87af59aab84368de2867991bc387f2796ba92e6c516029b9a5acf28d6077d).",
  "privacy": "private-synthetic-fixture",
  "coverage": "Deterministic required-facts checklist: numeric synthesis within one cent, closed-vocabulary causes, a constrained recommendation, explicit unknowns and required citations. No model judge.",
  "historical_exposure": "Private history; synthetic sources have low recognition risk.",
@@ -32,5 +32,9 @@
    "evidence": 3
   }
  },
- "supersedes": "research-serverless-cost"
+ "supersedes": "research-serverless-cost",
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-research-serverless-cost-v1-outcomes.json",
+  "sha256": "33b87af59aab84368de2867991bc387f2796ba92e6c516029b9a5acf28d6077d"
+ }
 }

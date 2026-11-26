@@ -4,6 +4,7 @@ Integration/cloud-linux (Docker). Candidate bytes are only ever graded inside th
 independent no-network Docker grader; no test imports candidate code on the host.
 """
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -505,7 +506,9 @@ CURRENT = {"plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-p
            "review-conflict-predictor-v2": "review-conflict-predictor-v3",
            "design-alethiometer-case": "design-alethiometer-case-v2",
            "yv-relevance-instrument": "yv-relevance-instrument-v2",
-           "emv-thumbnails-gallery": "emv-thumbnails-gallery-v2"}
+           "emv-thumbnails-gallery": "emv-thumbnails-gallery-v2",
+           "orchestrate-voice-integration": "orchestrate-voice-integration-v2",
+           "research-serverless-cost": "research-serverless-cost-v2"}
 NON_PYTHON = {"typescript", "javascript"}
 APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
                      "Kixantrix/sunday-league", "Kixantrix/foal-rescue-meadow", "Kixantrix/voxel-solar-wallpaper"}
@@ -515,7 +518,11 @@ def test_v1_retired_and_preserved_v2_corrections():
     retired = curriculum.retired()
     assert set(retired) == set(CURRENT)
     for old, new in CURRENT.items():
-        assert retired[old]["superseded_by"] == new and "contradiction" in retired[old]["reason"]
+        assert retired[old]["superseded_by"] == new and retired[old]["reason"]
+        if old not in {"plan-dashboard-waves", "review-conflict-predictor"}:  # MB-009r retirements predate evidence files
+            evidence = retired[old]["evidence"]
+            assert (ROOT / evidence["path"]).is_file()
+            assert hashlib.sha256((ROOT / evidence["path"]).read_bytes()).hexdigest() == evidence["sha256"]
     for v2, v1 in V2.items():
         assert curriculum.meta(v2)["supersedes"] == v1
         # v1 package bytes stay frozen and calibrated; v2 is a separate package.

@@ -663,10 +663,11 @@
    }
   },
   "decision": {
-   "state": "provisional",
+   "state": "retired",
    "reasons": [
-    "model gates pending executor"
-   ]
+    "task-caused: the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet 12/13), while MAI's 12/13 was a correct rejection of a nonexistent auth-bypass; v2 admits only audited genuine extras with behavioral fix checks"
+   ],
+   "superseded_by": "orchestrate-voice-integration-v2"
   }
  },
  {
@@ -988,10 +989,11 @@
    }
   },
   "decision": {
-   "state": "provisional",
+   "state": "retired",
    "reasons": [
-    "model gates pending executor"
-   ]
+    "overspecified_test: the unknowns check required alphabetical order although the instruction asks only for the exact key names (MAI 11/12 failed only that check); v2 makes it set-based"
+   ],
+   "superseded_by": "research-serverless-cost-v2"
   }
  },
  {

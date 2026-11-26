@@ -450,7 +450,7 @@
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader:mb006j",
    "estimated_human_minutes": 45,
-   "pending_reaudit_packages": [
+   "retired_packages": [
     "research-serverless-cost"
    ]
   },
@@ -1234,7 +1234,7 @@
    "grader_image": "available: michael-replay-grader-node:mb008",
    "estimated_human_minutes": 90,
    "original_environment": "cloud-linux-docker",
-   "pending_reaudit_packages": [
+   "retired_packages": [
     "orchestrate-voice-integration"
    ]
   },

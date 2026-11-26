@@ -46,6 +46,24 @@
     "sha256": "856d048b467d79464dc5384246a819406a5767f92cb151aebf0343b6212e0cc1"
    },
    "reason": "contradiction: instruction said the carousel keeps height (oracle sets rowHeight) and claimed full per-image failure isolation although store.exists errors abort the run"
+  },
+  "orchestrate-voice-integration": {
+   "by": "MB-010r live v1 outcomes",
+   "reason": "task-caused: the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet 12/13), while MAI's 12/13 was a correct rejection of a nonexistent auth-bypass; v2 admits only audited genuine extras with behavioral fix checks",
+   "superseded_by": "orchestrate-voice-integration-v2",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-voice-integration-v1-outcomes.json",
+    "sha256": "c7781661a9d3ec72bca2edcc1bf7fe0e5736713d87d72fcd654a19d58b77e008"
+   }
+  },
+  "research-serverless-cost": {
+   "by": "MB-010r live v1 outcomes",
+   "reason": "overspecified_test: the unknowns check required alphabetical order although the instruction asks only for the exact key names (MAI 11/12 failed only that check); v2 makes it set-based",
+   "superseded_by": "research-serverless-cost-v2",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-research-serverless-cost-v1-outcomes.json",
+    "sha256": "33b87af59aab84368de2867991bc387f2796ba92e6c516029b9a5acf28d6077d"
+   }
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored."
