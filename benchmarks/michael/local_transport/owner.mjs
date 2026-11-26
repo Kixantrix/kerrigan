@@ -9,6 +9,9 @@ import { PROTOCOL, Protocol } from "./protocol.mjs";
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 admission(config);
 const TASK_VALIDATOR = config.curriculumTask ? config.taskPolicy : LEGACY_TASK_POLICY;
+const finalPaths = TASK_VALIDATOR.artifacts || [TASK_VALIDATOR.source];
+const finalIds = finalPaths.map((_, index) => finalPaths.length === 1 ?
+    "controller-final-source" : `controller-final-source-${index}`);
 if (config.validatorReplay && (config.model !== null || config.approved !== false ||
     config.transportProbe || config.prompt !== undefined || config.condition !== "MB-006k-offline"))
     throw new Error("validator_replay_forbids_inference");
@@ -212,12 +215,27 @@ function parse(bytes) {
 }
 async function action(id, args, final = false) {
     if (!gate || (stopping && !final)) throw new Error("execution_gated");
-    if (config.validatorTask && !final && id === "controller-final-source")
+    if (config.validatorTask && !final && id.startsWith("controller-final-source"))
         throw new Error("reserved_source_identifier");
-    if (config.validatorTask && !final && actions.size >= TASK_VALIDATOR.actions - 1)
+    if (config.validatorTask && !final && actions.size >= TASK_VALIDATOR.actions - finalPaths.length)
         throw new Error("agent_action_budget");
-    const payload = validateAction(id, args, budget, config.curriculumTask ? TASK_VALIDATOR :
-        config.validatorTask ? "task" : config.validatorReplay === true);
+    let payload;
+    try {
+        payload = validateAction(id, args, budget, config.curriculumTask ? TASK_VALIDATOR :
+            config.validatorTask ? "task" : config.validatorReplay === true);
+    } catch (error) {
+        if (!config.curriculumTask || error.message !== "action_schema_feedback") throw error;
+        const index = actions.size;
+        persist(`action-${index}`, { id, args, atMs: performance.now() - began, rejected: true });
+        const text = Buffer.from('Action rejected; nothing executed. Use read(op,path[,offset]), ' +
+            'write(op,path,data), or run(op,path). No additional fields. Correct the request.');
+        const retained = bounded(`task-${index}-stderr`, text, TASK_VALIDATOR.channel, false);
+        if (!retained || stopping) throw new Error("task_output_budget");
+        const result = {exitCode: 2, timedOut: false, stdout: "", stderr: retained.toString("base64"),
+            feedback: "action_schema_invalid; request consumed one action and its input bytes"};
+        persist(`action-result-${index}`, { id, result, rejected: true });
+        return result;
+    }
     const index = actions.size;
     persist(`action-${index}`, { id, args, atMs: performance.now() - began });
     const process = await owned("task", `${config.python} -I -B ${config.worker}`,
@@ -373,11 +391,14 @@ finally {
     clearTimeout(cleanupTimer);
     if (settled !== null && spawning === 0 && config.validatorTask && gate &&
         (partialBudget() || ["session_idle", "diagnostics_complete"].includes(stopping)) &&
-        !actions.has("controller-final-source")) {
+        !finalIds.some(id => actions.has(id))) {
         let timer;
         try {
             await Promise.race([
-                action("controller-final-source", {op: "read", path: TASK_VALIDATOR.source}, true),
+                (async () => {
+                    for (const [index, path] of finalPaths.entries())
+                        await action(finalIds[index], {op: "read", path}, true);
+                })(),
                 new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("final_read_cleanup_deadline")),
                     Math.max(1, cleanupStart + 15000 - performance.now())); })
             ]);

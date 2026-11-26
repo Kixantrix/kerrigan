@@ -8,11 +8,20 @@ from benchmarks.michael.replay_trial import api, curriculum as native
 from benchmarks.michael.replay_grader import specs
 
 
-def audit_payload(name):
+def audit_payload(name, *, active_seconds=3600):
     agent, hidden, _, _ = specs.package(name)
+    policy = native.material(name)[1]
+    policy["activeSeconds"] = active_seconds
     return {"instruction": agent["TASK.md"].decode(), "visible": {p: b.decode() for p, b in agent.items()},
         "oracle": hidden["reference"].decode(), "rows": specs.spec(name)["rows"](),
-        "trustedHarness": (api.grader.HERE / specs.spec(name)["harness"]).read_text()}
+        "trustedHarness": (api.grader.HERE / specs.spec(name)["harness"]).read_text(),
+        "trustedFixtures": {p: b.decode() for p, b in specs.spec(name)["extra"]().items()},
+        "effectiveNativePolicy": policy, "effectiveNativeInstruction": native.prompt(policy),
+        "contextPrecedence": "Audit the actual combined task and native instruction. The native overlay "
+            "explicitly corrects exported shell/pytest/toolchain claims and declares the scratch path, "
+            "writable artifact paths and execution limits. It overrides generated policy.json's tool "
+            "availability/write declarations, not the task's required solution behavior. Do not call "
+            "a task contradictory merely because generated policy.json omits native scratch or Node."}
 
 
 def request_material(req):
@@ -30,9 +39,11 @@ def request_material(req):
     parts[f"request-{index:03d}.txt"] = chunk.encode()
     instruction = (
         "Read all request-NNN.txt in numeric order; concatenation is the frozen JSON request. "
+        f"Complete request file list: {sorted(parts)}. Do not guess or read any other request files. "
         "Read in4096-byte pages using offset and nextOffset until empty. "
         "Carry out its prompt faithfully. Write only RESULT.json as JSON "
-        '{"request_sha256":"the exact request hash","verdict":{...schema...}}. '
+        f'{{"request_sha256":"{req["request_sha256"]}","verdict":{{...schema...}}}}. '
+        "The controller supplies that exact binding; copy it unchanged, do not compute or guess a hash. "
         "Use only mb_action read/write. Never execute source, use external tools, or score model correctness. "
         'Read syntax is exactly {"op":"read","path":"request-000.txt","offset":0}; '
         'data is forbidden on reads. Write syntax is {"op":"write","path":"RESULT.json","data":"JSON text"}. '
@@ -51,6 +62,10 @@ def request_material(req):
 
 
 def query(owned, root, name, req, safety):
+    root = Path(root)
+    root.mkdir(parents=True, exist_ok=True)
+    with (root / "request.json").open("xb") as output:
+        output.write(api.packages.encoded(req))
     files, policy, prompt = request_material(req)
     outcome = native.execute(owned, root, name, req["model"], [req["model"]], safety,
         files=files, policy=policy, instruction=prompt, grade=False)
@@ -58,23 +73,25 @@ def query(owned, root, name, req, safety):
     if outcome["nativeStop"] != "session_idle" or not outcome["quiescent"] or not outcome.get("sourceSha256"):
         raise api.TrialError(f"model query failed, preserve {run}: {outcome}")
     value = json.loads((run / "collected-source.bin").read_bytes())
+    api.grader.persist(root / "verdict.json", value)
     body = automation.validate_verdict(req["kind"], value, req)
-    api.grader.persist(Path(root) / "request.json", req)
-    api.grader.persist(Path(root) / "verdict.json", value)
     return body, value
 
 
-def admission(owned, root, name, safety):
+def admission(owned, root, name, safety, *, active_seconds=3600):
     root = Path(root)
     audits = []
     for index, (model, family) in enumerate(admit.AUDITORS):
-        req = automation.request("audit", model=model, family=family, payload=audit_payload(name))
+        req = automation.request("audit", model=model, family=family,
+            payload=audit_payload(name, active_seconds=active_seconds))
         body, _ = query(owned, root / f"audit-{index}", name, req, safety)
         audits.append(body)
     blind_model, blind_family = admit.BLIND_SOLVER
     blind_root = root / "blind"
-    outcome = native.execute(owned, blind_root, name, blind_model, [blind_model], safety,
-        instruction=native.prompt(native.material(name)[1]) + " Blind reimplementation: do not consult tests or an oracle.")
+    policy = native.material(name)[1]
+    policy["activeSeconds"] = active_seconds
+    outcome = native.execute(owned, blind_root, name, blind_model, [blind_model], safety, policy=policy,
+        instruction=native.prompt(policy) + " Blind reimplementation: do not consult tests or an oracle.")
     blind = {"passed": outcome["status"] == "pass", "adjudication": None}
     if not blind["passed"] and outcome["status"] in ("pass", "fail"):
         run = blind_root / blind_model
@@ -100,16 +117,16 @@ def patch(base, after):
 def quality(owned, root, name, model, trial, safety):
     agent, _, _, _ = specs.package(name)
     policy = native.material(name)[1]
-    candidate = (Path(trial) / model / "collected-source.bin").read_bytes()
-    oracle = specs.reference(name)
-    source = policy["source"]
-    signals = automation.deterministic_quality(base=agent, candidate={**agent, source: candidate},
-        oracle={**agent, source: oracle}, writable=policy["write"])
+    candidate = specs.unbundle(name, (Path(trial) / model / "collected-source.bin").read_bytes())
+    oracle = specs.unbundle(name, specs.reference(name))
+    signals = automation.deterministic_quality(base=agent, candidate={**agent, **candidate},
+        oracle={**agent, **oracle}, writable=policy["write"])
     family = "microsoft" if model == "mai-code-2" else "anthropic"
     judges = [("gpt-5.6-sol", "openai"),
               ("claude-sonnet-5.5", "anthropic") if family == "microsoft" else ("gemini-4-neon", "google")]
     requests = automation.panel_requests(task=name, instruction=agent["TASK.md"].decode(),
-        candidate_diff=patch(agent[source], candidate), oracle_diff=patch(agent[source], oracle),
+        candidate_diff="".join(f"\nFile: {p}\n" + patch(agent[p], data) for p, data in candidate.items()),
+        oracle_diff="".join(f"\nFile: {p}\n" + patch(agent[p], data) for p, data in oracle.items()),
         judges=judges, model_under_test_family=family)
     verdicts = []
     for i, req in enumerate(requests):
@@ -117,4 +134,35 @@ def quality(owned, root, name, model, trial, safety):
         verdicts.append(verdict)
     result = {"signals": signals, "panel": automation.panel_score(requests, verdicts)}
     api.grader.persist(Path(root) / "quality.json", result)
+    return result
+
+
+def attribution(owned, root, name, run, safety):
+    run, root = Path(run), Path(root)
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    trajectory = []
+    for row in terminal["messages"]:
+        event = row["message"].get("params", {}).get("event", {})
+        if event.get("type") in ("model.call_failure", "model.model_call_started", "assistant.usage"):
+            fields = ("model", "responseModel", "failureKind", "retryIndex", "errorMessage",
+                      "inputTokens", "outputTokens", "duration")
+            trajectory.append({"type": event["type"],
+                "data": {k: event["data"][k] for k in fields if k in event["data"]}})
+        elif event.get("type") == "external_tool.requested":
+            trajectory.append({"type": event["type"], "data": {
+                k: event["data"][k] for k in ("toolName", "toolCallId", "arguments") if k in event["data"]}})
+    actions = [json.loads(path.read_bytes()) for path in sorted((run / "receipt").glob("action-*.json"))]
+    payload = {"instruction": specs.package(name)[0]["TASK.md"].decode(),
+        "outcome": json.loads((run / "outcome.json").read_bytes()),
+        "finalArtifact": (run / "collected-source.bin").read_text() if (run / "collected-source.bin").exists() else None,
+        "verifier": json.loads((run / "independent-grader/report.json").read_bytes())
+            if (run / "independent-grader/report.json").exists() else None,
+        "trajectory": trajectory, "actions": actions}
+    verdicts = []
+    for index, (model, family) in enumerate(admit.AUDITORS):
+        request = automation.request("attribution", model=model, family=family, payload=payload)
+        verdict, _ = query(owned, root / f"judge-{index}", name, request, safety)
+        verdicts.append(verdict)
+    result = {**automation.route_failure(verdicts), "verdicts": verdicts}
+    api.grader.persist(root / "attribution.json", result)
     return result

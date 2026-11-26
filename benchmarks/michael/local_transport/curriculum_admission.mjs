@@ -5,8 +5,8 @@ import { canonical } from "./limits.mjs";
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const digest = value => sha(JSON.stringify(canonical(value)));
 export function curriculumAdmission(config) {
-    if (!config.validatorTask || config.validatorReplay || config.condition !== "MB-009r" ||
-        !config.taskPolicy || config.seconds <= 0 || config.seconds > 3600 ||
+    if (!config.validatorTask || config.validatorReplay || config.condition !== "MB-010r" ||
+        !config.taskPolicy || config.seconds <= 0 || config.seconds > 10800 ||
         digest(config.taskPolicy) !== config.taskPolicySha256)
         throw new Error("curriculum_policy_denied");
     if (config.model === null) {
@@ -16,7 +16,7 @@ export function curriculumAdmission(config) {
     const seal = JSON.parse(readFileSync(config.seal));
     const slot = JSON.parse(readFileSync(config.slot));
     const root = dirname(config.slot);
-    if (config.approved !== true || seal.condition !== "MB-009r" ||
+    if (config.approved !== true || seal.condition !== "MB-010r" ||
         seal.authorizationSource !== "standing user direction (plan.md Standing autonomy)" ||
         seal.conditionSha256 !== digest(seal.frozen) ||
         seal.conditionSha256 !== config.conditionSha256 || !seal.frozen.models.includes(config.model) ||

@@ -14,6 +14,7 @@ NAMES = ("validator", "grouping", "status", *tasks.PACKAGES)
 NODE_VERSION = "24.11.1"
 NODE_SHA256 = "4255a388254ca4319e2f95f1da375d5deaddf25baf9c7c85070b67f9543b15d0"
 AUTH = validator.AUTHORIZATION_SOURCE
+CONDITION = "MB-010r"
 
 
 def node_path(owned):
@@ -37,20 +38,32 @@ def material(name):
         raise api.TrialError("native export allowlist mismatch")
     policy["run"] = [path for path in policy["write"] if Path(path).suffix in (".py", ".ts", ".mjs", ".js")]
     policy["readonlySizes"] = {path: len(data) for path, data in agent.items() if path not in policy["write"]}
+    artifacts = policy.get("artifacts", [policy["source"]])
+    if artifacts != specs.candidate_files(name) or not set(artifacts) <= set(policy["write"]):
+        raise api.TrialError("native artifact declaration mismatch")
+    policy["finalOutputReserve"] = policy["bytes"] * len(artifacts)
     return agent, policy, descriptor
 
 
 def prompt(policy):
     return (
         "Solve TASK.md using only mb_action read/write/run. Read the instruction and visible files. "
-        f"Final artifact: {policy['source']}. Only it and {policy['scratch']} are writable. "
+        f"Final artifacts: {policy.get('artifacts', [policy['source']])}. "
+        f"Only these and {policy['scratch']} are writable. "
         "Public tools provide CPython 3.9 stdlib+PyYAML6.0.2 and Node24.11.1 built-in TypeScript "
         "type stripping; no pytest, npm installation, shell, subprocess, network or hidden checks. "
         "Frozen export shell/pytest claims are not available. Verifier uses isolated Python3.12/Node24. "
         "Use public self-tests; exits1/2 and 30s timeout/truncated32KiB output are repair feedback. "
-        "At most127 agent actions,32KiB/file/channel,256KiB/action,4MiB aggregate input, "
-        "1MiB retained output with32KiB reserved for final read,3600 active seconds. "
+        f"At most{policy['actions'] - len(policy.get('artifacts', [policy['source']]))} agent actions,"
+        "32KiB/file/channel,256KiB/action,4MiB aggregate input, "
+        f"1MiB retained output with{policy['finalOutputReserve']} bytes reserved for final reads,"
+        f"{policy['activeSeconds']} active seconds. "
         "Reads return at most4096 bytes as text. Continue with byte offset=nextOffset until empty; "
+        'Exact argument shapes: read={"op":"read","path":"an allowed path","offset":0}; '
+        'write={"op":"write","path":"an allowed path","data":"text"}; '
+        'run={"op":"run","path":"an allowed executable path"}. Never put offset or data on run. '
+        "Malformed fields on an allowed path are rejected without execution and consume budget; "
+        "correct them using the returned feedback. Out-of-scope paths/operations stop the attempt. "
         "do not rely on tool-preview temporary files. Read all parts of long files. "
         "Stop when done. Independent hidden verification only follows owned cleanup."
     )
@@ -62,6 +75,7 @@ def sources():
     paths.update(api.HERE.glob("*.py"))
     paths.update(api.grader.HERE / name for name in api.grader.POLICY_FILES)
     paths.update(api.grader.HERE.glob("harnesses/*.py"))
+    paths.update(api.grader.HERE.glob("harnesses/*.mjs"))
     paths.update((tasks.HERE / "curriculum.py", tasks.HERE / "packages.py"))
     paths.update((api.packages.ROOT / "benchmarks/michael/curriculum").glob("*.py"))
     return {str(path.relative_to(root)): api.sha(path.read_bytes()) for path in sorted(paths)}
@@ -72,7 +86,7 @@ def prepare(owned, directory, name, *, diagnostics=(), seconds=3600, files=None,
     agent, standard, descriptor = material(name)
     policy = standard if policy is None else policy
     agent = agent if files is None else files
-    if not 0 < seconds <= 3600 or len(set(policy["read"])) != len(policy["read"]):
+    if not 0 < seconds <= 10800 or len(set(policy["read"])) != len(policy["read"]):
         raise ValueError("invalid bounded policy")
     if set(policy["read"]) != set(agent) | {policy["scratch"]}:
         raise ValueError("policy/visible material mismatch")
@@ -103,7 +117,7 @@ def prepare(owned, directory, name, *, diagnostics=(), seconds=3600, files=None,
     api.grader.persist(run / "trusted/node-runtime.json", {"path": str(node), "sha256": NODE_SHA256})
     config = json.loads((run / "config.json").read_bytes())
     config.pop("prompt")
-    config.update(curriculumTask=name, validatorTask=True, validatorReplay=False, condition="MB-009r",
+    config.update(curriculumTask=name, validatorTask=True, validatorReplay=False, condition=CONDITION,
         taskPolicy=policy, taskPolicySha256=validator.digest(policy), support=str(support),
         worker=str(run / "trusted/task_worker.py"), seconds=seconds, diagnostics=list(diagnostics))
     grant = f'(allow file-read* file-write* (subpath "{task}"))'
@@ -145,6 +159,9 @@ def collect(run):
     binding = json.loads((run / "curriculum-start.json").read_bytes())
     native = json.loads((run / "receipt/terminal.json").read_bytes())
     policy = config["taskPolicy"]
+    paths = policy.get("artifacts", [policy["source"]])
+    final_ids = ["controller-final-source"] if len(paths) == 1 else [
+        f"controller-final-source-{index}" for index in range(len(paths))]
     eligible = native["stopReason"] in ("session_idle", "diagnostics_complete",
         "timeout", "broker:agent_action_budget", "broker:task_output_budget")
     if (not eligible or native["wholeProcessQuiescent"] is not True or native["cleanupSeconds"] > 15
@@ -152,7 +169,7 @@ def collect(run):
             or binding["configSha256"] != validator.digest(config)
             or any(not row["reaped"] or row.get("warnings") for row in native["records"])
             or native["nativePrompts"] != (0 if config["model"] is None else 1)
-            or native["actions"][-1] != "controller-final-source"):
+            or native["actions"][-len(paths):] != final_ids):
         raise api.TrialError("native source/cleanup/completion proof failed")
     for path, digest in binding["runtimeFiles"].items():
         if api.sha(Path(path).read_bytes()) != digest:
@@ -169,13 +186,16 @@ def collect(run):
         readonly_policy = {**policy, "bytes": max(policy["bytes"], policy["readonlySizes"].get(name, 0))}
         if name not in policy["write"] and api.sha(api.read_source(run / "task", name, policy=readonly_policy)) != digest:
             raise api.TrialError("readonly export changed")
-    data = api.read_source(run / "task", policy["source"], policy=policy)
-    last = len(native["actions"])
-    result = json.loads((run / f"receipt/action-result-{last}.json").read_bytes())["result"]
-    action = json.loads((run / f"receipt/action-{last}.json").read_bytes())
-    if (action["args"] != {"op": "read", "path": policy["source"]} or result["exitCode"] != 0 or
-            result["timedOut"] or base64.b64decode(result["stdout"], validate=True) != data):
-        raise api.TrialError("post-quiescence exact artifact mismatch")
+    collected = {}
+    for index, path in enumerate(paths, len(native["actions"]) - len(paths) + 1):
+        data = api.read_source(run / "task", path, policy=policy)
+        result = json.loads((run / f"receipt/action-result-{index}.json").read_bytes())["result"]
+        action = json.loads((run / f"receipt/action-{index}.json").read_bytes())
+        if (action["args"] != {"op": "read", "path": path} or result["exitCode"] != 0 or
+                result["timedOut"] or base64.b64decode(result["stdout"], validate=True) != data):
+            raise api.TrialError("post-quiescence exact artifact mismatch")
+        collected[path] = data
+    data = specs.bundle(collected) if len(paths) > 1 else collected[paths[0]]
     with (run / "collected-source.bin").open("xb") as output:
         output.write(data)
         output.flush()
@@ -185,8 +205,9 @@ def collect(run):
 
 def offline(owned, directory, name, data):
     _, policy, _ = material(name)
-    run = prepare(owned, directory, name, seconds=30, diagnostics=[
-        {"op": "write", "path": policy["source"], "data": data.decode()},
+    writes = [{"op": "write", "path": path, "data": source.decode()}
+        for path, source in specs.unbundle(name, data).items()]
+    run = prepare(owned, directory, name, seconds=30, diagnostics=[*writes,
         {"op": "write", "path": policy["scratch"], "data":
             "import yaml; assert yaml.__version__=='6.0.2'\n" if policy["scratch"].endswith(".py") else
             "import assert from 'node:assert/strict'; assert.equal(process.versions.node,'24.11.1');\n"},
@@ -207,12 +228,13 @@ def offline(owned, directory, name, data):
 
 def freeze(owned, name, files, policy, models, instruction):
     image = specs.spec(name)["image"]
-    return {"condition": "MB-009r", "package": name, "source": sources(),
+    return {"condition": CONDITION, "package": name, "source": sources(),
         "taskPolicySha256": validator.digest(policy), "agentFiles": api.packages.inventory(files),
         "runtimeFiles": runtime_files(owned), "models": models, "prompt": instruction,
         "image": image, "imageId": subprocess.check_output(
             ["docker", "image", "inspect", "--format", "{{.Id}}", image], text=True, timeout=10).strip(),
-        "stockResponse": True, "protocol": api.runner.environment(Path(owned) / "access-only")}
+        "stockResponse": True, "activeSeconds": policy["activeSeconds"],
+        "protocol": api.runner.environment(Path(owned) / "access-only")}
 
 
 def execute(owned, root, name, model, models, safety, *, files=None, policy=None, instruction=None, grade=True):
@@ -241,7 +263,7 @@ def execute(owned, root, name, model, models, safety, *, files=None, policy=None
             raise api.TrialError("frozen condition cannot be replaced")
     else:
         api.grader.persist(root / "safety.json", safety)
-        seal = {"condition": "MB-009r", "frozen": frozen, "conditionSha256": validator.digest(frozen),
+        seal = {"condition": CONDITION, "frozen": frozen, "conditionSha256": validator.digest(frozen),
             "authorizationSource": AUTH, "safetySha256": api.sha((root / "safety.json").read_bytes())}
         with seal_path.open("xb") as output:
             output.write(api.packages.encoded(seal))
@@ -254,7 +276,7 @@ def execute(owned, root, name, model, models, safety, *, files=None, policy=None
         if previous["quiescent"] is not True:
             raise api.TrialError("previous model cleanup unproven")
     begin = time.monotonic()
-    run = prepare(owned, root / model, name, files=files, policy=policy)
+    run = prepare(owned, root / model, name, files=files, policy=policy, seconds=policy["activeSeconds"])
     config = json.loads((run / "config.json").read_bytes())
     config.update(model=model, approved=True, prompt=instruction, seal=str(seal_path),
         slot=str(slot), conditionSha256=seal["conditionSha256"])
@@ -274,7 +296,7 @@ def execute(owned, root, name, model, models, safety, *, files=None, policy=None
     child = api.runner.launch(run)
     report = None
     try:
-        child.wait(timeout=3617)
+        child.wait(timeout=policy["activeSeconds"] + 17)
     except subprocess.TimeoutExpired:
         child.stdin.close()
         child.wait(timeout=15)

@@ -34,7 +34,7 @@ def bundle(owned, model, *, synthetic=False, task_name="validator", configuratio
                  "hosts": {"agent": known("local-macos"), "verifier": known("local-docker"),
                            "inference": unknown()}, "track": "practical_system",
                  "retry_policy": "no_automatic_retries", "cache_policy": unknown(),
-                 "budgets": {"active_safety_seconds": known(3600), "attempt_limit": known(1),
+                 "budgets": {"active_safety_seconds": known(frozen.get("activeSeconds", 3600)), "attempt_limit": known(1),
                              "response_tokens": unknown(), "reasoning_tokens": unknown()},
                  "capabilities": {}, "observability": {"backend_identity": unknown(), "cost": unknown()},
                  "required_semantics": []}

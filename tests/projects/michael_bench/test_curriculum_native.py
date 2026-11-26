@@ -74,6 +74,7 @@ def test_package_policy_closure_and_node_pin():
         assert set(policy["read"]) == set(agent) | {policy["scratch"]}
         artifacts = policy.get("artifacts", [policy["source"]])
         assert policy["source"] in artifacts and set(policy["write"]) == {*artifacts, policy["scratch"]}
+        assert policy["finalOutputReserve"] == len(artifacts) * policy["bytes"]
         assert policy["runSeconds"] == 30 and policy["actions"] == 128
         assert policy["readonlySizes"] == {p: len(b) for p, b in agent.items() if p not in policy["write"]}
     assert native.NODE_VERSION.startswith("24.") and len(native.NODE_SHA256) == 64
@@ -110,3 +111,52 @@ def test_generalized_result_denominators_and_partial(tmp_path):
             "stopReason": "diagnostics_complete", "nativePrompts": 0}, graded, {},
             owner_exited=True, source_sha="a" * 64, expected_assertions=count, synthetic=True)
         assert result["attempts"][0]["verdict"] == "passed"
+
+
+def test_multifile_native_collection_denies_one_artifact_tamper(owned, tmp_path):
+    name = "design-alethiometer-case"
+    native.offline(owned, tmp_path / "run", name, specs.reference(name))
+    path = tmp_path / "run/task/hardware/BOM.md"
+    path.write_bytes(b"post-quiescence tamper")
+    with pytest.raises(api.TrialError, match="mismatch"):
+        native.collect(tmp_path / "run")
+
+
+def test_audit_includes_effective_multifile_runtime_overlay():
+    from benchmarks.michael.curriculum import live
+    payload = live.audit_payload("orchestrate-voice-integration", active_seconds=10800)
+    policy = payload["effectiveNativePolicy"]
+    assert policy["scratch"] in policy["write"]
+    assert policy["activeSeconds"] == 10800
+    assert "Node24.11.1" in payload["effectiveNativeInstruction"]
+    assert all(path in payload["effectiveNativeInstruction"] for path in policy["artifacts"])
+    assert "replay_grader/harnesses/scenarios.mjs" in "\n".join(native.sources())
+
+
+def test_role_request_echo_binding_is_explicit():
+    from benchmarks.michael.curriculum import automation, live
+    request = automation.request("audit", model="test-only", family="synthetic", payload={})
+    _, _, prompt = live.request_material(request)
+    assert f'"request_sha256":"{request["request_sha256"]}"' in prompt
+    assert "copy it unchanged" in prompt
+
+
+def test_native_bad_shape_is_charged_repair_feedback_not_execution(owned, tmp_path):
+    run = native.prepare(owned, tmp_path / "run", "validator", seconds=15, diagnostics=[
+        {"op": "write", "path": "self_test.py", "data": "print('repaired')\n"},
+        {"op": "run", "path": "self_test.py", "offset": 0},
+        {"op": "run", "path": "self_test.py"}])
+    child = api.runner.launch(run)
+    try:
+        child.wait(timeout=32)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    rejected = json.loads((run / "receipt/action-result-2.json").read_bytes())
+    assert rejected["rejected"] and rejected["result"]["exitCode"] == 2
+    assert "action_schema_invalid" in rejected["result"]["feedback"]
+    assert len(terminal["actions"]) == 4
+    assert sum(row["kind"] == "task" for row in terminal["records"]) == 3
+    assert terminal["stopReason"] == "diagnostics_complete"
+    assert terminal["taskOutputRetainedBytes"] >= len("repaired\n")
+    assert native.collect(run) == specs.base("validator")
