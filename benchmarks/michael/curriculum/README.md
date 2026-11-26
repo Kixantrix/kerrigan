@@ -5,6 +5,11 @@ in [results-v1.md](results-v1.md) (MB-009r). The native runner now supports all
 seven policies and pinned Node 24. Five packages were admitted; two were
 retired from that round for instruction/check contradictions.
 
+The multi-file round and its disclosed task revisions are recorded in
+[results-v2.md](results-v2.md) (MB-010r). Its native collector binds every
+declared artifact after quiescence and hashes both Python and JavaScript
+verifier harnesses.
+
 `catalog.json` lists 44 candidate tasks mined from Kixantrix repositories,
 covering all eight spec families. Each candidate records source repo, exact
 base/reference SHAs (verified against GitHub), whether the reference is merged
@@ -192,7 +197,8 @@ receipt and a fresh-clone reproduction. Base → reference independent checks:
   left `provisional` for the native executor, as frozen requests in
   `admission.json`. No model was run here.
 
-Native-path gap (outside this slice's scope): `replay_trial/curriculum.collect`
+Native-path gap at the MB-010c preparation baseline (resolved by MB-010r;
+see [results-v2.md](results-v2.md)): `replay_trial/curriculum.collect`
 reads only `policy["source"]`. For multi-artifact packages, native policies
 list every file under `artifacts`, and the native collector must read each
 file after quiescence and pass `specs.bundle(files)` to the grader.
@@ -204,10 +210,10 @@ v3 of the review package answers the MB-010r native admission audit of v2 (`MB-0
 
 design-alethiometer-case-v2 answers the v1 admission audit (`MB-010r-design-admission.json`). The oracle README now says 36.9/44.6 mm, matching the model's 36.949 mm at 0.1 mm. Document numbers must equal the model value rounded half-up, checked exactly; the old 0.06 mm tolerance masked the error. Model-value checks keep tolerances at or below 0.002 mm. v1 is retired.
 
-kerrigan-plan-conflict-queue-v2 changes only the instruction. The merged #365 oracle keeps a saved entry queued when cleanup fails, so the instruction now states no-loss, at-least-once delivery, and no check requires exactly-once on that path. v1 stays frozen and is not retired until the native re-audit.
+kerrigan-plan-conflict-queue-v2 changes only the instruction. The merged #365 oracle keeps a saved entry queued when cleanup fails, so the instruction now states no-loss, at-least-once delivery, and no check requires exactly-once on that path. The native re-audit retained the v1 contradiction; MB-010r excludes it in favor of v2 and preserves its original gate.
 
-yv-relevance-instrument-v2 and emv-thumbnails-gallery-v2 change only the instruction; their oracles and hidden checks are unchanged, and a test asserts this. In yv, the blindness check covers own enumerable string keys, matching `Object.entries`. In emv, the carousel sets `height` to `rowHeight`, and per-image failure isolation covers read, probe, resize and write; a `store.exists` error rejects the whole run. Both v1 packages stay frozen pending native re-audit. Admission evidence will be cited when the executor pushes it.
+yv-relevance-instrument-v2 and emv-thumbnails-gallery-v2 change only the instruction; their oracles and hidden checks are unchanged, and a test asserts this. In yv, the blindness check covers own enumerable string keys, matching `Object.entries`. In emv, the carousel sets `height` to `rowHeight`, and per-image failure isolation covers read, probe, resize and write; a `store.exists` error rejects the whole run. Both v1 packages stay frozen and retired after native re-audit; their admission evidence is cited below.
 
-yv and emv v1 are now retired, citing `MB-010r-yv-relevance-instrument-admission.json` and `MB-010r-emv-thumbnails-gallery-admission.json`. research-serverless-cost-v2 makes the `unknowns` check set-based: exact set, no duplicates, any order. Its instruction, oracle and other checks are unchanged; v1 stays frozen pending the native re-audit. An audit of every array check in the research, plan, design and orchestrate packages found no other order over-specification. The plan conflict pairs and orchestrate defect categories are sorted by their harness, citations and requirement files use contains-all checks, and design and orchestrate lists follow fixed document or protocol order.
+yv and emv v1 are now retired, citing `MB-010r-yv-relevance-instrument-admission.json` and `MB-010r-emv-thumbnails-gallery-admission.json`. research-serverless-cost-v2 makes the `unknowns` check set-based: exact set, no duplicates, any order. Its instruction, oracle and other checks are unchanged; v1 stays frozen and excluded after both native subjects failed only that order clause. An audit of every array check in the research, plan, design and orchestrate packages found no other order over-specification. The plan conflict pairs and orchestrate defect categories are sorted by their harness, citations and requirement files use contains-all checks, and design and orchestrate lists follow fixed document or protocol order.
 
-orchestrate-voice-integration-v2 rewards genuine extra findings and penalizes invented ones. An independent audit of the landed code, recorded in `task.json` as `audited_base_defects` and `audited_absent`, found one genuine defect beyond the five integration defects: a memory leak, where budget-ended sessions are never deleted (`server.ts:53`). auth-bypass and race-condition do not occur. The ledger must list the five integration defects; it may also list audited extras but no nonexistent, unknown or duplicate categories. A claimed leak is checked behaviorally: no server state is retained after 40 sessions end. The reference fixes and lists the leak. v1 stays frozen pending re-audit.
+orchestrate-voice-integration-v2 rewards genuine extra findings and penalizes invented ones. Its audit recorded one genuine extra beyond the five integration defects: a memory leak, where budget-ended sessions are never deleted (`server.ts:53`). It recorded auth-bypass and race-condition as absent. MB-010r later reproduced a reentrant cancel-ordering weakness, so that race-condition finding is genuine: v3 audits it with a behavioral fix check, while auth-bypass remains absent. V1 and v2 stay frozen and retired. The ledger requires the five integration defects and permits only audited, behaviorally fixed extras; a claimed leak is checked after 40 sessions end. See the native diagnostics and results-v2 for the distinction between a package audit fault and the independent model-caused failures.

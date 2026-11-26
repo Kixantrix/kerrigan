@@ -1,10 +1,19 @@
 # MB-010r: multi-file native curriculum, MAI versus Sonnet
 
-**Draft while the disclosed orchestration-v3 addition is prepared.** Seven
-latest-version task pairs are complete. Orchestration-v2 is also complete,
-with two model-caused non-passes preserved below; its replacement will receive
-fresh admission and one attempt per model before the final aggregate is
-published. This is not a completed-round or contamination-free claim.
+**Draft pending the final orchestration-v4 addition.** Eight task pairs,
+including orchestration-v3, are complete. V3 has a newly discovered literal-id
+test error; its MAI non-pass also has an independent genuine model defect.
+V4 will receive fresh admission and one attempt per model before the final
+aggregate is published. This is not a completed-round or contamination-free
+claim.
+
+Round 2 is frozen to the seven previously evaluated task versions below plus
+orchestration-v4. The late cross-package literal-value audit also supplies
+review-v4, design-v3, queue-v3, relevance-v3 and gallery-v3, but those are
+round-3 work, not additional trials in these rollups. Their findings will be
+listed as known task issues. Consequently these are observed verifier
+outcomes under the disclosed frozen tasks, not a claim that every task's
+tests are specification-complete or free of overspecification.
 
 The condition is locally sandboxed native CLI/tools with cloud-served
 inference, not cloud-hosted tools. MAI Code 2 always runs before Claude
@@ -29,12 +38,48 @@ time is not time to verified completion.
 | kerrigan-plan-conflict-queue-v2 | Implement | 90 | 20/20 | 20/20 | 176.38 | 37.92 |
 | yv-relevance-instrument-v2 | Experiment | 90 | 12/12 | 12/12 | 169.54 | 25.31 |
 | emv-thumbnails-gallery-v2 | Implement | 75 | 11/11 | 11/11 | 102.94 | 26.11 |
+| orchestrate-voice-integration-v3, superseded when v4 lands | Orchestrate | 90 | 14/16, fail | 16/16 | 215.02, no completion | 56.98 |
 
 MAI's review implementation passes all 22 preservation/regression checks.
 Its review ledger nevertheless alleges `glob-overlap`, a category that did
 not cause the reported empty-wave outcome, violating the instruction to list
 only contributing defects. The independent false-positive clause fails.
 This is a genuine model result, not a harness retry opportunity.
+
+## Per-family summary
+
+The orchestration row remains provisional until v4. Fractions count complete
+task successes, not passing verifier clauses. The time column sums verified
+completion times only; an em dash means no verified completion. Failed
+elapsed time remains in the task table and resource totals.
+
+| Family | Tasks | MAI pass; checks | Sonnet pass; checks | MAI / Sonnet verified seconds |
+|---|---:|---|---|---:|
+| Understand and plan | 1 | 1/1; 10/10 | 1/1; 10/10 | 49.66 / 21.83 |
+| Review and repair | 1 | 0/1; 26/27 | 1/1; 27/27 | — / 39.17 |
+| Research | 1 | 1/1; 12/12 | 1/1; 12/12 | 60.09 / 24.86 |
+| Design | 1 | 1/1; 12/12 | 1/1; 12/12 | 132.52 / 44.39 |
+| Implement | 2 | 2/2; 31/31 | 2/2; 31/31 | 279.32 / 64.03 |
+| Experiment | 1 | 1/1; 12/12 | 1/1; 12/12 | 169.54 / 25.31 |
+| Orchestrate, v3 provisional | 1 | 0/1; 14/16 | 1/1; 16/16 | — / 56.98 |
+
+No new Operate task was added in v2; its retained v1 observation is in the
+pooled view. Implement has two goals while every other new family has one,
+so overall success is task-weighted, not a balanced family average.
+
+Native reported tokens below are summed input/output, including repeated
+context. Panel votes compare passing candidates to their own oracle:
+`C` = candidate, `O` = oracle, `T` = tie. They do not compare MAI to Sonnet.
+
+| Family | MAI input / output | Sonnet input / output | MAI panel votes | Sonnet panel votes |
+|---|---:|---:|---|---|
+| Understand and plan | 86,926 / 1,641 | 83,588 / 2,218 | C1 T1 | O2 |
+| Review and repair | 89,359 / 9,103 | 84,470 / 5,167 | N/A: non-pass | C2 |
+| Research | 114,985 / 1,881 | 92,218 / 2,086 | C1 T1 | C2 |
+| Design | 246,160 / 6,047 | 128,404 / 5,028 | T2 | T2 |
+| Implement | 433,048 / 13,050 | 223,778 / 7,312 | C4 | C4 |
+| Experiment | 313,151 / 8,361 | 75,888 / 3,211 | C1 T1 | C2 |
+| Orchestrate, v3 provisional | 242,293 / 9,876 | 238,960 / 7,129 | N/A: non-pass | O2 |
 
 ## Quality is separate from pass/fail
 
@@ -53,6 +98,7 @@ solutions panel premise, not zero quality.
 | queue-v2 | 0.593 | 0.560 | C, C | C, C |
 | relevance-v2 | 1.526 | 0.903 | C, T | C, C |
 | gallery-v2 | 1.310 | 1.011 | C, C | C, C |
+| orchestration-v3, provisional | 0.919 | 0.339 | N/A: unfixed claimed race | O, O |
 
 Parse-only deterministic signals include failed collected artifacts. All
 completed primary artifacts stay within their declared final-file set, with
@@ -76,6 +122,17 @@ Each final artifact is read after owned-process quiescence, matched exactly
 to its no-follow host read, and bundled with the canonical `specs.bundle`
 format. JavaScript `.mjs` verifier harnesses are now source-hashed too.
 
+| Latest package | Native base | Native reference |
+|---|---:|---:|
+| plan-dashboard-waves-v2 | 0/10 | 10/10 |
+| review-conflict-predictor-v3 | 11/27 | 27/27 |
+| research-serverless-cost-v2 | 1/12 | 12/12 |
+| design-alethiometer-case-v2 | 3/12 | 12/12 |
+| kerrigan-plan-conflict-queue-v2 | 1/20 | 20/20 |
+| yv-relevance-instrument-v2 | 0/12 | 12/12 |
+| emv-thumbnails-gallery-v2 | 2/11 | 11/11 |
+| orchestrate-voice-integration-v3 | 4/16 | 16/16 |
+
 Admission uses two independent-family artifact audits (Anthropic/Sonnet and
 OpenAI/GPT 5.6 Sol), plus Google/Gemini 4 Neon blind reimplementation. Audit
 requests include the actual effective native overlay and trusted fixtures,
@@ -83,7 +140,7 @@ not only the stale generated shell/pytest policy. All newly retained versions
 have passing blind solutions. Queue-v2, relevance-v2 and gallery-v2 reuse
 their original Gemini solve under explicit instruction-change disclosure:
 oracle, hidden checks and fixtures are byte-identical. Design-v2, review-v3,
-research-v2 and orchestration-v2 received fresh blind runs.
+research-v2 and orchestration-v2/v3 received fresh blind runs.
 
 The original inventory's 13 provisional entries included the five already
 evaluated v1 packages. Their decisions and ten trials remain unchanged;
@@ -104,11 +161,14 @@ separate packages, not replacement evidence.
 | orchestration original | Both 12/13; exact-five ledger rejected extras | Sonnet's genuine fixed memory leak was task-caused; MAI additionally alleged unsupported auth-bypass, a genuine model failure |
 | orchestration-v2 MAI | 14/15; integration 8/8, preservation 2/2, ledger 4/5 | Model-caused unsupported auth-bypass; genuine cancel-ordering weakness also identified |
 | orchestration-v2 Sonnet | Ungraded cutoff at 27.53 seconds; write to `$TMPDIR/x` denied | Model-caused out-of-allowlist write; no independent check counts or final artifact exist |
+| orchestration-v3 MAI | 14/16 in 215.02 seconds | Model-caused: claimed race remains unfixed; secondary literal-id test error retained without rescoring |
+| orchestration-v3 Sonnet | 16/16 in 56.98 seconds | Passing result under the unchanged v3 condition |
 
 No genuine model failure was retried to obtain success. Corrected task
 versions receive fresh disclosed conditions and keep the original outcomes.
 Both subjects saw research-v1 before research-v2, whose instruction is
-identical. Both saw orchestration-v1 and v2 before the planned v3. Fresh
+identical. Both saw orchestration-v1 and v2 before v3, and will have seen all
+three versions before v4. Fresh
 sessions do not establish remote isolation or absence of historical/service
 exposure.
 
@@ -150,10 +210,23 @@ tests on the unchanged original source settled the concrete behaviors:
    The test uses synchronous reentrancy, not simultaneous OS threads.
 
 MAI's unsupported auth-bypass independently invalidates its v2 ledger even
-though its race-condition finding is genuine. The curriculum owner is adding
-the latter to a new audited task version; v2 is not edited in place.
+though its race-condition finding is genuine. V3 audited that weakness and
+added a behavioral fix check; v2 was not edited in place.
 Attribution is advisory. Clause-level reports and reproducible behavior
 decide task versus model causes, not confidence averaging.
+
+V3 exposed another audit false-negative: R1 says "opaque session id", but its
+hidden clause requires the literal `s1`. MAI's UUID satisfies the public
+requirement. Independently, it lists `race-condition` while still emitting
+response telemetry and a response frame after synchronous cancel clears
+`pending`. Both attribution judges recognize both problems; Sonnet's 0.6
+confidence routed the advisory aggregate to unresolved. The deterministic
+decision is model-caused because the unfixed claimed race independently fails.
+Raw 14/16 is preserved, not repaired into a passing score. Sonnet passes 16/16.
+The [v3 outcomes and exact clause evidence](MB-010r-orchestrate-v3-outcomes.json)
+are separately citable. V4 will replace the literal-id assertion; any further
+findings after that version are known task issues for round 3, not another
+orchestration revision this round.
 
 Exact trusted tests, base/candidate source bindings, native no-inference
 receipts, final MAI source and both v2 outcomes are in
@@ -161,6 +234,43 @@ receipts, final MAI source and both v2 outcomes are in
 Original [research outcomes](MB-010r-research-serverless-cost-v1-outcomes.json)
 and [orchestration outcomes](MB-010r-orchestrate-voice-integration-v1-outcomes.json)
 remain separately citable.
+
+## Success versus estimated human time
+
+The task metadata supplies estimated human minutes, not timings from a
+controlled human study. The final eight goals occupy five bins: 15 minutes
+(one goal), 25 (one), 45 (two), 75 (one) and 90 (three). Each model contributes
+one latest-version attempt per goal. Revisions and prior exposures are not
+extra observations. The estimates describe these curated fixture slices,
+not the time to build their original production projects.
+
+This is a METR-style success-versus-estimated-time view, not a METR benchmark
+or a measured human-equivalent capability horizon. Eight selected tasks
+cannot support a robust 50% horizon estimate. The three-hour execution
+ceiling is only a safety budget; completing a 90-minute-estimate fixture in
+seconds does not establish a general three-hour capability.
+
+## Pooled v1 + v2 view
+
+V1 retains its five admitted tasks and original conditions. Both subjects
+passed all five, 90/90 verifier checks each. Their total observed end-to-end
+times were MAI 401.20 seconds and Sonnet 140.31 seconds (2.86x ratio).
+Native reported input/output tokens were 778,873/19,737 and 367,458/16,570,
+respectively. These are retained receipts, not newly rerun trials.
+
+The v1 archive has complete archived source bytes for 137/154 native starts;
+17 early, unscored setup diagnostics omit five source paths. All scored v1
+subject bindings are complete. V2's complete binding audit does not
+retroactively repair those v1 diagnostic omissions.
+
+The final pooled view combines those five distinct v1 goals with eight
+latest-version v2 goals, not every attempted task revision. V1 had simpler
+single-file tasks; v2 adds multi-file and longer-estimated work and changes
+the transport's finite output reservation and schema-error affordance.
+Pooling describes these 13 labeled observations, not interchangeable
+conditions or 13 independent random draws. With one trial per goal,
+empirical pass@1 equals resolved fraction; repeatability beyond that one
+trial is unmeasured.
 
 ## Condition and limits
 
