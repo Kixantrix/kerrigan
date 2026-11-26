@@ -252,10 +252,11 @@
    }
   },
   "decision": {
-   "state": "provisional",
+   "state": "retired",
    "reasons": [
-    "model gates pending executor"
-   ]
+    "contradiction: instruction said the carousel keeps height (oracle sets rowHeight) and claimed full per-image failure isolation although store.exists errors abort the run"
+   ],
+   "superseded_by": "emv-thumbnails-gallery-v2"
   }
  },
  {
@@ -912,6 +913,92 @@
   }
  },
  {
+  "task": "kixantrix/michael-research-serverless-cost-v2",
+  "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "decision_passed": 1.0,
+    "decision_total": 1.0,
+    "evidence_passed": 3.0,
+    "evidence_total": 3.0,
+    "reward": 1.0,
+    "synthesis_passed": 6.0,
+    "synthesis_total": 6.0,
+    "uncertainty_passed": 2.0,
+    "uncertainty_total": 2.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "decision_passed": 0.0,
+    "decision_total": 1.0,
+    "evidence_passed": 0.0,
+    "evidence_total": 3.0,
+    "reward": 0.0,
+    "synthesis_passed": 0.0,
+    "synthesis_total": 6.0,
+    "uncertainty_passed": 1.0,
+    "uncertainty_total": 2.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost-v2",
+      "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496"
+     },
+     "request_sha256": "36adc9df866a9406fcf58c3833bc2e0d6fe302e0be9f3cf4eb31221deeb2ec11",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost-v2",
+      "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496"
+     },
+     "request_sha256": "cdbce0d47b3100f98e8207590655882eca00fcf4cd805858a991bb8e8018c31f",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost-v2",
+     "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "1dc1e41ee67d2e401f4451a19313a2256d3100e9e321743760bf2905376c799e",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
   "task": "kixantrix/michael-review-conflict-predictor",
   "task_sha256": "ab5deea5dd01b7d3f525b7f6d679930aac1e5f2ced3fa15e0f024a310bd4de4a",
   "deterministic": {
@@ -1555,10 +1642,11 @@
    }
   },
   "decision": {
-   "state": "provisional",
+   "state": "retired",
    "reasons": [
-    "model gates pending executor"
-   ]
+    "contradiction: specification required rejecting any own evaluative key, while the oracle and checks inspect only own enumerable string keys"
+   ],
+   "superseded_by": "yv-relevance-instrument-v2"
   }
  },
  {

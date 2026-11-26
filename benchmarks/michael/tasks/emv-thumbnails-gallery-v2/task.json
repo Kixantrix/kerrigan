@@ -11,7 +11,7 @@
   "reference_ref": "6ae018ac5eb0004d5b736b214f7a3af05a782aca",
   "history_status": "merged"
  },
- "derivation": "Private media-vault PR #8 (thumbnail generation function storing original dimensions in blob metadata, media-list API returning thumbnailUrl/width/height, carousel using thumbnails with pre-sized containers and full-size fullscreen) re-synthesized as sanitized framework-free JavaScript modules over an in-memory blob store with injected probe/resize. No private code, event names, URLs or media are included. v2 (MB-010c follow-up, native admission finding): the instruction said the carousel keeps height, but oracle and checks set height to rowHeight; and it claimed full per-image failure isolation, but store.exists runs outside the per-image try/catch so an existence-check error rejects the run. The instruction now describes both behaviors. Oracle and hidden checks are unchanged.",
+ "derivation": "Private media-vault PR #8 (thumbnail generation function storing original dimensions in blob metadata, media-list API returning thumbnailUrl/width/height, carousel using thumbnails with pre-sized containers and full-size fullscreen) re-synthesized as sanitized framework-free JavaScript modules over an in-memory blob store with injected probe/resize. No private code, event names, URLs or media are included. v2 (MB-010c follow-up, native admission finding, benchmarks/michael/curriculum/MB-010r-emv-thumbnails-gallery-admission.json sha256 856d048b467d79464dc5384246a819406a5767f92cb151aebf0343b6212e0cc1): the instruction said the carousel keeps height, but oracle and checks set height to rowHeight; and it claimed full per-image failure isolation, but store.exists runs outside the per-image try/catch so an existence-check error rejects the run. The instruction now describes both behaviors. Oracle and hidden checks are unchanged.",
  "privacy": "private-synthetic-fixture",
  "coverage": "Backend thumbnail pipeline (planning, orientation, failure isolation, skip/force, metadata), API contract and gallery layout across three files, on held-out albums.",
  "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
@@ -42,5 +42,9 @@
    "web": 2
   }
  },
- "supersedes": "emv-thumbnails-gallery"
+ "supersedes": "emv-thumbnails-gallery",
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-emv-thumbnails-gallery-admission.json",
+  "sha256": "856d048b467d79464dc5384246a819406a5767f92cb151aebf0343b6212e0cc1"
+ }
 }

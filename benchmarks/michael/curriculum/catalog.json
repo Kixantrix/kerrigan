@@ -222,7 +222,7 @@
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "estimated_human_minutes": 75,
-   "pending_reaudit_packages": [
+   "retired_packages": [
     "emv-thumbnails-gallery"
    ]
   },
@@ -446,10 +446,13 @@
    "long_horizon": true,
    "summary": "The ticket-drop watcher was projected at $0/month but cost about $2. Agent measures cost per resource from usage data and writes a design proposal for the next goals.",
    "history_status": "merged",
-   "package": "research-serverless-cost",
+   "package": "research-serverless-cost-v2",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader:mb006j",
-   "estimated_human_minutes": 45
+   "estimated_human_minutes": 45,
+   "pending_reaudit_packages": [
+    "research-serverless-cost"
+   ]
   },
   {
    "id": "kirkland-ecosystem-scan",
@@ -1091,7 +1094,7 @@
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "estimated_human_minutes": 90,
-   "pending_reaudit_packages": [
+   "retired_packages": [
     "yv-relevance-instrument"
    ]
   },

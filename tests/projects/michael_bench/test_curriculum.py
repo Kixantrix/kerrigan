@@ -503,7 +503,9 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
 CURRENT = {"plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v3",
            "review-conflict-predictor-v2": "review-conflict-predictor-v3",
-           "design-alethiometer-case": "design-alethiometer-case-v2"}
+           "design-alethiometer-case": "design-alethiometer-case-v2",
+           "yv-relevance-instrument": "yv-relevance-instrument-v2",
+           "emv-thumbnails-gallery": "emv-thumbnails-gallery-v2"}
 NON_PYTHON = {"typescript", "javascript"}
 APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
                      "Kixantrix/sunday-league", "Kixantrix/foal-rescue-meadow", "Kixantrix/voxel-solar-wallpaper"}
@@ -632,3 +634,19 @@ def test_emv_v2_states_real_height_and_exists_abort():
     assert "sets `height` to\n`rowHeight`" in task and "whole run rejects" in task
     scenarios = curriculum.verifier_files("emv-thumbnails-gallery-v2")["sandbox/scenarios.mjs"].decode()
     assert "exists" not in scenarios.replace("thumbnail exists", "")
+
+
+def test_research_v2_unknowns_check_is_set_based(tmp_path):
+    name = "research-serverless-cost-v2"
+    assert curriculum.meta(name)["supersedes"] == "research-serverless-cost"
+    assert curriculum.agent_files(name) == curriculum.agent_files("research-serverless-cost")
+    assert curriculum.verifier_files(name)["reference"] == curriculum.verifier_files("research-serverless-cost")["reference"]
+    reference = json.loads(specs.reference(name))
+    reordered = json.dumps({**reference, "unknowns": list(reversed(reference["unknowns"]))}).encode()
+    duplicated = json.dumps({**reference, "unknowns": reference["unknowns"] + reference["unknowns"][:1]}).encode()
+    v2 = api.grade(reordered, tmp_path / "v2", task=name)
+    v1 = api.grade(reordered, tmp_path / "v1", task="research-serverless-cost")
+    dup = api.grade(duplicated, tmp_path / "dup", task=name)
+    assert v2["verdict"] == "pass"
+    assert [a["original_id"] for a in v1["assertions"] if not a["passed"]] == ["unknowns list exactly the undeterminable keys"]
+    assert [a["original_id"] for a in dup["assertions"] if not a["passed"]] == ["unknowns list exactly the undeterminable keys"]

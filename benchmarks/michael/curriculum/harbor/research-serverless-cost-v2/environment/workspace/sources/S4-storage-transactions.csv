@@ -1,0 +1,9 @@
+api_name,caller,class,monthly_count
+CreateContainer,app,write,302400
+GetBlobProperties,app,read,302400
+GetBlob,app,read,86400
+PutBlob,app,write,43200
+LeaseBlob,host,write,259200
+PutBlob,host,write,86400
+GetBlob,host,read,172800
+ListBlobs,host,list,60000

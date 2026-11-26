@@ -28,6 +28,24 @@
     "path": "benchmarks/michael/curriculum/MB-010r-design-admission.json",
     "sha256": "d9662f6ff35d061be579ced3939603d397d838e2b60fc8f22e7f0e39f5bb7b77"
    }
+  },
+  "yv-relevance-instrument": {
+   "by": "MB-010r native automated admission",
+   "superseded_by": "yv-relevance-instrument-v2",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-yv-relevance-instrument-admission.json",
+    "sha256": "95c33e662663c48d164300905a0050b245db4f11d00d1a8ba8821a36870fb4fb"
+   },
+   "reason": "contradiction: specification required rejecting any own evaluative key, while the oracle and checks inspect only own enumerable string keys"
+  },
+  "emv-thumbnails-gallery": {
+   "by": "MB-010r native automated admission",
+   "superseded_by": "emv-thumbnails-gallery-v2",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-emv-thumbnails-gallery-admission.json",
+    "sha256": "856d048b467d79464dc5384246a819406a5767f92cb151aebf0343b6212e0cc1"
+   },
+   "reason": "contradiction: instruction said the carousel keeps height (oracle sets rowHeight) and claimed full per-image failure isolation although store.exists errors abort the run"
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored."

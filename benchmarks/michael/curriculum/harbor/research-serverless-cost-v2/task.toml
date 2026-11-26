@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/FINDINGS.json"]
+
+[task]
+name = "kixantrix/michael-research-serverless-cost-v2"
+version = "1.0.0"
+description = "Explain a nonzero bill for a 'free' serverless watcher and recommend an option"
+keywords = ["michael-bench", "research"]
+
+[metadata]
+family = "Research"
+source_repo = "Kixantrix/personal-selfhost"
+base_ref = "c09b00bf258230db8c799ecc18d3aa1455b10880"
+reference_ref = "d9f0ed3ac348b38e85bbc9ec95087a143ca55692"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "required_facts_checklist"
+estimated_agent_minutes = 30
+denominators = "{\"decision\": 1, \"evidence\": 3, \"synthesis\": 6, \"uncertainty\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

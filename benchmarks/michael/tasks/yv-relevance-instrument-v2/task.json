@@ -11,7 +11,7 @@
   "reference_ref": "dd533670f8c5f1c4ac0251934f274914a28df9f4",
   "history_status": "merged"
  },
- "derivation": "Private civic-assistant app PR #224 (blind rating harness: evaluative-field stripping enforced on the produced object, seeded shuffle, metrics that expose misses and wrong reasons beyond an m-of-n count, and a corpus audit that found government items carry no subject matter) re-synthesized as a sanitized TypeScript specification, synthetic corpus and held-out data. No private code, items, ratings or names are included. v2 (MB-010c follow-up, native admission finding): the specification required rejecting any own evaluative key, but the oracle (Object.entries) and checks inspect only own enumerable string keys; the specification now says so. Oracle and hidden checks are unchanged.",
+ "derivation": "Private civic-assistant app PR #224 (blind rating harness: evaluative-field stripping enforced on the produced object, seeded shuffle, metrics that expose misses and wrong reasons beyond an m-of-n count, and a corpus audit that found government items carry no subject matter) re-synthesized as a sanitized TypeScript specification, synthetic corpus and held-out data. No private code, items, ratings or names are included. v2 (MB-010c follow-up, native admission finding, benchmarks/michael/curriculum/MB-010r-yv-relevance-instrument-admission.json sha256 95c33e662663c48d164300905a0050b245db4f11d00d1a8ba8821a36870fb4fb): the specification required rejecting any own evaluative key, but the oracle (Object.entries) and checks inspect only own enumerable string keys; the specification now says so. Oracle and hidden checks are unchanged.",
  "privacy": "private-synthetic-fixture",
  "coverage": "Three new modules checked on held-out corpora, ratings and seeds; expected values come from an independent Python implementation of the specification.",
  "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
@@ -38,5 +38,9 @@
    "audit": 3
   }
  },
- "supersedes": "yv-relevance-instrument"
+ "supersedes": "yv-relevance-instrument",
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-yv-relevance-instrument-admission.json",
+  "sha256": "95c33e662663c48d164300905a0050b245db4f11d00d1a8ba8821a36870fb4fb"
+ }
 }
