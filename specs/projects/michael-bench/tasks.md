@@ -113,3 +113,4 @@ An interim agent-authored discovery report may precede MB-010, but is not comple
   - Dependencies: MB-002, MB-004, MB-013.
 
 The initial static audit in `harness-evaluation.md` is completed research, not completion of MB-013 runtime instrumentation.
+  - MB-006l live v2 integrated at `af79d08`: harness-injected response cap removed (stock CLI). Validator repair: MAI 25/25 in 86.7 s, Sonnet 25/25 in 36.1 s, independently graded; v1 harness-cap failures retained ungraded. One public task only, not a ranking. Next: grouping/status graders and broader work families.

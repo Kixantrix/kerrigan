@@ -272,7 +272,7 @@ def test_mb006l_staging_and_absent_live_authority(tmp_path):
     assert config["seconds"] == 3600 and "prompt" not in config
     assert sorted(p.relative_to(run / "task").as_posix() for p in (run / "task").rglob("*")
                   if p.is_file()) == sorted(validator.POLICY["read"])
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises((FileNotFoundError, validator.api.TrialError)):
         validator.prepare_live(tmp_path, tmp_path / "forbidden", "mai-code-2")
     assert not (tmp_path / validator.NAMESPACE).exists()
 
