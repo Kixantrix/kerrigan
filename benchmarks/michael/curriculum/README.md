@@ -1,5 +1,10 @@
 # Michael Bench working-day curriculum (MB-008)
 
+Executed native admission, MAI/Sonnet trials and separate quality results are
+in [results-v1.md](results-v1.md) (MB-009r). The native runner now supports all
+seven policies and pinned Node 24. Five packages were admitted; two were
+retired from that round for instruction/check contradictions.
+
 `catalog.json` lists 44 candidate tasks mined from Kixantrix repositories,
 covering all eight spec families. Each candidate records source repo, exact
 base/reference SHAs (verified against GitHub), whether the reference is merged
@@ -111,8 +116,10 @@ python -m pytest tests/projects/michael_bench/test_curriculum.py tests/projects/
 `verification.json` records commands, test counts, image IDs, calibration,
 admission and mining results.
 
-## Known gaps
+## Known gaps at the MB-008 preparation baseline
 
+- Native runner and model-gate gaps below were addressed by MB-009r; see
+  [results-v1.md](results-v1.md) for executed outcomes and remaining limits.
 - Research, Orchestrate and Design have catalog candidates but no calibrated
   package yet.
 - The native trial runner (`replay_trial/`) is still validator-specific:
