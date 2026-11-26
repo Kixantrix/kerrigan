@@ -132,9 +132,8 @@ def test_namespace_package_is_first_party():
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         _write(root / "requirements.txt", "")
-        _write(root / "benchmarks" / "michael" / "__init__.py", "")
-        _write(root / "benchmarks" / "michael" / "api.py", "VALUE = 1\n")
-        _write(root / "tests" / "test_ns.py", "from benchmarks.michael import api\n")
+        _write(root / "benchmarks" / "michael" / "tasks" / "api.py", "VALUE = 1\n")
+        _write(root / "tests" / "test_ns.py", "from benchmarks.michael.tasks import api\n")
 
         assert check_python_deps_main(
             ["--repo-root", str(root), "--requirements", str(root / "requirements.txt")]
