@@ -1,0 +1,104 @@
+{
+ "id": "orchestrate-voice-integration-v3",
+ "family": "Orchestrate",
+ "title": "Integrate four parallel realtime-voice layers against the plan and record requirement retention",
+ "source": {
+  "repo": "Kixantrix/personal-selfhost",
+  "visibility": "private",
+  "kind": "issue+pr",
+  "pr": 246,
+  "base_ref": "55153c05dd2c5925b70526dc773a5c6afcdb84ba",
+  "reference_ref": "ca42585b770156eef207f3e660e60c9a3572c83d",
+  "history_status": "merged"
+ },
+ "derivation": "Private T012 realtime push-to-talk slice (plan #246, stacked layer PRs landing as one merge, a cross-layer repair) re-synthesized as a sanitized TypeScript stand-in: a canonical protocol plus three parallel layer outputs carrying realistic cross-layer integration defects (renamed handshake field, protocol version skew, a requirement dropped by a mis-split brief, content leaking into telemetry, a seconds/milliseconds mismatch). No private code, providers, hostnames or credentials are included. v2 (MB-010c follow-up, live evidence): the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet) while correctly rejecting a nonexistent auth bypass (MAI). An independent audit of the landed base (audited_base_defects) found exactly one genuine defect beyond the five integration defects. The ledger now requires the five, admits only audited extras, rejects nonexistent/unknown/duplicate categories, and verifies a claimed leak fix behaviorally; the reference also fixes and lists the leak. Live v1 evidence: benchmarks/michael/curriculum/MB-010r-orchestrate-voice-integration-v1-outcomes.json (sha256 c7781661a9d3ec72bca2edcc1bf7fe0e5736713d87d72fcd654a19d58b77e008). v3: trusted native behavior diagnostics (benchmarks/michael/curriculum/MB-010r-orchestrate-v2-ledger-diagnostics.json, sha256 c049c7b4893772309b0244b4431852403562308b7ba9b529e15874fb7de83d90) reproduced a re-entrant cancel-ordering defect (a cancel processed during respond() is followed by a response). It joins the audited genuine set as race-condition with a behavioral fix check; a rejected re-join leaves the original session unchanged, so auth-bypass stays audited absent. The reference fixes and lists it.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Integrated end-to-end behavior for all 8 plan requirements, 2 preservation checks and a requirement-retention/defect ledger (closed vocabulary, exact set).",
+ "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
+ "outcome_evidence": "integrated_outcome",
+ "estimated_agent_minutes": 45,
+ "estimated_human_minutes": 90,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Quality of integration notes and dispatch follow-ups is not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "src/session.ts",
+  "candidates": [
+   "INTEGRATION.json",
+   "src/server.ts",
+   "src/session.ts",
+   "src/transport.ts"
+  ],
+  "agent_support": [
+   "src/protocol.ts"
+  ],
+  "denominators": {
+   "integration": 8,
+   "preservation": 2,
+   "ledger": 6
+  }
+ },
+ "supersedes": "orchestrate-voice-integration-v2",
+ "audited_base_defects": [
+  {
+   "category": "handshake-mismatch",
+   "file": "src/transport.ts",
+   "line": 7,
+   "evidence": "join sends `room` instead of the protocol's `roomId`",
+   "required": true
+  },
+  {
+   "category": "version-skew",
+   "file": "src/server.ts",
+   "line": 72,
+   "evidence": "compares against SERVER_PROTOCOL = 1 (line 5) instead of PROTOCOL_VERSION 2",
+   "required": true
+  },
+  {
+   "category": "requirement-dropped",
+   "file": "src/session.ts",
+   "line": 30,
+   "evidence": "pressTalk returns unless ready, so R5 barge-in/cancel is missing",
+   "required": true
+  },
+  {
+   "category": "content-in-telemetry",
+   "file": "src/server.ts",
+   "line": 51,
+   "evidence": "spreads the audio message, including transcript, into telemetry",
+   "required": true
+  },
+  {
+   "category": "unit-mismatch",
+   "file": "src/session.ts",
+   "line": 40,
+   "evidence": "sends seconds in the `ms` field",
+   "required": true
+  },
+  {
+   "category": "memory-leak",
+   "file": "src/server.ts",
+   "line": 53,
+   "evidence": "budget-ended sessions are flagged but never deleted from the sessions Map (declared line 24, set line 82)",
+   "required": false
+  },
+  {
+   "category": "race-condition",
+   "file": "src/server.ts",
+   "line": 60,
+   "evidence": "pending is set (line 59), respond() may re-enter and process a cancel that clears pending (line 66), yet the response telemetry and frame are still emitted (lines 61-62)",
+   "required": false
+  }
+ ],
+ "audited_absent": {
+  "auth-bypass": "server.ts:76 rejects unknown tokens; server.ts:43-44 require a joined, non-ended session for every other frame; a rejected re-join leaves the existing authenticated session unchanged (diagnostics)"
+ },
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-v2-ledger-diagnostics.json",
+  "sha256": "c049c7b4893772309b0244b4431852403562308b7ba9b529e15874fb7de83d90"
+ }
+}

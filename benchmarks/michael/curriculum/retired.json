@@ -50,7 +50,7 @@
   "orchestrate-voice-integration": {
    "by": "MB-010r live v1 outcomes",
    "reason": "task-caused: the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet 12/13), while MAI's 12/13 was a correct rejection of a nonexistent auth-bypass; v2 admits only audited genuine extras with behavioral fix checks",
-   "superseded_by": "orchestrate-voice-integration-v2",
+   "superseded_by": "orchestrate-voice-integration-v3",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-voice-integration-v1-outcomes.json",
     "sha256": "c7781661a9d3ec72bca2edcc1bf7fe0e5736713d87d72fcd654a19d58b77e008"
@@ -64,6 +64,15 @@
     "path": "benchmarks/michael/curriculum/MB-010r-research-serverless-cost-v1-outcomes.json",
     "sha256": "33b87af59aab84368de2867991bc387f2796ba92e6c516029b9a5acf28d6077d"
    }
+  },
+  "orchestrate-voice-integration-v2": {
+   "by": "MB-010r native behavior diagnostics",
+   "superseded_by": "orchestrate-voice-integration-v3",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-v2-ledger-diagnostics.json",
+    "sha256": "c049c7b4893772309b0244b4431852403562308b7ba9b529e15874fb7de83d90"
+   },
+   "reason": "task-caused: the ledger check treated race-condition as nonexistent, but trusted diagnostics reproduce a genuine re-entrant cancel-ordering defect in the base"
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored."

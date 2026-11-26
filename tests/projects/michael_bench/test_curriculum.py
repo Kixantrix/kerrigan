@@ -507,7 +507,8 @@ CURRENT = {"plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-p
            "design-alethiometer-case": "design-alethiometer-case-v2",
            "yv-relevance-instrument": "yv-relevance-instrument-v2",
            "emv-thumbnails-gallery": "emv-thumbnails-gallery-v2",
-           "orchestrate-voice-integration": "orchestrate-voice-integration-v2",
+           "orchestrate-voice-integration": "orchestrate-voice-integration-v3",
+           "orchestrate-voice-integration-v2": "orchestrate-voice-integration-v3",
            "research-serverless-cost": "research-serverless-cost-v2"}
 NON_PYTHON = {"typescript", "javascript"}
 APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
@@ -696,3 +697,22 @@ def test_orchestrate_v2_audit_record():
         assert defect["line"] <= base[defect["file"]].decode().count("\n") + 1
     task = base["TASK.md"].decode()
     assert "Listing a defect that does not exist fails" in task
+
+
+@pytest.mark.parametrize("label,code_from,extra,failed", [
+    ("fixed race-condition", "orchestrate-voice-integration-v3", ["race-condition"], []),
+    ("fixed race-condition and memory-leak", "orchestrate-voice-integration-v3", ["memory-leak", "race-condition"], []),
+    ("unfixed race-condition", "orchestrate-voice-integration-v2", ["race-condition"], ["a listed race-condition is actually fixed"]),
+    ("auth-bypass", "orchestrate-voice-integration-v3", ["auth-bypass"], ["no nonexistent or duplicate defects listed"]),
+])
+def test_orchestrate_v3_race_condition_ledger(label, code_from, extra, failed, tmp_path):
+    report = api.grade(_orchestrate_variant(code_from, REQUIRED_DEFECTS + extra), tmp_path / "r",
+                       task="orchestrate-voice-integration-v3")
+    assert [a["original_id"] for a in report["assertions"] if not a["passed"]] == failed, label
+
+
+def test_orchestrate_v3_audit_record():
+    info = curriculum.meta("orchestrate-voice-integration-v3")
+    assert {d["category"] for d in info["audited_base_defects"]} == set(REQUIRED_DEFECTS) | {"memory-leak", "race-condition"}
+    assert set(info["audited_absent"]) == {"auth-bypass"}
+    assert info["admission_evidence"]["sha256"].startswith("c049c7b4")
