@@ -79,6 +79,93 @@
    }
   },
   "decision": {
+   "state": "retired",
+   "reasons": [
+    "contradiction: oracle README stated 37.0 mm body height while the model computes 36.949 mm (36.9 mm at the required 0.1 mm precision); a 0.06 mm document-check tolerance masked the mismatch"
+   ],
+   "superseded_by": "design-alethiometer-case-v2"
+  }
+ },
+ {
+  "task": "kixantrix/michael-design-alethiometer-case-v2",
+  "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "design_passed": 3.0,
+    "design_total": 3.0,
+    "docs_passed": 5.0,
+    "docs_total": 5.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 1.0,
+    "rules_passed": 2.0,
+    "rules_total": 2.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "design_passed": 1.0,
+    "design_total": 3.0,
+    "docs_passed": 0.0,
+    "docs_total": 5.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 0.0,
+    "rules_passed": 0.0,
+    "rules_total": 2.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v2",
+      "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13"
+     },
+     "request_sha256": "32bcc51af6cd86fdf047915fdeab45573a0b7a81f3efb8c59188a609553d54d0",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v2",
+      "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13"
+     },
+     "request_sha256": "b5b4e69801272738d1e7fe497a6ac028dbbf7c9d3f9a54f72b4fe4d1f8910406",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v2",
+     "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "4e75568904a9c2d1842a72a27e4098e0870237122c09a0bc6c39bf43c6050586",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
    "state": "provisional",
    "reasons": [
     "model gates pending executor"

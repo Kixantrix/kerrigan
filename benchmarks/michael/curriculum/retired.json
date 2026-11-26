@@ -19,6 +19,12 @@
     "path": "benchmarks/michael/curriculum/MB-010r-review-v2-admission.json",
     "sha256": "8c18b217a2f3b61f1f6c7d3333140700af53181b07bbc6d6763c162224e94f97"
    }
+  },
+  "design-alethiometer-case": {
+   "by": "MB-010r native automated admission",
+   "reason": "contradiction: oracle README stated 37.0 mm body height while the model computes 36.949 mm (36.9 mm at the required 0.1 mm precision); a 0.06 mm document-check tolerance masked the mismatch",
+   "superseded_by": "design-alethiometer-case-v2",
+   "evidence": "pending: executor admission evidence not yet pushed"
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored."

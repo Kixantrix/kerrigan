@@ -1118,10 +1118,13 @@
    "long_horizon": true,
    "summary": "Lighter hands freed height. Agent changes parametric CAD to reduce standoffs, keeps clearances, widens a relief, and regenerates flats/renders and BOM/assembly text.",
    "history_status": "unmerged-branch",
-   "package": "design-alethiometer-case",
+   "package": "design-alethiometer-case-v2",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader:mb006j",
-   "estimated_human_minutes": 45
+   "estimated_human_minutes": 45,
+   "retired_packages": [
+    "design-alethiometer-case"
+   ]
   },
   {
    "id": "aleth-gear-mesh-analysis",
@@ -1476,9 +1479,12 @@
    "long_horizon": true,
    "summary": "Implement two new modules from the historical briefing: conflict detection against agent:go plan-edit PRs, and a crash-safe offline edit queue with ordered, idempotent replay.",
    "history_status": "merged",
-   "package": "kerrigan-plan-conflict-queue",
+   "package": "kerrigan-plan-conflict-queue-v2",
    "provenance_kind": "mined-history",
-   "grader_image": "available: michael-replay-grader-node:mb008"
+   "grader_image": "available: michael-replay-grader-node:mb008",
+   "pending_reaudit_packages": [
+    "kerrigan-plan-conflict-queue"
+   ]
   }
  ]
 }

@@ -1,0 +1,42 @@
+{
+ "id": "design-alethiometer-case-v2",
+ "family": "Design",
+ "title": "Thin the alethiometer case within clearance and relief rules, with consistent documents",
+ "source": {
+  "repo": "Kixantrix/alethiometer",
+  "visibility": "public",
+  "kind": "commit",
+  "pr": null,
+  "base_ref": "7f8b4bbc8fc49395d775bd4d5442d87a03e86189",
+  "reference_ref": "4528e967d970045fb1366c5310843178a99c115b",
+  "history_status": "unmerged-branch"
+ },
+ "derivation": "Public hardware-branch commit 4528e96 (5 mm hand standoffs, 1.5 mm crystal clearance, P2 hinge relief widened to clear screw tips, README/BOM/ASSEMBLY updates). The CAD module needs cadquery/shapely, so its Z stack-up and hinge-relief constants are excerpted verbatim into a stdlib model; document excerpts are lightly normalized to be consistent with that model (upper-shell flange stated as the model's shell height). v2 (MB-010c follow-up): native admission audit of v1 found the oracle README stated 37.0 mm while the model computes 36.949 mm (36.9 mm at the required 0.1 mm precision), masked by a 0.06 mm check tolerance. The oracle now states 36.9/44.6 mm, the instruction requires half-up rounding at each document's precision, and every document number is checked for exact equality with the rounded model value; model-value checks keep sub-0.01 mm tolerances.",
+ "privacy": "public",
+ "coverage": "Constraint validator over a multi-file design change: optimal catalog choice, perturbation-tested relief derivation, preserved fixed parts, and exact rounded document/model consistency.",
+ "historical_exposure": "Public repository branch; exposure/recognition risk.",
+ "outcome_evidence": "constraint_validator",
+ "estimated_agent_minutes": 30,
+ "estimated_human_minutes": 45,
+ "residual_rubric": [
+  "Physical manufacturability beyond the stated rules (renders, DXF/STEP regeneration) is out of scope and not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "harness": "design_alethiometer_case.py",
+  "candidate": "hardware/stack.py",
+  "candidates": [
+   "hardware/ASSEMBLY.md",
+   "hardware/BOM.md",
+   "hardware/README.md",
+   "hardware/stack.py"
+  ],
+  "denominators": {
+   "design": 3,
+   "rules": 2,
+   "preservation": 2,
+   "docs": 5
+  }
+ },
+ "supersedes": "design-alethiometer-case"
+}

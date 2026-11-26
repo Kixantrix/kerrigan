@@ -73,7 +73,9 @@ def test_user_excluded_repositories_absent():
 def test_catalog_packages_match_their_sources():
     packaged = {c["package"]: c for c in CANDIDATES if c["package"]}
     retired = {name: c for c in CANDIDATES for name in c.get("retired_packages", [])}
-    assert set(packaged) | set(retired) == {*packages.CASES, *curriculum.PACKAGES}
+    pending = {name for c in CANDIDATES for name in c.get("pending_reaudit_packages", [])}
+    assert set(packaged) | set(retired) | pending == {*packages.CASES, *curriculum.PACKAGES}
+    assert not pending & set(curriculum.retired())
     assert set(retired) == set(curriculum.retired()) and not set(packaged) & set(retired)
     for name, item in retired.items():
         assert curriculum.retired()[name]["superseded_by"] == item["package"]
@@ -500,7 +502,8 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
 CURRENT = {"plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v3",
-           "review-conflict-predictor-v2": "review-conflict-predictor-v3"}
+           "review-conflict-predictor-v2": "review-conflict-predictor-v3",
+           "design-alethiometer-case": "design-alethiometer-case-v2"}
 NON_PYTHON = {"typescript", "javascript"}
 APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
                      "Kixantrix/sunday-league", "Kixantrix/foal-rescue-meadow", "Kixantrix/voxel-solar-wallpaper"}
@@ -583,3 +586,28 @@ def test_review_v3_rejects_the_v2_oracle_gap(tmp_path):
     assert report["verdict"] == "fail"
     assert [a["original_id"] for a in report["assertions"] if not a["passed"]] == [
         "MB-010c::empty touch glob is not file-scope signal"]
+
+
+def test_design_v2_documents_use_exact_rounding(tmp_path):
+    info = curriculum.meta("design-alethiometer-case-v2")
+    assert info["supersedes"] == "design-alethiometer-case"
+    assert "rounded half-up" in curriculum.agent_files("design-alethiometer-case-v2")["TASK.md"].decode()
+    rows = curriculum.rows("design-alethiometer-case-v2")
+    docs = [c for r in rows if r["group"] == "docs" for c in r["clauses"]]
+    assert docs and all(c[0] == "path_equal" for c in docs)
+    assert all(c[3] < 0.01 for r in rows for c in r["clauses"] if c[0] == "path_within")
+    oracle = json.loads(curriculum.verifier_files("design-alethiometer-case-v2")["reference"])["hardware/README.md"]
+    assert "body is 36.9 mm tall" in oracle and "37.0" not in oracle
+    v1 = api.grade(specs.reference("design-alethiometer-case"), tmp_path / "v1", task="design-alethiometer-case-v2")
+    failed = [a["original_id"] for a in v1["assertions"] if not a["passed"]]
+    assert v1["verdict"] == "fail" and failed == ["README size line matches the model", "README height table matches the model"]
+
+
+def test_plan_queue_v2_states_at_least_once_semantics():
+    task = curriculum.agent_files("kerrigan-plan-conflict-queue-v2")["TASK.md"].decode()
+    assert "at-least-once" in task and "double-apply" not in task
+    assert curriculum.verifier_files("kerrigan-plan-conflict-queue-v2")["reference"] == \
+        curriculum.verifier_files("kerrigan-plan-conflict-queue")["reference"]
+    assert curriculum.rows("kerrigan-plan-conflict-queue-v2") == curriculum.rows("kerrigan-plan-conflict-queue")
+    cleanup = [r for r in curriculum.rows("kerrigan-plan-conflict-queue-v2") if r["probe"]["scenario"] == "replayCleanupFailure"]
+    assert len(cleanup) == 1 and not any(c[1][:1] == ["second"] for c in cleanup[0]["clauses"])
