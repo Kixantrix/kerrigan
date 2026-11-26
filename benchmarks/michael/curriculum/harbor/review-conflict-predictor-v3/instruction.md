@@ -15,16 +15,20 @@ them in place. Only `tools/conflict_predictor.py` is writable.
 Requirements:
 - The predictor must compute correct, overlap-aware waves for files written in
   the excerpt's format, keeping task IDs as written there. Waves are about
-  file overlap only: two tasks share a wave exactly when their declared files
-  do not overlap. Task dependencies (`external:` bullets) are out of scope and
-  must not affect wave assignment.
+  file overlap only and keep the tool's existing assignment: in document order,
+  each task joins the earliest wave holding no task whose declared files
+  overlap its own, otherwise it opens a new wave. Task dependencies
+  (`external:` bullets) are out of scope and must not affect wave assignment.
+- A task's declared files are the union, in order, of all its annotations:
+  any number of `- Touch:` bullets plus an inline `<!-- touch: ... -->` comment.
 - File-scope signal means at least one non-empty file glob extracted from an
   annotation; an annotation with no usable glob (e.g. ``- Touch: `` `` ``)
   provides none.
 - It must never report success for a planning file that contains task lines
   but from which it could not extract any file-scope signal. Such failures must
-  exit nonzero and, on stderr, name the tasks file and both annotation forms the
-  tool accepts (the `- Touch:` bullet and the `<!-- touch: ... -->` comment).
+  exit nonzero, write no output file, and on stderr name the tasks file and
+  both annotation forms the tool accepts, spelled literally as `- Touch:` and
+  `<!-- touch:`.
   A planning file with no task lines at all (empty, or headings/prose only)
   remains a clean zero-wave success.
 - A file where only some tasks declare files is valid: unannotated tasks stay

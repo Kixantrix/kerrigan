@@ -14,7 +14,11 @@
   "review-conflict-predictor-v2": {
    "by": "MB-010r native automated admission",
    "reason": "contradiction: oracle reported success for a task line whose only annotation had an empty glob, violating the no-file-scope-signal requirement; instruction implied dependency-ordered waves while checks were overlap-only",
-   "superseded_by": "review-conflict-predictor-v3"
+   "superseded_by": "review-conflict-predictor-v3",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-review-v2-admission.json",
+    "sha256": "8c18b217a2f3b61f1f6c7d3333140700af53181b07bbc6d6763c162224e94f97"
+   }
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored."

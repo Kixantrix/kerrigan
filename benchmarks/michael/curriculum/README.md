@@ -151,7 +151,8 @@ receipt and a fresh-clone reproduction. Base → reference independent checks:
 | Package | Family | Source | Lang / files | Human min | Base | Reference |
 |---|---|---|---|---:|---:|---:|
 | plan-dashboard-waves-v2 | Understand and plan | kerrigan #306 (public, exact) | JSON / 1 | 15 | 0/10 | 10/10 |
-| review-conflict-predictor-v2 | Review and repair | kerrigan #312 (public, exact) | Python / 1 | 25 | 11/25 | 25/25 |
+| review-conflict-predictor-v2 | Review and repair (retired) | kerrigan #312 (public, exact) | Python / 1 | 25 | 11/25 | 25/25 |
+| review-conflict-predictor-v3 | Review and repair | kerrigan #312 (public, exact) | Python / 1 | 25 | 11/27 | 27/27 |
 | research-serverless-cost | Research | personal-selfhost #174 (synthetic) | JSON / 1 | 45 | 1/12 | 12/12 |
 | design-alethiometer-case | Design | alethiometer 4528e96 (public branch) | Python+Markdown / 4 | 45 | 3/12 | 12/12 |
 | orchestrate-voice-integration | Orchestrate, long | personal-selfhost T012 (synthetic) | TS+JSON / 4 | 90 | 1/13 | 13/13 |
@@ -198,3 +199,5 @@ file after quiescence and pass `specs.bundle(files)` to the grader.
 `replay_trial.curriculum.sources()` also hashes only `harnesses/*.py`; it
 should include `harnesses/*.mjs`. The native closure test was generalized to
 accept `artifacts`.
+
+v3 of the review package answers the MB-010r native admission audit of v2 (`MB-010r-review-v2-admission.json`). The oracle now counts only extracted globs: an empty `- Touch:` annotation is no file-scope signal, and the v2 oracle fails the new hidden check. Waves are specified as overlap-only greedy earliest-wave assignment in document order, with dependencies out of scope. The instruction now also states the no-output-on-failure, annotation-union and literal-stderr-form contracts. v1 and v2 stay frozen and retired.

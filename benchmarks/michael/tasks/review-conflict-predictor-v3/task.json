@@ -11,7 +11,7 @@
   "reference_ref": "2071fffaf4cca41ec8d63ec06acd6963333236f3",
   "history_status": "merged"
  },
- "derivation": "Exact historical base file; reference is the historical fix plus a REVIEW_FINDINGS annotation. Task statement rewritten from the real briefing as symptoms only (review, not specification). Fixture is the real planning excerpt at the dispatch commit. v2 (MB-010c): instruction scopes fail-loud to files with task lines (prose/empty files remain zero-wave success, matching the historical tests and oracle); stderr checks require the file name and both annotation forms rather than environment paths; missing-file wording is no longer checked; CLI propagation, partially annotated files and finding structure are tested; findings are scoped to contributing defects. v3 (MB-010c follow-up): native admission audit of v2 found (1) the oracle counted an annotation with an empty glob as file-scope signal and reported success, now fixed to count extracted globs with a hidden check, and (2) 'correct waves' implied dependency ordering; the instruction now states waves are overlap-only, with a hidden check that dependencies do not affect waves.",
+ "derivation": "Exact historical base file; reference is the historical fix plus a REVIEW_FINDINGS annotation. Task statement rewritten from the real briefing as symptoms only (review, not specification). Fixture is the real planning excerpt at the dispatch commit. v2 (MB-010c): instruction scopes fail-loud to files with task lines (prose/empty files remain zero-wave success, matching the historical tests and oracle); stderr checks require the file name and both annotation forms rather than environment paths; missing-file wording is no longer checked; CLI propagation, partially annotated files and finding structure are tested; findings are scoped to contributing defects. v3 (MB-010c follow-up), responding to the native admission audit of v2 (benchmarks/michael/curriculum/MB-010r-review-v2-admission.json, sha256 8c18b217a2f3b61f1f6c7d3333140700af53181b07bbc6d6763c162224e94f97): contradiction 1 (audit 1) - the oracle counted a Touch annotation with no extracted glob as file-scope signal and exited 0; it now counts extracted globs, with a hidden empty-glob check. Contradiction 2 (audit 0) - 'correct waves' implied dependency ordering; the instruction now states overlap-only, greedy earliest-wave assignment in document order with dependencies out of scope, with a hidden dependency-independence check. Over-specification findings resolved in the instruction: no output on failure, union of repeated/mixed annotations, exact wave layout rule; stderr must name both annotation forms literally.",
  "privacy": "public",
  "coverage": "Parser/wave/run/CLI behavior plus a closed-vocabulary defect review: 11 preservation, 11 regression, 5 review checks.",
  "historical_exposure": "Public historical fix; exposure/recognition risk.",
@@ -34,5 +34,9 @@
    "review": 5
   }
  },
- "supersedes": "review-conflict-predictor-v2"
+ "supersedes": "review-conflict-predictor-v2",
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-review-v2-admission.json",
+  "sha256": "8c18b217a2f3b61f1f6c7d3333140700af53181b07bbc6d6763c162224e94f97"
+ }
 }

@@ -824,7 +824,7 @@
  },
  {
   "task": "kixantrix/michael-review-conflict-predictor-v3",
-  "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce",
+  "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -860,9 +860,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
-      "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce"
+      "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c"
      },
-     "request_sha256": "e9916f6051d067b59abbfc3cb8f54e8bffd703ce7f1833a490c51be49ef81e33",
+     "request_sha256": "05661e41c7d6b6aa30a95c935c3d2ed002051860ad487a43c634713b39b0a791",
      "status": "pending_executor"
     },
     {
@@ -873,9 +873,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
-      "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce"
+      "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c"
      },
-     "request_sha256": "92819da2e870edab95d34005bf15ce025542b8c95da72d45c1a1f675a02069f9",
+     "request_sha256": "8764423a24e252cd3aa1ea72969940b1953a8ae2ebb55d65eeaad58017f54ca1",
      "status": "pending_executor"
     }
    ],
@@ -887,13 +887,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
-     "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce",
+     "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "35514029f1e13674e62c6f880de22465f58d60bdeb81075f0ced507a67f6d050",
+    "request_sha256": "384c52b3b09966cccd56692254efac2a1c4ad572716c2363b1e5034bd80bd79d",
     "status": "pending_executor"
    }
   },

@@ -677,18 +677,9 @@
      "stderr"
     ],
     [
-     "tasks.md"
-    ]
-   ],
-   [
-    "path_contains_all",
-    [
-     0,
-     "stderr_lower"
-    ],
-    [
-     "touch:",
-     "<!--"
+     "tasks.md",
+     "- Touch:",
+     "<!-- touch:"
     ]
    ],
    [

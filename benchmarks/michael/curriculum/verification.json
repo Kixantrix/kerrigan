@@ -539,5 +539,49 @@
    }
   },
   "models_run": 0
+ },
+ "mb010c_review_v3": {
+  "evidence": {
+   "path": "benchmarks/michael/curriculum/MB-010r-review-v2-admission.json",
+   "sha256": "8c18b217a2f3b61f1f6c7d3333140700af53181b07bbc6d6763c162224e94f97"
+  },
+  "calibration": {
+   "baseline": {
+    "verdict": "fail",
+    "counts": {
+     "preservation": {
+      "passed": 11,
+      "total": 11
+     },
+     "regression": {
+      "passed": 0,
+      "total": 11
+     },
+     "review": {
+      "passed": 0,
+      "total": 5
+     }
+    }
+   },
+   "reference": {
+    "verdict": "pass",
+    "counts": {
+     "preservation": {
+      "passed": 11,
+      "total": 11
+     },
+     "regression": {
+      "passed": 11,
+      "total": 11
+     },
+     "review": {
+      "passed": 5,
+      "total": 5
+     }
+    }
+   }
+  },
+  "v2_oracle_under_v3": "fail: MB-010c::empty touch glob is not file-scope signal",
+  "harbor_lint_findings_all_16": 0
  }
 }
