@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 
 from benchmarks.michael.contracts.manifests import validate_manifest
@@ -39,13 +40,29 @@ def meta(name: str) -> dict:
     return json.loads((HERE / name / "task.json").read_bytes())
 
 
+IGNORED_PARTS = {"__pycache__", ".DS_Store", ".pytest_cache"}
+
+
+def _visible(root: Path) -> list[Path]:
+    """Files git would commit under ``root``: tracked plus untracked-not-ignored."""
+    try:
+        listed = subprocess.run(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "."],
+                                cwd=root, check=True, capture_output=True).stdout.split(b"\0")
+        paths = [root / item.decode() for item in listed if item]
+    except (OSError, subprocess.CalledProcessError):
+        paths = [path for path in root.rglob("*") if path.is_file() or path.is_symlink()]
+    return sorted(path for path in paths if path.exists() or path.is_symlink())
+
+
 def _tree(root: Path) -> dict[str, bytes]:
     files = {}
-    for path in sorted(root.rglob("*")):
+    for path in _visible(root):
+        relative = path.relative_to(root)
+        if IGNORED_PARTS & set(relative.parts) or relative.suffix in {".pyc", ".pyo"}:
+            continue
         if path.is_symlink():
             raise ValueError(f"package contains symlink: {path}")
-        if path.is_file():
-            files[path.relative_to(root).as_posix()] = path.read_bytes()
+        files[relative.as_posix()] = path.read_bytes()
     return files
 
 

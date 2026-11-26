@@ -29,6 +29,20 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[4]
 IMAGE = "michael-mining-python:mb008"
+class MiningEnvironmentError(RuntimeError):
+    """The contained test environment could not run; never reported as a task status."""
+
+
+def require_image() -> str:
+    found = subprocess.run(["docker", "image", "inspect", "--format", "{{.Id}}", IMAGE],
+                           capture_output=True, text=True)
+    if found.returncode:
+        raise MiningEnvironmentError(
+            f"mining image {IMAGE} is missing; build it with: docker build --pull=false -t {IMAGE} "
+            "benchmarks/michael/curriculum/mining")
+    return found.stdout.strip()
+
+
 TEST_PATH = re.compile(r"(^|/)(tests?/.*\.py|test_[^/]*\.py|[^/]*_test\.py)$")
 
 
@@ -60,6 +74,7 @@ def tree_archive(commit: str, repo: Path, overlay: dict[str, bytes | None] | Non
 
 def run_tests(archive: bytes, tests: list[str], seconds: int = 240) -> dict[str, str]:
     """Return {node id: passed|failed|error|skipped} from a contained pytest run."""
+    require_image()
     script = ("set -e; mkdir -p /work/repo; tar -x -C /work/repo; cd /work/repo; "
               "python -m pytest -q -p no:cacheprovider --basetemp=/work/tmp --junitxml=/work/r.xml "
               + " ".join(tests) + " >/work/log.txt 2>&1 || true; cat /work/r.xml")
@@ -76,8 +91,10 @@ def run_tests(archive: bytes, tests: list[str], seconds: int = 240) -> dict[str,
     outcomes = {}
     try:
         root = ET.fromstring(result.stdout)
-    except ET.ParseError:
-        return outcomes
+    except ET.ParseError as exc:
+        raise MiningEnvironmentError(
+            f"contained pytest produced no JUnit report (exit {result.returncode}): "
+            f"{result.stderr[-600:].decode(errors='replace')}") from exc
     for case in root.iter("testcase"):
         classname = case.attrib.get("classname", "")
         module = classname.replace(".", "/")

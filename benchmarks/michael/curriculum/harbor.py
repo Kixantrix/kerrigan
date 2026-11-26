@@ -215,9 +215,11 @@ def artifacts(task_dir: Path, *, oracle: bool) -> dict[str, bytes]:
     subprocess.run(["docker", "rm", "-f", name], capture_output=True)
     _run(["docker", "create", "--name", name, "--network", "none", "--cap-drop", "ALL",
           "--security-opt", "no-new-privileges:true", "--memory", "512m", "--pids-limit", "64",
-          *(["-v", f"{(Path(task_dir) / 'solution').resolve()}:/solution:ro"] if oracle else []),
           image, *command])
     try:
+        if oracle:
+            # Copy (not bind-mount) so it works with remote/VM Docker daemons (macOS, cloud).
+            _run(["docker", "cp", f"{(Path(task_dir) / 'solution').resolve()}/.", f"{name}:/solution"])
         started = _run(["docker", "start", "-a", name], seconds=300)
         if started.returncode:
             raise RuntimeError(f"environment command failed: {started.stderr[-800:].decode(errors='replace')}")

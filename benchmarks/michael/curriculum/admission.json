@@ -321,7 +321,7 @@
  },
  {
   "task": "kixantrix/michael-sr-temporal-assay",
-  "task_sha256": "adb0aafa563568ca0ed495d4c2b0a54f67411cc36141eb37c939ff04507bab89",
+  "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -357,9 +357,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/sr-temporal-assay",
-      "task_sha256": "adb0aafa563568ca0ed495d4c2b0a54f67411cc36141eb37c939ff04507bab89"
+      "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54"
      },
-     "request_sha256": "51024da60e5e9be781c126eeb31a7dd64a8a794c326f820cca7fa220921f7e62",
+     "request_sha256": "3d10bc3611edf5bce223ff3acd7f10df95b757a5153dd2d606cdfc743d3951b2",
      "status": "pending_executor"
     },
     {
@@ -370,9 +370,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/sr-temporal-assay",
-      "task_sha256": "adb0aafa563568ca0ed495d4c2b0a54f67411cc36141eb37c939ff04507bab89"
+      "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54"
      },
-     "request_sha256": "de5d3a501de221a385ecc279b92838a72c2bca41d156d496ba25146d1ecbc6b2",
+     "request_sha256": "6aa8a22fd7d6b6783ba200d98401a9eb85cf950ef6f9444355ff691e68eec817",
      "status": "pending_executor"
     }
    ],
@@ -384,13 +384,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/sr-temporal-assay",
-     "task_sha256": "adb0aafa563568ca0ed495d4c2b0a54f67411cc36141eb37c939ff04507bab89",
+     "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "37e6c70c6156fd6f7e51a66991d93efead0b6f063dfd9d0161316d2526a94358",
+    "request_sha256": "748b71bf16ec9edd11ad434023b454ca71f28a8d9e8c81d9a06a84d918568e71",
     "status": "pending_executor"
    }
   },

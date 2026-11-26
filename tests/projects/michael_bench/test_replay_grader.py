@@ -15,16 +15,14 @@ import uuid
 
 import pytest
 
-GRADER = Path(__file__).resolve().parents[3] / "benchmarks" / "michael" / "replay_grader"
-sys.path.insert(0, str(GRADER))
-import api
-from policy import cases
+# Package-qualified imports: a bare ``import api`` collides with other test modules' sys.path entries.
+from benchmarks.michael.replay_grader import api, owner, specs
+from benchmarks.michael.replay_grader.policy import cases
 
 packages = api.packages
 
 
 def test_owner_registration_preserves_linux_ticks_and_honest_macos_unknown(monkeypatch):
-    import owner
     monkeypatch.setattr(owner.sys, "platform", "darwin")
     assert owner.identity() == {"process_start_ticks": None,
                                 "process_identity_kind": "unknown-no-pid-signals", "platform": "darwin"}
@@ -274,7 +272,9 @@ def wait_for(predicate, seconds=10):
     raise AssertionError("bounded fixture wait expired")
 
 
-@pytest.mark.parametrize("stage", ["create", "running", "deadline", "owner-loss"])
+@pytest.mark.parametrize("stage", ["create", "running", "deadline", pytest.param(
+    "owner-loss", marks=pytest.mark.skipif(not hasattr(os, "pidfd_open"),
+                                           reason="local_required: Linux-only pidfd identity binding (os.pidfd_open)"))])
 def test_independent_owner_survives_controller_loss(stage, tmp_path):
     import signal
 
@@ -356,7 +356,6 @@ def test_independent_owner_survives_controller_loss(stage, tmp_path):
 
 
 # --- MB-008: TypeScript replays (grouping, status) in the Node 24 sandbox ---------------
-import specs  # noqa: E402
 
 
 @pytest.mark.parametrize("task,base,total", [

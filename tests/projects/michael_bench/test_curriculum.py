@@ -91,6 +91,21 @@ def test_catalog_packages_match_their_sources():
 
 # --- AC-MB-008b/d: exact export, leakage and contracts -----------------------------------
 
+def test_package_trees_ignore_bytecode_and_untracked_noise(tmp_path):
+    name = "sr-temporal-assay"
+    before = curriculum.agent_files(name)
+    cache = curriculum.HERE / name / "agent" / "assay" / "__pycache__"
+    cache.mkdir(exist_ok=True)
+    try:
+        (cache / "temporal_mech.cpython-312.pyc").write_bytes(b"bytecode")
+        (curriculum.HERE / name / "agent" / "assay" / "stray.pyc").write_bytes(b"bytecode")
+        assert curriculum.agent_files(name) == before
+        assert curriculum.descriptor(name) == json.loads((curriculum.HERE / name / "manifest.json").read_text())
+    finally:
+        shutil.rmtree(cache)
+        (curriculum.HERE / name / "agent" / "assay" / "stray.pyc").unlink()
+
+
 @pytest.mark.parametrize("name", curriculum.PACKAGES)
 def test_frozen_export_without_leakage(name, tmp_path):
     info = curriculum.meta(name)
@@ -295,7 +310,8 @@ def test_harbor_export_is_current_and_well_formed(name, tmp_path):
     digest = harbor.export(name, tmp_path / name)
     committed = harbor.EXPORT_ROOT / name
     assert digest == packages.bundle_digest({p.relative_to(committed).as_posix(): p.read_bytes()
-                                             for p in committed.rglob("*") if p.is_file()})
+                                             for p in curriculum._visible(committed)})
+    assert not [p for p in committed.rglob("*") if "__pycache__" in p.parts or p.suffix == ".pyc"]
     for required in ("instruction.md", "task.toml", "environment/Dockerfile", "solution/solve.sh",
                      "tests/test.sh", "tests/Dockerfile"):
         assert (committed / required).is_file(), required
@@ -357,6 +373,10 @@ def test_retained_admission_records():
 
 
 def test_mining_reproduces_fail_to_pass_for_pr_312():
+    try:
+        mine.require_image()
+    except mine.MiningEnvironmentError as exc:
+        pytest.skip(f"cloud_ok: preprovision required - {exc}")
     record = mine.instance("2071fffaf4cca41ec8d63ec06acd6963333236f3", pr=312)
     assert record["status"] == "admissible_candidate"
     assert record["FAIL_TO_PASS"] == sorted(
