@@ -284,8 +284,13 @@ only converts chunks and relies on server accounting, and unguarded
 `start()` versus the instruction to ignore out-of-order controls. These
 remain unresolved task issues, not findings silently dismissed after an
 inconvenient gate. Other advisory coverage/overspecification findings and
-both original audit verdicts are retained in the evidence archive. No v5
-was created and no v4 subject was run.
+both original audit verdicts are retained in the evidence archive. No further
+Orchestrate revision was admitted or run as a round-2 subject.
+
+Parent synchronization after sealing publication brought in `9960999`,
+which adds provisional orchestration-v5 for round 3. It clarifies client-side
+R7 and guards `start()`, with broader out-of-order checks. It is not a new
+round-2 attempt, admission or primary result; v4 still has zero subjects.
 
 ## Success versus estimated human time
 
@@ -398,8 +403,8 @@ credential state, raw native messages and account/quota data.
 The final audit verifies 441 curriculum source bindings, all 449 archived
 native-start source bindings, and 764 exact post-quiescence artifact reads.
 All 449 archived native terminal runs prove whole-process quiescence. It
-also checks 349 prior JSON/JSONL/archive artifacts byte-for-byte against
-parent `03ce34b`. There are 20,059 hash-indexed members plus the embedded
+also checks 349 prior JSON/JSONL/archive artifacts byte-for-byte at benchmark
+publication baseline `03ce34b`. There are 20,059 hash-indexed members plus the embedded
 verification document; the compressed archive is 23,640,944 bytes.
 
 | Artifact | SHA-256 |
@@ -407,7 +412,7 @@ verification document; the compressed archive is 23,640,944 bytes.
 | `MB-010r-verification.json` | `e7956ad88b8527fe39ef95cfb84b36ecee5580ffd5c95971e7cf221e377f7996` |
 | `MB-010r-evidence.tar.gz` | `5c99523434d85cfbb792249eae223af482cdc6188b1fe1d592da192bd78810c0` |
 
-Final focused/native/grader/dependency tests: **577 passed, 1 skipped**.
+Benchmark-baseline focused/native/grader/dependency tests: **577 passed, 1 skipped**.
 The skip is the Linux-only `os.pidfd_open` identity-binding case; actual
 macOS ownership/cutoff checks run separately. Artifact/dependency validators,
 four native JavaScript syntax checks and whitespace checks pass. Smoke is
@@ -416,3 +421,11 @@ and outcomes are in `mb010r-v8/verification-commands.json` inside the archive.
 Earlier test counts overlap this suite and are not added as unique tests.
 Native calibrations and the ten retrospective regrades have their own
 retained execution receipts.
+
+The later parent merge changes only round-3 package/catalog/test material,
+not the transport, trial or grader implementation. Its catalog/unit delta
+passes `$PYTHON -m pytest -q tests/projects/michael_bench/test_curriculum.py
+-k 'not fresh_calibration_matches_retained_counts'`: **308 passed**; artifact
+and dependency validators pass again. This overlaps the earlier suite.
+The sealed evidence and its baseline hashes are unchanged; no subject
+inference or scored run was added after publication.

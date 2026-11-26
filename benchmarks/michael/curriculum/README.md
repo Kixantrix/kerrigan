@@ -15,6 +15,8 @@ Orchestrate row retains admitted-and-run v3; v4's `needs_fix` gate was upheld
 with zero subject prompts. Later round-3 literal fixes are known task issues,
 not extra round-2 samples; regrading the ten existing affected artifacts
 changes no binary outcome or partial count.
+The later parent catalog's provisional orchestration-v5 is round-3 work too,
+not an additional round-2 subject run.
 
 `catalog.json` lists 44 candidate tasks mined from Kixantrix repositories,
 covering all eight spec families. Each candidate records source repo, exact
