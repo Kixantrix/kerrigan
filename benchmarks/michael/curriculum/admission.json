@@ -925,7 +925,7 @@
    "reasons": [
     "task-caused: the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet 12/13), while MAI's 12/13 was a correct rejection of a nonexistent auth-bypass; v2 admits only audited genuine extras with behavioral fix checks"
    ],
-   "superseded_by": "orchestrate-voice-integration-v4"
+   "superseded_by": "orchestrate-voice-integration-v5"
   }
  },
  {
@@ -1008,7 +1008,7 @@
    "reasons": [
     "task-caused: the ledger check treated race-condition as nonexistent, but trusted diagnostics reproduce a genuine re-entrant cancel-ordering defect in the base"
    ],
-   "superseded_by": "orchestrate-voice-integration-v4"
+   "superseded_by": "orchestrate-voice-integration-v5"
   }
  },
  {
@@ -1091,7 +1091,7 @@
    "reasons": [
     "task-caused: R1 required the literal session id 's1' though the plan says ids are opaque (MAI's randomUUID failed); admission also found unspecified telemetry event names, exact frame lists and unstated preserved behavior in hidden checks"
    ],
-   "superseded_by": "orchestrate-voice-integration-v4"
+   "superseded_by": "orchestrate-voice-integration-v5"
   }
  },
  {
@@ -1166,6 +1166,89 @@
      ]
     },
     "request_sha256": "2fab7eaaad2eaec9f91bcf6b76475d3f2000bac4f50c4c84d8eef210943591ae",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused (native v4 admission needs_fix): L2 brief/plan said client-side budget accounting feeds R7 while the oracle meters on the server; the task said out-of-order controls are ignored while the oracle's start() was unguarded; round 2 finalizes on v3"
+   ],
+   "superseded_by": "orchestrate-voice-integration-v5"
+  }
+ },
+ {
+  "task": "kixantrix/michael-orchestrate-voice-integration-v5",
+  "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "integration_passed": 9.0,
+    "integration_total": 9.0,
+    "ledger_passed": 7.0,
+    "ledger_total": 7.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "integration_passed": 0.0,
+    "integration_total": 9.0,
+    "ledger_passed": 4.0,
+    "ledger_total": 7.0,
+    "preservation_passed": 1.0,
+    "preservation_total": 2.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v5",
+      "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a"
+     },
+     "request_sha256": "de72c561a50505f075863007d11b9398dfb1a6afe09905515a0307dcfabc6a74",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v5",
+      "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a"
+     },
+     "request_sha256": "9bfa2655d591abbcbcdabe6bb0ad93cf495ce88d51fd47ce16f8928ba40a2c07",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v5",
+     "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "0378c3a1b73621e35d6c09dc571fdcc0610fb870d4f016d90bd31aa0250e2d0d",
     "status": "pending_executor"
    }
   },

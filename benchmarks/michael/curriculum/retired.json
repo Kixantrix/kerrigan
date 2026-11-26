@@ -50,7 +50,7 @@
   "orchestrate-voice-integration": {
    "by": "MB-010r live v1 outcomes",
    "reason": "task-caused: the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet 12/13), while MAI's 12/13 was a correct rejection of a nonexistent auth-bypass; v2 admits only audited genuine extras with behavioral fix checks",
-   "superseded_by": "orchestrate-voice-integration-v4",
+   "superseded_by": "orchestrate-voice-integration-v5",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-voice-integration-v1-outcomes.json",
     "sha256": "c7781661a9d3ec72bca2edcc1bf7fe0e5736713d87d72fcd654a19d58b77e008"
@@ -67,7 +67,7 @@
   },
   "orchestrate-voice-integration-v2": {
    "by": "MB-010r native behavior diagnostics",
-   "superseded_by": "orchestrate-voice-integration-v4",
+   "superseded_by": "orchestrate-voice-integration-v5",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-v2-ledger-diagnostics.json",
     "sha256": "c049c7b4893772309b0244b4431852403562308b7ba9b529e15874fb7de83d90"
@@ -76,7 +76,7 @@
   },
   "orchestrate-voice-integration-v3": {
    "by": "MB-010r literal-overspecification audit",
-   "superseded_by": "orchestrate-voice-integration-v4",
+   "superseded_by": "orchestrate-voice-integration-v5",
    "reason": "task-caused: R1 required the literal session id 's1' though the plan says ids are opaque (MAI's randomUUID failed); admission also found unspecified telemetry event names, exact frame lists and unstated preserved behavior in hidden checks",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-v3-outcomes.json",
@@ -136,6 +136,12 @@
     "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
    },
    "reason": "task-caused: shares v2's narrow 'filesystem-safe' id check, and its 'never double-apply' instruction contradicts the at-least-once cleanup-failure check"
+  },
+  "orchestrate-voice-integration-v4": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "orchestrate-voice-integration-v5",
+   "reason": "task-caused (native v4 admission needs_fix): L2 brief/plan said client-side budget accounting feeds R7 while the oracle meters on the server; the task said out-of-order controls are ignored while the oracle's start() was unguarded; round 2 finalizes on v3",
+   "evidence_pending": "native v4 admission (needs_fix) to be cited when pushed"
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",
@@ -824,6 +830,76 @@
        ]
       ],
       "why": "TASK.md: zero-signal failures 'must exit nonzero'; the clause required rc == 1. The new harness review_conflict_predictor_v4.py records rc_ok (0 or None means success) and maps a SystemExit from run() the way main() does."
+     }
+    ]
+   },
+   "orchestrate-voice-integration-v5": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "orchestrate-voice-integration-v4",
+    "findings": [
+     {
+      "where": "agent/briefs/L2-orchestration.md, agent/briefs/T012-plan.md layer table",
+      "old": "Client-side budget accounting feeds R7. | R4, R5, R7 (client side) |",
+      "new": "Client side of R7: each audio frame reports its chunk's duration for the server's budget metering, and the session ends when the server ends it. | R7 (client side: chunk durations, end on `ended`) |",
+      "why": "the oracle has no client-side accumulator; R7 metering is server-side, so the brief implied work the oracle does not do"
+     },
+     {
+      "where": "hidden/reference src/session.ts start(); TASK.md step 2; row 'state machine ignores out-of-order controls'",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         "idle"
+        ],
+        "idle"
+       ],
+       [
+        "path_equal",
+        [
+         "ready"
+        ],
+        "ready"
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_equal",
+        [
+         "idle"
+        ],
+        "idle"
+       ],
+       [
+        "path_equal",
+        [
+         "idleSentNothing"
+        ],
+        true
+       ],
+       [
+        "path_equal",
+        [
+         "ready"
+        ],
+        "ready"
+       ],
+       [
+        "path_equal",
+        [
+         "readyIgnored"
+        ],
+        true
+       ],
+       [
+        "path_equal",
+        [
+         "listeningIgnored"
+        ],
+        true
+       ]
+      ],
+      "why": "the task said out-of-order controls are ignored but the oracle's start() re-joined from any state; the oracle now guards start(), the instruction lists each guarded control, and the check covers start/press/audio/release/finish out of order"
      }
     ]
    }

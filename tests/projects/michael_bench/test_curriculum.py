@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import tempfile
 
 import pytest
 
@@ -502,20 +503,21 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"kerrigan-plan-conflict-queue": "kerrigan-plan-conflict-queue-v3",
+CURRENT = {"orchestrate-voice-integration-v4": "orchestrate-voice-integration-v5",
+           "kerrigan-plan-conflict-queue": "kerrigan-plan-conflict-queue-v3",
            "review-conflict-predictor-v3": "review-conflict-predictor-v4",
            "design-alethiometer-case-v2": "design-alethiometer-case-v3",
            "kerrigan-plan-conflict-queue-v2": "kerrigan-plan-conflict-queue-v3",
            "yv-relevance-instrument-v2": "yv-relevance-instrument-v3",
            "emv-thumbnails-gallery-v2": "emv-thumbnails-gallery-v3",
-           "orchestrate-voice-integration-v3": "orchestrate-voice-integration-v4",
+           "orchestrate-voice-integration-v3": "orchestrate-voice-integration-v5",
            "plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v4",
            "review-conflict-predictor-v2": "review-conflict-predictor-v4",
            "design-alethiometer-case": "design-alethiometer-case-v3",
            "yv-relevance-instrument": "yv-relevance-instrument-v3",
            "emv-thumbnails-gallery": "emv-thumbnails-gallery-v3",
-           "orchestrate-voice-integration": "orchestrate-voice-integration-v4",
-           "orchestrate-voice-integration-v2": "orchestrate-voice-integration-v4",
+           "orchestrate-voice-integration": "orchestrate-voice-integration-v5",
+           "orchestrate-voice-integration-v2": "orchestrate-voice-integration-v5",
            "research-serverless-cost": "research-serverless-cost-v2"}
 NON_PYTHON = {"typescript", "javascript"}
 APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
@@ -527,7 +529,9 @@ def test_v1_retired_and_preserved_v2_corrections():
     assert set(retired) == set(CURRENT)
     for old, new in CURRENT.items():
         assert retired[old]["superseded_by"] == new and retired[old]["reason"]
-        if old not in {"plan-dashboard-waves", "review-conflict-predictor"}:  # MB-009r retirements predate evidence files
+        if retired[old].get("evidence_pending"):  # native evidence not yet pushed; cited once it is
+            assert "evidence" not in retired[old]
+        elif old not in {"plan-dashboard-waves", "review-conflict-predictor"}:  # MB-009r retirements predate evidence files
             evidence = retired[old]["evidence"]
             assert (ROOT / evidence["path"]).is_file()
             assert hashlib.sha256((ROOT / evidence["path"]).read_bytes()).hexdigest() == evidence["sha256"]
@@ -788,7 +792,7 @@ def _edited_reference(task, path, old, new):
 
 
 def _failed(bundle, task, tmp_path):
-    report = api.grade(bundle, tmp_path / task, task=task)
+    report = api.grade(bundle, Path(tempfile.mkdtemp(dir=tmp_path)) / task, task=task)
     assert report["status"] == "graded", report.get("error")
     return [a["original_id"] for a in report["assertions"] if not a["passed"]]
 
@@ -850,3 +854,20 @@ def test_literal_audit_versions_keep_instruction_and_oracle(new, old):
     evidence = info["admission_evidence"]
     assert evidence["path"].endswith("MB-010r-literal-audit.json")
     assert hashlib.sha256((ROOT / evidence["path"]).read_bytes()).hexdigest() == evidence["sha256"]
+
+
+V5 = "orchestrate-voice-integration-v5"
+
+
+def test_orchestrate_v5_guards_start_and_states_client_r7(tmp_path):
+    # The v4 oracle's unguarded start() now fails exactly the out-of-order check; the v5 oracle passes.
+    assert _failed(specs.reference("orchestrate-voice-integration-v4"), V5, tmp_path) == [
+        "state machine ignores out-of-order controls"]
+    restart = _edited_reference(V5, "src/session.ts", '    if (this.state !== "idle") return;\n    this.state = "joining";',
+                                '    this.state = "joining";')
+    assert _failed(restart, V5, tmp_path) == ["state machine ignores out-of-order controls"]
+    info = curriculum.meta(V5)
+    assert info["round"] == 3 and info["supersedes"] == "orchestrate-voice-integration-v4"
+    agent = curriculum.HERE / V5 / "agent"
+    assert "accounting" not in (agent / "briefs" / "L2-orchestration.md").read_text()
+    assert "`start` unless idle" in (agent / "TASK.md").read_text()
