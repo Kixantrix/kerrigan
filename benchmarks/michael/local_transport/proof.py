@@ -52,7 +52,6 @@ def environment(state):
         "COPILOT_DISABLE_LOGIN_SHELL_ENV": "true",
         "COPILOT_PLUGIN_DIR_ONLY": "true", "COPILOT_MCP_TOOL_CACHE": "false",
         "COPILOT_ALLOW_ALL": "false", "USE_TGREP": "false",
-        "COPILOT_LLM_RESPONSE_MAX_BYTES": str(BUDGETS["modelResponse"]),
     }
 
 

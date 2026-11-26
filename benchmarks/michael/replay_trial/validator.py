@@ -6,8 +6,8 @@ import subprocess
 from . import api
 
 POLICY = json.loads((api.runner.HERE / "validator-task-policy.json").read_bytes())
-NAMESPACE = "mb006l-validator-v1"
-SEAL = api.HERE / "mb006l-authorization.json"
+NAMESPACE = "mb006l-validator-response-v2"
+SEAL = api.HERE / "mb006l-response-v2-authorization.json"
 AUTHORIZATION_SOURCE = "standing user direction (plan.md Standing autonomy)"
 PROMPT = (
     "Implement the validator requirements in TASK.md. Use only mb_action read/write/run. "
@@ -55,7 +55,9 @@ def frozen(owned):
             "agentFiles": api.packages.inventory(api.packages.agent_files("validator")),
             "dependency": {p.name: api.sha(p.read_bytes()) for p in Path(yaml.__file__).parent.glob("*.py")},
             "comparison": "practical-system; cloud inference, local macOS native tools/Docker verifier; public historical exposure",
-            "modelResponseSemantics": "131072 env value only; native parsing/counting/acceptance unknown"}
+            "modelResponseSemantics": "Stock CLI native response behavior; the harness does not set "
+                "COPILOT_LLM_RESPONSE_MAX_BYTES. Stock default size/counting remains unknown. "
+                "Independent finite protocol/event/disk ceilings are enforced by the owner."}
 
 
 def prepare(owned, directory, *, diagnostics=(), seconds=3600, hold=False):

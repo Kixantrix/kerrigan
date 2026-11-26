@@ -53,9 +53,9 @@ def test_frozen_corrected_allowance_rejects_missing_stale_modified_reused_and_un
     slots, _ = allowance(source)
     for filename, changed_bytes in (
         ("proof.py", (HERE / "proof.py").read_bytes().replace(
-            b'str(BUDGETS["modelResponse"])', b'"262144"')),
+            b'"COPILOT_ALLOW_ALL": "false"', b'"COPILOT_ALLOW_ALL": "true"')),
         ("budgets.json", json.dumps({
-            **json.loads((HERE / "budgets.json").read_text()), "modelResponse": 262144
+            **json.loads((HERE / "budgets.json").read_text()), "frame": 8388609
         }).encode()),
     ):
         modified = tmp_path / filename
@@ -427,7 +427,7 @@ def test_actual_owner_broker_with_labeled_synthetic_sdk(tmp_path, variant, expec
     assert terminal["stopReason"] == expected
     assert terminal["nativePrompts"] == 0 and terminal["wholeProcessQuiescent"] is True
     assert terminal["protocolBytes"] > 65536
-    assert terminal["protocolCondition"]["condition"] == "MB-006i-offline-proposed"
+    assert terminal["protocolCondition"]["condition"] == "MB-006l-stock-native-v2"
     if variant.get("largeResponse"):
         assert terminal["protocolBytes"] > 32 * 1024 * 1024
         assert len(terminal["nativeStarts"]) == 9
@@ -454,14 +454,15 @@ def test_cross_layer_budget_headroom_and_environment_provenance(tmp_path):
     from proof import BUDGETS
     b = BUDGETS
     assert all(isinstance(value, int) and value > 0 for key, value in b.items() if key != "condition")
-    response, calls = b["modelResponse"], 9
+    # Labeled offline traffic envelope, not a native response limit/default.
+    response, calls = 131072, 9
     assert b["frame"] >= 6 * calls * response + 131072
     assert b["total"] >= 6 * response * (sum(range(1, calls + 1)) + 6 * calls) + 8388608
     assert b["events"] >= calls * (response // 128 + 64) + 512
     assert b["sentFrame"] >= 12 * LIMIT + 2 * ((LIMIT + 2) // 3) * 4 + 8192
     assert b["sentTotal"] >= 8 * b["sentFrame"] + 65536
     assert b["disk"] >= 7 * (b["total"] + b["sentTotal"]) + 16777216
-    assert environment(tmp_path)["COPILOT_LLM_RESPONSE_MAX_BYTES"] == str(response)
+    assert "COPILOT_LLM_RESPONSE_MAX_BYTES" not in environment(tmp_path)
     assert {"proof.py", "budgets.json"} <= set(SOURCES)
     source = {name: digest(HERE / name) for name in SOURCES}
     for condition, namespace, frozen in (

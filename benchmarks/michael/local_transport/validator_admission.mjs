@@ -13,7 +13,7 @@ export function admission(config) {
             throw new Error("offline_validator_forbids_inference");
         return;
     }
-    const seal = JSON.parse(readFileSync(new URL("../replay_trial/mb006l-authorization.json", import.meta.url)));
+    const seal = JSON.parse(readFileSync(new URL("../replay_trial/mb006l-response-v2-authorization.json", import.meta.url)));
     const slot = JSON.parse(readFileSync(config.slot));
     if (config.approved !== true || seal.conditionSha256 !== config.conditionSha256 ||
         seal.conditionSha256 !== hash(JSON.stringify(canonical(seal.frozen))) ||

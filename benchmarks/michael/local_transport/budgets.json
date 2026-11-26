@@ -1,6 +1,5 @@
 {
-  "condition": "MB-006i-offline-proposed",
-  "modelResponse": 131072,
+  "condition": "MB-006l-stock-native-v2",
   "header": 1024,
   "frame": 8388608,
   "total": 100663296,

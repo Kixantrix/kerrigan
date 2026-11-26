@@ -478,7 +478,7 @@ def test_mb006l_javascript_admission_synthetic_files_only(tmp_path):
             "authorizationSource": validator.AUTHORIZATION_SOURCE,
             "approvalSha256": trial.sha((root / "approval.json").read_bytes()),
             "safetySha256": trial.sha((root / "safety.json").read_bytes())}
-    trial.grader.persist(authority / "mb006l-authorization.json", seal)
+    trial.grader.persist(authority / "mb006l-response-v2-authorization.json", seal)
     config = {"validatorTask": True, "validatorReplay": False, "condition": "MB-006l", "seconds": 3600,
               "model": "mai-code-2", "approved": True, "slot": str(root / "slots/mai-code-2.json"),
               "receipt": str(root), "conditionSha256": seal["conditionSha256"], "sdk": str(runtime["sdk"]),
