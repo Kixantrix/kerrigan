@@ -11,7 +11,7 @@
   "python -m benchmarks.michael.curriculum.mining.mine --limit 16"
  ],
  "pytest": {
-  "tests": 277,
+  "tests": 278,
   "failures": 0,
   "errors": 0,
   "skipped": 0
@@ -339,5 +339,22 @@
  "pytest_junit_sha256": {
   "/tmp/mb008-a.xml": "c4120ad8cd696ff510e5ce668d68a6ffa293e64b98111aa9f8147691500b0ddd",
   "/tmp/mb008-b.xml": "f983d543ac95a62a3b6fde5327f4814ba1e6e12e1f4d236ffc572597e462dabb"
+ },
+ "portability_fix": {
+  "commit_parent": "ccb5cfb",
+  "reproduced_by": "coordinator macOS host, Docker 29.5.2",
+  "fixes": [
+   "package trees: git-visible files only, __pycache__/*.pyc excluded; sr-temporal-assay refrozen (other 6 unchanged)",
+   "Harbor oracle: docker cp of solution/ instead of host bind mount",
+   "mining: MiningEnvironmentError when image missing or no JUnit report (no silent status)",
+   "owner-loss test: skipif no os.pidfd_open (Linux-only)",
+   "grader tests: package-qualified imports; curriculum+grader collect in one invocation"
+  ],
+  "fresh_clone_commands": [
+   "git clone --branch kixantrix-urban-adventure <repo> /tmp/mb008-fresh",
+   "python -m pytest tests/projects/michael_bench/test_curriculum.py tests/projects/michael_bench/test_replay_grader.py tests/projects/michael_bench/test_task_packages.py -q -p no:cacheprovider  -> 116 passed",
+   "python -m pytest tests/projects/michael_bench/test_manifests.py tests/projects/michael_bench/test_ledger_report.py tests/projects/michael_bench/test_historical_import.py tests/projects/michael_bench/test_native_transport.py -q -p no:cacheprovider  -> 162 passed",
+   "git status --short -> clean; no *.pyc under tasks/*/agent"
+  ]
  }
 }
