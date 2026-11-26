@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/apps/kerrigan-dashboard/src/lib/status.ts"]
+
+[task]
+name = "kixantrix/michael-status"
+version = "1.0.0"
+description = "Offline adaptation only; no live GitHub API or E2E evidence."
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/kerrigan"
+base_ref = "159fb17a70ef6ff531a695622503f7ad662373aa"
+reference_ref = "39041468009e09720b7011203359cfc61ef1284d"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 20
+denominators = "{\"preservation\": 32, \"regression\": 8}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

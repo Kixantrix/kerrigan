@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/apps/kerrigan-dashboard/src/components/StageDetailPanel/groupStageItems.ts"]
+
+[task]
+name = "kixantrix/michael-grouping"
+version = "1.0.0"
+description = "Pure grouping logic only; no UI/browser evidence."
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/kerrigan"
+base_ref = "3f8793634044cf04392557567949385d9ff4fe72"
+reference_ref = "de56f15056e4fc16551caf5788a3e5576a91d432"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 15
+denominators = "{\"preservation\": 4, \"regression\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

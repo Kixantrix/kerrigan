@@ -1,0 +1,343 @@
+{
+ "slice": "MB-008",
+ "recorded_at": "2026-11-26T04:51:05.271786+00:00",
+ "environment": "cloud-linux (Docker)",
+ "commands": [
+  "python -m pytest test_curriculum.py test_replay_grader.py test_task_packages.py; python -m pytest test_manifests.py test_ledger_report.py test_historical_import.py test_native_transport.py (separate invocations; pre-existing api module-name collision)",
+  "python -m benchmarks.michael.replay_grader.calibrate <tasks>",
+  "python -m benchmarks.michael.curriculum.harbor export <tasks>",
+  "harbor lint --select ALL benchmarks/michael/curriculum/harbor/*  (harbor 0.27.0: 0 findings)",
+  "python -m benchmarks.michael.curriculum.admit",
+  "python -m benchmarks.michael.curriculum.mining.mine --limit 16"
+ ],
+ "pytest": {
+  "tests": 277,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0
+ },
+ "preexisting_unrelated": "test_cli/test_replay_grader collected together hit a pre-existing module-name collision; test_cli needs inspect_ai; test_replay_trial (2) and test_local_transport (10) native/SDK failures are identical on the untouched base 2233eca.",
+ "images": {
+  "michael-replay-grader:mb006j": "sha256:3fc4a7fea6d659d18e68400a362f133d06a9a454f10901f0a7ec9b332cf42a1c",
+  "michael-replay-grader-node:mb008": "sha256:5915a8d8df91d6ce94c30942d07c4690d3c5557e3ed56c9dbc05ec57a25a82f9",
+  "michael-mining-python:mb008": "sha256:78a0261af94f2bcb46c782fe00b7622380ab0ce9a4fe8b1e54cef11e27a04b2b"
+ },
+ "docker_calibration": {
+  "grouping": {
+   "baseline": {
+    "verdict": "fail",
+    "counts": {
+     "preservation": {
+      "passed": 4,
+      "total": 4
+     },
+     "regression": {
+      "passed": 0,
+      "total": 2
+     }
+    }
+   },
+   "reference": {
+    "verdict": "pass",
+    "counts": {
+     "preservation": {
+      "passed": 4,
+      "total": 4
+     },
+     "regression": {
+      "passed": 2,
+      "total": 2
+     }
+    }
+   }
+  },
+  "status": {
+   "baseline": {
+    "verdict": "fail",
+    "counts": {
+     "preservation": {
+      "passed": 32,
+      "total": 32
+     },
+     "regression": {
+      "passed": 0,
+      "total": 8
+     }
+    }
+   },
+   "reference": {
+    "verdict": "pass",
+    "counts": {
+     "preservation": {
+      "passed": 32,
+      "total": 32
+     },
+     "regression": {
+      "passed": 8,
+      "total": 8
+     }
+    }
+   }
+  },
+  "sr-temporal-assay": {
+   "baseline": {
+    "verdict": "fail",
+    "counts": {
+     "diagnosis": {
+      "passed": 0,
+      "total": 3
+     },
+     "preservation": {
+      "passed": 2,
+      "total": 2
+     },
+     "reproduce": {
+      "passed": 0,
+      "total": 6
+     }
+    }
+   },
+   "reference": {
+    "verdict": "pass",
+    "counts": {
+     "diagnosis": {
+      "passed": 3,
+      "total": 3
+     },
+     "preservation": {
+      "passed": 2,
+      "total": 2
+     },
+     "reproduce": {
+      "passed": 6,
+      "total": 6
+     }
+    }
+   }
+  },
+  "selfhost-redeploy-state": {
+   "baseline": {
+    "verdict": "fail",
+    "counts": {
+     "preservation": {
+      "passed": 2,
+      "total": 2
+     },
+     "safety": {
+      "passed": 1,
+      "total": 2
+     },
+     "service": {
+      "passed": 1,
+      "total": 4
+     }
+    }
+   },
+   "reference": {
+    "verdict": "pass",
+    "counts": {
+     "preservation": {
+      "passed": 2,
+      "total": 2
+     },
+     "safety": {
+      "passed": 2,
+      "total": 2
+     },
+     "service": {
+      "passed": 4,
+      "total": 4
+     }
+    }
+   }
+  },
+  "review-conflict-predictor": {
+   "baseline": {
+    "verdict": "fail",
+    "counts": {
+     "preservation": {
+      "passed": 10,
+      "total": 10
+     },
+     "regression": {
+      "passed": 0,
+      "total": 7
+     },
+     "review": {
+      "passed": 0,
+      "total": 4
+     }
+    }
+   },
+   "reference": {
+    "verdict": "pass",
+    "counts": {
+     "preservation": {
+      "passed": 10,
+      "total": 10
+     },
+     "regression": {
+      "passed": 7,
+      "total": 7
+     },
+     "review": {
+      "passed": 4,
+      "total": 4
+     }
+    }
+   }
+  },
+  "plan-dashboard-waves": {
+   "baseline": {
+    "verdict": "fail",
+    "counts": {
+     "constraint": {
+      "passed": 1,
+      "total": 4
+     },
+     "required": {
+      "passed": 0,
+      "total": 4
+     }
+    }
+   },
+   "reference": {
+    "verdict": "pass",
+    "counts": {
+     "constraint": {
+      "passed": 4,
+      "total": 4
+     },
+     "required": {
+      "passed": 4,
+      "total": 4
+     }
+    }
+   }
+  }
+ },
+ "harbor_admission": {
+  "kixantrix/michael-grouping": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "state": "provisional"
+  },
+  "kixantrix/michael-plan-dashboard-waves": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "state": "provisional"
+  },
+  "kixantrix/michael-review-conflict-predictor": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "state": "provisional"
+  },
+  "kixantrix/michael-selfhost-redeploy-state": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "state": "provisional"
+  },
+  "kixantrix/michael-sr-temporal-assay": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "state": "provisional"
+  },
+  "kixantrix/michael-status": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "state": "provisional"
+  },
+  "kixantrix/michael-validator": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "state": "provisional"
+  }
+ },
+ "mining": {
+  "Kixantrix__kerrigan-434": {
+   "status": "admissible_candidate",
+   "F2P": 4,
+   "P2P": 19
+  },
+  "Kixantrix__kerrigan-433": {
+   "status": "admissible_candidate",
+   "F2P": 19,
+   "P2P": 0
+  },
+  "Kixantrix__kerrigan-425": {
+   "status": "admissible_candidate",
+   "F2P": 1,
+   "P2P": 22
+  },
+  "Kixantrix__kerrigan-423": {
+   "status": "no_fail_to_pass",
+   "F2P": 0,
+   "P2P": 0
+  },
+  "Kixantrix__kerrigan-422": {
+   "status": "no_fail_to_pass",
+   "F2P": 0,
+   "P2P": 0
+  },
+  "Kixantrix__kerrigan-361": {
+   "status": "admissible_candidate",
+   "F2P": 1,
+   "P2P": 12
+  },
+  "Kixantrix__kerrigan-343": {
+   "status": "admissible_candidate",
+   "F2P": 3,
+   "P2P": 4
+  },
+  "Kixantrix__kerrigan-340": {
+   "status": "admissible_candidate",
+   "F2P": 13,
+   "P2P": 0
+  },
+  "Kixantrix__kerrigan-342": {
+   "status": "admissible_candidate",
+   "F2P": 1,
+   "P2P": 11
+  },
+  "Kixantrix__kerrigan-337": {
+   "status": "admissible_candidate",
+   "F2P": 5,
+   "P2P": 16
+  },
+  "Kixantrix__kerrigan-334": {
+   "status": "admissible_candidate",
+   "F2P": 1,
+   "P2P": 2
+  },
+  "Kixantrix__kerrigan-321": {
+   "status": "admissible_candidate",
+   "F2P": 2,
+   "P2P": 10
+  },
+  "Kixantrix__kerrigan-324": {
+   "status": "admissible_candidate",
+   "F2P": 2,
+   "P2P": 9
+  },
+  "Kixantrix__kerrigan-325": {
+   "status": "admissible_candidate",
+   "F2P": 1,
+   "P2P": 8
+  },
+  "Kixantrix__kerrigan-314": {
+   "status": "admissible_candidate",
+   "F2P": 50,
+   "P2P": 0
+  },
+  "Kixantrix__kerrigan-312": {
+   "status": "admissible_candidate",
+   "F2P": 6,
+   "P2P": 50
+  }
+ },
+ "models_run": 0,
+ "pytest_junit_sha256": {
+  "/tmp/mb008-a.xml": "c4120ad8cd696ff510e5ce668d68a6ffa293e64b98111aa9f8147691500b0ddd",
+  "/tmp/mb008-b.xml": "f983d543ac95a62a3b6fde5327f4814ba1e6e12e1f4d236ffc572597e462dabb"
+ }
+}

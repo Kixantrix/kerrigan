@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/assay/temporal_mech.py"]
+
+[task]
+name = "kixantrix/michael-sr-temporal-assay"
+version = "1.0.0"
+description = "Diagnose why a temporal SR assay was invariant to the motion source"
+keywords = ["michael-bench", "experiment"]
+
+[metadata]
+family = "Experiment"
+source_repo = "Kixantrix/personal-selfhost"
+base_ref = "d706e5641e73c751d4ea23891b23c6195ef4be77"
+reference_ref = "81ce56eb6d532c6c55135f0878f3569419a5f01b"
+history_status = "unmerged-branch"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "metric_within_tolerance"
+estimated_agent_minutes = 30
+denominators = "{\"diagnosis\": 3, \"preservation\": 2, \"reproduce\": 6}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

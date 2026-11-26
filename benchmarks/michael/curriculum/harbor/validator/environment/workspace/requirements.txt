@@ -1,0 +1,5 @@
+pytest==8.3.5
+PyYAML==6.0.2
+iniconfig==2.3.1
+packaging==26.4
+pluggy==1.7.0

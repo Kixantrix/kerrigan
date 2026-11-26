@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/tools/validators/agents_md.py"]
+
+[task]
+name = "kixantrix/michael-validator"
+version = "1.0.0"
+description = "YAML/profile/skill validation and legacy parser compatibility only."
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/kerrigan"
+base_ref = "21a328b7634e85a163c73f8184fe3f9d5bd51df7"
+reference_ref = "14a16316a946eed1b7a5ca7a8f1975e8dff24991"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 15
+denominators = "{\"preservation\": 15, \"regression\": 10}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

@@ -28,7 +28,7 @@ SOURCE_LIMIT = 262144
 OUTPUT_LIMIT = 131072
 FRAME_LIMIT = 8192
 POLICY_FILES = ("api.py", "owner.py", "policy.py", "harness.py", "bootstrap.py", "Dockerfile",
-                "specs.py", "ts_policy.py", "harness_ts.mjs", "bootstrap.mjs", "Dockerfile.node")
+                "specs.py", "ts_policy.py", "clauses.py", "harness_ts.mjs", "bootstrap.mjs", "Dockerfile.node")
 CONTROLLER_FD = None
 
 

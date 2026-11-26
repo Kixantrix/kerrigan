@@ -279,3 +279,182 @@ def test_operate_grader_uses_trusted_supervisor_not_candidate(tmp_path):
             curriculum.sandbox_fixtures(name)
         finally:
             curriculum.meta = original
+
+
+# --- Public benchmark practice: Harbor layout, mining, admission, metrics, quality ------
+import tomllib  # noqa: E402
+
+from benchmarks.michael.curriculum import automation, harbor, metrics  # noqa: E402
+from benchmarks.michael.curriculum.mining import mine  # noqa: E402
+
+HARBOR_TASKS = [*packages.CASES, *curriculum.PACKAGES]
+
+
+@pytest.mark.parametrize("name", HARBOR_TASKS)
+def test_harbor_export_is_current_and_well_formed(name, tmp_path):
+    digest = harbor.export(name, tmp_path / name)
+    committed = harbor.EXPORT_ROOT / name
+    assert digest == packages.bundle_digest({p.relative_to(committed).as_posix(): p.read_bytes()
+                                             for p in committed.rglob("*") if p.is_file()})
+    for required in ("instruction.md", "task.toml", "environment/Dockerfile", "solution/solve.sh",
+                     "tests/test.sh", "tests/Dockerfile"):
+        assert (committed / required).is_file(), required
+    config = tomllib.loads((committed / "task.toml").read_text())
+    assert config["schema_version"] == "1.4"
+    assert config["verifier"]["environment_mode"] == "separate"
+    assert config["verifier"]["network_mode"] == config["agent"]["network_mode"] == "no-network"
+    assert config["agent"]["user"] == "65534"
+    assert config["artifacts"] == ["/app/" + specs.spec(name)["candidate"]]
+    for dockerfile in ("environment/Dockerfile", "tests/Dockerfile"):
+        assert all("@sha256:" in line for line in (committed / dockerfile).read_text().splitlines()
+                   if line.startswith(("FROM", "COPY --from")))
+    # Agent-visible environment never carries hidden material.
+    visible = b"".join(p.read_bytes() for p in (committed / "environment").rglob("*") if p.is_file())
+    visible += (committed / "instruction.md").read_bytes()
+    assert specs.reference(name) not in visible
+    assert b"clauses" not in visible and not any(
+        row["original_id"].encode() in visible for row in specs.spec(name)["rows"]()
+        if "::" not in row["original_id"] and len(row["original_id"]) >= 16)
+    assert "private/rows.json" not in [p.name for p in (committed / "environment").rglob("*")]
+
+
+def test_harbor_loader_reads_public_task_shape(tmp_path):
+    task = tmp_path / "public"
+    (task / "tests").mkdir(parents=True)
+    (task / "instruction.md").write_text("Do X")
+    (task / "task.toml").write_text('schema_version = "1.4"\n[task]\nname = "org/x"\n[verifier]\ntimeout_sec = 9.0\n')
+    loaded = harbor.load(task)
+    assert loaded["verifier_mode"] == "shared" and not loaded["has_solution"]
+    with pytest.raises(ValueError, match="separate"):
+        harbor.verify(task, {})
+
+
+def test_harbor_admission_matches_trusted_grader(tmp_path):
+    name = "review-conflict-predictor"
+    harbor.export(name, tmp_path / name)
+    gates = harbor.admission(tmp_path / name)
+    assert gates["base_fails"] and gates["oracle_passes"]
+    receipt = json.loads(calibrate.path(name).read_text())
+    for phase, result in zip(receipt["phases"], (gates["base"], gates["oracle"])):
+        for group, count in phase["counts"].items():
+            assert result["reward"][f"{group}_passed"] == count["passed"]
+            assert result["reward"][f"{group}_total"] == count["total"]
+    # A forged artifact that only prints "PASS" earns no reward in the Harbor verifier.
+    forged = harbor.verify(tmp_path / name, {"/app/tools/conflict_predictor.py": b"print('PASS')\n"})
+    assert forged["reward"]["reward"] == 0.0 and forged["reward"]["ungraded"] == 1.0
+
+
+def test_retained_admission_records():
+    records = json.loads((harbor.HERE / "admission.json").read_text())
+    assert {r["task"] for r in records} == {f"kixantrix/michael-{n}" for n in HARBOR_TASKS}
+    for record in records:
+        assert record["deterministic"]["oracle_passes"] and record["deterministic"]["base_fails"]
+        assert record["deterministic"]["verifier_network"] == "none"
+        assert record["decision"]["state"] == "provisional"
+        families = {a["family"] for a in record["model_gates"]["audits"]}
+        assert len(families) >= 2
+        assert record["model_gates"]["blind_reimplementation"]["family"] not in families
+
+
+def test_mining_reproduces_fail_to_pass_for_pr_312():
+    record = mine.instance("2071fffaf4cca41ec8d63ec06acd6963333236f3", pr=312)
+    assert record["status"] == "admissible_candidate"
+    assert record["FAIL_TO_PASS"] == sorted(
+        f"tests/test_conflict_predictor.py::{name}" for name in (
+            "TestParseTasks::test_task_prefix_and_milestone_id_preserved",
+            "TestParseTasks::test_touch_bullet_parsed",
+            "TestParseTasks::test_multiple_touch_bullets_are_unioned",
+            "TestParseTasks::test_html_and_touch_bullet_both_accumulate",
+            "TestRun::test_task_lines_without_touch_annotations_fail_loud",
+            "TestRun::test_realistic_touch_bullets_parse_and_wave"))
+    assert len(record["PASS_TO_PASS"]) == 50 and not set(record["FAIL_TO_PASS"]) & set(record["PASS_TO_PASS"])
+    assert "tools/conflict_predictor.py" in record["source_files"]
+    retained = {r["pr"]: r for r in json.loads((harbor.HERE / "mining/kerrigan-instances.json").read_text())}
+    assert retained[312]["FAIL_TO_PASS"] == record["FAIL_TO_PASS"]
+    assert sum(r["status"] == "admissible_candidate" for r in retained.values()) >= 10
+
+
+def test_anchor_subset_is_small_fixed_and_pinned():
+    anchors = json.loads((harbor.HERE / "anchors.json").read_text())["anchors"]
+    assert len(anchors) == 10
+    assert {a["dataset"] for a in anchors} == {"terminal-bench", "swebenchpro"}
+    assert all(re.fullmatch(r"[0-9a-f]{40}", a["git_commit_id"]) and a["git_url"].startswith("https://") for a in anchors)
+
+
+def test_metrics():
+    assert metrics.wilson(0, 0) is None
+    low, high = metrics.wilson(8, 10)
+    assert 0.49 < low < 0.5 and 0.94 < high < 0.95
+    assert metrics.pass_at_k(4, 1, 2) == 0.5 and metrics.pass_hat_k(4, 2, 2) == pytest.approx(1 / 6)
+    trials = [{"task": "a", "resolved": True, "cost": 1.0, "wall_seconds": 10, "human_minutes": 5},
+              {"task": "a", "resolved": True, "cost": 1.0, "wall_seconds": 20, "human_minutes": 5},
+              {"task": "b", "resolved": False, "cost": 2.0, "wall_seconds": 30, "human_minutes": 120},
+              {"task": "b", "resolved": True, "cost": None, "wall_seconds": 40, "human_minutes": 120},
+              {"task": "c", "resolved": False, "wall_seconds": 5, "human_minutes": 480},
+              {"task": "c", "resolved": False, "wall_seconds": 5, "human_minutes": 480}]
+    summary = metrics.summarize(trials, k=2)
+    assert summary["resolved"] == 3 and summary["pass^2"] == pytest.approx(1 / 3)
+    assert summary["pass@2"] == pytest.approx(2 / 3)
+    assert summary["cost_per_resolved"]["status"] == "unknown"
+    assert summary["wall_seconds_per_resolved"]["value"] == pytest.approx(110 / 3)
+    assert 5 < summary["time_horizon_50_minutes"] < 480
+    assert metrics.time_horizon([(5, True), (10, True)]) is None
+
+
+def test_model_requests_are_bound_and_family_constrained():
+    req = automation.request("attribution", model="m", family="openai", payload={"run": "r1"})
+    verdict = {"cause": "harness", "confidence": 0.9, "evidence": ["transport cap"]}
+    assert automation.validate_verdict("attribution", {"request_sha256": req["request_sha256"],
+                                                       "verdict": verdict}, req) == verdict
+    with pytest.raises(ValueError, match="bound"):
+        automation.validate_verdict("attribution", {"request_sha256": "0" * 64, "verdict": verdict}, req)
+    with pytest.raises(ValueError, match="probability"):
+        automation.validate_verdict("attribution", {"request_sha256": req["request_sha256"],
+                                                    "verdict": {**verdict, "confidence": 3}}, req)
+    with pytest.raises(ValueError, match="excluded"):
+        automation.panel_requests(task="t", instruction="i", candidate_diff="c", oracle_diff="o",
+                                  judges=[("a", "openai"), ("b", "anthropic")], model_under_test_family="openai")
+    with pytest.raises(ValueError, match="two model families"):
+        automation.panel_requests(task="t", instruction="i", candidate_diff="c", oracle_diff="o",
+                                  judges=[("a", "google"), ("b", "google")], model_under_test_family="openai")
+
+
+def test_admission_and_attribution_rules():
+    clean = {"findings": [], "admit": True}
+    leak = {"findings": [{"kind": "leakage", "citation": "TASK.md line 3"}], "admit": False}
+    assert automation.admission(oracle_passes=False, base_fails=True, audits=None, blind=None)["state"] == "needs_fix"
+    assert automation.admission(oracle_passes=True, base_fails=True, audits=None, blind=None)["state"] == "provisional"
+    assert automation.admission(oracle_passes=True, base_fails=True, audits=[clean, leak],
+                                blind=[{"passed": True}])["state"] == "needs_fix"
+    wrongly_rejected = [{"passed": False, "adjudication": {"cause": "task", "citation": "x"}}]
+    assert automation.admission(oracle_passes=True, base_fails=True, audits=[clean, clean],
+                                blind=wrongly_rejected)["state"] == "needs_fix"
+    assert automation.admission(oracle_passes=True, base_fails=True, audits=[clean, clean],
+                                blind=[{"passed": True}])["state"] == "admitted"
+    agree = [{"cause": "harness", "confidence": .9, "evidence": []}] * 2
+    assert automation.route_failure(agree)["action"] == "fix_harness_and_rerun"
+    split = [{"cause": "model", "confidence": .9, "evidence": []}, {"cause": "task", "confidence": .9, "evidence": []}]
+    assert automation.route_failure(split) == {"cause": "unresolved", "action": "rerun_once_then_reattribute",
+                                               "counts_as_model_failure": False}
+
+
+def test_deterministic_quality_flags_seeded_degradations():
+    name = "review-conflict-predictor"
+    agent = curriculum.agent_files(name)
+    path = "tools/conflict_predictor.py"
+    oracle = {path: curriculum.verifier_files(name)["reference"]}
+    good = automation.deterministic_quality(base={path: agent[path]}, candidate=oracle, oracle=oracle, writable=[path])
+    assert good["diff_size_vs_oracle"] == 1.0 and good["debug_beyond_oracle"] == good["todo_beyond_oracle"] == 0
+    variants = automation.degrade(oracle[path])
+    debug = automation.deterministic_quality(base={path: agent[path]}, candidate={path: variants["debug_leftover"]},
+                                             oracle=oracle, writable=[path])
+    assert debug["debug_beyond_oracle"] == 1 and debug["todo_beyond_oracle"] == 1
+    dead = automation.deterministic_quality(base={path: agent[path]}, candidate={path: variants["dead_code"]},
+                                            oracle=oracle, writable=[path])
+    assert dead["unreachable_statements"] >= 1
+    outside = automation.deterministic_quality(base={path: agent[path], "x.py": b""},
+                                               candidate={path: oracle[path], "x.py": b"y=1\n"},
+                                               oracle=oracle, writable=[path])
+    assert outside["files_outside_task"] == ["x.py"]
+    assert automation.calibration_agreement([
+        {"variant": v, "judge": j, "preferred_oracle": True} for v in variants for j in ("a", "b")])["admit_panel"]

@@ -1,0 +1,98 @@
+{
+ "schema_version": 1,
+ "source": "harbor-framework/harbor registry.json (Apache-2.0), resolved 2026-11-26",
+ "selection": "Fixed 10-task public anchor subset. Terminal-Bench 2.0 tasks were chosen to mirror the user's Operate/Experiment/repair work. SWE-bench Pro tasks are the first task by sorted instance name for each of five repos spanning Python and TS/JS. The registry has no difficulty labels, so this is not a verified HARD subset. Frozen; changes require a new revision.",
+ "use": "Run in the same harness as the curriculum to place results relative to public leaderboards and detect harness bugs. Reported separately and never pooled with tailored tasks.",
+ "anchors": [
+  {
+   "dataset": "terminal-bench",
+   "dataset_version": "2.0",
+   "family_analogue": "Operate",
+   "name": "nginx-request-logging",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "nginx-request-logging"
+  },
+  {
+   "dataset": "terminal-bench",
+   "dataset_version": "2.0",
+   "family_analogue": "Operate",
+   "name": "configure-git-webserver",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "configure-git-webserver"
+  },
+  {
+   "dataset": "terminal-bench",
+   "dataset_version": "2.0",
+   "family_analogue": "Experiment",
+   "name": "pytorch-model-recovery",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "pytorch-model-recovery"
+  },
+  {
+   "dataset": "terminal-bench",
+   "dataset_version": "2.0",
+   "family_analogue": "Experiment",
+   "name": "train-fasttext",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "train-fasttext"
+  },
+  {
+   "dataset": "terminal-bench",
+   "dataset_version": "2.0",
+   "family_analogue": "Review and repair",
+   "name": "fix-git",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "fix-git"
+  },
+  {
+   "dataset": "swebenchpro",
+   "dataset_version": "1.0",
+   "family_analogue": "Implement",
+   "name": "instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2"
+  },
+  {
+   "dataset": "swebenchpro",
+   "dataset_version": "1.0",
+   "family_analogue": "Implement",
+   "name": "instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26"
+  },
+  {
+   "dataset": "swebenchpro",
+   "dataset_version": "1.0",
+   "family_analogue": "Implement",
+   "name": "instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171"
+  },
+  {
+   "dataset": "swebenchpro",
+   "dataset_version": "1.0",
+   "family_analogue": "Implement",
+   "name": "instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan"
+  },
+  {
+   "dataset": "swebenchpro",
+   "dataset_version": "1.0",
+   "family_analogue": "Implement",
+   "name": "instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan"
+  }
+ ]
+}

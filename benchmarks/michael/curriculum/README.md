@@ -63,6 +63,54 @@ python -m benchmarks.michael.replay_grader.calibrate grouping status sr-temporal
 python -m pytest tests/projects/michael_bench/test_curriculum.py tests/projects/michael_bench/test_replay_grader.py -q
 ```
 
+## Public benchmark practice (no human in the evals)
+
+- **Harbor/Terminal-Bench layout** (`harbor.py`, `harbor/<task>/`): every
+  calibrated package exports to `instruction.md`, `task.toml` (schema 1.4),
+  `environment/Dockerfile`, `solution/solve.sh` (oracle) and `tests/test.sh`.
+  It uses a separate, no-network verifier, declares the candidate as an
+  artifact, runs a non-root agent and pins public base images by digest.
+  Harbor 0.27.0's own `Task` model parses all 7, and `harbor lint --select ALL`
+  reports 0 findings. Inside the verifier, `harbor_grade.py` runs the harness
+  as UID 65534 with probes only; clauses stay root-only. The importer/runner
+  (`load`, `artifacts`, `verify`, `admission`) runs any separate-verifier
+  Harbor task with no network and capabilities dropped. Harbor reward counts
+  equal the trusted Docker grader's counts for all 7.
+- **PR mining** (`mining/mine.py`): SWE-bench-schema instances with base
+  commit, PR title as the problem statement, merged non-test diff as the
+  oracle, and test diff. FAIL_TO_PASS and PASS_TO_PASS come from contained,
+  no-network pytest runs on base+tests and on the reference. On 16 recent
+  kerrigan PRs, 14 are admissible candidates (`mining/kerrigan-instances.json`).
+  #312 reproduces exactly: 6 F2P and 50 P2P. PRs without tests are marked
+  `needs_generated_verifier`.
+- **Automated admission** (`automation.py`, `admit.py`, `admission.json`):
+  the executed gates are oracle passes and base fails. The model gates are two
+  LLM audits from different families (leakage, untested requirement,
+  over-specified test, contradiction) and a blind re-implementation by a third
+  family, with adjudication of rejections. They are frozen, hash-bound
+  requests with strict verdict schemas. Fixed rules decide whether a task is
+  admitted, needs a fix or is retired. Verdicts gate admission only and never
+  score models.
+- **Failure attribution**: frozen attribution requests whose verdicts label a
+  failure as model-, task- or harness-caused. Two attributor families must
+  agree with confidence 0.7 or more. Task and harness causes route to fix and
+  rerun; disagreement reruns once and is never counted as a model failure.
+- **Quality, reported separately from pass/fail**: deterministic, parse-only
+  signals are diff size relative to the oracle, files outside the task, debug
+  statements and TODOs beyond the oracle, unreachable code, parse errors and
+  tests added. A blind pairwise panel compares the candidate against the
+  oracle, needs two or more judge families and excludes the model under
+  test's family. It is calibrated on seeded degraded variants of
+  known-good fixes and reports judge accuracy and agreement.
+- **Anchor subset** (`anchors.json`): 5 Terminal-Bench 2.0 and 5 SWE-bench Pro
+  tasks, pinned to Harbor registry git commits and reported separately.
+- **Metrics** (`metrics.py`): resolved rate with Wilson CI, pass@k and pass^k,
+  cost, tokens and wall time per resolved task (unknown stays unknown), and a
+  METR-style 50% time horizon.
+
+`verification.json` records commands, test counts, image IDs, calibration,
+admission and mining results.
+
 ## Known gaps
 
 - Research, Orchestrate and Design have catalog candidates but no calibrated
@@ -72,4 +120,15 @@ python -m pytest tests/projects/michael_bench/test_curriculum.py tests/projects/
   New Python packages ship a native policy in the existing shape, but running
   them natively needs the runner to read that policy, and the TS replays need
   a Node-capable native runtime.
+- Model-dependent gates (LLM audits, blind re-implementation, attribution,
+  quality panel and its calibration run) are defined and validated but not
+  executed here: running models is out of this slice's scope. All 7 packages
+  are therefore `provisional`, not `admitted`. Mined PR instances still need
+  packaging into Harbor tasks and these gates.
+- Anchors are pinned but not yet run. Their environments need large
+  third-party images and network access during setup. Many Terminal-Bench
+  tasks use shared verification, which `verify` refuses because the verifier
+  would share the agent sandbox; a shared-mode runner is still to be added.
+  SWE-bench Pro difficulty labels are not in the registry, so the subset is
+  not a verified HARD subset.
 - None of this is a model result. No model was run.
