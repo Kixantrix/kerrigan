@@ -1,0 +1,591 @@
+[
+ {
+  "original_id": "flags a plan-edit PR when an agent:go issue exists",
+  "group": "conflict",
+  "probe": {
+   "scenario": "conflictAgentGoAndPlanEdit"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "result"
+    ],
+    {
+     "ok": true,
+     "data": {
+      "conflicted": true,
+      "pr": {
+       "number": 7,
+       "url": "https://example.test/pull/7",
+       "branch": "plan-edits/20260101T000000Z-abc1234"
+      }
+     }
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "listIssuesCalls"
+    ],
+    [
+     [
+      "o",
+      "r"
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "reports the first plan-edit PR",
+  "group": "conflict",
+  "probe": {
+   "scenario": "conflictFirstOfMany"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "result",
+     "data",
+     "pr"
+    ],
+    {
+     "number": 8,
+     "url": "https://example.test/pull/8",
+     "branch": "plan-edits/20260101T000000Z-abc1234"
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "no agent:go issue means no conflict",
+  "group": "conflict",
+  "probe": {
+   "scenario": "conflictNoAgentGo"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "result"
+    ],
+    {
+     "ok": true,
+     "data": {
+      "conflicted": false
+     }
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "no plan-edit PR means no conflict",
+  "group": "conflict",
+  "probe": {
+   "scenario": "conflictNoPlanEditPR"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "result"
+    ],
+    {
+     "ok": true,
+     "data": {
+      "conflicted": false
+     }
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "empty inputs are clean",
+  "group": "conflict",
+  "probe": {
+   "scenario": "conflictEmpty"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "result"
+    ],
+    {
+     "ok": true,
+     "data": {
+      "conflicted": false
+     }
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "offline issue fetch is propagated",
+  "group": "conflict",
+  "probe": {
+   "scenario": "conflictOffline"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "result"
+    ],
+    {
+     "ok": false,
+     "offline": true,
+     "reason": "network down"
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "branch prefix must match exactly",
+  "group": "conflict",
+  "probe": {
+   "scenario": "conflictPartialPrefix"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "result"
+    ],
+    {
+     "ok": true,
+     "data": {
+      "conflicted": false
+     }
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "enqueue writes one JSON entry holding the edit",
+  "group": "queue",
+  "probe": {
+   "scenario": "enqueueOne"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "fileIsId"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "idMatches"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "idSafe"
+    ],
+    true
+   ],
+   [
+    "path_match",
+    [
+     "content"
+    ],
+    {
+     "markdown": "# plan v1",
+     "planPath": "specs/p/plan.md",
+     "timestamp": "2026-01-01T10:00:00.000Z"
+    }
+   ],
+   [
+    "path_keys",
+    [
+     "content"
+    ],
+    [
+     "id",
+     "markdown",
+     "planPath",
+     "timestamp"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "enqueue is crash-safe via tmp then rename",
+  "group": "queue",
+  "probe": {
+   "scenario": "enqueueAtomic"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "writesTmpOnly"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "renamedTmpToJson"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "leftoverTmp"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "ids are unique and time-sortable",
+  "group": "queue",
+  "probe": {
+   "scenario": "enqueueDistinct"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "distinct"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "jsonFiles"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "sortedMatchesTime"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "enqueue failures propagate",
+  "group": "queue",
+  "probe": {
+   "scenario": "enqueueFailurePropagates"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "threw"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "missing queue directory is a no-op",
+  "group": "replay",
+  "probe": {
+   "scenario": "replayMissingDir"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    {
+     "replayed": 0,
+     "failed": 0,
+     "errors": 0
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "empty queue is a no-op",
+  "group": "replay",
+  "probe": {
+   "scenario": "replayEmptyDir"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    {
+     "replayed": 0,
+     "failed": 0,
+     "errors": 0
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "single entry replayed and removed",
+  "group": "replay",
+  "probe": {
+   "scenario": "replaySingle"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "first"
+    ],
+    {
+     "replayed": 1,
+     "failed": 0,
+     "errors": 0
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    [
+     "# plan v1"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "remaining"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "entries replay in timestamp order",
+  "group": "replay",
+  "probe": {
+   "scenario": "replayOrdered"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    [
+     "# plan v1",
+     "# plan v2",
+     "# plan v3"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "replayed"
+    ],
+    3
+   ]
+  ]
+ },
+ {
+  "original_id": "first save failure stops replay and keeps the rest",
+  "group": "replay",
+  "probe": {
+   "scenario": "replayStopsOnFailure"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    [
+     "# plan v1",
+     "# plan v2"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "replayed"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "failed"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "remaining"
+    ],
+    2
+   ]
+  ]
+ },
+ {
+  "original_id": "second replay does not double-apply",
+  "group": "replay",
+  "probe": {
+   "scenario": "replayTwice"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    [
+     "# plan v1",
+     "# plan v2"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "second"
+    ],
+    {
+     "replayed": 0,
+     "failed": 0,
+     "errors": 0
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "offline saves leave every entry queued",
+  "group": "replay",
+  "probe": {
+   "scenario": "replayAllOffline"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "first",
+     "replayed"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "failed"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "remaining"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    [
+     "# plan v1"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "corrupt entries are skipped and reported",
+  "group": "replay",
+  "probe": {
+   "scenario": "replaySkipsCorrupt"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    [
+     "# plan v1",
+     "# plan v3"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "result",
+     "replayed"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "result",
+     "failed"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "errorCount"
+    ],
+    1
+   ]
+  ]
+ },
+ {
+  "original_id": "cleanup failure counts as failed, stops and keeps the entry",
+  "group": "replay",
+  "probe": {
+   "scenario": "replayCleanupFailure"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    [
+     "# plan v1"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "replayed"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "failed"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "remaining"
+    ],
+    2
+   ]
+  ]
+ }
+]

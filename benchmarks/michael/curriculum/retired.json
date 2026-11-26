@@ -9,12 +9,12 @@
   "review-conflict-predictor": {
    "by": "MB-009r automated admission",
    "reason": "contradiction: instruction required failure for any nonempty file without scope signal while the preservation check and oracle require success for prose-only files; task-caused blind rejection",
-   "superseded_by": "review-conflict-predictor-v3"
+   "superseded_by": "review-conflict-predictor-v4"
   },
   "review-conflict-predictor-v2": {
    "by": "MB-010r native automated admission",
    "reason": "contradiction: oracle reported success for a task line whose only annotation had an empty glob, violating the no-file-scope-signal requirement; instruction implied dependency-ordered waves while checks were overlap-only",
-   "superseded_by": "review-conflict-predictor-v3",
+   "superseded_by": "review-conflict-predictor-v4",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-review-v2-admission.json",
     "sha256": "8c18b217a2f3b61f1f6c7d3333140700af53181b07bbc6d6763c162224e94f97"
@@ -23,7 +23,7 @@
   "design-alethiometer-case": {
    "by": "MB-010r native automated admission",
    "reason": "contradiction: oracle README stated 37.0 mm body height while the model computes 36.949 mm (36.9 mm at the required 0.1 mm precision); a 0.06 mm document-check tolerance masked the mismatch",
-   "superseded_by": "design-alethiometer-case-v2",
+   "superseded_by": "design-alethiometer-case-v3",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-design-admission.json",
     "sha256": "d9662f6ff35d061be579ced3939603d397d838e2b60fc8f22e7f0e39f5bb7b77"
@@ -31,7 +31,7 @@
   },
   "yv-relevance-instrument": {
    "by": "MB-010r native automated admission",
-   "superseded_by": "yv-relevance-instrument-v2",
+   "superseded_by": "yv-relevance-instrument-v3",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-yv-relevance-instrument-admission.json",
     "sha256": "95c33e662663c48d164300905a0050b245db4f11d00d1a8ba8821a36870fb4fb"
@@ -40,7 +40,7 @@
   },
   "emv-thumbnails-gallery": {
    "by": "MB-010r native automated admission",
-   "superseded_by": "emv-thumbnails-gallery-v2",
+   "superseded_by": "emv-thumbnails-gallery-v3",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-emv-thumbnails-gallery-admission.json",
     "sha256": "856d048b467d79464dc5384246a819406a5767f92cb151aebf0343b6212e0cc1"
@@ -50,7 +50,7 @@
   "orchestrate-voice-integration": {
    "by": "MB-010r live v1 outcomes",
    "reason": "task-caused: the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet 12/13), while MAI's 12/13 was a correct rejection of a nonexistent auth-bypass; v2 admits only audited genuine extras with behavioral fix checks",
-   "superseded_by": "orchestrate-voice-integration-v3",
+   "superseded_by": "orchestrate-voice-integration-v4",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-voice-integration-v1-outcomes.json",
     "sha256": "c7781661a9d3ec72bca2edcc1bf7fe0e5736713d87d72fcd654a19d58b77e008"
@@ -67,13 +67,766 @@
   },
   "orchestrate-voice-integration-v2": {
    "by": "MB-010r native behavior diagnostics",
-   "superseded_by": "orchestrate-voice-integration-v3",
+   "superseded_by": "orchestrate-voice-integration-v4",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-v2-ledger-diagnostics.json",
     "sha256": "c049c7b4893772309b0244b4431852403562308b7ba9b529e15874fb7de83d90"
    },
    "reason": "task-caused: the ledger check treated race-condition as nonexistent, but trusted diagnostics reproduce a genuine re-entrant cancel-ordering defect in the base"
+  },
+  "orchestrate-voice-integration-v3": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "orchestrate-voice-integration-v4",
+   "reason": "task-caused: R1 required the literal session id 's1' though the plan says ids are opaque (MAI's randomUUID failed); admission also found unspecified telemetry event names, exact frame lists and unstated preserved behavior in hidden checks",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-orchestrate-v3-outcomes.json",
+    "sha256": "1aa97a50ca3c5076674c3b9fb5ff72e1e9b6c672cb12c27e1ce7f4f11edf6cce"
+   }
+  },
+  "emv-thumbnails-gallery-v2": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "emv-thumbnails-gallery-v3",
+   "reason": "task-caused: hidden checks fixed the unspecified resize order across images and rejected extra item fields",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+    "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+   }
+  },
+  "yv-relevance-instrument-v2": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "yv-relevance-instrument-v3",
+   "reason": "task-caused: scoreArm results compared with a closed field set the spec does not state",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+    "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+   }
+  },
+  "kerrigan-plan-conflict-queue-v2": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "kerrigan-plan-conflict-queue-v3",
+   "reason": "task-caused: 'filesystem-safe' ids checked against a narrower character class than the instruction states",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+    "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+   }
+  },
+  "design-alethiometer-case-v2": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "design-alethiometer-case-v3",
+   "reason": "task-caused: HAND_STANDOFF compared with a strict float type, so an integer 5 failed",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+    "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+   }
+  },
+  "review-conflict-predictor-v3": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "review-conflict-predictor-v4",
+   "reason": "task-caused: zero-signal failure required exit code exactly 1 though the instruction says nonzero; parse_tasks dicts compared as closed",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+    "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+   }
+  },
+  "kerrigan-plan-conflict-queue": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "kerrigan-plan-conflict-queue-v3",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+    "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+   },
+   "reason": "task-caused: shares v2's narrow 'filesystem-safe' id check, and its 'never double-apply' instruction contradicts the at-least-once cleanup-failure check"
   }
  },
- "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored."
+ "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",
+ "round3-task-findings": {
+  "evidence": {
+   "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+   "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+  },
+  "rerun_in_round2": [
+   "orchestrate-voice-integration-v4"
+  ],
+  "versions": {
+   "emv-thumbnails-gallery-v3": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "emv-thumbnails-gallery-v2",
+    "findings": [
+     {
+      "row": "every new album image gets a planned thumbnail",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         "resized"
+        ],
+        [
+         [
+          600,
+          450
+         ],
+         [
+          600,
+          450
+         ],
+         [
+          480,
+          640
+         ],
+         [
+          400,
+          1200
+         ]
+        ]
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_equal",
+        [
+         "resized"
+        ],
+        [
+         "400,1200",
+         "480,640",
+         "600,450",
+         "600,450"
+        ]
+       ]
+      ],
+      "why": "TASK.md says generateThumbnails 'processes every image blob' but never fixes the order across images; resize calls were compared in call order. The scenario now sorts calls (hidden/sandbox/scenarios.mjs generate())."
+     },
+     {
+      "row": "media list exposes thumbnails and dimensions",
+      "old_clauses": [
+       [
+        "path_equal",
+        [],
+        [
+         {
+          "name": "IMG_01.JPG",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_01.JPG",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_01.jpg",
+          "width": 4032,
+          "height": 3024
+         },
+         {
+          "name": "IMG_02.heic",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_02.heic",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_02.jpg",
+          "width": 4032,
+          "height": 3024
+         },
+         {
+          "name": "IMG_03.png",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_03.png",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_03.jpg",
+          "width": 480,
+          "height": 640
+         },
+         {
+          "name": "IMG_04.jpeg",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_04.jpeg",
+          "type": "image"
+         },
+         {
+          "name": "IMG_05.webp",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_05.webp",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_05.jpg",
+          "width": 400,
+          "height": 1200
+         },
+         {
+          "name": "IMG_06.jpg",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_06.jpg",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_06.jpg"
+         },
+         {
+          "name": "clip.mov",
+          "url": "https://cdn.example.test/events/wed/ceremony/clip.mov",
+          "type": "video"
+         }
+        ]
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_match",
+        [],
+        [
+         {
+          "name": "IMG_01.JPG",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_01.JPG",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_01.jpg",
+          "width": 4032,
+          "height": 3024
+         },
+         {
+          "name": "IMG_02.heic",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_02.heic",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_02.jpg",
+          "width": 4032,
+          "height": 3024
+         },
+         {
+          "name": "IMG_03.png",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_03.png",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_03.jpg",
+          "width": 480,
+          "height": 640
+         },
+         {
+          "name": "IMG_04.jpeg",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_04.jpeg",
+          "type": "image"
+         },
+         {
+          "name": "IMG_05.webp",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_05.webp",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_05.jpg",
+          "width": 400,
+          "height": 1200
+         },
+         {
+          "name": "IMG_06.jpg",
+          "url": "https://cdn.example.test/events/wed/ceremony/IMG_06.jpg",
+          "type": "image",
+          "thumbnailUrl": "https://cdn.example.test/thumbnails/events/wed/ceremony/IMG_06.jpg"
+         },
+         {
+          "name": "clip.mov",
+          "url": "https://cdn.example.test/events/wed/ceremony/clip.mov",
+          "type": "video"
+         }
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         3,
+         "thumbnailUrl"
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         3,
+         "width"
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         3,
+         "height"
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         5,
+         "width"
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         5,
+         "height"
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         6,
+         "thumbnailUrl"
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         6,
+         "width"
+        ]
+       ],
+       [
+        "path_absent",
+        [
+         6,
+         "height"
+        ]
+       ]
+      ],
+      "why": "TASK.md lists the fields to add but does not forbid other fields; whole items were compared exactly. Now a subset match, plus explicit absence of thumbnailUrl/width/height where they must not appear."
+     },
+     {
+      "row": "carousel containers are pre-sized from dimensions and use thumbnails",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         "rows"
+        ],
+        [
+         {
+          "name": "a.jpg",
+          "type": "image",
+          "src": "https://x/t/a.jpg",
+          "height": 240,
+          "width": 320,
+          "presized": true
+         },
+         {
+          "name": "b.jpg",
+          "type": "image",
+          "src": "https://x/t/b.jpg",
+          "height": 240,
+          "width": 180,
+          "presized": true
+         },
+         {
+          "name": "c.jpg",
+          "type": "image",
+          "src": "https://x/c.jpg",
+          "height": 240,
+          "width": 240,
+          "presized": false
+         },
+         {
+          "name": "d.mov",
+          "type": "video",
+          "src": "https://x/d.mov",
+          "height": 240,
+          "width": 240,
+          "presized": false
+         }
+        ]
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_match",
+        [
+         "rows"
+        ],
+        [
+         {
+          "name": "a.jpg",
+          "type": "image",
+          "src": "https://x/t/a.jpg",
+          "height": 240,
+          "width": 320,
+          "presized": true
+         },
+         {
+          "name": "b.jpg",
+          "type": "image",
+          "src": "https://x/t/b.jpg",
+          "height": 240,
+          "width": 180,
+          "presized": true
+         },
+         {
+          "name": "c.jpg",
+          "type": "image",
+          "src": "https://x/c.jpg",
+          "height": 240,
+          "width": 240,
+          "presized": false
+         },
+         {
+          "name": "d.mov",
+          "type": "video",
+          "src": "https://x/d.mov",
+          "height": 240,
+          "width": 240,
+          "presized": false
+         }
+        ]
+       ]
+      ],
+      "why": "layoutCarousel's descriptor fields are listed, not closed; rows were compared exactly. Now a subset match on the same values."
+     }
+    ]
+   },
+   "yv-relevance-instrument-v3": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "yv-relevance-instrument-v2",
+    "findings": [
+     {
+      "row": "precision, nDCG, misses and wrong reasons at k=5",
+      "old_clauses": [
+       [
+        "path_equal",
+        [],
+        {
+         "precisionAtK": 0.8,
+         "ndcgAtK": 0.713,
+         "misses": [
+          "h-civ-3",
+          "h-civ-6",
+          "h-con-0",
+          "h-con-1",
+          "h-cou-0",
+          "h-cou-1",
+          "h-cou-5"
+         ],
+         "wrongReasons": [
+          "h-con-6",
+          "h-leg-4"
+         ],
+         "firedCount": 5
+        }
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_match",
+        [],
+        {
+         "precisionAtK": 0.8,
+         "ndcgAtK": 0.713,
+         "misses": [
+          "h-civ-3",
+          "h-civ-6",
+          "h-con-0",
+          "h-con-1",
+          "h-cou-0",
+          "h-cou-1",
+          "h-cou-5"
+         ],
+         "wrongReasons": [
+          "h-con-6",
+          "h-leg-4"
+         ],
+         "firedCount": 5
+        }
+       ]
+      ],
+      "why": "SPEC.md lists scoreArm's return fields but never says the object has exactly those keys; an extra field (e.g. the arm name) failed all four rows. Now a subset match on the same values."
+     },
+     {
+      "row": "second arm scored at k=10",
+      "old_clauses": [
+       [
+        "path_equal",
+        [],
+        {
+         "precisionAtK": 0.5,
+         "ndcgAtK": 0.3827,
+         "misses": [
+          "h-civ-3",
+          "h-civ-6",
+          "h-con-0",
+          "h-con-1",
+          "h-cou-1",
+          "h-cou-5",
+          "h-leg-4"
+         ],
+         "wrongReasons": [
+          "h-con-6",
+          "h-leg-2"
+         ],
+         "firedCount": 10
+        }
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_match",
+        [],
+        {
+         "precisionAtK": 0.5,
+         "ndcgAtK": 0.3827,
+         "misses": [
+          "h-civ-3",
+          "h-civ-6",
+          "h-con-0",
+          "h-con-1",
+          "h-cou-1",
+          "h-cou-5",
+          "h-leg-4"
+         ],
+         "wrongReasons": [
+          "h-con-6",
+          "h-leg-2"
+         ],
+         "firedCount": 10
+        }
+       ]
+      ],
+      "why": "SPEC.md lists scoreArm's return fields but never says the object has exactly those keys; an extra field (e.g. the arm name) failed all four rows. Now a subset match on the same values."
+     },
+     {
+      "row": "unrated shown ids gain nothing",
+      "old_clauses": [
+       [
+        "path_equal",
+        [],
+        {
+         "precisionAtK": 0.3333,
+         "ndcgAtK": 0.2961,
+         "misses": [
+          "h-civ-3",
+          "h-civ-6",
+          "h-con-0",
+          "h-con-1",
+          "h-con-6",
+          "h-cou-0",
+          "h-cou-1",
+          "h-cou-5",
+          "h-leg-4"
+         ],
+         "wrongReasons": [],
+         "firedCount": 3
+        }
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_match",
+        [],
+        {
+         "precisionAtK": 0.3333,
+         "ndcgAtK": 0.2961,
+         "misses": [
+          "h-civ-3",
+          "h-civ-6",
+          "h-con-0",
+          "h-con-1",
+          "h-con-6",
+          "h-cou-0",
+          "h-cou-1",
+          "h-cou-5",
+          "h-leg-4"
+         ],
+         "wrongReasons": [],
+         "firedCount": 3
+        }
+       ]
+      ],
+      "why": "SPEC.md lists scoreArm's return fields but never says the object has exactly those keys; an extra field (e.g. the arm name) failed all four rows. Now a subset match on the same values."
+     },
+     {
+      "row": "zero ideal gain yields zero nDCG",
+      "old_clauses": [
+       [
+        "path_equal",
+        [],
+        {
+         "precisionAtK": 0,
+         "ndcgAtK": 0,
+         "misses": [],
+         "wrongReasons": [],
+         "firedCount": 2
+        }
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_match",
+        [],
+        {
+         "precisionAtK": 0,
+         "ndcgAtK": 0,
+         "misses": [],
+         "wrongReasons": [],
+         "firedCount": 2
+        }
+       ]
+      ],
+      "why": "SPEC.md lists scoreArm's return fields but never says the object has exactly those keys; an extra field (e.g. the arm name) failed all four rows. Now a subset match on the same values."
+     }
+    ]
+   },
+   "kerrigan-plan-conflict-queue-v3": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "kerrigan-plan-conflict-queue-v2",
+    "findings": [
+     {
+      "row": "enqueue writes one JSON entry holding the edit",
+      "old_clauses": [],
+      "new_clauses": [],
+      "why": "TASK.md: ids are 'filesystem-safe'; the check required /^[A-Za-z0-9._-]+$/, which rejects safe characters such as + ~ @. The scenario now rejects only path separators, reserved characters, whitespace, control characters and '.'/'..' (idSafe in scenarios.mjs enqueueOne())."
+     }
+    ],
+    "also_supersedes": "kerrigan-plan-conflict-queue (v1, identical hidden rows)"
+   },
+   "design-alethiometer-case-v3": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "design-alethiometer-case-v2",
+    "findings": [
+     {
+      "row": "thinnest catalog hand-post standoff that keeps crystal clearance",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         "constants",
+         "HAND_STANDOFF"
+        ],
+        5.0
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_within",
+        [
+         "constants",
+         "HAND_STANDOFF"
+        ],
+        5.0,
+        1e-09
+       ]
+      ],
+      "why": "clauses.matches() compares types strictly, so HAND_STANDOFF = 5 (int) failed against 5.0; the instruction requires only a catalog value. Now path_within 1e-9."
+     }
+    ]
+   },
+   "review-conflict-predictor-v4": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "review-conflict-predictor-v3",
+    "findings": [
+     {
+      "row": "tests/test_conflict_predictor.py::TestParseTasks::test_single_task_with_globs",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         0
+        ],
+        [
+         {
+          "id": "T-001",
+          "globs": [
+           "src/models/*.py"
+          ]
+         }
+        ]
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_match",
+        [
+         0
+        ],
+        [
+         {
+          "id": "T-001",
+          "globs": [
+           "src/models/*.py"
+          ]
+         }
+        ]
+       ]
+      ],
+      "why": "the preserved behavior list names the YAML schema and CLI, not parse_tasks' dict keys; extra keys failed. Now a subset match on the same values."
+     },
+     {
+      "row": "tests/test_conflict_predictor.py::TestRun::test_task_lines_without_touch_annotations_fail_loud",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         0,
+         "rc"
+        ],
+        1
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_equal",
+        [
+         0,
+         "rc_ok"
+        ],
+        false
+       ]
+      ],
+      "why": "TASK.md: zero-signal failures 'must exit nonzero'; the clause required rc == 1. The new harness review_conflict_predictor_v4.py records rc_ok (0 or None means success) and maps a SystemExit from run() the way main() does."
+     },
+     {
+      "row": "MB-010c::CLI main propagates zero-signal failure",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         0,
+         "rc"
+        ],
+        1
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_equal",
+        [
+         0,
+         "rc_ok"
+        ],
+        false
+       ]
+      ],
+      "why": "TASK.md: zero-signal failures 'must exit nonzero'; the clause required rc == 1. The new harness review_conflict_predictor_v4.py records rc_ok (0 or None means success) and maps a SystemExit from run() the way main() does."
+     },
+     {
+      "row": "MB-010c::empty touch glob is not file-scope signal",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         0,
+         "rc"
+        ],
+        1
+       ],
+       [
+        "path_equal",
+        [
+         1,
+         "rc"
+        ],
+        1
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_equal",
+        [
+         0,
+         "rc_ok"
+        ],
+        false
+       ],
+       [
+        "path_equal",
+        [
+         1,
+         "rc_ok"
+        ],
+        false
+       ]
+      ],
+      "why": "TASK.md: zero-signal failures 'must exit nonzero'; the clause required rc == 1. The new harness review_conflict_predictor_v4.py records rc_ok (0 or None means success) and maps a SystemExit from run() the way main() does."
+     }
+    ]
+   }
+  }
+ }
 }

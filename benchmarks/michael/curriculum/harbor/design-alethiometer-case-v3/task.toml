@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/hardware/ASSEMBLY.md", "/app/hardware/BOM.md", "/app/hardware/README.md", "/app/hardware/stack.py"]
+
+[task]
+name = "kixantrix/michael-design-alethiometer-case-v3"
+version = "1.0.0"
+description = "Thin the alethiometer case within clearance and relief rules, with consistent documents"
+keywords = ["michael-bench", "design"]
+
+[metadata]
+family = "Design"
+source_repo = "Kixantrix/alethiometer"
+base_ref = "7f8b4bbc8fc49395d775bd4d5442d87a03e86189"
+reference_ref = "4528e967d970045fb1366c5310843178a99c115b"
+history_status = "unmerged-branch"
+privacy = "public"
+outcome_evidence = "constraint_validator"
+estimated_agent_minutes = 30
+denominators = "{\"design\": 3, \"docs\": 5, \"preservation\": 2, \"rules\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

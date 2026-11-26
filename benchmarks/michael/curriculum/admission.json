@@ -83,7 +83,7 @@
    "reasons": [
     "contradiction: oracle README stated 37.0 mm body height while the model computes 36.949 mm (36.9 mm at the required 0.1 mm precision); a 0.06 mm document-check tolerance masked the mismatch"
    ],
-   "superseded_by": "design-alethiometer-case-v2"
+   "superseded_by": "design-alethiometer-case-v3"
   }
  },
  {
@@ -162,6 +162,93 @@
      ]
     },
     "request_sha256": "4e75568904a9c2d1842a72a27e4098e0870237122c09a0bc6c39bf43c6050586",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused: HAND_STANDOFF compared with a strict float type, so an integer 5 failed"
+   ],
+   "superseded_by": "design-alethiometer-case-v3"
+  }
+ },
+ {
+  "task": "kixantrix/michael-design-alethiometer-case-v3",
+  "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "design_passed": 3.0,
+    "design_total": 3.0,
+    "docs_passed": 5.0,
+    "docs_total": 5.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 1.0,
+    "rules_passed": 2.0,
+    "rules_total": 2.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "design_passed": 1.0,
+    "design_total": 3.0,
+    "docs_passed": 0.0,
+    "docs_total": 5.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 0.0,
+    "rules_passed": 0.0,
+    "rules_total": 2.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v3",
+      "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb"
+     },
+     "request_sha256": "5db48c1fe11739e6ae62c761e2a8ebc12a909ba1a76f84762c8b5f320de42d64",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v3",
+      "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb"
+     },
+     "request_sha256": "27d8207a0ccccac5a5c9f0067abed82d10c2bf77a142862945d2bdfc9f078880",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v3",
+     "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "31737162515dabf9adc139f54747dda81a4334a4d87df2fe6fed84da76b020b0",
     "status": "pending_executor"
    }
   },
@@ -256,7 +343,7 @@
    "reasons": [
     "contradiction: instruction said the carousel keeps height (oracle sets rowHeight) and claimed full per-image failure isolation although store.exists errors abort the run"
    ],
-   "superseded_by": "emv-thumbnails-gallery-v2"
+   "superseded_by": "emv-thumbnails-gallery-v3"
   }
  },
  {
@@ -335,6 +422,93 @@
      ]
     },
     "request_sha256": "6106869cac571379313115b1f502508ab9b3a94104e9c40d2f0c866677ffed27",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused: hidden checks fixed the unspecified resize order across images and rejected extra item fields"
+   ],
+   "superseded_by": "emv-thumbnails-gallery-v3"
+  }
+ },
+ {
+  "task": "kixantrix/michael-emv-thumbnails-gallery-v3",
+  "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "api_passed": 2.0,
+    "api_total": 2.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 1.0,
+    "thumbnails_passed": 5.0,
+    "thumbnails_total": 5.0,
+    "ungraded": 0.0,
+    "web_passed": 2.0,
+    "web_total": 2.0
+   },
+   "base_reward": {
+    "api_passed": 0.0,
+    "api_total": 2.0,
+    "preservation_passed": 1.0,
+    "preservation_total": 2.0,
+    "reward": 0.0,
+    "thumbnails_passed": 0.0,
+    "thumbnails_total": 5.0,
+    "ungraded": 0.0,
+    "web_passed": 1.0,
+    "web_total": 2.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v3",
+      "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b"
+     },
+     "request_sha256": "f0454673419915a02ac92659a53d9b01ee8baeabefd3a98c747159d667e0e587",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v3",
+      "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b"
+     },
+     "request_sha256": "c2558d67b747cc8941ae9041b96db4ba06ce5beed1b6bc635d92b866581a79fc",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v3",
+     "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "244129f11524859cdb3d747ab448b02ce6374e0b29ad88262abead4453d68704",
     "status": "pending_executor"
    }
   },
@@ -499,10 +673,11 @@
    }
   },
   "decision": {
-   "state": "provisional",
+   "state": "retired",
    "reasons": [
-    "model gates pending executor"
-   ]
+    "task-caused: shares v2's narrow 'filesystem-safe' id check, and its 'never double-apply' instruction contradicts the at-least-once cleanup-failure check"
+   ],
+   "superseded_by": "kerrigan-plan-conflict-queue-v3"
   }
  },
  {
@@ -577,6 +752,89 @@
      ]
     },
     "request_sha256": "e951ca34fcfa408771866df50d61db893d82a30b08acc5c936ea26a0dcd25f21",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused: 'filesystem-safe' ids checked against a narrower character class than the instruction states"
+   ],
+   "superseded_by": "kerrigan-plan-conflict-queue-v3"
+  }
+ },
+ {
+  "task": "kixantrix/michael-kerrigan-plan-conflict-queue-v3",
+  "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "conflict_passed": 7.0,
+    "conflict_total": 7.0,
+    "queue_passed": 4.0,
+    "queue_total": 4.0,
+    "replay_passed": 9.0,
+    "replay_total": 9.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "conflict_passed": 0.0,
+    "conflict_total": 7.0,
+    "queue_passed": 1.0,
+    "queue_total": 4.0,
+    "replay_passed": 0.0,
+    "replay_total": 9.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v3",
+      "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb"
+     },
+     "request_sha256": "98b0b772c35d32c29b1726b8b3d6f73412a6684690d9eeb4f391232ce012a499",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v3",
+      "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb"
+     },
+     "request_sha256": "b93dd3c6e5b99be59784d41cc34e67a0259f7a017e9b534212daafb72cd93853",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v3",
+     "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "82f0c2aa1860123c7e9b7c3fe082ef9f3c865c601a0185eca6efcc93a142371a",
     "status": "pending_executor"
    }
   },
@@ -667,7 +925,7 @@
    "reasons": [
     "task-caused: the exact-five ledger check rejected a genuine, fixed memory leak (Sonnet 12/13), while MAI's 12/13 was a correct rejection of a nonexistent auth-bypass; v2 admits only audited genuine extras with behavioral fix checks"
    ],
-   "superseded_by": "orchestrate-voice-integration-v3"
+   "superseded_by": "orchestrate-voice-integration-v4"
   }
  },
  {
@@ -750,7 +1008,7 @@
    "reasons": [
     "task-caused: the ledger check treated race-condition as nonexistent, but trusted diagnostics reproduce a genuine re-entrant cancel-ordering defect in the base"
    ],
-   "superseded_by": "orchestrate-voice-integration-v3"
+   "superseded_by": "orchestrate-voice-integration-v4"
   }
  },
  {
@@ -825,6 +1083,89 @@
      ]
     },
     "request_sha256": "dd2bab9bcaa77156a40a22999141d84cff9073e73d7c5fac6a4523ed399a6de9",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused: R1 required the literal session id 's1' though the plan says ids are opaque (MAI's randomUUID failed); admission also found unspecified telemetry event names, exact frame lists and unstated preserved behavior in hidden checks"
+   ],
+   "superseded_by": "orchestrate-voice-integration-v4"
+  }
+ },
+ {
+  "task": "kixantrix/michael-orchestrate-voice-integration-v4",
+  "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "integration_passed": 9.0,
+    "integration_total": 9.0,
+    "ledger_passed": 7.0,
+    "ledger_total": 7.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "integration_passed": 0.0,
+    "integration_total": 9.0,
+    "ledger_passed": 4.0,
+    "ledger_total": 7.0,
+    "preservation_passed": 1.0,
+    "preservation_total": 2.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v4",
+      "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65"
+     },
+     "request_sha256": "494cef890ec2dfe12ae0e503ac5b8b0bde128b43cd5195ee1ada7de202376c77",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v4",
+      "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65"
+     },
+     "request_sha256": "d8999f1fe03bc36f6445882b664594781a77d60f33049262c8320ac4875edf16",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v4",
+     "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "2fab7eaaad2eaec9f91bcf6b76475d3f2000bac4f50c4c84d8eef210943591ae",
     "status": "pending_executor"
    }
   },
@@ -1245,7 +1586,7 @@
    "reasons": [
     "contradiction: instruction required failure for any nonempty file without scope signal while the preservation check and oracle require success for prose-only files; task-caused blind rejection"
    ],
-   "superseded_by": "review-conflict-predictor-v3"
+   "superseded_by": "review-conflict-predictor-v4"
   }
  },
  {
@@ -1328,7 +1669,7 @@
    "reasons": [
     "contradiction: oracle reported success for a task line whose only annotation had an empty glob, violating the no-file-scope-signal requirement; instruction implied dependency-ordered waves while checks were overlap-only"
    ],
-   "superseded_by": "review-conflict-predictor-v3"
+   "superseded_by": "review-conflict-predictor-v4"
   }
  },
  {
@@ -1403,6 +1744,89 @@
      ]
     },
     "request_sha256": "384c52b3b09966cccd56692254efac2a1c4ad572716c2363b1e5034bd80bd79d",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused: zero-signal failure required exit code exactly 1 though the instruction says nonzero; parse_tasks dicts compared as closed"
+   ],
+   "superseded_by": "review-conflict-predictor-v4"
+  }
+ },
+ {
+  "task": "kixantrix/michael-review-conflict-predictor-v4",
+  "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "preservation_passed": 11.0,
+    "preservation_total": 11.0,
+    "regression_passed": 11.0,
+    "regression_total": 11.0,
+    "review_passed": 5.0,
+    "review_total": 5.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "preservation_passed": 11.0,
+    "preservation_total": 11.0,
+    "regression_passed": 0.0,
+    "regression_total": 11.0,
+    "review_passed": 0.0,
+    "review_total": 5.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v4",
+      "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572"
+     },
+     "request_sha256": "1f874775ffeaab3af11ca28c6d22d5c0ef1a4afdd30a7ca7562fe0511d0811c4",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v4",
+      "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572"
+     },
+     "request_sha256": "26ba2f64a76f69cf6077d72bfc40af9e729c60c4b93e39dc1a4776c02e094ea5",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v4",
+     "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "48f8e1f576de079ead050dda6b31431d43e616f6c6a0cf49ab8d5bd3199509ca",
     "status": "pending_executor"
    }
   },
@@ -1813,7 +2237,7 @@
    "reasons": [
     "contradiction: specification required rejecting any own evaluative key, while the oracle and checks inspect only own enumerable string keys"
    ],
-   "superseded_by": "yv-relevance-instrument-v2"
+   "superseded_by": "yv-relevance-instrument-v3"
   }
  },
  {
@@ -1888,6 +2312,89 @@
      ]
     },
     "request_sha256": "5669fe25a6e1670533744a20afb5215397271182f1193946709c53118947f3a9",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused: scoreArm results compared with a closed field set the spec does not state"
+   ],
+   "superseded_by": "yv-relevance-instrument-v3"
+  }
+ },
+ {
+  "task": "kixantrix/michael-yv-relevance-instrument-v3",
+  "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "audit_passed": 3.0,
+    "audit_total": 3.0,
+    "blind_passed": 5.0,
+    "blind_total": 5.0,
+    "reward": 1.0,
+    "score_passed": 4.0,
+    "score_total": 4.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "audit_passed": 0.0,
+    "audit_total": 3.0,
+    "blind_passed": 0.0,
+    "blind_total": 5.0,
+    "reward": 0.0,
+    "score_passed": 0.0,
+    "score_total": 4.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v3",
+      "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886"
+     },
+     "request_sha256": "a21e5a52d34cd1773799196c49a4611bdf72751d8c2b2d493bbf8be2c681fe19",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v3",
+      "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886"
+     },
+     "request_sha256": "87c46ebb2c31560d034f0178e2ce40336003e4e9f12b205e15cb03ea7f2ddb3b",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v3",
+     "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "80fab0af99da4d425d99b6451ce712b5a92d3438475aeaf7ebfb5b7885c5fb79",
     "status": "pending_executor"
    }
   },

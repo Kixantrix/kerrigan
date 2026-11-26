@@ -218,12 +218,13 @@
    "long_horizon": true,
    "summary": "Full-size photos caused slow loads and layout jitter. Agent adds a thumbnail-generation function, extends the listing API with dimensions, and updates the gallery to pre-size containers.",
    "history_status": "merged",
-   "package": "emv-thumbnails-gallery-v2",
+   "package": "emv-thumbnails-gallery-v3",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "estimated_human_minutes": 75,
    "retired_packages": [
-    "emv-thumbnails-gallery"
+    "emv-thumbnails-gallery",
+    "emv-thumbnails-gallery-v2"
    ]
   },
   {
@@ -512,12 +513,13 @@
    "long_horizon": false,
    "summary": "The parser only understood legacy inline annotations, so real tasks.md files parsed as zero tasks and produced an empty, falsely-safe wave plan. Agent finds and repairs the parser and adds a fail-loud guard.",
    "history_status": "merged",
-   "package": "review-conflict-predictor-v3",
+   "package": "review-conflict-predictor-v4",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader:mb006j",
    "retired_packages": [
     "review-conflict-predictor",
-    "review-conflict-predictor-v2"
+    "review-conflict-predictor-v2",
+    "review-conflict-predictor-v3"
    ],
    "estimated_human_minutes": 25
   },
@@ -1090,12 +1092,13 @@
    "long_horizon": true,
    "summary": "Agent builds the measurement harness (not the ranker) for item relevance; the real run surfaced a data defect where venue logistics were classified as subject matter.",
    "history_status": "merged",
-   "package": "yv-relevance-instrument-v2",
+   "package": "yv-relevance-instrument-v3",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "estimated_human_minutes": 90,
    "retired_packages": [
-    "yv-relevance-instrument"
+    "yv-relevance-instrument",
+    "yv-relevance-instrument-v2"
    ]
   },
   {
@@ -1127,12 +1130,13 @@
    "long_horizon": true,
    "summary": "Lighter hands freed height. Agent changes parametric CAD to reduce standoffs, keeps clearances, widens a relief, and regenerates flats/renders and BOM/assembly text.",
    "history_status": "unmerged-branch",
-   "package": "design-alethiometer-case-v2",
+   "package": "design-alethiometer-case-v3",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader:mb006j",
    "estimated_human_minutes": 45,
    "retired_packages": [
-    "design-alethiometer-case"
+    "design-alethiometer-case",
+    "design-alethiometer-case-v2"
    ]
   },
   {
@@ -1229,14 +1233,15 @@
    "long_horizon": true,
    "summary": "From briefing (#246) through 9 stacked layer PRs (#247-#259) landing as one merge, the agent must plan the layers, brief them, dispatch, repair a cross-layer handshake break, and integrate.",
    "history_status": "merged",
-   "package": "orchestrate-voice-integration-v3",
+   "package": "orchestrate-voice-integration-v4",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "estimated_human_minutes": 90,
    "original_environment": "cloud-linux-docker",
    "retired_packages": [
     "orchestrate-voice-integration",
-    "orchestrate-voice-integration-v2"
+    "orchestrate-voice-integration-v2",
+    "orchestrate-voice-integration-v3"
    ]
   },
   {
@@ -1492,11 +1497,12 @@
    "long_horizon": true,
    "summary": "Implement two new modules from the historical briefing: conflict detection against agent:go plan-edit PRs, and a crash-safe offline edit queue with ordered, idempotent replay.",
    "history_status": "merged",
-   "package": "kerrigan-plan-conflict-queue-v2",
+   "package": "kerrigan-plan-conflict-queue-v3",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
-   "pending_reaudit_packages": [
-    "kerrigan-plan-conflict-queue"
+   "retired_packages": [
+    "kerrigan-plan-conflict-queue",
+    "kerrigan-plan-conflict-queue-v2"
    ]
   }
  ]

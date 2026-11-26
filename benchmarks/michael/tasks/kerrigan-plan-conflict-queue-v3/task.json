@@ -1,0 +1,49 @@
+{
+ "id": "kerrigan-plan-conflict-queue-v3",
+ "family": "Implement",
+ "title": "M6.3: plan-save conflict detection and crash-safe offline edit queue (two new modules)",
+ "source": {
+  "repo": "Kixantrix/kerrigan",
+  "visibility": "public",
+  "kind": "pr",
+  "pr": 365,
+  "base_ref": "822993442330ceaacaa549d9637bdae74dc8f05e",
+  "reference_ref": "44c2938acf63ceaa402c23eac06c5b024d589afa",
+  "history_status": "merged"
+ },
+ "derivation": "Real merged PR #365 at its exact base: the historical M6.3 briefing as the instruction, with an explicit contract section added so hidden checks are deterministic; base files are empty stubs; the reference is the merged pair of modules. Hidden scenarios re-express the PR's 21 vitest cases (plus enqueue-failure propagation) as fake-fs/GitHub observations; assertions stay on the trusted host. v2 (MB-010c follow-up): native admission found the instruction's 'never double-apply' contradicts the merged oracle, which keeps a saved entry queued when cleanup fails and may re-save it. The oracle is the real merged code, so only the instruction changed: it now states no-loss, at-least-once delivery with the cleanup-failure re-save explicitly allowed. No hidden check requires exactly-once on that path. v3: literal-overspecification audit (MB-010r-literal-audit.json, sha256 73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412): queue id 'filesystem-safe' checked as /^[A-Za-z0-9._-]+$/ -> rejects only path separators, reserved, whitespace and control characters and '.'/'..'. Instruction and oracle unchanged.",
+ "privacy": "public",
+ "coverage": "Two new TypeScript modules: 7 conflict, 4 enqueue and 9 replay behavior checks.",
+ "historical_exposure": "Public historical PR #365; exposure/recognition risk.",
+ "outcome_evidence": "held_out_tests",
+ "estimated_agent_minutes": 40,
+ "estimated_human_minutes": 90,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Module documentation of the changed-files gap is requested but not graded."
+ ],
+ "leak_tokens": [
+  "PLAN_EDIT_BRANCH_PREFIX",
+  "buildEntryId",
+  "isNodeEnoent"
+ ],
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "apps/kerrigan-dashboard/src/lib/plan-conflict.ts",
+  "candidates": [
+   "apps/kerrigan-dashboard/src/lib/plan-conflict.ts",
+   "apps/kerrigan-dashboard/src/lib/plan-queue.ts"
+  ],
+  "denominators": {
+   "conflict": 7,
+   "queue": 4,
+   "replay": 9
+  }
+ },
+ "supersedes": "kerrigan-plan-conflict-queue-v2",
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+  "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+ }
+}

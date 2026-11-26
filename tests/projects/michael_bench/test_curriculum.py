@@ -502,13 +502,20 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v3",
-           "review-conflict-predictor-v2": "review-conflict-predictor-v3",
-           "design-alethiometer-case": "design-alethiometer-case-v2",
-           "yv-relevance-instrument": "yv-relevance-instrument-v2",
-           "emv-thumbnails-gallery": "emv-thumbnails-gallery-v2",
-           "orchestrate-voice-integration": "orchestrate-voice-integration-v3",
-           "orchestrate-voice-integration-v2": "orchestrate-voice-integration-v3",
+CURRENT = {"kerrigan-plan-conflict-queue": "kerrigan-plan-conflict-queue-v3",
+           "review-conflict-predictor-v3": "review-conflict-predictor-v4",
+           "design-alethiometer-case-v2": "design-alethiometer-case-v3",
+           "kerrigan-plan-conflict-queue-v2": "kerrigan-plan-conflict-queue-v3",
+           "yv-relevance-instrument-v2": "yv-relevance-instrument-v3",
+           "emv-thumbnails-gallery-v2": "emv-thumbnails-gallery-v3",
+           "orchestrate-voice-integration-v3": "orchestrate-voice-integration-v4",
+           "plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v4",
+           "review-conflict-predictor-v2": "review-conflict-predictor-v4",
+           "design-alethiometer-case": "design-alethiometer-case-v3",
+           "yv-relevance-instrument": "yv-relevance-instrument-v3",
+           "emv-thumbnails-gallery": "emv-thumbnails-gallery-v3",
+           "orchestrate-voice-integration": "orchestrate-voice-integration-v4",
+           "orchestrate-voice-integration-v2": "orchestrate-voice-integration-v4",
            "research-serverless-cost": "research-serverless-cost-v2"}
 NON_PYTHON = {"typescript", "javascript"}
 APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
@@ -716,3 +723,130 @@ def test_orchestrate_v3_audit_record():
     assert {d["category"] for d in info["audited_base_defects"]} == set(REQUIRED_DEFECTS) | {"memory-leak", "race-condition"}
     assert set(info["audited_absent"]) == {"auth-bypass"}
     assert info["admission_evidence"]["sha256"].startswith("c049c7b4")
+
+
+V4 = "orchestrate-voice-integration-v4"
+V4_ID_LINE = "    const id = `s${this.count}`;\n"
+
+
+def _orchestrate_v4(server_edits=(), drop=()):
+    files = specs.unbundle(V4, specs.reference(V4))
+    server = files["src/server.ts"].decode()
+    for old, new in server_edits:
+        assert server.count(old) == 1, old
+        server = server.replace(old, new)
+    files["src/server.ts"] = server.encode()
+    ledger = json.loads(files["INTEGRATION.json"])
+    ledger["defects"] = [d for d in ledger["defects"] if d["category"] not in drop]
+    files["INTEGRATION.json"] = (json.dumps(ledger, indent=2) + "\n").encode()
+    return specs.bundle(files)
+
+
+@pytest.mark.parametrize("label,edits,failed", [
+    ("randomUUID ids", [(V4_ID_LINE, "    const id = crypto.randomUUID();\n")], []),
+    ("opaque prefixed ids", [(V4_ID_LINE, "    const id = `sess_${(this.count * 7919).toString(36)}`;\n")], []),
+    ("id collides across sessions", [(V4_ID_LINE, "    const id = \"session\";\n")],
+     ["R1 session ids opaque, stable, distinct and accepted"]),
+    ("id changes mid-session", [
+        (V4_ID_LINE, "    const id = crypto.randomUUID();\n"),
+        ("        session.pending = message.correlationId;\n",
+         "        session.id = crypto.randomUUID();\n        session.pending = message.correlationId;\n")],
+     ["R1 session ids opaque, stable, distinct and accepted"]),
+    ("empty id", [(V4_ID_LINE, "    const id = \"\";\n")], ["R1 session ids opaque, stable, distinct and accepted"]),
+    ("renamed telemetry events", [
+        ('name: "response"', 'name: "turn_answered"'), ('name: "cancelled"', 'name: "turn_cancelled"'),
+        ('name: "audio"', 'name: "audio_chunk"')], []),
+])
+def test_orchestrate_v4_opaque_session_ids(label, edits, failed, tmp_path):
+    report = api.grade(_orchestrate_v4(edits), tmp_path / "r", task=V4)
+    assert report["status"] == "graded", label
+    assert [a["original_id"] for a in report["assertions"] if not a["passed"]] == failed, label
+
+
+def test_orchestrate_v4_retention_allows_constant_state(tmp_path):
+    keep_tokens = [("    this.options = options;\n", "    this.options = options;\n    this.allowed = new Set(options.tokens);\n")]
+    report = api.grade(_orchestrate_v4(keep_tokens), tmp_path / "r", task=V4)
+    assert [a["original_id"] for a in report["assertions"] if not a["passed"]] == []
+
+
+def test_orchestrate_v4_audit_record():
+    info = curriculum.meta(V4)
+    assert info["supersedes"] == "orchestrate-voice-integration-v3"
+    assert info["admission_evidence"]["sha256"].startswith("1aa97a50")
+    assert {d["category"] for d in info["audited_base_defects"]} == set(REQUIRED_DEFECTS) | {"memory-leak", "race-condition"}
+    rows = json.loads((curriculum.HERE / V4 / "hidden" / "rows.json").read_text())
+    literal = [c for r in rows for c in r["clauses"] if c[1][-1:] == ["sessionId"]]
+    assert literal == []
+
+
+def _edited_reference(task, path, old, new):
+    files = specs.unbundle(task, specs.reference(task))
+    text = files[path].decode()
+    assert text.count(old) == 1, old
+    files[path] = text.replace(old, new).encode()
+    return files[path] if len(files) == 1 else specs.bundle(files)
+
+
+def _failed(bundle, task, tmp_path):
+    report = api.grade(bundle, tmp_path / task, task=task)
+    assert report["status"] == "graded", report.get("error")
+    return [a["original_id"] for a in report["assertions"] if not a["passed"]]
+
+
+LITERAL_AUDIT_VARIANTS = [
+    # (old version, new version, file, old text, new text, rows the old version wrongly failed)
+    ("emv-thumbnails-gallery-v2", "emv-thumbnails-gallery-v3", "api/thumbnails.mjs",
+     "for (const { name, metadata } of await store.list(prefix)) {",
+     "for (const { name, metadata } of (await store.list(prefix)).reverse()) {",
+     ["every new album image gets a planned thumbnail"]),
+    ("emv-thumbnails-gallery-v2", "emv-thumbnails-gallery-v3", "web/gallery-layout.mjs",
+     "      presized: sized,\n", "      presized: sized,\n      alt: item.name,\n",
+     ["carousel containers are pre-sized from dimensions and use thumbnails"]),
+    ("yv-relevance-instrument-v2", "yv-relevance-instrument-v3", "evals/relevance/score.ts",
+     "    firedCount: shown.length,\n", "    firedCount: shown.length,\n    shownCount: shown.length,\n",
+     ["precision, nDCG, misses and wrong reasons at k=5", "second arm scored at k=10",
+      "unrated shown ids gain nothing", "zero ideal gain yields zero nDCG"]),
+    ("kerrigan-plan-conflict-queue-v2", "kerrigan-plan-conflict-queue-v3",
+     "apps/kerrigan-dashboard/src/lib/plan-queue.ts", "return `${safe}_${rand}`;", "return `${safe}+${rand}`;",
+     ["enqueue writes one JSON entry holding the edit"]),
+    ("design-alethiometer-case-v2", "design-alethiometer-case-v3", "hardware/stack.py",
+     "GEAR_STANDOFF, HAND_STANDOFF = 8.0, 5.0", "GEAR_STANDOFF, HAND_STANDOFF = 8.0, 5",
+     ["thinnest catalog hand-post standoff that keeps crystal clearance"]),
+    ("review-conflict-predictor-v3", "review-conflict-predictor-v4", "tools/conflict_predictor.py",
+     "            file=sys.stderr,\n        )\n        return 1\n", "            file=sys.stderr,\n        )\n        return 2\n",
+     ["tests/test_conflict_predictor.py::TestRun::test_task_lines_without_touch_annotations_fail_loud",
+      "MB-010c::CLI main propagates zero-signal failure", "MB-010c::empty touch glob is not file-scope signal"]),
+]
+
+
+@pytest.mark.parametrize("old,new,path,before,after,wrongly_failed", LITERAL_AUDIT_VARIANTS)
+def test_literal_audit_accepts_valid_variants(old, new, path, before, after, wrongly_failed, tmp_path):
+    variant = _edited_reference(new, path, before, after)
+    assert _failed(variant, old, tmp_path) == wrongly_failed
+    assert _failed(variant, new, tmp_path) == []
+
+
+@pytest.mark.parametrize("new,path,before,after,still_failed", [
+    ("kerrigan-plan-conflict-queue-v3", "apps/kerrigan-dashboard/src/lib/plan-queue.ts",
+     "return `${safe}_${rand}`;", "return `${timestamp}/${rand}`;", "enqueue writes one JSON entry holding the edit"),
+    ("review-conflict-predictor-v4", "tools/conflict_predictor.py",
+     "            file=sys.stderr,\n        )\n        return 1\n", "            file=sys.stderr,\n        )\n        return 0\n",
+     "MB-010c::CLI main propagates zero-signal failure"),
+])
+def test_literal_audit_keeps_real_failures(new, path, before, after, still_failed, tmp_path):
+    assert still_failed in _failed(_edited_reference(new, path, before, after), new, tmp_path)
+
+
+@pytest.mark.parametrize("new,old", [
+    ("emv-thumbnails-gallery-v3", "emv-thumbnails-gallery-v2"), ("yv-relevance-instrument-v3", "yv-relevance-instrument-v2"),
+    ("kerrigan-plan-conflict-queue-v3", "kerrigan-plan-conflict-queue-v2"),
+    ("design-alethiometer-case-v3", "design-alethiometer-case-v2"), ("review-conflict-predictor-v4", "review-conflict-predictor-v3"),
+])
+def test_literal_audit_versions_keep_instruction_and_oracle(new, old):
+    for rel in ["hidden/reference"] + sorted(str(p.relative_to(curriculum.HERE / old)) for p in (curriculum.HERE / old / "agent").rglob("*") if p.is_file()):
+        assert (curriculum.HERE / new / rel).read_bytes() == (curriculum.HERE / old / rel).read_bytes(), rel
+    info = curriculum.meta(new)
+    assert info["supersedes"] == old
+    evidence = info["admission_evidence"]
+    assert evidence["path"].endswith("MB-010r-literal-audit.json")
+    assert hashlib.sha256((ROOT / evidence["path"]).read_bytes()).hexdigest() == evidence["sha256"]
