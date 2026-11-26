@@ -201,3 +201,7 @@ should include `harnesses/*.mjs`. The native closure test was generalized to
 accept `artifacts`.
 
 v3 of the review package answers the MB-010r native admission audit of v2 (`MB-010r-review-v2-admission.json`). The oracle now counts only extracted globs: an empty `- Touch:` annotation is no file-scope signal, and the v2 oracle fails the new hidden check. Waves are specified as overlap-only greedy earliest-wave assignment in document order, with dependencies out of scope. The instruction now also states the no-output-on-failure, annotation-union and literal-stderr-form contracts. v1 and v2 stay frozen and retired.
+
+design-alethiometer-case-v2 answers the v1 admission audit (`MB-010r-design-admission.json`). The oracle README now says 36.9/44.6 mm, matching the model's 36.949 mm at 0.1 mm. Document numbers must equal the model value rounded half-up, checked exactly; the old 0.06 mm tolerance masked the error. Model-value checks keep tolerances at or below 0.002 mm. v1 is retired.
+
+kerrigan-plan-conflict-queue-v2 changes only the instruction. The merged #365 oracle keeps a saved entry queued when cleanup fails, so the instruction now states no-loss, at-least-once delivery, and no check requires exactly-once on that path. v1 stays frozen and is not retired until the native re-audit.

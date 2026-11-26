@@ -583,5 +583,41 @@
   },
   "v2_oracle_under_v3": "fail: MB-010c::empty touch glob is not file-scope signal",
   "harbor_lint_findings_all_16": 0
+ },
+ "mb010c_followups": {
+  "design-alethiometer-case-v2": {
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MB-010r-design-admission.json",
+    "sha256": "d9662f6ff35d061be579ced3939603d397d838e2b60fc8f22e7f0e39f5bb7b77"
+   },
+   "calibration": {
+    "baseline": [
+     "fail",
+     3,
+     12
+    ],
+    "reference": [
+     "pass",
+     12,
+     12
+    ]
+   },
+   "v1_oracle_under_v2": "fail: README size line, README height table"
+  },
+  "kerrigan-plan-conflict-queue-v2": {
+   "calibration": {
+    "baseline": [
+     "fail",
+     1,
+     20
+    ],
+    "reference": [
+     "pass",
+     20,
+     20
+    ]
+   },
+   "change": "instruction only: at-least-once on cleanup failure; v1 pending native re-audit (not retired)"
+  }
  }
 }
