@@ -65,7 +65,7 @@ Implementation roadmap: contracts, bounded engine proof, ledger/report, MB-003 p
 
 ## Milestone 5
 
-- [ ] MB-008: Curate the next working-day task families.
+- [ ] MB-008: Curate the next working-day task families. In progress: [brief](../../../.specify/briefings/MB-008.md) covers 8 families mined from the user's real repo work mix.
   - Done when: proposed planning, research, review, and operations cases have approved requirements, outcome rubrics, privacy classifications, and calibration plans before execution.
   - Scope: task specifications and fixture design, not unbounded expansion of the initial runner.
   - Dependencies: MB-003, MB-004; external: representative-work selection.

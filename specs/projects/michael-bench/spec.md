@@ -35,8 +35,11 @@ Workload families:
 | Research | Answer a bounded decision question from allowed sources | Verifiable sources, correct synthesis, explicit uncertainty |
 | Review and repair | Find seeded correctness defects and respond to feedback | Defect coverage, false positives, regression checks |
 | Operate | Diagnose and repair a disposable self-hosted service | Restored service, preserved data/configuration, safety checks |
+| Experiment | ML/research engineering: diagnose a training/eval regression, run a bounded ablation, audit a dataset (e.g. Gridiron SR) | Reproduced metric within tolerance, correct causal diagnosis, honest negative results |
+| Design | Hardware/CAD and system design: produce or revise a buildable plan against stated constraints (e.g. alethiometer) | Constraint/validator checks (ledger, dimensions, BOM), reviewer rubric for irreducible judgment |
+| Orchestrate | Long-horizon multi-step work: split, brief, dispatch and integrate slices without losing requirements | Final integrated outcome, requirement retention, rework and human-attention cost |
 
-Coding is the first implemented family. Other families remain roadmap work until calibrated cases and outcome rubrics exist.
+Coding is the first implemented family. Other families remain roadmap work until calibrated cases and outcome rubrics exist. Task selection follows the user's actual agent work mix across their repositories (personal-selfhost, kerrigan, alethiometer, taste-engine, voxel-solar-wallpaper, vhs-video-stack, your-voice, kirkland-prototype), not only small bug fixes.
 
 ## Non-goals
 
