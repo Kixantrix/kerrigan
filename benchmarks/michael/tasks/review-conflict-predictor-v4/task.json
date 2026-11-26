@@ -1,0 +1,42 @@
+{
+ "id": "review-conflict-predictor-v4",
+ "family": "Review and repair",
+ "title": "Review a wave conflict predictor that silently emitted an all-clear plan",
+ "source": {
+  "repo": "Kixantrix/kerrigan",
+  "visibility": "public",
+  "kind": "pr",
+  "pr": 312,
+  "base_ref": "7544e0592041f725375dccfa7d265499d57a096a",
+  "reference_ref": "2071fffaf4cca41ec8d63ec06acd6963333236f3",
+  "history_status": "merged"
+ },
+ "derivation": "Exact historical base file; reference is the historical fix plus a REVIEW_FINDINGS annotation. Task statement rewritten from the real briefing as symptoms only (review, not specification). Fixture is the real planning excerpt at the dispatch commit. v2 (MB-010c): instruction scopes fail-loud to files with task lines (prose/empty files remain zero-wave success, matching the historical tests and oracle); stderr checks require the file name and both annotation forms rather than environment paths; missing-file wording is no longer checked; CLI propagation, partially annotated files and finding structure are tested; findings are scoped to contributing defects. v3 (MB-010c follow-up), responding to the native admission audit of v2 (benchmarks/michael/curriculum/MB-010r-review-v2-admission.json, sha256 8c18b217a2f3b61f1f6c7d3333140700af53181b07bbc6d6763c162224e94f97): contradiction 1 (audit 1) - the oracle counted a Touch annotation with no extracted glob as file-scope signal and exited 0; it now counts extracted globs, with a hidden empty-glob check. Contradiction 2 (audit 0) - 'correct waves' implied dependency ordering; the instruction now states overlap-only, greedy earliest-wave assignment in document order with dependencies out of scope, with a hidden dependency-independence check. Over-specification findings resolved in the instruction: no output on failure, union of repeated/mixed annotations, exact wave layout rule; stderr must name both annotation forms literally. v4: literal-overspecification audit (MB-010r-literal-audit.json, sha256 73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412): zero-signal failure required exit code exactly 1; instruction: 'must exit nonzero' -> any nonzero code (harness review_conflict_predictor_v4.py records rc_ok; SystemExit from run is mapped like main); parse_tasks result compared with exact equality; extra keys on task dicts are not forbidden -> subset match. Instruction and oracle unchanged.",
+ "privacy": "public",
+ "coverage": "Parser/wave/run/CLI behavior plus a closed-vocabulary defect review: 11 preservation, 11 regression, 5 review checks.",
+ "historical_exposure": "Public historical fix; exposure/recognition risk.",
+ "outcome_evidence": "defect_coverage",
+ "estimated_agent_minutes": 25,
+ "residual_rubric": [
+  "Quality of free-text defect descriptions is recorded for later human review, never model-judged."
+ ],
+ "leak_tokens": [
+  "parse_tasks_with_stats",
+  "_TOUCH_BULLET_RE",
+  "REVIEW_FINDINGS = [\n    {\"location\": \"_TASK"
+ ],
+ "grader": {
+  "harness": "review_conflict_predictor_v4.py",
+  "candidate": "tools/conflict_predictor.py",
+  "denominators": {
+   "preservation": 11,
+   "regression": 11,
+   "review": 5
+  }
+ },
+ "supersedes": "review-conflict-predictor-v3",
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+  "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+ }
+}

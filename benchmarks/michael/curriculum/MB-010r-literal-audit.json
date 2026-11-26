@@ -1,0 +1,72 @@
+{
+ "condition": "MB-010r",
+ "kind": "literal-overspecification audit of hidden clauses (automated; no human review)",
+ "trigger": {
+  "evidence": "benchmarks/michael/curriculum/MB-010r-orchestrate-v3-outcomes.json",
+  "finding": "orchestrate v3 R1 required sessionId == 's1' although the plan says session ids are opaque"
+ },
+ "method": "Every hidden clause of every admitted package and the trusted observation code producing it was checked against the instruction and the agent-visible files it makes authoritative, for unspecified ids, names, timestamps, ordering, formatting, precision, numeric type, exact counts, exact error codes and closed field sets.",
+ "findings": [
+  {
+   "package": "orchestrate-voice-integration-v3",
+   "fixed_in": "orchestrate-voice-integration-v4",
+   "items": [
+    "R1 required sessionId 's1'; plan: 'an opaque session id' -> opaque-id check (non-empty, stable, distinct, accepted)",
+    "R3/R5/R8 and race check identified telemetry by event names 'audio'/'response'/'cancelled'; plan fixes only 'event name' -> observe protocol frames; ms identified by value",
+    "R4 required lastResponse 'reply:18' (transcript length passed to respond is unspecified) -> response must be the one produced from a transcript carrying the turn's words",
+    "R6 and pre-join/malformed rows required exact frame lists -> presence of a rejected frame (reason version / any reason before join / malformed for unparsable)",
+    "memory-leak fix check counted every Map/Set (a stored token set failed) -> retention growth with ended sessions",
+    "pre-join rejection and out-of-order guards were unstated -> instruction now states the preserved behavior"
+   ]
+  },
+  {
+   "package": "emv-thumbnails-gallery-v2",
+   "fixed_in": "emv-thumbnails-gallery-v3",
+   "items": [
+    "resize calls compared in call order; processing order across images is unspecified -> compared as a sorted multiset",
+    "media-list items and carousel layout rows compared with exact equality; extra fields are not forbidden -> subset match, plus explicit absence of thumbnailUrl/width/height where they must not appear"
+   ]
+  },
+  {
+   "package": "yv-relevance-instrument-v2",
+   "fixed_in": "yv-relevance-instrument-v3",
+   "items": [
+    "scoreArm results compared with exact equality; SPEC lists the fields but does not close the object -> subset match on the same values"
+   ]
+  },
+  {
+   "package": "kerrigan-plan-conflict-queue-v2",
+   "fixed_in": "kerrigan-plan-conflict-queue-v3",
+   "items": [
+    "queue id 'filesystem-safe' checked as /^[A-Za-z0-9._-]+$/ -> rejects only path separators, reserved, whitespace and control characters and '.'/'..'"
+   ]
+  },
+  {
+   "package": "design-alethiometer-case-v2",
+   "fixed_in": "design-alethiometer-case-v3",
+   "items": [
+    "HAND_STANDOFF compared as float 5.0 with a strict type check, so an int 5 failed -> numeric comparison within 1e-9"
+   ]
+  },
+  {
+   "package": "review-conflict-predictor-v3",
+   "fixed_in": "review-conflict-predictor-v4",
+   "items": [
+    "zero-signal failure required exit code exactly 1; instruction: 'must exit nonzero' -> any nonzero code (harness review_conflict_predictor_v4.py records rc_ok; SystemExit from run is mapped like main)",
+    "parse_tasks result compared with exact equality; extra keys on task dicts are not forbidden -> subset match"
+   ]
+  }
+ ],
+ "accepted": {
+  "plan-dashboard-waves-v2": "task ids 'as written'; pairs and files set-based; wave count follows 'as few waves as the constraints allow'",
+  "research-serverless-cost-v2": "numbers with tolerance; unknowns set-based; citations requiring S4 and S5 follow 'the list of source IDs that support it' (borderline, kept)",
+  "grouping": "positional third argument follows 'Preserve the two-argument behavior' with an optional current major",
+  "status": "excluded titles, statuses and precedence stated or preserved from base",
+  "validator": "only error presence and preserved base message substrings",
+  "selfhost-redeploy-state": "unchanged service fields stated; a named volume follows from supervisor bind-mount semantics (borderline, kept)",
+  "sr-temporal-assay": "targets determined by frozen estimators; vocabularies closed; lists stated as sorted",
+  "kerrigan-plan-conflict-queue-v2 (other rows)": "result and summary shapes given as types in TASK.md",
+  "emv-thumbnails-gallery-v2 (other rows)": "'Returns { created, skipped, failed, errors }', 'Returns { width, height }', 'only its URL', 'original shape'"
+ },
+ "deliberate": "orchestrate extras (memory-leak, race-condition) stay optional; when listed they must be genuine and behaviorally fixed (coordinator design)"
+}

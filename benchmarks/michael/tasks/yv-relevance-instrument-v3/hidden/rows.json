@@ -1,0 +1,427 @@
+[
+ {
+  "original_id": "projection keeps only id, source, title and summary",
+  "group": "blind",
+  "probe": {
+   "scenario": "blindHeld"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "keys"
+    ],
+    [
+     "id",
+     "source",
+     "summary",
+     "title"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "summariesAreStrings"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "emptyForMissing"
+    ],
+    16
+   ]
+  ]
+ },
+ {
+  "original_id": "seeded shuffle follows the specified PRNG",
+  "group": "blind",
+  "probe": {
+   "scenario": "blindHeld"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "ids"
+    ],
+    [
+     "h-cou-0",
+     "h-con-6",
+     "h-cou-4",
+     "h-civ-0",
+     "h-cou-5",
+     "h-cou-2",
+     "h-cou-3",
+     "h-civ-7",
+     "h-civ-4",
+     "h-cou-6",
+     "h-leg-2",
+     "h-con-5",
+     "h-civ-6",
+     "h-con-0",
+     "h-con-1",
+     "h-leg-4",
+     "h-leg-0",
+     "h-civ-5",
+     "h-cou-1",
+     "h-con-2",
+     "h-civ-8",
+     "h-leg-1",
+     "h-civ-3",
+     "h-con-7",
+     "h-civ-1",
+     "h-con-4",
+     "h-con-3",
+     "h-leg-3",
+     "h-civ-2"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "shuffle is deterministic and seed-sensitive",
+  "group": "blind",
+  "probe": {
+   "scenario": "blindOtherSeed"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "ids"
+    ],
+    [
+     "h-civ-3",
+     "h-leg-2",
+     "h-leg-4",
+     "h-con-2",
+     "h-cou-4",
+     "h-civ-5",
+     "h-leg-3",
+     "h-con-5",
+     "h-civ-6",
+     "h-con-1",
+     "h-con-4",
+     "h-con-7",
+     "h-civ-8",
+     "h-cou-1",
+     "h-cou-2",
+     "h-con-0",
+     "h-cou-6",
+     "h-con-6",
+     "h-leg-0",
+     "h-civ-4",
+     "h-cou-0",
+     "h-civ-1",
+     "h-con-3",
+     "h-civ-0",
+     "h-cou-3",
+     "h-civ-7",
+     "h-civ-2",
+     "h-cou-5",
+     "h-leg-1"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "again"
+    ],
+    [
+     "h-cou-0",
+     "h-con-6",
+     "h-cou-4",
+     "h-civ-0",
+     "h-cou-5",
+     "h-cou-2",
+     "h-cou-3",
+     "h-civ-7",
+     "h-civ-4",
+     "h-cou-6",
+     "h-leg-2",
+     "h-con-5",
+     "h-civ-6",
+     "h-con-0",
+     "h-con-1",
+     "h-leg-4",
+     "h-leg-0",
+     "h-civ-5",
+     "h-cou-1",
+     "h-con-2",
+     "h-civ-8",
+     "h-leg-1",
+     "h-civ-3",
+     "h-con-7",
+     "h-civ-1",
+     "h-con-4",
+     "h-con-3",
+     "h-leg-3",
+     "h-civ-2"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "inputs are not mutated",
+  "group": "blind",
+  "probe": {
+   "scenario": "blindHeld"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "unmutated"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "blindness is enforced at any depth without false alarms",
+  "group": "blind",
+  "probe": {
+   "scenario": "assertDeep"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    {
+     "nested": true,
+     "topLevel": true,
+     "northStars": true,
+     "clean": false
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "precision, nDCG, misses and wrong reasons at k=5",
+  "group": "score",
+  "probe": {
+   "scenario": "scoreKeyword"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [],
+    {
+     "precisionAtK": 0.8,
+     "ndcgAtK": 0.713,
+     "misses": [
+      "h-civ-3",
+      "h-civ-6",
+      "h-con-0",
+      "h-con-1",
+      "h-cou-0",
+      "h-cou-1",
+      "h-cou-5"
+     ],
+     "wrongReasons": [
+      "h-con-6",
+      "h-leg-4"
+     ],
+     "firedCount": 5
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "second arm scored at k=10",
+  "group": "score",
+  "probe": {
+   "scenario": "scoreAlternative"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [],
+    {
+     "precisionAtK": 0.5,
+     "ndcgAtK": 0.3827,
+     "misses": [
+      "h-civ-3",
+      "h-civ-6",
+      "h-con-0",
+      "h-con-1",
+      "h-cou-1",
+      "h-cou-5",
+      "h-leg-4"
+     ],
+     "wrongReasons": [
+      "h-con-6",
+      "h-leg-2"
+     ],
+     "firedCount": 10
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "unrated shown ids gain nothing",
+  "group": "score",
+  "probe": {
+   "scenario": "scoreUnrated"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [],
+    {
+     "precisionAtK": 0.3333,
+     "ndcgAtK": 0.2961,
+     "misses": [
+      "h-civ-3",
+      "h-civ-6",
+      "h-con-0",
+      "h-con-1",
+      "h-con-6",
+      "h-cou-0",
+      "h-cou-1",
+      "h-cou-5",
+      "h-leg-4"
+     ],
+     "wrongReasons": [],
+     "firedCount": 3
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "zero ideal gain yields zero nDCG",
+  "group": "score",
+  "probe": {
+   "scenario": "scoreZeroIdeal"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [],
+    {
+     "precisionAtK": 0,
+     "ndcgAtK": 0,
+     "misses": [],
+     "wrongReasons": [],
+     "firedCount": 2
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "per-source corpus audit",
+  "group": "audit",
+  "probe": {
+   "scenario": "auditHeld"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sources"
+    ],
+    {
+     "civic-events": {
+      "items": 9,
+      "withSummary": 9,
+      "avgSummaryChars": 200,
+      "topicsFromTitle": 9
+     },
+     "county": {
+      "items": 7,
+      "withSummary": 2,
+      "avgSummaryChars": 22,
+      "topicsFromTitle": 4
+     },
+     "legislature": {
+      "items": 5,
+      "withSummary": 2,
+      "avgSummaryChars": 22,
+      "topicsFromTitle": 3
+     },
+     "congress": {
+      "items": 8,
+      "withSummary": 0,
+      "avgSummaryChars": 0,
+      "topicsFromTitle": 8
+     }
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "starved government sources and finding",
+  "group": "audit",
+  "probe": {
+   "scenario": "auditHeld"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "starvedSources"
+    ],
+    [
+     "congress",
+     "county",
+     "legislature"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "finding"
+    ],
+    "subject-matter-absent"
+   ]
+  ]
+ },
+ {
+  "original_id": "substantive government summaries change the finding",
+  "group": "audit",
+  "probe": {
+   "scenario": "auditGood"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    {
+     "sources": {
+      "civic-events": {
+       "items": 5,
+       "withSummary": 5,
+       "avgSummaryChars": 200,
+       "topicsFromTitle": 5
+      },
+      "county": {
+       "items": 6,
+       "withSummary": 6,
+       "avgSummaryChars": 133,
+       "topicsFromTitle": 6
+      },
+      "legislature": {
+       "items": 4,
+       "withSummary": 2,
+       "avgSummaryChars": 22,
+       "topicsFromTitle": 2
+      },
+      "congress": {
+       "items": 3,
+       "withSummary": 0,
+       "avgSummaryChars": 0,
+       "topicsFromTitle": 3
+      }
+     },
+     "starvedSources": [
+      "congress",
+      "legislature"
+     ],
+     "finding": "ranker-ordering"
+    }
+   ]
+  ]
+ }
+]

@@ -1,0 +1,34 @@
+schema_version = "1.4"
+artifacts = ["/app/INTEGRATION.json", "/app/src/server.ts", "/app/src/session.ts", "/app/src/transport.ts"]
+
+[task]
+name = "kixantrix/michael-orchestrate-voice-integration-v4"
+version = "1.0.0"
+description = "Integrate four parallel realtime-voice layers against the plan and record requirement retention"
+keywords = ["michael-bench", "orchestrate"]
+
+[metadata]
+family = "Orchestrate"
+source_repo = "Kixantrix/personal-selfhost"
+base_ref = "55153c05dd2c5925b70526dc773a5c6afcdb84ba"
+reference_ref = "ca42585b770156eef207f3e660e60c9a3572c83d"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "integrated_outcome"
+estimated_agent_minutes = 45
+denominators = "{\"integration\": 9, \"ledger\": 7, \"preservation\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

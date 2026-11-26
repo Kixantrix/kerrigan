@@ -1,0 +1,402 @@
+[
+ {
+  "original_id": "thinnest catalog hand-post standoff that keeps crystal clearance",
+  "group": "design",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "constants",
+     "HAND_STANDOFF"
+    ],
+    5.0,
+    1e-09
+   ],
+   [
+    "path_within",
+    [
+     "model",
+     "crystal_clearance"
+    ],
+    1.544,
+    0.001
+   ]
+  ]
+ },
+ {
+  "original_id": "body and closed heights reduced accordingly",
+  "group": "design",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "model",
+     "body_height"
+    ],
+    36.949,
+    0.002
+   ],
+   [
+    "path_within",
+    [
+     "model",
+     "closed_height"
+    ],
+    44.569,
+    0.002
+   ]
+  ]
+ },
+ {
+  "original_id": "model report stays consistent with the stack",
+  "group": "design",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "report_consistent"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "hinge relief clears the parts that enter it",
+  "group": "rules",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "relief_ok",
+     0
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "hinge relief is derived from the screw length, not hard-coded",
+  "group": "rules",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "relief_ok",
+     1
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "relief_ok",
+     2
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "fixed parts and rules unchanged",
+  "group": "preservation",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "constants",
+     "T040"
+    ],
+    1.016,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "T063"
+    ],
+    1.6002,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "LID_H"
+    ],
+    7.62,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "GEAR_STANDOFF"
+    ],
+    8.0,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "CARRIER_STANDOFF"
+    ],
+    12.0,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "CARRIER_SPACER"
+    ],
+    2.5,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "CARRIER_T"
+    ],
+    1.6,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "CAP_TOP_ABOVE_P2"
+    ],
+    4.472,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "HINGE_BODY_SCREW_LEN"
+    ],
+    6.0,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "HINGE_NUT_H"
+    ],
+    1.6,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "RELIEF_CLEARANCE"
+    ],
+    0.4,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "constants",
+     "MIN_CRYSTAL_CLEARANCE"
+    ],
+    1.5,
+    1e-06
+   ]
+  ]
+ },
+ {
+  "original_id": "standoff catalog unchanged",
+  "group": "preservation",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "catalog"
+    ],
+    [
+     3.0,
+     4.0,
+     5.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "docs",
+     "bom_gear_posts"
+    ],
+    [
+     8.0
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "README size line matches the model",
+  "group": "docs",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "docs",
+     "readme_heights",
+     0
+    ],
+    36.9
+   ],
+   [
+    "path_equal",
+    [
+     "docs",
+     "readme_heights",
+     1
+    ],
+    44.6
+   ]
+  ]
+ },
+ {
+  "original_id": "README height table matches the model",
+  "group": "docs",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "docs",
+     "readme_crystal_row",
+     0
+    ],
+    33.3
+   ],
+   [
+    "path_equal",
+    [
+     "docs",
+     "readme_crystal_row",
+     1
+    ],
+    36.9
+   ],
+   [
+    "path_equal",
+    [
+     "docs",
+     "readme_lid_row",
+     0
+    ],
+    36.9
+   ],
+   [
+    "path_equal",
+    [
+     "docs",
+     "readme_lid_row",
+     1
+    ],
+    44.6
+   ]
+  ]
+ },
+ {
+  "original_id": "BOM upper shell flange matches the model",
+  "group": "docs",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "docs",
+     "bom_flange",
+     0
+    ],
+    17.2
+   ]
+  ]
+ },
+ {
+  "original_id": "BOM hand-post standoff matches the model",
+  "group": "docs",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "docs",
+     "bom_hand_posts"
+    ],
+    [
+     5.0
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "assembly sheet heights and callouts match the model",
+  "group": "docs",
+  "probe": {
+   "op": "design"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "docs",
+     "assembly_underside",
+     0
+    ],
+    6.0
+   ],
+   [
+    "path_equal",
+    [
+     "docs",
+     "assembly_standoff"
+    ],
+    [
+     5.0
+    ]
+   ]
+  ]
+ }
+]
