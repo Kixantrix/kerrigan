@@ -10,6 +10,12 @@ The multi-file round and its disclosed task revisions are recorded in
 declared artifact after quiescence and hashes both Python and JavaScript
 verifier harnesses.
 
+Round 2 is complete: Sonnet passed 8/8 selected tasks and MAI 6/8. The
+Orchestrate row retains admitted-and-run v3; v4's `needs_fix` gate was upheld
+with zero subject prompts. Later round-3 literal fixes are known task issues,
+not extra round-2 samples; regrading the ten existing affected artifacts
+changes no binary outcome or partial count.
+
 `catalog.json` lists 44 candidate tasks mined from Kixantrix repositories,
 covering all eight spec families. Each candidate records source repo, exact
 base/reference SHAs (verified against GitHub), whether the reference is merged
