@@ -88,7 +88,11 @@ def first_party_modules(repo_root: Path) -> set[str]:
     for path in repo_root.iterdir():
         if path.name.startswith("."):
             continue
-        if path.is_dir() and (path / "__init__.py").is_file():
+        if path.is_dir() and (
+            (path / "__init__.py").is_file()
+            # PEP 420 namespace package: no __init__.py, but holds modules/packages.
+            or any(child.suffix == ".py" or (child / "__init__.py").is_file() for child in path.iterdir())
+        ):
             modules.add(path.name)
         elif path.is_file() and path.suffix == ".py" and path.name != "__init__.py":
             modules.add(path.stem)

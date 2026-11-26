@@ -126,3 +126,29 @@ def test_nested_python_file_does_not_mask_third_party_import(capsys):
             ["--repo-root", str(root), "--requirements", str(root / "requirements.txt")]
         ) == 1
         assert "yaml" in capsys.readouterr().err
+
+
+def test_namespace_package_is_first_party():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        _write(root / "requirements.txt", "")
+        _write(root / "benchmarks" / "michael" / "__init__.py", "")
+        _write(root / "benchmarks" / "michael" / "api.py", "VALUE = 1\n")
+        _write(root / "tests" / "test_ns.py", "from benchmarks.michael import api\n")
+
+        assert check_python_deps_main(
+            ["--repo-root", str(root), "--requirements", str(root / "requirements.txt")]
+        ) == 0
+
+
+def test_directory_without_python_modules_is_not_first_party(capsys):
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        _write(root / "requirements.txt", "")
+        _write(root / "yaml" / "README.md", "docs only\n")
+        _write(root / "tests" / "test_missing_dep.py", "import yaml\n")
+
+        assert check_python_deps_main(
+            ["--repo-root", str(root), "--requirements", str(root / "requirements.txt")]
+        ) == 1
+        assert "yaml" in capsys.readouterr().err
