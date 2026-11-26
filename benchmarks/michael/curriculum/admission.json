@@ -736,7 +736,7 @@
    "reasons": [
     "contradiction: instruction required failure for any nonempty file without scope signal while the preservation check and oracle require success for prose-only files; task-caused blind rejection"
    ],
-   "superseded_by": "review-conflict-predictor-v2"
+   "superseded_by": "review-conflict-predictor-v3"
   }
  },
  {
@@ -811,6 +811,89 @@
      ]
     },
     "request_sha256": "bc0d88b849149acbc26b11135f6f765ca1d3a6772fa4d238ce3557af0a8f10de",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "contradiction: oracle reported success for a task line whose only annotation had an empty glob, violating the no-file-scope-signal requirement; instruction implied dependency-ordered waves while checks were overlap-only"
+   ],
+   "superseded_by": "review-conflict-predictor-v3"
+  }
+ },
+ {
+  "task": "kixantrix/michael-review-conflict-predictor-v3",
+  "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "preservation_passed": 11.0,
+    "preservation_total": 11.0,
+    "regression_passed": 11.0,
+    "regression_total": 11.0,
+    "review_passed": 5.0,
+    "review_total": 5.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "preservation_passed": 11.0,
+    "preservation_total": 11.0,
+    "regression_passed": 0.0,
+    "regression_total": 11.0,
+    "review_passed": 0.0,
+    "review_total": 5.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
+      "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce"
+     },
+     "request_sha256": "e9916f6051d067b59abbfc3cb8f54e8bffd703ce7f1833a490c51be49ef81e33",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
+      "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce"
+     },
+     "request_sha256": "92819da2e870edab95d34005bf15ce025542b8c95da72d45c1a1f675a02069f9",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
+     "task_sha256": "bd1673a473732ecf2b70aa3a9337682dd3d1db447e36f9b96656ee14ee20e2ce",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "35514029f1e13674e62c6f880de22465f58d60bdeb81075f0ced507a67f6d050",
     "status": "pending_executor"
    }
   },

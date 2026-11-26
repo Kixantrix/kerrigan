@@ -77,7 +77,6 @@ def test_catalog_packages_match_their_sources():
     assert set(retired) == set(curriculum.retired()) and not set(packaged) & set(retired)
     for name, item in retired.items():
         assert curriculum.retired()[name]["superseded_by"] == item["package"]
-        assert curriculum.meta(item["package"])["supersedes"] == name
     for name, item in packaged.items():
         if name in packages.CASES:
             case = packages.CASES[name]
@@ -500,6 +499,8 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
+CURRENT = {"plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v3",
+           "review-conflict-predictor-v2": "review-conflict-predictor-v3"}
 NON_PYTHON = {"typescript", "javascript"}
 APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kixantrix/clinical-scribe",
                      "Kixantrix/sunday-league", "Kixantrix/foal-rescue-meadow", "Kixantrix/voxel-solar-wallpaper"}
@@ -507,9 +508,10 @@ APP_OR_GAME_REPOS = {"Kixantrix/your-voice", "Kixantrix/event-media-vault", "Kix
 
 def test_v1_retired_and_preserved_v2_corrections():
     retired = curriculum.retired()
-    assert set(retired) == set(V2.values())
+    assert set(retired) == set(CURRENT)
+    for old, new in CURRENT.items():
+        assert retired[old]["superseded_by"] == new and "contradiction" in retired[old]["reason"]
     for v2, v1 in V2.items():
-        assert retired[v1]["superseded_by"] == v2 and "contradiction" in retired[v1]["reason"]
         assert curriculum.meta(v2)["supersedes"] == v1
         # v1 package bytes stay frozen and calibrated; v2 is a separate package.
         assert curriculum.descriptor(v1) == json.loads((curriculum.HERE / v1 / "manifest.json").read_text())
@@ -561,3 +563,23 @@ def test_multi_artifact_bundles_are_exact(name, tmp_path):
         specs.unbundle(name, specs.bundle({k: v for k, v in list(files.items())[1:]}))
     report = api.grade(specs.bundle({**files, "extra.txt": b"x"}), tmp_path / "receipt", task=name)
     assert report["status"] == "ungraded" and report["cleanup"]["proven"]
+
+
+def test_review_v3_counts_only_extracted_globs_and_is_overlap_only():
+    assert curriculum.meta("review-conflict-predictor-v3")["supersedes"] == "review-conflict-predictor-v2"
+    task = curriculum.agent_files("review-conflict-predictor-v3")["TASK.md"].decode()
+    assert "file overlap only" in task and "must not affect wave assignment" in task
+    oracle = curriculum.verifier_files("review-conflict-predictor-v3")["reference"].decode()
+    assert oracle.count("touch_count += len(globs)") == 2 and "touch_count += 1" not in oracle
+    rows = {r["original_id"]: r for r in curriculum.rows("review-conflict-predictor-v3")}
+    assert "MB-010c::empty touch glob is not file-scope signal" in rows
+    assert "MB-010c::dependencies do not affect overlap-only waves" in rows
+    receipt = json.loads(calibrate.path("review-conflict-predictor-v3").read_text())
+    assert [p["verdict"] for p in receipt["phases"]] == ["fail", "pass"]
+
+
+def test_review_v3_rejects_the_v2_oracle_gap(tmp_path):
+    report = api.grade(specs.reference("review-conflict-predictor-v2"), tmp_path / "r", task="review-conflict-predictor-v3")
+    assert report["verdict"] == "fail"
+    assert [a["original_id"] for a in report["assertions"] if not a["passed"]] == [
+        "MB-010c::empty touch glob is not file-scope signal"]

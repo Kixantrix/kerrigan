@@ -1,0 +1,38 @@
+{
+ "id": "review-conflict-predictor-v3",
+ "family": "Review and repair",
+ "title": "Review a wave conflict predictor that silently emitted an all-clear plan",
+ "source": {
+  "repo": "Kixantrix/kerrigan",
+  "visibility": "public",
+  "kind": "pr",
+  "pr": 312,
+  "base_ref": "7544e0592041f725375dccfa7d265499d57a096a",
+  "reference_ref": "2071fffaf4cca41ec8d63ec06acd6963333236f3",
+  "history_status": "merged"
+ },
+ "derivation": "Exact historical base file; reference is the historical fix plus a REVIEW_FINDINGS annotation. Task statement rewritten from the real briefing as symptoms only (review, not specification). Fixture is the real planning excerpt at the dispatch commit. v2 (MB-010c): instruction scopes fail-loud to files with task lines (prose/empty files remain zero-wave success, matching the historical tests and oracle); stderr checks require the file name and both annotation forms rather than environment paths; missing-file wording is no longer checked; CLI propagation, partially annotated files and finding structure are tested; findings are scoped to contributing defects. v3 (MB-010c follow-up): native admission audit of v2 found (1) the oracle counted an annotation with an empty glob as file-scope signal and reported success, now fixed to count extracted globs with a hidden check, and (2) 'correct waves' implied dependency ordering; the instruction now states waves are overlap-only, with a hidden check that dependencies do not affect waves.",
+ "privacy": "public",
+ "coverage": "Parser/wave/run/CLI behavior plus a closed-vocabulary defect review: 11 preservation, 11 regression, 5 review checks.",
+ "historical_exposure": "Public historical fix; exposure/recognition risk.",
+ "outcome_evidence": "defect_coverage",
+ "estimated_agent_minutes": 25,
+ "residual_rubric": [
+  "Quality of free-text defect descriptions is recorded for later human review, never model-judged."
+ ],
+ "leak_tokens": [
+  "parse_tasks_with_stats",
+  "_TOUCH_BULLET_RE",
+  "REVIEW_FINDINGS = [\n    {\"location\": \"_TASK"
+ ],
+ "grader": {
+  "harness": "review_conflict_predictor_v2.py",
+  "candidate": "tools/conflict_predictor.py",
+  "denominators": {
+   "preservation": 11,
+   "regression": 11,
+   "review": 5
+  }
+ },
+ "supersedes": "review-conflict-predictor-v2"
+}

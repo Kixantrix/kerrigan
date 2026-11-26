@@ -506,11 +506,12 @@
    "long_horizon": false,
    "summary": "The parser only understood legacy inline annotations, so real tasks.md files parsed as zero tasks and produced an empty, falsely-safe wave plan. Agent finds and repairs the parser and adds a fail-loud guard.",
    "history_status": "merged",
-   "package": "review-conflict-predictor-v2",
+   "package": "review-conflict-predictor-v3",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader:mb006j",
    "retired_packages": [
-    "review-conflict-predictor"
+    "review-conflict-predictor",
+    "review-conflict-predictor-v2"
    ],
    "estimated_human_minutes": 25
   },
