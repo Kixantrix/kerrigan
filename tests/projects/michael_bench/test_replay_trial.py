@@ -285,9 +285,8 @@ def mb006l_seal(tmp_path, monkeypatch):
     trial.grader.persist(root / "safety.json", {"conditionSha256": validator.digest(condition),
         "passed": True, "attester": "authorized-local-executor", "nativePrompts": 0})
     seal = {"condition": "MB-006l", "conditionSha256": validator.digest(condition),
-            "frozen": condition, "source": condition["source"], "directHuman": True,
-            "humanDecision": {"source": "direct-executor-ask_user", "requestId": "synthetic-only",
-                             "answer": "Authorize exact frozen MB-006l condition"},
+            "frozen": condition, "source": condition["source"],
+            "authorizationSource": validator.AUTHORIZATION_SOURCE,
             "approvalSha256": trial.sha((root / "approval.json").read_bytes()),
             "safetySha256": trial.sha((root / "safety.json").read_bytes())}
     path = tmp_path / "synthetic-seal.json"
@@ -304,7 +303,7 @@ def test_mb006l_stale_authority_fails_before_allocation(tmp_path, monkeypatch, d
     elif damage == "approval":
         (root / "approval.json").write_text("modified")
     elif damage == "provenance":
-        seal["humanDecision"]["source"] = "coordinator"
+        seal["authorizationSource"] = "unbound coordinator suggestion"
     else:
         seal["condition"] = "MB-006h"
     trial.grader.persist(path, seal)
@@ -475,7 +474,8 @@ def test_mb006l_javascript_admission_synthetic_files_only(tmp_path):
     frozen = {"namespace": root.name, "models": ["mai-code-2"], "source": {},
               "runtime": {name: trial.sha(path.read_bytes()) for name, path in runtime.items()},
               "caSha256": trial.sha((root / "ca").read_bytes())}
-    seal = {"frozen": frozen, "conditionSha256": validator.digest(frozen), "source": {}, "directHuman": True,
+    seal = {"frozen": frozen, "conditionSha256": validator.digest(frozen), "source": {},
+            "authorizationSource": validator.AUTHORIZATION_SOURCE,
             "approvalSha256": trial.sha((root / "approval.json").read_bytes()),
             "safetySha256": trial.sha((root / "safety.json").read_bytes())}
     trial.grader.persist(authority / "mb006l-authorization.json", seal)

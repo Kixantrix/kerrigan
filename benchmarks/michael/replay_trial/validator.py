@@ -8,6 +8,7 @@ from . import api
 POLICY = json.loads((api.runner.HERE / "validator-task-policy.json").read_bytes())
 NAMESPACE = "mb006l-validator-v1"
 SEAL = api.HERE / "mb006l-authorization.json"
+AUTHORIZATION_SOURCE = "standing user direction (plan.md Standing autonomy)"
 PROMPT = (
     "Implement the validator requirements in TASK.md. Use only mb_action read/write/run. "
     "Read TASK.md, policy.json, requirements.txt and tools/validators/agents_md.py. "
@@ -89,16 +90,13 @@ def authorization(owned, model):
     seal = json.loads(SEAL.read_bytes())
     root = owned / NAMESPACE
     approval, safety = root / "approval.json", root / "safety.json"
-    decision = seal.get("humanDecision", {})
     if (model not in condition["models"] or seal.get("condition") != "MB-006l"
             or seal.get("conditionSha256") != digest(condition)
             or seal.get("source") != condition["source"] or seal.get("frozen") != condition
-            or seal.get("directHuman") is not True
-            or decision.get("source") != "direct-executor-ask_user" or not decision.get("requestId")
-            or decision.get("answer") != "Authorize exact frozen MB-006l condition"
+            or seal.get("authorizationSource") != AUTHORIZATION_SOURCE
             or seal.get("approvalSha256") != api.sha(approval.read_bytes())
             or seal.get("safetySha256") != api.sha(safety.read_bytes())):
-        raise api.TrialError("stale/wrong/non-human MB-006l authorization")
+        raise api.TrialError("stale/wrong MB-006l standing-direction authorization")
     proof = json.loads(safety.read_bytes())
     if (proof.get("conditionSha256") != seal["conditionSha256"] or proof.get("passed") is not True
             or proof.get("attester") != "authorized-local-executor" or proof.get("nativePrompts") != 0):

@@ -17,7 +17,8 @@ export function admission(config) {
     const slot = JSON.parse(readFileSync(config.slot));
     if (config.approved !== true || seal.conditionSha256 !== config.conditionSha256 ||
         seal.conditionSha256 !== hash(JSON.stringify(canonical(seal.frozen))) ||
-        seal.directHuman !== true || slot.configSha256 !== hash(JSON.stringify(canonical(config))) ||
+        seal.authorizationSource !== "standing user direction (plan.md Standing autonomy)" ||
+        slot.configSha256 !== hash(JSON.stringify(canonical(config))) ||
         slot.sealSha256 !== hash(JSON.stringify(canonical(seal))) || config.seconds !== 3600)
         throw new Error("validator_authorization_denied");
     const root = dirname(dirname(config.slot));

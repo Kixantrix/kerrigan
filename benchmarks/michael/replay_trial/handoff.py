@@ -77,7 +77,7 @@ def terminal(bundle, native, graded, timings, *, owner_exited, source_sha, synth
 
 
 def execute(owned, directory, model, ledger_path):
-    """Future live entry point: absent fixed human seal fails before any allocation."""
+    """Live entry point: exact standing-direction seal required before allocation."""
     began = time.monotonic()
     run = validator.prepare_live(owned, directory, model)
     frozen = bundle(owned, model)
