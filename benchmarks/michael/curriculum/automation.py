@@ -13,8 +13,10 @@ from __future__ import annotations
 import ast
 import difflib
 import hashlib
+import io
 import json
 import re
+import tokenize
 
 PROMPT_VERSION = "mb008-v1"
 
@@ -252,6 +254,21 @@ def degrade(source: bytes) -> dict[str, bytes]:
     renamed = source
     for index, name in enumerate(private[:3]):
         renamed = re.sub(rb"\b" + re.escape(name) + rb"\b", b"_f%d" % index, renamed)
+    if renamed == source:
+        tree = ast.parse(source)
+        excluded = {n.arg for n in ast.walk(tree) if isinstance(n, (ast.arg, ast.keyword)) and n.arg}
+        excluded.update(n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute))
+        excluded.update(n.name for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.ClassDef)))
+        assigned = {target.id for function in ast.walk(tree) if isinstance(function, ast.FunctionDef)
+                    for node in ast.walk(function) if isinstance(node, ast.Assign)
+                    for target in node.targets if isinstance(target, ast.Name)}
+        names = sorted(n for n in assigned if n.islower() and len(n) >= 4 and n not in excluded)[:3]
+        mapping = {name: f"_q{index}" for index, name in enumerate(names)}
+        renamed = tokenize.untokenize([
+            token._replace(string=mapping.get(token.string, token.string)) if token.type == tokenize.NAME else token
+            for token in tokenize.tokenize(io.BytesIO(source).readline)])
+    if renamed == source:
+        raise ValueError("source has no identifiers suitable for a distinct obscured-name fixture")
     return {"debug_leftover": b"".join(debug), "dead_code": b"".join(dead), "obscured_names": renamed}
 
 

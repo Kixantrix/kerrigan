@@ -478,3 +478,12 @@ def test_deterministic_quality_flags_seeded_degradations():
     assert outside["files_outside_task"] == ["x.py"]
     assert automation.calibration_agreement([
         {"variant": v, "judge": j, "preferred_oracle": True} for v in variants for j in ("a", "b")])["admit_panel"]
+
+
+def test_obscured_calibration_is_distinct_without_private_functions():
+    source = b'def public():\n    descriptive_name = "descriptive_name"\n    return descriptive_name\n'
+    variant = automation.degrade(source)["obscured_names"]
+    assert variant != source
+    assert b'"descriptive_name"' in variant and b"return _q0" in variant
+    with pytest.raises(ValueError, match="distinct"):
+        automation.degrade(b"def public():\n    return 1\n")

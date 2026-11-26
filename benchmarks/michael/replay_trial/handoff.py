@@ -20,9 +20,9 @@ def descriptor(kind, name):
             "provenance": {"source_id": "MB-006l"}}
 
 
-def bundle(owned, model, *, synthetic=False):
-    frozen = validator.frozen(owned)
-    task = json.loads((api.packages.HERE / "validator/manifest.json").read_bytes())
+def bundle(owned, model, *, synthetic=False, task_name="validator", configuration=None):
+    frozen = validator.frozen(owned) if configuration is None else configuration
+    task = json.loads((api.packages.HERE / task_name / "manifest.json").read_bytes())
     target = {**descriptor("target", ("synthetic-" if synthetic else "") + model),
               "requested_identity": ("not invoked; fixture for " if synthetic else "") + model,
               "observed_identity": unknown(), "runtime": known("pinned local CLI/MXC; cloud inference")}
@@ -41,7 +41,7 @@ def bundle(owned, model, *, synthetic=False):
     return validate_bundle(task=task, target=target, agent=agent, condition=condition)
 
 
-def terminal(bundle, native, graded, timings, *, owner_exited, source_sha, synthetic=False):
+def terminal(bundle, native, graded, timings, *, owner_exited, source_sha, synthetic=False, expected_assertions=25):
     complete = (owner_exited and native.get("wholeProcessQuiescent") is True
                 and native.get("cleanupSeconds", 16) <= 15
                 and native.get("stopReason") == ("diagnostics_complete" if synthetic else "session_idle")
@@ -51,7 +51,7 @@ def terminal(bundle, native, graded, timings, *, owner_exited, source_sha, synth
                 and graded.get("verdict") in ("pass", "fail")
                 and graded.get("cleanup", {}).get("proven") is True
                 and graded.get("bindings", {}).get("source_sha256") == source_sha
-                and len(graded.get("assertions", [])) == 25
+                and len(graded.get("assertions", [])) == expected_assertions
                 and all(isinstance(a, dict) and type(a.get("passed")) is bool for a in graded["assertions"])
                 and (graded["verdict"] == "pass") == all(a["passed"] for a in graded["assertions"]))
     status = ("passed" if graded["verdict"] == "pass" else "failed") if verified else "not_run"

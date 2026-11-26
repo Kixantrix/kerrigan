@@ -2,12 +2,13 @@ import { readFileSync, writeFileSync, appendFileSync, openSync, fsyncSync, close
 import { pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
 import { createHash } from "node:crypto";
-import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATOR, TASK_VALIDATOR } from "./limits.mjs";
+import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATOR, TASK_VALIDATOR as LEGACY_TASK_POLICY } from "./limits.mjs";
 import { admission } from "./validator_admission.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 admission(config);
+const TASK_VALIDATOR = config.curriculumTask ? config.taskPolicy : LEGACY_TASK_POLICY;
 if (config.validatorReplay && (config.model !== null || config.approved !== false ||
     config.transportProbe || config.prompt !== undefined || config.condition !== "MB-006k-offline"))
     throw new Error("validator_replay_forbids_inference");
@@ -77,7 +78,8 @@ async function owned(kind, command, profile, payload, run = false, final = false
                 run ? TASK_VALIDATOR.runSeconds * 1000 : Infinity)),
         environment: kind === "cli" ? config.environment : {
             PATH: "/usr/bin:/bin", HOME: config.task, TMPDIR: config.task,
-            PYTHONDONTWRITEBYTECODE: "1" }
+            PYTHONDONTWRITEBYTECODE: "1",
+            MB_CURRICULUM_READ_CHUNK: config.curriculumTask && !final ? "4096" : "0" }
     }).finally(() => spawning--);
     live.add(child);
     if ((stopping && !final) || performance.now() >= expires) child.kill();
@@ -168,10 +170,19 @@ const protocol = new Protocol(message => {
                         const data = event.data;
                         if (!gate || data.toolName !== "mb_action") throw new Error("tool_denied");
                         const result = await action(data.toolCallId, data.arguments);
+                        const delivered = config.curriculumTask ? {
+                            exitCode: result.exitCode, timedOut: result.timedOut, feedback: result.feedback,
+                            stdoutText: Buffer.from(result.stdout, "base64").toString(),
+                            stderrText: Buffer.from(result.stderr, "base64").toString(),
+                            ...(data.arguments.op === "read" ? {
+                                offset: data.arguments.offset || 0,
+                                nextOffset: (data.arguments.offset || 0) + Buffer.from(result.stdout, "base64").length,
+                                readChunkBytes: 4096,
+                                pagination: "Read again with nextOffset until an empty result; byte offsets." } : {})
+                        } : { ...result, stdoutText: Buffer.from(result.stdout, "base64").toString() };
                         await rpc("session.tools.handlePendingToolCall", {
                             sessionId: config.sessionId, requestId: data.requestId,
-                            result: JSON.stringify({ ...result,
-                                stdoutText: Buffer.from(result.stdout, "base64").toString() }) });
+                            result: JSON.stringify(delivered) });
                     }).catch(error => stop(`broker:${error.message}`));
                 } else if (event.type === "permission.requested") {
                     const data = event.data, request = data.permissionRequest;
@@ -205,7 +216,8 @@ async function action(id, args, final = false) {
         throw new Error("reserved_source_identifier");
     if (config.validatorTask && !final && actions.size >= TASK_VALIDATOR.actions - 1)
         throw new Error("agent_action_budget");
-    const payload = validateAction(id, args, budget, config.validatorTask ? "task" : config.validatorReplay === true);
+    const payload = validateAction(id, args, budget, config.curriculumTask ? TASK_VALIDATOR :
+        config.validatorTask ? "task" : config.validatorReplay === true);
     const index = actions.size;
     persist(`action-${index}`, { id, args, atMs: performance.now() - began });
     const process = await owned("task", `${config.python} -I -B ${config.worker}`,
@@ -257,7 +269,8 @@ try {
                     path: { enum: config.validatorTask ? TASK_VALIDATOR.read :
                         config.validatorReplay ? VALIDATOR.read : ["candidate.py", "result.txt"] },
                     data: { type: "string", maxLength: config.validatorTask ? TASK_VALIDATOR.bytes :
-                        config.validatorReplay ? VALIDATOR.bytes : 7000 } },
+                        config.validatorReplay ? VALIDATOR.bytes : 7000 },
+                    ...(config.curriculumTask ? {offset: {type: "integer", minimum: 0, maximum: 4194304}} : {}) },
                     required: ["op", "path"] } }] },
         extensions: { enabled: false }, mcp: { servers: {} },
         hooks: { hasHandlers: false, enableRepositoryHooks: false },

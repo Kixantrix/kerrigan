@@ -5,24 +5,28 @@ export const TASK_VALIDATOR = Object.freeze(JSON.parse(
     readFileSync(new URL("./validator-task-policy.json", import.meta.url), "utf8")));
 
 export function validateAction(id, args, state, validatorReplay = false) {
-    const policy = validatorReplay === "task" ? TASK_VALIDATOR : validatorReplay ? VALIDATOR : null;
+    const task = validatorReplay === "task" || (validatorReplay !== null && typeof validatorReplay === "object");
+    const policy = typeof validatorReplay === "object" && validatorReplay !== null ? validatorReplay :
+        validatorReplay === "task" ? TASK_VALIDATOR : validatorReplay ? VALIDATOR : null;
     if (typeof id !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(id) || state.actions.has(id))
         throw new Error("duplicate_or_invalid_action");
     const keys = Object.keys(args || {}).sort().join(",");
+    const pagedRead = task && typeof validatorReplay === "object" && args?.op === "read" &&
+        keys === "offset,op,path" && Number.isSafeInteger(args.offset) && args.offset >= 0 && args.offset <= 4194304;
     if (!args || !["read", "write", "run"].includes(args.op) ||
         !(policy ? policy.read : ["candidate.py", "result.txt"]).includes(args.path) ||
-        keys !== (args.op === "write" ? "data,op,path" : "op,path") ||
+        (!pagedRead && keys !== (args.op === "write" ? "data,op,path" : "op,path")) ||
         (args.op === "write" && typeof args.data !== "string") ||
-        (args.op === "run" && !(validatorReplay === "task" ? policy.write :
+        (args.op === "run" && !(task ? (policy.run || policy.write) :
             [policy ? policy.source : "candidate.py"]).includes(args.path)) ||
         (policy && args.op === "write" && !(policy.write || [policy.source]).includes(args.path)))
         throw new Error("action_denied");
     const payload = Buffer.from(JSON.stringify(args));
     if (payload.length > (policy?.payload || 8192) ||
         state.bytes + payload.length > (policy?.aggregate || 32768) -
-            (policy === TASK_VALIDATOR && id !== "controller-final-source" ? 128 : 0) ||
+            (task && id !== "controller-final-source" ? 256 : 0) ||
         state.actions.size >= (policy?.actions || 8) ||
-        (policy === TASK_VALIDATOR && args.op === "write" && Buffer.byteLength(args.data) > policy.bytes))
+        (task && args.op === "write" && Buffer.byteLength(args.data) > policy.bytes))
         throw new Error("action_budget");
     state.bytes += payload.length;
     state.actions.add(id);

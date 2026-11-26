@@ -2,8 +2,10 @@ import { readFileSync, openSync, closeSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, basename } from "node:path";
 import { canonical, TASK_VALIDATOR } from "./limits.mjs";
+import { curriculumAdmission } from "./curriculum_admission.mjs";
 const hash = data => createHash("sha256").update(data).digest("hex");
 export function admission(config) {
+    if (config.curriculumTask) return curriculumAdmission(config);
     if (!config.validatorTask) return;
     if (config.validatorReplay || config.condition !== "MB-006l" ||
         !(config.seconds > 0 && config.seconds <= TASK_VALIDATOR.activeSeconds))
