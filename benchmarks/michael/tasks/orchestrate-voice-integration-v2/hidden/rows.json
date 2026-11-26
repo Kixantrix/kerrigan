@@ -1,0 +1,519 @@
+[
+ {
+  "original_id": "R1 join handshake reaches a ready session",
+  "group": "integration",
+  "probe": {
+   "scenario": "e2eTurn"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "joined",
+     "state"
+    ],
+    "ready"
+   ],
+   [
+    "path_equal",
+    [
+     "joined",
+     "sessionId"
+    ],
+    "s1"
+   ]
+  ]
+ },
+ {
+  "original_id": "R4 push-to-talk turn reaches speaking with the response",
+  "group": "integration",
+  "probe": {
+   "scenario": "e2eTurn"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "listening"
+    ],
+    "listening"
+   ],
+   [
+    "path_equal",
+    [
+     "answered",
+     "state"
+    ],
+    "speaking"
+   ],
+   [
+    "path_equal",
+    [
+     "answered",
+     "lastResponse"
+    ],
+    "reply:18"
+   ],
+   [
+    "path_equal",
+    [
+     "after"
+    ],
+    "ready"
+   ]
+  ]
+ },
+ {
+  "original_id": "R2 unknown token rejected for auth",
+  "group": "integration",
+  "probe": {
+   "scenario": "rejectsBadToken"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "state"
+    ],
+    "ended"
+   ],
+   [
+    "path_equal",
+    [
+     "endReason"
+    ],
+    "auth"
+   ]
+  ]
+ },
+ {
+  "original_id": "R6 other protocol version rejected",
+  "group": "integration",
+  "probe": {
+   "scenario": "rejectsOldVersion"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    [
+     {
+      "type": "rejected",
+      "reason": "version"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "R5 barge-in cancels the in-flight response and starts a new turn",
+  "group": "integration",
+  "probe": {
+   "scenario": "bargeIn"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "speaking"
+    ],
+    "speaking"
+   ],
+   [
+    "path_equal",
+    [
+     "cancelledFirst"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "newTurnAnswered"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "state"
+    ],
+    "speaking"
+   ]
+  ]
+ },
+ {
+  "original_id": "R3 telemetry carries no content",
+  "group": "integration",
+  "probe": {
+   "scenario": "telemetryContentFree"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "leaked"
+    ],
+    false
+   ],
+   [
+    "path_contains_none",
+    [
+     "keys"
+    ],
+    [
+     "transcript",
+     "text",
+     "token",
+     "type"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "audioMs"
+    ],
+    1250
+   ]
+  ]
+ },
+ {
+  "original_id": "R7 audio budget ends the session after 120 seconds",
+  "group": "integration",
+  "probe": {
+   "scenario": "budget"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "at120"
+    ],
+    "listening"
+   ],
+   [
+    "path_equal",
+    [
+     "after"
+    ],
+    "ended"
+   ],
+   [
+    "path_equal",
+    [
+     "endReason"
+    ],
+    "budget"
+   ]
+  ]
+ },
+ {
+  "original_id": "R8 correlation ids unique per turn and opaque",
+  "group": "integration",
+  "probe": {
+   "scenario": "correlationUnique"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "count"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "unique"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "opaque"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "frames before join and malformed frames are rejected",
+  "group": "preservation",
+  "probe": {
+   "scenario": "malformedRejected"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "beforeJoin"
+    ],
+    [
+     {
+      "type": "rejected",
+      "reason": "malformed"
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "garbage"
+    ],
+    [
+     {
+      "type": "rejected",
+      "reason": "malformed"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "state machine ignores out-of-order controls",
+  "group": "preservation",
+  "probe": {
+   "scenario": "guards"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "idle"
+    ],
+    "idle"
+   ],
+   [
+    "path_equal",
+    [
+     "ready"
+    ],
+    "ready"
+   ]
+  ]
+ },
+ {
+  "original_id": "every requirement recorded as met",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_keys",
+    [
+     "requirements"
+    ],
+    [
+     "R1",
+     "R2",
+     "R3",
+     "R4",
+     "R5",
+     "R6",
+     "R7",
+     "R8"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R1",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R2",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R3",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R4",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R5",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R6",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R7",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R8",
+     "status"
+    ],
+    "met"
+   ]
+  ]
+ },
+ {
+  "original_id": "requirements mapped to the implementing layers",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "requirements",
+     "R1",
+     "files"
+    ],
+    [
+     "src/transport.ts",
+     "src/server.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirements",
+     "R3",
+     "files"
+    ],
+    [
+     "src/server.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirements",
+     "R5",
+     "files"
+    ],
+    [
+     "src/session.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirements",
+     "R7",
+     "files"
+    ],
+    [
+     "src/session.ts",
+     "src/server.ts"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "required integration defects recorded",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categoriesSorted"
+    ],
+    [
+     "content-in-telemetry",
+     "handshake-mismatch",
+     "requirement-dropped",
+     "unit-mismatch",
+     "version-skew"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "no nonexistent or duplicate defects listed",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_contains_none",
+    [
+     "categoriesSorted"
+    ],
+    [
+     "auth-bypass",
+     "race-condition"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "unknownCategories"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "a listed extra defect is actually fixed",
+  "group": "ledger",
+  "probe": {
+   "scenario": "leakCheck"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "claimFixed"
+    ],
+    true
+   ]
+  ]
+ }
+]

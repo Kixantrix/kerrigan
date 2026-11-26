@@ -650,3 +650,42 @@ def test_research_v2_unknowns_check_is_set_based(tmp_path):
     assert v2["verdict"] == "pass"
     assert [a["original_id"] for a in v1["assertions"] if not a["passed"]] == ["unknowns list exactly the undeterminable keys"]
     assert [a["original_id"] for a in dup["assertions"] if not a["passed"]] == ["unknowns list exactly the undeterminable keys"]
+
+
+def _orchestrate_variant(code_from, categories):
+    files = specs.unbundle("orchestrate-voice-integration", specs.reference(code_from))
+    ledger = json.loads(files["INTEGRATION.json"])
+    ledger["defects"] = [{"category": c, "files": ["src/server.ts"]} for c in categories]
+    files["INTEGRATION.json"] = (json.dumps(ledger, indent=2) + "\n").encode()
+    return specs.bundle(files)
+
+
+REQUIRED_DEFECTS = ["handshake-mismatch", "version-skew", "requirement-dropped", "content-in-telemetry", "unit-mismatch"]
+
+
+@pytest.mark.parametrize("label,code_from,extra,failed", [
+    ("sonnet-style: genuine leak listed and fixed", "orchestrate-voice-integration-v2", ["memory-leak"], []),
+    ("five only, leak left unfixed", "orchestrate-voice-integration", [], []),
+    ("mai-style: nonexistent auth-bypass", "orchestrate-voice-integration", ["auth-bypass"],
+     ["no nonexistent or duplicate defects listed"]),
+    ("leak claimed but not fixed", "orchestrate-voice-integration", ["memory-leak"],
+     ["a listed extra defect is actually fixed"]),
+    ("missing a required defect", "orchestrate-voice-integration-v2", ["memory-leak"], None),
+])
+def test_orchestrate_v2_ledger_rewards_real_work(label, code_from, extra, failed, tmp_path):
+    categories = REQUIRED_DEFECTS + extra if failed is not None else REQUIRED_DEFECTS[1:] + extra
+    report = api.grade(_orchestrate_variant(code_from, categories), tmp_path / "r", task="orchestrate-voice-integration-v2")
+    observed = [a["original_id"] for a in report["assertions"] if not a["passed"]]
+    assert observed == (failed if failed is not None else ["required integration defects recorded"]), label
+
+
+def test_orchestrate_v2_audit_record():
+    info = curriculum.meta("orchestrate-voice-integration-v2")
+    audited = {d["category"] for d in info["audited_base_defects"]}
+    assert audited == set(REQUIRED_DEFECTS) | {"memory-leak"}
+    assert set(info["audited_absent"]) == {"auth-bypass", "race-condition"}
+    base = curriculum.agent_files("orchestrate-voice-integration-v2")
+    for defect in info["audited_base_defects"]:
+        assert defect["line"] <= base[defect["file"]].decode().count("\n") + 1
+    task = base["TASK.md"].decode()
+    assert "Listing a defect that does not exist fails" in task

@@ -1229,11 +1229,14 @@
    "long_horizon": true,
    "summary": "From briefing (#246) through 9 stacked layer PRs (#247-#259) landing as one merge, the agent must plan the layers, brief them, dispatch, repair a cross-layer handshake break, and integrate.",
    "history_status": "merged",
-   "package": "orchestrate-voice-integration",
+   "package": "orchestrate-voice-integration-v2",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "estimated_human_minutes": 90,
-   "original_environment": "cloud-linux-docker"
+   "original_environment": "cloud-linux-docker",
+   "pending_reaudit_packages": [
+    "orchestrate-voice-integration"
+   ]
   },
   {
    "id": "ga2-cockpit-rebuild",
