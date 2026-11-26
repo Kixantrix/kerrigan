@@ -1,0 +1,18 @@
+{
+ "id": "review-conflict-predictor",
+ "family": "Review and repair",
+ "title": "Review a wave conflict predictor that silently emitted an all-clear plan",
+ "source": {"repo": "Kixantrix/kerrigan", "visibility": "public", "kind": "pr", "pr": 312,
+            "base_ref": "7544e0592041f725375dccfa7d265499d57a096a",
+            "reference_ref": "2071fffaf4cca41ec8d63ec06acd6963333236f3", "history_status": "merged"},
+ "derivation": "Exact historical base file; reference is the historical fix plus a REVIEW_FINDINGS annotation. Task statement rewritten from the real briefing as symptoms only (review, not specification). Fixture is the real planning excerpt at the dispatch commit.",
+ "privacy": "public",
+ "coverage": "Parser/wave/CLI-run behavior plus a closed-vocabulary defect review; preservation derived from the original unittest suite (10 rows), regression from the fix's new tests plus the real excerpt (7 rows), review coverage and false positives (4 rows).",
+ "historical_exposure": "Public historical fix; exposure/recognition risk.",
+ "outcome_evidence": "defect_coverage",
+ "estimated_agent_minutes": 25,
+ "residual_rubric": ["Quality of free-text defect descriptions is recorded for later human review, never model-judged."],
+ "leak_tokens": ["parse_tasks_with_stats", "_TOUCH_BULLET_RE", "REVIEW_FINDINGS = [\n    {\"location\": \"_TASK"],
+ "grader": {"harness": "review_conflict_predictor.py", "candidate": "tools/conflict_predictor.py",
+            "denominators": {"preservation": 10, "regression": 7, "review": 4}}
+}

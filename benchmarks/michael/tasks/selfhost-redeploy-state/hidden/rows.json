@@ -1,0 +1,192 @@
+[
+ {
+  "original_id": "service healthy after deploy and after recreation",
+  "group": "service",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "health",
+     "after_deploy"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "health",
+     "after_recreate"
+    ],
+    200
+   ]
+  ]
+ },
+ {
+  "original_id": "room created before deploy is still served after deploy",
+  "group": "service",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "room",
+     "after_deploy"
+    ],
+    [
+     200,
+     {
+      "pin": "4821"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "room survives container recreation (image update)",
+  "group": "service",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "room",
+     "after_recreate"
+    ],
+    [
+     200,
+     {
+      "pin": "4821"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "pre-existing room state from before the change is retained",
+  "group": "service",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "room",
+     "preexisting"
+    ],
+    [
+     200,
+     {
+      "pin": "1177"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "image, entrypoint, ports and environment unchanged",
+  "group": "preservation",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "service",
+     "image"
+    ],
+    "local/call-api:1"
+   ],
+   [
+    "path_equal",
+    [
+     "service",
+     "entrypoint"
+    ],
+    "/app/server.py"
+   ],
+   [
+    "path_equal",
+    [
+     "service",
+     "ports"
+    ],
+    [
+     "3001:3001"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "service",
+     "environment"
+    ],
+    {
+     "DATA_DIR": "/data",
+     "PORT": "3001",
+     "ROOM_TTL_HOURS": "72"
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "API code still mounted from ./api at /app",
+  "group": "preservation",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "code_mount"
+    ],
+    [
+     "bind",
+     "api"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "state persists outside the source tree in a declared volume",
+  "group": "safety",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "data_mount",
+     "kind"
+    ],
+    "named"
+   ]
+  ]
+ },
+ {
+  "original_id": "no data written into the code mount",
+  "group": "safety",
+  "probe": {
+   "op": "scenario"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "code_tree_unchanged"
+    ],
+    true
+   ]
+  ]
+ }
+]

@@ -1,0 +1,832 @@
+[
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestNormalizeTaskId",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "normalize_task_id",
+     "args": [
+      "T001"
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "normalize_task_id",
+     "args": [
+      "T-42"
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "normalize_task_id",
+     "args": [
+      "T1234"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0
+    ],
+    "T-001"
+   ],
+   [
+    "path_equal",
+    [
+     1
+    ],
+    "T-042"
+   ],
+   [
+    "path_equal",
+    [
+     2
+    ],
+    "T-1234"
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_single_task_with_globs",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "- [ ] T001 Create model <!-- touch: src/models/*.py -->\n"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0
+    ],
+    [
+     {
+      "id": "T-001",
+      "globs": [
+       "src/models/*.py"
+      ]
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_touch_whitespace_trimmed",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "- [ ] T002 Tests <!-- touch:   src/a.py ,  src/b.py   -->\n"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     0,
+     "globs"
+    ],
+    [
+     "src/a.py",
+     "src/b.py"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_completed_and_uppercase_x_included",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "- [x] T003 Done <!-- touch: a.py -->\n- [X] T004 Done <!-- touch: b.py -->\n- [ ] T005 Open\n"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     "*",
+     "id"
+    ],
+    [
+     "T-003",
+     "T-004",
+     "T-005"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     0,
+     2,
+     "globs"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_prose_lines_ignored",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "# Tasks\n\nSome prose about T001.\n* bullet\n"
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      ""
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     1
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestGlobsOverlap",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "globs_overlap",
+     "args": [
+      [
+       "src/foo.py"
+      ],
+      [
+       "src/foo.py"
+      ]
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "globs_overlap",
+     "args": [
+      [
+       "src/models/*.py"
+      ],
+      [
+       "src/models/user.py"
+      ]
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "globs_overlap",
+     "args": [
+      [
+       "src/a/*.py"
+      ],
+      [
+       "src/b/*.py"
+      ]
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "globs_overlap",
+     "args": [
+      [],
+      [
+       "src/a.py"
+      ]
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "globs_overlap",
+     "args": [
+      [
+       "src/*.py"
+      ],
+      [
+       "src/*.ts"
+      ]
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     1
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     2
+    ],
+    false
+   ],
+   [
+    "path_equal",
+    [
+     3
+    ],
+    false
+   ],
+   [
+    "path_equal",
+    [
+     4
+    ],
+    false
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestComputeWaves",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "compute_waves",
+     "args": [
+      [
+       {
+        "id": "T-001",
+        "globs": [
+         "src/a.py"
+        ]
+       },
+       {
+        "id": "T-002",
+        "globs": [
+         "src/a.py"
+        ]
+       },
+       {
+        "id": "T-003",
+        "globs": [
+         "src/b.py"
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "compute_waves",
+     "args": [
+      [
+       {
+        "id": "T-001",
+        "globs": []
+       },
+       {
+        "id": "T-002",
+        "globs": []
+       }
+      ]
+     ]
+    },
+    {
+     "op": "fn",
+     "fn": "compute_waves",
+     "args": [
+      []
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0
+    ],
+    [
+     [
+      "T-001",
+      "T-003"
+     ],
+     [
+      "T-002"
+     ]
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     1
+    ],
+    [
+     [
+      "T-001",
+      "T-002"
+     ]
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     2
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestRun::test_full_pipeline",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "run",
+     "text": "- [ ] T001 A <!-- touch: src/a.py -->\n- [ ] T002 B <!-- touch: src/a.py -->\n- [ ] T003 C <!-- touch: src/c.py -->\n"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     "rc"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     0,
+     "waves"
+    ],
+    {
+     "waves": [
+      {
+       "wave": 1,
+       "tasks": [
+        "T-001",
+        "T-003"
+       ]
+      },
+      {
+       "wave": 2,
+       "tasks": [
+        "T-002"
+       ]
+      }
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestRun::test_no_tasks_produces_empty_waves",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "run",
+     "text": "# Tasks\n\nNothing yet.\n"
+    },
+    {
+     "op": "run",
+     "text": ""
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     "rc"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     0,
+     "waves"
+    ],
+    {
+     "waves": []
+    }
+   ],
+   [
+    "path_equal",
+    [
+     1,
+     "rc"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestRun::test_missing_tasks_file_returns_1",
+  "group": "preservation",
+  "probe": {
+   "calls": [
+    {
+     "op": "run",
+     "text": null
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     "rc"
+    ],
+    1
+   ],
+   [
+    "path_contains_all",
+    [
+     0,
+     "stderr"
+    ],
+    [
+     "not found"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_task_prefix_and_milestone_id_preserved",
+  "group": "regression",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "- [ ] Task M2.3: GitHub wrapper\n"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     0,
+     "id"
+    ],
+    "M2.3"
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_touch_bullet_parsed",
+  "group": "regression",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "- [ ] Task M2.3: GitHub wrapper\n  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, `apps/kerrigan-dashboard/src/lib/github.test.ts`\n"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     0,
+     "globs"
+    ],
+    [
+     "apps/kerrigan-dashboard/src/lib/github.ts",
+     "apps/kerrigan-dashboard/src/lib/github.test.ts"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_multiple_touch_bullets_are_unioned",
+  "group": "regression",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "- [ ] Task M2.5: CI workflow\n  - Touch: `scripts/smoke.ps1`\n  - Touch: `scripts/smoke.sh`, `.github/workflows/dashboard-build.yml`\n"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     0,
+     "globs"
+    ],
+    [
+     "scripts/smoke.ps1",
+     "scripts/smoke.sh",
+     ".github/workflows/dashboard-build.yml"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestParseTasks::test_html_and_touch_bullet_both_accumulate",
+  "group": "regression",
+  "probe": {
+   "calls": [
+    {
+     "op": "fn",
+     "fn": "parse_tasks",
+     "args": [
+      "- [ ] T001 Task <!-- touch: src/a.py -->\n  - Touch: `src/b.py`\n"
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     0,
+     "globs"
+    ],
+    [
+     "src/a.py",
+     "src/b.py"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestRun::test_task_lines_without_touch_annotations_fail_loud",
+  "group": "regression",
+  "probe": {
+   "calls": [
+    {
+     "op": "run",
+     "text": "- [ ] Task M2.3: GitHub wrapper\n- [ ] Task M2.4: Portfolio view\n"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     "rc"
+    ],
+    1
+   ],
+   [
+    "path_contains_all",
+    [
+     0,
+     "stderr"
+    ],
+    [
+     "/work/",
+     "Touch:"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tests/test_conflict_predictor.py::TestRun::test_realistic_touch_bullets_parse_and_wave",
+  "group": "regression",
+  "probe": {
+   "calls": [
+    {
+     "op": "run",
+     "text": "- [ ] Task M2.2: projects reader\n  - Touch: `apps/kerrigan-dashboard/src/lib/projects.ts`\n- [ ] Task M2.3: github wrapper\n  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, sibling test\n- [ ] Task M2.4: portfolio view\n  - Touch: `apps/kerrigan-dashboard/src/routes/portfolio/**`\n- [ ] Task M2.5: smoke\n  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`\n"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     "rc"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     0,
+     "waves",
+     "waves",
+     "*",
+     "tasks"
+    ],
+    [
+     [
+      "M2.2",
+      "M2.3",
+      "M2.4"
+     ],
+     [
+      "M2.5"
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "MB-008::realistic dashboard excerpt waves",
+  "group": "regression",
+  "probe": {
+   "calls": [
+    {
+     "op": "run",
+     "text": "## Milestone 2: Tauri skeleton + portfolio (wave-2)\n\n- [ ] Task M2.1: Tauri 2 + Vite + React + TS + Tailwind project scaffold\n  - Done when: `apps/kerrigan-dashboard/` builds via `pnpm tauri build` on Windows/macOS/Linux; `pnpm dev` opens a Tauri window with a placeholder route; Tailwind 4 configured with the design tokens from M1; ESLint + Prettier + tsconfig strict pass\n  - Links: plan.md \u00a7 Project layout, \u00a7 Tech stack; spec.md AC-001 (cold start)\n  - Dependencies:\n    - ~external:M1.1 (M1 design tokens consumed)\n  - Touch: `apps/kerrigan-dashboard/**`\n  - Read-only: everything else\n  - Tests: Vitest scaffold sanity + a CI step in M2.5's workflow that runs `pnpm -C apps/kerrigan-dashboard tauri build` and asserts the artifact (the existing repo `scripts/smoke.*` are read-only repo-health checks today; extending them to build/launch the dashboard is owned by M2.5)\n\n- [ ] Task M2.2: `lib/projects.ts` \u2014 `~/.kerrigan/projects.json` reader + schema validator\n  - Done when: TS module reads, validates (zod), and watches the file; emits typed `ProjectConfig[]`; handles missing/malformed file gracefully (returns empty + surfaces error)\n  - Links: spec.md scope bullet on multi-repo aggregation (`### In scope (v1)`), AC-002, AC-014, AC-016\n  - Dependencies:\n    - external:M2.1\n  - Touch: `apps/kerrigan-dashboard/src/lib/projects.ts`, `apps/kerrigan-dashboard/src/lib/projects.test.ts`\n  - Tests: Vitest unit (8+ cases incl. malformed JSON, missing file, schema violations, hot-reload)\n\n- [ ] Task M2.3: `lib/github.ts` \u2014 Octokit wrapper with `gh auth token` shell-out + ETag polling\n  - Done when: module exposes `getRepo`, `listOpenPRs`, `listIssues`, `getPRReviews`; auth resolved per-call via `gh auth token` (zero persistence per AC-017); ETag cache implemented; 304 short-circuits; backoff on 403 rate limit\n  - Links: plan.md \u00a7 Tech stack, plan.md \u00a7 Security; spec.md AC-017 (no token persistence)\n  - Dependencies:\n    - external:M2.1\n  - Touch: `apps/kerrigan-dashboard/src/lib/github.ts`, sibling test\n  - Tests: Vitest unit with `nock`-mocked HTTP (10+ cases); explicit assertion that no token is written to disk\n\n- [ ] Task M2.4: Portfolio view + project card component\n  - Done when: route `/` renders the card grid with real data via M2.2 + M2.3; each card displays exactly the fields required by AC-002 \u2014 project name, repo count, current wave, block count, intervention count, last-PR-merged timestamp; matches pre-vis design tokens; offline indicator (AC-014) when GitHub unreachable; first paint <1s (AC-001)\n  - Links: spec.md AC-001, AC-002, AC-014; plan.md M2\n  - Dependencies:\n    - external:M2.2\n    - external:M2.3\n  - Touch: `apps/kerrigan-dashboard/src/routes/portfolio/**`, `apps/kerrigan-dashboard/src/components/ProjectCard/**`\n  - Tests: Vitest component tests; Playwright E2E asserting first paint + card render\n\n- [ ] Task M2.5: CI `dashboard-build.yml` workflow (Win/macOS/Linux) + extend smoke scripts\n  - Done when: `.github/workflows/dashboard-build.yml` builds the Tauri app on all three OSes; lint + Vitest pass; `scripts/smoke.ps1` / `scripts/smoke.sh` extended (behind an opt-in flag or detection of `apps/kerrigan-dashboard/`) to run `pnpm -C apps/kerrigan-dashboard tauri build` and assert the artifact exists; the matrix invokes the extended smoke; artifact uploaded on tag; required-check name documented in playbooks\n  - Links: plan.md \u00a7 CI / build\n  - Dependencies:\n    - external:M2.1\n  - Touch: `.github/workflows/dashboard-build.yml`, `scripts/smoke.ps1`, `scripts/smoke.sh`\n  - Tests: workflow green on a draft PR; verify check shows up in branch protection list; extended smoke produces an artifact on each OS\n\n---\n\n"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     0,
+     "rc"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     0,
+     "waves",
+     "waves",
+     "*",
+     "tasks"
+    ],
+    [
+     [
+      "M2.1",
+      "M2.5"
+     ],
+     [
+      "M2.2",
+      "M2.3",
+      "M2.4"
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "MB-008::finding covers task-line parsing",
+  "group": "review",
+  "probe": {
+   "calls": [
+    {
+     "op": "findings"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     0
+    ],
+    [
+     "task-line-parsing"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "MB-008::finding covers touch-annotation parsing",
+  "group": "review",
+  "probe": {
+   "calls": [
+    {
+     "op": "findings"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     0
+    ],
+    [
+     "touch-annotation-parsing"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "MB-008::finding covers silent zero-signal success",
+  "group": "review",
+  "probe": {
+   "calls": [
+    {
+     "op": "findings"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     0
+    ],
+    [
+     "error-handling"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "MB-008::no findings in correct code (false positives)",
+  "group": "review",
+  "probe": {
+   "calls": [
+    {
+     "op": "findings"
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_contains_none",
+    [
+     0
+    ],
+    [
+     "glob-overlap",
+     "wave-assignment",
+     "output-format",
+     "cli"
+    ]
+   ]
+  ]
+ }
+]

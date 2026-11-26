@@ -1,0 +1,101 @@
+{
+ "sequence": {
+  "shift_px_per_frame": 1.5,
+  "frames": 6,
+  "width": 64,
+  "seed": 7
+ },
+ "command": "python assay/temporal_mech.py",
+ "results": [
+  {
+   "model": "warp-linear",
+   "flow": "block",
+   "oracle": true,
+   "mse": 0.000606
+  },
+  {
+   "model": "warp-linear",
+   "flow": "block",
+   "oracle": false,
+   "mse": 0.021148
+  },
+  {
+   "model": "warp-linear",
+   "flow": "coarse",
+   "oracle": true,
+   "mse": 0.000606
+  },
+  {
+   "model": "warp-linear",
+   "flow": "coarse",
+   "oracle": false,
+   "mse": 0.021148
+  },
+  {
+   "model": "warp-nearest",
+   "flow": "block",
+   "oracle": true,
+   "mse": 0.003697
+  },
+  {
+   "model": "warp-nearest",
+   "flow": "block",
+   "oracle": false,
+   "mse": 0.021148
+  },
+  {
+   "model": "warp-nearest",
+   "flow": "coarse",
+   "oracle": true,
+   "mse": 0.003697
+  },
+  {
+   "model": "warp-nearest",
+   "flow": "coarse",
+   "oracle": false,
+   "mse": 0.021148
+  },
+  {
+   "model": "self-offset",
+   "flow": "block",
+   "oracle": true,
+   "mse": 0.000606
+  },
+  {
+   "model": "self-offset",
+   "flow": "block",
+   "oracle": false,
+   "mse": 0.000606
+  },
+  {
+   "model": "self-offset",
+   "flow": "coarse",
+   "oracle": true,
+   "mse": 0.000606
+  },
+  {
+   "model": "self-offset",
+   "flow": "coarse",
+   "oracle": false,
+   "mse": 0.000606
+  }
+ ],
+ "conclusions": [
+  {
+   "id": "C1",
+   "claim": "The motion source (flow) does not affect warp-model alignment when oracle motion is off."
+  },
+  {
+   "id": "C2",
+   "claim": "Without oracle motion, the self-offset model aligns better than every warp model."
+  },
+  {
+   "id": "C3",
+   "claim": "With oracle motion, warp-linear aligns better than warp-nearest."
+  },
+  {
+   "id": "C4",
+   "claim": "Self-offset model results do not depend on the oracle flag."
+  }
+ ]
+}

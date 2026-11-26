@@ -1,0 +1,26 @@
+{
+  "services": {
+    "api": {
+      "image": "local/call-api:1",
+      "entrypoint": "/app/server.py",
+      "ports": [
+        "3001:3001"
+      ],
+      "environment": {
+        "DATA_DIR": "/data",
+        "PORT": "3001",
+        "ROOM_TTL_HOURS": "72"
+      },
+      "volumes": [
+        "./api:/app",
+        "api_data:/data"
+      ]
+    }
+  },
+  "volumes": {
+    "api_data": {}
+  },
+  "deploy": {
+    "strategy": "restart"
+  }
+}

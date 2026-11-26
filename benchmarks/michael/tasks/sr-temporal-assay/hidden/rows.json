@@ -1,0 +1,321 @@
+[
+ {
+  "original_id": "seqA: warp-linear with estimated motion beats zero-motion history by 4x",
+  "group": "reproduce",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "paths_less",
+    [
+     "scaled",
+     "A",
+     "warp-linear|block|off"
+    ],
+    [
+     "zero",
+     "A"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "seqA: quarter-pixel estimated motion reproduces oracle alignment within tolerance",
+  "group": "reproduce",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "mse",
+     "A",
+     "warp-linear|block|off"
+    ],
+    0.000408635,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "A",
+     "warp-nearest|block|off"
+    ],
+    0.001661994,
+    1e-06
+   ]
+  ]
+ },
+ {
+  "original_id": "seqA: results depend on the motion source",
+  "group": "reproduce",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "paths_differ",
+    [
+     "mse",
+     "A",
+     "warp-linear|block|off"
+    ],
+    [
+     "mse",
+     "A",
+     "warp-linear|coarse|off"
+    ]
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "A",
+     "warp-linear|coarse|off"
+    ],
+    0.001661994,
+    1e-06
+   ]
+  ]
+ },
+ {
+  "original_id": "seqA: oracle and self-offset results unchanged",
+  "group": "preservation",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "mse",
+     "A",
+     "warp-linear|block|on"
+    ],
+    0.000408635,
+    1e-09
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "A",
+     "warp-nearest|block|on"
+    ],
+    0.001661994,
+    1e-09
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "A",
+     "self-offset|block|off"
+    ],
+    0.000408635,
+    1e-09
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "A",
+     "self-offset|coarse|on"
+    ],
+    0.000408635,
+    1e-09
+   ]
+  ]
+ },
+ {
+  "original_id": "seqB: warp-linear with estimated motion beats zero-motion history by 4x",
+  "group": "reproduce",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "paths_less",
+    [
+     "scaled",
+     "B",
+     "warp-linear|block|off"
+    ],
+    [
+     "zero",
+     "B"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "seqB: quarter-pixel estimated motion reproduces oracle alignment within tolerance",
+  "group": "reproduce",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "mse",
+     "B",
+     "warp-linear|block|off"
+    ],
+    0.000336528,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "B",
+     "warp-nearest|block|off"
+    ],
+    0.001222668,
+    1e-06
+   ]
+  ]
+ },
+ {
+  "original_id": "seqB: results depend on the motion source",
+  "group": "reproduce",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "paths_differ",
+    [
+     "mse",
+     "B",
+     "warp-linear|block|off"
+    ],
+    [
+     "mse",
+     "B",
+     "warp-linear|coarse|off"
+    ]
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "B",
+     "warp-linear|coarse|off"
+    ],
+    0.001222668,
+    1e-06
+   ]
+  ]
+ },
+ {
+  "original_id": "seqB: oracle and self-offset results unchanged",
+  "group": "preservation",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "mse",
+     "B",
+     "warp-linear|block|on"
+    ],
+    0.000336528,
+    1e-09
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "B",
+     "warp-nearest|block|on"
+    ],
+    0.001222668,
+    1e-09
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "B",
+     "self-offset|block|off"
+    ],
+    0.000336528,
+    1e-09
+   ],
+   [
+    "path_within",
+    [
+     "mse",
+     "B",
+     "self-offset|coarse|on"
+    ],
+    0.000336528,
+    1e-09
+   ]
+  ]
+ },
+ {
+  "original_id": "root cause identified",
+  "group": "diagnosis",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "diagnosis",
+     "root_cause"
+    ],
+    "offsets-none-treated-as-zero-motion"
+   ]
+  ]
+ },
+ {
+  "original_id": "invalid reported results identified",
+  "group": "diagnosis",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "diagnosis",
+     "invalid_results"
+    ],
+    [
+     "warp-linear",
+     "warp-nearest"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "artifact conclusions retracted, valid ones kept",
+  "group": "diagnosis",
+  "probe": {
+   "op": "assay"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "diagnosis",
+     "retracted_conclusions"
+    ],
+    [
+     "C1",
+     "C2"
+    ]
+   ]
+  ]
+ }
+]

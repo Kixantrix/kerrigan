@@ -1,0 +1,30 @@
+{
+  "waves": [
+    [
+      "M2.3",
+      "M2.5"
+    ],
+    [
+      "M2.2"
+    ],
+    [
+      "M2.4"
+    ]
+  ],
+  "excluded": {
+    "M2.1": "Scaffold already exists in the repository (package.json, src/, src-tauri/)."
+  },
+  "conflicts": [
+    {
+      "tasks": [
+        "M2.2",
+        "M2.3"
+      ],
+      "files": [
+        "apps/kerrigan-dashboard/package.json",
+        "apps/kerrigan-dashboard/pnpm-lock.yaml"
+      ]
+    }
+  ],
+  "predictor_output_trusted": false
+}

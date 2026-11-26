@@ -1,0 +1,35 @@
+{
+ "id": "plan-dashboard-waves",
+ "family": "Understand and plan",
+ "title": "Decide parallel-safe dispatch waves for dashboard Milestone 2",
+ "source": {
+  "repo": "Kixantrix/kerrigan",
+  "visibility": "public",
+  "kind": "pr",
+  "pr": 306,
+  "base_ref": "44510543aa18176a13b61b08c26cc5fbc1300937",
+  "reference_ref": "7544e0592041f725375dccfa7d265499d57a096a",
+  "history_status": "merged"
+ },
+ "derivation": "Inputs are exact base-commit bytes (Milestone 2 section of tasks.md, app package.json, file listing) plus the real predictor output; reference is the historical hand-authored waves.yaml decision transcribed to PLAN.json.",
+ "privacy": "public",
+ "coverage": "Required-facts and constraint checklist over a structured plan; deterministic only. Briefing prose quality is not graded.",
+ "historical_exposure": "Public historical decision; exposure/recognition risk.",
+ "outcome_evidence": "required_facts_checklist",
+ "estimated_agent_minutes": 15,
+ "residual_rubric": [
+  "Quality of exclusion reasons and briefing readiness: recorded for later human review, never model-judged."
+ ],
+ "leak_tokens": [
+  "Hand-authored",
+  "collide on package.json"
+ ],
+ "grader": {
+  "harness": "plan_dashboard_waves.py",
+  "candidate": "PLAN.json",
+  "denominators": {
+   "required": 4,
+   "constraint": 4
+  }
+ }
+}

@@ -74,3 +74,21 @@ Passing these finite held-out observations is not proof of general correctness,
 non-hardcoding, contamination-free evaluation, model performance, laptop speed/
 power, or end-to-end task completion. Public historical solutions may be known.
 No inference or live service is used; earlier canary allowances are untouched.
+
+## MB-008 generalization
+
+`api.grade(source, directory, seconds=10, task="validator")` now selects a
+trusted spec from `specs.py`. Validator behavior, limits and the 15+10
+denominators are unchanged. Specs add:
+
+- `grouping` (4+2) and `status` (32+8): original vitest cases translated in
+  `ts_policy.py` and run in a pinned Node 24 image (`Dockerfile.node`,
+  `bootstrap.mjs`, `harness_ts.mjs`) with native type stripping. Failing sets
+  match the original host vitest calibration exactly.
+- MB-008 curriculum packages, registered from `tasks/*/task.json`, with
+  answer-free harnesses in `harnesses/`.
+
+`policy.py` adds path clauses (`path_equal`, `path_match`, `path_absent`,
+`path_keys`, `path_contains_all`, `path_contains_none`, `path_within`,
+`paths_less`, `paths_differ`). These are evaluated only on the trusted host.
+`calibrate.py` writes Docker receipts showing base fails and reference passes.

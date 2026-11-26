@@ -1,0 +1,39 @@
+{
+ "id": "selfhost-redeploy-state",
+ "family": "Operate",
+ "title": "Restore persisted room state lost on every self-hosted redeploy",
+ "source": {
+  "repo": "Kixantrix/vhs-video-stack",
+  "visibility": "private",
+  "kind": "commit",
+  "pr": null,
+  "base_ref": "fe1ffefa0a446f5532aaa21e862e54f0af3660ba",
+  "reference_ref": "7397c2fabdd04bf0b7a79d254b8fd5dd55d92cf0",
+  "history_status": "merged"
+ },
+ "derivation": "Private compose/deploy-script fix re-synthesized as a stdlib, socket-free compose-like supervisor and room API. No private code, hostnames, credentials or data are included; values are placeholders.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Disposable in-process service: restored behavior across deploy and recreation, preserved configuration and safety (state location, code tree untouched). Not a real Docker/compose deployment.",
+ "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
+ "outcome_evidence": "service_health_probe",
+ "estimated_agent_minutes": 20,
+ "residual_rubric": [
+  "Operational communication (incident note) is not graded."
+ ],
+ "leak_tokens": [
+  "api_data"
+ ],
+ "grader": {
+  "harness": "selfhost_redeploy_state.py",
+  "candidate": "stack/compose.json",
+  "denominators": {
+   "service": 4,
+   "preservation": 2,
+   "safety": 2
+  },
+  "agent_support": [
+   "stack/api/server.py",
+   "stack/supervisor.py"
+  ]
+ }
+}

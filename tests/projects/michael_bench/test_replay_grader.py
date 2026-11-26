@@ -353,3 +353,62 @@ def test_independent_owner_survives_controller_loss(stage, tmp_path):
         if run_id:
             api.cleanup(run_id)
         api.cleanup(other)
+
+
+# --- MB-008: TypeScript replays (grouping, status) in the Node 24 sandbox ---------------
+import specs  # noqa: E402
+
+
+@pytest.mark.parametrize("task,base,total", [
+    ("grouping", {"preservation": 4, "regression": 0}, {"preservation": 4, "regression": 2}),
+    ("status", {"preservation": 32, "regression": 0}, {"preservation": 32, "regression": 8}),
+])
+def test_typescript_replays_match_original_vitest_calibration(task, base, total, tmp_path):
+    retained = json.loads((packages.HERE / task / "calibration.json").read_text())
+    vitest_failures = {f["name"] for f in retained["phases"][1]["failures"]}
+    for label, source in (("base", specs.base(task)), ("reference", specs.reference(task))):
+        report = api.grade(source, tmp_path / label, task=task)
+        assert report["status"] == "graded", report
+        expected = base if label == "base" else {g: n for g, n in total.items()}
+        assert {g: c["passed"] for g, c in report["counts"].items()} == expected
+        assert {g: c["total"] for g, c in report["counts"].items()} == total
+        assert report["containment"]["NetworkMode"] == "none" and not report["containment"]["Binds"]
+        assert report["cleanup"]["proven"] and not api.owned(report["run_id"])
+        failed = {a["original_id"] for a in report["assertions"] if not a["passed"]}
+        # Same failing set as the original vitest run on the trusted host baseline.
+        assert failed == (vitest_failures if label == "base" else set())
+
+
+@pytest.mark.parametrize("attack,error", [
+    ("export const x = 1; process.stdout.write('PASS\\n');", "missing_or_extra"),
+    ("while (true) {}", "timeout"),
+    ("const n = await import('node:net'); await new Promise((ok, no) => "
+     "n.connect(443, '192.0.2.1').on('error', no).on('connect', ok)); export {};", "candidate_exit"),
+    ("import {readFileSync} from 'node:fs'; readFileSync('/var/run/docker.sock'); export {};", "candidate_exit"),
+])
+def test_typescript_hostile_candidates_ungraded_and_clean(attack, error, tmp_path):
+    report = api.grade(attack.encode(), tmp_path / "receipt", seconds=3, task="grouping")
+    assert report["status"] == "ungraded" and report["verdict"] is None, report
+    assert error in report["error"], report
+    assert report["cleanup"]["proven"] and not api.owned(report["run_id"])
+
+
+def test_typescript_archive_carries_no_assertions(monkeypatch, tmp_path):
+    captured = {}
+    real = api.command
+
+    def spy(args, **kwargs):
+        if args[:3] == ["docker", "start", "-ai"]:
+            captured["payload"] = kwargs["payload"]
+        return real(args, **kwargs)
+
+    monkeypatch.setattr(api, "command", spy)
+    directory = tmp_path / "receipt"
+    directory.mkdir()
+    api.persist(directory / "start.json", {"run_id": uuid.uuid4().hex, "task": "status"})
+    report = api._grade(specs.reference("status"), directory)
+    assert report["verdict"] == "pass"
+    payload = captured["payload"]
+    for row in specs.spec("status")["rows"]():
+        assert row["original_id"].encode() not in payload
+    assert b"path_equal" not in payload and b"clauses" not in payload

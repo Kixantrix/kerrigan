@@ -19,6 +19,7 @@ import uuid
 
 from benchmarks.michael.tasks import packages
 from benchmarks.michael.replay_grader.policy import cases, clause_passes
+from benchmarks.michael.replay_grader import specs
 
 HERE = Path(__file__).resolve().parent
 IMAGE = "michael-replay-grader:mb006j"
@@ -26,7 +27,8 @@ LABEL = "michael-replay-grader"
 SOURCE_LIMIT = 262144
 OUTPUT_LIMIT = 131072
 FRAME_LIMIT = 8192
-POLICY_FILES = ("api.py", "owner.py", "policy.py", "harness.py", "bootstrap.py", "Dockerfile")
+POLICY_FILES = ("api.py", "owner.py", "policy.py", "harness.py", "bootstrap.py", "Dockerfile",
+                "specs.py", "ts_policy.py", "harness_ts.mjs", "bootstrap.mjs", "Dockerfile.node")
 CONTROLLER_FD = None
 
 
@@ -155,7 +157,8 @@ def unique_object(pairs):
     return value
 
 
-def observations(raw, rows):
+def observations(raw, rows, valid=None):
+    valid_value = valid or specs.SPECS["validator"]["valid"]
     if len(raw) > OUTPUT_LIMIT or not raw.endswith(b"\n"):
         raise GraderError("truncated_or_oversized_observations")
     lines = raw.splitlines()
@@ -173,32 +176,31 @@ def observations(raw, rows):
                 or type(item["id"]) is not int or item["id"] != index):
             raise GraderError("invalid_or_duplicate_observation_id")
         value = item["value"]
-        if row["probe"]["op"] == "parse":
-            valid = value is None or (isinstance(value, dict) and len(value) <= 64
-                                     and all(isinstance(k, str) and isinstance(v, str)
-                                             for k, v in value.items()))
-        else:
-            valid = isinstance(value, list) and len(value) <= 64 and all(
-                isinstance(v, str) for v in value)
-        if not valid:
+        if not valid_value(row, value):
             raise GraderError("invalid_observation_value")
         result.append(value)
     return result
 
 
-def bindings(source):
-    agent = packages.agent_files("validator")
-    verifier = packages.verifier_files("validator")
-    frozen = json.loads((packages.HERE / "validator/manifest.json").read_bytes())
-    if packages.descriptor("validator") != frozen:
+def policy_files(task="validator"):
+    names = list(POLICY_FILES)
+    if specs.spec(task)["harness"] not in names:
+        names.append(specs.spec(task)["harness"])
+    return {name: sha((HERE / name).read_bytes()) for name in names}
+
+
+def bindings(source, task="validator"):
+    agent, verifier, descriptor, frozen = specs.package(task)
+    if descriptor != frozen:
         raise GraderError("frozen package mismatch")
-    policy = {name: sha((HERE / name).read_bytes()) for name in POLICY_FILES}
-    return {"source_sha256": sha(source), "package_sha256": packages.bundle_digest(agent),
+    policy = policy_files(task)
+    return {"task": task, "source_sha256": sha(source), "package_sha256": packages.bundle_digest(agent),
             "verifier_material_sha256": packages.inventory(verifier),
             "policy_files_sha256": policy, "verifier_policy_sha256": sha(encoded(policy))}
 
 
-def grade(source, directory, *, seconds=10):
+def grade(source, directory, *, seconds=10, task="validator"):
+    specs.spec(task)
     if not isinstance(source, bytes) or not 0 < len(source) <= SOURCE_LIMIT:
         raise ValueError("candidate source byte limit")
     if not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or not 0 < seconds <= 30:
@@ -210,7 +212,7 @@ def grade(source, directory, *, seconds=10):
         stream.write(source)
         stream.flush()
         os.fsync(stream.fileno())
-    persist(directory / "start.json", {"run_id": run_id, "seconds": seconds,
+    persist(directory / "start.json", {"run_id": run_id, "seconds": seconds, "task": task,
                                        "source_sha256": sha(source)})
     reader, writer = os.pipe()
     process = None
@@ -248,24 +250,28 @@ def grade(source, directory, *, seconds=10):
 
 def _grade(source, directory, *, seconds=10):
     global CONTROLLER_FD
-    run_id = json.loads((directory / "start.json").read_bytes())["run_id"]
-    report = {"run_id": run_id, "status": "ungraded", "verdict": None,
+    start = json.loads((directory / "start.json").read_bytes())
+    run_id, task = start["run_id"], start.get("task", "validator")
+    report = {"run_id": run_id, "task": task, "status": "ungraded", "verdict": None,
               "assertions": [], "counts": None, "timings": {},
               "timing_scope": "same trusted owner host, monotonic seconds; no model or task-completion time"}
     phase = "staging"
     begin = time.monotonic()
     try:
-        report["bindings"] = bindings(source)
-        rows = cases()
-        if len(rows) != 25 or sum(row["group"] == "preservation" for row in rows) != 15:
+        spec = specs.spec(task)
+        report["bindings"] = bindings(source, task)
+        rows = spec["rows"]()
+        groups = list(dict.fromkeys(row["group"] for row in rows))
+        if {group: sum(row["group"] == group for row in rows) for group in groups} != spec["denominators"]:
             raise GraderError("trusted policy denominator mismatch")
-        image = json.loads(docker("image", "inspect", IMAGE))[0]
+        image = json.loads(docker("image", "inspect", spec["image"]))[0]
         report["image_id"] = image["Id"]
         archive = io.BytesIO()
         with tarfile.open(fileobj=archive, mode="w") as tar:
             for name, data in {
-                "tools/validators/agents_md.py": source,
-                "harness.py": (HERE / "harness.py").read_bytes(),
+                **spec["extra"](),
+                spec["candidate"]: source,
+                spec["harness_target"]: (HERE / spec["harness"]).read_bytes(),
                 "probes.json": encoded([row["probe"] for row in rows]),
             }.items():
                 entry = tarfile.TarInfo(name)
@@ -279,7 +285,10 @@ def _grade(source, directory, *, seconds=10):
                "--ulimit", "nofile=64:64", "--ulimit", "fsize=1048576:1048576",
                "--log-driver", "none", "--tmpfs", "/work:rw,noexec,nosuid,size=16m,mode=1777",
                "--user", "65534:65534", "--workdir", "/work", image["Id"],
-               "python", "-I", "-B", "-c", (HERE / "bootstrap.py").read_text())
+               *(["python", "-I", "-B", "-c", (HERE / "bootstrap.py").read_text()]
+                 if spec["runtime"] == "python" else
+                 ["node", "--max-old-space-size=96", "--input-type=module", "-e",
+                  (HERE / "bootstrap.mjs").read_text()]))
         info = json.loads(docker("inspect", name))[0]
         config = info["HostConfig"]
         if (info["Mounts"] or config["Binds"] or config["Privileged"]
@@ -310,7 +319,7 @@ def _grade(source, directory, *, seconds=10):
         report["stderr_sha256"] = sha(stderr)
         report["timings"][phase] = time.monotonic() - begin
         phase, begin = "verification", time.monotonic()
-        values = observations(stdout, rows)
+        values = observations(stdout, rows, spec["valid"])
         for row, value in zip(rows, values):
             checks = [{"clause": clause, "passed": clause_passes(value, clause)}
                       for clause in row["clauses"]]
@@ -320,7 +329,7 @@ def _grade(source, directory, *, seconds=10):
         report["counts"] = {
             group: {"passed": sum(a["passed"] for a in report["assertions"] if a["group"] == group),
                     "total": sum(a["group"] == group for a in report["assertions"])}
-            for group in ("preservation", "regression")}
+            for group in groups}
         report["verdict"] = "pass" if all(a["passed"] for a in report["assertions"]) else "fail"
         report["status"] = "graded"
     except (GraderError, OSError, ValueError, KeyError, subprocess.SubprocessError) as exc:
@@ -345,10 +354,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("receipt", type=Path)
+    parser.add_argument("--task", default="validator", choices=sorted(specs.SPECS))
     args = parser.parse_args()
     with args.source.open("rb") as stream:
         source = stream.read(SOURCE_LIMIT + 1)
-    report = grade(source, args.receipt)
+    report = grade(source, args.receipt, task=args.task)
     print(json.dumps(report, indent=2))
     raise SystemExit(0 if report["verdict"] == "pass" else 1)
 
