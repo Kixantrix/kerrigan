@@ -26,6 +26,22 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-010r:mai-code-2 | cloud | Research × small | 1 | 1/1 (20.7%–100.0%) | 60.09 | 114,985 / 1,881 | unknown; unknown; unknown | none observed |
 | MB-010r:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 89,359 / 9,103 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
 | MB-010r:mai-code-2 | cloud | Understand and plan × small | 1 | 1/1 (20.7%–100.0%) | 49.66 | 86,926 / 1,641 | unknown; unknown; unknown | none observed |
+| MB-R3/discovery-parity-v4:claude-sonnet-5.5 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 21.98 | 78,499 / 2,467 | unknown; unknown; unknown | none observed |
+| MB-R3/discovery-parity-v4:claude-sonnet-5.5 | cloud | Orchestrate × medium | 1 | 1/1 (20.7%–100.0%) | 44.32 | 134,916 / 5,340 | unknown; unknown; unknown | none observed |
+| MB-R3/discovery-parity-v4:claude-sonnet-5.5 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 40.91 | 104,441 / 5,458 | unknown; unknown; unknown | none observed |
+| MB-R3/discovery-parity-v4:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 104.55 | 105,008 / 5,114 | unknown; unknown; unknown | none observed |
+| MB-R3/discovery-parity-v4:mai-code-2 | cloud | Orchestrate × medium | 2 | 1/2 (9.5%–90.5%) | 187.57 | 529,369 / 17,329 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
+| MB-R3/discovery-parity-v4:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 130,735 / 8,130 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
+| MB-R3/original-tooltip-v1:claude-sonnet-5.5 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 26.46 | 88,964 / 2,678 | unknown; unknown; unknown | none observed |
+| MB-R3/original-tooltip-v1:claude-sonnet-5.5 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 36.29 | 116,197 / 4,185 | unknown; unknown; unknown | none observed |
+| MB-R3/original-tooltip-v1:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 73.82 | 88,227 / 2,769 | unknown; unknown; unknown | none observed |
+| MB-R3/original-tooltip-v1:mai-code-2 | cloud | Orchestrate × medium | 1 | 1/1 (20.7%–100.0%) | 215.81 | 255,818 / 8,280 | unknown; unknown; unknown | none observed |
+| MB-R3/original-tooltip-v1:mai-code-2 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 149.26 | 158,964 / 8,384 | unknown; unknown; unknown | none observed |
+| MB-R3/policy-tooltip-v2:claude-sonnet-5.5 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 25.81 | 78,285 / 2,611 | unknown; unknown; unknown | none observed |
+| MB-R3/policy-tooltip-v2:claude-sonnet-5.5 | cloud | Orchestrate × medium | 2 | 2/2 (34.2%–100.0%) | 45.89 | 305,234 / 11,494 | unknown; unknown; unknown | none observed |
+| MB-R3/policy-tooltip-v2:claude-sonnet-5.5 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 40.56 | 117,000 / 4,343 | unknown; unknown; unknown | none observed |
+| MB-R3/policy-tooltip-v2:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 110.39 | 163,732 / 6,254 | unknown; unknown; unknown | none observed |
+| MB-R3/policy-tooltip-v2:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 285,415 / 15,832 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
 
 ## Derived routing
 
@@ -57,6 +73,9 @@ The following deterministically attributed prior attempts are excluded from prim
 | orchestrate-voice-integration-v2 | claude-sonnet-5.5 | v2 | ungraded | sandbox-boundary-write ×1 |
 | plan-dashboard-waves-v2 | mai-code-2 | v2 | ungraded | harness-error ×1 |
 | research-serverless-cost | mai-code-2 | v2 | fail | task-caused ×1 |
+| orchestrate-voice-integration-v5 | claude-sonnet-5.5 | v3 | ungraded | harness-error ×1 |
+| orchestrate-voice-integration-v5 | mai-code-2 | v3 | ungraded | invented-path-read ×1 |
+| orchestrate-voice-integration-v5 | mai-code-2 | v3 | ungraded | harness-error ×1 |
 
 ## Size and limits
 

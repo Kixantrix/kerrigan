@@ -6,7 +6,8 @@ import hashlib
 import io
 import json
 import tarfile
-from pathlib import Path
+import tempfile
+from pathlib import Path, PurePosixPath
 from statistics import median
 from math import isfinite
 
@@ -362,6 +363,64 @@ def epoch_records(plan_path):
     return records, source
 
 
+def sealed_epoch_records(path):
+    """Reproduce published cohorts without depending on the executor's owned state."""
+    data = json.loads(path.read_bytes())
+    filename = data["archiveFile"]
+    if Path(filename).name != filename or not filename.endswith(".tar.gz"):
+        raise ValueError("matrix archive filename denied")
+    archive_path = path.with_name(filename)
+    with archive_path.open("rb") as stream:
+        if hashlib.file_digest(stream, "sha256").hexdigest() != data["archiveSha256"]:
+            raise ValueError("matrix epoch archive mismatch")
+    found, total = set(), 0
+    with tempfile.TemporaryDirectory(prefix="michael-matrix-") as directory:
+        root = Path(directory)
+        with tarfile.open(archive_path, "r|gz") as archive:
+            for member in archive:
+                relative = PurePosixPath(member.name)
+                total += member.size
+                if (not relative.parts or relative.is_absolute() or ".." in relative.parts or "\\" in member.name or
+                        str(relative) != member.name or not member.isfile() or member.name in found or
+                        member.name not in data["members"] or not 0 <= member.size <= 16777216 or total > 1073741824):
+                    raise ValueError("matrix epoch archive member denied")
+                raw = archive.extractfile(member).read()
+                if hashlib.sha256(raw).hexdigest() != data["members"][member.name]:
+                    raise ValueError("matrix epoch archived member mismatch")
+                target = root.joinpath(*relative.parts)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+                found.add(member.name)
+        if found != set(data["members"]) or data["primaryPlanPath"] not in found:
+            raise ValueError("matrix epoch archive incomplete")
+        records, epoch_source = epoch_records(root / data["primaryPlanPath"])
+        for alias in data.get("localRunRoots", []):
+            if Path(alias).name != alias or not alias.startswith("mbr3-local-"):
+                raise ValueError("matrix local archive alias denied")
+            local = ledger_records(root / alias)
+            if any(row["deployment_class"] != "local laptop" for row in local):
+                raise ValueError("matrix local archive condition mismatch")
+            records.extend(local)
+    sources = [epoch_source, {"path": str(path.relative_to(ROOT)),
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "role": "Sealed round-three ledger/artifact/native-metadata archive index"},
+        {"path": str(archive_path.relative_to(ROOT)), "sha256": data["archiveSha256"],
+         "role": "Validated ledger chains and exact artifacts; native terminal is an explicit safe projection"}]
+    return records, sources
+
+
+def default_records():
+    records, sources = seed()
+    for name in ("MBR3-verification.json", "MBR3-cloud-verification.json", "MBR3-core-verification.json"):
+        path = ROOT / "benchmarks/michael/curriculum" / name
+        if path.is_file():
+            additional, evidence = sealed_epoch_records(path)
+            records.extend(additional)
+            sources.extend(evidence)
+            break
+    return records, sources
+
+
 def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
     if not 0 < threshold < 1 or minimum_n < 1 or objective not in ("fastest", "cheapest"):
         raise ValueError("invalid declared routing policy")
@@ -369,6 +428,7 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
     targets = {}
     columns = set()
     seen = set()
+    seen_ledgers = set()
     for row in records:
         key = row["condition"], row["model"], row["task"], row["repeat"]
         if key in seen or type(row["resolved"]) is not bool or row["deployment_class"] not in CLASSES:
@@ -381,6 +441,11 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
         if any(mode not in FAILURE_MODES for mode in row["failure_modes"]):
             raise ValueError("invalid controlled failure mode")
         seen.add(key)
+        if row.get("ledger_sha256"):
+            identity = row["ledger_sha256"], row["model"], row["task"], row["repeat"]
+            if identity in seen_ledgers:
+                raise ValueError("duplicate matrix ledger slot across conditions")
+            seen_ledgers.add(identity)
         target = row["condition"] + ":" + row["model"]
         info = {"model": row["model"], "deployment_class": row["deployment_class"],
                 "condition": row["condition"], "tool_host": row["tool_host"]}
@@ -519,9 +584,7 @@ def main():
     parser.add_argument("--source-epoch-plan", type=Path,
                         help="Published tooltip-recovery primary-plan.json; requires complete selected slots")
     args = parser.parse_args()
-    if args.run_root and args.source_epoch_plan:
-        parser.error("use either run roots or the published source-epoch plan, not both")
-    records, sources = seed()
+    records, sources = seed() if args.run_root or args.source_epoch_plan else default_records()
     for root in args.run_root:
         records.extend(ledger_records(root))
     if args.source_epoch_plan:
