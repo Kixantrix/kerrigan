@@ -200,6 +200,11 @@ def native_policy(name: str) -> dict:
     scratch = "self_test.mjs" if info["grader"].get("runtime") == "node" else "self_test.py"
     policy = {"condition": f"MB-008-{name}", "source": candidate, "scratch": scratch,
               "read": [*files, scratch], "write": [*candidates(name), scratch], **NATIVE_LIMITS}
+    # Package-declared limits (e.g. real game files larger than the default per-file cap); never lower.
+    for key, value in info.get("native_limits", {}).items():
+        if key not in NATIVE_LIMITS or not isinstance(value, int) or value < NATIVE_LIMITS[key]:
+            raise ValueError(f"invalid native limit {key}={value!r} for {name}")
+        policy[key] = value
     if len(candidates(name)) > 1:
         # Multi-artifact: the native collector must collect every listed artifact (bundle).
         policy["artifacts"] = candidates(name)

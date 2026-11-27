@@ -854,6 +854,93 @@
    }
   },
   "decision": {
+   "state": "retired",
+   "reasons": [
+    "environment-caused (native fit): the writable game files (35.5/36.3 KB) exceed the default 32 KiB native per-file limit; v2 keeps the content byte-identical and raises only this package's native limits"
+   ],
+   "superseded_by": "foal-meadow-regression-review-v2"
+  }
+ },
+ {
+  "task": "kixantrix/michael-foal-meadow-regression-review-v2",
+  "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "artifact_passed": 8.0,
+    "artifact_total": 8.0,
+    "preservation_passed": 15.0,
+    "preservation_total": 15.0,
+    "regression_passed": 18.0,
+    "regression_total": 18.0,
+    "review_passed": 7.0,
+    "review_total": 7.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "artifact_passed": 0.0,
+    "artifact_total": 8.0,
+    "preservation_passed": 15.0,
+    "preservation_total": 15.0,
+    "regression_passed": 0.0,
+    "regression_total": 18.0,
+    "review_passed": 1.0,
+    "review_total": 7.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review-v2",
+      "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd"
+     },
+     "request_sha256": "104b2508c3cf11baea62d599a31a206cf0d7a1beda01ef88f02dc19d598a9823",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review-v2",
+      "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd"
+     },
+     "request_sha256": "37176bbd72b6e3fab524b2b0a920ba2631e8ca7829c0ea6163f450449eb80353",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review-v2",
+     "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "24458b948097b7043fc87b0170a7968bf7a7d8a41c4f7bde8875ca7a10f1a32b",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
    "state": "provisional",
    "reasons": [
     "model gates pending executor"

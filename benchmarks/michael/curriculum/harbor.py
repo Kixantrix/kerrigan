@@ -201,11 +201,21 @@ def _run(args, *, payload=None, seconds=300):
 
 def build(context: Path, label: str) -> str:
     digest = hashlib.sha256()
-    for path in sorted(context.rglob("*")):
-        if path.is_file():
-            digest.update(path.relative_to(context).as_posix().encode() + b"\0" + path.read_bytes())
+    archive = io.BytesIO()
+    with tarfile.open(fileobj=archive, mode="w") as tar:
+        for path in sorted(context.rglob("*")):
+            if path.is_file():
+                relative = path.relative_to(context).as_posix()
+                data = path.read_bytes()
+                digest.update(relative.encode() + b"\0" + data)
+                info = tarfile.TarInfo(relative)
+                info.size, info.mode, info.mtime = len(data), path.stat().st_mode & 0o777, 0
+                tar.addfile(info, io.BytesIO(data))
     tag = f"michael-harbor-{label}:{digest.hexdigest()[:16]}"
-    _run(["docker", "build", "-q", "--pull=false", "-t", tag, str(context)], seconds=900)
+    # Stream the context as a tar: a directory context lets BuildKit's incremental sync reuse a
+    # previously sent file with the same path, size and mtime (e.g. two fresh-checkout test.sh files
+    # of equal length), silently building stale content under a content-addressed tag.
+    _run(["docker", "build", "-q", "--pull=false", "-t", tag, "-"], payload=archive.getvalue(), seconds=900)
     return tag
 
 

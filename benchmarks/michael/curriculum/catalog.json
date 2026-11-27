@@ -752,10 +752,10 @@
    "long_horizon": false,
    "summary": "Agent reviews a single-script canvas idle game against its gameplay rules after a polish update, repairs every regression in both HTML builds without regressing gameplay, and records findings.",
    "history_status": "merged",
-   "package": "foal-meadow-regression-review",
+   "package": "foal-meadow-regression-review-v2",
    "provenance_kind": "seeded-defects",
    "grader_image": "michael-replay-grader-node:mb008",
-   "round": 3,
+   "round": 4,
    "task_size": {
     "oracle_files_changed": 3,
     "oracle_lines_added": 26,
@@ -766,7 +766,10 @@
     "hidden_checks": 48,
     "hidden_clauses": 106
    },
-   "replaces_candidate": "foal-meadow-seeded-defects"
+   "replaces_candidate": "foal-meadow-seeded-defects",
+   "retired_packages": [
+    "foal-meadow-regression-review"
+   ]
   },
   {
    "id": "vhs-api-data-volume",
