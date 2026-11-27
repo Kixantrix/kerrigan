@@ -37,6 +37,20 @@ details: |
   No anchor model/admission slot has started. Native calibration and actual
   seven-image Harbor containment proof remain pending. The local endpoint
   has not been contacted and the local window has not been announced.
+
+  Further offline work preserved 12 of 14 exact native base/reference
+  collection cases in local_transport/mbr3-anchor-preflight-v10.json, without
+  Docker grading or inference. Element-web and Tutanota reference writes fail
+  with stdin:write EPIPE; both processes are reaped and cleanly quiescent.
+  Their task profiles are 500366 and 261068 bytes, with 1080/1077 and 556/553
+  read/write entries. The underlying native launch cause remains unknown.
+  A validator request padded with whitespace to 500366 profile bytes succeeds;
+  byte length alone is therefore not established as the explanation.
+  Two separately labeled finite-profile experiments also failed, one with
+  sandbox_init rejection and one with EPIPE. Neither was integrated, and
+  no directory permission or allowlist was widened. Original fixtures remain.
+  All seven existing verifier image tags are absent, so an offline reuse
+  alternative does not bypass the build prerequisite.
 options:
   - id: A
     description: Integrate an explicit hash-bound public-CA option in the existing converter.
