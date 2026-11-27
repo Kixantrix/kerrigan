@@ -1,0 +1,28 @@
+{
+  "baselines": {
+    "baseline-a": {
+      "coverage@10": 0.35,
+      "ndcg@10": 0.0,
+      "recall@20": 0.0
+    },
+    "baseline-b": {
+      "coverage@10": 0.65,
+      "ndcg@10": 0.2486852301880531,
+      "recall@20": 0.37192353101444015
+    }
+  },
+  "comparison": {
+    "metric": "ndcg@10",
+    "p_value": null,
+    "ties": 2,
+    "winner": "baseline-b",
+    "wins_a": 0,
+    "wins_b": 9
+  },
+  "cutoff": 1721507819,
+  "samples": {
+    "cold_start_viewers": 0,
+    "relevant_test_titles": 110,
+    "viewers_evaluated": 11
+  }
+}

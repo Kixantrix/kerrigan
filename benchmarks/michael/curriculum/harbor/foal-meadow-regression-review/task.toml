@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/foal-rescue-meadow.html", "/app/index.html", "/app/review-findings.json"]
+
+[task]
+name = "kixantrix/michael-foal-meadow-regression-review"
+version = "1.0.0"
+description = "Review and repair seeded gameplay regressions in both builds of a canvas idle game"
+keywords = ["michael-bench", "review-and-repair"]
+
+[metadata]
+family = "Review and repair"
+source_repo = "Kixantrix/foal-rescue-meadow"
+base_ref = "5faa8e5d321fd6daf22646a0ad6ff94f156b3d3f"
+reference_ref = "5c8bfa15e92a6c21b940f4b8ac19044352b7bd86"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "defect_coverage"
+estimated_agent_minutes = 30
+denominators = "{\"artifact\": 8, \"preservation\": 15, \"regression\": 18, \"review\": 7}"
+task_size = "{\"files_to_read\": 7, \"hidden_checks\": 48, \"hidden_clauses\": 106, \"lines_to_read\": 2118, \"oracle_files_changed\": 3, \"oracle_lines_added\": 26, \"oracle_lines_removed\": 19, \"writable_files\": 3}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

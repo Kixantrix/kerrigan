@@ -1,7 +1,89 @@
 [
  {
+  "task": "kixantrix/michael-cs-mismatch-stage-authority",
+  "task_sha256": "9d0d27c936925d9a1075532e86e8a3c5823aa1073cd5e6fba90508a8795608d1",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "preservation_passed": 8.0,
+    "preservation_total": 8.0,
+    "refusal_passed": 7.0,
+    "refusal_total": 7.0,
+    "review_passed": 3.0,
+    "review_total": 3.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "preservation_passed": 8.0,
+    "preservation_total": 8.0,
+    "refusal_passed": 0.0,
+    "refusal_total": 7.0,
+    "review_passed": 2.0,
+    "review_total": 3.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/cs-mismatch-stage-authority",
+      "task_sha256": "9d0d27c936925d9a1075532e86e8a3c5823aa1073cd5e6fba90508a8795608d1"
+     },
+     "request_sha256": "4049527b82be90b21431c8e2e7c6092a387ffe8d0f18497f99c6f841abe811e5",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/cs-mismatch-stage-authority",
+      "task_sha256": "9d0d27c936925d9a1075532e86e8a3c5823aa1073cd5e6fba90508a8795608d1"
+     },
+     "request_sha256": "db705cec9d1e0c84a1ab33faedf625028601fa21beee60217d6fd4019c2ebe9b",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/cs-mismatch-stage-authority",
+     "task_sha256": "9d0d27c936925d9a1075532e86e8a3c5823aa1073cd5e6fba90508a8795608d1",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "c729d24cd4ad68bd78bf36d6b683343c6094490cc9269124a52c943f33bb3b6c",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
   "task": "kixantrix/michael-design-alethiometer-case",
-  "task_sha256": "59853a9ace9cd4b377e77813c6f1089b6985a3c5597fc62ce75c19a147e99cd7",
+  "task_sha256": "8b2699eeedc88f072540b1b88abafd299130b070a3006f47ac82c65f0c252bb0",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -41,9 +123,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case",
-      "task_sha256": "59853a9ace9cd4b377e77813c6f1089b6985a3c5597fc62ce75c19a147e99cd7"
+      "task_sha256": "8b2699eeedc88f072540b1b88abafd299130b070a3006f47ac82c65f0c252bb0"
      },
-     "request_sha256": "c54fa6579fef4574ec846bc3580d5a1322f44e3d8139ee26874f80310b683251",
+     "request_sha256": "be74a2a967b8f4b0bd05f1bb71cbcbc6db43b12939c46fab43013dfea1838f96",
      "status": "pending_executor"
     },
     {
@@ -54,9 +136,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case",
-      "task_sha256": "59853a9ace9cd4b377e77813c6f1089b6985a3c5597fc62ce75c19a147e99cd7"
+      "task_sha256": "8b2699eeedc88f072540b1b88abafd299130b070a3006f47ac82c65f0c252bb0"
      },
-     "request_sha256": "bb3c60ab86e8c0260cad484602b83ea9b8fb0bb26e29db3f176ece463a6cfa90",
+     "request_sha256": "eca629e2436fb4283ae6132f7e1c15cc07c343562d14d4e9e54506111b5ca86e",
      "status": "pending_executor"
     }
    ],
@@ -68,13 +150,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case",
-     "task_sha256": "59853a9ace9cd4b377e77813c6f1089b6985a3c5597fc62ce75c19a147e99cd7",
+     "task_sha256": "8b2699eeedc88f072540b1b88abafd299130b070a3006f47ac82c65f0c252bb0",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "7b374bb8cca33729abe354ce29fd43738ef327f305b2112570920be142df639e",
+    "request_sha256": "866540da04d853e065a923cdab5d729f9587d8ddac265961b6a7925569c63268",
     "status": "pending_executor"
    }
   },
@@ -88,7 +170,7 @@
  },
  {
   "task": "kixantrix/michael-design-alethiometer-case-v2",
-  "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13",
+  "task_sha256": "14b7ec6fd95451a0dbe023cc0be3542985acf90df5ab2184d2aa039fdd722ce5",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -128,9 +210,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v2",
-      "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13"
+      "task_sha256": "14b7ec6fd95451a0dbe023cc0be3542985acf90df5ab2184d2aa039fdd722ce5"
      },
-     "request_sha256": "32bcc51af6cd86fdf047915fdeab45573a0b7a81f3efb8c59188a609553d54d0",
+     "request_sha256": "52330553cd0b90311a86ea02702b7f45e1046c304b39c117bfce59c7c6add40f",
      "status": "pending_executor"
     },
     {
@@ -141,9 +223,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v2",
-      "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13"
+      "task_sha256": "14b7ec6fd95451a0dbe023cc0be3542985acf90df5ab2184d2aa039fdd722ce5"
      },
-     "request_sha256": "b5b4e69801272738d1e7fe497a6ac028dbbf7c9d3f9a54f72b4fe4d1f8910406",
+     "request_sha256": "a3ab63d8144ed827be48f285daccdac72368d83d94a7c806c98d320b01df9af9",
      "status": "pending_executor"
     }
    ],
@@ -155,13 +237,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v2",
-     "task_sha256": "d2f9e4c99b4ca0adf4f9eaeb570683dbad1c315714120e937878c8b69ec65f13",
+     "task_sha256": "14b7ec6fd95451a0dbe023cc0be3542985acf90df5ab2184d2aa039fdd722ce5",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "4e75568904a9c2d1842a72a27e4098e0870237122c09a0bc6c39bf43c6050586",
+    "request_sha256": "e7e6fdf66220ea96a0bb58dd1bab2eb658b1ce82006a4fbbca47ba22486476c6",
     "status": "pending_executor"
    }
   },
@@ -175,7 +257,7 @@
  },
  {
   "task": "kixantrix/michael-design-alethiometer-case-v3",
-  "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb",
+  "task_sha256": "d29c24a0b7e03468480586d183a9b87d2058517a2842649ce3455d010b5ee665",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -215,9 +297,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v3",
-      "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb"
+      "task_sha256": "d29c24a0b7e03468480586d183a9b87d2058517a2842649ce3455d010b5ee665"
      },
-     "request_sha256": "5db48c1fe11739e6ae62c761e2a8ebc12a909ba1a76f84762c8b5f320de42d64",
+     "request_sha256": "db960e47d0dd30c0d75a4b675f8a7fc4ddec10070d1efeceec3d86be9a5c2f95",
      "status": "pending_executor"
     },
     {
@@ -228,9 +310,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v3",
-      "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb"
+      "task_sha256": "d29c24a0b7e03468480586d183a9b87d2058517a2842649ce3455d010b5ee665"
      },
-     "request_sha256": "27d8207a0ccccac5a5c9f0067abed82d10c2bf77a142862945d2bdfc9f078880",
+     "request_sha256": "2a232c7dd5d0831b43e1b4c18101971d309d659b6cf91beb01571058200eb4b5",
      "status": "pending_executor"
     }
    ],
@@ -242,13 +324,99 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-case-v3",
-     "task_sha256": "dca4a75e3924e353ad704e0aa0f3fc67168a41c312898e0e99c09ca3acbe82bb",
+     "task_sha256": "d29c24a0b7e03468480586d183a9b87d2058517a2842649ce3455d010b5ee665",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "31737162515dabf9adc139f54747dda81a4334a4d87df2fe6fed84da76b020b0",
+    "request_sha256": "647f0d48498558138a1a6564b141368835b08541024bbb152ea74edecf298018",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
+  "task": "kixantrix/michael-design-alethiometer-gear-mesh",
+  "task_sha256": "85624059efe510bae466501a17355587c00163523218a09a78bfe69758148fa3",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "build_passed": 8.0,
+    "build_total": 8.0,
+    "design_passed": 4.0,
+    "design_total": 4.0,
+    "mesh_passed": 17.0,
+    "mesh_total": 17.0,
+    "preservation_passed": 4.0,
+    "preservation_total": 4.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "build_passed": 1.0,
+    "build_total": 8.0,
+    "design_passed": 0.0,
+    "design_total": 4.0,
+    "mesh_passed": 0.0,
+    "mesh_total": 17.0,
+    "preservation_passed": 4.0,
+    "preservation_total": 4.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-gear-mesh",
+      "task_sha256": "85624059efe510bae466501a17355587c00163523218a09a78bfe69758148fa3"
+     },
+     "request_sha256": "2ca545b02b248531c7f2a24cb17450be214a7b0828d2dab4d87de603582449af",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-gear-mesh",
+      "task_sha256": "85624059efe510bae466501a17355587c00163523218a09a78bfe69758148fa3"
+     },
+     "request_sha256": "6f19c36cc2f742f0c45b4bf7394764b316d6ec02b717f16874758ce202753789",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/design-alethiometer-gear-mesh",
+     "task_sha256": "85624059efe510bae466501a17355587c00163523218a09a78bfe69758148fa3",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "c67d73b5b34654bac9f92c403ad1f8f6bd7dfcf32a1659f0a11ea0610cfc7586",
     "status": "pending_executor"
    }
   },
@@ -261,7 +429,7 @@
  },
  {
   "task": "kixantrix/michael-emv-thumbnails-gallery",
-  "task_sha256": "8dbabc0662dcc0b81b5d03d897e62f9fbf0385f188adaf9f854262510b507b32",
+  "task_sha256": "6b8fb6dd734ceba7e14ff675e94f2022a502f20d08b1727b5ad70934963a388f",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -301,9 +469,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery",
-      "task_sha256": "8dbabc0662dcc0b81b5d03d897e62f9fbf0385f188adaf9f854262510b507b32"
+      "task_sha256": "6b8fb6dd734ceba7e14ff675e94f2022a502f20d08b1727b5ad70934963a388f"
      },
-     "request_sha256": "67d73671e8a0e395da2c2dd6428d9005acf6750c979de89a3b539756f418a24b",
+     "request_sha256": "492407e5bbaa9ca7b0073a4d09653e172c90980efaff55f4a072395bea70aea0",
      "status": "pending_executor"
     },
     {
@@ -314,9 +482,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery",
-      "task_sha256": "8dbabc0662dcc0b81b5d03d897e62f9fbf0385f188adaf9f854262510b507b32"
+      "task_sha256": "6b8fb6dd734ceba7e14ff675e94f2022a502f20d08b1727b5ad70934963a388f"
      },
-     "request_sha256": "3db2988f80894382a7f0795fac18ee0a157331e9535ab10129cf87334014ace7",
+     "request_sha256": "6100c8069302b0a271fb788cb5aeba9102fd8913e85df3d9092abaffb724a6cb",
      "status": "pending_executor"
     }
    ],
@@ -328,13 +496,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery",
-     "task_sha256": "8dbabc0662dcc0b81b5d03d897e62f9fbf0385f188adaf9f854262510b507b32",
+     "task_sha256": "6b8fb6dd734ceba7e14ff675e94f2022a502f20d08b1727b5ad70934963a388f",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "e8308b14784a1b63aefc05c522fd4321c9f779332678b40f6d2cf83530b0912d",
+    "request_sha256": "5c5873e92d4e59124bb8110f921842578fc7443a2f71d8e4d905f8a2f55bfea6",
     "status": "pending_executor"
    }
   },
@@ -348,7 +516,7 @@
  },
  {
   "task": "kixantrix/michael-emv-thumbnails-gallery-v2",
-  "task_sha256": "ed74261d1ded7792bd65ccb0e3aa0759dc28d730bf30726b70f19f9428b622f1",
+  "task_sha256": "b7ef65de2292ac10e6d0d27356120bff059600d2ecc47435892c4db6a54f121b",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -388,9 +556,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v2",
-      "task_sha256": "ed74261d1ded7792bd65ccb0e3aa0759dc28d730bf30726b70f19f9428b622f1"
+      "task_sha256": "b7ef65de2292ac10e6d0d27356120bff059600d2ecc47435892c4db6a54f121b"
      },
-     "request_sha256": "f252547b75fe808ed01d8b087a37e6f9c058250f654399287f1d8ca6d0d7e28f",
+     "request_sha256": "d71b31766338d50bbd16e68bd654cddd268ca58c471b88f42eed16d386f7c5fa",
      "status": "pending_executor"
     },
     {
@@ -401,9 +569,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v2",
-      "task_sha256": "ed74261d1ded7792bd65ccb0e3aa0759dc28d730bf30726b70f19f9428b622f1"
+      "task_sha256": "b7ef65de2292ac10e6d0d27356120bff059600d2ecc47435892c4db6a54f121b"
      },
-     "request_sha256": "5b42540bcd7d7cb4d7f10cab9994f574d892e6060665171d4d7ba522f6180b36",
+     "request_sha256": "59e2744197a072290c51e97e9a3158491e2ef350373821ff87a5b07d4aa0ea67",
      "status": "pending_executor"
     }
    ],
@@ -415,13 +583,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v2",
-     "task_sha256": "ed74261d1ded7792bd65ccb0e3aa0759dc28d730bf30726b70f19f9428b622f1",
+     "task_sha256": "b7ef65de2292ac10e6d0d27356120bff059600d2ecc47435892c4db6a54f121b",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "6106869cac571379313115b1f502508ab9b3a94104e9c40d2f0c866677ffed27",
+    "request_sha256": "20acf98d52a4a76645d891d66443359e7bcf200c83dca323b0b6aee30cb651e7",
     "status": "pending_executor"
    }
   },
@@ -435,7 +603,7 @@
  },
  {
   "task": "kixantrix/michael-emv-thumbnails-gallery-v3",
-  "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b",
+  "task_sha256": "93529c1c3644595b0056fa59624f59ec63d27640a24cb42135e5fbf2cebaa756",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -475,9 +643,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v3",
-      "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b"
+      "task_sha256": "93529c1c3644595b0056fa59624f59ec63d27640a24cb42135e5fbf2cebaa756"
      },
-     "request_sha256": "f0454673419915a02ac92659a53d9b01ee8baeabefd3a98c747159d667e0e587",
+     "request_sha256": "3c2f608c14c987e32552875e6f197d2bdedc88e0bc67f4c46e981c383d4c036b",
      "status": "pending_executor"
     },
     {
@@ -488,9 +656,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v3",
-      "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b"
+      "task_sha256": "93529c1c3644595b0056fa59624f59ec63d27640a24cb42135e5fbf2cebaa756"
      },
-     "request_sha256": "c2558d67b747cc8941ae9041b96db4ba06ce5beed1b6bc635d92b866581a79fc",
+     "request_sha256": "0353555ad5323c01e684b08a5340f60bb1db87c93c0e8d08fab841fa2d0ff254",
      "status": "pending_executor"
     }
    ],
@@ -502,13 +670,99 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/emv-thumbnails-gallery-v3",
-     "task_sha256": "3c546d6054fc967c9657d2f08454128df0ee4f7012bfaf9519e26af984063d2b",
+     "task_sha256": "93529c1c3644595b0056fa59624f59ec63d27640a24cb42135e5fbf2cebaa756",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "244129f11524859cdb3d747ab448b02ce6374e0b29ad88262abead4453d68704",
+    "request_sha256": "737937a283248659f6e945e68de4d9f5007307488ff3049f04d85b732f5acf05",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
+  "task": "kixantrix/michael-foal-meadow-regression-review",
+  "task_sha256": "603babac072e685f62b35917bdb98f7b53e664cf2b2768f6c0dd9f14b02703b2",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "artifact_passed": 8.0,
+    "artifact_total": 8.0,
+    "preservation_passed": 15.0,
+    "preservation_total": 15.0,
+    "regression_passed": 18.0,
+    "regression_total": 18.0,
+    "review_passed": 7.0,
+    "review_total": 7.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "artifact_passed": 0.0,
+    "artifact_total": 8.0,
+    "preservation_passed": 15.0,
+    "preservation_total": 15.0,
+    "regression_passed": 0.0,
+    "regression_total": 18.0,
+    "review_passed": 1.0,
+    "review_total": 7.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review",
+      "task_sha256": "603babac072e685f62b35917bdb98f7b53e664cf2b2768f6c0dd9f14b02703b2"
+     },
+     "request_sha256": "329ea39dd571bd35b977d40546e718907ff9261c84bc7991d102c6468f2c1fb7",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review",
+      "task_sha256": "603babac072e685f62b35917bdb98f7b53e664cf2b2768f6c0dd9f14b02703b2"
+     },
+     "request_sha256": "ea97d4d658a0de55e5518ee86cbfd6a8ff10d34dd1e449b20500da0695ad6565",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review",
+     "task_sha256": "603babac072e685f62b35917bdb98f7b53e664cf2b2768f6c0dd9f14b02703b2",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "a149441355217c38de1cf0d258395df3b289a3fb192884bdf05e808b4947d604",
     "status": "pending_executor"
    }
   },
@@ -599,7 +853,7 @@
  },
  {
   "task": "kixantrix/michael-kerrigan-plan-conflict-queue",
-  "task_sha256": "2f9ee434e3b5879e1ba8445549f4d0a9c8e8236a834253a0b6d2dbbbc761fa6d",
+  "task_sha256": "fe83260c341a3e3b887a994f8d194dc6387b77bd7219b8faea0ec9688dd8e69a",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -635,9 +889,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue",
-      "task_sha256": "2f9ee434e3b5879e1ba8445549f4d0a9c8e8236a834253a0b6d2dbbbc761fa6d"
+      "task_sha256": "fe83260c341a3e3b887a994f8d194dc6387b77bd7219b8faea0ec9688dd8e69a"
      },
-     "request_sha256": "f05ede72d1ec475c21543e8c481ebba6f16c19f43271d1d3d1980f3c89bad6ca",
+     "request_sha256": "8a5104c23ef0a1bbd931d695d714d7ccc5b216736e8c6e73491a29c799cf03d9",
      "status": "pending_executor"
     },
     {
@@ -648,9 +902,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue",
-      "task_sha256": "2f9ee434e3b5879e1ba8445549f4d0a9c8e8236a834253a0b6d2dbbbc761fa6d"
+      "task_sha256": "fe83260c341a3e3b887a994f8d194dc6387b77bd7219b8faea0ec9688dd8e69a"
      },
-     "request_sha256": "e001b20ecc8394387c611ec3d29766d97cca1d66314069518c0e5d64993877b7",
+     "request_sha256": "cc6cdf4721656f7e5b34f7cfe394a0c4a7005ca23773ae0f190165e9b3fdc726",
      "status": "pending_executor"
     }
    ],
@@ -662,13 +916,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue",
-     "task_sha256": "2f9ee434e3b5879e1ba8445549f4d0a9c8e8236a834253a0b6d2dbbbc761fa6d",
+     "task_sha256": "fe83260c341a3e3b887a994f8d194dc6387b77bd7219b8faea0ec9688dd8e69a",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "de829098965d55bc8feadefc27f02d70217653916c720b65e41a7984a4e3bb44",
+    "request_sha256": "2f5425617d9191e3d904176971451263dd34dcff4de24bb62b9f107ff1f7a040",
     "status": "pending_executor"
    }
   },
@@ -682,7 +936,7 @@
  },
  {
   "task": "kixantrix/michael-kerrigan-plan-conflict-queue-v2",
-  "task_sha256": "d80f19ef377756c52e75aef2c4b5052852a9d09fa2e0ad91a8a0cd55b9882a6c",
+  "task_sha256": "b6e51c86418313a552e9b0dcb2428c69a2cd3559c322a9d7eba135bbbac153cb",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -718,9 +972,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v2",
-      "task_sha256": "d80f19ef377756c52e75aef2c4b5052852a9d09fa2e0ad91a8a0cd55b9882a6c"
+      "task_sha256": "b6e51c86418313a552e9b0dcb2428c69a2cd3559c322a9d7eba135bbbac153cb"
      },
-     "request_sha256": "827bb33f8b3453059ccd424ae095966090b4e451977df656853213f515d08bf0",
+     "request_sha256": "7381f46ffe05691a1fbc762c4045482c62bd18aa351fb309a6e0ff0be8b6fb1b",
      "status": "pending_executor"
     },
     {
@@ -731,9 +985,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v2",
-      "task_sha256": "d80f19ef377756c52e75aef2c4b5052852a9d09fa2e0ad91a8a0cd55b9882a6c"
+      "task_sha256": "b6e51c86418313a552e9b0dcb2428c69a2cd3559c322a9d7eba135bbbac153cb"
      },
-     "request_sha256": "1f292bc51e9f9b3b5b10fee94f7cb35622f61193f37f4c4597c920c7d01b7efa",
+     "request_sha256": "fd17b5b005c9e318798482364dc27d712991799658ac2d1b81851bd4e548a722",
      "status": "pending_executor"
     }
    ],
@@ -745,13 +999,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v2",
-     "task_sha256": "d80f19ef377756c52e75aef2c4b5052852a9d09fa2e0ad91a8a0cd55b9882a6c",
+     "task_sha256": "b6e51c86418313a552e9b0dcb2428c69a2cd3559c322a9d7eba135bbbac153cb",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "e951ca34fcfa408771866df50d61db893d82a30b08acc5c936ea26a0dcd25f21",
+    "request_sha256": "ce55ba85e1cda0b04e02142d42b4a163679172bf673765541e9ebd5f292775d0",
     "status": "pending_executor"
    }
   },
@@ -765,7 +1019,7 @@
  },
  {
   "task": "kixantrix/michael-kerrigan-plan-conflict-queue-v3",
-  "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb",
+  "task_sha256": "82c7d7262d9082def5a3b09ed1f6dcac9265d7ac692ccd536930013d5d14c9a6",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -801,9 +1055,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v3",
-      "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb"
+      "task_sha256": "82c7d7262d9082def5a3b09ed1f6dcac9265d7ac692ccd536930013d5d14c9a6"
      },
-     "request_sha256": "98b0b772c35d32c29b1726b8b3d6f73412a6684690d9eeb4f391232ce012a499",
+     "request_sha256": "8b78fc91c9031145b8ae64b578c0f476fff9de30e1ef53c46b09a800c756a817",
      "status": "pending_executor"
     },
     {
@@ -814,9 +1068,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v3",
-      "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb"
+      "task_sha256": "82c7d7262d9082def5a3b09ed1f6dcac9265d7ac692ccd536930013d5d14c9a6"
      },
-     "request_sha256": "b93dd3c6e5b99be59784d41cc34e67a0259f7a017e9b534212daafb72cd93853",
+     "request_sha256": "a2914f74f32d7c207f582eb904aca0a5e4616253f83a2d01301eb7f6f218334d",
      "status": "pending_executor"
     }
    ],
@@ -828,13 +1082,99 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/kerrigan-plan-conflict-queue-v3",
-     "task_sha256": "74482ecdfe307c3b801ce617efbbc7b94c5780e4823303d7c602424483e8c3bb",
+     "task_sha256": "82c7d7262d9082def5a3b09ed1f6dcac9265d7ac692ccd536930013d5d14c9a6",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "82f0c2aa1860123c7e9b7c3fe082ef9f3c865c601a0185eca6efcc93a142371a",
+    "request_sha256": "c4769e4edf25833d0689782194d0bd5bb6390e6f0fbda75d3b29c3baf32f2133",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
+  "task": "kixantrix/michael-kirkland-compose-adoption",
+  "task_sha256": "9671cd042e191a5695ec8566d15c78e021b4248dfdd0e2b96798f8c7cd65239e",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "discover_passed": 5.0,
+    "discover_total": 5.0,
+    "import_passed": 10.0,
+    "import_total": 10.0,
+    "parse_passed": 3.0,
+    "parse_total": 3.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "discover_passed": 0.0,
+    "discover_total": 5.0,
+    "import_passed": 0.0,
+    "import_total": 10.0,
+    "parse_passed": 0.0,
+    "parse_total": 3.0,
+    "preservation_passed": 2.0,
+    "preservation_total": 2.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/kirkland-compose-adoption",
+      "task_sha256": "9671cd042e191a5695ec8566d15c78e021b4248dfdd0e2b96798f8c7cd65239e"
+     },
+     "request_sha256": "4a5c8ab8355ff13bfebcf7f364d8f6cb4cf72fc8c4482ec9e807cf89b5a03ce2",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/kirkland-compose-adoption",
+      "task_sha256": "9671cd042e191a5695ec8566d15c78e021b4248dfdd0e2b96798f8c7cd65239e"
+     },
+     "request_sha256": "5ca1e5789ab2742ce5576a9603ef9dfff69cf7c78427d106072c07a42633cb32",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/kirkland-compose-adoption",
+     "task_sha256": "9671cd042e191a5695ec8566d15c78e021b4248dfdd0e2b96798f8c7cd65239e",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "fdf73b2554a481e35e8ce7998113cf3538c3259a52945289929f73cb62696d50",
     "status": "pending_executor"
    }
   },
@@ -847,7 +1187,7 @@
  },
  {
   "task": "kixantrix/michael-orchestrate-voice-integration",
-  "task_sha256": "e30d63416b03ce3f5fd00d319b8eb9a74742d78013c0d32518837ff89bde9136",
+  "task_sha256": "d564803f9dad90d6744fdea41b8401c69801a41e12558a7c3af1c2c50c62756a",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -883,9 +1223,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration",
-      "task_sha256": "e30d63416b03ce3f5fd00d319b8eb9a74742d78013c0d32518837ff89bde9136"
+      "task_sha256": "d564803f9dad90d6744fdea41b8401c69801a41e12558a7c3af1c2c50c62756a"
      },
-     "request_sha256": "59ce40b8295773d4cb94e5441225768e82540ad3bf7c6794b28eb1b37755eb65",
+     "request_sha256": "068e6ffdba8a681e1ef41ab162a7a07df8bb0e01aa61f351e59770fe9c0b2773",
      "status": "pending_executor"
     },
     {
@@ -896,9 +1236,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration",
-      "task_sha256": "e30d63416b03ce3f5fd00d319b8eb9a74742d78013c0d32518837ff89bde9136"
+      "task_sha256": "d564803f9dad90d6744fdea41b8401c69801a41e12558a7c3af1c2c50c62756a"
      },
-     "request_sha256": "7acbfc83160fb50ba818bb1cc0126d54cc6acf1e4d33980cce606cabd5bf514b",
+     "request_sha256": "862f9ff380b6b3ae8177357fbeb6606b1269706417889050624ef29a2d5de93f",
      "status": "pending_executor"
     }
    ],
@@ -910,13 +1250,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration",
-     "task_sha256": "e30d63416b03ce3f5fd00d319b8eb9a74742d78013c0d32518837ff89bde9136",
+     "task_sha256": "d564803f9dad90d6744fdea41b8401c69801a41e12558a7c3af1c2c50c62756a",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "283eb75e1dbddf560b20a966d43517cc483dd627aaa990fbdb5c74221908725a",
+    "request_sha256": "36e6761fc841a3692684b8db499b4171aedf7b42b43b762012ae3ba366da4a76",
     "status": "pending_executor"
    }
   },
@@ -930,7 +1270,7 @@
  },
  {
   "task": "kixantrix/michael-orchestrate-voice-integration-v2",
-  "task_sha256": "132467e4699008d12dec7560afe78689c8c105f1238bc285a6f9a08dfafdf50b",
+  "task_sha256": "f9df3c98d1b05e68b5d96253dbe0860ab4c9eb969ed396e8c93235d5c5d4fabd",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -966,9 +1306,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v2",
-      "task_sha256": "132467e4699008d12dec7560afe78689c8c105f1238bc285a6f9a08dfafdf50b"
+      "task_sha256": "f9df3c98d1b05e68b5d96253dbe0860ab4c9eb969ed396e8c93235d5c5d4fabd"
      },
-     "request_sha256": "91a8f301696083fc91eec2e4d36ae9cbeff65c5065021715ce91522f2d57f210",
+     "request_sha256": "0cb76f953a4f16522d282ccb161aed1c9ed67ccd935843427a91797fa17d9fed",
      "status": "pending_executor"
     },
     {
@@ -979,9 +1319,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v2",
-      "task_sha256": "132467e4699008d12dec7560afe78689c8c105f1238bc285a6f9a08dfafdf50b"
+      "task_sha256": "f9df3c98d1b05e68b5d96253dbe0860ab4c9eb969ed396e8c93235d5c5d4fabd"
      },
-     "request_sha256": "f2c0a9e1d3ce1d1667a08732497e9cc053392d0bbb726a512708de2531a69c91",
+     "request_sha256": "b5b519a3580d76766433ef511596a09ac08ac292a46c235d106ac771c569476d",
      "status": "pending_executor"
     }
    ],
@@ -993,13 +1333,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v2",
-     "task_sha256": "132467e4699008d12dec7560afe78689c8c105f1238bc285a6f9a08dfafdf50b",
+     "task_sha256": "f9df3c98d1b05e68b5d96253dbe0860ab4c9eb969ed396e8c93235d5c5d4fabd",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "13ed0c1d03714fc2f357204a2a10b612d4ef8c763855038f97f03c9e3dc3196d",
+    "request_sha256": "0ababfa4b601fb8d5667eb4f07e4dcbb1d4844014e149affe68c01546e11fbf4",
     "status": "pending_executor"
    }
   },
@@ -1013,7 +1353,7 @@
  },
  {
   "task": "kixantrix/michael-orchestrate-voice-integration-v3",
-  "task_sha256": "7ae9add105c5cc5910db5cca1908c8a73e2ed7de96b61de0e8a8a0616c323396",
+  "task_sha256": "5575bcbc1f7f187bb3cbc2d1709c3949809f2dabc1d186f8e6a62c1002a46004",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1049,9 +1389,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v3",
-      "task_sha256": "7ae9add105c5cc5910db5cca1908c8a73e2ed7de96b61de0e8a8a0616c323396"
+      "task_sha256": "5575bcbc1f7f187bb3cbc2d1709c3949809f2dabc1d186f8e6a62c1002a46004"
      },
-     "request_sha256": "d29e29a851ecc334dead5b623eee2b47312ab80e384f7dcf101e73cb97952460",
+     "request_sha256": "4753bd66daf48fb52748a4e9d4a5cb27d5b7507bbd514fda9de6da6546bd450c",
      "status": "pending_executor"
     },
     {
@@ -1062,9 +1402,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v3",
-      "task_sha256": "7ae9add105c5cc5910db5cca1908c8a73e2ed7de96b61de0e8a8a0616c323396"
+      "task_sha256": "5575bcbc1f7f187bb3cbc2d1709c3949809f2dabc1d186f8e6a62c1002a46004"
      },
-     "request_sha256": "2dfe7860fee6e21cfd882476378fe6453310daac6721068396c7fac6e9ae0471",
+     "request_sha256": "ecc0be700ebe7a31ca118bc683829503eff9485e65320fe71b9e6b584717c5de",
      "status": "pending_executor"
     }
    ],
@@ -1076,13 +1416,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v3",
-     "task_sha256": "7ae9add105c5cc5910db5cca1908c8a73e2ed7de96b61de0e8a8a0616c323396",
+     "task_sha256": "5575bcbc1f7f187bb3cbc2d1709c3949809f2dabc1d186f8e6a62c1002a46004",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "dd2bab9bcaa77156a40a22999141d84cff9073e73d7c5fac6a4523ed399a6de9",
+    "request_sha256": "1022f5cb60369055a7669e4a1aecda9dc99ca54930e40ae4c5deaa963f7c1914",
     "status": "pending_executor"
    }
   },
@@ -1096,7 +1436,7 @@
  },
  {
   "task": "kixantrix/michael-orchestrate-voice-integration-v4",
-  "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65",
+  "task_sha256": "b46464df38d1b067bc418fc86487251fdc1cc605b2478d435050bafd83558d7f",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1132,9 +1472,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v4",
-      "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65"
+      "task_sha256": "b46464df38d1b067bc418fc86487251fdc1cc605b2478d435050bafd83558d7f"
      },
-     "request_sha256": "494cef890ec2dfe12ae0e503ac5b8b0bde128b43cd5195ee1ada7de202376c77",
+     "request_sha256": "88b91d1db4168afbd7fdb5e965b36fcd96e1835d4c7575dafd0ef7e790b4b127",
      "status": "pending_executor"
     },
     {
@@ -1145,9 +1485,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v4",
-      "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65"
+      "task_sha256": "b46464df38d1b067bc418fc86487251fdc1cc605b2478d435050bafd83558d7f"
      },
-     "request_sha256": "d8999f1fe03bc36f6445882b664594781a77d60f33049262c8320ac4875edf16",
+     "request_sha256": "07c2eb0d8a0ed91798ee24a0616b7dc70ba0b7eed2ed9bbd8c5ddc1f641a2054",
      "status": "pending_executor"
     }
    ],
@@ -1159,13 +1499,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v4",
-     "task_sha256": "a865d77f34429efe76eb32ec552c60b7a5965c5693970e7781ce0e57c3d3ba65",
+     "task_sha256": "b46464df38d1b067bc418fc86487251fdc1cc605b2478d435050bafd83558d7f",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "2fab7eaaad2eaec9f91bcf6b76475d3f2000bac4f50c4c84d8eef210943591ae",
+    "request_sha256": "6ca404f322efc8cef9e98dda2fba83ae8de767b608b5e46e6be6a2553b177a9f",
     "status": "pending_executor"
    }
   },
@@ -1179,7 +1519,7 @@
  },
  {
   "task": "kixantrix/michael-orchestrate-voice-integration-v5",
-  "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a",
+  "task_sha256": "11aef8aa050979abe0fed46fb12b1f9160f237cc01dfa3d9fed8e5b1bb256dcc",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1215,9 +1555,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v5",
-      "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a"
+      "task_sha256": "11aef8aa050979abe0fed46fb12b1f9160f237cc01dfa3d9fed8e5b1bb256dcc"
      },
-     "request_sha256": "de72c561a50505f075863007d11b9398dfb1a6afe09905515a0307dcfabc6a74",
+     "request_sha256": "3de665a0ee3de43609c3c05965e9f788d44a736b6555c4dd20c6958c6a6354dc",
      "status": "pending_executor"
     },
     {
@@ -1228,9 +1568,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v5",
-      "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a"
+      "task_sha256": "11aef8aa050979abe0fed46fb12b1f9160f237cc01dfa3d9fed8e5b1bb256dcc"
      },
-     "request_sha256": "9bfa2655d591abbcbcdabe6bb0ad93cf495ce88d51fd47ce16f8928ba40a2c07",
+     "request_sha256": "646cf5b0566c14078369ff650265aa972364b8ff2ac1bc620bc93408203a97f9",
      "status": "pending_executor"
     }
    ],
@@ -1242,13 +1582,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-voice-integration-v5",
-     "task_sha256": "e65b3031a5d072a77953090b9bb54bc6149075e706668524af5a699f50cdb58a",
+     "task_sha256": "11aef8aa050979abe0fed46fb12b1f9160f237cc01dfa3d9fed8e5b1bb256dcc",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "0378c3a1b73621e35d6c09dc571fdcc0610fb870d4f016d90bd31aa0250e2d0d",
+    "request_sha256": "a247115de9297c066cdb24ade33fef4dc7689b722b3fd990c411c3ccf1a92e1f",
     "status": "pending_executor"
    }
   },
@@ -1261,7 +1601,7 @@
  },
  {
   "task": "kixantrix/michael-plan-dashboard-waves",
-  "task_sha256": "44bddae0ddb9b98e466fd8730667bcdfaa5519f07b9b33ca9264382fcf3aad4e",
+  "task_sha256": "76aa307c891b1b60258eaac2f8d378e77c6a6af1496131924980916a591c0791",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1293,9 +1633,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-waves",
-      "task_sha256": "44bddae0ddb9b98e466fd8730667bcdfaa5519f07b9b33ca9264382fcf3aad4e"
+      "task_sha256": "76aa307c891b1b60258eaac2f8d378e77c6a6af1496131924980916a591c0791"
      },
-     "request_sha256": "b94780615ceda817cadfa1696b6a78fa28625b4875d7bd3993aafa5fd32be754",
+     "request_sha256": "09b7cc0ede8b156febb4344b74b1b2b0f9645f435b5723dee9ca1f623dbd5aa0",
      "status": "pending_executor"
     },
     {
@@ -1306,9 +1646,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-waves",
-      "task_sha256": "44bddae0ddb9b98e466fd8730667bcdfaa5519f07b9b33ca9264382fcf3aad4e"
+      "task_sha256": "76aa307c891b1b60258eaac2f8d378e77c6a6af1496131924980916a591c0791"
      },
-     "request_sha256": "a99773310ca7c7b564240cc87c34ebd896698aa08cf5c2120b9cd58a0392c5ed",
+     "request_sha256": "6793f8215a9e6bed751b0a5407d14853bf4c453745de929f49624d08504357d4",
      "status": "pending_executor"
     }
    ],
@@ -1320,13 +1660,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-waves",
-     "task_sha256": "44bddae0ddb9b98e466fd8730667bcdfaa5519f07b9b33ca9264382fcf3aad4e",
+     "task_sha256": "76aa307c891b1b60258eaac2f8d378e77c6a6af1496131924980916a591c0791",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "5b23214cfeca041a2871b0348ce07d09d67b08fb3c5b069a0cf32416ec6565f7",
+    "request_sha256": "1f27eb4819ea5b93076380d39b2cb8d4b4caaff6bdf352becdc0c7d508a2c418",
     "status": "pending_executor"
    }
   },
@@ -1340,7 +1680,7 @@
  },
  {
   "task": "kixantrix/michael-plan-dashboard-waves-v2",
-  "task_sha256": "99fd343c16281b43b2cd0f596da3e862361306f4df7a832f4634ddb57c272238",
+  "task_sha256": "b642b14afe96b49b98426f6c6679fa7a983b219e4f75e38d4224e10ab8260d50",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1372,9 +1712,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-waves-v2",
-      "task_sha256": "99fd343c16281b43b2cd0f596da3e862361306f4df7a832f4634ddb57c272238"
+      "task_sha256": "b642b14afe96b49b98426f6c6679fa7a983b219e4f75e38d4224e10ab8260d50"
      },
-     "request_sha256": "8469144cc263c8ad756c085c280975a1d054707ca4851828ef90b64698808a6b",
+     "request_sha256": "e81ce854ab431c58b598ef79ab19d63371cc66632475e0a993b016352f3698ea",
      "status": "pending_executor"
     },
     {
@@ -1385,9 +1725,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-waves-v2",
-      "task_sha256": "99fd343c16281b43b2cd0f596da3e862361306f4df7a832f4634ddb57c272238"
+      "task_sha256": "b642b14afe96b49b98426f6c6679fa7a983b219e4f75e38d4224e10ab8260d50"
      },
-     "request_sha256": "395a05edeadde234cdb8dcaee88cf79645eab5dad0241a9b955f423fd47a266e",
+     "request_sha256": "82928de9c5774172bbe1b3d4ebdc6965d203d2a8b4a284a4fb7abca9e7541144",
      "status": "pending_executor"
     }
    ],
@@ -1399,13 +1739,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-waves-v2",
-     "task_sha256": "99fd343c16281b43b2cd0f596da3e862361306f4df7a832f4634ddb57c272238",
+     "task_sha256": "b642b14afe96b49b98426f6c6679fa7a983b219e4f75e38d4224e10ab8260d50",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "82dc9568b451f8b01aac0e6cc09e9231b3b86662c141316fbc56925a0dc6d286",
+    "request_sha256": "effcc76e136dab10ca3e076362f6cff6b73b3a1493e5ef42942f264d3b70e650",
     "status": "pending_executor"
    }
   },
@@ -1418,7 +1758,7 @@
  },
  {
   "task": "kixantrix/michael-research-serverless-cost",
-  "task_sha256": "544ab406b074b10159dc1eccae454774e50165e15f6aaed4393a29b47a5c03a8",
+  "task_sha256": "c1df9a162b6c6cfbf78f0909097720b36fb05b360f5d3061d23e89e883edefba",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1458,9 +1798,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost",
-      "task_sha256": "544ab406b074b10159dc1eccae454774e50165e15f6aaed4393a29b47a5c03a8"
+      "task_sha256": "c1df9a162b6c6cfbf78f0909097720b36fb05b360f5d3061d23e89e883edefba"
      },
-     "request_sha256": "e32c246040183b22b408b1ff93f1d21db11b0674247998d9c2b89b2ae2226010",
+     "request_sha256": "875642b19346817fcb4a602286a9ce7974e5dbd5206f0a7f4d4cb3064fb589ec",
      "status": "pending_executor"
     },
     {
@@ -1471,9 +1811,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost",
-      "task_sha256": "544ab406b074b10159dc1eccae454774e50165e15f6aaed4393a29b47a5c03a8"
+      "task_sha256": "c1df9a162b6c6cfbf78f0909097720b36fb05b360f5d3061d23e89e883edefba"
      },
-     "request_sha256": "db9b04fe9cd5d4025e8c8b4404ef521840a153eacfbb49b5aef09120ff6a6785",
+     "request_sha256": "d34b768e3d8db8e08f555d60efaee3596deafc8637149408ba9ea4e0fbfbcb62",
      "status": "pending_executor"
     }
    ],
@@ -1485,13 +1825,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost",
-     "task_sha256": "544ab406b074b10159dc1eccae454774e50165e15f6aaed4393a29b47a5c03a8",
+     "task_sha256": "c1df9a162b6c6cfbf78f0909097720b36fb05b360f5d3061d23e89e883edefba",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "d16929012495b4b07cbe75378965d6c065ea9e42da97dee78ebbe05860da650b",
+    "request_sha256": "474694a8c4a3dfbe02b076b25e3c47f86c4691e7e73bd4f76edbbba498642369",
     "status": "pending_executor"
    }
   },
@@ -1505,7 +1845,7 @@
  },
  {
   "task": "kixantrix/michael-research-serverless-cost-v2",
-  "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496",
+  "task_sha256": "c249ec60532fb49430acd43ed3e8d24a7e931e9738c7cbe681bd4356ef9a38e9",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1545,9 +1885,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost-v2",
-      "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496"
+      "task_sha256": "c249ec60532fb49430acd43ed3e8d24a7e931e9738c7cbe681bd4356ef9a38e9"
      },
-     "request_sha256": "36adc9df866a9406fcf58c3833bc2e0d6fe302e0be9f3cf4eb31221deeb2ec11",
+     "request_sha256": "26983e6f83366b90f50f5a3e473f697faddcb8200bb78c9bd8896988862ebf91",
      "status": "pending_executor"
     },
     {
@@ -1558,9 +1898,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost-v2",
-      "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496"
+      "task_sha256": "c249ec60532fb49430acd43ed3e8d24a7e931e9738c7cbe681bd4356ef9a38e9"
      },
-     "request_sha256": "cdbce0d47b3100f98e8207590655882eca00fcf4cd805858a991bb8e8018c31f",
+     "request_sha256": "c372fcd1f591fd762ed4c0620bb974493b5fa222b4d223fa0b1261a3ec2f3de7",
      "status": "pending_executor"
     }
    ],
@@ -1572,13 +1912,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/research-serverless-cost-v2",
-     "task_sha256": "b9026e863e04438291fc6c1db7949fc23facac804a20cad946c8d2053d9c4496",
+     "task_sha256": "c249ec60532fb49430acd43ed3e8d24a7e931e9738c7cbe681bd4356ef9a38e9",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "1dc1e41ee67d2e401f4451a19313a2256d3100e9e321743760bf2905376c799e",
+    "request_sha256": "370a44727d1d0c1f4c9620d30f1f59c8f430f533a56149a6255ce7c475295af3",
     "status": "pending_executor"
    }
   },
@@ -1591,7 +1931,7 @@
  },
  {
   "task": "kixantrix/michael-review-conflict-predictor",
-  "task_sha256": "ab5deea5dd01b7d3f525b7f6d679930aac1e5f2ced3fa15e0f024a310bd4de4a",
+  "task_sha256": "8b9135899cf5b0fa515e8d5a5f957ad1299a95dc09d4d313c250d0639452a050",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1627,9 +1967,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor",
-      "task_sha256": "ab5deea5dd01b7d3f525b7f6d679930aac1e5f2ced3fa15e0f024a310bd4de4a"
+      "task_sha256": "8b9135899cf5b0fa515e8d5a5f957ad1299a95dc09d4d313c250d0639452a050"
      },
-     "request_sha256": "598f878c52b6dc23430e2bd270bec754388085098f27c789d89806ac791fe998",
+     "request_sha256": "87db52b134df727a28e08f12e9bc321d8ee271736c9c458bda7815f68972a8b3",
      "status": "pending_executor"
     },
     {
@@ -1640,9 +1980,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor",
-      "task_sha256": "ab5deea5dd01b7d3f525b7f6d679930aac1e5f2ced3fa15e0f024a310bd4de4a"
+      "task_sha256": "8b9135899cf5b0fa515e8d5a5f957ad1299a95dc09d4d313c250d0639452a050"
      },
-     "request_sha256": "6b35ce1eb38577520a3916a2001ecb6564422223f2a9e04c9a217a23e3d41f23",
+     "request_sha256": "d8d6adcc591ee9947c8b5f84d9cb4d24250a5caba7bfba664475cdf9e7d4020e",
      "status": "pending_executor"
     }
    ],
@@ -1654,13 +1994,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor",
-     "task_sha256": "ab5deea5dd01b7d3f525b7f6d679930aac1e5f2ced3fa15e0f024a310bd4de4a",
+     "task_sha256": "8b9135899cf5b0fa515e8d5a5f957ad1299a95dc09d4d313c250d0639452a050",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "5bae85134c5d8a5d74cc75d65e8475a2b78403a07529ab0f3ea1e3ed2f1170fa",
+    "request_sha256": "403e5052ea95364a0739bad358d03d260d94cdbe479f147f100da6c04262ba28",
     "status": "pending_executor"
    }
   },
@@ -1674,7 +2014,7 @@
  },
  {
   "task": "kixantrix/michael-review-conflict-predictor-v2",
-  "task_sha256": "54d9b05abc80cefc2d0c64d77f50392e007dc22a413a9f2d392ec569af3ef786",
+  "task_sha256": "fac8b33300650dbbc61b251f52770ebda5a30155504655722ca5ddf8ff816edd",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1710,9 +2050,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v2",
-      "task_sha256": "54d9b05abc80cefc2d0c64d77f50392e007dc22a413a9f2d392ec569af3ef786"
+      "task_sha256": "fac8b33300650dbbc61b251f52770ebda5a30155504655722ca5ddf8ff816edd"
      },
-     "request_sha256": "ebabce10cbea80fed7c9abc6832ee9a0bebc9cb3392e45f6502a0749a211c989",
+     "request_sha256": "f3402e4ca2d634847a84d6e9a531dc8e5dfbdf8907abb83798922a7458a9eaf0",
      "status": "pending_executor"
     },
     {
@@ -1723,9 +2063,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v2",
-      "task_sha256": "54d9b05abc80cefc2d0c64d77f50392e007dc22a413a9f2d392ec569af3ef786"
+      "task_sha256": "fac8b33300650dbbc61b251f52770ebda5a30155504655722ca5ddf8ff816edd"
      },
-     "request_sha256": "15c1e23a15cc6b5d144bb77222a8bca79da8ac3cbdb53c59bec686cc74d8eb2e",
+     "request_sha256": "30c59cab3dd694d668f5149d4bca76cdcac9902a6e9ddf97ff812a1a56aea38d",
      "status": "pending_executor"
     }
    ],
@@ -1737,13 +2077,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v2",
-     "task_sha256": "54d9b05abc80cefc2d0c64d77f50392e007dc22a413a9f2d392ec569af3ef786",
+     "task_sha256": "fac8b33300650dbbc61b251f52770ebda5a30155504655722ca5ddf8ff816edd",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "bc0d88b849149acbc26b11135f6f765ca1d3a6772fa4d238ce3557af0a8f10de",
+    "request_sha256": "dd24c90bc879311372a9697624d9903989fb53048474148e3af97cdb59c4cbce",
     "status": "pending_executor"
    }
   },
@@ -1757,7 +2097,7 @@
  },
  {
   "task": "kixantrix/michael-review-conflict-predictor-v3",
-  "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c",
+  "task_sha256": "9583cbb9c537a0c76d4f429c280dbab2b284df17400e8984030bd3478593b320",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1793,9 +2133,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
-      "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c"
+      "task_sha256": "9583cbb9c537a0c76d4f429c280dbab2b284df17400e8984030bd3478593b320"
      },
-     "request_sha256": "05661e41c7d6b6aa30a95c935c3d2ed002051860ad487a43c634713b39b0a791",
+     "request_sha256": "ca729b7b5814744d1f7a071a702d7456dea79fb9256f801544b939a308be1ddc",
      "status": "pending_executor"
     },
     {
@@ -1806,9 +2146,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
-      "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c"
+      "task_sha256": "9583cbb9c537a0c76d4f429c280dbab2b284df17400e8984030bd3478593b320"
      },
-     "request_sha256": "8764423a24e252cd3aa1ea72969940b1953a8ae2ebb55d65eeaad58017f54ca1",
+     "request_sha256": "4bd8d24a322eeb03730360a031e33ada33471c9d4ae397ca4db7fa9ec856ea03",
      "status": "pending_executor"
     }
    ],
@@ -1820,13 +2160,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v3",
-     "task_sha256": "18d1385a716ab5bc1c66d522bcf5ef82d9a17190c905e7d4689c52036183900c",
+     "task_sha256": "9583cbb9c537a0c76d4f429c280dbab2b284df17400e8984030bd3478593b320",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "384c52b3b09966cccd56692254efac2a1c4ad572716c2363b1e5034bd80bd79d",
+    "request_sha256": "a15e47f741c820f4f92bdc5aa01d67f58d8ef3c797627f0587c57d8092be3340",
     "status": "pending_executor"
    }
   },
@@ -1840,7 +2180,7 @@
  },
  {
   "task": "kixantrix/michael-review-conflict-predictor-v4",
-  "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572",
+  "task_sha256": "6b0d5dc92bd6507256251df4f83353610cb24b557914a35dc9eec22a4260ab59",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1876,9 +2216,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v4",
-      "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572"
+      "task_sha256": "6b0d5dc92bd6507256251df4f83353610cb24b557914a35dc9eec22a4260ab59"
      },
-     "request_sha256": "1f874775ffeaab3af11ca28c6d22d5c0ef1a4afdd30a7ca7562fe0511d0811c4",
+     "request_sha256": "e4abb8f0cfb7b297e9fd567ff47febbf60ed577bd227d49704c9c72d5d18346c",
      "status": "pending_executor"
     },
     {
@@ -1889,9 +2229,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v4",
-      "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572"
+      "task_sha256": "6b0d5dc92bd6507256251df4f83353610cb24b557914a35dc9eec22a4260ab59"
      },
-     "request_sha256": "26ba2f64a76f69cf6077d72bfc40af9e729c60c4b93e39dc1a4776c02e094ea5",
+     "request_sha256": "a6336246d679d92c522416a6c6daba635bd67773497442c5de68d8775762c7e8",
      "status": "pending_executor"
     }
    ],
@@ -1903,13 +2243,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/review-conflict-predictor-v4",
-     "task_sha256": "2dcdd8f0fda8243c8916ee28e5a44b6e9ecb145378816b80857d26b972c18572",
+     "task_sha256": "6b0d5dc92bd6507256251df4f83353610cb24b557914a35dc9eec22a4260ab59",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "48f8e1f576de079ead050dda6b31431d43e616f6c6a0cf49ab8d5bd3199509ca",
+    "request_sha256": "84dbe8e080213a22d0f3091fd7e2582c98790a372cbbddd79bc3a0b6419ec678",
     "status": "pending_executor"
    }
   },
@@ -1922,7 +2262,7 @@
  },
  {
   "task": "kixantrix/michael-selfhost-redeploy-state",
-  "task_sha256": "75029111d0245bacb93f56f8fc0b1337ced19619856cb3290ea5be17a3288855",
+  "task_sha256": "6ee35d34323f3ae7396f5262821192d7fb42de723cccc6a3e8d0f96bce14309f",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -1958,9 +2298,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/selfhost-redeploy-state",
-      "task_sha256": "75029111d0245bacb93f56f8fc0b1337ced19619856cb3290ea5be17a3288855"
+      "task_sha256": "6ee35d34323f3ae7396f5262821192d7fb42de723cccc6a3e8d0f96bce14309f"
      },
-     "request_sha256": "8fe9c86a971531b5f8d3a0dc1e6a8aac958edecc068d262b81a03e30d8562e7c",
+     "request_sha256": "fe93020e895962d5d9347230e674e5a4c4255c915022b57604dacf40f0a61024",
      "status": "pending_executor"
     },
     {
@@ -1971,9 +2311,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/selfhost-redeploy-state",
-      "task_sha256": "75029111d0245bacb93f56f8fc0b1337ced19619856cb3290ea5be17a3288855"
+      "task_sha256": "6ee35d34323f3ae7396f5262821192d7fb42de723cccc6a3e8d0f96bce14309f"
      },
-     "request_sha256": "018d03473154aff4282f80b3a80161e60a2d5b50325e9536514723a57c970962",
+     "request_sha256": "fa982d10d71ac7058cb1b922da1f7061144fa81421c5d98221e1bfe46d69ade8",
      "status": "pending_executor"
     }
    ],
@@ -1985,13 +2325,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/selfhost-redeploy-state",
-     "task_sha256": "75029111d0245bacb93f56f8fc0b1337ced19619856cb3290ea5be17a3288855",
+     "task_sha256": "6ee35d34323f3ae7396f5262821192d7fb42de723cccc6a3e8d0f96bce14309f",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "a955171887b3161fbd8497998b88763f65dcdf2f1b84caa9f011ab437c36fe72",
+    "request_sha256": "924f5e063550ebcf81cb27e06aff7fc87b8ae09b877bcf1cf8b7c8ff3072819c",
     "status": "pending_executor"
    }
   },
@@ -2004,7 +2344,7 @@
  },
  {
   "task": "kixantrix/michael-sr-temporal-assay",
-  "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54",
+  "task_sha256": "a1410d046cf8d52014941bd25e85f0cb4c80065b20d42cac93e4d52b124cc690",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -2040,9 +2380,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/sr-temporal-assay",
-      "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54"
+      "task_sha256": "a1410d046cf8d52014941bd25e85f0cb4c80065b20d42cac93e4d52b124cc690"
      },
-     "request_sha256": "3d10bc3611edf5bce223ff3acd7f10df95b757a5153dd2d606cdfc743d3951b2",
+     "request_sha256": "e63436ccf5497a3dc7474955f440e5496224d1b5d3269745938b553575bb151a",
      "status": "pending_executor"
     },
     {
@@ -2053,9 +2393,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/sr-temporal-assay",
-      "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54"
+      "task_sha256": "a1410d046cf8d52014941bd25e85f0cb4c80065b20d42cac93e4d52b124cc690"
      },
-     "request_sha256": "6aa8a22fd7d6b6783ba200d98401a9eb85cf950ef6f9444355ff691e68eec817",
+     "request_sha256": "31ce6626f74bdeacfc98ae4bd73c02b4f694f1f0c2b2893532b9bc7800571f0b",
      "status": "pending_executor"
     }
    ],
@@ -2067,13 +2407,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/sr-temporal-assay",
-     "task_sha256": "2ee4fb20e92d8b50e19f7cc347db46a67a6820ef4883a1887f5ef757d1c86d54",
+     "task_sha256": "a1410d046cf8d52014941bd25e85f0cb4c80065b20d42cac93e4d52b124cc690",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "748b71bf16ec9edd11ad434023b454ca71f28a8d9e8c81d9a06a84d918568e71",
+    "request_sha256": "fd43e91dc2a5969dfb1bfe5ba9fea18c1ce56a0cc4e8fed10c7abc8687a8bb8a",
     "status": "pending_executor"
    }
   },
@@ -2163,6 +2503,100 @@
   }
  },
  {
+  "task": "kixantrix/michael-te-baseline-eval",
+  "task_sha256": "9daa4d57f2b540a09505172c24e5b6cdf3e341ed4a9c3474933cc0b87d7a797f",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "baselines_passed": 4.0,
+    "baselines_total": 4.0,
+    "benchmark_passed": 6.0,
+    "benchmark_total": 6.0,
+    "metrics_passed": 3.0,
+    "metrics_total": 3.0,
+    "preservation_passed": 5.0,
+    "preservation_total": 5.0,
+    "report_passed": 2.0,
+    "report_total": 2.0,
+    "reward": 1.0,
+    "split_passed": 2.0,
+    "split_total": 2.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "baselines_passed": 0.0,
+    "baselines_total": 4.0,
+    "benchmark_passed": 0.0,
+    "benchmark_total": 6.0,
+    "metrics_passed": 0.0,
+    "metrics_total": 3.0,
+    "preservation_passed": 5.0,
+    "preservation_total": 5.0,
+    "report_passed": 0.0,
+    "report_total": 2.0,
+    "reward": 0.0,
+    "split_passed": 0.0,
+    "split_total": 2.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/te-baseline-eval",
+      "task_sha256": "9daa4d57f2b540a09505172c24e5b6cdf3e341ed4a9c3474933cc0b87d7a797f"
+     },
+     "request_sha256": "d14bd9b77f77c9f32a235691ce6affa7a1a432ffff1f3a1f6288e1b2fface239",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/te-baseline-eval",
+      "task_sha256": "9daa4d57f2b540a09505172c24e5b6cdf3e341ed4a9c3474933cc0b87d7a797f"
+     },
+     "request_sha256": "05821676460be0a7cddd6f064660b7d169274e10588cf76d039d2c1e22f0500a",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/te-baseline-eval",
+     "task_sha256": "9daa4d57f2b540a09505172c24e5b6cdf3e341ed4a9c3474933cc0b87d7a797f",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "9ae3b7fba801195c5131d2ccf106e910bbcf8c848dcef5149f8b178bb8ff7de6",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
   "task": "kixantrix/michael-validator",
   "task_sha256": "181df456acb2046b0fd19eec6fd3d39cebf8804a4ccf5defec571803d6f05dcc",
   "deterministic": {
@@ -2241,8 +2675,102 @@
   }
  },
  {
+  "task": "kixantrix/michael-vhs-room-registry-sync",
+  "task_sha256": "887fadeb25d607b781d2cfbcb5adcb7c3ee1cf996114fbb38c8fffaed3adf1ba",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "conflicts_passed": 5.0,
+    "conflicts_total": 5.0,
+    "guard_passed": 2.0,
+    "guard_total": 2.0,
+    "operations_passed": 7.0,
+    "operations_total": 7.0,
+    "preservation_passed": 3.0,
+    "preservation_total": 3.0,
+    "replication_passed": 3.0,
+    "replication_total": 3.0,
+    "reward": 1.0,
+    "tombstones_passed": 4.0,
+    "tombstones_total": 4.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "conflicts_passed": 0.0,
+    "conflicts_total": 5.0,
+    "guard_passed": 0.0,
+    "guard_total": 2.0,
+    "operations_passed": 0.0,
+    "operations_total": 7.0,
+    "preservation_passed": 3.0,
+    "preservation_total": 3.0,
+    "replication_passed": 0.0,
+    "replication_total": 3.0,
+    "reward": 0.0,
+    "tombstones_passed": 0.0,
+    "tombstones_total": 4.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/vhs-room-registry-sync",
+      "task_sha256": "887fadeb25d607b781d2cfbcb5adcb7c3ee1cf996114fbb38c8fffaed3adf1ba"
+     },
+     "request_sha256": "76af6dc5a71d1f350eea43a7abe24373af1ee44e4973081c27f0c308f12296fe",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/vhs-room-registry-sync",
+      "task_sha256": "887fadeb25d607b781d2cfbcb5adcb7c3ee1cf996114fbb38c8fffaed3adf1ba"
+     },
+     "request_sha256": "add8fe40ae9e313b258a9adf69676f561f09405cd4dc65c00ca08345f4f01d22",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/vhs-room-registry-sync",
+     "task_sha256": "887fadeb25d607b781d2cfbcb5adcb7c3ee1cf996114fbb38c8fffaed3adf1ba",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "41807154e1937da316df258c2ce2d8c3137d52622fa4431815217dc4f4ce1e57",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
   "task": "kixantrix/michael-yv-relevance-instrument",
-  "task_sha256": "6fd30087301df350900f16b163e7749df4f22ac472e96b17eb89a424d914321f",
+  "task_sha256": "c814e7cb399b6799515961ee47382d1c34253aaf6500f1f4063d2178963f88bd",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -2278,9 +2806,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument",
-      "task_sha256": "6fd30087301df350900f16b163e7749df4f22ac472e96b17eb89a424d914321f"
+      "task_sha256": "c814e7cb399b6799515961ee47382d1c34253aaf6500f1f4063d2178963f88bd"
      },
-     "request_sha256": "14fc015ac40fba96c84820b18fe1512b5981454586b48679c8d7bf4025e93f49",
+     "request_sha256": "50f16ade545e8b6207090053f96c4d717167cc7e5e2015b2e3c9cb66ba5f5b0a",
      "status": "pending_executor"
     },
     {
@@ -2291,9 +2819,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument",
-      "task_sha256": "6fd30087301df350900f16b163e7749df4f22ac472e96b17eb89a424d914321f"
+      "task_sha256": "c814e7cb399b6799515961ee47382d1c34253aaf6500f1f4063d2178963f88bd"
      },
-     "request_sha256": "89e584aae996dd3f94cdd51797ae5c4481153507e39b01ac3c3379d9eba3116a",
+     "request_sha256": "dd9b393785bf45a3ef844f20e1dbf44b937d33f767cb21f370aa43f394bea487",
      "status": "pending_executor"
     }
    ],
@@ -2305,13 +2833,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument",
-     "task_sha256": "6fd30087301df350900f16b163e7749df4f22ac472e96b17eb89a424d914321f",
+     "task_sha256": "c814e7cb399b6799515961ee47382d1c34253aaf6500f1f4063d2178963f88bd",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "2d68b958f18c326b6632c9b9d3cfa945089e6d6b3f60df78bcb19e368a649896",
+    "request_sha256": "3e19f3e89f95bc16a7746824b1d4d7529f62356200560b09d34193fa73d6dd5d",
     "status": "pending_executor"
    }
   },
@@ -2325,7 +2853,7 @@
  },
  {
   "task": "kixantrix/michael-yv-relevance-instrument-v2",
-  "task_sha256": "2cba3d264ae83593773f1582b07ed226bfc0692bfde93ffc5200b53efcea4a9d",
+  "task_sha256": "7c8e5c581c403c7293e18c4424b1bfa62c470638ad224f6a59116b36102ce196",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -2361,9 +2889,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v2",
-      "task_sha256": "2cba3d264ae83593773f1582b07ed226bfc0692bfde93ffc5200b53efcea4a9d"
+      "task_sha256": "7c8e5c581c403c7293e18c4424b1bfa62c470638ad224f6a59116b36102ce196"
      },
-     "request_sha256": "5fae22c1bf00e73ab4e0d841fa231b066a1a44f96b86e556bdd5ad114a0d6f21",
+     "request_sha256": "f5097a1c0d49c2901333fdd3583893eb024345f25f46a83b6819eb90143befe2",
      "status": "pending_executor"
     },
     {
@@ -2374,9 +2902,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v2",
-      "task_sha256": "2cba3d264ae83593773f1582b07ed226bfc0692bfde93ffc5200b53efcea4a9d"
+      "task_sha256": "7c8e5c581c403c7293e18c4424b1bfa62c470638ad224f6a59116b36102ce196"
      },
-     "request_sha256": "838e603e9be2ab247270de7846ca9f05327e00e22b32ddfbb7b8b455ce5bc4ba",
+     "request_sha256": "7eed84a1ef0d0da83383500e5caa61e4b247e440dbd21b8897e31caefee2ab5e",
      "status": "pending_executor"
     }
    ],
@@ -2388,13 +2916,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v2",
-     "task_sha256": "2cba3d264ae83593773f1582b07ed226bfc0692bfde93ffc5200b53efcea4a9d",
+     "task_sha256": "7c8e5c581c403c7293e18c4424b1bfa62c470638ad224f6a59116b36102ce196",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "5669fe25a6e1670533744a20afb5215397271182f1193946709c53118947f3a9",
+    "request_sha256": "fde26fdf9306b12237c6c6f107042f1b7c4d99b6cf6d9cc9a48492424548b550",
     "status": "pending_executor"
    }
   },
@@ -2408,7 +2936,7 @@
  },
  {
   "task": "kixantrix/michael-yv-relevance-instrument-v3",
-  "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886",
+  "task_sha256": "fbe2504da79a5846f7f7ce1a39fa4acdc95342af4c4a4f8c76bb76599d265a4f",
   "deterministic": {
    "oracle_passes": true,
    "base_fails": true,
@@ -2444,9 +2972,9 @@
      "family": "anthropic",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v3",
-      "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886"
+      "task_sha256": "fbe2504da79a5846f7f7ce1a39fa4acdc95342af4c4a4f8c76bb76599d265a4f"
      },
-     "request_sha256": "a21e5a52d34cd1773799196c49a4611bdf72751d8c2b2d493bbf8be2c681fe19",
+     "request_sha256": "bdf227548918339edc59dfea9d842097979f8b51a9a21b99ee53de6d3d56ac88",
      "status": "pending_executor"
     },
     {
@@ -2457,9 +2985,9 @@
      "family": "openai",
      "payload": {
       "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v3",
-      "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886"
+      "task_sha256": "fbe2504da79a5846f7f7ce1a39fa4acdc95342af4c4a4f8c76bb76599d265a4f"
      },
-     "request_sha256": "87c46ebb2c31560d034f0178e2ce40336003e4e9f12b205e15cb03ea7f2ddb3b",
+     "request_sha256": "3b3693ee6b5da42d1665ba3072247e3e4450aa4b9c6894985605f9dc324fd6a4",
      "status": "pending_executor"
     }
    ],
@@ -2471,13 +2999,13 @@
     "family": "google",
     "payload": {
      "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v3",
-     "task_sha256": "26679b3398fc5bcba4be5634f0117fb4675ec2d0777edbe452296956b8e9d886",
+     "task_sha256": "fbe2504da79a5846f7f7ce1a39fa4acdc95342af4c4a4f8c76bb76599d265a4f",
      "visible": [
       "instruction.md",
       "environment/"
      ]
     },
-    "request_sha256": "80fab0af99da4d425d99b6451ce712b5a92d3438475aeaf7ebfb5b7885c5fb79",
+    "request_sha256": "4e31c0d8740be37f80b01c307fe07c28a38b0e2a5343e0f1f4746d111679ef8f",
     "status": "pending_executor"
    }
   },

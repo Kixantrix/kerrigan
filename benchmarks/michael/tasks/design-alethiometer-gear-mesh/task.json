@@ -1,0 +1,46 @@
+{
+ "id": "design-alethiometer-gear-mesh",
+ "family": "Design",
+ "title": "Add a gear-mesh analysis that fails the build on mesh problems under laser tolerance, and fix the gear design",
+ "source": {
+  "repo": "Kixantrix/alethiometer",
+  "visibility": "public",
+  "kind": "commit",
+  "pr": null,
+  "base_ref": "caca195e84280b5fb08fdff43ad9863c111a813e",
+  "reference_ref": "962fedfc769d787606145f3dfb0a6005405dd791",
+  "history_status": "unmerged-branch"
+ },
+ "derivation": "Hardware-branch commit 962fedf ('Add animated assembly guide, mechanical tests and design fixes') added cad/mesh.py (shapely polygon sweep: free running, backlash at the driven pitch circle, centre-distance margin with LASER_FAT=0.065 mm fat teeth), cad/test_gears.py, raised design.GEAR_BACKLASH 0.12 -> 0.20, added GEAR_BACKLASH_LOOSE=0.36 and mesh_tuning_gears() (_L spares ordered but not assembled), and made build.py fail on mesh problems and write gear_mesh to build_report.json. The real module needs cadquery/shapely, so the package keeps the gear-train slice as stdlib data: layout.py and gears.py (gear_polygon returns its point list instead of a Polygon) are near-verbatim excerpts, design.py/build.py are reduced to the gear train, SendCutSend order and checks. The oracle mesh.py replaces the shapely sweep with the closed-form involute equivalent (tooth thickness at the operating pressure angle; fat as a normal offset = +f/r_base flank rotation and +f on tip and root radii); cross-checked against a reimplementation of the original sweep on fine gear_polygon outlines with shapely 2.2: backlash agrees within 1.2e-4 mm and margin within 2e-4 mm on 8 pairs, and on the real design it gives 0.214/0.274 mm vs the commit's reported 0.216/0.278 mm (the coarse 6-point flanks account for the difference). Disclosed deviations from the commit: (1) involute-interference was not added as a binding rule because the original sweep with radial sub-base flanks does not bind there (verified on 40:11, 34:12, 60:12); (2) the typical-cut rule (TYPICAL_FAT 0.03, TYPICAL_SHRINK 0.05, from test_gears.test_a_typical_cut_still_runs) is strengthened from 'still runs' to 'keeps BACKLASH_RANGE[0]', which makes the commit's 0.12 -> 0.20 thinning change a forced design fix rather than a judgment call; (3) contact_ratio is an added diagnostic (reported, not a build rule); (4) report rows give null for binding values instead of the commit's 0.0/crash. The commit's assembly-step guide, viewer, FINDINGS F1-F10 and PCB changes are out of scope (covered neither here nor by design-alethiometer-case).",
+ "privacy": "public",
+ "coverage": "Multi-file design change: held-out involute mesh computations (backlash with shrink/fat, bought-vs-laser fat, tip-to-root binding, margin with range clamps, contact ratio), trusted re-evaluation of the candidate's chosen thinning and spares, the build failing on rebuilt bad designs (too much backlash, spares too fat, typical cut unreadable, centres too close) and passing on sound ones, report/trusted agreement, spare ordering, and preservation of interference gating, assembly and tooling.",
+ "historical_exposure": "Public repository branch (unmerged); exposure/recognition risk. The oracle's closed-form mesh model exists only in this package.",
+ "outcome_evidence": "constraint_validator",
+ "estimated_agent_minutes": 60,
+ "long_horizon": true,
+ "required_environment": "cloud-linux: python3.12 stdlib slice on michael-replay-grader:mb006j. The full upstream task needs python3.12 with cadquery (OCP) and shapely 2.x to build the solids, run the polygon mesh sweep, export DXF/STEP and renders, plus the assembly guide's YAML/three.js viewer; none of that is needed for this slice.",
+ "residual_rubric": [
+  "Choice among valid thinning values, log wording and the assembly-guide/viewer/FINDINGS work of the source commit are not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "harness": "design_alethiometer_gear_mesh.py",
+  "candidate": "hardware/cad/mesh.py",
+  "candidates": [
+   "hardware/cad/build.py",
+   "hardware/cad/design.py",
+   "hardware/cad/mesh.py"
+  ],
+  "agent_support": [
+   "hardware/cad/gears.py",
+   "hardware/cad/layout.py"
+  ],
+  "denominators": {
+   "mesh": 17,
+   "design": 4,
+   "build": 8,
+   "preservation": 4
+  }
+ },
+ "round": 3
+}

@@ -1,0 +1,1100 @@
+[
+ {
+  "original_id": "parseComposeLsProjects reads a JSON array: skips nameless rows, splits/trims ConfigFiles, sorts by name",
+  "group": "parse",
+  "probe": {
+   "scenario": "parseLsArray"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "projects"
+    ],
+    [
+     {
+      "name": "alpha-wiki",
+      "status": "exited(2)",
+      "configFiles": [
+       "/srv/wiki/docker-compose.yml"
+      ]
+     },
+     {
+      "name": "mid-dns",
+      "status": "",
+      "configFiles": []
+     },
+     {
+      "name": "zeta-media",
+      "status": "running(3)",
+      "configFiles": [
+       "/srv/zeta/compose.yaml",
+       "/srv/zeta/compose.override.yaml"
+      ]
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "parseComposeLsProjects tolerates NDJSON with noise lines and empty input",
+  "group": "parse",
+  "probe": {
+   "scenario": "parseLsNdjson"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "ndjson"
+    ],
+    [
+     {
+      "name": "backup-cron",
+      "status": "exited(1)",
+      "configFiles": []
+     },
+     {
+      "name": "relay",
+      "status": "running(1)",
+      "configFiles": [
+       "/srv/relay/compose.yml"
+      ]
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "empty"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "blank"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "unmanagedProjectNames subtracts the managed set, deduplicated and sorted",
+  "group": "parse",
+  "probe": {
+   "scenario": "unmanagedNames"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "mixed"
+    ],
+    [
+     "budget",
+     "notes",
+     "zulip"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "allManaged"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "noneManaged"
+    ],
+    [
+     "a1",
+     "b2"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "empty"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "discoverUnmanaged returns hand-run projects incl. stopped ones, excludes managed (network- or volume-labelled) and container-less projects",
+  "group": "discover",
+  "probe": {
+   "scenario": "discoverMixedHost"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "projects"
+    ],
+    [
+     "dns",
+     "media-stack",
+     "photos"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "views"
+    ],
+    [
+     {
+      "project": "dns",
+      "status": "running",
+      "services": [
+       {
+        "service": "resolver",
+        "image": "unbound:1.20",
+        "status": "running",
+        "published": []
+       }
+      ],
+      "volumes": []
+     },
+     {
+      "project": "media-stack",
+      "status": "stopped",
+      "services": [
+       {
+        "service": "jellyfin",
+        "image": "jellyfin/jellyfin:10.9",
+        "status": "stopped",
+        "published": []
+       },
+       {
+        "service": "sonarr",
+        "image": "linuxserver/sonarr:4",
+        "status": "stopped",
+        "published": []
+       }
+      ],
+      "volumes": [
+       "config"
+      ]
+     },
+     {
+      "project": "photos",
+      "status": "running",
+      "services": [
+       {
+        "service": "app",
+        "image": "photoprism/photoprism:240915",
+        "status": "running",
+        "published": [
+         2342,
+         2342
+        ]
+       },
+       {
+        "service": "cache",
+        "image": "redis:7-alpine@sha256:9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e",
+        "status": "running",
+        "published": [
+         6380
+        ]
+       },
+       {
+        "service": "db",
+        "image": "mariadb@sha256:4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b",
+        "status": "running",
+        "published": []
+       }
+      ],
+      "volumes": [
+       "db",
+       "originals",
+       "photos_scratch"
+      ]
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "discoverUnmanaged is read-only and never lists containers of managed projects",
+  "group": "discover",
+  "probe": {
+   "scenario": "discoverMixedHost"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ],
+   [
+    "path_contains_none",
+    [
+     "psProjects"
+    ],
+    [
+     "kirkland-blog",
+     "vault-backup"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "discoverUnmanaged accepts NDJSON compose ls output",
+  "group": "discover",
+  "probe": {
+   "scenario": "discoverNdjsonLs"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "projects"
+    ],
+    [
+     "dns",
+     "media-stack",
+     "photos"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "discoverUnmanaged returns [] when compose ls fails",
+  "group": "discover",
+  "probe": {
+   "scenario": "discoverLsFails"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "found"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "discoverImportable lists the host's unmanaged projects",
+  "group": "discover",
+  "probe": {
+   "scenario": "discoverImportableService"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "projects"
+    ],
+    [
+     "dns",
+     "media-stack",
+     "photos"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "importProject records an observed-only service keyed by the compose project with a consistent desired hash",
+  "group": "import",
+  "probe": {
+   "scenario": "importRunning"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "mode"
+    ],
+    "imported"
+   ],
+   [
+    "path_equal",
+    [
+     "service"
+    ],
+    {
+     "id": "photos",
+     "manifestRef": "photos",
+     "version": "imported",
+     "hostId": "h-edge",
+     "config": "{\"TZ\":\"UTC\"}",
+     "status": "running",
+     "secretsCount": 0
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "stored"
+    ],
+    {
+     "id": "photos",
+     "manifestRef": "photos",
+     "version": "imported",
+     "config": "{\"TZ\":\"UTC\"}",
+     "status": "running"
+    }
+   ],
+   [
+    "path_true",
+    [
+     "hashConsistent"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "projectName"
+    ],
+    "photos"
+   ]
+  ]
+ },
+ {
+  "original_id": "importProject rehydrates observed rows and one succeeded deployment with observed digests",
+  "group": "import",
+  "probe": {
+   "scenario": "importRunning"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "rehydrated"
+    ],
+    {
+     "components": 3,
+     "volumes": 3,
+     "endpoints": 3
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "roles"
+    ],
+    [
+     "app",
+     "cache",
+     "db"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "images"
+    ],
+    [
+     "mariadb@sha256:4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b",
+     "photoprism/photoprism:240915",
+     "redis:7-alpine@sha256:9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "volumeNames"
+    ],
+    [
+     "db",
+     "originals",
+     "photos_scratch"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "endpointPorts"
+    ],
+    [
+     2342,
+     2342,
+     6380
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "deployments"
+    ],
+    [
+     {
+      "state": "succeeded",
+      "hashMatches": true,
+      "idMatches": true
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "digestValues"
+    ],
+    [
+     "sha256:4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b",
+     "sha256:9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e9e"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "digestKeysAreComponents"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "importProject declares non-Kirkland provenance first, flags observability gaps, audits, and mutates nothing",
+  "group": "import",
+  "probe": {
+   "scenario": "importRunning"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "firstWarning"
+    ],
+    "adopted-non-kirkland"
+   ],
+   [
+    "path_contains_all",
+    [
+     "warningCodes"
+    ],
+    [
+     "adopted-non-kirkland",
+     "connections-not-observable",
+     "volume-mounts-not-observable",
+     "endpoint-domains-not-observable"
+    ]
+   ],
+   [
+    "path_contains_none",
+    [
+     "warningCodes"
+    ],
+    [
+     "project-not-running"
+    ]
+   ],
+   [
+    "path_match",
+    [
+     "audit"
+    ],
+    [
+     {
+      "actor": "system"
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "auditTarget"
+    ],
+    "photos"
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "reconcile after adoption is a no-op: no drift, no redeploy, no docker mutation",
+  "group": "import",
+  "probe": {
+   "scenario": "reconcileAfterImport"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "reports"
+    ],
+    [
+     {
+      "serviceId": "photos",
+      "observed": "running",
+      "drift": null,
+      "remediated": false,
+      "rolledBackTo": null
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "deploys"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "serviceStatus"
+    ],
+    "running"
+   ],
+   [
+    "path_equal",
+    [
+     "deploymentStates"
+    ],
+    [
+     "succeeded"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "a stopped hand-run project is adopted with a project-not-running warning",
+  "group": "import",
+  "probe": {
+   "scenario": "importStopped"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "status"
+    ],
+    "stopped"
+   ],
+   [
+    "path_equal",
+    [
+     "storedStatus"
+    ],
+    "stopped"
+   ],
+   [
+    "path_equal",
+    [
+     "firstWarning"
+    ],
+    "adopted-non-kirkland"
+   ],
+   [
+    "path_contains_all",
+    [
+     "warningCodes"
+    ],
+    [
+     "project-not-running",
+     "connections-not-observable",
+     "volume-mounts-not-observable"
+    ]
+   ],
+   [
+    "path_match",
+    [
+     "rehydrated"
+    ],
+    {
+     "components": 2,
+     "volumes": 1,
+     "endpoints": 0
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "deploymentStates"
+    ],
+    [
+     "succeeded"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "a minimal project defaults config to {} and flags only the gaps that exist",
+  "group": "import",
+  "probe": {
+   "scenario": "importMinimal"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "config"
+    ],
+    "{}"
+   ],
+   [
+    "path_equal",
+    [
+     "version"
+    ],
+    "imported"
+   ],
+   [
+    "path_contains_all",
+    [
+     "warningCodes"
+    ],
+    [
+     "adopted-non-kirkland",
+     "connections-not-observable"
+    ]
+   ],
+   [
+    "path_contains_none",
+    [
+     "warningCodes"
+    ],
+    [
+     "project-not-running",
+     "volume-mounts-not-observable",
+     "endpoint-domains-not-observable"
+    ]
+   ],
+   [
+    "path_match",
+    [
+     "rehydrated"
+    ],
+    {
+     "components": 1,
+     "volumes": 0,
+     "endpoints": 0
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "deployments"
+    ],
+    1
+   ]
+  ]
+ },
+ {
+  "original_id": "re-importing an adopted project is refused with AdoptionError ALREADY_MANAGED and writes nothing",
+  "group": "import",
+  "probe": {
+   "scenario": "reimportRefused"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "second"
+    ],
+    {
+     "threw": true,
+     "code": "ALREADY_MANAGED"
+    }
+   ],
+   [
+    "path_true",
+    [
+     "isAdoptionError"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "services"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "components"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "volumes"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "endpoints"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "deployments"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "imports"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "a project already tracked in desired state is refused and left untouched",
+  "group": "import",
+  "probe": {
+   "scenario": "existingServiceConflict"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "attempt"
+    ],
+    {
+     "threw": true,
+     "code": "ALREADY_MANAGED"
+    }
+   ],
+   [
+    "path_true",
+    [
+     "isAdoptionError"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "version"
+    ],
+    "2.1.0"
+   ],
+   [
+    "path_equal",
+    [
+     "config"
+    ],
+    "{\"UPSTREAM\":\"quad9\"}"
+   ],
+   [
+    "path_equal",
+    [
+     "desiredHash"
+    ],
+    "feedfacecafebeef"
+   ],
+   [
+    "path_equal",
+    [
+     "deployments"
+    ],
+    [
+     "dep-existing"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "components"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "imports"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "managed, container-less and unknown projects are not importable (NotFoundError, no writes)",
+  "group": "import",
+  "probe": {
+   "scenario": "managedOrMissingRejected"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "managed"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_match",
+    [
+     "volumeManaged"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_match",
+    [
+     "noContainers"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_match",
+    [
+     "unknown"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "services"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "deployments"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "unknown host, missing adapter and adapters without discoverUnmanaged raise NotFoundError",
+  "group": "import",
+  "probe": {
+   "scenario": "badTargetsRejected"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "unknownHostDiscover"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_match",
+    [
+     "unknownHostImport"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_match",
+    [
+     "noAdapter"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_match",
+    [
+     "unsupportedDiscover"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_match",
+    [
+     "unsupportedImport"
+    ],
+    {
+     "threw": true,
+     "name": "NotFoundError"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "services"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "managed discovery (re-adoption) is unchanged",
+  "group": "preservation",
+  "probe": {
+   "scenario": "managedDiscoveryPreserved"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "views"
+    ],
+    [
+     {
+      "project": "kirkland-blog",
+      "status": "running",
+      "services": [
+       {
+        "service": "app",
+        "image": "ghost:5",
+        "status": "running",
+        "published": [
+         2368
+        ]
+       }
+      ],
+      "volumes": [
+       "content"
+      ]
+     },
+     {
+      "project": "vault-backup",
+      "status": "running",
+      "services": [
+       {
+        "service": "app",
+        "image": "vaultwarden/server:1.32",
+        "status": "running",
+        "published": []
+       }
+      ],
+      "volumes": [
+       "data"
+      ]
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "mutations"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "existing discovery parsers and package exports are unchanged",
+  "group": "preservation",
+  "probe": {
+   "scenario": "existingParsersPreserved"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "managed"
+    ],
+    [
+     "kirkland-a",
+     "kirkland-b"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "ports"
+    ],
+    [
+     {
+      "published": 8089,
+      "target": 8080,
+      "protocol": "tcp",
+      "hostIp": "127.0.0.1"
+     },
+     {
+      "published": null,
+      "target": 9000,
+      "protocol": "udp"
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "status"
+    ],
+    "degraded"
+   ],
+   [
+    "path_true",
+    [
+     "exportsAdapter"
+    ]
+   ]
+  ]
+ }
+]

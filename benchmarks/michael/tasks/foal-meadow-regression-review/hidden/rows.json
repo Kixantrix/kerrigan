@@ -1,0 +1,1570 @@
+[
+ {
+  "original_id": "upgrade levels survive closing and reopening the game",
+  "group": "regression",
+  "probe": {
+   "scenario": "loadUpgrades",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "first",
+     "up"
+    ],
+    {
+     "cap": 2,
+     "breeze": 3,
+     "lucky": 4
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "cap"
+    ],
+    8
+   ],
+   [
+    "path_match",
+    [
+     "reloaded",
+     "up"
+    ],
+    {
+     "cap": 2,
+     "breeze": 3,
+     "lucky": 4
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "coins"
+    ],
+    123
+   ]
+  ]
+ },
+ {
+  "original_id": "horses from saves without an idle-coin timer earn idle coins again",
+  "group": "regression",
+  "probe": {
+   "scenario": "olderSave",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "loaded",
+     "timers"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "after50"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "after100"
+    ],
+    4
+   ]
+  ]
+ },
+ {
+  "original_id": "away births stop at meadow capacity after a five minute absence",
+  "group": "regression",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "index.html",
+    "adults": 3,
+    "gone": 300000
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    4
+   ],
+   [
+    "path_true",
+    [
+     "withinCap"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "away coins accrue one per grown horse per 35 seconds over five minutes",
+  "group": "regression",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "index.html",
+    "adults": 3,
+    "gone": 300000
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    24
+   ]
+  ]
+ },
+ {
+  "original_id": "pop chains pay a bonus from the third pop",
+  "group": "regression",
+  "probe": {
+   "scenario": "combo",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "pays"
+    ],
+    [
+     2,
+     2,
+     5,
+     6,
+     2
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "rapid petting still pays once every three seconds",
+  "group": "regression",
+  "probe": {
+   "scenario": "petting",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "coins"
+    ],
+    [
+     1,
+     1,
+     1,
+     2,
+     3
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tap near the edge of a swaying bubble pops it",
+  "group": "regression",
+  "probe": {
+   "scenario": "bubbleTap",
+   "args": {
+    "file": "index.html",
+    "offset": 37
+   }
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "popped"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    2
+   ]
+  ]
+ },
+ {
+  "original_id": "buying an upgrade charges the price shown on its button",
+  "group": "regression",
+  "probe": {
+   "scenario": "shop",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "coins"
+    ],
+    7
+   ],
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "up",
+     "cap"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "savedCoins"
+    ],
+    7
+   ]
+  ]
+ },
+ {
+  "original_id": "older save without newer upgrades keeps the upgrades it has",
+  "group": "regression",
+  "probe": {
+   "scenario": "olderSave",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "loaded",
+     "up"
+    ],
+    {
+     "cap": 1,
+     "breeze": 0,
+     "lucky": 0
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "loaded",
+     "cap"
+    ],
+    6
+   ]
+  ]
+ },
+ {
+  "original_id": "ninety seconds away earns two coins for one grown horse",
+  "group": "regression",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "index.html",
+    "adults": 1,
+    "gone": 90000
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    1
+   ]
+  ]
+ },
+ {
+  "original_id": "returning to a hidden tab after ten minutes applies capped away progress",
+  "group": "regression",
+  "probe": {
+   "scenario": "visibilityReturn",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    34
+   ],
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    4
+   ],
+   [
+    "path_true",
+    [
+     "withinCap"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "short absence keeps a young foal and pays eight coins",
+  "group": "regression",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "index.html",
+    "adults": 2,
+    "foals": [
+     100000
+    ],
+    "gone": 150000,
+    "via": "visibility"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    8
+   ],
+   [
+    "path_equal",
+    [
+     "adults"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    4
+   ]
+  ]
+ },
+ {
+  "original_id": "upgraded meadow fills to its capacity and no further while away",
+  "group": "regression",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "index.html",
+    "adults": 5,
+    "capLevel": 1,
+    "gone": 1200000,
+    "via": "visibility"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    6
+   ],
+   [
+    "path_equal",
+    [
+     "born"
+    ],
+    1
+   ],
+   [
+    "path_true",
+    [
+     "withinCap"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "overnight absence grows foals, fills the meadow and caps coins",
+  "group": "regression",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "index.html",
+    "adults": 2,
+    "foals": [
+     3600000
+    ],
+    "gone": 32400000
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    4
+   ],
+   [
+    "path_equal",
+    [
+     "adults"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    120
+   ],
+   [
+    "path_true",
+    [
+     "withinCap"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "broken chains restart and pay their bonus on their own third pop",
+  "group": "regression",
+  "probe": {
+   "scenario": "combo",
+   "args": {
+    "file": "index.html",
+    "gaps": [
+     0,
+     300,
+     1400,
+     200,
+     200
+    ]
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "pays"
+    ],
+    [
+     2,
+     2,
+     2,
+     2,
+     5
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "petting cooldown counts from the last paying pet",
+  "group": "regression",
+  "probe": {
+   "scenario": "petting",
+   "args": {
+    "file": "index.html",
+    "times": [
+     0,
+     2900,
+     200,
+     2000
+    ]
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "coins"
+    ],
+    [
+     1,
+     1,
+     2,
+     2
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a tap just beyond a swaying bubble's drawn edge on its trailing side misses",
+  "group": "regression",
+  "probe": {
+   "scenario": "bubbleTap",
+   "args": {
+    "file": "index.html",
+    "offset": 45,
+    "side": -1
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "popped"
+    ],
+    false
+   ],
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "maxing Lucky Skies charges its last listed price once",
+  "group": "regression",
+  "probe": {
+   "scenario": "shop",
+   "args": {
+    "file": "index.html",
+    "coins": 2000,
+    "up": {
+     "cap": 0,
+     "breeze": 0,
+     "lucky": 4
+    },
+    "index": 2,
+    "clicks": 2
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "results",
+     "*",
+     "coins"
+    ],
+    [
+     321,
+     321
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "results",
+     1,
+     "up",
+     "lucky"
+    ],
+    5
+   ],
+   [
+    "path_true",
+    [
+     "nowDisabled"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "upgrade levels survive closing and reopening the game (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "loadUpgrades",
+   "args": {
+    "file": "foal-rescue-meadow.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "first",
+     "up"
+    ],
+    {
+     "cap": 2,
+     "breeze": 3,
+     "lucky": 4
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "cap"
+    ],
+    8
+   ],
+   [
+    "path_match",
+    [
+     "reloaded",
+     "up"
+    ],
+    {
+     "cap": 2,
+     "breeze": 3,
+     "lucky": 4
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "coins"
+    ],
+    123
+   ]
+  ]
+ },
+ {
+  "original_id": "horses from saves without an idle-coin timer earn idle coins again (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "olderSave",
+   "args": {
+    "file": "foal-rescue-meadow.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "loaded",
+     "timers"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "after50"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "after100"
+    ],
+    4
+   ]
+  ]
+ },
+ {
+  "original_id": "away births stop at meadow capacity after a five minute absence (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "foal-rescue-meadow.html",
+    "adults": 3,
+    "gone": 300000
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    4
+   ],
+   [
+    "path_true",
+    [
+     "withinCap"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "away coins accrue one per grown horse per 35 seconds over five minutes (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "foal-rescue-meadow.html",
+    "adults": 3,
+    "gone": 300000
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    24
+   ]
+  ]
+ },
+ {
+  "original_id": "pop chains pay a bonus from the third pop (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "combo",
+   "args": {
+    "file": "foal-rescue-meadow.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "pays"
+    ],
+    [
+     2,
+     2,
+     5,
+     6,
+     2
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "rapid petting still pays once every three seconds (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "petting",
+   "args": {
+    "file": "foal-rescue-meadow.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "coins"
+    ],
+    [
+     1,
+     1,
+     1,
+     2,
+     3
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "tap near the edge of a swaying bubble pops it (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "bubbleTap",
+   "args": {
+    "file": "foal-rescue-meadow.html",
+    "offset": 37
+   }
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "popped"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    2
+   ]
+  ]
+ },
+ {
+  "original_id": "buying an upgrade charges the price shown on its button (artifact build)",
+  "group": "artifact",
+  "probe": {
+   "scenario": "shop",
+   "args": {
+    "file": "foal-rescue-meadow.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "coins"
+    ],
+    7
+   ],
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "up",
+     "cap"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "savedCoins"
+    ],
+    7
+   ]
+  ]
+ },
+ {
+  "original_id": "first launch starts a new meadow with one grown horse",
+  "group": "preservation",
+  "probe": {
+   "scenario": "freshStart",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "coins"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    [
+     "adult"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "cap"
+    ],
+    4
+   ],
+   [
+    "path_match",
+    [
+     "up"
+    ],
+    {
+     "cap": 0,
+     "breeze": 0,
+     "lucky": 0
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "herdText"
+    ],
+    "1/4"
+   ]
+  ]
+ },
+ {
+  "original_id": "unreadable save falls back to a new meadow",
+  "group": "preservation",
+  "probe": {
+   "scenario": "badSave",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "coins"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    [
+     "adult"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "cap"
+    ],
+    4
+   ]
+  ]
+ },
+ {
+  "original_id": "hiding the page saves the whole state under the existing key",
+  "group": "preservation",
+  "probe": {
+   "scenario": "saveRoundTrip",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "keys"
+    ],
+    [
+     "foal-rescue-meadow-v1"
+    ]
+   ],
+   [
+    "path_match",
+    [
+     "saved"
+    ],
+    {
+     "coins": 77,
+     "rescued": 12,
+     "born": 3,
+     "muted": true,
+     "up": {
+      "cap": 1,
+      "breeze": 2,
+      "lucky": 0
+     },
+     "decor": {
+      "flowers": true,
+      "pond": false,
+      "barn": true,
+      "rainbow": false
+     },
+     "lastSeen": 2500,
+     "herd": [
+      {
+       "id": 1,
+       "name": "Clover",
+       "stage": "adult"
+      },
+      {
+       "id": 2,
+       "name": "Maple",
+       "stage": "adult"
+      }
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "upgrades and decorations from a current save load as saved",
+  "group": "preservation",
+  "probe": {
+   "scenario": "loadUpgrades",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "first",
+     "decor"
+    ],
+    {
+     "flowers": false,
+     "pond": true,
+     "barn": false,
+     "rainbow": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "rescued"
+    ],
+    17
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "born"
+    ],
+    4
+   ],
+   [
+    "path_true",
+    [
+     "first",
+     "muted"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "first",
+     "herd"
+    ],
+    3
+   ]
+  ]
+ },
+ {
+  "original_id": "older save keeps its herd and fills missing fields with defaults",
+  "group": "preservation",
+  "probe": {
+   "scenario": "olderSave",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "loaded",
+     "decor"
+    ],
+    {
+     "flowers": false,
+     "pond": false,
+     "barn": false,
+     "rainbow": false
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "loaded",
+     "born"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "loaded",
+     "coins"
+    ],
+    40
+   ],
+   [
+    "path_match",
+    [
+     "loaded",
+     "herd"
+    ],
+    [
+     {
+      "id": 3,
+      "name": "Biscuit",
+      "stage": "adult"
+     },
+     {
+      "id": 5,
+      "name": "Poppy",
+      "stage": "adult"
+     },
+     {
+      "id": 6,
+      "name": "Toffee",
+      "stage": "foal"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "under a minute away changes nothing",
+  "group": "preservation",
+  "probe": {
+   "scenario": "offline",
+   "args": {
+    "file": "index.html",
+    "adults": 2,
+    "gone": 45000
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "herd"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "born"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "foals grow after three minutes and in-game births respect capacity",
+  "group": "preservation",
+  "probe": {
+   "scenario": "growthAndBirths",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "stages"
+    ],
+    [
+     "adult",
+     "adult",
+     "adult",
+     "foal"
+    ]
+   ],
+   [
+    "path_match",
+    [
+     "birth"
+    ],
+    {
+     "herd": 3,
+     "born": 1
+    }
+   ],
+   [
+    "path_match",
+    [
+     "full"
+    ],
+    {
+     "herd": 4,
+     "born": 0
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "Lucky Skies level three makes coin bubbles pay three",
+  "group": "preservation",
+  "probe": {
+   "scenario": "popValues",
+   "args": {
+    "file": "index.html",
+    "lucky": 3
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "pays"
+    ],
+    [
+     3,
+     6,
+     25
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "below Lucky Skies level three coin bubbles pay two",
+  "group": "preservation",
+  "probe": {
+   "scenario": "popValues",
+   "args": {
+    "file": "index.html",
+    "lucky": 2
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "pays"
+    ],
+    [
+     2,
+     6,
+     25
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "taps beyond the pop reach leave the bubble alone",
+  "group": "preservation",
+  "probe": {
+   "scenario": "bubbleTap",
+   "args": {
+    "file": "index.html",
+    "offset": 45
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "popped"
+    ],
+    false
+   ],
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "taps on the far side of a swaying bubble still pop it",
+  "group": "preservation",
+  "probe": {
+   "scenario": "bubbleTap",
+   "args": {
+    "file": "index.html",
+    "offset": 37,
+    "side": -1
+   }
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "popped"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "gained"
+    ],
+    2
+   ]
+  ]
+ },
+ {
+  "original_id": "popping a foal bubble rescues a foal that lands in the herd",
+  "group": "preservation",
+  "probe": {
+   "scenario": "rescue",
+   "args": {
+    "file": "index.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "popped"
+    ],
+    {
+     "coins": 3,
+     "rescued": 1
+    }
+   ],
+   [
+    "path_match",
+    [
+     "landed"
+    ],
+    {
+     "herd": 3,
+     "last": "foal",
+     "coins": 3
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "decorations cost their listed price once",
+  "group": "preservation",
+  "probe": {
+   "scenario": "shop",
+   "args": {
+    "file": "index.html",
+    "coins": 400,
+    "index": 5
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "coins"
+    ],
+    50
+   ],
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "decor",
+     "barn"
+    ],
+    true
+   ],
+   [
+    "path_true",
+    [
+     "nowDisabled"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "an unaffordable upgrade cannot be bought",
+  "group": "preservation",
+  "probe": {
+   "scenario": "shop",
+   "args": {
+    "file": "index.html",
+    "coins": 30,
+    "index": 1
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "coins"
+    ],
+    30
+   ],
+   [
+    "path_equal",
+    [
+     "results",
+     0,
+     "up",
+     "breeze"
+    ],
+    0
+   ],
+   [
+    "path_true",
+    [
+     "nowDisabled"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "artifact build still starts and saves under the existing key",
+  "group": "preservation",
+  "probe": {
+   "scenario": "saveRoundTrip",
+   "args": {
+    "file": "foal-rescue-meadow.html"
+   }
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "keys"
+    ],
+    [
+     "foal-rescue-meadow-v1"
+    ]
+   ],
+   [
+    "path_match",
+    [
+     "saved"
+    ],
+    {
+     "coins": 77,
+     "up": {
+      "cap": 1,
+      "breeze": 2,
+      "lucky": 0
+     }
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "R3::finding covers save-load",
+  "group": "review",
+  "probe": {
+   "scenario": "findings",
+   "args": null
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categories"
+    ],
+    [
+     "save-load"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "R3::finding covers offline-progress",
+  "group": "review",
+  "probe": {
+   "scenario": "findings",
+   "args": null
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categories"
+    ],
+    [
+     "offline-progress"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "R3::finding covers play-rewards",
+  "group": "review",
+  "probe": {
+   "scenario": "findings",
+   "args": null
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categories"
+    ],
+    [
+     "play-rewards"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "R3::finding covers input",
+  "group": "review",
+  "probe": {
+   "scenario": "findings",
+   "args": null
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categories"
+    ],
+    [
+     "input"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "R3::finding covers shop",
+  "group": "review",
+  "probe": {
+   "scenario": "findings",
+   "args": null
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categories"
+    ],
+    [
+     "shop"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "R3::no findings in correct areas (false positives)",
+  "group": "review",
+  "probe": {
+   "scenario": "findings",
+   "args": null
+  },
+  "clauses": [
+   [
+    "path_contains_none",
+    [
+     "categories"
+    ],
+    [
+     "bubble-spawning",
+     "hud",
+     "audio"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "R3::findings well formed",
+  "group": "review",
+  "probe": {
+   "scenario": "findings",
+   "args": null
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "well_formed"
+    ]
+   ]
+  ]
+ }
+]

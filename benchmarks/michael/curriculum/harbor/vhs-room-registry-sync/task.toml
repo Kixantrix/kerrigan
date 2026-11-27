@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/api/db.js", "/app/api/index.js", "/app/api/sync-routes.js", "/app/api/sync.js"]
+
+[task]
+name = "kixantrix/michael-vhs-room-registry-sync"
+version = "1.0.0"
+description = "Keep two VHS API backends' room/PIN registries convergent through partitions, replays, restarts, clock skew and misconfiguration"
+keywords = ["michael-bench", "operate"]
+
+[metadata]
+family = "Operate"
+source_repo = "Kixantrix/vhs-video-stack"
+base_ref = "c89b7fb93fb8c7b0f931a929a350e8c31a8c5018"
+reference_ref = "1cbf506d797c5349749bd4f3c0e35e7ae262bc68"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 50
+denominators = "{\"conflicts\": 5, \"guard\": 2, \"operations\": 7, \"preservation\": 3, \"replication\": 3, \"tombstones\": 4}"
+task_size = "{\"files_to_read\": 10, \"hidden_checks\": 24, \"hidden_clauses\": 73, \"lines_to_read\": 1376, \"oracle_files_changed\": 4, \"oracle_lines_added\": 422, \"oracle_lines_removed\": 18, \"writable_files\": 4}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

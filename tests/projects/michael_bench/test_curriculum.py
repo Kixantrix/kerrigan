@@ -890,3 +890,24 @@ def test_no_human_time_estimates_in_current_metadata():
         if name not in retired:
             toml = (ROOT / "benchmarks/michael/curriculum/harbor" / name / "task.toml").read_text()
             assert "human" not in toml and "task_size = " in toml
+
+
+ROUND3_FRESH = {"cs-mismatch-stage-authority", "design-alethiometer-gear-mesh", "foal-meadow-regression-review",
+                "kirkland-compose-adoption", "te-baseline-eval", "vhs-room-registry-sync"}
+ROUND2_SINGLE_TASK_FAMILIES = {"Understand and plan", "Review and repair", "Research", "Design", "Experiment", "Orchestrate"}
+
+
+def test_round3_fresh_packages_cover_new_repos_large_work_and_thin_families():
+    """MB-R3 AC-B1: >=6 fresh calibrated packages, >=3 large multi-file, >=2 thin round-2 families."""
+    earlier = {curriculum.meta(n)["source"]["base_ref"] for n in curriculum.PACKAGES if n not in ROUND3_FRESH}
+    large = set()
+    for name in ROUND3_FRESH:
+        info = curriculum.meta(name)
+        assert info["round"] == 3 and "supersedes" not in info and info["source"]["base_ref"] not in earlier
+        receipt = json.loads((curriculum.HERE / name / "calibration.json").read_text())
+        assert [p["verdict"] for p in receipt["phases"]] == ["fail", "pass"]
+        size = curriculum.task_size(name)
+        if size["oracle_files_changed"] >= 3 and size["oracle_lines_added"] + size["oracle_lines_removed"] >= 100:
+            large.add(name)
+    assert len(ROUND3_FRESH) >= 6 and len(large) >= 3
+    assert len({curriculum.meta(n)["family"] for n in ROUND3_FRESH} & ROUND2_SINGLE_TASK_FAMILIES) >= 2

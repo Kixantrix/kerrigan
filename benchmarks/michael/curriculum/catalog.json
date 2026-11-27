@@ -167,7 +167,7 @@
    "source": {
     "kind": "pr",
     "pr": 127,
-    "issue": null
+    "issue": 126
    },
    "base_ref": "b2cddbd7991a7af34d3a55b6ab4e4331b1381545",
    "reference_ref": "78da7e2364885708344073cc87cb1584b89f99ad",
@@ -175,20 +175,31 @@
     "typescript",
     "docker"
    ],
-   "toolchain": "node 22 + vitest",
+   "toolchain": "node 24 type stripping (upstream: node 22 + vitest)",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux-docker",
+   "required_environment": "Full task: pnpm monorepo, Node>=22, vitest, drizzle+SQLite, Docker Engine + compose plugin; packaged slice runs on michael-replay-grader-node:mb008 with a scripted docker CLI and in-memory repository.",
    "outcome_evidence": "held_out_tests",
-   "evidence_detail": "Hidden vitest unit tests for parsing `docker compose ls` output and unmanaged-project discovery, plus an integration test that adopts a disposable compose project and verifies containers were not recreated (same container IDs).",
-   "privacy": "private-sanitized",
-   "privacy_note": "Private prototype; describe generically, no hostnames.",
+   "evidence_detail": "20 hidden scenario rows: compose-ls parsing, unmanaged discovery (managed/stopped/container-less/read-only), AdoptionService import (service record, rehydrated rows, succeeded deployment digests, provenance warnings, audit, double-manage guards, NotFound paths) and a real-Reconciler no-redeploy proof over a call-recording fake docker CLI.",
+   "privacy": "private-synthetic-fixture",
+   "privacy_note": "Sanitized TypeScript slice; no hostnames, credentials or personal data; held-out synthetic projects.",
    "estimated_agent_minutes": 60,
    "long_horizon": true,
    "summary": "Agent implements an importer that discovers compose projects the control plane did not create, adopts them as observed-only managed services, and must not redeploy or restart them.",
    "history_status": "merged",
-   "package": null,
-   "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with node 22 + vitest"
+   "package": "kirkland-compose-adoption",
+   "provenance_kind": "merged_pr",
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 3,
+   "task_size": {
+    "oracle_files_changed": 4,
+    "oracle_lines_added": 313,
+    "oracle_lines_removed": 3,
+    "writable_files": 4,
+    "files_to_read": 15,
+    "lines_to_read": 1883,
+    "hidden_checks": 20,
+    "hidden_clauses": 90
+   }
   },
   {
    "id": "emv-thumbnails-presized",
@@ -584,7 +595,7 @@
   {
    "id": "cs-mismatch-stage-authority",
    "family": "Review and repair",
-   "title": "Typo'd stage string silently demotes the authoritative check",
+   "title": "Refuse an untyped mismatch stage that silently demoted the authoritative template check",
    "repo": "Kixantrix/clinical-scribe",
    "visibility": "private",
    "source": {
@@ -597,20 +608,31 @@
    "stack": [
     "typescript"
    ],
-   "toolchain": "node 22 + vitest",
+   "toolchain": "node 24 (type stripping, node:test, no npm)",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux",
+   "required_environment": "Full task: Node >=22.12 + pizzip/docxtemplater/vitest and the Tauri/Rust IPC host; packaged slice runs on michael-replay-grader-node:mb008 with a Node built-in zip stand-in",
    "outcome_evidence": "defect_coverage",
-   "evidence_detail": "Held-out tests: an unrecognized stage from untyped JSON is rejected (not mapped to authoritative=false); the two stages differ in authority but never in answer; removing the guard makes the test fail.",
+   "evidence_detail": "35 held-out invalid stage inputs (unknown, case/whitespace, prototype names, wrong types, objects, JSON payloads, refuse-before-work) must throw TemplateMismatchError; 8 preservation rows (valid/absent/null stages, options, save/render answer equality, existing errors); 3-row closed-vocabulary ledger with 7 absent distractors. Base 10/18, reference 18/18.",
    "privacy": "private-synthetic-fixture",
-   "privacy_note": "Re-synthesize the two-stage check with synthetic template/playbook inputs.",
-   "estimated_agent_minutes": 20,
+   "privacy_note": "Exact base code with neutral synthetic templates and section names; no patient data or PHI.",
+   "estimated_agent_minutes": 15,
    "long_horizon": false,
-   "summary": "Values arriving over IPC/stored JSON bypass TypeScript types; an unknown stage produced a non-authoritative verdict that still looked valid. Agent finds the defect and adds a runtime guard plus property test.",
+   "summary": "Values arriving over IPC/stored JSON bypass TypeScript types; an unknown stage produced a non-authoritative verdict that still looked valid. Agent adds a strict runtime refusal and records a review ledger without false positives.",
    "history_status": "merged",
-   "package": null,
+   "package": "cs-mismatch-stage-authority",
    "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with node 22 + vitest"
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 3,
+   "task_size": {
+    "oracle_files_changed": 2,
+    "oracle_lines_added": 17,
+    "oracle_lines_removed": 1,
+    "writable_files": 2,
+    "files_to_read": 8,
+    "lines_to_read": 688,
+    "hidden_checks": 18,
+    "hidden_clauses": 75
+   }
   },
   {
    "id": "yv-purge-nulled-column",
@@ -677,9 +699,9 @@
    "grader_image": "needs-image: linux container with python3.12 stdlib (symtable) for the guard"
   },
   {
-   "id": "foal-meadow-seeded-defects",
+   "id": "foal-meadow-regression-review",
    "family": "Review and repair",
-   "title": "Find seeded defects in a single-file canvas idle game",
+   "title": "Review and repair seeded gameplay regressions in both builds of a canvas idle game",
    "repo": "Kixantrix/foal-rescue-meadow",
    "visibility": "public",
    "source": {
@@ -694,20 +716,32 @@
     "javascript",
     "canvas"
    ],
-   "toolchain": "node 22 + jsdom/playwright headless",
+   "toolchain": "node 24 (node:vm stub browser)",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux",
+   "required_environment": "cloud-linux (Node 24); rendering, touch feel and iOS Safari would need Playwright and a device",
    "outcome_evidence": "defect_coverage",
-   "evidence_detail": "Grader injects K known defects (e.g., currency rounding, offline-progress cap, save/load key mismatch) into the real game file; score = defects found/fixed with held-out behavior checks, penalizing false positives.",
+   "evidence_detail": "8 seeded regressions (save/load, offline progress, combo, petting timer, swaying-bubble hit test, shop pricing) checked by held-out gameplay scenarios in both builds, 15 preservation rows, closed-vocabulary findings ledger with false-positive check.",
    "privacy": "public",
-   "privacy_note": "Public repo. Seeded-defect variant: base is the shipped game (5faa8e5d), reference is current main.",
+   "privacy_note": "Public repo; README sanitized (no dedication or live URL). Seeded-defect fallback: history has no real fix.",
    "estimated_agent_minutes": 30,
    "long_horizon": false,
-   "summary": "Agent reviews the cozy bubble-pop idle game (canvas + localStorage) with injected defects and must locate and repair them without regressing gameplay.",
+   "summary": "Agent reviews a single-script canvas idle game against its gameplay rules after a polish update, repairs every regression in both HTML builds without regressing gameplay, and records findings.",
    "history_status": "merged",
-   "package": null,
-   "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with node 22 + jsdom/playwright headless"
+   "package": "foal-meadow-regression-review",
+   "provenance_kind": "seeded-defects",
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 3,
+   "task_size": {
+    "oracle_files_changed": 3,
+    "oracle_lines_added": 26,
+    "oracle_lines_removed": 19,
+    "writable_files": 3,
+    "files_to_read": 7,
+    "lines_to_read": 2118,
+    "hidden_checks": 48,
+    "hidden_clauses": 106
+   },
+   "replaces_candidate": "foal-meadow-seeded-defects"
   },
   {
    "id": "vhs-api-data-volume",
@@ -1207,7 +1241,7 @@
   {
    "id": "aleth-gear-mesh-analysis",
    "family": "Design",
-   "title": "Gear-mesh analysis, assembly path checks and design fixes for a laser-cut gear train",
+   "title": "Add a gear-mesh analysis that fails the build on mesh problems under laser tolerance, and fix the gear design",
    "repo": "Kixantrix/alethiometer",
    "visibility": "public",
    "source": {
@@ -1222,20 +1256,31 @@
     "cadquery",
     "hardware"
    ],
-   "toolchain": "python3.12 + cadquery/shapely",
+   "toolchain": "python3.12 stdlib slice (upstream: cadquery/shapely)",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux",
+   "required_environment": "cloud-linux: python3.12 stdlib slice on michael-replay-grader:mb006j; full upstream task needs cadquery (OCP) + shapely 2.x, DXF/STEP export and the assembly-guide viewer.",
    "outcome_evidence": "constraint_validator",
-   "evidence_detail": "test_gears: every pair turns freely, backlash in range, typical cut still runs, loose spares fix worst-case cut; assembly steps validate and motion sweeps find no collisions.",
+   "evidence_detail": "Held-out involute mesh values (backlash with shrink/fat, tip-to-root binding, margin clamps, contact ratio) within 0.0015 mm; trusted re-evaluation of the chosen thinning and _L spares; build fails on rebuilt bad designs and passes sound ones; report agrees with trusted recompute; spares ordered; interference gating, assembly and tooling preserved.",
    "privacy": "public",
-   "privacy_note": "Public repo (hardware branch).",
-   "estimated_agent_minutes": 120,
+   "privacy_note": "Public repo (hardware branch); stdlib excerpt, no personal data.",
+   "estimated_agent_minutes": 60,
    "long_horizon": true,
-   "summary": "Agent adds mesh analysis that fails the build on gear problems under cutting tolerance, a validated assembly-step model with collision/tool-access sweeps, and fixes the findings.",
+   "summary": "Agent writes a closed-form involute mesh analysis (backlash, binding, margin, contact ratio under laser tolerance), makes build.py fail on mesh problems, and fixes the thinning plus adds loose _L spares so the design passes.",
    "history_status": "unmerged-branch",
-   "package": null,
+   "package": "design-alethiometer-gear-mesh",
    "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with python3.12 + cadquery/shapely"
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 3,
+   "task_size": {
+    "oracle_files_changed": 3,
+    "oracle_lines_added": 173,
+    "oracle_lines_removed": 16,
+    "writable_files": 3,
+    "files_to_read": 7,
+    "lines_to_read": 486,
+    "hidden_checks": 33,
+    "hidden_clauses": 68
+   }
   },
   {
    "id": "gridiron-rf-channels-bom",
@@ -1596,6 +1641,84 @@
     "lines_to_read": 887,
     "hidden_checks": 20,
     "hidden_clauses": 45
+   }
+  },
+  {
+   "id": "vhs-room-registry-sync",
+   "family": "Operate",
+   "title": "Keep two VHS API backends' room/PIN registries convergent through partitions, replays, restarts, clock skew and misconfiguration",
+   "repo": "Kixantrix/vhs-video-stack",
+   "visibility": "private",
+   "source": "issue #193 + PR #194",
+   "base_ref": "c89b7fb93fb8c7b0f931a929a350e8c31a8c5018",
+   "reference_ref": "1cbf506d797c5349749bd4f3c0e35e7ae262bc68",
+   "stack": "Node.js API (Express, better-sqlite3)",
+   "toolchain": "node 24 (node:sqlite, node:http), no npm",
+   "grader_container_ok": true,
+   "required_environment": "Full upstream: Node 20+ with npm deps (express, better-sqlite3 native, cors, cookie-parser, livekit-server-sdk, jest, supertest). Slice runs on michael-replay-grader-node:mb008 with vendored express/better-sqlite3 stand-ins.",
+   "outcome_evidence": "held_out_tests",
+   "evidence_detail": "24 held-out operational scenario rows over 2-3 HTTP backends with separate SQLite files; base 3/24, reference 24/24",
+   "privacy": "private-synthetic-fixture",
+   "privacy_note": "Trimmed, sanitized slice of api/; LiveKit replaced by local HMAC token; no hostnames, credentials or data",
+   "estimated_agent_minutes": 50,
+   "long_horizon": true,
+   "summary": "Implement bidirectional room/PIN registry replication (LWW, tombstones, monotonic clock seeded across restarts, in-place schema upgrade, shared-secret guard) across db.js, index.js, sync.js and sync-routes.js",
+   "history_status": "merged",
+   "package": "vhs-room-registry-sync",
+   "provenance_kind": "issue+pr",
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 3,
+   "task_size": {
+    "oracle_files_changed": 4,
+    "oracle_lines_added": 422,
+    "oracle_lines_removed": 18,
+    "writable_files": 4,
+    "files_to_read": 10,
+    "lines_to_read": 1376,
+    "hidden_checks": 24,
+    "hidden_clauses": 73
+   }
+  },
+  {
+   "id": "te-baseline-eval",
+   "family": "Experiment",
+   "title": "Audit a leaky recommender baseline benchmark and correct its reported winner",
+   "repo": "Kixantrix/taste-engine",
+   "visibility": "public",
+   "source": {
+    "kind": "pr",
+    "pr": 17,
+    "issue": 8
+   },
+   "base_ref": "a3f19d6fb639db75697f510cd047f6720cbedc3b",
+   "reference_ref": "f808b83010e2d4a2ca2c439e81683c970e7e5a77",
+   "stack": [
+    "python"
+   ],
+   "toolchain": "python3.12 stdlib",
+   "grader_container_ok": true,
+   "required_environment": "cloud-linux (stdlib slice); full ML-01 needs OPS-01 FastAPI/Postgres stack, Wikidata/TVmaze catalog, MovieLens fixtures, pytest eval marker",
+   "outcome_evidence": "metric_within_tolerance",
+   "evidence_detail": "22 hidden rows: split/metrics/baselines/benchmark recomputed on 3 held-out synthetic households and held-out metric/sign-test inputs; committed report values and conclusion ('inconclusive'; mean-difference and draft winners rejected); 5 preservation rows.",
+   "privacy": "public",
+   "privacy_note": "Public repo; synthetic household data; spec-derived oracle (ML-01 unimplemented upstream).",
+   "estimated_agent_minutes": 45,
+   "long_horizon": true,
+   "summary": "Fix a draft temporal-split benchmark (leakage, NDCG/recall math, liked-minus-disliked baseline, cold-start handling, exact sign test) across 4 modules and regenerate a report whose winner must be 'inconclusive'.",
+   "history_status": "merged",
+   "package": "te-baseline-eval",
+   "provenance_kind": "spec-derived",
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 3,
+   "task_size": {
+    "oracle_files_changed": 5,
+    "oracle_lines_added": 109,
+    "oracle_lines_removed": 43,
+    "writable_files": 5,
+    "files_to_read": 11,
+    "lines_to_read": 4803,
+    "hidden_checks": 22,
+    "hidden_clauses": 94
    }
   }
  ]

@@ -1,0 +1,60 @@
+{
+ "id": "kirkland-compose-adoption",
+ "family": "Implement",
+ "title": "Adopt hand-run docker-compose stacks into a self-hosting control plane without redeploy",
+ "source": {
+  "repo": "Kixantrix/kirkland-prototype",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 127,
+  "issue": 126,
+  "base_ref": "b2cddbd7991a7af34d3a55b6ab4e4331b1381545",
+  "reference_ref": "78da7e2364885708344073cc87cb1584b89f99ad",
+  "history_status": "merged"
+ },
+ "derivation": "Real merged PR #127 (closes #126) at its exact base b2cddbd. The instruction is the historical issue scope plus an explicit contract section so hidden checks are deterministic. The agent tree is a faithful TypeScript slice of the monorepo at base: host-adapters discovery.ts, docker-compose-adapter.ts (compose/discovery surface; compiler, ingress, backup, export and rotate omitted) and index.ts, plus read-only control-plane support (re-adoption with reconstructFromObserved, the real Reconciler and state machine, NotFoundError, row types). Only mechanical changes were made: .ts import specifiers, relative paths for the @kirkland/host-adapters workspace import, constructor parameter properties rewritten as fields (Node type stripping is erasable-only), MANAGED_LABEL inlined from @kirkland/compiler, the re-adoption catalog/topology seam reduced to an interface, and the drizzle/SQLite repository replaced by an in-memory store with the same surface, primary-key and foreign-key checks. The reference is the merged non-test diff (4 files, +312 lines) with the same mechanical adaptations. The hidden scenarios re-express the PR's vitest cases on held-out projects. They drive the real DockerComposeAdapter over a scripted docker CLI that models compose ls --all vs running-only, NDJSON/noise output, network- and volume-labelled managed projects, container-less and stopped projects, and records every call to detect mutations. They also run the real Reconciler after import to prove no redeploy.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "3 parser checks, 5 adapter discovery checks (managed exclusion, stopped/container-less projects, read-only, failure), 10 adoption checks (service record, rehydrated rows, deployment digests, provenance warnings, audit, reconciler no-op, stopped/minimal projects, double-manage and conflict guards, NotFound paths) and 2 preservation checks.",
+ "historical_exposure": "Private history; sanitized slice with held-out project fixtures has low recognition risk.",
+ "outcome_evidence": "held_out_tests",
+ "estimated_agent_minutes": 60,
+ "long_horizon": true,
+ "required_environment": "Full upstream task: pnpm monorepo on Node >=22 with vitest, drizzle-orm + SQLite, the @kirkland/compiler and manifest-schema workspace packages, and a Docker Engine with the compose plugin (for the disposable-project integration test that confirms container IDs are unchanged). The packaged slice runs on michael-replay-grader-node:mb008 (Node 24 type stripping, no npm) with a scripted docker CLI and an in-memory repository.",
+ "residual_rubric": [
+  "Doc comments explaining observed-only fidelity and the reconciler no-op argument are requested by the historical scope but not graded.",
+  "Warning message wording and the audit summary text are not graded."
+ ],
+ "leak_tokens": [
+  "ComposeLsRow",
+  "parseComposeLsProjects(stdout).map"
+ ],
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "apps/control-plane/src/adoption/index.ts",
+  "candidates": [
+   "apps/control-plane/src/adoption/index.ts",
+   "packages/host-adapters/src/discovery.ts",
+   "packages/host-adapters/src/docker-compose-adapter.ts",
+   "packages/host-adapters/src/index.ts"
+  ],
+  "agent_support": [
+   "apps/control-plane/src/api/deploy.ts",
+   "apps/control-plane/src/db/repository.ts",
+   "apps/control-plane/src/db/schema.ts",
+   "apps/control-plane/src/readoption/index.ts",
+   "apps/control-plane/src/reconciler/index.ts",
+   "apps/control-plane/src/reconciler/reconciler.ts",
+   "apps/control-plane/src/reconciler/state-machine.ts",
+   "packages/host-adapters/src/docker-compose-helpers.ts",
+   "packages/host-adapters/src/transport.ts"
+  ],
+  "denominators": {
+   "parse": 3,
+   "discover": 5,
+   "import": 10,
+   "preservation": 2
+  }
+ },
+ "round": 3
+}

@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/apps/control-plane/src/adoption/index.ts", "/app/packages/host-adapters/src/discovery.ts", "/app/packages/host-adapters/src/docker-compose-adapter.ts", "/app/packages/host-adapters/src/index.ts"]
+
+[task]
+name = "kixantrix/michael-kirkland-compose-adoption"
+version = "1.0.0"
+description = "Adopt hand-run docker-compose stacks into a self-hosting control plane without redeploy"
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/kirkland-prototype"
+base_ref = "b2cddbd7991a7af34d3a55b6ab4e4331b1381545"
+reference_ref = "78da7e2364885708344073cc87cb1584b89f99ad"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 60
+denominators = "{\"discover\": 5, \"import\": 10, \"parse\": 3, \"preservation\": 2}"
+task_size = "{\"files_to_read\": 15, \"hidden_checks\": 20, \"hidden_clauses\": 90, \"lines_to_read\": 1883, \"oracle_files_changed\": 4, \"oracle_lines_added\": 313, \"oracle_lines_removed\": 3, \"writable_files\": 4}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

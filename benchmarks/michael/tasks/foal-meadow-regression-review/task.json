@@ -1,0 +1,45 @@
+{
+ "id": "foal-meadow-regression-review",
+ "family": "Review and repair",
+ "title": "Review and repair seeded gameplay regressions in both builds of a canvas idle game",
+ "source": {
+  "repo": "Kixantrix/foal-rescue-meadow",
+  "visibility": "public",
+  "kind": "commit",
+  "pr": null,
+  "base_ref": "5faa8e5d321fd6daf22646a0ad6ff94f156b3d3f",
+  "reference_ref": "5c8bfa15e92a6c21b940f4b8ac19044352b7bd86",
+  "history_status": "merged"
+ },
+ "derivation": "Seeded-defect package (fallback): the public repo history has only two commits (the initial game and a README URL edit), no PRs and no issues, so no real bug fix exists to mine. Reference = the exact shipped game files index.html and foal-rescue-meadow.html (identical at base_ref and reference_ref; reference_ref changes only README.md) plus an authored review-findings.json ledger. Agent base = the same two files with 8 identical seeded regressions per build, each a one-line or two-line plausible slip: load() merges saved upgrades before defaults (upgrades reset); load() only defaults a missing idle-coin timer when it equals 0 (older-save horses never earn); processOffline() birth tries use <= capacity (meadow overfills); processOffline() coin rate divides by 3500 ms instead of 35000 ms; popBubble() restarts chains at 0; petHorse() resets the cooldown on every tap; drawBubble() records the unswayed x for the hit test; the shop buy handler charges the next level's price. Players' symptom reports cover 6 of the 8; the combo and offline-overfill defects are found only by reviewing against GAME-RULES.md, an authored description of the shipped behavior. README.md is sanitized (no personal dedication or live URL). Hidden checks extract the inline script and run it in Node 24 inside a trusted vm context with stub DOM/canvas/audio, in-memory localStorage, a controllable clock, manual requestAnimationFrame and a constant Math.random; upgrade levels are seeded after start-up where a check targets another defect, so each regression row isolates one defect.",
+ "privacy": "public",
+ "coverage": "Gameplay behavior on held-out saves (current, older-version, unreadable), absences from 45 s to 9 h via start-up and visibility return, chains, petting cadence, swaying-bubble taps, shop purchases, growth/births and rescue landing; 8 defects checked in both builds; closed-vocabulary review ledger with false-positive check.",
+ "historical_exposure": "Public repo; the reference is the shipped game, so recall of the repo is possible but the seeded defects and checks are new.",
+ "outcome_evidence": "defect_coverage",
+ "estimated_agent_minutes": 30,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Quality of free-text defect descriptions and locations is recorded for later review, never model-judged.",
+  "Category 'herd' and 'rendering' are not counted as false positives because the offline-births and hit-test defects could be argued into them.",
+  "Visual drawing, audio and toast wording are not graded."
+ ],
+ "required_environment": "cloud-linux: Node 24 only (stub browser in trusted vm). A full check of drawing, touch feel and iOS Safari home-screen behavior would need a headless browser (Playwright) and a phone, which the grader images do not provide.",
+ "leak_tokens": [],
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "index.html",
+  "candidates": [
+   "foal-rescue-meadow.html",
+   "index.html",
+   "review-findings.json"
+  ],
+  "denominators": {
+   "regression": 18,
+   "artifact": 8,
+   "preservation": 15,
+   "review": 7
+  }
+ },
+ "round": 3
+}
