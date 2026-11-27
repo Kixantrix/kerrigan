@@ -273,6 +273,55 @@ def test_selected_ledger_reader_does_not_publish_missing_attempts(tmp_path, monk
         generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
 
 
+@pytest.mark.parametrize("variant", ["complete", "incomplete", "schedule-mismatch", "alias"])
+def test_expanded_epoch_requires_complete_hash_bound_cohort_schedules(tmp_path, monkeypatch, variant):
+    repository, parent = tmp_path / "repo", tmp_path / "owned"
+    roots = [parent / "mbr3-v1", parent / "mbr3-expanded-v5"]
+    plan = {"attempts": [], "source_epochs": {}, "cohortSchedules": [], "excluded_priors": []}
+    sources = {}
+    for index, root in enumerate(roots):
+        root.mkdir(parents=True)
+        task, model, epoch = f"fixture-{index}", f"model-{index}", f"epoch-{index}"
+        schedule = json.dumps([{"task": task, "repeat": 1, "models": [model]}]).encode()
+        (root / "schedule.json").write_bytes(schedule)
+        sources[root] = {"benchmarks/michael/local_transport/owner.mjs": str(index) * 64}
+        safety = json.dumps({"passed": True, "source": sources[root]}).encode()
+        (root / "safety.json").write_bytes(safety)
+        plan["cohortSchedules"].append({"evidence_root": root.name,
+                                       "sha256": hashlib.sha256(schedule).hexdigest()})
+        plan["source_epochs"][epoch] = {"ownerSha256": str(index) * 64,
+                                       "safetySha256": hashlib.sha256(safety).hexdigest()}
+        plan["attempts"].append({"task": task, "repeat": 1, "model": model,
+                                 "evidence_root": root.name, "source_epoch": epoch})
+    plan["scheduleSha256"] = plan["cohortSchedules"][0]["sha256"]
+    if variant == "incomplete":
+        plan["attempts"].pop()
+    elif variant == "schedule-mismatch":
+        (roots[1] / "schedule.json").write_bytes(b"changed schedule")
+    elif variant == "alias":
+        plan["cohortSchedules"][1]["evidence_root"] = "../access-only"
+    verification = repository / "benchmarks/michael/local_transport/mbr3-expanded-verification.json"
+    verification.parent.mkdir(parents=True)
+    verification.write_text(json.dumps({"primaryPlan": plan}))
+    path = roots[1] / "primary-plan.json"
+    path.write_text(json.dumps(plan))
+    monkeypatch.setattr(generate, "ROOT", repository)
+    monkeypatch.setattr(generate, "ledger_records", lambda root, selected: [
+        {**record(model, repeat), "task": task, "condition": "MB-R3",
+         "transport_source_sha256": generate.condition_digest(sources[root]),
+         "transport_owner_sha256": sources[root]["benchmarks/michael/local_transport/owner.mjs"]}
+        for task, repeat, model in selected])
+    if variant == "complete":
+        rows, _ = generate.epoch_records(path)
+        assert len(rows) == 2
+        assert {row["condition"] for row in rows} == {"MB-R3/epoch-0", "MB-R3/epoch-1"}
+    else:
+        expected = {"incomplete": "incomplete.*selection", "schedule-mismatch": "cohort schedule mismatch",
+                    "alias": "cohort alias denied"}[variant]
+        with pytest.raises(ValueError, match=expected):
+            generate.epoch_records(path)
+
+
 @pytest.mark.parametrize("local", [False, True])
 def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(tmp_path, monkeypatch, local):
     batch = tmp_path / "trials/fixture/repeat-1"

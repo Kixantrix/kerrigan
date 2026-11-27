@@ -80,8 +80,13 @@ execution fractions are not task-success estimates.
 ## Expanded curriculum and public anchors
 
 Native base/reference reproduction succeeded for the three v4 successors and
-five of the six fresh packages. Their fresh admissions and repeated subjects
-are pending publication.
+five of the six fresh packages. Fresh native admission accepted
+[design-v4](MBR3-design-alethiometer-case-v4-admission.json),
+[queue-v4](MBR3-kerrigan-plan-conflict-queue-v4-admission.json),
+[yv-v4](MBR3-yv-relevance-instrument-v4-admission.json) and
+[Kirkland](MBR3-kirkland-compose-adoption-admission.json), each with
+`untested_requirement` findings. The remaining admissions and repeated subjects
+are pending publication; these findings are not subject failures.
 
 `foal-meadow-regression-review` cannot enter its declared 32,768-byte native
 file condition: the two writable base HTML files are 35,505 and 36,330 bytes.
@@ -108,6 +113,12 @@ The whole-process deadline covers an in-progress tool, with 15 seconds reserved
 for cleanup. Stable warning is conditional and non-isolated, not clean-resource
 clearance. Actual pressure, swap and endpoint-quiescence baselines remain
 required before the announced window.
+An already-running, verified-idle Colima VM may remain resident under the setup
+session's clarified coordination rule. No VM/container starts, active grading,
+conversion or builds are permitted during inference. Its residency and observed
+background CPU must be recorded; that condition is not fully isolated, even
+when aggregate pressure is normal. No shared service will be stopped to force
+admission.
 
 [Core results](MBR3-core-results.json) retain the paired metrics, source epochs,
 failure vocabulary and old-rule sensitivity. The [sealed archive index](MBR3-core-verification.json)
@@ -119,3 +130,5 @@ configuration are excluded. Frozen benchmark conditions remain in the ledgers.
 `python -m benchmarks.michael.matrix.generate` reproduces the committed matrix
 from the sealed archives without the executor's session directory. Rounds 1
 and 2 remain sealed and condition-separated.
+Additional cohorts require published, hash-bound complete schedules and matching
+native source/safety proofs; partial selections cannot silently enter the matrix.
