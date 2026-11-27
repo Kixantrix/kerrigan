@@ -27,7 +27,7 @@ export function metadataSnapshot() {
     return { loadAverage: loadavg(), memoryPressureFreePercent: Number(pressure[1]),
         memoryPressureState, swapUsedBytes: Number(swap[1]) * (swap[2] === "G" ? 1073741824 : 1048576),
         heavyProcesses, condition: memoryPressureState === "normal" ?
-            "local-laptop, no known background workload; metadata observations retained" : "contended/non-isolated",
+            "local-laptop; background isolation not established by pressure metadata" : "contended/non-isolated",
         modelPeakMemoryBytes: null, energyJoules: null };
 }
 
@@ -86,6 +86,10 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
             throw new Error("local_model_identity_ambiguous");
         const state = await health();
         const resources = snapshot();
+        resources.residentInfrastructure = structuredClone(condition.residentInfrastructure || []);
+        if (resources.memoryPressureState === "warning") resources.condition = "contended/non-isolated";
+        else if (resources.memoryPressureState === "normal" && resources.residentInfrastructure.length)
+            resources.condition = "local-laptop, resident-idle background infrastructure; not fully isolated";
         if (!condition.synthetic && !Number.isFinite(resources.swapUsedBytes))
             throw new Error("local_swap_metadata_unavailable");
         resources.swapUsedChangeBytes = previousSwap === null ? null : resources.swapUsedBytes - previousSwap;

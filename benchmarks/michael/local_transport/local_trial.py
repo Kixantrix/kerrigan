@@ -50,7 +50,7 @@ def prepare(owned, root, name, condition, safety):
     return root
 
 
-def execute(root):
+def execute(root, *, stop_requested=None):
     """No Docker calls; starts one immutable native/HTTP slot and collects exact artifacts."""
     root = Path(root)
     seal = read(root / "seal.json")
@@ -69,18 +69,38 @@ def execute(root):
     started_ms = time.time() * 1000
     began = time.monotonic()
     child = api.runner.launch(run)
+    external_stop_reason = None
+    deadline = began + min(frozen["activeSeconds"] + 17, remaining + 2)
     try:
-        child.wait(timeout=min(frozen["activeSeconds"] + 17, remaining + 2))
-    except subprocess.TimeoutExpired:
-        child.stdin.close()
-        child.wait(timeout=15)
+        while child.poll() is None and time.monotonic() < deadline:
+            reason = stop_requested() if stop_requested else None
+            if reason:
+                if not isinstance(reason, str):
+                    raise TypeError("external stop reason must be text")
+                external_stop_reason = reason
+                try:
+                    child.stdin.write(b'{"stop":true}\n')
+                    child.stdin.flush()
+                except BrokenPipeError:
+                    pass
+                break
+            try:
+                child.wait(timeout=min(0.25, max(0, deadline - time.monotonic())))
+            except subprocess.TimeoutExpired:
+                continue
     finally:
-        child.stdin.close()
+        try:
+            child.stdin.close()
+        except BrokenPipeError:
+            pass
+        finally:
+            child.wait(timeout=15)
     terminal = read(run / "receipt/terminal.json")
     outcome = {"model": model, "task": name, "conditionSha256": seal["conditionSha256"],
                "startedAtMs": started_ms,
                "finishedAtMs": time.time() * 1000, "sourceSha256": None,
                "elapsedSeconds": time.monotonic() - began,
+               "externalStopReason": external_stop_reason,
                "quiescent": terminal["wholeProcessQuiescent"],
                "backendDrained": (terminal.get("localInference", {}).get("release") or {}).get(
                    "ownedRequestsDrained") is True,
