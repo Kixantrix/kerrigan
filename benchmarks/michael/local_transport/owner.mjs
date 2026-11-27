@@ -7,6 +7,7 @@ import { admission } from "./validator_admission.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
 import { SCRATCH, scratchState, discardScratch } from "./scratch.mjs";
 import { taskPathMissing } from "./path_probe.mjs";
+import { localWindow } from "./local_window.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 admission(config);
@@ -28,6 +29,8 @@ let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, 
 let cli, input, events = 0, toolQueue = Promise.resolve();
 let finishing = false, spawning = 0, finalSourceError;
 let scratchError, scratchCleanup, scratchPeakBytes = 0, scratchPeakEntries = 0;
+const localAbort = new AbortController(), localEvents = [];
+let local, localResult, localRelease;
 const scratchRoot = config.scratchDirectory ? config.task + "/" + SCRATCH.directory : null;
 function checkScratch() {
     if (!scratchRoot) return;
@@ -60,6 +63,7 @@ function claimDisk(size) {
 function stop(reason) {
     if (!stopping) {
         stopping = reason; activeEnd = performance.now(); cleanupStart = activeEnd;
+        localAbort.abort();
         for (const child of live) child.kill();
         for (const { reject } of pending.values()) reject(new Error(reason));
         pending.clear();
@@ -389,7 +393,26 @@ try {
         }
         if (config.transportProbe) stop("transport_probe_complete");
     }
-    if (config.model && !stopping) {
+    if (config.localInference && !stopping) {
+        local = localWindow({ condition: config.localInference, record: event => {
+            localEvents.push(event);
+            persist(`local-event-${localEvents.length}`, event);
+        } });
+        const tools = metadata.tools.map(tool => ({ type: "function", function: {
+            name: tool.name, description: tool.description, parameters: tool.input_schema } }));
+        localResult = await local.run({
+            prompt: config.localPrompt, tools, signal: localAbort.signal,
+            execute: async (id, args) => {
+                const result = await rpc("session.tools.execute", {
+                    sessionId, name: "mb_action", toolCallId: id, arguments: args });
+                if (result.resultType !== "success") throw new Error("local_native_tool_failed");
+                return result;
+            }
+        });
+        localRelease = await local.release();
+        if (!localRelease.ownedRequestsDrained) throw new Error("local_backend_drain_unproven");
+        await finish(localResult.status === "completed" ? "session_idle" : "local_output_cap");
+    } else if (config.model && !stopping) {
         if (config.approved !== true) throw new Error("containment_not_approved");
         persist("prompt-start", { model: config.model, atMs: performance.now() - began,
             prompt: config.prompt, retries: 0 });
@@ -412,6 +435,10 @@ finally {
     stop(stopping || "owner_finally");
     clearTimeout(deadline);
     clearInterval(scratchMonitor);
+    if (local && !localRelease) {
+        try { localRelease = await local.release(); }
+        catch (error) { localRelease = { ownedRequestsDrained: false, error: error.message }; }
+    }
     for (const child of live) child.kill();
     let cleanupTimer;
     const settled = await Promise.race([
@@ -458,7 +485,17 @@ finally {
         actions: [...actions], actionBytes: budget.bytes,         counts, events, messages, requests, protocolCondition: PROTOCOL,
         protocolBytes: protocol.total, evidenceDiskBytesBeforeTerminal: diskBytes,
         unparsedProtocolBytesLowerBound: Math.max(0, (counts["cli-0-stdout"] || 0) - protocol.total),
-        requestedModel: config.model || null, observedModel: observed.length ? observed : "unknown",
+        requestedModel: config.localInference?.model || config.model || null,
+        observedModel: config.localInference ?
+            [...new Set(localEvents.filter(event => event.type === "local_request_finished").map(event => event.model))] :
+            observed.length ? observed : "unknown",
+        ...(config.localInference ? { localInference: {
+            result: localResult || null, release: localRelease || null, events: localEvents,
+            synthetic: config.localInference.synthetic === true,
+            deferredGrading: "after-window-release",
+            nativePrompts: 0,
+            attempts: localEvents.filter(event => event.type === "local_request_started").length
+        } } : {}),
         usage: usage.length ? usage : "unknown", ownerRetries: 0,
         nativeStarts, taskOutputBytesBeforeCutoff: taskOutputBytes, taskOutputRetainedBytes: taskOutputBytes,
         nativePrompts: config.promptSent ? 1 : 0, replayedActions: 0, verdict: "ungraded" });

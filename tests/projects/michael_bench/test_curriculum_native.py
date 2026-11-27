@@ -3,6 +3,8 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
@@ -310,3 +312,81 @@ def test_native_missing_path_feedback_never_widens_existing_or_outside_access(ow
     assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
     assert not terminal["actions"]
     assert all(row["kind"] == "cli" for row in terminal["records"])
+
+
+def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(owned, tmp_path):
+    seen = []
+    actions = [{"op": "read", "path": "TASK.md"},
+               {"op": "write", "path": "self_test.py", "data": "print('local-native-proof')\n"},
+               {"op": "run", "path": "self_test.py"}]
+
+    class Stub(BaseHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def reply(self, value):
+            data = json.dumps(value).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def do_GET(self):
+            self.reply({"ok": True, "active_requests": 0} if self.path == "/health"
+                       else {"data": [{"id": "synthetic-only"}]})
+
+        def do_POST(self):
+            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            seen.append(body)
+            index = len(seen) - 1
+            message = {"role": "assistant", "content": "done"}
+            if index < len(actions):
+                message = {"role": "assistant", "content": None, "tool_calls": [{
+                    "type": "function", "id": f"local-{index}",
+                    "function": {"name": "mb_action", "arguments": json.dumps(actions[index])}}]}
+            self.reply({"id": self.headers["x-mtplx-request-id"], "model": "synthetic-only",
+                        "choices": [{"message": message,
+                                     "finish_reason": "tool_calls" if index < len(actions) else "stop"}],
+                        "usage": {"prompt_tokens": 30, "completion_tokens": 4, "total_tokens": 34}})
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Stub)
+    thread = threading.Thread(target=server.serve_forever)
+    thread.start()
+    try:
+        import time
+        run = native.prepare(owned, tmp_path / "run", "validator", seconds=30,
+                             policy=native.round_three_policy("validator", active_seconds=30))
+        config = json.loads((run / "config.json").read_bytes())
+        config.update(localPrompt="Synthetic containment test; not a model trial.",
+                      localInference={"endpoint": f"http://127.0.0.1:{server.server_port}/v1",
+                                      "synthetic": True, "model": "synthetic-only", "allowWarning": True,
+                                      "limits": {"inputTokens": 229376, "contextTokens": 262144,
+                                                 "outputTokens": 16384},
+                                      "requestSeconds": 5, "windowStartMs": time.time() * 1000 - 1000,
+                                      "windowEndMs": time.time() * 1000 + 60000,
+                                      "concurrency": 1, "grading": "after-window-release"})
+        api.grader.persist(run / "config.json", config)
+        binding = json.loads((run / "curriculum-start.json").read_bytes())
+        from benchmarks.michael.replay_trial import validator
+        binding["configSha256"] = validator.digest(config)
+        api.grader.persist(run / "curriculum-start.json", binding)
+        child = api.runner.launch(run)
+        try:
+            child.wait(timeout=47)
+        finally:
+            child.stdin.close()
+        terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+        assert terminal["stopReason"] == "session_idle", terminal["stopReason"]
+        assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
+        assert terminal["localInference"]["attempts"] == 4
+        assert terminal["localInference"]["release"]["ownedRequestsDrained"]
+        assert terminal["scratch"]["cleanup"] == {"discarded": True}
+        assert len(seen) == 4
+        assert [tool["function"]["name"] for tool in seen[0]["tools"]] == ["mb_action"]
+        assert "local-native-proof" in json.dumps(seen[-1]["messages"])
+        assert native.collect(run) == specs.base("validator")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)

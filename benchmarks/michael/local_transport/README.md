@@ -8,9 +8,12 @@ sizes do not certify fresh tensor integrity. The selected Inkling model remains
 provisional, and no local-model inference has run in this condition.
 
 `local_inference.mjs` and `local_window.mjs` are offline-tested OpenAI-compatible
-adapter components. They are not yet connected to the native owner/ledger;
-their real HTTP stub tests exercise tool-loop transport, deadlines and
-synthetic drain receipts, not an end-to-end local-model benchmark. Do not use them
+adapter components. The native owner now routes their sole tool through the
+same proven CLI inventory and MXC action broker; `local_trial.py` prefreeses
+task/policy/runtime/condition, starts ledger slots, collects exact artifacts,
+and refuses Docker grading without a matching post-window release receipt.
+A real HTTP synthetic test exercises actual native gate/actions/cleanup, not
+an operational local-model benchmark. Do not use them
 against the operational endpoint until the parent approves and announces the
 exact interval and namespace and the setup session acknowledges it.
 
@@ -34,11 +37,15 @@ certifying completion; unknown usage remains unknown in the receipt.
 
 Local timing and energy are **shared with background workloads**. Metadata-only
 process-name/CPU/RSS, load and memory-pressure snapshots do not authorize
-altering Gridiron. Admission requires normal macOS pressure, read from the
+altering Gridiron. Pressure is read from the
 unprivileged `kern.memorystatus_vm_pressure_level` dispatch flags (normal=1,
 warning=2, critical=4); the free-percentage heuristic alone is not a pressure
-certificate. Warning, critical or unknown states stop admission even when
-reported free percentage is high. End-to-end HTTP token rate uses a monotonic clock and includes
+certificate. Stable warning is conditionally admissible when explicitly frozen
+with `allowWarning`; it is labeled contended/non-isolated. A fresh three-sample
+pressure/swap/health baseline precedes real requests. Critical or unknown
+pressure, increasing baseline swap, sustained boundary swap growth, endpoint
+contention and server errors stop admission. A normal observation is labeled
+no known background workload, not exclusive hardware. End-to-end HTTP token rate uses a monotonic clock and includes
 prefill. Optional own-response `mtplx_stats` supplies native uncached prefill and
 decode rates/times; missing fields remain unknown. Derived `timings` defaults
 are not used as measurement evidence. Reasoning is included in completion

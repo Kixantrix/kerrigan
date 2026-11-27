@@ -130,7 +130,7 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
                 exploratoryInput: nativeUsage.inputTokens === null ? null : nativeUsage.inputTokens > 131072,
                 tokensPerSecond: wallMs > 0 && nativeUsage.outputTokens !== null ?
                     nativeUsage.outputTokens * 1000 / wallMs : null,
-                speedScope: "completion tokens / HTTP wall time, including prefill; shared with background workloads",
+                speedScope: "completion tokens / HTTP wall time, including prefill; interpret with boundary pressure/co-tenancy",
                 prefillSeconds: stats.prompt_eval_time_s, decodeSeconds: stats.decode_elapsed_s,
                 prefillTokensPerSecond: stats.prefill_compute_tok_s ?? stats.prefill_tok_s,
                 decodeTokensPerSecond: stats.decode_tok_s, energyJoules: null });
@@ -155,7 +155,13 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         if (call.type !== "function" || call.function?.name !== "mb_action" ||
             typeof call.id !== "string" || typeof call.function.arguments !== "string")
             throw new Error("local_tool_contract_denied");
-        const result = await execute(call.id, JSON.parse(call.function.arguments));
+        let args;
+        try { args = JSON.parse(call.function.arguments); }
+        catch (error) {
+            if (error instanceof SyntaxError) throw new Error("local_tool_arguments_json_invalid");
+            throw error;
+        }
+        const result = await execute(call.id, args);
         messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
     }
 }
