@@ -86,6 +86,22 @@ def test_package_policy_closure_and_node_pin():
     assert native.NODE_VERSION.startswith("24.") and len(native.NODE_SHA256) == 64
 
 
+@pytest.mark.parametrize("name", ["validator", "foal-meadow-regression-review-v2"])
+def test_native_prompt_advertises_effective_package_limits(name):
+    policy = native.round_three_policy(name)
+    instruction = native.prompt(policy)
+    for key, label in (("bytes", "bytes/file"), ("channel", "bytes/channel"),
+                       ("payload", "bytes/action"), ("aggregate", "bytes aggregate input"),
+                       ("outputAggregate", "bytes retained output")):
+        assert f"{policy[key]} {label}" in instruction
+    assert f"{policy['finalOutputReserve']} bytes reserved for final reads" in instruction
+    assert f"{policy['runSeconds']}s timeout" in instruction
+    assert "task-declared isolated grader runtime" in instruction
+    if name == "foal-meadow-regression-review-v2":
+        assert policy["finalOutputReserve"] == 393216
+        assert "32KiB/file/channel" not in instruction
+
+
 def test_scratch_metadata_scan_rejects_aliases_and_entry_overflow(tmp_path):
     from benchmarks.michael.local_transport.scratch_scan import scan
     root = tmp_path / ".scratch"
@@ -314,15 +330,22 @@ def test_native_missing_path_feedback_never_widens_existing_or_outside_access(ow
     assert all(row["kind"] == "cli" for row in terminal["records"])
 
 
-@pytest.mark.parametrize("mode", ["complete", "deadline", "output-cap"])
+@pytest.mark.parametrize("mode", ["complete", "deadline", "output-cap", "schema-feedback", "external-stop"])
 def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(owned, tmp_path, mode):
     cutoff = mode == "deadline"
     seen = []
     actions = [{"op": "read", "path": "TASK.md"},
                {"op": "write", "path": "self_test.py", "data": "print('local-native-proof')\n"},
                {"op": "run", "path": "self_test.py"}]
+    if mode == "schema-feedback":
+        actions.insert(0, {"op": "read", "path": "TASK.md", "limit": 100})
     if cutoff:
         actions = [{"op": "write", "path": "self_test.py", "data": "import time\ntime.sleep(30)\n"},
+                   {"op": "run", "path": "self_test.py"}]
+    if mode == "external-stop":
+        actions = [{"op": "write", "path": "self_test.py", "data":
+                    "import os,time\nfrom pathlib import Path\n"
+                    "Path(os.environ['TMPDIR'], 'running').write_text('running')\ntime.sleep(30)\n"},
                    {"op": "run", "path": "self_test.py"}]
 
     class Stub(BaseHTTPRequestHandler):
@@ -386,7 +409,9 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
                       localTrialSha256=api.sha(Path(local_trial.__file__).read_bytes()))
         api.grader.persist(root / "seal.json", {
             "frozen": frozen, "conditionSha256": validator.digest(frozen)})
-        collected = local_trial.execute(root)
+        stop_requested = (lambda: "synthetic-owned-external-stop"
+                          if (run / "task/.scratch/running").is_file() else None)
+        collected = local_trial.execute(root, stop_requested=stop_requested if mode == "external-stop" else None)
         assert collected["status"] == "awaiting-post-window-verification"
         assert collected["sourceSha256"] == api.sha(specs.base("validator"))
         assert not (run / "independent-grader").exists()
@@ -402,6 +427,16 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
             "owningSession": "synthetic-owner", "requestNamespace": "synthetic-proof"})
         assert finalized["status"] == "ungraded"
         assert finalized["completionSeconds"] is None
+        if mode == "external-stop":
+            assert terminal["stopReason"] == "external_cancel"
+            assert collected["externalStopReason"] == "synthetic-owned-external-stop"
+            assert not terminal["partialBudgetExhausted"]
+            assert terminal["activeSeconds"] < 15
+            assert len(seen) == terminal["localInference"]["attempts"] == 2
+            assert any(record["kind"] == "task" for record in terminal["records"])
+            with pytest.raises(api.TrialError, match="completion proof failed"):
+                native.collect(run)
+            return
         if mode == "output-cap":
             assert terminal["stopReason"] == "local_output_cap"
             assert terminal["partialBudgetExhausted"]
@@ -417,7 +452,9 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
                 native.collect(run)
             return
         assert terminal["stopReason"] == "session_idle", terminal["stopReason"]
-        assert len(seen) == terminal["localInference"]["attempts"] == 4
+        assert len(seen) == terminal["localInference"]["attempts"] == len(actions) + 1
+        if mode == "schema-feedback":
+            assert "action_schema_invalid" in json.dumps(seen[1]["messages"])
         assert "local-native-proof" in json.dumps(seen[-1]["messages"])
         assert (run / "collected-source.bin").read_bytes() == specs.base("validator")
     finally:
