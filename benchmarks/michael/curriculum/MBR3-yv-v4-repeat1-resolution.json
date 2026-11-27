@@ -1,0 +1,39 @@
+{
+  "cause": "model",
+  "clarityKnownIssue": {
+    "changeV4DuringCohort": false,
+    "proposedWording": "items whose topic list is nonempty and in which every lower-cased topic is a title token",
+    "reconsiderationTrigger": "Flag if Sonnet also misses this exact clause; coordinator will reconsider task attribution.",
+    "round": 4
+  },
+  "collectedArtifactsSha256": "4f5f32061b466f9feee66d0da681a8333adf407a67b417fc8765485ddbb8dfb8",
+  "counts_as_model_failure": true,
+  "decision": "Coordinator adjudicated model-caused; retain original split panel and failed 14/16 result, no rerun.",
+  "decisionSource": {
+    "messageToolCallId": "toolu_014i52jcJ2b5Rv9g2avK8jHT",
+    "session": "ba383ac7-f3a0-4cbd-aff3-291f26881ccb"
+  },
+  "evidence": [
+    "spec-misread: the candidate uses topics.some; the requirement explicitly says every lower-cased topic.",
+    "The nonempty condition and universal condition both apply to the item's topic list; a topic has no topics of its own.",
+    "Only the two topicsFromTitle count checks fail; other audit values and all blind/scoring checks pass.",
+    "Observed county/legislature counts are 7/5 versus 4/3; the second corpus's legislature count is 4 versus 2."
+  ],
+  "evidence_root": "mbr3-expanded-v5",
+  "failure_modes": [
+    "spec-misread"
+  ],
+  "graderReportSha256": "b65fe4548cc4d573d70f915509449602eec2e88fa7e9d89a9976518ee6ce3cdc",
+  "kind": "deterministic-attribution-resolution",
+  "model": "mai-code-2",
+  "originalPanelSha256": "1f1f7ddfb61b7a8b74a8ca48ef0f3e687f06ba01c835bd2900c86c694b7c4a6f",
+  "outcomeSha256": "65c90160eee4b1062b81f227868234394181647fac2d3a703ee93b1ad51aa7d1",
+  "publicationScope": "Sanitized attribution and immutable hashes; no raw messages, account data or credential state.",
+  "repeat": 1,
+  "requirementQuote": "topicsFromTitle counts items with at least one topic whose every lower-cased topic is a token of the title",
+  "schema_version": 1,
+  "source_epoch": "expanded-v5",
+  "specSha256": "d10942ab448f62cd4c70d62474c21db09237d511d54f4d25abe378d423323194",
+  "subject_rerun": false,
+  "task": "yv-relevance-instrument-v4"
+}

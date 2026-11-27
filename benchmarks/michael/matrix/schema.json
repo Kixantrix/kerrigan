@@ -81,7 +81,7 @@
         "peak_memory_bytes": {"$ref": "#/$defs/measurement"},
         "energy_joules": {"$ref": "#/$defs/measurement"},
         "failure_modes": {"type": "object",
-          "propertyNames": {"enum": ["unsupported-defect-claim", "claimed-fix-not-implemented",
+          "propertyNames": {"enum": ["spec-misread", "unsupported-defect-claim", "claimed-fix-not-implemented",
             "sandbox-boundary-write", "harness-cap", "task-caused", "contention-timeout",
             "model-failure-unclassified", "harness-error", "invented-path-read"]},
           "additionalProperties": {"type": "integer", "minimum": 1}},

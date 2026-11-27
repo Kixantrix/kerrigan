@@ -140,6 +140,8 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
          "claimed-fix-not-implemented"),
         ({"cause": "model", "deterministicEvidence": "unsupported auth-bypass claim"},
          "unsupported-defect-claim"),
+        ({"cause": "model", "deterministicEvidence": "spec-misread: some contradicts every"},
+         "spec-misread"),
         ({"cause": "model", "deterministicEvidence": "write $TMPDIR/x outside allowed paths"},
          "sandbox-boundary-write"),
         ({"cause": "harness", "nativeStop": "protocol_budget"}, "harness-cap"),
@@ -180,6 +182,7 @@ def test_split_attribution_requires_hash_bound_published_resolution(tmp_path, mo
     destination.write_text(json.dumps(receipt))
     resolved, digest = generate.resolved_attribution(root, "fixture", 2, "model", run)
     assert resolved["cause"] == "model" and generate.failure_modes(resolved) == ["unsupported-defect-claim"]
+    assert resolved["counts_as_model_failure"] is True and resolved["action"] == "record_model_result"
     assert digest == hashlib.sha256(destination.read_bytes()).hexdigest()
     assert json.loads(panel.read_bytes())["cause"] == "unresolved"
     (run / "collected-source.bin").write_bytes(b"changed")

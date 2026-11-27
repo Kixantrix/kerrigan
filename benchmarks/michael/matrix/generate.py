@@ -25,7 +25,7 @@ FAMILIES = {"validator": "Implement", "grouping": "Implement", "status": "Implem
             "selfhost-redeploy-state": "Operate", "sr-temporal-assay": "Experiment"}
 FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "sandbox-boundary-write",
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
-                 "harness-error", "invented-path-read")
+                 "harness-error", "invented-path-read", "spec-misread")
 
 
 def failure_modes(attribution):
@@ -43,6 +43,8 @@ def failure_modes(attribution):
         for verdict in attribution.get("verdicts", []) for item in verdict.get("evidence", []))
     text = "\n".join(evidence)
     modes = []
+    if "spec-misread" in text:
+        modes.append("spec-misread")
     if "claimFixed=false" in text:
         modes.append("claimed-fix-not-implemented")
     if "glob-overlap" in text and any(word in text.lower() for word in (
@@ -214,7 +216,8 @@ def resolved_attribution(root, task, repeat, model, run):
                 receipt.get(key) != hashlib.sha256(file.read_bytes()).hexdigest()
                 for key, file in bindings.items())):
         raise ValueError("published attribution resolution mismatch")
-    resolved = {**original, "cause": "model", "deterministicEvidence": "\n".join(receipt["evidence"])}
+    resolved = {**original, "cause": "model", "counts_as_model_failure": True,
+                "action": "record_model_result", "deterministicEvidence": "\n".join(receipt["evidence"])}
     if failure_modes(resolved) != receipt["failure_modes"]:
         raise ValueError("published attribution resolution vocabulary mismatch")
     return resolved, hashlib.sha256(candidate.read_bytes()).hexdigest()
