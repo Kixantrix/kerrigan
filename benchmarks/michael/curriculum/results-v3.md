@@ -80,13 +80,25 @@ execution fractions are not task-success estimates.
 ## Expanded curriculum and public anchors
 
 Native base/reference reproduction succeeded for the three v4 successors and
-five of the six fresh packages. Fresh native admission accepted
+five of the six fresh packages. All eight admissions are complete; six were
+accepted with only `untested_requirement` findings:
 [design-v4](MBR3-design-alethiometer-case-v4-admission.json),
 [queue-v4](MBR3-kerrigan-plan-conflict-queue-v4-admission.json),
-[yv-v4](MBR3-yv-relevance-instrument-v4-admission.json) and
-[Kirkland](MBR3-kirkland-compose-adoption-admission.json), each with
-`untested_requirement` findings. The remaining admissions and repeated subjects
-are pending publication; these findings are not subject failures.
+[yv-v4](MBR3-yv-relevance-instrument-v4-admission.json),
+[Kirkland](MBR3-kirkland-compose-adoption-admission.json),
+[Taste Engine](MBR3-te-baseline-eval-admission.json) and
+[gear mesh](MBR3-design-alethiometer-gear-mesh-admission.json).
+Their 36 order-balanced subjects are in progress and are not yet pooled into
+the published matrix. Admission findings are not subject failures.
+[VHS admission](MBR3-vhs-room-registry-sync-admission.json) returned `needs_fix`
+for instruction/oracle contradictions concerning deleted-room listings,
+disabled live-name duplicates and replicated renames. Its blind pass does not
+override the admission gate; no scored subjects run on that version.
+[Clinical Scribe admission](MBR3-cs-mismatch-stage-authority-admission.json)
+also returned `needs_fix`: its oracle can throw `TypeError` while formatting
+invalid bigint/circular stages instead of the required `TemplateMismatchError`.
+It likewise has no scored subjects despite a passing blind attempt. These
+admission judgments are preserved for curriculum follow-up.
 
 `foal-meadow-regression-review` cannot enter its declared 32,768-byte native
 file condition: the two writable base HTML files are 35,505 and 36,330 bytes.
