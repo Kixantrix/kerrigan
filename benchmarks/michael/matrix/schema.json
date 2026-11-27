@@ -80,7 +80,11 @@
         "cost": {"$ref": "#/$defs/measurement"},
         "peak_memory_bytes": {"$ref": "#/$defs/measurement"},
         "energy_joules": {"$ref": "#/$defs/measurement"},
-        "failure_modes": {"type": "array", "items": {"type": "string"}},
+        "failure_modes": {"type": "object",
+          "propertyNames": {"enum": ["unsupported-defect-claim", "claimed-fix-not-implemented",
+            "sandbox-boundary-write", "harness-cap", "task-caused", "contention-timeout",
+            "model-failure-unclassified", "harness-error"]},
+          "additionalProperties": {"type": "integer", "minimum": 1}},
         "provenance": {"type": "array", "items": {"type": "object"}}
       }
     }

@@ -22,9 +22,9 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-010r:mai-code-2 | cloud | Design × medium | 1 | 1/1 (20.7%–100.0%) | 132.52 | 246,160 / 6,047 | unknown; unknown; unknown | none observed |
 | MB-010r:mai-code-2 | cloud | Experiment × medium | 1 | 1/1 (20.7%–100.0%) | 169.54 | 313,151 / 8,361 | unknown; unknown; unknown | none observed |
 | MB-010r:mai-code-2 | cloud | Implement × medium | 2 | 2/2 (34.2%–100.0%) | 139.66 | 433,048 / 13,050 | unknown; unknown; unknown | none observed |
-| MB-010r:mai-code-2 | cloud | Orchestrate × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 242,293 / 9,876 | unknown; unknown; unknown | latest admitted-and-run round-2 version selected by coordinator; first subject attempt for its condition; blocked/unrun successors excluded |
+| MB-010r:mai-code-2 | cloud | Orchestrate × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 242,293 / 9,876 | unknown; unknown; unknown | claimed-fix-not-implemented ×1 |
 | MB-010r:mai-code-2 | cloud | Research × small | 1 | 1/1 (20.7%–100.0%) | 60.09 | 114,985 / 1,881 | unknown; unknown; unknown | none observed |
-| MB-010r:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 89,359 / 9,103 | unknown; unknown; unknown | latest admitted-and-run round-2 version selected by coordinator; first subject attempt for its condition; blocked/unrun successors excluded |
+| MB-010r:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 89,359 / 9,103 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
 | MB-010r:mai-code-2 | cloud | Understand and plan × small | 1 | 1/1 (20.7%–100.0%) | 49.66 | 86,926 / 1,641 | unknown; unknown; unknown | none observed |
 
 ## Derived routing
@@ -43,6 +43,20 @@ Objective: fastest; minimum n=5; 95% lower bound ≥80%. No fallback model is in
 | Research × small | insufficient evidence |
 | Review and repair × medium | insufficient evidence |
 | Understand and plan × small | insufficient evidence |
+
+## Provenance and prior attempts
+
+Selection/provenance is not a failure mode. Per-cell JSON provenance binds the exact ledger, chain head, frozen condition and artifact hashes. Native measurements come from the sealed index.
+The following deterministically attributed prior attempts are excluded from primary cell denominators.
+
+| Task | Target | Round | Status | Failure modes |
+|---|---|---|---|---|
+| orchestrate-voice-integration | mai-code-2 | v2 | fail | model-failure-unclassified ×1 |
+| orchestrate-voice-integration | claude-sonnet-5.5 | v2 | fail | task-caused ×1 |
+| orchestrate-voice-integration-v2 | mai-code-2 | v2 | fail | unsupported-defect-claim ×1 |
+| orchestrate-voice-integration-v2 | claude-sonnet-5.5 | v2 | ungraded | sandbox-boundary-write ×1 |
+| plan-dashboard-waves-v2 | mai-code-2 | v2 | ungraded | harness-error ×1 |
+| research-serverless-cost | mai-code-2 | v2 | fail | task-caused ×1 |
 
 ## Size and limits
 

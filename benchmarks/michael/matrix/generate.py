@@ -1,5 +1,6 @@
 """Generate condition-separated targets from verified ledger-derived records."""
 import argparse
+from collections import Counter
 import difflib
 import hashlib
 import io
@@ -20,6 +21,35 @@ HERE = Path(__file__).resolve().parent
 CLASSES = ("cloud", "local laptop", "self-hosted infrastructure")
 FAMILIES = {"validator": "Implement", "grouping": "Implement", "status": "Implement",
             "selfhost-redeploy-state": "Operate", "sr-temporal-assay": "Experiment"}
+FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "sandbox-boundary-write",
+                 "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
+                 "harness-error")
+
+
+def failure_modes(attribution):
+    """Map attribution evidence, never primary-selection boilerplate, to stable labels."""
+    cause = attribution.get("cause")
+    if cause == "task":
+        return ["task-caused"]
+    if attribution.get("outcome") == "contention-timeout":
+        return ["contention-timeout"]
+    if cause == "harness":
+        reason = attribution.get("nativeStop", "")
+        return ["harness-cap" if any(word in reason for word in ("cap", "budget", "overflow")) else "harness-error"]
+    evidence = [attribution.get("deterministicEvidence", "")]
+    evidence.extend(item if isinstance(item, str) else item.get("description", "")
+        for verdict in attribution.get("verdicts", []) for item in verdict.get("evidence", []))
+    text = "\n".join(evidence)
+    modes = []
+    if "claimFixed=false" in text:
+        modes.append("claimed-fix-not-implemented")
+    if "glob-overlap" in text and "did not contribute" in text:
+        modes.append("unsupported-defect-claim")
+    if "auth-bypass" in text and any(word in text.lower() for word in ("absent", "unsupported", "no authentication")):
+        modes.append("unsupported-defect-claim")
+    if ("$TMPDIR" in text and "outside" in text) or "out-of-scope write" in text:
+        modes.append("sandbox-boundary-write")
+    return modes or ["model-failure-unclassified"]
 
 
 def size(task):
@@ -48,12 +78,13 @@ def size(task):
             "files_to_read": len(agent), "checks": sum(specs.spec(task)["denominators"].values())}
 
 
-def archived_ledgers(data, path, selected):
+def archived_ledgers(data, path, selected, decisions=()):
     with path.open("rb") as stream:
         archive_sha = hashlib.file_digest(stream, "sha256").hexdigest()
     if archive_sha != data["archiveSha256"]:
         raise ValueError("matrix evidence archive mismatch")
     found = {}
+    selected = set(selected) | set(decisions)
     with tarfile.open(path, "r|gz") as archive:
         for member in archive:
             if member.name not in selected:
@@ -64,8 +95,11 @@ def archived_ledgers(data, path, selected):
             digest = hashlib.sha256(raw).hexdigest()
             if digest != data["members"][member.name]:
                 raise ValueError("matrix archived ledger mismatch")
-            state, _, head = Ledger(member.name)._read(io.BytesIO(raw))
-            found[member.name] = (state, digest, head)
+            if member.name in decisions:
+                found[member.name] = json.loads(raw)
+            else:
+                state, _, head = Ledger(member.name)._read(io.BytesIO(raw))
+                found[member.name] = (state, digest, head)
     if set(found) != set(selected):
         raise ValueError("missing archived matrix ledger")
     return found, archive_sha
@@ -81,6 +115,16 @@ def seed():
         sources.append({"path": str(path.relative_to(ROOT)), "sha256": hashlib.sha256(raw).hexdigest(),
                         "role": "sealed primary-selection and native-measurement index"})
         tasks = data["models"] if label == "v1" else data["primaryModels"]
+        classifications = data.get("attemptClassifications", [])
+        decision_paths = {}
+        for row in classifications:
+            if row["status"] == "pass":
+                continue
+            prefix = row["attemptRoot"].replace("/trials/", "/attribution/") + "/" + row["model"]
+            matches = [prefix + "/" + name for name in ("decision.json", "attribution.json")
+                       if prefix + "/" + name in data["members"]]
+            if matches:
+                decision_paths[row["task"], row["model"], row["attemptRoot"]] = matches[0]
         selections = {}
         for task, targets in tasks.items():
             for model, value in targets.items():
@@ -92,9 +136,20 @@ def seed():
                     raise ValueError("ambiguous primary matrix ledger")
                 selections[task, model] = candidates[0]
         archive_path = path.with_name(filename.replace("-verification.json", "-evidence.tar.gz"))
-        ledgers, archive_sha = archived_ledgers(data, archive_path, set(selections.values()))
+        ledgers, archive_sha = archived_ledgers(data, archive_path, set(selections.values()),
+                                              set(decision_paths.values()))
         sources.append({"path": str(archive_path.relative_to(ROOT)), "sha256": archive_sha,
-                        "role": "sealed ledger bytes; hash chain and frozen bundles validated"})
+                        "role": "sealed ledger bytes; hash chain and frozen bundles validated",
+                        "prior_attempts": [{"task": row["task"], "model": row["model"], "round": label,
+                            "status": row["status"], "failure_modes": failure_modes(
+                                {**ledgers[decision_paths[row["task"], row["model"], row["attemptRoot"]]],
+                                 "cause": row["cause"],
+                                 **({"nativeStop": row["reason"]} if row["cause"] == "harness" else {})}),
+                            "provenance": {"decision": decision_paths[row["task"], row["model"], row["attemptRoot"]],
+                                "sha256": data["members"][decision_paths[row["task"], row["model"], row["attemptRoot"]]],
+                                "classification_reason": row["reason"]}}
+                            for row in classifications if not row["primary"] and
+                            (row["task"], row["model"], row["attemptRoot"]) in decision_paths]})
         for task, targets in tasks.items():
             dimensions = size(task)
             for model, value in targets.items():
@@ -114,8 +169,8 @@ def seed():
                     raise ValueError("matrix ledger/selection result mismatch")
                 failure = []
                 if not passed:
-                    failure = [row["reason"] for row in data.get("attemptClassifications", [])
-                        if row["task"] == task and row["model"] == model and row["primary"]]
+                    decision = decision_paths.get((task, model, ledger_path.removesuffix("/ledger.jsonl")))
+                    failure = failure_modes(ledgers[decision]) if decision else ["model-failure-unclassified"]
                 records.append({
                     "task": task, "repeat": 1, "model": model, "deployment_class": "cloud",
                     "condition": data["condition"], "tool_host": "local macOS MXC",
@@ -164,8 +219,7 @@ def ledger_records(root):
                 attribution = json.loads(attribution_path.read_bytes())
                 if attribution["cause"] != "model":
                     raise ValueError("non-model matrix failure requires corrected primary attempt")
-                failures = sorted({json.dumps(item, sort_keys=True) if not isinstance(item, str) else item
-                    for verdict in attribution["verdicts"] for item in verdict["evidence"]})
+                failures = failure_modes(attribution)
             usage = native["usage"]
             tokens = {}
             for key in ("inputTokens", "outputTokens"):
@@ -201,6 +255,8 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
             raise ValueError("invalid observed measurement")
         if any(v is not None and (type(v) is not int or v < 0) for v in row["tokens"].values()):
             raise ValueError("invalid observed tokens")
+        if any(mode not in FAILURE_MODES for mode in row["failure_modes"]):
+            raise ValueError("invalid controlled failure mode")
         seen.add(key)
         target = row["condition"] + ":" + row["model"]
         info = {"model": row["model"], "deployment_class": row["deployment_class"],
@@ -233,7 +289,7 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
             "verified_time_n": len(times), "median_verified_seconds": median(times) if times else None,
             "tokens": tokens, "cost": measured("cost"), "peak_memory_bytes": measured("peak_memory_bytes"),
             "energy_joules": measured("energy_joules"),
-            "failure_modes": sorted({mode for r in rows for mode in r["failure_modes"]}),
+            "failure_modes": dict(sorted(Counter(mode for r in rows for mode in set(r["failure_modes"])).items())),
             "provenance": [{"task": r["task"], "repeat": r["repeat"], "round": r["round"],
                 "condition_sha256": r["condition_sha256"], "source_sha256": r["source_sha256"],
                 "ledger_source": r["ledger_source"], "ledger_sha256": r.get("ledger_sha256"),
@@ -289,6 +345,9 @@ def validate(value):
             if cell["verified_time_n"] != cell["successes"] or (
                 cell["successes"] == 0 and cell["median_verified_seconds"] is not None):
                 raise ValueError("matrix schema verification time")
+            if any(mode not in FAILURE_MODES or type(n) is not int or not 1 <= n <= cell["n"]
+                   for mode, n in cell["failure_modes"].items()):
+                raise ValueError("matrix schema failure modes")
 
 
 def markdown(value):
@@ -305,7 +364,7 @@ def markdown(value):
             measured = "; ".join(str(cell[k]["value"]) if cell[k]["status"] == "known" else "unknown"
                 for k in ("cost", "peak_memory_bytes", "energy_joules"))
             time = "unknown" if cell["median_verified_seconds"] is None else f"{cell['median_verified_seconds']:.2f}"
-            failures = ("; ".join(cell["failure_modes"]) or "none observed").replace("|", "\\|").replace("\n", " ")
+            failures = "; ".join(f"{mode} ×{n}" for mode, n in cell["failure_modes"].items()) or "none observed"
             lines.append(f"| {target} | {info['deployment_class']} | {column} | {cell['n']} | "
                 f"{cell['successes']}/{cell['n']} ({lo:.1%}–{hi:.1%}) | {time} | {tokens} | {measured} | {failures} |")
     policy = value["routing_policy"]
@@ -315,6 +374,15 @@ def markdown(value):
         "", "| Family × size | Recommendation |", "|---|---|"]
     for column, recommendation in value["recommendations"].items():
         lines.append(f"| {column} | {recommendation['target'] or recommendation['status']} |")
+    lines += ["", "## Provenance and prior attempts", "",
+        "Selection/provenance is not a failure mode. Per-cell JSON provenance binds the exact ledger, "
+        "chain head, frozen condition and artifact hashes. Native measurements come from the sealed index.",
+        "The following deterministically attributed prior attempts are excluded from primary cell denominators.",
+        "", "| Task | Target | Round | Status | Failure modes |", "|---|---|---|---|---|"]
+    for source in value.get("sources", []):
+        for row in source.get("prior_attempts", []):
+            modes = "; ".join(f"{mode} ×1" for mode in row["failure_modes"])
+            lines.append(f"| {row['task']} | {row['model']} | {row['round']} | {row['status']} | {modes} |")
     lines += ["", "## Size and limits", "", json.dumps(value["size_policy"], sort_keys=True), "", value["limits"], ""]
     return "\n".join(lines)
 
