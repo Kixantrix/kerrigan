@@ -3531,6 +3531,101 @@
    }
   },
   "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused (native admission needs_fix): TASK.md contradicted merged PR #194 on admin listing of tombstones, reviving disabled names and replicated renames"
+   ],
+   "superseded_by": "vhs-room-registry-sync-v2"
+  }
+ },
+ {
+  "task": "kixantrix/michael-vhs-room-registry-sync-v2",
+  "task_sha256": "4eb8d6e969c1306da61058f5765e0550f18d66cdb1dd8d7555269fd41c42aae4",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "conflicts_passed": 6.0,
+    "conflicts_total": 6.0,
+    "guard_passed": 3.0,
+    "guard_total": 3.0,
+    "operations_passed": 7.0,
+    "operations_total": 7.0,
+    "preservation_passed": 4.0,
+    "preservation_total": 4.0,
+    "replication_passed": 6.0,
+    "replication_total": 6.0,
+    "reward": 1.0,
+    "tombstones_passed": 7.0,
+    "tombstones_total": 7.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "conflicts_passed": 0.0,
+    "conflicts_total": 6.0,
+    "guard_passed": 0.0,
+    "guard_total": 3.0,
+    "operations_passed": 0.0,
+    "operations_total": 7.0,
+    "preservation_passed": 4.0,
+    "preservation_total": 4.0,
+    "replication_passed": 0.0,
+    "replication_total": 6.0,
+    "reward": 0.0,
+    "tombstones_passed": 0.0,
+    "tombstones_total": 7.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/vhs-room-registry-sync-v2",
+      "task_sha256": "4eb8d6e969c1306da61058f5765e0550f18d66cdb1dd8d7555269fd41c42aae4"
+     },
+     "request_sha256": "b5ff58a01038b3f342f3b80ce7ae3bd7b59f0191b354d8a2b56d6489f3b8cf42",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/vhs-room-registry-sync-v2",
+      "task_sha256": "4eb8d6e969c1306da61058f5765e0550f18d66cdb1dd8d7555269fd41c42aae4"
+     },
+     "request_sha256": "2f82d8e30aea5b3f4e1ce171c82c6c99a4f7244a742613533c61dd2e92b0b75d",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/vhs-room-registry-sync-v2",
+     "task_sha256": "4eb8d6e969c1306da61058f5765e0550f18d66cdb1dd8d7555269fd41c42aae4",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "9e1dfe6dc6cbbaeac51b16ec175134f22760bbbc400c6958efa393158e051bab",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
    "state": "provisional",
    "reasons": [
     "model gates pending executor"

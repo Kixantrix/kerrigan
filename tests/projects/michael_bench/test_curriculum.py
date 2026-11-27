@@ -508,7 +508,8 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"foal-meadow-regression-review": "foal-meadow-regression-review-v2",
+CURRENT = {"vhs-room-registry-sync": "vhs-room-registry-sync-v2",
+           "foal-meadow-regression-review": "foal-meadow-regression-review-v2",
            "yv-relevance-instrument-v3": "yv-relevance-instrument-v4",
            "kerrigan-plan-conflict-queue-v3": "kerrigan-plan-conflict-queue-v4",
            "design-alethiometer-case-v3": "design-alethiometer-case-v4",
@@ -1088,3 +1089,15 @@ def test_foal_v2_only_raises_its_own_native_limits():
     assert curriculum.NATIVE_LIMITS["bytes"] == 32768  # shared default unchanged
     v1 = json.loads((old / "native-policy.json").read_text())
     assert v1["bytes"] < max(len(t) for t in _writable_texts(old.name))  # the native fit failure v2 fixes
+
+
+def test_vhs_v2_states_the_merged_pr_behaviors_and_keeps_the_oracle():
+    old, new = "vhs-room-registry-sync", "vhs-room-registry-sync-v2"
+    assert curriculum.verifier_files(new)["reference"] == curriculum.verifier_files(old)["reference"]
+    assert {p: d for p, d in curriculum.agent_files(new).items() if p not in ("TASK.md", "policy.json")} == {
+        p: d for p, d in curriculum.agent_files(old).items() if p not in ("TASK.md", "policy.json")}
+    ids = {r["original_id"] for r in json.loads((curriculum.HERE / new / "hidden/rows.json").read_text())}
+    for row in ("the admin room list keeps deleted rooms as disabled entries and a repeated delete succeeds",
+                "creating a name held by a disabled room revives that row and replicates",
+                "a replicated rename keeps the old name live on both backends"):
+        assert row in ids
