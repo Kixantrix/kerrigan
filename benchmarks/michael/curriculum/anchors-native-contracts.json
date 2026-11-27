@@ -1,0 +1,96 @@
+{
+ "schema_version": 1,
+ "anchors_json_revision": 2,
+ "purpose": "Declared native contracts for converting public Harbor anchors (anchors.json) into ordinary curriculum packages (benchmarks/michael/tasks/anchors/). Hand-authored decisions; anchors_convert.py applies them generically and writes anchors-native.json.",
+ "rules": {
+  "workspace": "agent/ = the bounded subset of the task image's filesystem the agent may read, exported with docker cp from the (environment-prepared) task image without running it. Agent path = absolute path without the leading '/', except declared renames. Files are kept only if they match the root's include globs (default all), miss its exclude globs, are UTF-8 text without NUL (unless matched by binary_ok) and are at most max_file_bytes; everything dropped is listed with size and sha256 in the package's export.json.",
+  "artifacts": "The exact final state is the declared artifact files (absolute paths), collected as UTF-8 text. Artifacts that do not exist in the image are exported as empty files; an artifact marked absent_if_empty is materialized as absent when collected empty (this is also how the agent deletes a file). Nothing else in the final state is graded.",
+  "environment_setup": "Network-bound steps the native agent cannot perform (package installation) may be hoisted from solution/solve.sh into the trusted environment image, verbatim, and are disclosed in TASK.md, task.json and anchors-native.json. They must not satisfy any test beyond the hoisted step itself.",
+  "start": "Services the original tests expect to be running are started by the trusted verifier with the declared start commands, after the artifacts are materialized and before the original tests run.",
+  "verifier": "The ORIGINAL tests/ (unmodified, byte-identical to the pinned commit) run via bash /tests/test.sh in a verifier image = environment image + exactly the packages and uvx tool environment that test.sh installs (derived from test.sh, pre-cached at build time with network), then offline (UV_OFFLINE=1, --network none). ctrf.json and reward.txt map to strict rows: one per test ID (denominated by test file) plus Harbor's reward row; only 'passed' passes.",
+  "exclusion": "An anchor whose graded final state cannot be expressed as bounded text artifacts plus trusted start commands without hoisting the substance of the task into the environment is excluded with a machine-readable reason, never dropped silently."
+ },
+ "conversions": {
+  "fix-git": {
+   "package": "anchor-tb-fix-git",
+   "family": "Review and repair",
+   "title": "Recover lost commit changes in a personal-site git repository and merge them into master (Terminal-Bench 2.0 fix-git)",
+   "image": "alexgshaw/fix-git@sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119",
+   "environment_setup": [],
+   "workspace": [
+    {"root": "/app/personal-site", "exclude": [".git/*"], "max_file_bytes": 32768},
+    {"root": "/app/personal-site/.git", "include": ["HEAD", "ORIG_HEAD", "COMMIT_EDITMSG", "config", "description", "packed-refs", "info/exclude", "logs/*", "refs/*", "objects/[0-9a-f][0-9a-f]/*"], "binary_ok": ["objects/*"], "max_file_bytes": 32768}
+   ],
+   "renames": [["/app/personal-site/.git/", "app/personal-site-gitdir/"]],
+   "artifacts": [
+    {"path": "/app/personal-site/_includes/about.md"},
+    {"path": "/app/personal-site/_layouts/default.html"}
+   ],
+   "start": [],
+   "notes": [
+    "The tests check only the two working-tree files, so the graded final state is exactly those two files; git refs/objects are not graded (the agent cannot run git natively).",
+    "The 31 MB pack (+ .idx), the binary .git/index, hook samples, binary site assets and files over 32 KiB are not exported. The lost 'Move to Stanford' commit and its trees and blobs are loose objects and are exported (zlib, readable with a stdlib Python self-test).",
+    "/app/resources/patch_files (the expected file contents the tests compare against) is outside the agent workspace; it stays in the verifier image only."
+   ]
+  },
+  "nginx-request-logging": {
+   "package": "anchor-tb-nginx-request-logging",
+   "family": "Operate",
+   "title": "Configure Nginx with detailed request logging, rate limiting and a custom 404 page (Terminal-Bench 2.0 nginx-request-logging)",
+   "image": "alexgshaw/nginx-request-logging@sha256:693e64431a0dbf45952e8b91a298d54fd60247e501c6623fb8fa3ebc07fc3d3d",
+   "environment_setup": ["apt-get update && apt-get install -y nginx"],
+   "workspace": [
+    {"root": "/etc/nginx", "include": ["nginx.conf", "sites-available/default", "mime.types"], "max_file_bytes": 32768},
+    {"root": "/var/www/html", "max_file_bytes": 32768}
+   ],
+   "renames": [],
+   "artifacts": [
+    {"path": "/etc/nginx/nginx.conf"},
+    {"path": "/etc/nginx/conf.d/benchmark-site.conf", "absent_if_empty": true},
+    {"path": "/etc/nginx/sites-enabled/default", "absent_if_empty": true},
+    {"path": "/var/www/html/index.html", "absent_if_empty": true},
+    {"path": "/var/www/html/404.html", "absent_if_empty": true}
+   ],
+   "start": ["nginx"],
+   "notes": [
+    "Adaptation: step 1 of the instruction (install Nginx) needs network, so the solution's own 'apt-get update && apt-get install -y nginx' is hoisted into the environment image. test_nginx_installed therefore passes for the base too; every other test still fails at base.",
+    "Adaptation: the native agent cannot start services; the trusted verifier runs the declared start command 'nginx' after materializing the artifacts (instruction steps 7-9 are performed or observed by the verifier).",
+    "sites-enabled/default is a symlink in the image; it is exported as a regular file with the target's content. Writing it empty disables the default site (the file is then absent).",
+    "Docker containers have IPv6 disabled (as in Harbor's default docker environment), so the stock default site's 'listen [::]:80' fails 'nginx -t'; that is why the base also fails test_nginx_config_syntax."
+   ]
+  }
+ },
+ "exclusions": {
+  "configure-git-webserver": {
+   "status": "excluded",
+   "kind": "os-state",
+   "reason": "The graded final state is operating-system state, not files: an installed git+nginx+openssh-server (network), a system user 'git' whose password the verifier's expect script types ('password'), a running sshd, a bare repository directory tree at /git/server owned by git, a post-receive hook, write permission on /var/www/html and a running nginx. The tests push over ssh and fetch over http. Expressing this as bounded text artifacts plus trusted start commands would require hoisting the user, sshd, bare repository and permissions (the substance of the task) into the environment, leaving only two small files; running a candidate-authored root setup script instead would replace the interactive task with a blind program. Neither is a faithful anchor.",
+   "evidence": "tests/verify.sh (git clone git@localhost:/git/server with password, push, curl :8080/hello.html); solution/solve.sh steps 1-8."
+  },
+  "train-fasttext": {
+   "status": "excluded",
+   "kind": "binary-artifact-and-compute",
+   "reason": "The graded final state is /app/model.bin, a binary fastText model (the task bounds it below 150 MiB) produced by compiling fastText and training on the ~650k-review Yelp parquet (the oracle trains for ~164 s). The native contract collects UTF-8 text artifacts under per-file byte bounds and the agent has no shell, compiler, subprocess or third-party Python packages, so the artifact can neither be produced natively nor bounded as text; substituting a candidate training script run by the verifier would change the task.",
+   "evidence": "tests/test_outputs.py (fasttext.load_model('/app/model.bin'), size < 150 MiB, accuracy > 0.62 on the private test set); solution/solve.sh."
+  },
+  "pytorch-model-recovery": {
+   "status": "excluded",
+   "kind": "environment-gap",
+   "reason": "Not runnable on this host: alexgshaw/pytorch-model-recovery:20251031 is 6.1 GB compressed (CUDA torch wheels), ~25 GB of Docker disk by the provisioning estimate, versus ~6-7 GB free. It was never verified through Harbor (anchors-verification.json status environment-gap), so it is not converted.",
+   "evidence": "anchors-verification.json anchors[name=pytorch-model-recovery].notes"
+  },
+  "swebenchpro": {
+   "status": "pending",
+   "kind": "converter-scope",
+   "applies_to": [
+    "instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+    "instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+    "instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+    "instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+    "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf"
+   ],
+   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
+   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+  }
+ }
+}

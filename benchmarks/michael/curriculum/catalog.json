@@ -1882,5 +1882,12 @@
     "hidden_clauses": 63
    }
   }
- ]
+ ],
+ "anchor_packages": {
+  "record": "benchmarks/michael/curriculum/anchors-native.json",
+  "packages": [
+   "anchor-tb-fix-git",
+   "anchor-tb-nginx-request-logging"
+  ]
+ }
 }

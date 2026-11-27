@@ -1,12 +1,14 @@
 """Trusted per-task grader specs; only probes and the harness enter the sandbox."""
 
 import json
+from pathlib import Path
 
 from benchmarks.michael.replay_grader import policy, ts_policy
 from benchmarks.michael.tasks import packages
 
 PYTHON_IMAGE = "michael-replay-grader:mb006j"
 NODE_IMAGE = "michael-replay-grader-node:mb008"
+HERE = Path(__file__).resolve().parent
 
 
 def _validator_valid(row, value):
@@ -66,6 +68,23 @@ def register_curriculum():
         SPECS[name] = spec
 
 
+def register_anchors():
+    """Converted public anchors run their original Harbor tests in the task's own image."""
+    from benchmarks.michael.replay_grader import harbor_adapter
+    from benchmarks.michael.tasks import curriculum
+    for name in curriculum.ANCHORS:
+        grader = curriculum.meta(name)["grader"]
+        SPECS[name] = {
+            "name": name, "runtime": "harbor", "image": grader["image"], "candidate": grader["candidate"],
+            "candidates": list(grader["candidates"]), "harness": "harnesses/harbor_anchor.py",
+            "harness_target": "harness.py", "support": ["harbor_adapter.py"],
+            "rows": lambda name=name: curriculum.rows(name), "denominators": grader["denominators"],
+            "valid": harbor_adapter.valid, "candidate_seconds": grader["candidate_seconds"],
+            "memory": grader["memory"], "workdir": grader["workdir"], "python": grader["python"],
+            "extra": lambda name=name: {**curriculum.sandbox_fixtures(name),
+                                        "harbor_adapter.py": (HERE / "harbor_adapter.py").read_bytes()}}
+
+
 def candidate_files(name):
     spec = SPECS[name]
     return spec.get("candidates", [spec["candidate"]])
@@ -101,7 +120,7 @@ def package(name):
         return packages.agent_files(name), packages.verifier_files(name), packages.descriptor(name), frozen
     from benchmarks.michael.tasks import curriculum
     return (curriculum.agent_files(name), curriculum.verifier_files(name), curriculum.descriptor(name),
-            json.loads((curriculum.HERE / name / "manifest.json").read_bytes()))
+            json.loads((curriculum.directory(name) / "manifest.json").read_bytes()))
 
 
 def reference(name):
@@ -116,3 +135,4 @@ def base(name):
 
 
 register_curriculum()
+register_anchors()

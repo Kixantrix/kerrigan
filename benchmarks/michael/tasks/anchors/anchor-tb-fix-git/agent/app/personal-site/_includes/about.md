@@ -1,0 +1,3 @@
+I am a sixth PhD candidate at the [Paul G. Allen School of Computer Science & Engineering](https://www.cs.washington.edu/) at The University of Washington, where I am advised by [Tim Althoff](http://www.timalthoff.com/). I am affiliated with [UW NLP](https://twitter.com/uwnlp).
+
+ Previously, I was a Student Researcher at [Google Research](https://research.google/), an ML Research Intern at [Apple Health AI](https://machinelearning.apple.com/work-with-us) and a data scientist and the second full-time employee at [HealthRhythms](https://www.healthrhythms.com). 

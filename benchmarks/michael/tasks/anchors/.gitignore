@@ -1,0 +1,3 @@
+# Converted anchors vendor real filesystem paths (e.g. /etc/nginx/conf.d); the repo-wide
+# Rust "*.d" rule must not hide them, or exports would silently lose files.
+!*.d

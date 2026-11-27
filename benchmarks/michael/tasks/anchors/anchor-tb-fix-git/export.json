@@ -1,0 +1,676 @@
+{
+ "image": "alexgshaw/fix-git@sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119",
+ "image_id": "sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119",
+ "environment_image": "alexgshaw/fix-git@sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119",
+ "workdir": "/app/personal-site",
+ "workspace": [
+  {
+   "root": "/app/personal-site",
+   "exclude": [
+    ".git/*"
+   ],
+   "max_file_bytes": 32768
+  },
+  {
+   "root": "/app/personal-site/.git",
+   "include": [
+    "HEAD",
+    "ORIG_HEAD",
+    "COMMIT_EDITMSG",
+    "config",
+    "description",
+    "packed-refs",
+    "info/exclude",
+    "logs/*",
+    "refs/*",
+    "objects/[0-9a-f][0-9a-f]/*"
+   ],
+   "binary_ok": [
+    "objects/*"
+   ],
+   "max_file_bytes": 32768
+  }
+ ],
+ "renames": [
+  [
+   "/app/personal-site/.git/",
+   "app/personal-site-gitdir/"
+  ]
+ ],
+ "exported": {
+  "app/personal-site-gitdir/COMMIT_EDITMSG": "fffd5bda092c3fff1729beeed87a58c0b7d038bdf6f046cec636cf2f9771713f",
+  "app/personal-site-gitdir/HEAD": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10",
+  "app/personal-site-gitdir/ORIG_HEAD": "71f9c95396035634c403cf46b8d6f481eea7626e94cf1d478c21d75e66d45dbd",
+  "app/personal-site-gitdir/config": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe",
+  "app/personal-site-gitdir/description": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee",
+  "app/personal-site-gitdir/info/exclude": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1",
+  "app/personal-site-gitdir/logs/HEAD": "24a461ac1a6924c0591e634b75bcff34a411c1590efcdf36807330b7c0be4dde",
+  "app/personal-site-gitdir/logs/refs/heads/master": "80877b4109e1b963478634e415bfcc68b7f6281ffb315e5617f859367214f904",
+  "app/personal-site-gitdir/objects/65/0dba427e0a9dcd118f41a4c5e35c8017550a5a": "9c92a088deebc5e8faf9613899f371b682575a1cc320231921237bcbb429299b",
+  "app/personal-site-gitdir/objects/74/b33dbbdfa43612f77c20c2325c93aa5f53b848": "90e8a5e25175351e0832aa3cecb07884aedfd62cd326fd0ec3117dfc10a24785",
+  "app/personal-site-gitdir/objects/75/61d9eea0b5acae867453d9581ae0b28eca99a7": "fa48ea156eaa2ef482980b0a0b0835dea0ddcb6390b6c717f006ad4035a7ae66",
+  "app/personal-site-gitdir/objects/c8/8241c5333b5abf67f51dd565b02086ac7a6a64": "aaabc213f6aa82148693477248427c04ee0945768ab3a5e9b1073eb62d0c4772",
+  "app/personal-site-gitdir/objects/cf/f5b5e3eb1946c84586040dd9674a720873ed26": "994cb723c989de20e3d1334632382b764dd64e5f2750e708183b86e7def53f6c",
+  "app/personal-site-gitdir/objects/d1/46393d3e64efd69035c38f632c7e99529d1d21": "63e17db04d5ecb3ace094ca470070ee844b29a7ad1e1b503c61bc37f09fb3688",
+  "app/personal-site-gitdir/packed-refs": "6110899c7adc374885f9552bddfb76fa28a7f7ca3c05fb8b74471a457e1e57c8",
+  "app/personal-site-gitdir/refs/heads/master": "a34d5ecc312e1fa0afa74c48f357be9e678efbaf32cf9707ec5940f55939e6bc",
+  "app/personal-site/CNAME": "0ca0cf7631fb276a5e7536f3e13b34f9cd202313ce0f4aea979b6fac1b73d36e",
+  "app/personal-site/Gemfile": "5fa6eee93fc43830758b70071b601eee9d309b19cc7ea4c11feaf1f9aa8cfb06",
+  "app/personal-site/_config.yml": "83955385b9f6b0683e2ade9aa7b9941ca551b8799e032ad4f4a7898cd5ab9730",
+  "app/personal-site/_includes/about.md": "9c98b280d713d88e6c1b43a4844e589922a7006469de2397a67e20d23e703ffd",
+  "app/personal-site/_includes/contact.md": "0ca251eade30fa4cf1ab1f55084848630039f0060410cb379b6bca352366a2c2",
+  "app/personal-site/_includes/interests.md": "170053be97707e311f2bccfa994c77dd23012775d8074dfd04b7140be45ec12f",
+  "app/personal-site/_layouts/default.html": "95be36c757e264996dabf8d58bba64fbdaa642cf019afae4134abc826f7498cf",
+  "app/personal-site/_posters/frank2016sensing.md": "9b04ceae0c159dc57409b2111b0e60e4d247b1768e50baaa51cf74c6e765c442",
+  "app/personal-site/_posters/frank2017sensing.md": "17ea4e086fd0021f7cb109a04be086bc65c02252d753fc56f95198f18888f276",
+  "app/personal-site/_publications/ben-zeev_crosscheck_2017.md": "3f4f4d3777327bf637969ff30bba16c357bf2056c133edd1126179f195f34be3",
+  "app/personal-site/_publications/guBLADEBenchmarkingLanguage2024a.md": "8d5c8f0294a7d6d25c10512eaa5682a729892013a5bfe9d4d79588c48d21329d",
+  "app/personal-site/_publications/merrill2021multiverse.md": "efcb33347d4cb847f0c748ef5184188bd67f47377b5ff56bcaf58b7e476900f4",
+  "app/personal-site/_publications/merrill2023selfsupervised.md": "62cdc2100db614de25fdcd4c6297955da1190364675708053c7db782d7295240",
+  "app/personal-site/_publications/merrillHomekit2020BenchmarkTime2023.md": "759115f1a49b8315f4534fb829e871fe2514aefad4394f82d4080c925e85ee10",
+  "app/personal-site/_publications/merrillLanguageModelsStill2024.md": "a10bf9baaee4887846b2fd4045c644b27fae9c265ade55f6a5ae5ebbdebcd3d9",
+  "app/personal-site/_publications/merrillTransformingWearableData2024a.md": "42a006e606e73c042b981bc86f7a49a3610f846e9b5d9c73642a2bd4ece1f96f",
+  "app/personal-site/_publications/tanAreLanguageModels2024.md": "1d78ef92db0a35a3a8d3ec727c744359059b0a61c2ba9721ac913f8df92014a6",
+  "app/personal-site/_publications/tseng2016ubicomp.md": "ba12f5cd8ccc45643f324d6115e7f86c412df540e53020363239df6c7fa64c30",
+  "app/personal-site/_publications/wang_crosscheck_2016.md": "2d3156eae24fd72fcf9a4af454c6c49fe9d0e6eb4d6ad0828d76e138053fd379",
+  "app/personal-site/_publications/xu2022GLOBEM.md": "1d9e861e80b41ab818a673d6654c890538e28be483602eb183c8f4ea0f130cbb",
+  "app/personal-site/_publications/zhang2022coral.md": "76ed2bc73a74799b12c8f20c0f1663a2c1b6ab81341db003422bd1b6350d0609",
+  "app/personal-site/biblib/__init__.py": "d52cabc01505af9a3cdfb53dd589ee328ec83b45782e7beb51b02d10a4718dda",
+  "app/personal-site/biblib/algo.py": "c159ec38d2240797b2f216a9451b2ff074c89f83e3bee5566bc7d4526d01e551",
+  "app/personal-site/biblib/bib.py": "ad9cb4656dcf9d179997861502c6184f10f19cdf198f836a64e0d1fcbd4a7482",
+  "app/personal-site/biblib/messages.py": "3caaad2de59e5125dbc508919b018d42d7415a3a1044b1310e9999864d371a8f",
+  "app/personal-site/biblib/test.py": "9f8a78c190e0409ef65e5188186358a3d2f9ce8e069817c95b88050bc14ef0a2",
+  "app/personal-site/css/bootstrap-grid.css": "fc29c556ae66d5caaffe87a805d2a2f3216eea673d332a7cb61095a1dfff8bd6",
+  "app/personal-site/css/bootstrap-grid.css.map": "32e02ecff453bdc3af7a9f2a2683d98573fc6ee25f7255ee4718862ce544b152",
+  "app/personal-site/css/bootstrap-grid.min.css": "bd5d59041ce440f26ec2348c624e743a392741700d54c21a6a95fd7ae33ea430",
+  "app/personal-site/css/bootstrap-grid.min.css.map": "2458255994c216f48a23bef13c4d524e322c88d682136d76bec2ed54ae5b9a40",
+  "app/personal-site/css/bootstrap-reboot.css": "55ee2c6964373765d715c92e65fead134cf83fc750c362e0a0629fd8e43453bc",
+  "app/personal-site/css/bootstrap-reboot.css.map": "5bde0bb1d0942a6a03f66ac155f0f1e55f1f44919e390ce72b05cd71c632f7b2",
+  "app/personal-site/css/bootstrap-reboot.min.css": "7f9a4f51e3e279f6a0805e2b0de7940a6d106ff0c0dd863e8d23f77df58900e5",
+  "app/personal-site/css/bootstrap-reboot.min.css.map": "86d8d2ab31633caa31c2d054ec16ff9f8ae99d851e56f9a04b070c0be3977f24",
+  "app/personal-site/css/style.css": "b169660cb4fab33959549e015f134217f12f9d1d6b29ba740323b731d6926510",
+  "app/personal-site/index.md": "661b0ba0d6ac4dd7296ab8e5e0c45fa4155bf067dbffe129be568174e7c2117d",
+  "app/personal-site/js/popper.min.js": "976705f4556d7fb372a1696b61112f0091182e1761a27a7ff261cafb4da551da",
+  "app/personal-site/js/scripts.js": "5afc6c0842d1ebdfaeaf81dfb51420613755d0509d96a7f9c80766935d4e84e5",
+  "app/personal-site/make_pubs.py": "28ffdd48442132c66f1d9f6361348e8ad6d82fc033776e002b64a4c4cd0a2438",
+  "app/personal-site/me.bib": "5810372e73c14990662291765696d620ea6af60eccb91d2e8efc9bdb9468c581"
+ },
+ "dropped": [
+  {
+   "path": "/app/personal-site/.git/COMMIT_EDITMSG",
+   "reason": "excluded",
+   "bytes": 17,
+   "sha256": "fffd5bda092c3fff1729beeed87a58c0b7d038bdf6f046cec636cf2f9771713f"
+  },
+  {
+   "path": "/app/personal-site/.git/HEAD",
+   "reason": "excluded",
+   "bytes": 23,
+   "sha256": "f6f2b945f6c411b02ba3da9c7ace88dcf71b6af65ba2e0d89aa82900042b5a10"
+  },
+  {
+   "path": "/app/personal-site/.git/ORIG_HEAD",
+   "reason": "excluded",
+   "bytes": 41,
+   "sha256": "71f9c95396035634c403cf46b8d6f481eea7626e94cf1d478c21d75e66d45dbd"
+  },
+  {
+   "path": "/app/personal-site/.git/config",
+   "reason": "excluded",
+   "bytes": 92,
+   "sha256": "cfe7ba1238c9a78be7535d7c63bcaf5a4d5011d46b07c9b45d3bbf7d6c312dfe"
+  },
+  {
+   "path": "/app/personal-site/.git/description",
+   "reason": "excluded",
+   "bytes": 73,
+   "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/applypatch-msg.sample",
+   "reason": "excluded",
+   "bytes": 478,
+   "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/commit-msg.sample",
+   "reason": "excluded",
+   "bytes": 896,
+   "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/fsmonitor-watchman.sample",
+   "reason": "excluded",
+   "bytes": 4726,
+   "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/post-update.sample",
+   "reason": "excluded",
+   "bytes": 189,
+   "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-applypatch.sample",
+   "reason": "excluded",
+   "bytes": 424,
+   "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-commit.sample",
+   "reason": "excluded",
+   "bytes": 1643,
+   "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-merge-commit.sample",
+   "reason": "excluded",
+   "bytes": 416,
+   "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-push.sample",
+   "reason": "excluded",
+   "bytes": 1374,
+   "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-rebase.sample",
+   "reason": "excluded",
+   "bytes": 4898,
+   "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-receive.sample",
+   "reason": "excluded",
+   "bytes": 544,
+   "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/prepare-commit-msg.sample",
+   "reason": "excluded",
+   "bytes": 1492,
+   "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/push-to-checkout.sample",
+   "reason": "excluded",
+   "bytes": 2783,
+   "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/update.sample",
+   "reason": "excluded",
+   "bytes": 3650,
+   "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+  },
+  {
+   "path": "/app/personal-site/.git/index",
+   "reason": "excluded",
+   "bytes": 8722,
+   "sha256": "e3d13da43d251c88d263d24788d19273c65af3e17655d1c8ea2589ed55d74b91"
+  },
+  {
+   "path": "/app/personal-site/.git/info/exclude",
+   "reason": "excluded",
+   "bytes": 240,
+   "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+  },
+  {
+   "path": "/app/personal-site/.git/logs/HEAD",
+   "reason": "excluded",
+   "bytes": 866,
+   "sha256": "24a461ac1a6924c0591e634b75bcff34a411c1590efcdf36807330b7c0be4dde"
+  },
+  {
+   "path": "/app/personal-site/.git/logs/refs/heads/master",
+   "reason": "excluded",
+   "bytes": 345,
+   "sha256": "80877b4109e1b963478634e415bfcc68b7f6281ffb315e5617f859367214f904"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/65/0dba427e0a9dcd118f41a4c5e35c8017550a5a",
+   "reason": "excluded",
+   "bytes": 163,
+   "sha256": "9c92a088deebc5e8faf9613899f371b682575a1cc320231921237bcbb429299b"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/74/b33dbbdfa43612f77c20c2325c93aa5f53b848",
+   "reason": "excluded",
+   "bytes": 523,
+   "sha256": "90e8a5e25175351e0832aa3cecb07884aedfd62cd326fd0ec3117dfc10a24785"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/75/61d9eea0b5acae867453d9581ae0b28eca99a7",
+   "reason": "excluded",
+   "bytes": 230,
+   "sha256": "fa48ea156eaa2ef482980b0a0b0835dea0ddcb6390b6c717f006ad4035a7ae66"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/c8/8241c5333b5abf67f51dd565b02086ac7a6a64",
+   "reason": "excluded",
+   "bytes": 119,
+   "sha256": "aaabc213f6aa82148693477248427c04ee0945768ab3a5e9b1073eb62d0c4772"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/cf/f5b5e3eb1946c84586040dd9674a720873ed26",
+   "reason": "excluded",
+   "bytes": 1491,
+   "sha256": "994cb723c989de20e3d1334632382b764dd64e5f2750e708183b86e7def53f6c"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/d1/46393d3e64efd69035c38f632c7e99529d1d21",
+   "reason": "excluded",
+   "bytes": 57,
+   "sha256": "63e17db04d5ecb3ace094ca470070ee844b29a7ad1e1b503c61bc37f09fb3688"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/pack/pack-395fa4428d662a73175f4f2357b3603f32c56bbd.idx",
+   "reason": "excluded",
+   "bytes": 16024,
+   "sha256": "509c72deec67248b57347f8a2307a3e104bb009e3cbfa55d4b82b47e0b235a6d"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/pack/pack-395fa4428d662a73175f4f2357b3603f32c56bbd.pack",
+   "reason": "excluded",
+   "bytes": 32224108,
+   "sha256": "282f3b2b258f813a9ff248beed32df27e547755fa780069982d2b18147c93fca"
+  },
+  {
+   "path": "/app/personal-site/.git/packed-refs",
+   "reason": "excluded",
+   "bytes": 46,
+   "sha256": "6110899c7adc374885f9552bddfb76fa28a7f7ca3c05fb8b74471a457e1e57c8"
+  },
+  {
+   "path": "/app/personal-site/.git/refs/heads/master",
+   "reason": "excluded",
+   "bytes": 41,
+   "sha256": "a34d5ecc312e1fa0afa74c48f357be9e678efbaf32cf9707ec5940f55939e6bc"
+  },
+  {
+   "path": "/app/personal-site/.gitignore",
+   "reason": "git control file (would change this repository's git behavior)",
+   "bytes": 100,
+   "sha256": "6b66270581939b211952d8939d62404c44931c2c6f2a1f1eef8ea9adeb57e599"
+  },
+  {
+   "path": "/app/personal-site/css/bootstrap.css",
+   "reason": "larger than 32768 bytes",
+   "bytes": 191738,
+   "sha256": "7c367ac076e6a1bef61fd77aa2adcfebf1771dcfb01c18dd8ba153b14bef423b"
+  },
+  {
+   "path": "/app/personal-site/css/bootstrap.css.map",
+   "reason": "larger than 32768 bytes",
+   "bytes": 235595,
+   "sha256": "4f776490799031a7dde73046c9251e2686dbea21f98e1614a2c703a3d6a784e9"
+  },
+  {
+   "path": "/app/personal-site/css/bootstrap.min.css",
+   "reason": "larger than 32768 bytes",
+   "bytes": 150996,
+   "sha256": "aebf611c1438dc7ec748e9a6364c734066b34bf2a1c7e2fc6511ed784635b50e"
+  },
+  {
+   "path": "/app/personal-site/css/bootstrap.min.css.map",
+   "reason": "larger than 32768 bytes",
+   "bytes": 68044,
+   "sha256": "aebcd39a2e455a724a2f4f47dc9834af29719aee121f2d798125280d4b11dc45"
+  },
+  {
+   "path": "/app/personal-site/fonts/Proxima-Nova-Regular.otf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 94668,
+   "sha256": "36b59421bdc34fd9869a7541c47d5f157ff19eb183032efff759c4d5be5d9cae"
+  },
+  {
+   "path": "/app/personal-site/fonts/Proxima-Nova-Thin.otf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 90796,
+   "sha256": "4937098457d3f6e913a58aeaf86625eb0b9cffc8d0de3fe871c937ee11fde3d5"
+  },
+  {
+   "path": "/app/personal-site/fonts/glyphicons-halflings-regular.eot",
+   "reason": "binary",
+   "bytes": 20127,
+   "sha256": "13634da87d9e23f8c3ed9108ce1724d183a39ad072e73e1b3d8cbf646d2d0407"
+  },
+  {
+   "path": "/app/personal-site/fonts/glyphicons-halflings-regular.svg",
+   "reason": "larger than 32768 bytes",
+   "bytes": 108738,
+   "sha256": "42f60659d265c1a3c30f9fa42abcbb56bd4a53af4d83d316d6dd7a36903c43e5"
+  },
+  {
+   "path": "/app/personal-site/fonts/glyphicons-halflings-regular.ttf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 45404,
+   "sha256": "e395044093757d82afcb138957d06a1ea9361bdcf0b442d06a18a8051af57456"
+  },
+  {
+   "path": "/app/personal-site/fonts/glyphicons-halflings-regular.woff",
+   "reason": "binary",
+   "bytes": 23424,
+   "sha256": "a26394f7ede100ca118eff2eda08596275a9839b959c226e15439557a5a80742"
+  },
+  {
+   "path": "/app/personal-site/fonts/glyphicons-halflings-regular.woff2",
+   "reason": "binary",
+   "bytes": 18028,
+   "sha256": "fe185d11a49676890d47bb783312a0cda5a44c4039214094e7957b4c040ef11c"
+  },
+  {
+   "path": "/app/personal-site/js/bootstrap.min.js",
+   "reason": "larger than 32768 bytes",
+   "bytes": 46653,
+   "sha256": "fa421b6ebbd2fb474d3a3866409ce6c1efd120b47ff256fffb8f8f50d556d3d9"
+  },
+  {
+   "path": "/app/personal-site/js/jquery.min.js",
+   "reason": "larger than 32768 bytes",
+   "bytes": 86927,
+   "sha256": "160a426ff2894252cd7cebbdd6d6b7da8fcd319c65b70468f10b6690c45d02ef"
+  },
+  {
+   "path": "/app/personal-site/resources/Mike_Merrill_CV.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 53501,
+   "sha256": "9886993d777007d10b0dad777d744041187942821092be3cb77e1a12563ef66f"
+  },
+  {
+   "path": "/app/personal-site/resources/Mike_Merrill_CV_old.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 49956,
+   "sha256": "657b08ddd4ac138d7f39ffd5c42009b455f89e5dad2cb74a7d00f2d2b7a1228c"
+  },
+  {
+   "path": "/app/personal-site/resources/Mike_Merrill_Resume.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 88884,
+   "sha256": "9345e7d9f0462d9720e18116132eb1adba82da8cffc7c77245b816311606f61c"
+  },
+  {
+   "path": "/app/personal-site/resources/Personal_Statement_UW_Draft.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 82046,
+   "sha256": "b77d22a9e444dc2553163733ecaf5d4f1662d302e5d7cecef950b4b34dfe5d25"
+  },
+  {
+   "path": "/app/personal-site/resources/Research_Statement.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 98507,
+   "sha256": "fac421a647220c510e3d4ef464462b242786a3d3ea6d1da0da526c060c0f7c73"
+  },
+  {
+   "path": "/app/personal-site/resources/headshot.jpeg",
+   "reason": "larger than 32768 bytes",
+   "bytes": 183469,
+   "sha256": "6a3d162e86e3d96e8763f529ba0d770025657d5b3da580659a321a7060a39f6a"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/ben-zeev_crosscheck_2017.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 739696,
+   "sha256": "a20862914f366768ae1fa2559100e9ec353ed12730515daa43ac1d82ce3addfa"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/guBLADEBenchmarkingLanguage2024a.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 17556676,
+   "sha256": "f3df84d6e52b6bee7522b541826cbb615b76470df1aad527a43a92cd444761a6"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/merrill2021multiverse.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 1524223,
+   "sha256": "b6fc741b875f6bcd2cbae0a601abe2f9737cd4dab8a67156c998b50c0ade78c7"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/merrill2023selfsupervised.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 732131,
+   "sha256": "7a56a5fcc2ce07fdb9d83608a996ed1dea7d1e916ccab87e191af21e3c83f341"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/merrillHomekit2020BenchmarkTime2023.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 1061354,
+   "sha256": "0f9e71b5860cb3f1283e689d8bd0368e947b1aab7e20319522e7b5437b627838"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/merrillLanguageModelsStill2024.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 1452135,
+   "sha256": "0d1fd4101b0b23d9e278d075899a7680d88975da30fe2226fb95be2ba13aebc1"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/merrillTransformingWearableData2024a.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 1442625,
+   "sha256": "7aaffa10a6ac1a087b2411b008f4002f13428f6c0931063ac9f29f8be08f9eca"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/tanAreLanguageModels2024.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 1465170,
+   "sha256": "c97d321d911361f4e581735331d3e28b0e48c37ef2087a9cce0d095275bdd344"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/tseng2016ubicomp.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 263155,
+   "sha256": "fd29b8721add28a527c7befedd828c1681ccecd52ce175c06a872cea8c4dd5c9"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/wang_crosscheck_2016.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 673921,
+   "sha256": "ea8aed61daaa55b59cd1ae305a626a8f1301f2f9227a3491d7a068b83c8f5698"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/xu2022GLOBEM.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 1400157,
+   "sha256": "61cf3d000b2e57a4cca42d35eba1f44c4d089c2c3b3426e7fe603a59fd2f5e23"
+  },
+  {
+   "path": "/app/personal-site/resources/pubpdfs/zhang2022coral.pdf",
+   "reason": "larger than 32768 bytes",
+   "bytes": 2162799,
+   "sha256": "a17b504869719ebe35292ace4b845a0c2a1ec1f2bd7981015095202ca4e2cea1"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/ben-zeev_crosscheck_2017.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 77717,
+   "sha256": "27786b3768bc3c44ad473b82cf6da3d8782ab27e6c837309139c525ec4e04fbf"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/guBLADEBenchmarkingLanguage2024a.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 38286,
+   "sha256": "614e46171e7d56d4c00d27d4fbd4c100b472a18c3f32f5bed478110a17412785"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/merrill2021multiverse.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 93635,
+   "sha256": "9134e675c83c255ac6354f80ff4302e045bbbe6ee2f6783a663491e46bdc23bd"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/merrill2023selfsupervised.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 157388,
+   "sha256": "0a8654f3f5a78778c2d3f06e64025761d52dd8516a072aded7260cc6942867bc"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/merrillHomekit2020BenchmarkTime2023.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 55070,
+   "sha256": "2f6da81dc673ac5b464c5485d0ed801baf098a80a86a47bf082dbd1907c0d5f5"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/merrillLanguageModelsStill2024.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 83835,
+   "sha256": "a0f43e79308724fb15f612068332d73d79e4429e3ba7514baa9adfa69f569ebb"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/merrillTransformingWearableData2024a.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 373655,
+   "sha256": "f0c1fdda70842c009f989a8f46793e1428884b2dec21179aa98d0dc35b8a6c60"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/tanAreLanguageModels2024.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 74984,
+   "sha256": "a9e1228dd132d4affbfbdfc856bfcb21b34dbac8bea7ec01ed16c29aaa9f6c9b"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/tseng2016ubicomp.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 92972,
+   "sha256": "cc743ed5beee7d1872f8bb6db929ce5789e74162436651820360d8674e1275ba"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/wang_crosscheck_2016.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 75637,
+   "sha256": "7c00bda143b21379577b9afb43f54d7b31e9f93c300aba20cb2a55ebede26bf6"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/xu2022GLOBEM.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 130110,
+   "sha256": "af311deaf46e8c82b33d755a1f6a14d8b09e34bb3d92c715fcdd828b32a016e4"
+  },
+  {
+   "path": "/app/personal-site/resources/thumbnails/zhang2022coral.png",
+   "reason": "larger than 32768 bytes",
+   "bytes": 116132,
+   "sha256": "26ec1768b7f1ad1c9e50f9dd4dbe669d560175889ebc303cc629e4a28f9efa33"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/applypatch-msg.sample",
+   "reason": "not included",
+   "bytes": 478,
+   "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/commit-msg.sample",
+   "reason": "not included",
+   "bytes": 896,
+   "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/fsmonitor-watchman.sample",
+   "reason": "not included",
+   "bytes": 4726,
+   "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/post-update.sample",
+   "reason": "not included",
+   "bytes": 189,
+   "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-applypatch.sample",
+   "reason": "not included",
+   "bytes": 424,
+   "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-commit.sample",
+   "reason": "not included",
+   "bytes": 1643,
+   "sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-merge-commit.sample",
+   "reason": "not included",
+   "bytes": 416,
+   "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-push.sample",
+   "reason": "not included",
+   "bytes": 1374,
+   "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-rebase.sample",
+   "reason": "not included",
+   "bytes": 4898,
+   "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/pre-receive.sample",
+   "reason": "not included",
+   "bytes": 544,
+   "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/prepare-commit-msg.sample",
+   "reason": "not included",
+   "bytes": 1492,
+   "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/push-to-checkout.sample",
+   "reason": "not included",
+   "bytes": 2783,
+   "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+  },
+  {
+   "path": "/app/personal-site/.git/hooks/update.sample",
+   "reason": "not included",
+   "bytes": 3650,
+   "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+  },
+  {
+   "path": "/app/personal-site/.git/index",
+   "reason": "not included",
+   "bytes": 8722,
+   "sha256": "e3d13da43d251c88d263d24788d19273c65af3e17655d1c8ea2589ed55d74b91"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/pack/pack-395fa4428d662a73175f4f2357b3603f32c56bbd.idx",
+   "reason": "not included",
+   "bytes": 16024,
+   "sha256": "509c72deec67248b57347f8a2307a3e104bb009e3cbfa55d4b82b47e0b235a6d"
+  },
+  {
+   "path": "/app/personal-site/.git/objects/pack/pack-395fa4428d662a73175f4f2357b3603f32c56bbd.pack",
+   "reason": "not included",
+   "bytes": 32224108,
+   "sha256": "282f3b2b258f813a9ff248beed32df27e547755fa780069982d2b18147c93fca"
+  }
+ ],
+ "artifacts": [
+  {
+   "path": "/app/personal-site/_includes/about.md",
+   "agent_path": "app/personal-site/_includes/about.md",
+   "absent_if_empty": false,
+   "mode": "0644"
+  },
+  {
+   "path": "/app/personal-site/_layouts/default.html",
+   "agent_path": "app/personal-site/_layouts/default.html",
+   "absent_if_empty": false,
+   "mode": "0644"
+  }
+ ],
+ "base_bytes": {
+  "app/personal-site/_includes/about.md": 565,
+  "app/personal-site/_layouts/default.html": 4910
+ },
+ "oracle_bytes": {
+  "app/personal-site/_includes/about.md": 332,
+  "app/personal-site/_layouts/default.html": 4875
+ },
+ "native_limits": "shared defaults (2x largest artifact <= 32768 bytes)",
+ "solve_exit_code": 0
+}

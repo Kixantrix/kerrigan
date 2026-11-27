@@ -1,0 +1,345 @@
+{
+ "schema_version": 1,
+ "anchors_json_revision": 2,
+ "contracts_sha256": "30af1235aaab453e0c6424eb63ad6c4a51e3ca0c5b1464cc637661d932c178c0",
+ "converter": "benchmarks/michael/curriculum/anchors_convert.py",
+ "statuses": {
+  "converted": "native package calibrated: base fails, oracle passes, repeatable",
+  "conversion-failed": "declared conversion did not calibrate; see error",
+  "excluded": "cannot be bounded/captured for the native path; see reason",
+  "pending": "convertible in principle; needs converter work named in next_step"
+ },
+ "anchors": [
+  {
+   "name": "nginx-request-logging",
+   "status": "converted",
+   "package": "anchor-tb-nginx-request-logging",
+   "package_path": "benchmarks/michael/tasks/anchors/anchor-tb-nginx-request-logging",
+   "family": "Operate",
+   "task_image": "alexgshaw/nginx-request-logging@sha256:693e64431a0dbf45952e8b91a298d54fd60247e501c6623fb8fa3ebc07fc3d3d",
+   "verifier_image": "mbanchor-anchor-tb-nginx-request-logging:verifier",
+   "image_bytes": {
+    "task_image": 67285778,
+    "environment_image": 85570978,
+    "verifier_image": 112078017
+   },
+   "workspace": {
+    "files": 9,
+    "bytes": 15046,
+    "dropped": 11
+   },
+   "artifacts": [
+    "/etc/nginx/nginx.conf",
+    "/etc/nginx/conf.d/benchmark-site.conf",
+    "/etc/nginx/sites-enabled/default",
+    "/var/www/html/index.html",
+    "/var/www/html/404.html"
+   ],
+   "start": [
+    "nginx"
+   ],
+   "environment_setup": [
+    "apt-get update && apt-get install -y nginx"
+   ],
+   "native_policy": {
+    "read": 11,
+    "write": [
+     "etc/nginx/conf.d/benchmark-site.conf",
+     "etc/nginx/nginx.conf",
+     "etc/nginx/sites-enabled/default",
+     "var/www/html/404.html",
+     "var/www/html/index.html",
+     "self_test.py"
+    ],
+    "artifacts": [
+     "etc/nginx/conf.d/benchmark-site.conf",
+     "etc/nginx/nginx.conf",
+     "etc/nginx/sites-enabled/default",
+     "var/www/html/404.html",
+     "var/www/html/index.html"
+    ],
+    "bytes": 32768
+   },
+   "calibration": {
+    "phases": {
+     "baseline": {
+      "verdict": "fail",
+      "counts": {
+       "harbor-reward": {
+        "passed": 0,
+        "total": 1
+       },
+       "tests/test_outputs.py": {
+        "passed": 1,
+        "total": 8
+       }
+      },
+      "failed": [
+       "tests/test_outputs.py::test_custom_404_page",
+       "tests/test_outputs.py::test_index_page_content",
+       "tests/test_outputs.py::test_log_file_creation",
+       "tests/test_outputs.py::test_log_file_format",
+       "tests/test_outputs.py::test_nginx_config_settings",
+       "tests/test_outputs.py::test_nginx_config_syntax",
+       "tests/test_outputs.py::test_nginx_running",
+       "harbor::reward.txt"
+      ],
+      "observation_sha256": [
+       "570ca8f7126016bd582cb61fcbdc5e1dc99611063232b6e4e0f8f787f0c99afb",
+       "570ca8f7126016bd582cb61fcbdc5e1dc99611063232b6e4e0f8f787f0c99afb"
+      ],
+      "seconds": 14.5
+     },
+     "reference": {
+      "verdict": "pass",
+      "counts": {
+       "harbor-reward": {
+        "passed": 1,
+        "total": 1
+       },
+       "tests/test_outputs.py": {
+        "passed": 8,
+        "total": 8
+       }
+      },
+      "failed": [],
+      "observation_sha256": [
+       "62805fe2dd547ee69795300e442afea4caeb5fec8238f159041b9fa6dbd29c04",
+       "62805fe2dd547ee69795300e442afea4caeb5fec8238f159041b9fa6dbd29c04"
+      ],
+      "seconds": 12.3
+     }
+    },
+    "repeatable": true,
+    "denominators": {
+     "harbor-reward": 1,
+     "tests/test_outputs.py": 8
+    },
+    "base_fails": true,
+    "oracle_passes": true
+   },
+   "harbor_lint": {
+    "status": "run",
+    "harbor": "0.27.0",
+    "rules": [
+     "root-agent",
+     "shared-verifier",
+     "unpinned-image"
+    ],
+    "addressed_by_conversion": {
+     "unpinned-image": "task image pinned by sha256 digest",
+     "shared-verifier": "verifier is a fresh container from the verifier image with only the artifacts",
+     "verifier-runtime-install": "test.sh dependencies pre-installed at build time; grading is offline",
+     "verifier-network-download": "grading runs with --network none and UV_OFFLINE=1",
+     "root-agent": "not applicable: the native agent never runs in the task container"
+    }
+   },
+   "seconds": {
+    "pull": 4.2,
+    "environment": 8.6,
+    "export": 0.5,
+    "oracle": 3.6,
+    "verifier_image": 9.1,
+    "discovery": 12.1,
+    "package": 0.0,
+    "calibration": 55.5,
+    "total": 93.6
+   },
+   "images_removed": [
+    "alexgshaw/nginx-request-logging@sha256:693e64431a0dbf45952e8b91a298d54fd60247e501c6623fb8fa3ebc07fc3d3d",
+    "mbanchor-anchor-tb-nginx-request-logging:verifier",
+    "mbanchor-anchor-tb-nginx-request-logging:env"
+   ],
+   "recorded_at": "2026-11-27T08:05:44+00:00",
+   "images_removed_note": "final run used --keep-images for the fresh-Docker test pass; images removed afterwards"
+  },
+  {
+   "name": "configure-git-webserver",
+   "status": "excluded",
+   "kind": "os-state",
+   "reason": "The graded final state is operating-system state, not files: an installed git+nginx+openssh-server (network), a system user 'git' whose password the verifier's expect script types ('password'), a running sshd, a bare repository directory tree at /git/server owned by git, a post-receive hook, write permission on /var/www/html and a running nginx. The tests push over ssh and fetch over http. Expressing this as bounded text artifacts plus trusted start commands would require hoisting the user, sshd, bare repository and permissions (the substance of the task) into the environment, leaving only two small files; running a candidate-authored root setup script instead would replace the interactive task with a blind program. Neither is a faithful anchor.",
+   "evidence": "tests/verify.sh (git clone git@localhost:/git/server with password, push, curl :8080/hello.html); solution/solve.sh steps 1-8.",
+   "next_step": null
+  },
+  {
+   "name": "pytorch-model-recovery",
+   "status": "excluded",
+   "kind": "environment-gap",
+   "reason": "Not runnable on this host: alexgshaw/pytorch-model-recovery:20251031 is 6.1 GB compressed (CUDA torch wheels), ~25 GB of Docker disk by the provisioning estimate, versus ~6-7 GB free. It was never verified through Harbor (anchors-verification.json status environment-gap), so it is not converted.",
+   "evidence": "anchors-verification.json anchors[name=pytorch-model-recovery].notes",
+   "next_step": null
+  },
+  {
+   "name": "train-fasttext",
+   "status": "excluded",
+   "kind": "binary-artifact-and-compute",
+   "reason": "The graded final state is /app/model.bin, a binary fastText model (the task bounds it below 150 MiB) produced by compiling fastText and training on the ~650k-review Yelp parquet (the oracle trains for ~164 s). The native contract collects UTF-8 text artifacts under per-file byte bounds and the agent has no shell, compiler, subprocess or third-party Python packages, so the artifact can neither be produced natively nor bounded as text; substituting a candidate training script run by the verifier would change the task.",
+   "evidence": "tests/test_outputs.py (fasttext.load_model('/app/model.bin'), size < 150 MiB, accuracy > 0.62 on the private test set); solution/solve.sh.",
+   "next_step": null
+  },
+  {
+   "name": "fix-git",
+   "status": "converted",
+   "package": "anchor-tb-fix-git",
+   "package_path": "benchmarks/michael/tasks/anchors/anchor-tb-fix-git",
+   "family": "Review and repair",
+   "task_image": "alexgshaw/fix-git@sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119",
+   "verifier_image": "mbanchor-anchor-tb-fix-git:verifier",
+   "image_bytes": {
+    "task_image": 158060522,
+    "environment_image": null,
+    "verifier_image": 200223602
+   },
+   "workspace": {
+    "files": 57,
+    "bytes": 241745,
+    "dropped": 92
+   },
+   "artifacts": [
+    "/app/personal-site/_includes/about.md",
+    "/app/personal-site/_layouts/default.html"
+   ],
+   "start": [],
+   "environment_setup": [],
+   "native_policy": {
+    "read": 59,
+    "write": [
+     "app/personal-site/_includes/about.md",
+     "app/personal-site/_layouts/default.html",
+     "self_test.py"
+    ],
+    "artifacts": [
+     "app/personal-site/_includes/about.md",
+     "app/personal-site/_layouts/default.html"
+    ],
+    "bytes": 32768
+   },
+   "calibration": {
+    "phases": {
+     "baseline": {
+      "verdict": "fail",
+      "counts": {
+       "harbor-reward": {
+        "passed": 0,
+        "total": 1
+       },
+       "tests/test_outputs.py": {
+        "passed": 0,
+        "total": 2
+       }
+      },
+      "failed": [
+       "tests/test_outputs.py::test_about_file",
+       "tests/test_outputs.py::test_layout_file",
+       "harbor::reward.txt"
+      ],
+      "observation_sha256": [
+       "a613276147d3cec57c84948c406afbfa6166519df56f53ff4ead781689916cac",
+       "a613276147d3cec57c84948c406afbfa6166519df56f53ff4ead781689916cac"
+      ],
+      "seconds": 9.3
+     },
+     "reference": {
+      "verdict": "pass",
+      "counts": {
+       "harbor-reward": {
+        "passed": 1,
+        "total": 1
+       },
+       "tests/test_outputs.py": {
+        "passed": 2,
+        "total": 2
+       }
+      },
+      "failed": [],
+      "observation_sha256": [
+       "09993c5217535cc2d090fa78e27b37d413f8c366ce01f1349b9df4a64df9b4db",
+       "09993c5217535cc2d090fa78e27b37d413f8c366ce01f1349b9df4a64df9b4db"
+      ],
+      "seconds": 9.5
+     }
+    },
+    "repeatable": true,
+    "denominators": {
+     "harbor-reward": 1,
+     "tests/test_outputs.py": 2
+    },
+    "base_fails": true,
+    "oracle_passes": true
+   },
+   "harbor_lint": {
+    "status": "run",
+    "harbor": "0.27.0",
+    "rules": [
+     "root-agent",
+     "shared-verifier",
+     "unpinned-image"
+    ],
+    "addressed_by_conversion": {
+     "unpinned-image": "task image pinned by sha256 digest",
+     "shared-verifier": "verifier is a fresh container from the verifier image with only the artifacts",
+     "verifier-runtime-install": "test.sh dependencies pre-installed at build time; grading is offline",
+     "verifier-network-download": "grading runs with --network none and UV_OFFLINE=1",
+     "root-agent": "not applicable: the native agent never runs in the task container"
+    }
+   },
+   "seconds": {
+    "pull": 6.2,
+    "environment": 0.0,
+    "export": 1.3,
+    "oracle": 0.7,
+    "verifier_image": 8.8,
+    "discovery": 9.6,
+    "package": 0.0,
+    "calibration": 39.9,
+    "total": 66.6
+   },
+   "images_removed": [
+    "alexgshaw/fix-git@sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119",
+    "mbanchor-anchor-tb-fix-git:verifier"
+   ],
+   "recorded_at": "2026-11-27T08:04:10+00:00",
+   "images_removed_note": "final run used --keep-images for the fresh-Docker test pass; images removed afterwards"
+  },
+  {
+   "name": "instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+   "status": "pending",
+   "kind": "converter-scope",
+   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
+   "evidence": null,
+   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+  },
+  {
+   "name": "instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+   "status": "pending",
+   "kind": "converter-scope",
+   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
+   "evidence": null,
+   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+  },
+  {
+   "name": "instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+   "status": "pending",
+   "kind": "converter-scope",
+   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
+   "evidence": null,
+   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+  },
+  {
+   "name": "instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+   "status": "pending",
+   "kind": "converter-scope",
+   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
+   "evidence": null,
+   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+  },
+  {
+   "name": "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+   "status": "pending",
+   "kind": "converter-scope",
+   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
+   "evidence": null,
+   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+  }
+ ]
+}
