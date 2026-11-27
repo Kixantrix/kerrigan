@@ -644,20 +644,23 @@
    "long_horizon": false,
    "summary": "Values arriving over IPC/stored JSON bypass TypeScript types; an unknown stage produced a non-authoritative verdict that still looked valid. Agent adds a strict runtime refusal and records a review ledger without false positives.",
    "history_status": "merged",
-   "package": "cs-mismatch-stage-authority",
+   "package": "cs-mismatch-stage-authority-v2",
    "provenance_kind": "mined-history",
    "grader_image": "michael-replay-grader-node:mb008",
-   "round": 3,
+   "round": 4,
    "task_size": {
     "oracle_files_changed": 2,
     "oracle_lines_added": 17,
     "oracle_lines_removed": 1,
     "writable_files": 2,
     "files_to_read": 8,
-    "lines_to_read": 688,
+    "lines_to_read": 692,
     "hidden_checks": 18,
-    "hidden_clauses": 75
-   }
+    "hidden_clauses": 76
+   },
+   "retired_packages": [
+    "cs-mismatch-stage-authority"
+   ]
   },
   {
    "id": "yv-purge-nulled-column",
@@ -1701,20 +1704,23 @@
    "long_horizon": true,
    "summary": "Implement bidirectional room/PIN registry replication (LWW, tombstones, monotonic clock seeded across restarts, in-place schema upgrade, shared-secret guard) across db.js, index.js, sync.js and sync-routes.js",
    "history_status": "merged",
-   "package": "vhs-room-registry-sync",
+   "package": "vhs-room-registry-sync-v2",
    "provenance_kind": "issue+pr",
    "grader_image": "michael-replay-grader-node:mb008",
-   "round": 3,
+   "round": 4,
    "task_size": {
     "oracle_files_changed": 4,
     "oracle_lines_added": 422,
     "oracle_lines_removed": 18,
     "writable_files": 4,
     "files_to_read": 10,
-    "lines_to_read": 1376,
-    "hidden_checks": 24,
-    "hidden_clauses": 73
-   }
+    "lines_to_read": 1400,
+    "hidden_checks": 33,
+    "hidden_clauses": 119
+   },
+   "retired_packages": [
+    "vhs-room-registry-sync"
+   ]
   },
   {
    "id": "te-baseline-eval",
@@ -1876,5 +1882,12 @@
     "hidden_clauses": 63
    }
   }
- ]
+ ],
+ "anchor_packages": {
+  "record": "benchmarks/michael/curriculum/anchors-native.json",
+  "packages": [
+   "anchor-tb-fix-git",
+   "anchor-tb-nginx-request-logging"
+  ]
+ }
 }

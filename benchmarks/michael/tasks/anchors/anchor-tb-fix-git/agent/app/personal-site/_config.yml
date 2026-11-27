@@ -1,0 +1,7 @@
+name: Mike A. Merrill
+collections:
+  - publications
+  - posters
+  - pubpdfs
+
+# Could add individual pages for each pub pretty easily using output : true

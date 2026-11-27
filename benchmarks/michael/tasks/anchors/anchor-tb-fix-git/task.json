@@ -1,0 +1,71 @@
+{
+ "id": "anchor-tb-fix-git",
+ "family": "Review and repair",
+ "title": "Recover lost commit changes in a personal-site git repository and merge them into master (Terminal-Bench 2.0 fix-git)",
+ "source": {
+  "repo": "laude-institute/terminal-bench-2",
+  "visibility": "public",
+  "kind": "harbor-task",
+  "pr": null,
+  "base_ref": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+  "reference_ref": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c:fix-git/solution/solve.sh",
+  "history_status": "public-benchmark"
+ },
+ "derivation": "Converted by anchors_convert.py from Terminal-Bench 2.0 'fix-git' at https://github.com/laude-institute/terminal-bench-2.git@69671fbaac6d67a7ef0dfec016cc38a64ef7a77c (task tree_sha256 c5d23816ce43bd940f0361caab93ede4865cd4b2344e3058e81d52bffea41105, git tree 3f631ddfdc2b8fd13a29bf779abfb89850a32334), image alexgshaw/fix-git@sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119. Base = the untouched bounded workspace; reference = the declared artifacts after running the task's own solution/solve.sh in the task image; hidden checks = the original tests/ run unmodified by test.sh, one strict row per test ID plus the Harbor reward row. The tests check only the two working-tree files, so the graded final state is exactly those two files; git refs/objects are not graded (the agent cannot run git natively). The 31 MB pack (+ .idx), the binary .git/index, hook samples, binary site assets and files over 32 KiB are not exported. The lost 'Move to Stanford' commit and its trees and blobs are loose objects and are exported (zlib, readable with a stdlib Python self-test). /app/resources/patch_files (the expected file contents the tests compare against) is outside the agent workspace; it stays in the verifier image only.",
+ "privacy": "public",
+ "coverage": "Original Terminal-Bench 2.0 test suite (2 tests) and Harbor reward.",
+ "historical_exposure": "Public benchmark (Terminal-Bench 2.0, with its training-corpora canary); likely seen in training data. Reported separately, never pooled.",
+ "outcome_evidence": "held_out_tests",
+ "long_horizon": false,
+ "residual_rubric": [
+  "Only the declared final-state artifacts are graded; instruction steps the native path cannot observe (running commands, displaying output) are not graded."
+ ],
+ "required_environment": "cloud-linux Docker: verifier image mbanchor-anchor-tb-fix-git:verifier (task image + test.sh runtime, built by anchors_convert.py --build-only fix-git); 2g memory, no network at grading time. Images are amd64.",
+ "leak_tokens": [],
+ "round": 3,
+ "anchor": {
+  "dataset": "terminal-bench@2.0",
+  "name": "fix-git",
+  "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+  "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+  "path": "fix-git",
+  "git_tree": "3f631ddfdc2b8fd13a29bf779abfb89850a32334",
+  "tree_sha256": "c5d23816ce43bd940f0361caab93ede4865cd4b2344e3058e81d52bffea41105",
+  "task_image": "alexgshaw/fix-git@sha256:61e431c00c58df652287aadce5457634d9f9330cfdd153ebdf2802df0d540119",
+  "license": "Apache-2.0",
+  "harbor_verification": {
+   "oracle_reward": 1.0,
+   "base_reward": 0.0,
+   "recorded_at": "2026-11-27T05:14:17+00:00"
+  },
+  "harbor_timeouts_sec": {
+   "agent": 900.0,
+   "verifier": 900.0
+  },
+  "environment_setup": [],
+  "environment_packages_added": {},
+  "start": [],
+  "verifier_prepare": [
+   "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl",
+   "uvx -p 3.13 -w pytest==8.4.1 -w pytest-json-ctrf==0.3.5 pytest --version"
+  ]
+ },
+ "grader": {
+  "runtime": "harbor",
+  "harness": "harbor_anchor.py",
+  "candidate": "app/personal-site/_includes/about.md",
+  "candidates": [
+   "app/personal-site/_includes/about.md",
+   "app/personal-site/_layouts/default.html"
+  ],
+  "denominators": {
+   "tests/test_outputs.py": 2,
+   "harbor-reward": 1
+  },
+  "image": "mbanchor-anchor-tb-fix-git:verifier",
+  "candidate_seconds": 120,
+  "memory": "2g",
+  "workdir": "/app/personal-site",
+  "python": "/opt/mb-anchor/python"
+ }
+}

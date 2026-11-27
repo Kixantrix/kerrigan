@@ -10,7 +10,7 @@ from . import api, validator
 from benchmarks.michael.replay_grader import specs
 from benchmarks.michael.tasks import curriculum as tasks
 
-NAMES = ("validator", "grouping", "status", *tasks.PACKAGES)
+NAMES = ("validator", "grouping", "status", *tasks.PACKAGES, *tasks.ANCHORS)
 NODE_VERSION = "24.11.1"
 NODE_SHA256 = "4255a388254ca4319e2f95f1da375d5deaddf25baf9c7c85070b67f9543b15d0"
 AUTH = validator.AUTHORIZATION_SOURCE
@@ -48,7 +48,8 @@ def material(name):
     if name == "validator":
         policy = json.loads((api.runner.HERE / "validator-task-policy.json").read_bytes())
     else:
-        policy = json.loads((tasks.HERE / name / "native-policy.json").read_bytes())
+        directory = tasks.directory(name) if name in tasks.ANCHORS else tasks.HERE / name
+        policy = json.loads((directory / "native-policy.json").read_bytes())
     if sorted(policy["read"]) != sorted([*agent, policy["scratch"]]):
         raise api.TrialError("native export allowlist mismatch")
     policy["run"] = [path for path in policy["write"] if Path(path).suffix in (".py", ".ts", ".mjs", ".js")]
@@ -99,6 +100,7 @@ def sources():
     paths.update(api.grader.HERE / name for name in api.grader.POLICY_FILES)
     paths.update(api.grader.HERE.glob("harnesses/*.py"))
     paths.update(api.grader.HERE.glob("harnesses/*.mjs"))
+    paths.add(api.grader.HERE / "harbor_adapter.py")
     paths.update((tasks.HERE / "curriculum.py", tasks.HERE / "packages.py"))
     paths.update((api.packages.ROOT / "benchmarks/michael/curriculum").glob("*.py"))
     return {str(path.relative_to(root)): api.sha(path.read_bytes()) for path in sorted(paths)}

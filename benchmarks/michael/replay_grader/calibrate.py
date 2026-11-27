@@ -44,7 +44,7 @@ def path(name):
     if name in packages.CASES:
         return packages.HERE / name / "grader-calibration.json"
     from benchmarks.michael.tasks import curriculum
-    return curriculum.HERE / name / "calibration.json"
+    return curriculum.directory(name) / "calibration.json"
 
 
 def main():

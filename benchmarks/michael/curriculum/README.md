@@ -273,7 +273,8 @@ Hosts that can reach astral.sh get no shim.
 **Licenses:** Terminal-Bench 2.0 is Apache-2.0. `laude-institute/harbor-datasets`
 has no license: it has no LICENSE file, and GitHub reports none. Its SWE-bench
 Pro tasks adapt `scaleapi/SWE-bench_Pro-os`, which is MIT. We reference tasks
-only by URL and pinned commit.
+only by URL and pinned commit. The provisioning script vendors nothing; converted native
+anchors (below) vendor bounded Apache-2.0 Terminal-Bench material only.
 
 Results for anchors.json revision 2, 2026-11-27, with 2 CPUs, 7.7 GiB RAM, ~7.7 GB free disk, x86_64,
 Docker 29.1.3 and Harbor 0.27.0. Times are Harbor trial seconds; image bytes
@@ -311,3 +312,68 @@ are the compressed `docker image inspect` size.
   rejected because its image is 5.57 GB compressed, about 23 GB on disk, which
   exceeds this host. The next two protonmail images are 4.7 to 4.8 GB, so the
   repo was skipped. tutao/tutanota `09c2776c` (TypeScript) was then verified.
+
+## Native anchor conversion
+
+`anchors_convert.py` turns Harbor-verified anchors into ordinary curriculum
+packages under `benchmarks/michael/tasks/anchors/<package>/`, so they run
+through the native path with the same base/oracle calibration as our own
+packages. They are a separate registry (`curriculum.ANCHORS`, not `PACKAGES`):
+reported separately, never pooled, and not catalog candidates. The declared
+contracts and exclusions live in `anchors-native-contracts.json`; the
+converter writes `anchors-native.json`.
+
+- **Export:** `agent/` is a bounded subset of the task image's filesystem,
+  copied with `docker cp` without running anything. Agent path = absolute path
+  minus `/`, except declared renames (fix-git's `.git/` is exported as
+  `personal-site-gitdir/`). Only UTF-8 files of 32 KiB or less are kept, unless
+  a binary is explicitly allowed. Git control files are dropped. `export.json`
+  lists every dropped file with its size and sha256. TASK.md quotes
+  instruction.md verbatim and adds the native contract.
+- **Final-state contract:** the declared artifact files (absolute paths, UTF-8,
+  within the native per-file bound). If an artifact is collected empty and is
+  marked `absent_if_empty`, the file is absent. State that is not a file is
+  handled in two ways. A service is started by a trusted, declared start
+  command. A network-bound install step is hoisted verbatim from solve.sh into
+  the environment image and disclosed. Base is the untouched workspace. The
+  oracle is the contract collected after running the task's own
+  `solution/solve.sh` in the task image.
+- **Verifier and adapter:** the ORIGINAL `tests/` run unmodified via
+  `bash /tests/test.sh` in `mbanchor-<package>:verifier`. That image is the
+  task image plus exactly the apt packages and uvx tool environment test.sh
+  installs, cached at build time. Grading is offline (`--network none`,
+  `UV_OFFLINE=1`) as root in a fresh container with capabilities dropped. The
+  runtime is `harbor` in `replay_grader/api.py`.
+  `replay_grader/harbor_adapter.py` maps `ctrf.json` and `reward.txt` to strict
+  rows: one per test ID, denominated by test file, plus Harbor's reward row.
+  Only `passed` passes; failed, error, skipped and missing all fail.
+- **Calibration:** run twice. Base must fail, the oracle must pass, and the
+  observation hashes must be identical. The task, environment and verifier
+  images are removed afterwards; `michael-*` images are never removed.
+  Harbor's own lint of the original task is recorded. Rebuild a verifier image
+  before grading or native runs with `--build-only <anchor>`.
+
+```bash
+python -m benchmarks.michael.curriculum.anchors_convert                  # all declared
+python -m benchmarks.michael.curriculum.anchors_convert --build-only fix-git
+python -m benchmarks.michael.replay_grader.calibrate anchor-tb-fix-git   # needs the verifier image
+```
+
+Status (anchors.json revision 2):
+
+- **Converted:** fix-git and nginx-request-logging.
+  - nginx-request-logging hoists `apt-get install nginx` into the environment
+    and has the verifier start `nginx`.
+- **Excluded:** configure-git-webserver (OS state: a user with a password,
+  sshd, a bare repository tree and permissions), train-fasttext (a binary model
+  of up to 150 MiB that needs compiled training) and pytorch-model-recovery
+  (disk).
+- **Pending:** the five SWE-bench Pro anchors. They need a config.json
+  fail_to_pass/pass_to_pass adapter and a write-set rule.
+
+Reasons are in `anchors-native.json`.
+
+**Trust limits:** grading inherits Harbor's model, where the tests run in the
+same container as the candidate's final state. A started service runs the
+candidate's configuration as root, without network or added capabilities. The
+harness discards `/logs/verifier` before the tests run.

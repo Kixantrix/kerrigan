@@ -184,8 +184,9 @@ def observations(raw, rows, valid=None):
 
 def policy_files(task="validator"):
     names = list(POLICY_FILES)
-    if specs.spec(task)["harness"] not in names:
-        names.append(specs.spec(task)["harness"])
+    for name in [specs.spec(task)["harness"], *specs.spec(task).get("support", [])]:
+        if name not in names:
+            names.append(name)
     return {name: sha((HERE / name).read_bytes()) for name in names}
 
 
@@ -199,12 +200,64 @@ def bindings(source, task="validator"):
             "policy_files_sha256": policy, "verifier_policy_sha256": sha(encoded(policy))}
 
 
+def _create_default(spec, name, run_id, image_id):
+    docker("create", "-i", "--name", name, "--label", f"{LABEL}={run_id}", "--network", "none",
+           "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
+           "--memory", "128m", "--memory-swap", "128m", "--cpus", "1", "--pids-limit", "32",
+           "--ulimit", "nofile=64:64", "--ulimit", "fsize=1048576:1048576",
+           "--log-driver", "none", "--tmpfs", "/work:rw,noexec,nosuid,size=16m,mode=1777",
+           "--user", "65534:65534", "--workdir", "/work", image_id,
+           *(["python", "-I", "-B", "-c", (HERE / "bootstrap.py").read_text()]
+             if spec["runtime"] == "python" else
+             ["node", "--max-old-space-size=96", "--input-type=module", "-e",
+              (HERE / "bootstrap.mjs").read_text()]))
+    info = json.loads(docker("inspect", name))[0]
+    config = info["HostConfig"]
+    if (info["Mounts"] or config["Binds"] or config["Privileged"]
+            or config["NetworkMode"] != "none" or not config["ReadonlyRootfs"]
+            or config["CapDrop"] != ["ALL"]):
+        raise GraderError("containment_configuration_mismatch")
+    return {key: config[key] for key in
+            ("NetworkMode", "ReadonlyRootfs", "CapDrop", "SecurityOpt",
+             "Memory", "MemorySwap", "NanoCpus", "PidsLimit", "Tmpfs", "Binds")}
+
+
+ANCHOR_CAPS = ["CHOWN", "DAC_OVERRIDE", "FOWNER", "FSETID", "KILL", "NET_BIND_SERVICE", "SETGID", "SETUID"]
+
+
+def _create_anchor(spec, name, run_id, image_id):
+    """Harbor anchors: the task's own image, root, writable container layer, no network.
+
+    Root and a writable (discarded) container layer are what the original Harbor
+    verifier gives the task's tests (service start, logs, package metadata). Still
+    no network, no mounts, minimal capabilities, no-new-privileges, bounded resources.
+    """
+    docker("create", "-i", "--name", name, "--label", f"{LABEL}={run_id}", "--network", "none",
+           "--cap-drop", "ALL", *[arg for cap in ANCHOR_CAPS for arg in ("--cap-add", cap)],
+           "--security-opt", "no-new-privileges:true",
+           "--memory", spec["memory"], "--memory-swap", spec["memory"], "--cpus", "1",
+           "--pids-limit", "512", "--ulimit", "nofile=8192:8192", "--log-driver", "none",
+           "--user", "0:0", "--workdir", spec["workdir"], image_id,
+           spec["python"], "-I", "-B", "-c", (HERE / "bootstrap.py").read_text())
+    info = json.loads(docker("inspect", name))[0]
+    config = info["HostConfig"]
+    added = sorted(cap.removeprefix("CAP_") for cap in config["CapAdd"] or [])
+    if (info["Mounts"] or config["Binds"] or config["Privileged"] or config["NetworkMode"] != "none"
+            or config["CapDrop"] != ["ALL"] or added != sorted(ANCHOR_CAPS)):
+        raise GraderError("containment_configuration_mismatch")
+    return {key: config.get(key) for key in
+            ("NetworkMode", "ReadonlyRootfs", "CapDrop", "CapAdd", "SecurityOpt",
+             "Memory", "MemorySwap", "NanoCpus", "PidsLimit", "Tmpfs", "Binds")}
+
+
 def grade(source, directory, *, seconds=10, task="validator"):
     specs.spec(task)
     if not isinstance(source, bytes) or not 0 < len(source) <= SOURCE_LIMIT:
         raise ValueError("candidate source byte limit")
     if not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or not 0 < seconds <= 30:
         raise ValueError("candidate execution budget must be finite and <=30 seconds")
+    # Harbor anchors run the task's own test suite; their package declares a larger floor.
+    seconds = max(seconds, specs.spec(task).get("candidate_seconds", 0))
     directory = Path(directory).resolve()
     directory.mkdir(mode=0o700, parents=True, exist_ok=False)
     run_id = uuid.uuid4().hex
@@ -279,25 +332,10 @@ def _grade(source, directory, *, seconds=10):
                 tar.addfile(entry, io.BytesIO(data))
         report["candidate_archive_sha256"] = sha(archive.getvalue())
         name = f"mb-replay-{run_id}"
-        docker("create", "-i", "--name", name, "--label", f"{LABEL}={run_id}", "--network", "none",
-               "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
-               "--memory", "128m", "--memory-swap", "128m", "--cpus", "1", "--pids-limit", "32",
-               "--ulimit", "nofile=64:64", "--ulimit", "fsize=1048576:1048576",
-               "--log-driver", "none", "--tmpfs", "/work:rw,noexec,nosuid,size=16m,mode=1777",
-               "--user", "65534:65534", "--workdir", "/work", image["Id"],
-               *(["python", "-I", "-B", "-c", (HERE / "bootstrap.py").read_text()]
-                 if spec["runtime"] == "python" else
-                 ["node", "--max-old-space-size=96", "--input-type=module", "-e",
-                  (HERE / "bootstrap.mjs").read_text()]))
-        info = json.loads(docker("inspect", name))[0]
-        config = info["HostConfig"]
-        if (info["Mounts"] or config["Binds"] or config["Privileged"]
-                or config["NetworkMode"] != "none" or not config["ReadonlyRootfs"]
-                or config["CapDrop"] != ["ALL"]):
-            raise GraderError("containment_configuration_mismatch")
-        report["containment"] = {key: config[key] for key in
-                                 ("NetworkMode", "ReadonlyRootfs", "CapDrop", "SecurityOpt",
-                                  "Memory", "MemorySwap", "NanoCpus", "PidsLimit", "Tmpfs", "Binds")}
+        if spec["runtime"] == "harbor":
+            report["containment"] = _create_anchor(spec, name, run_id, image["Id"])
+        else:
+            report["containment"] = _create_default(spec, name, run_id, image["Id"])
         report["timings"][phase] = time.monotonic() - begin
         phase, begin = "candidate_execution", time.monotonic()
         deadline = begin + seconds

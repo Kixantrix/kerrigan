@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/REVIEW.json", "/app/src/lib/report/mismatch.ts"]
+
+[task]
+name = "kixantrix/michael-cs-mismatch-stage-authority-v2"
+version = "1.0.0"
+description = "Refuse an untyped mismatch stage that silently demoted the authoritative template check"
+keywords = ["michael-bench", "review-and-repair"]
+
+[metadata]
+family = "Review and repair"
+source_repo = "Kixantrix/clinical-scribe"
+base_ref = "0e693d91f70aac6e7d76c041a66b4cccde927f2b"
+reference_ref = "c1db95f9fa0bc95f4282e83f3b7725d9f42c2479"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "defect_coverage"
+estimated_agent_minutes = 15
+denominators = "{\"preservation\": 8, \"refusal\": 7, \"review\": 3}"
+task_size = "{\"files_to_read\": 8, \"hidden_checks\": 18, \"hidden_clauses\": 76, \"lines_to_read\": 692, \"oracle_files_changed\": 2, \"oracle_lines_added\": 17, \"oracle_lines_removed\": 1, \"writable_files\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

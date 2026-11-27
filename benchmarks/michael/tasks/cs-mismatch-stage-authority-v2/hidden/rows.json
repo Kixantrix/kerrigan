@@ -1,0 +1,883 @@
+[
+ {
+  "original_id": "misspelt or unknown stage strings are refused",
+  "group": "refusal",
+  "probe": {
+   "scenario": "stageValues",
+   "args": {
+    "set": "misspelt"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "rendre"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "saved"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "advisory"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "live"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "empty"
+    ],
+    "refused"
+   ]
+  ]
+ },
+ {
+  "original_id": "case and whitespace variants of a valid stage are refused",
+  "group": "refusal",
+  "probe": {
+   "scenario": "stageValues",
+   "args": {
+    "set": "variants"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "Render"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "SAVE"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "leading"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "trailing"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "inner"
+    ],
+    "refused"
+   ]
+  ]
+ },
+ {
+  "original_id": "prototype-chain property names as stage are refused",
+  "group": "refusal",
+  "probe": {
+   "scenario": "stageValues",
+   "args": {
+    "set": "prototype"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "constructor"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "proto"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "toString"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "hasOwnProperty"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "valueOf"
+    ],
+    "refused"
+   ]
+  ]
+ },
+ {
+  "original_id": "non-string primitive stages are refused, including false and 0",
+  "group": "refusal",
+  "probe": {
+   "scenario": "stageValues",
+   "args": {
+    "set": "primitives"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "zero"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "one"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "true"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "false"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "nan"
+    ],
+    "refused"
+   ]
+  ]
+ },
+ {
+  "original_id": "boxed strings, arrays and objects are refused rather than coerced",
+  "group": "refusal",
+  "probe": {
+   "scenario": "stageValues",
+   "args": {
+    "set": "objects"
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "boxed"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "array"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "arraySave"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "empty"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "toStringy"
+    ],
+    "refused"
+   ]
+  ]
+ },
+ {
+  "original_id": "malformed stage in a JSON request payload is refused",
+  "group": "refusal",
+  "probe": {
+   "scenario": "ipcPayloads"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "capital"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "number"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "list"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "nested"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "boolean"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "protoKey"
+    ],
+    "refused"
+   ]
+  ]
+ },
+ {
+  "original_id": "invalid stage is refused before sections or template are examined",
+  "group": "refusal",
+  "probe": {
+   "scenario": "refuseFirst"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "emptySections"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "blankSections"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "unreadableTemplate"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "unreadableNumber"
+    ],
+    "refused"
+   ]
+  ]
+ },
+ {
+  "original_id": "valid, absent and null stages keep their verdicts",
+  "group": "preservation",
+  "probe": {
+   "scenario": "validStages"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "render"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "save"
+    ],
+    {
+     "stage": "save",
+     "authoritative": false
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "undefinedStage"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "nullStage"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "noOptions"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "emptyOptions"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "extraOptions"
+    ],
+    {
+     "stage": "save",
+     "authoritative": false
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "well-formed JSON request payloads keep working",
+  "group": "preservation",
+  "probe": {
+   "scenario": "ipcPayloads"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "validSave"
+    ],
+    {
+     "stage": "save",
+     "authoritative": false
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "validRender"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "nullStage"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "noStage"
+    ],
+    {
+     "stage": "render",
+     "authoritative": true
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "now and templateName options still apply at both stages",
+  "group": "preservation",
+  "probe": {
+   "scenario": "otherOptions"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "save"
+    ],
+    {
+     "checkedAt": "2027-03-04T05:06:07Z",
+     "template": "memo.docx",
+     "stage": "save",
+     "authoritative": false
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "render"
+    ],
+    {
+     "checkedAt": "2027-03-04T05:06:07Z",
+     "template": "memo.docx",
+     "stage": "render",
+     "authoritative": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "bareTemplate"
+    ],
+    ""
+   ],
+   [
+    "path_equal",
+    [
+     "bareCheckedAtIsIso"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "save and render agree in answer and differ in authority (agreeing)",
+  "group": "preservation",
+  "probe": {
+   "scenario": "sameAnswer"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "agreeing",
+     "save"
+    ],
+    {
+     "agrees": true,
+     "sectionsWithoutSlot": [],
+     "slotsWithoutSection": [],
+     "collidingSections": []
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "agreeing",
+     "render"
+    ],
+    {
+     "agrees": true,
+     "sectionsWithoutSlot": [],
+     "slotsWithoutSection": [],
+     "collidingSections": []
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "agreeing",
+     "authority"
+    ],
+    [
+     false,
+     true
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "agreeing",
+     "stages"
+    ],
+    [
+     "save",
+     "render"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "save and render agree in answer and differ in authority (missingAndOrphan)",
+  "group": "preservation",
+  "probe": {
+   "scenario": "sameAnswer"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "missingAndOrphan",
+     "save"
+    ],
+    {
+     "agrees": false,
+     "sectionsWithoutSlot": [
+      "Field Notes"
+     ],
+     "slotsWithoutSection": [
+      "alpha_slot",
+      "zeta_slot"
+     ],
+     "collidingSections": []
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "missingAndOrphan",
+     "render"
+    ],
+    {
+     "agrees": false,
+     "sectionsWithoutSlot": [
+      "Field Notes"
+     ],
+     "slotsWithoutSection": [
+      "alpha_slot",
+      "zeta_slot"
+     ],
+     "collidingSections": []
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "missingAndOrphan",
+     "authority"
+    ],
+    [
+     false,
+     true
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "missingAndOrphan",
+     "stages"
+    ],
+    [
+     "save",
+     "render"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "save and render agree in answer and differ in authority (colliding)",
+  "group": "preservation",
+  "probe": {
+   "scenario": "sameAnswer"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "colliding",
+     "save"
+    ],
+    {
+     "agrees": false,
+     "sectionsWithoutSlot": [
+      "Wrap Up",
+      "Wrap-Up"
+     ],
+     "slotsWithoutSection": [],
+     "collidingSections": [
+      [
+       "wrap_up",
+       "Wrap Up",
+       "Wrap-Up"
+      ]
+     ]
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "colliding",
+     "render"
+    ],
+    {
+     "agrees": false,
+     "sectionsWithoutSlot": [
+      "Wrap Up",
+      "Wrap-Up"
+     ],
+     "slotsWithoutSection": [],
+     "collidingSections": [
+      [
+       "wrap_up",
+       "Wrap Up",
+       "Wrap-Up"
+      ]
+     ]
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "colliding",
+     "authority"
+    ],
+    [
+     false,
+     true
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "colliding",
+     "stages"
+    ],
+    [
+     "save",
+     "render"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "save and render agree in answer and differ in authority (splitAndHeader)",
+  "group": "preservation",
+  "probe": {
+   "scenario": "sameAnswer"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "splitAndHeader",
+     "save"
+    ],
+    {
+     "agrees": false,
+     "sectionsWithoutSlot": [],
+     "slotsWithoutSection": [
+      "extra_note"
+     ],
+     "collidingSections": []
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "splitAndHeader",
+     "render"
+    ],
+    {
+     "agrees": false,
+     "sectionsWithoutSlot": [],
+     "slotsWithoutSection": [
+      "extra_note"
+     ],
+     "collidingSections": []
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "splitAndHeader",
+     "authority"
+    ],
+    [
+     false,
+     true
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "splitAndHeader",
+     "stages"
+    ],
+    [
+     "save",
+     "render"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "existing vacuity and unreadable-template errors and exports are unchanged",
+  "group": "preservation",
+  "probe": {
+   "scenario": "existingErrors"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "emptySections"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "blankSections"
+    ],
+    "refused"
+   ],
+   [
+    "path_equal",
+    [
+     "unreadableTemplate"
+    ],
+    "error:TemplateError"
+   ],
+   [
+    "path_contains_all",
+    [
+     "exports"
+    ],
+    [
+     "RESERVED_SLOTS",
+     "TemplateMismatchError",
+     "checkMismatch",
+     "describeMismatch",
+     "groupSectionsByKey",
+     "slugify"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "ledger records the stage-authority defect",
+  "group": "review",
+  "probe": {
+   "scenario": "findings"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categories"
+    ],
+    [
+     "unknown-stage-demotes-authority"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "ledger reports no defect in correct code",
+  "group": "review",
+  "probe": {
+   "scenario": "findings"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "parsed"
+    ],
+    true
+   ],
+   [
+    "path_contains_none",
+    [
+     "categories"
+    ],
+    [
+     "stage-changes-answer",
+     "vacuous-agreement",
+     "colliding-sections-dropped",
+     "split-run-placeholder-missed",
+     "header-footer-slots-ignored",
+     "reserved-slot-reported",
+     "cached-template-verdict"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "ledger entries are well formed, one per distinct defect",
+  "group": "review",
+  "probe": {
+   "scenario": "findings"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "parsed"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "wellFormed"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ }
+]
