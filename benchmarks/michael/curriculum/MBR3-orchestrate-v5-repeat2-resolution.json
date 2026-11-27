@@ -1,0 +1,29 @@
+{
+  "baseServerSha256": "f96887d2646c0d8830e5ff8d6680d6a6a10366006721071bd8454914676d022f",
+  "cause": "model",
+  "collectedArtifactsSha256": "1492304f2496bfeaeea2b21147cd538bde903fdf19ce54d32da8d3da7fac448a",
+  "counts_as_model_failure": true,
+  "decision": "Coordinator-confirmed deterministic adjudication; preserve the split panel and failed 17/18 result without rerun.",
+  "evidence": [
+    "The landed join handler rejects unknown tokens before creating any authenticated session.",
+    "A failed rejoin retains only the earlier authenticated session; the connection did not acquire unauthenticated authority.",
+    "R1-R8 do not require revocation of a previously authenticated session on rejected rejoin.",
+    "Deleting the old session changes an unspecified recovery behavior; it does not demonstrate the claimed auth-bypass defect.",
+    "The candidate lists auth-bypass. All functional and preservation checks pass; the deterministic ledger rejects this unsupported defect claim."
+  ],
+  "evidence_root": "mbr3-discovery-v4",
+  "failure_modes": [
+    "unsupported-defect-claim"
+  ],
+  "graderReportSha256": "3a44c6d3de6f77450e491d7dd428fb913e57bd1ef344adeb6df7b11ee23fcf58",
+  "kind": "deterministic-attribution-resolution",
+  "model": "mai-code-2",
+  "originalPanelSha256": "c020372e111d7496f0e7313d378fb212869cd3fc65635fbbcd2852c0fc811172",
+  "outcomeSha256": "4ea112f04ed45aab004914321d270005fc8b72adc74e239288b5471458cac5a7",
+  "publicationScope": "Sanitized attribution and immutable hashes only; original panel, model streams and artifacts remain unchanged.",
+  "repeat": 2,
+  "schema_version": 1,
+  "source_epoch": "discovery-parity-v4",
+  "subject_rerun": false,
+  "task": "orchestrate-voice-integration-v5"
+}

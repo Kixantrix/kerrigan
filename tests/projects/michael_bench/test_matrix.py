@@ -106,6 +106,8 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
             {"description": "glob-overlap did not contribute to the outcome"}]}]}, "unsupported-defect-claim"),
         ({"cause": "model", "deterministicEvidence": "Independent cancelCheck: claimFixed=false"},
          "claimed-fix-not-implemented"),
+        ({"cause": "model", "deterministicEvidence": "unsupported auth-bypass claim"},
+         "unsupported-defect-claim"),
         ({"cause": "model", "deterministicEvidence": "write $TMPDIR/x outside allowed paths"},
          "sandbox-boundary-write"),
         ({"cause": "harness", "nativeStop": "protocol_budget"}, "harness-cap"),
@@ -119,6 +121,38 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
     result = generate.build([record("a", i, passed=False) for i in range(3)])
     assert result["cells"]["synthetic:a"]["Implement × small"]["failure_modes"] == {
         "unsupported-defect-claim": 3}
+
+
+def test_split_attribution_requires_hash_bound_published_resolution(tmp_path, monkeypatch):
+    repository, root = tmp_path / "repo", tmp_path / "mbr3-discovery-v4"
+    run = root / "trials/fixture/repeat-2/model"
+    panel = root / "attribution/fixture/repeat-2/model/attribution.json"
+    panel.parent.mkdir(parents=True)
+    panel.write_text('{"cause":"unresolved","verdicts":[{"cause":"model"},{"cause":"task"}]}')
+    (run / "independent-grader").mkdir(parents=True)
+    for name in ("outcome.json", "collected-source.bin", "independent-grader/report.json"):
+        (run / name).write_bytes(b"synthetic immutable evidence")
+    destination = repository / "benchmarks/michael/curriculum/MBR3-fixture-resolution.json"
+    destination.parent.mkdir(parents=True)
+    monkeypatch.setattr(generate, "ROOT", repository)
+    assert generate.resolved_attribution(root, "fixture", 2, "model", run)[0]["cause"] == "unresolved"
+    receipt = {"kind": "deterministic-attribution-resolution",
+               "task": "fixture", "repeat": 2, "model": "model", "evidence_root": root.name,
+               "cause": "model", "counts_as_model_failure": True, "subject_rerun": False,
+               "failure_modes": ["unsupported-defect-claim"],
+               "evidence": ["unsupported auth-bypass claim"]}
+    bindings = {"originalPanelSha256": panel, "outcomeSha256": run / "outcome.json",
+                "collectedArtifactsSha256": run / "collected-source.bin",
+                "graderReportSha256": run / "independent-grader/report.json"}
+    receipt.update({key: hashlib.sha256(path.read_bytes()).hexdigest() for key, path in bindings.items()})
+    destination.write_text(json.dumps(receipt))
+    resolved, digest = generate.resolved_attribution(root, "fixture", 2, "model", run)
+    assert resolved["cause"] == "model" and generate.failure_modes(resolved) == ["unsupported-defect-claim"]
+    assert digest == hashlib.sha256(destination.read_bytes()).hexdigest()
+    assert json.loads(panel.read_bytes())["cause"] == "unresolved"
+    (run / "collected-source.bin").write_bytes(b"changed")
+    with pytest.raises(ValueError, match="resolution mismatch"):
+        generate.resolved_attribution(root, "fixture", 2, "model", run)
 
 
 @pytest.mark.parametrize("epoch", ["tooltip", "parity", "discovery"])
