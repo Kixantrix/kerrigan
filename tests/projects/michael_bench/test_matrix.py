@@ -326,7 +326,8 @@ def test_expanded_epoch_requires_complete_hash_bound_cohort_schedules(tmp_path, 
 
 
 @pytest.mark.parametrize("local", [False, True])
-def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(tmp_path, monkeypatch, local):
+@pytest.mark.parametrize("state", ["passed", "budget", "external", "unknown", "synthetic"])
+def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(tmp_path, monkeypatch, local, state):
     batch = tmp_path / "trials/fixture/repeat-1"
     run = batch / "model"
     (run / "receipt").mkdir(parents=True)
@@ -355,14 +356,51 @@ def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(
              "attempts": [{"verdict": "passed",
                            "time_to_verified_completion": {"status": "known",
                                                            "value": {"seconds": 10}}}]}
+    if state != "passed":
+        outcome.update(status="ungraded", completionSeconds=None)
+        trial["attempts"][0].update(verdict="ungraded",
+                                   time_to_verified_completion={"status": "unknown"})
+        terminal.update(stopReason={"budget": "local_output_cap", "external": "external_cancel",
+                                    "unknown": "local_usage_unknown",
+                                    "synthetic": "local_output_cap"}[state],
+                        partialBudgetExhausted=state in ("budget", "synthetic"))
+        if local:
+            terminal["localInference"].update(synthetic=state == "synthetic", attempts=1)
+        if state == "external":
+            outcome["externalStopReason"] = "synthetic-resource-monitor-stop"
+            outcome["sourceSha256"] = None
+            (run / "collected-source.bin").unlink()
+        (run / "outcome.json").write_text(json.dumps(outcome))
+        (run / "receipt/terminal.json").write_text(json.dumps(terminal))
     monkeypatch.setattr(generate.Ledger, "_read",
                         lambda self, stream: ({"model": trial}, None, "b" * 64))
     monkeypatch.setattr(generate.curriculum, "meta", lambda name: {"family": "Implement"})
     monkeypatch.setattr(generate, "size", lambda name: {"tier": "small"})
+    if state != "passed" and (not local or state == "synthetic"):
+        with pytest.raises(ValueError, match="ungraded matrix attempt|backend drain"):
+            generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
+        return
     rows = generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
     assert len(rows) == 1
     assert rows[0]["tokens"] == {"inputTokens": 100, "outputTokens": 20}
     assert rows[0]["deployment_class"] == ("local laptop" if local else "cloud")
+    if state != "passed":
+        matrix = generate.build(rows)
+        matrix["sources"] = []
+        generate.validate(matrix)
+        target = matrix["cells"]["synthetic:model"]
+        if state == "budget":
+            assert target["Implement × small"]["n"] == 1
+            assert target["Implement × small"]["successes"] == 0
+            assert target["Implement × small"]["median_verified_seconds"] is None
+            assert rows[0]["failure_modes"] == ["budget-noncompletion"]
+            assert "unscored_attempts" not in matrix
+        else:
+            assert target == {}
+            assert matrix["unscored_attempts"] == rows
+            assert rows[0]["outcome_state"] == ("environment-abort" if state == "external" else "unscored")
+            assert "Unscored physical attempts" in generate.markdown(matrix)
+        assert matrix["recommendations"]["Implement × small"]["status"] == "insufficient evidence"
     if local:
         terminal["localInference"]["release"]["ownedRequestsDrained"] = False
         (run / "receipt/terminal.json").write_text(json.dumps(terminal))

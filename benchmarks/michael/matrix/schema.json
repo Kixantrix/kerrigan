@@ -41,7 +41,21 @@
     "recommendations": {"type": "object"},
     "size_policy": {"type": "object"},
     "limits": {"type": "string"},
-    "sources": {"type": "array", "items": {"type": "object"}}
+    "sources": {"type": "array", "items": {"type": "object"}},
+    "unscored_attempts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["eligible", "resolved", "completion_seconds", "outcome_state",
+          "noncompletion_reason", "ledger_source", "ledger_sha256", "ledger_chain_head"],
+        "properties": {
+          "eligible": {"const": false},
+          "resolved": {"const": false},
+          "completion_seconds": {"type": "null"},
+          "outcome_state": {"enum": ["environment-abort", "unscored"]}
+        }
+      }
+    }
   },
   "$defs": {
     "measurement": {
@@ -83,7 +97,7 @@
         "failure_modes": {"type": "object",
           "propertyNames": {"enum": ["spec-misread", "unsupported-defect-claim", "claimed-fix-not-implemented",
             "sandbox-boundary-write", "harness-cap", "task-caused", "contention-timeout",
-            "model-failure-unclassified", "harness-error", "invented-path-read"]},
+            "model-failure-unclassified", "harness-error", "invented-path-read", "budget-noncompletion"]},
           "additionalProperties": {"type": "integer", "minimum": 1}},
         "provenance": {"type": "array", "items": {"type": "object"}}
       }
