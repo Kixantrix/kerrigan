@@ -57,6 +57,10 @@ def execute(root):
     frozen = seal["frozen"]
     if frozen["source"] != native.sources() or frozen["localTrialSha256"] != api.sha(Path(__file__).read_bytes()):
         raise api.TrialError("local source epoch changed")
+    now_ms = time.time() * 1000
+    remaining = (frozen["localInference"]["windowEndMs"] - now_ms) / 1000
+    if now_ms < frozen["localInference"]["windowStartMs"] or remaining <= 15:
+        raise api.TrialError("local window not open for another owned slot")
     model, name = frozen["models"][0], frozen["package"]
     run = root / model
     bundle = handoff.bundle(None, model, task_name=name, configuration=frozen)
@@ -66,7 +70,7 @@ def execute(root):
     began = time.monotonic()
     child = api.runner.launch(run)
     try:
-        child.wait(timeout=frozen["activeSeconds"] + 17)
+        child.wait(timeout=min(frozen["activeSeconds"] + 17, remaining + 2))
     except subprocess.TimeoutExpired:
         child.stdin.close()
         child.wait(timeout=15)
@@ -82,10 +86,11 @@ def execute(root):
                    "ownedRequestsDrained") is True,
                "status": "ungraded", "grading": "deferred until window release"}
     try:
-        data = native.collect(run)
+        data = native.collect(run, local_partial=True)
         outcome.update(status="awaiting-post-window-verification", sourceSha256=api.sha(data))
     except (ValueError, OSError, api.TrialError) as error:
         outcome["error"] = str(error)
+    outcome.update(finishedAtMs=time.time() * 1000, elapsedSeconds=time.monotonic() - began)
     api.grader.persist(run / "local-outcome.json", outcome)
     return outcome
 
@@ -119,10 +124,19 @@ def finalize(root, release):
     result = handoff.terminal(bundle, terminal, report, timings, owner_exited=outcome["quiescent"],
                              source_sha=outcome["sourceSha256"],
                              expected_assertions=sum(specs.spec(name)["denominators"].values()))
-    handoff.Ledger(root / "ledger.jsonl").finalize(model, result)
-    outcome.update(result=result, status=report["verdict"] if report else "ungraded",
+    partial = None
+    if terminal.get("partialBudgetExhausted") and report and report["status"] == "graded":
+        path = run / "independent-grader/report.json"
+        partial = {"result": handoff.ref(result), "attempt_id": "attempt-1",
+                   "passed": sum(row["passed"] for row in report["assertions"]),
+                   "total": len(report["assertions"]),
+                   "source": "not completed within budget; independent partial diagnostics",
+                   "artifacts": [{"uri": str(path), "sha256": api.sha(path.read_bytes())}]}
+    handoff.Ledger(root / "ledger.jsonl").finalize(model, result, partial=partial)
+    verdict = result["attempts"][0]["verdict"]
+    outcome.update(result=result, status={"passed": "pass", "failed": "fail"}.get(verdict, "ungraded"),
                    counts=report["counts"] if report else None,
-                   completionSeconds=timings["end_to_end"] if report and report["verdict"] == "pass" else None,
+                   completionSeconds=timings["end_to_end"] if verdict == "passed" else None,
                    verificationSeconds=verification,
                    excludedQueueSeconds=max(0, release["releasedAtMs"] - outcome["finishedAtMs"]) / 1000,
                    grading="post-window verification; waiting queue excluded")

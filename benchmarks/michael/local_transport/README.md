@@ -12,13 +12,18 @@ adapter components. The native owner now routes their sole tool through the
 same proven CLI inventory and MXC action broker; `local_trial.py` prefreezes
 task/policy/runtime/condition, starts ledger slots, collects exact artifacts,
 and refuses Docker grading without a matching post-window release receipt.
-A real HTTP synthetic test exercises actual native gate/actions/cleanup, not
+A real HTTP synthetic test exercises the actual ledger, native gate/actions,
+exact collection and post-release Docker grading, not
 an operational local-model benchmark. Do not use them
 against the operational endpoint until the parent approves and announces the
 exact interval and namespace and the setup session acknowledges it.
 
 The frozen window permits at most three hours, sequential requests, unchanged
-native settings/cache policy, and 15 seconds of cleanup reserve. Readiness uses
+native settings/cache policy, and 15 seconds of cleanup reserve. The native
+whole-process deadline also covers a tool action in progress at the window
+boundary; it does not depend on the next provider request. Cleanly reaped
+budget cutoffs retain exact partial artifacts for post-release diagnostics,
+never a completion verdict. Readiness uses
 only `/health` and `/v1/models`; fresh per-task session IDs and exact
 request/response IDs provide correlation,
 not authenticated exclusivity. Mixed-content snapshot/flight endpoints are not
@@ -35,7 +40,8 @@ Generated tools cannot execute without known native input/output/total usage
 within 229,376 / 16,384 / 262,144 tokens. Missing final usage also prevents
 certifying completion; unknown usage remains unknown in the receipt.
 
-Local timing and energy are **shared with background workloads**. Metadata-only
+Local timing and energy are labeled from observed pressure and co-tenancy,
+not assumed background workloads. Metadata-only
 process-name/CPU/RSS, load and memory-pressure snapshots do not authorize
 altering Gridiron. Pressure is read from the
 unprivileged `kern.memorystatus_vm_pressure_level` dispatch flags (normal=1,

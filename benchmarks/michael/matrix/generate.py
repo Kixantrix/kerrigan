@@ -43,7 +43,8 @@ def failure_modes(attribution):
     modes = []
     if "claimFixed=false" in text:
         modes.append("claimed-fix-not-implemented")
-    if "glob-overlap" in text and "did not contribute" in text:
+    if "glob-overlap" in text and any(word in text.lower() for word in (
+            "did not contribute", "did not cause", "non-contributing", "false-positive", "false positives")):
         modes.append("unsupported-defect-claim")
     if "auth-bypass" in text and any(word in text.lower() for word in ("absent", "unsupported", "no authentication")):
         modes.append("unsupported-defect-claim")

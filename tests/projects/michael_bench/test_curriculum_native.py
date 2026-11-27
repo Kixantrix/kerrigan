@@ -314,11 +314,16 @@ def test_native_missing_path_feedback_never_widens_existing_or_outside_access(ow
     assert all(row["kind"] == "cli" for row in terminal["records"])
 
 
-def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(owned, tmp_path):
+@pytest.mark.parametrize("mode", ["complete", "deadline", "output-cap"])
+def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(owned, tmp_path, mode):
+    cutoff = mode == "deadline"
     seen = []
     actions = [{"op": "read", "path": "TASK.md"},
                {"op": "write", "path": "self_test.py", "data": "print('local-native-proof')\n"},
                {"op": "run", "path": "self_test.py"}]
+    if cutoff:
+        actions = [{"op": "write", "path": "self_test.py", "data": "import time\ntime.sleep(30)\n"},
+                   {"op": "run", "path": "self_test.py"}]
 
     class Stub(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -347,7 +352,8 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
                     "function": {"name": "mb_action", "arguments": json.dumps(actions[index])}}]}
             self.reply({"id": self.headers["x-mtplx-request-id"], "model": "synthetic-only",
                         "choices": [{"message": message,
-                                     "finish_reason": "tool_calls" if index < len(actions) else "stop"}],
+                                     "finish_reason": "length" if mode == "output-cap" else
+                                     "tool_calls" if index < len(actions) else "stop"}],
                         "usage": {"prompt_tokens": 30, "completion_tokens": 4, "total_tokens": 34}})
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), Stub)
@@ -355,37 +361,65 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
     thread.start()
     try:
         import time
-        run = native.prepare(owned, tmp_path / "run", "validator", seconds=30,
-                             policy=native.round_three_policy("validator", active_seconds=30))
+        from benchmarks.michael.local_transport import local_trial
+        from benchmarks.michael.replay_trial import validator
+        root = tmp_path / "slot"
+        policy = native.round_three_policy("validator", active_seconds=30)
+        frozen = native.freeze(owned, "validator", native.material("validator")[0], policy,
+                               ["synthetic-only"], "Synthetic containment test; not a model trial.")
+        run = native.prepare(owned, root / "synthetic-only", "validator", seconds=30, policy=policy)
         config = json.loads((run / "config.json").read_bytes())
         config.update(localPrompt="Synthetic containment test; not a model trial.",
                       localInference={"endpoint": f"http://127.0.0.1:{server.server_port}/v1",
                                       "synthetic": True, "model": "synthetic-only", "allowWarning": True,
+                                      "owningSession": "synthetic-owner", "requestNamespace": "synthetic-proof",
                                       "limits": {"inputTokens": 229376, "contextTokens": 262144,
                                                  "outputTokens": 16384},
                                       "requestSeconds": 5, "windowStartMs": time.time() * 1000 - 1000,
-                                      "windowEndMs": time.time() * 1000 + 60000,
+                                      "windowEndMs": time.time() * 1000 + (22000 if cutoff else 60000),
                                       "concurrency": 1, "grading": "after-window-release"})
         api.grader.persist(run / "config.json", config)
         binding = json.loads((run / "curriculum-start.json").read_bytes())
-        from benchmarks.michael.replay_trial import validator
         binding["configSha256"] = validator.digest(config)
         api.grader.persist(run / "curriculum-start.json", binding)
-        child = api.runner.launch(run)
-        try:
-            child.wait(timeout=47)
-        finally:
-            child.stdin.close()
+        frozen.update(condition="MB-R3/local-laptop", localInference=config["localInference"],
+                      localTrialSha256=api.sha(Path(local_trial.__file__).read_bytes()))
+        api.grader.persist(root / "seal.json", {
+            "frozen": frozen, "conditionSha256": validator.digest(frozen)})
+        collected = local_trial.execute(root)
+        assert collected["status"] == "awaiting-post-window-verification"
+        assert collected["sourceSha256"] == api.sha(specs.base("validator"))
+        assert not (run / "independent-grader").exists()
         terminal = json.loads((run / "receipt/terminal.json").read_bytes())
-        assert terminal["stopReason"] == "session_idle", terminal["stopReason"]
         assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
-        assert terminal["localInference"]["attempts"] == 4
         assert terminal["localInference"]["release"]["ownedRequestsDrained"]
         assert terminal["scratch"]["cleanup"] == {"discarded": True}
-        assert len(seen) == 4
+        assert terminal["cleanupSeconds"] <= 15
+        assert all(record["reaped"] and not record["warnings"] for record in terminal["records"])
         assert [tool["function"]["name"] for tool in seen[0]["tools"]] == ["mb_action"]
+        finalized = local_trial.finalize(root, {
+            "released": True, "ownedRequestsDrained": True, "releasedAtMs": time.time() * 1000,
+            "owningSession": "synthetic-owner", "requestNamespace": "synthetic-proof"})
+        assert finalized["status"] == "ungraded"
+        assert finalized["completionSeconds"] is None
+        if mode == "output-cap":
+            assert terminal["stopReason"] == "local_output_cap"
+            assert terminal["partialBudgetExhausted"]
+            assert len(seen) == terminal["localInference"]["attempts"] == 1
+            assert terminal["actions"] == ["controller-final-source"]
+            return
+        if cutoff:
+            assert terminal["stopReason"] == "timeout", terminal["stopReason"]
+            assert terminal["activeSeconds"] <= 7.5
+            assert len(seen) == terminal["localInference"]["attempts"] == 2
+            assert any(record["kind"] == "task" for record in terminal["records"])
+            with pytest.raises(api.TrialError, match="completion proof failed"):
+                native.collect(run)
+            return
+        assert terminal["stopReason"] == "session_idle", terminal["stopReason"]
+        assert len(seen) == terminal["localInference"]["attempts"] == 4
         assert "local-native-proof" in json.dumps(seen[-1]["messages"])
-        assert native.collect(run) == specs.base("validator")
+        assert (run / "collected-source.bin").read_bytes() == specs.base("validator")
     finally:
         server.shutdown()
         server.server_close()
