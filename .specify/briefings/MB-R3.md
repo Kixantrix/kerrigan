@@ -69,3 +69,29 @@ agent-native measures instead:
   attempts);
 - agent effort (tool actions, native model calls, tokens).
 Don't report a METR-style human-time horizon.
+
+## Delegation matrix (user, 2026-11-26)
+User: "Evals help us with determining which model is better than which at what
+and also helps us size what kinds of tasks to handoff to different llms.
+Eventually we'll have a mix of cloud, local, and local infrastructure models
+we'll want to delegate to and having a good matrix handy will help us use
+resources well."
+
+- AC-D1 — level: integration — environment: local-attested-macos — test: matrix schema and generation tests.
+  Generate `benchmarks/michael/matrix/matrix.json` and `matrix.md` from the
+  ledger, never hand-edited.
+  - **Rows:** targets, each with its deployment class: cloud, local laptop,
+    or self-hosted infrastructure.
+  - **Columns:** work family × size tier, with tiers from agent-native task
+    size (small, medium, large).
+  - **Each cell holds:**
+    - n attempts and success rate with a Wilson CI;
+    - median time to verified completion;
+    - tokens, with cost where known (otherwise unknown);
+    - peak memory and energy where measured;
+    - known failure modes, such as unsupported claims.
+  - **Each column has a derived routing recommendation:** the cheapest or
+    fastest target whose lower CI bound clears a declared reliability
+    threshold. Mark it "insufficient evidence" when n is too small.
+  - Regenerate the matrix after every round. Keep it consumable later by
+    Kerrigan's delegation rubric; wiring it in is out of scope for now.
