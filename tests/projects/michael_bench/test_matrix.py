@@ -121,12 +121,13 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
         "unsupported-defect-claim": 3}
 
 
-@pytest.mark.parametrize("parity", [False, True])
-def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_path, monkeypatch, parity):
+@pytest.mark.parametrize("epoch", ["tooltip", "parity", "discovery"])
+def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_path, monkeypatch, epoch):
     repository = tmp_path / "repo"
     parent = tmp_path / "owned"
     old = parent / "mbr3-v1"
-    current = parent / ("mbr3-parity-v3" if parity else "mbr3-tooltip-v2")
+    current = parent / {"tooltip": "mbr3-tooltip-v2", "parity": "mbr3-parity-v3",
+                        "discovery": "mbr3-discovery-v4"}[epoch]
     old.mkdir(parents=True)
     current.mkdir()
     schedule = b"synthetic schedule"
@@ -137,6 +138,10 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
     attribution.parent.mkdir(parents=True)
     outcome.write_text('{"status":"ungraded"}')
     attribution.write_text('{"cause":"harness"}')
+    source_maps = {}
+    for root, owner in ((old, "a" * 64), (current, "b" * 64)):
+        source_maps[root] = {"benchmarks/michael/local_transport/owner.mjs": owner}
+        (root / "safety.json").write_text(json.dumps({"passed": True, "source": source_maps[root]}))
     plan = {
         "scheduleSha256": hashlib.sha256(schedule).hexdigest(),
         "attempts": [
@@ -145,19 +150,24 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
             {"task": "fixture", "repeat": 1, "model": "sonnet", "evidence_root": current.name,
              "source_epoch": "corrected"},
         ],
-        "source_epochs": {"original": {"ownerSha256": "a" * 64},
-                          "corrected": {"ownerSha256": "b" * 64}},
+        "source_epochs": {"original": {"ownerSha256": "a" * 64,
+                                      "safetySha256": hashlib.sha256((old / "safety.json").read_bytes()).hexdigest()},
+                          "corrected": {"ownerSha256": "b" * 64,
+                                        "safetySha256": hashlib.sha256((current / "safety.json").read_bytes()).hexdigest()}},
         "excluded_prior": {"task": "fixture", "repeat": 1, "model": "sonnet",
                           "outcomeSha256": hashlib.sha256(outcome.read_bytes()).hexdigest(),
                           "attributionSha256": hashlib.sha256(attribution.read_bytes()).hexdigest()},
     }
-    if parity:
+    if epoch != "tooltip":
         prior = plan.pop("excluded_prior")
         plan["excluded_priors"] = [{**prior, "failure_modes": ["invented-path-read"],
                                    "behavior": "invented-path-read", "cutoff": "harness-policy"}]
-    verification = repository / "benchmarks/michael/local_transport" / (
-        "mbr3-parity-verification.json" if parity else "mbr3-tooltip-verification.json")
+    verification = repository / "benchmarks/michael/local_transport" / f"mbr3-{epoch}-verification.json"
     verification.parent.mkdir(parents=True)
+    if epoch == "discovery":
+        sweep = verification.with_name("mbr3-discovery-parity.json")
+        sweep.write_bytes(b"synthetic sweep")
+        plan["paritySweepSha256"] = hashlib.sha256(sweep.read_bytes()).hexdigest()
     verification.write_text(json.dumps({"primaryPlan": plan}))
     path = current / "primary-plan.json"
     path.write_text(json.dumps(plan))
@@ -165,6 +175,7 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
 
     def reader(root, *, selected):
         return [{**record(model, repeat), "task": task, "condition": "MB-R3",
+                 "transport_source_sha256": generate.condition_digest(source_maps[root]),
                  "transport_owner_sha256": "a" * 64 if root == old else "b" * 64}
                 for task, repeat, model in selected]
 
@@ -172,7 +183,7 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
     rows, source = generate.epoch_records(path)
     assert {row["condition"] for row in rows} == {"MB-R3/original", "MB-R3/corrected"}
     assert source["prior_attempts"][0]["failure_modes"] == [
-        "invented-path-read" if parity else "harness-error"]
+        "harness-error" if epoch == "tooltip" else "invented-path-read"]
     assert source["prior_attempts"][0]["provenance"]["excluded_from_task_failures"] is True
     changed = copy.deepcopy(plan)
     changed["attempts"][0]["evidence_root"] = "access-only"

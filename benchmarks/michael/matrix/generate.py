@@ -246,6 +246,7 @@ def ledger_records(root, *, selected=None):
                 "ledger_sha256": hashlib.sha256(raw).hexdigest(),
                 "ledger_chain_head": head, "condition_sha256": outcome["conditionSha256"],
                 "source_sha256": source_sha,
+                "transport_source_sha256": condition_digest(frozen["source"]),
                 "transport_owner_sha256": frozen["source"]["benchmarks/michael/local_transport/owner.mjs"]})
             observed.add(attempt_key)
     if selected is not None and observed != selected:
@@ -259,12 +260,17 @@ def epoch_records(plan_path):
     """Resolve only the published recovery plan; outcomes still come from verified ledgers."""
     plan = json.loads(Path(plan_path).read_bytes())
     paths = [ROOT / "benchmarks/michael/local_transport" / name for name in (
-        "mbr3-tooltip-verification.json", "mbr3-parity-verification.json")]
+        "mbr3-tooltip-verification.json", "mbr3-parity-verification.json",
+        "mbr3-discovery-verification.json")]
     matches = [path for path in paths if path.is_file() and
                json.loads(path.read_bytes()).get("primaryPlan") == plan]
     if len(matches) != 1:
         raise ValueError("source epoch plan differs from published verification")
     verification_path = matches[0]
+    if "paritySweepSha256" in plan:
+        sweep = verification_path.with_name("mbr3-discovery-parity.json")
+        if hashlib.sha256(sweep.read_bytes()).hexdigest() != plan["paritySweepSha256"]:
+            raise ValueError("source epoch parity sweep mismatch")
     parent = Path(plan_path).parent.parent
     if hashlib.sha256((parent / "mbr3-v1/schedule.json").read_bytes()).hexdigest() != plan["scheduleSha256"]:
         raise ValueError("source epoch schedule mismatch")
@@ -272,7 +278,7 @@ def epoch_records(plan_path):
     labels = {}
     for row in plan["attempts"]:
         alias = row["evidence_root"]
-        if alias not in ("mbr3-v1", "mbr3-tooltip-v2", "mbr3-parity-v3"):
+        if alias not in ("mbr3-v1", "mbr3-tooltip-v2", "mbr3-parity-v3", "mbr3-discovery-v4"):
             raise ValueError("source epoch evidence alias denied")
         key = row["task"], row["repeat"], row["model"]
         if key in labels:
@@ -283,7 +289,7 @@ def epoch_records(plan_path):
     safe_priors = []
     for prior in priors:
         alias = prior.get("evidence_root", "mbr3-v1")
-        if alias not in ("mbr3-v1", "mbr3-tooltip-v2"):
+        if alias not in ("mbr3-v1", "mbr3-tooltip-v2", "mbr3-parity-v3"):
             raise ValueError("source epoch prior alias denied")
         prior_root = parent / alias
         outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
@@ -302,10 +308,17 @@ def epoch_records(plan_path):
         })
     records = []
     for alias, selected in selections.items():
+        safety_path = parent / alias / "safety.json"
+        safety_bytes = safety_path.read_bytes()
+        safety = json.loads(safety_bytes)
         for row in ledger_records(parent / alias, selected=selected):
             epoch = labels[row["task"], row["repeat"], row["model"]]
             if row["transport_owner_sha256"] != plan["source_epochs"][epoch]["ownerSha256"]:
                 raise ValueError("source epoch native owner mismatch")
+            if (hashlib.sha256(safety_bytes).hexdigest() != plan["source_epochs"][epoch]["safetySha256"] or
+                    safety.get("passed") is not True or
+                    row["transport_source_sha256"] != condition_digest(safety["source"])):
+                raise ValueError("source epoch full native source/safety mismatch")
             row["condition"] += "/" + epoch
             records.append(row)
     source = {"path": str(verification_path.relative_to(ROOT)),
