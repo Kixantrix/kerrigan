@@ -1,0 +1,43 @@
+{
+ "id": "plan-custom-action-briefing",
+ "family": "Understand and plan",
+ "title": "Write the dispatch briefing for custom actions (Surface A) from a merged spec and plan",
+ "source": {
+  "repo": "Kixantrix/your-voice",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 192,
+  "base_ref": "605d2900456b094beb1eab68dc32cb955a657a12",
+  "reference_ref": "432f3806383a570f8eb2145423f9bf2dc8870268",
+  "history_status": "merged"
+ },
+ "derivation": "Inputs are exact baseline-commit bytes from the private civic app (spec and plan merged in PR #180): the merged free-form-actions plan (complete), spec sections 1-4, 7 and 8 and the owner-decision table (sections 5, 6, 9, 10 omitted and marked), a filtered file tree, verbatim excerpts of the eight existing test files the plan names, CI/runner/screen-name facts (database URL redacted) and the repo's own delegation-rubric, test-ladder, test-environment and briefing-packet skills. The reference is the real Phase 1 change (PR #192, 33 files) transcribed into the briefing shape: its AC set (FF1-FF9 plus FF9a, which the plan's test table omits), the tests it used, its touched files as Touch, the exclusions it kept (no eighth authenticity category, prompt untouched, Surface B later) and the unratified D2 mechanic it flagged. Checks are invariants, not wording: exact AC/deferred sets, the closed level/environment taxonomy with levels fixed only where the named test's shape determines them, set-based glob coverage of files the plan/spec say change and non-coverage of files they say stay unchanged, an exact out-of-scope set over a closed 17-item vocabulary, and the routing rule. Sanitized: Excerpts of private planning documents and test files; no secrets, hostnames, personal names or user data (the CI database URL is redacted; test fixture identities are placeholder values).",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Deterministic required-facts and constraint checklist over a structured briefing (21 rows): AC coverage and deferral, owner-decision status, level/environment per the provided rules, test-file naming, Touch recall/precision against named paths, closed-vocabulary scope classification, routing.",
+ "historical_exposure": "Private history; recognition risk low.",
+ "outcome_evidence": "required_facts_checklist",
+ "estimated_agent_minutes": 30,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Objective wording, read_only globs and any extra prose are recorded for later review, never model-judged."
+ ],
+ "leak_tokens": [
+  "0017_quick_roulette",
+  "CustomAction.tsx",
+  "commitment-row-migration",
+  "Seventeen mutations, seventeen reds"
+ ],
+ "required_environment": "cloud-linux: python3.12 stdlib harness on michael-replay-grader:mb006j normalizes the JSON briefing. The briefed implementation itself needs Node 22 + pnpm (jest, jest-expo, Playwright chromium) and a PostgreSQL 16 service, as in the source repo's ubuntu-latest CI job; none of that is needed to grade the plan.",
+ "grader": {
+  "harness": "plan_custom_action_briefing.py",
+  "candidate": "BRIEFING.json",
+  "denominators": {
+   "acs": 4,
+   "ladder": 5,
+   "tests": 4,
+   "scope": 7,
+   "routing": 1
+  }
+ },
+ "round": 4
+}

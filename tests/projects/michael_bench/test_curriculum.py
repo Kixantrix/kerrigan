@@ -1003,4 +1003,28 @@ def test_public_anchors_are_provisioned_with_oracle_and_base_verdicts():
             assert entry["oracle"]["reward"] == 1.0 and entry["base"]["reward"] == 0.0, name
         else:
             assert entry["environment_needed"] and entry["notes"], name
-    assert sum(e["status"] == "verified" for e in by_name.values()) >= 8
+    assert sum(e["status"] == "verified" for e in by_name.values()) >= 9
+    assert json.loads((here / "anchors.json").read_text()).get("revision") == 2
+    assert all(e["status"] != "task-defect" for e in by_name.values())
+
+
+ROUND4 = {"research-admin-auth-choice", "research-cs-speech-stack", "plan-dashboard-decomposition",
+          "plan-custom-action-briefing", "orchestrate-dashboard-stages", "orchestrate-sl-sim-phase-one"}
+
+
+def test_round4_packages_fill_the_thin_families():
+    """Round 4: Research, Understand and plan and Orchestrate each gain two fresh calibrated packages."""
+    def refs(name):
+        source = curriculum.meta(name)["source"]
+        return source["base_ref"], source["reference_ref"]
+    earlier = {refs(n) for n in curriculum.PACKAGES if n not in ROUND4}
+    by_family = {}
+    for name in ROUND4:
+        info = curriculum.meta(name)
+        assert info["round"] == 4 and "supersedes" not in info and refs(name) not in earlier, name
+        receipt = json.loads((curriculum.HERE / name / "calibration.json").read_text())
+        assert [p["verdict"] for p in receipt["phases"]] == ["fail", "pass"], name
+        assert "Grading" in (curriculum.HERE / name / "agent/TASK.md").read_text(), name
+        by_family.setdefault(info["family"], set()).add(name)
+    assert {f: len(v) for f, v in by_family.items()} == {"Research": 2, "Understand and plan": 2, "Orchestrate": 2}
+    assert {curriculum.meta(n)["source"]["repo"] for n in by_family["Orchestrate"]} == {"Kixantrix/kerrigan", "Kixantrix/sunday-league"}

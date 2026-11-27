@@ -1,0 +1,41 @@
+{
+ "id": "plan-dashboard-decomposition",
+ "family": "Understand and plan",
+ "title": "Decompose dashboard milestones M2-M8 into dispatchable tasks, touch sets, waves and AC tests",
+ "source": {
+  "repo": "Kixantrix/kerrigan",
+  "visibility": "public",
+  "kind": "pr",
+  "pr": 292,
+  "base_ref": "8a985d7b7597ef44a2fbe3c4350e523bd7cd0e4c",
+  "reference_ref": "806f712902d3bde02c730e23bddd249850baa5e1",
+  "history_status": "merged"
+ },
+ "derivation": "Inputs are exact base-commit bytes of specs/projects/kerrigan-dashboard/{plan,spec}.md, the delegation-rubric/test-ladder/test-environment skills, tools/conflict_predictor.py and the full repository file list. planning/deliverables.md is a derived index giving each plan.md M2-M8 deliverable bullet a stable ID, the paths plan.md names, and the consumption edges plan.md states (each edge holds transitively in the merged tasks.md). Reference PLAN.json transcribes the merged tasks.md (23 tasks M2.1-M8.3: Touch, Dependencies, Tests) and acceptance-tests.md (AC->task, level) into JSON; two soft/absent scaffold deps (M3.1, M4.1 on M2.1) are made explicit, waves are the ASAP waves of the declared deps+touch overlaps (8), routing ids are added from the rubric, AC-019 (M1-only) is dropped and AC-015 keeps one level. Checks are invariants (coverage, file-accurate touch, recomputed overlaps/tight waves, transitive consumption edges, closed vocabularies, sizes), not the oracle's particular decomposition.",
+ "privacy": "public",
+ "coverage": "17 required invariants (coverage, decomposition, waves, overlaps, tightness, touch accuracy, named paths, consumption edges, AC mapping/ownership) + 8 constraints (AC vocab, test-ladder classification, environment rules, routing vocab/pure-logic routing, size, task tests, MCP tool scope); deterministic only.",
+ "historical_exposure": "Public historical planning PR; exposure/recognition risk.",
+ "outcome_evidence": "required_facts_checklist",
+ "estimated_agent_minutes": 30,
+ "long_horizon": false,
+ "required_environment": "cloud-linux (python3 stdlib only; plan artifact graded offline)",
+ "residual_rubric": [
+  "Quality of task titles, Done-when wording and briefing readiness: not graded and never model-judged."
+ ],
+ "leak_tokens": [
+  "isVisibleInViewport",
+  "briefing-gen` tool is explicitly out of v1"
+ ],
+ "grader": {
+  "harness": "plan_dashboard_decomposition.py",
+  "candidate": "PLAN.json",
+  "agent_support": [
+   "planning/repo-tree.txt"
+  ],
+  "denominators": {
+   "required": 17,
+   "constraint": 8
+  }
+ },
+ "round": 4
+}

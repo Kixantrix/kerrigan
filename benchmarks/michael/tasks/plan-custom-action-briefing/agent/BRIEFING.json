@@ -1,0 +1,12 @@
+{
+  "task_id": "",
+  "objective": "",
+  "acceptance_criteria": [],
+  "deferred_acs": [],
+  "deferred_reason": "",
+  "open_owner_decisions": [],
+  "touch": [],
+  "read_only": [],
+  "scope_items": {"in": [], "out": []},
+  "routing_rule": ""
+}

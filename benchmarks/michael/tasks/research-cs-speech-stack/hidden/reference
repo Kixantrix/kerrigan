@@ -1,0 +1,79 @@
+{
+  "transcription_location": "on-device",
+  "asr_engine": "sherpa-onnx-sensevoice",
+  "eliminated": {
+    "azure-speech": "no-intra-sentence-switching",
+    "aws-transcribe": "no-intra-sentence-switching",
+    "google-stt": "no-intra-sentence-switching",
+    "deepgram": "chinese-not-in-multilingual-mode",
+    "speechmatics": "baa-unverified",
+    "assemblyai": "baa-unverified",
+    "faster-whisper-sidecar": "no-arm64-prebuilt",
+    "whisper-cpp-turbo": "code-switch-gate",
+    "handrolled-onnx-whisper": "code-switch-gate"
+  },
+  "telehealth_diarization": "channel-separation",
+  "in_person_diarization": "acoustic-fixed-2",
+  "capture_format": "two-channel-mic-loopback",
+  "code_switch_error_pct": 8.1667,
+  "english_error_pct": 10.4,
+  "arm64_code_switch_error_pct": 8.1667,
+  "arm64_real_time_factor": null,
+  "speechmatics_code_switch_error_pct": null,
+  "in_person_der_pct": 6.1667,
+  "stack_footprint_mb": 172,
+  "unknowns": [
+    "arm64_real_time_factor",
+    "speechmatics_code_switch_error_pct"
+  ],
+  "citations": {
+    "transcription_location": [
+      "S1",
+      "S3",
+      "S4",
+      "S7"
+    ],
+    "asr_engine": [
+      "S1",
+      "S4",
+      "S7"
+    ],
+    "eliminated": [
+      "S1",
+      "S3",
+      "S4",
+      "S7"
+    ],
+    "code_switch_error_pct": [
+      "S1",
+      "S4"
+    ],
+    "english_error_pct": [
+      "S1",
+      "S4"
+    ],
+    "arm64_code_switch_error_pct": [
+      "S2",
+      "S4"
+    ],
+    "in_person_diarization": [
+      "S1",
+      "S5"
+    ],
+    "in_person_der_pct": [
+      "S1",
+      "S5"
+    ],
+    "telehealth_diarization": [
+      "S1",
+      "S5",
+      "S6"
+    ],
+    "capture_format": [
+      "S6"
+    ],
+    "stack_footprint_mb": [
+      "S7"
+    ]
+  }
+}

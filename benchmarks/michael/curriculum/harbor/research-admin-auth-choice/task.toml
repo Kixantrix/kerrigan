@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/FINDINGS.json"]
+
+[task]
+name = "kixantrix/michael-research-admin-auth-choice"
+version = "1.0.0"
+description = "Choose what replaces a plaintext env-var admin password under hard platform constraints"
+keywords = ["michael-bench", "research"]
+
+[metadata]
+family = "Research"
+source_repo = "Kixantrix/personal-selfhost"
+base_ref = "07fbe2d97f88f023217b03432dfdfec44f5384b3"
+reference_ref = "2f9edd84189d17c11c5b4b04c5618f303a703aeb"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "required_facts_checklist"
+estimated_agent_minutes = 25
+denominators = "{\"decision\": 2, \"elimination\": 7, \"evidence\": 3, \"repo\": 2, \"synthesis\": 2, \"uncertainty\": 2}"
+task_size = "{\"files_to_read\": 10, \"hidden_checks\": 18, \"hidden_clauses\": 36, \"lines_to_read\": 378, \"oracle_files_changed\": 1, \"oracle_lines_added\": 126, \"oracle_lines_removed\": 7, \"writable_files\": 1}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

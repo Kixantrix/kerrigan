@@ -1,0 +1,37 @@
+{
+ "id": "research-cs-speech-stack",
+ "family": "Research",
+ "title": "Choose the on-device speech stack for bilingual zh/en sessions from a frozen evidence pack",
+ "round": 4,
+ "source": {
+  "repo": "Kixantrix/clinical-scribe",
+  "visibility": "private",
+  "kind": "commit",
+  "base_ref": "75bd9e3a3b4b476eee127bb81d3f70cf80501594",
+  "reference_ref": "c635bea377d5b8fa0dfc5620ebda0db0bcc725bc",
+  "history_status": "merged",
+  "related_prs": [11]
+ },
+ "derivation": "Private on-device clinical scribe, v2 architecture decision (decision record D2/D3, architecture speech-pipeline and diarization sections, milestones M13/M14; telehealth two-channel capture later landed in PR #11). The project answered: transcription stays local because the BAA-verified cloud STT vendors only switch language between segments, the vendor marketing code-switching hardest excludes Chinese from its multilingual mode and the capable vendors have unverified BAAs; the hand-rolled ONNX Whisper module is replaced by sherpa-onnx + SenseVoiceSmall (official Rust crate, Windows ARM64, ~172 MB of models vs ~1.5 GB); telehealth diarization uses mic/loopback channel separation instead of a mono downmix; in-person uses acoustic diarization gated on DER < 10 %; quality is deterministic across x64/ARM64 while ARM64 latency is unmeasured. Re-synthesized as seven sanitized sources: S1 requirements with explicit ordered rules (an invented auto-threshold preference makes the strict DER boundary decisive), S2 platform note, S3 vendor survey, S4/S5 benchmark CSVs with invented quantities (pooled vs macro averaging and an exactly-at-threshold DER flip the answer if computed wrongly), S6 a sanitized capture excerpt, S7 an engine/packaging/model-size catalog with an optional model as a summing distractor. No PHI, no clinical content, no personal names, no code beyond a 10-line sanitized capture sketch.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Deterministic required-facts checklist over a JSON decision artifact: closed-vocabulary location/engine/diarization/capture choices, a per-option eliminating requirement for all nine unchosen options (exact key set), four pooled metrics recomputed from the CSVs within 0.05 (footprint within 1 MB), honest nulls for ARM64 speed and an unbenchmarked vendor plus a non-null check for the architecture-independent ARM64 accuracy, an exact unknowns set, and required citation subsets. No model judge.",
+ "historical_exposure": "Private history; synthetic quantities and re-written sources have low recognition risk. Public product names (sherpa-onnx, SenseVoice, Whisper, cloud STT vendors) are kept because the decision is about them; the answer depends on the invented benchmark numbers and the ordered rules, not on recall.",
+ "outcome_evidence": "required_facts_checklist",
+ "estimated_agent_minutes": 25,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Prose rationale, if any, is not graded and never model-judged."
+ ],
+ "leak_tokens": [],
+ "required_environment": "None beyond the packaged artifact: the upstream decision was research over vendor documentation, packaging surveys and an x64 transcription/diarization eval harness (Rust/Tauri + Python on Windows x64/ARM64). The packaged task is a frozen offline source pack graded on michael-replay-grader:mb006j (Python 3.12 stdlib).",
+ "grader": {
+  "harness": "json_artifact_sets.py",
+  "candidate": "DECISION.json",
+  "denominators": {
+   "decision": 10,
+   "synthesis": 4,
+   "uncertainty": 3,
+   "evidence": 3
+  }
+ }
+}

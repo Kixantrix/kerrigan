@@ -1,8 +1,32 @@
 {
  "schema_version": 1,
+ "revision": 2,
  "source": "harbor-framework/harbor registry.json (Apache-2.0), resolved 2026-11-26",
  "selection": "Fixed 10-task public anchor subset. Terminal-Bench 2.0 tasks were chosen to mirror the user's Operate/Experiment/repair work. SWE-bench Pro tasks are the first task by sorted instance name for each of five repos spanning Python and TS/JS. The registry has no difficulty labels, so this is not a verified HARD subset. Frozen; changes require a new revision.",
  "use": "Run in the same harness as the curriculum to place results relative to public leaderboards and detect harness bugs. Reported separately and never pooled with tailored tasks.",
+ "revisions": [
+  {
+   "revision": 2,
+   "date": "2026-11-27",
+   "change": "Replaced instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan with instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf.",
+   "reason": "Task defect in harbor-datasets@c8e8f3fa: 4 of 681 required test IDs in tests/config.json can never match the verifier parser's names (3 truncated at an embedded double quote, 1 with its trailing space stripped), so the oracle cannot reward 1 in any environment. Two further required tests need live egress (packages.nodebb.org, registry.npmjs.org). Evidence: anchors-verification.json superseded[].",
+   "selection": "Same rule (first task by sorted instance name per repo), restricted to JS/TS repos not already represented, to keep language balance. Candidates in order: protonmail/webclients, then tutao/tutanota.",
+   "rejected_candidates": [
+    {
+     "name": "instance_protonmail__webclients-01b519cd49e6a24d9a05d2eb97f54e420740072e",
+     "reason": "image jefzda/sweap-images (protonmail webclients) is 5,565,156,382 B compressed; exceeds this host's ~7 GB free disk (needs ~23 GB by the 4x estimate). The next two protonmail tasks are 4.66 GB and 4.78 GB compressed, so the repo was skipped."
+    }
+   ],
+   "replaced": {
+    "name": "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+    "tree_sha256": "d1853ecefcb259afaae9e22bb568cf46b927a4554af55a5bd373124311863168",
+    "git_tree": "c6d2829679ec6638e47a98e1a9a6652b443a6d43",
+    "oracle_reward": 0.0,
+    "base_reward": 0.0,
+    "status": "task-defect"
+   }
+  }
+ ],
  "anchors": [
   {
    "dataset": "terminal-bench",
@@ -89,10 +113,10 @@
    "dataset": "swebenchpro",
    "dataset_version": "1.0",
    "family_analogue": "Implement",
-   "name": "instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan",
+   "name": "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
    "git_url": "https://github.com/laude-institute/harbor-datasets.git",
    "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
-   "path": "datasets/swebenchpro/instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan"
+   "path": "datasets/swebenchpro/instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf"
   }
  ]
 }
