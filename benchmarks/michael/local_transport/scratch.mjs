@@ -2,7 +2,7 @@ import { lstatSync, rmSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-export const SCRATCH = Object.freeze({ directory: ".scratch", bytes: 1048576, entries: 128 });
+export const SCRATCH = Object.freeze({ directory: ".scratch", bytes: 67108864, entries: 4096 });
 
 export function scratchState(root, identity, python = "/usr/bin/python3") {
     const result = spawnSync(python, ["-I", "-B",

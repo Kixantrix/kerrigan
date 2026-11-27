@@ -121,7 +121,7 @@ def admission(*, oracle_passes: bool, base_fails: bool, audits: list[dict] | Non
     findings = [f for audit in audits for f in audit["findings"]]
     if any(f["kind"] in ("leakage", "contradiction") for f in findings):
         return {"state": "needs_fix", "reasons": sorted({f["kind"] for f in findings})}
-    rejected = [b for b in blind if not b["passed"] and b.get("adjudication", {}).get("cause") == "task"]
+    rejected = [b for b in blind if not b["passed"] and (b.get("adjudication") or {}).get("cause") == "task"]
     if rejected:
         return {"state": "needs_fix", "reasons": ["tests reject a reasonable blind solution"]}
     if any(not b["passed"] and b.get("adjudication") is None for b in blind):
