@@ -57,6 +57,14 @@ write limit applies to broker operations, not a kernel-enforced temporary-file
 size limit. These restrictions remain a disclosed difference from an
 unrestricted stock CLI.
 
+The first round-three source epoch had a misleading hardcoded `self_test.py`
+tool description even for tasks whose writable self-test is `self_test.mjs`.
+Sonnet's first orchestration-v5 attempt was stopped at that nonexistent path,
+remained ungraded, and was independently attributed to the harness. The
+corrected epoch derives its description and runnable paths from the actual
+policy without widening any allowlist. The faulted slot and five preceding
+verified passes are retained; its replacement uses a new disclosed slot.
+
 Foundation: `2df6f85`. Environment: `local-attested-macos`; results are dated
 operator observations, not human-attested completion. This condition is **local
 agent/tools with cloud inference**, not cloud-hosted tools or local inference.

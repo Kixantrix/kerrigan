@@ -297,7 +297,9 @@ try {
         permissions: { sandbox: config.sandbox, request: true },
         tools: { availableTools: ["mb_action"], definitions: [{
             name: "mb_action", description: config.validatorTask ?
-                "Closed validator read/write/run; public self_test.py; maximum 128 actions." :
+                `Closed validator read/write/run; write your own self-tests at ${TASK_VALIDATOR.scratch}; ` +
+                `maximum ${TASK_VALIDATOR.actions} actions. Runnable artifact paths: ` +
+                `${(TASK_VALIDATOR.run || TASK_VALIDATOR.write).join(", ")}.` :
                 "No-network no-fork confined Python/file action. Maximum 8 actions.",
             hasHandler: true, parameters: { type: "object", additionalProperties: false,
                 properties: { op: { enum: ["read", "write", "run"] },

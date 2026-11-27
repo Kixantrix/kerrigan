@@ -63,6 +63,10 @@ def test_native_no_fork_and_unlisted_files(owned, tmp_path, name):
         child.stdin.close()
     terminal = json.loads((run / "receipt/terminal.json").read_bytes())
     assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
+    inventory = json.loads((run / "receipt/inventory.json").read_bytes())
+    description = inventory["metadata"]["tools"][0]["description"]
+    assert policy["scratch"] in description
+    assert "write your own self-tests" in description
     result = json.loads((run / "receipt/action-result-2.json").read_bytes())["result"]
     assert result["exitCode"] == 0
     assert native.collect(run) == specs.base(name)
@@ -138,6 +142,8 @@ def test_round_three_tmpdir_write_run_cleanup_and_denial(owned, tmp_path, name):
         child.stdin.close()
     terminal = json.loads((run / "receipt/terminal.json").read_bytes())
     assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
+    inventory = json.loads((run / "receipt/inventory.json").read_bytes())
+    assert policy["scratch"] in inventory["metadata"]["tools"][0]["description"]
     assert terminal["scratch"]["cleanup"] == {"discarded": True}
     assert not terminal["scratch"].get("error")
     assert not (run / "task/.scratch").exists()
