@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/apps/taste-engine/eval/reports/ml-01-baselines.json", "/app/apps/taste-engine/src/taste_engine/eval/baselines.py", "/app/apps/taste-engine/src/taste_engine/eval/benchmark.py", "/app/apps/taste-engine/src/taste_engine/eval/metrics.py", "/app/apps/taste-engine/src/taste_engine/eval/split.py"]
+
+[task]
+name = "kixantrix/michael-te-baseline-eval"
+version = "1.0.0"
+description = "Audit a leaky recommender baseline benchmark and correct its reported winner"
+keywords = ["michael-bench", "experiment"]
+
+[metadata]
+family = "Experiment"
+source_repo = "Kixantrix/taste-engine"
+base_ref = "a3f19d6fb639db75697f510cd047f6720cbedc3b"
+reference_ref = "f808b83010e2d4a2ca2c439e81683c970e7e5a77"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "metric_within_tolerance"
+estimated_agent_minutes = 45
+denominators = "{\"baselines\": 4, \"benchmark\": 6, \"metrics\": 3, \"preservation\": 5, \"report\": 2, \"split\": 2}"
+task_size = "{\"files_to_read\": 11, \"hidden_checks\": 22, \"hidden_clauses\": 94, \"lines_to_read\": 4803, \"oracle_files_changed\": 5, \"oracle_lines_added\": 109, \"oracle_lines_removed\": 43, \"writable_files\": 5}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

@@ -1,0 +1,127 @@
+{
+ "v-civ-0": {
+  "relevance": 0
+ },
+ "v-civ-1": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-civ-2": {
+  "relevance": 2,
+  "reasonAccepted": true
+ },
+ "v-civ-3": {
+  "relevance": 0
+ },
+ "v-civ-4": {
+  "relevance": 0
+ },
+ "v-civ-5": {
+  "relevance": 0
+ },
+ "v-civ-6": {
+  "relevance": 2,
+  "reasonAccepted": true
+ },
+ "v-civ-7": {
+  "relevance": 1,
+  "reasonAccepted": false
+ },
+ "v-civ-8": {
+  "relevance": 0
+ },
+ "v-civ-9": {
+  "relevance": 0
+ },
+ "v-civ-10": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-civ-11": {
+  "relevance": 0
+ },
+ "v-civ-12": {
+  "relevance": 0
+ },
+ "v-civ-13": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-cou-0": {
+  "relevance": 0
+ },
+ "v-cou-1": {
+  "relevance": 1,
+  "reasonAccepted": false
+ },
+ "v-cou-2": {
+  "relevance": 0
+ },
+ "v-cou-3": {
+  "relevance": 0
+ },
+ "v-cou-4": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-cou-5": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-leg-0": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-leg-1": {
+  "relevance": 0
+ },
+ "v-leg-2": {
+  "relevance": 0
+ },
+ "v-leg-3": {
+  "relevance": 0
+ },
+ "v-leg-4": {
+  "relevance": 2,
+  "reasonAccepted": true
+ },
+ "v-leg-5": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-con-0": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-con-1": {
+  "relevance": 1,
+  "reasonAccepted": false
+ },
+ "v-con-2": {
+  "relevance": 0
+ },
+ "v-con-3": {
+  "relevance": 2,
+  "reasonAccepted": true
+ },
+ "v-con-4": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-con-5": {
+  "relevance": 0
+ },
+ "v-con-6": {
+  "relevance": 0
+ },
+ "v-con-7": {
+  "relevance": 1,
+  "reasonAccepted": true
+ },
+ "v-con-8": {
+  "relevance": 0
+ },
+ "v-con-9": {
+  "relevance": 0
+ }
+}

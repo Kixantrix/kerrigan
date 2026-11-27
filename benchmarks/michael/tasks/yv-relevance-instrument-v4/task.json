@@ -1,0 +1,50 @@
+{
+ "id": "yv-relevance-instrument-v4",
+ "family": "Experiment",
+ "title": "Build a blind relevance-rating instrument that can find the ranker wrong",
+ "source": {
+  "repo": "Kixantrix/your-voice",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 224,
+  "base_ref": "bba55b3308dcafb745b0c1d77a1db96564c63f87",
+  "reference_ref": "dd533670f8c5f1c4ac0251934f274914a28df9f4",
+  "history_status": "merged"
+ },
+ "derivation": "Private civic-assistant app PR #224 (blind rating harness: evaluative-field stripping enforced on the produced object, seeded shuffle, metrics that expose misses and wrong reasons beyond an m-of-n count, and a corpus audit that found government items carry no subject matter) re-synthesized as a sanitized TypeScript specification, synthetic corpus and held-out data. No private code, items, ratings or names are included. v2 (MB-010c follow-up, native admission finding, benchmarks/michael/curriculum/MB-010r-yv-relevance-instrument-admission.json sha256 95c33e662663c48d164300905a0050b245db4f11d00d1a8ba8821a36870fb4fb): the specification required rejecting any own evaluative key, but the oracle (Object.entries) and checks inspect only own enumerable string keys; the specification now says so. Oracle and hidden checks are unchanged. v3: literal-overspecification audit (MB-010r-literal-audit.json, sha256 73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412): scoreArm results compared with exact equality; SPEC lists the fields but does not close the object -> subset match on the same values. Instruction and oracle unchanged. v4 (round 3): native round-3 admission of v3 returned needs_fix (receipt benchmarks/michael/curriculum/MBR3-yv-relevance-instrument-v3-admission.json, sha256 fb52dc3afc4abc62f2fa901ea6329b1a26245bdccd84680d62b1b9e16dff05f2): SPEC.md said finding is subject-matter-absent 'when every government source is starved', which is vacuously true for an empty list, while the real your-voice oracle requires governmentSources.length > 0 and returns ranker-ordering. The oracle is real code, so SPEC.md now states the empty-list contract (and that a government source with no items is not starved, also the oracle's behavior); a new hidden row checks both. Oracle unchanged. Self-audit against the v3 receipt's untested requirements: new held-out boundary checks cover every EVALUATIVE_KEYS entry; non-enumerable, symbol and inherited keys being ignored; precision dividing by k when fewer ids are ranked; the relevance gate on wrongReasons; whitespace-only summaries, the exact 80-character trimmed threshold, an exactly-half source, mean rounding, empty topics, punctuation separators and sorting of an unsorted government list. Expected values come from the real oracle and agree with SPEC.md. TASK.md now declares that purity/no-I/O, the internal assertion call inside blindItems and exported type signatures are not graded.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Three new modules checked on held-out corpora, ratings and seeds; expected values come from an independent Python implementation of the specification.",
+ "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
+ "outcome_evidence": "metric_within_tolerance",
+ "estimated_agent_minutes": 45,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Interpretation write-ups (findings documents) are not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "evals/relevance/blind.ts",
+  "candidates": [
+   "evals/relevance/audit.ts",
+   "evals/relevance/blind.ts",
+   "evals/relevance/score.ts"
+  ],
+  "denominators": {
+   "blind": 6,
+   "score": 5,
+   "audit": 5
+  }
+ },
+ "supersedes": "yv-relevance-instrument-v3",
+ "round": 3,
+ "prior_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+  "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+ },
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MBR3-yv-relevance-instrument-v3-admission.json",
+  "sha256": "fb52dc3afc4abc62f2fa901ea6329b1a26245bdccd84680d62b1b9e16dff05f2"
+ }
+}

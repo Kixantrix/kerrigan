@@ -1,0 +1,614 @@
+[
+ {
+  "id": "v-civ-0",
+  "source": "civic-events",
+  "title": "Safety budget meetup 0",
+  "topics": [
+   "safety"
+  ],
+  "score": 0.77,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "safety",
+    "rank": 0
+   }
+  ],
+  "summary": "Doors open at 6 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-1",
+  "source": "civic-events",
+  "title": "Schools climate meetup 1",
+  "topics": [
+   "schools"
+  ],
+  "score": 0.738,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "schools",
+    "rank": 1
+   }
+  ],
+  "summary": "Doors open at 7 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-2",
+  "source": "civic-events",
+  "title": "Zoning housing meetup 2",
+  "topics": [
+   "zoning"
+  ],
+  "score": 0.596,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "zoning",
+    "rank": 2
+   }
+  ],
+  "summary": "Doors open at 8 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-3",
+  "source": "civic-events",
+  "title": "Water housing meetup 3",
+  "topics": [
+   "water"
+  ],
+  "score": 0.848,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "water",
+    "rank": 3
+   }
+  ],
+  "summary": "Doors open at 6 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-4",
+  "source": "civic-events",
+  "title": "Safety budget meetup 4",
+  "topics": [
+   "safety"
+  ],
+  "score": 0.483,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "safety",
+    "rank": 4
+   }
+  ],
+  "summary": "Doors open at 7 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-5",
+  "source": "civic-events",
+  "title": "Safety zoning meetup 5",
+  "topics": [
+   "safety"
+  ],
+  "score": 0.04,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "safety",
+    "rank": 5
+   }
+  ],
+  "summary": "Doors open at 8 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-6",
+  "source": "civic-events",
+  "title": "Parks climate meetup 6",
+  "topics": [
+   "parks"
+  ],
+  "score": 0.118,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "parks",
+    "rank": 6
+   }
+  ],
+  "summary": "Doors open at 6 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-7",
+  "source": "civic-events",
+  "title": "Schools transit meetup 7",
+  "topics": [
+   "schools"
+  ],
+  "score": 0.067,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "schools",
+    "rank": 7
+   }
+  ],
+  "summary": "Doors open at 7 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-8",
+  "source": "civic-events",
+  "title": "Climate schools meetup 8",
+  "topics": [
+   "climate"
+  ],
+  "score": 0.234,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "climate",
+    "rank": 8
+   }
+  ],
+  "summary": "Doors open at 8 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-9",
+  "source": "civic-events",
+  "title": "Zoning libraries meetup 9",
+  "topics": [
+   "zoning"
+  ],
+  "score": 0.815,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "zoning",
+    "rank": 9
+   }
+  ],
+  "summary": "Doors open at 6 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-10",
+  "source": "civic-events",
+  "title": "Climate housing meetup 10",
+  "topics": [
+   "climate"
+  ],
+  "score": 0.546,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "climate",
+    "rank": 10
+   }
+  ],
+  "summary": "Doors open at 7 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-11",
+  "source": "civic-events",
+  "title": "Housing safety meetup 11",
+  "topics": [
+   "housing"
+  ],
+  "score": 0.705,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "housing",
+    "rank": 11
+   }
+  ],
+  "summary": "Doors open at 8 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-12",
+  "source": "civic-events",
+  "title": "Safety libraries meetup 12",
+  "topics": [
+   "safety"
+  ],
+  "score": 0.818,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "safety",
+    "rank": 12
+   }
+  ],
+  "summary": "Doors open at 6 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-civ-13",
+  "source": "civic-events",
+  "title": "Budget parks meetup 13",
+  "topics": [
+   "budget"
+  ],
+  "score": 0.006,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "budget",
+    "rank": 13
+   }
+  ],
+  "summary": "Doors open at 7 pm. Park in the north lot; the building is wheelchair accessible. Bring water and a friend. Volunteers check you in at the front table and hand out name tags before the program begins."
+ },
+ {
+  "id": "v-cou-0",
+  "source": "county",
+  "title": "Water schools hearing 0",
+  "topics": [
+   "water"
+  ],
+  "score": 0.711,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "water",
+    "rank": 0
+   }
+  ],
+  "summary": "REVISED AGENDA - ADDED ITEM 6"
+ },
+ {
+  "id": "v-cou-1",
+  "source": "county",
+  "title": "Parks climate hearing 1",
+  "topics": [
+   "parks",
+   "agenda"
+  ],
+  "score": 0.641,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "parks",
+    "rank": 1
+   }
+  ],
+  "summary": "SPECIAL MEETING"
+ },
+ {
+  "id": "v-cou-2",
+  "source": "county",
+  "title": "Schools safety hearing 2",
+  "topics": [
+   "schools"
+  ],
+  "score": 0.183,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "schools",
+    "rank": 2
+   }
+  ],
+  "summary": ""
+ },
+ {
+  "id": "v-cou-3",
+  "source": "county",
+  "title": "Budget water hearing 3",
+  "topics": [
+   "budget",
+   "agenda"
+  ],
+  "score": 0.227,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "budget",
+    "rank": 3
+   }
+  ]
+ },
+ {
+  "id": "v-cou-4",
+  "source": "county",
+  "title": "Parks housing hearing 4",
+  "topics": [
+   "parks"
+  ],
+  "score": 0.444,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "parks",
+    "rank": 4
+   }
+  ]
+ },
+ {
+  "id": "v-cou-5",
+  "source": "county",
+  "title": "Transit parks hearing 5",
+  "topics": [
+   "transit",
+   "agenda"
+  ],
+  "score": 0.375,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "transit",
+    "rank": 5
+   }
+  ]
+ },
+ {
+  "id": "v-leg-0",
+  "source": "legislature",
+  "title": "Climate schools hearing 0",
+  "topics": [
+   "climate"
+  ],
+  "score": 0.863,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "climate",
+    "rank": 0
+   }
+  ],
+  "summary": "REVISED AGENDA - ADDED ITEM 6"
+ },
+ {
+  "id": "v-leg-1",
+  "source": "legislature",
+  "title": "Zoning parks hearing 1",
+  "topics": [
+   "zoning",
+   "agenda"
+  ],
+  "score": 0.198,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "zoning",
+    "rank": 1
+   }
+  ],
+  "summary": "SPECIAL MEETING"
+ },
+ {
+  "id": "v-leg-2",
+  "source": "legislature",
+  "title": "Parks libraries hearing 2",
+  "topics": [
+   "parks"
+  ],
+  "score": 0.703,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "parks",
+    "rank": 2
+   }
+  ],
+  "summary": ""
+ },
+ {
+  "id": "v-leg-3",
+  "source": "legislature",
+  "title": "Water climate hearing 3",
+  "topics": [
+   "water",
+   "agenda"
+  ],
+  "score": 0.101,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "water",
+    "rank": 3
+   }
+  ]
+ },
+ {
+  "id": "v-leg-4",
+  "source": "legislature",
+  "title": "Climate libraries hearing 4",
+  "topics": [
+   "climate"
+  ],
+  "score": 0.283,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "climate",
+    "rank": 4
+   }
+  ]
+ },
+ {
+  "id": "v-leg-5",
+  "source": "legislature",
+  "title": "Water parks hearing 5",
+  "topics": [
+   "water",
+   "agenda"
+  ],
+  "score": 0.021,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "water",
+    "rank": 5
+   }
+  ]
+ },
+ {
+  "id": "v-con-0",
+  "source": "congress",
+  "title": "Safety climate hearing 0",
+  "topics": [
+   "safety",
+   "climate"
+  ],
+  "score": 0.593,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "safety",
+    "rank": 0
+   }
+  ]
+ },
+ {
+  "id": "v-con-1",
+  "source": "congress",
+  "title": "Housing parks hearing 1",
+  "topics": [
+   "housing",
+   "parks"
+  ],
+  "score": 0.934,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "housing",
+    "rank": 1
+   }
+  ]
+ },
+ {
+  "id": "v-con-2",
+  "source": "congress",
+  "title": "Zoning budget hearing 2",
+  "topics": [
+   "zoning",
+   "budget"
+  ],
+  "score": 0.408,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "zoning",
+    "rank": 2
+   }
+  ]
+ },
+ {
+  "id": "v-con-3",
+  "source": "congress",
+  "title": "Libraries housing hearing 3",
+  "topics": [
+   "libraries",
+   "housing"
+  ],
+  "score": 0.61,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "libraries",
+    "rank": 3
+   }
+  ]
+ },
+ {
+  "id": "v-con-4",
+  "source": "congress",
+  "title": "Parks budget hearing 4",
+  "topics": [
+   "parks",
+   "budget"
+  ],
+  "score": 0.469,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "parks",
+    "rank": 4
+   }
+  ]
+ },
+ {
+  "id": "v-con-5",
+  "source": "congress",
+  "title": "Schools climate hearing 5",
+  "topics": [
+   "schools",
+   "climate"
+  ],
+  "score": 0.34,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "schools",
+    "rank": 5
+   }
+  ]
+ },
+ {
+  "id": "v-con-6",
+  "source": "congress",
+  "title": "Climate budget hearing 6",
+  "topics": [
+   "climate",
+   "budget"
+  ],
+  "score": 0.518,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "climate",
+    "rank": 6
+   }
+  ]
+ },
+ {
+  "id": "v-con-7",
+  "source": "congress",
+  "title": "Budget water hearing 7",
+  "topics": [
+   "budget",
+   "water"
+  ],
+  "score": 0.474,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "budget",
+    "rank": 7
+   }
+  ]
+ },
+ {
+  "id": "v-con-8",
+  "source": "congress",
+  "title": "Libraries housing hearing 8",
+  "topics": [
+   "libraries",
+   "housing"
+  ],
+  "score": 0.991,
+  "matched": false,
+  "reasons": [
+   {
+    "northStar": "libraries",
+    "rank": 8
+   }
+  ]
+ },
+ {
+  "id": "v-con-9",
+  "source": "congress",
+  "title": "Parks transit hearing 9",
+  "topics": [
+   "parks",
+   "transit"
+  ],
+  "score": 0.383,
+  "matched": true,
+  "reasons": [
+   {
+    "northStar": "parks",
+    "rank": 9
+   }
+  ]
+ }
+]

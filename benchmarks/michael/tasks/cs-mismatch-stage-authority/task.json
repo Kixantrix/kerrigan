@@ -1,0 +1,49 @@
+{
+ "id": "cs-mismatch-stage-authority",
+ "family": "Review and repair",
+ "title": "Refuse an untyped mismatch stage that silently demoted the authoritative template check",
+ "source": {
+  "repo": "Kixantrix/clinical-scribe",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 56,
+  "base_ref": "0e693d91f70aac6e7d76c041a66b4cccde927f2b",
+  "reference_ref": "c1db95f9fa0bc95f4282e83f3b7725d9f42c2479",
+  "history_status": "merged"
+ },
+ "derivation": "Private on-device report-writer PR #56 (an unrecognised mismatch stage arriving from stored JSON or IPC produced authoritative:false on the render path; fix refuses any stage other than the exact strings render/save with TemplateMismatchError before any other work, and asserts the two stages differ only in authority). mismatch.ts, placeholders.ts and docxFixtures.ts are the exact base files with only the import specifiers changed to explicit .ts paths and the npm pizzip import pointed at zip.ts, a Node built-in stand-in implementing the subset of the pizzip API they use (STORE/DEFLATE read, STORE write). The vitest suite is re-expressed as a node:test file with neutral section names. Reference mismatch.ts is the historical fix byte-for-byte (same import adjustment) plus a REVIEW.json ledger. Hidden checks: held-out unknown, case/whitespace, prototype-name, wrong-type and object stages, malformed and well-formed JSON payloads, refuse-before-work ordering, valid/absent/null stage preservation, save-vs-render answer equality on held-out templates (split runs, headers, collisions, reserved slots), existing errors and a closed-vocabulary review ledger with distractor categories absent from the base. Expected values are the historical fix's observed behavior.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "7 refusal (regression) rows over 35 held-out invalid stage inputs, 8 preservation rows, 3 review-ledger rows (required defect, no false positives among 7 absent categories, well-formed).",
+ "historical_exposure": "Private history; synthetic fixtures and neutral section names have low recognition risk.",
+ "outcome_evidence": "defect_coverage",
+ "estimated_agent_minutes": 15,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Quality of free-text defect descriptions and code comments is not graded and never model-judged."
+ ],
+ "leak_tokens": [
+  "unknown mismatch stage",
+  "Refuse rather than default"
+ ],
+ "required_environment": "Full upstream task: Node >=22.12 with npm dependencies (pizzip, docxtemplater, vitest) and the Tauri/Rust host that sends render requests over IPC. Packaged slice runs on michael-replay-grader-node:mb008 (Node 24 type stripping, no npm), with zip.ts standing in for pizzip.",
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "src/lib/report/mismatch.ts",
+  "candidates": [
+   "REVIEW.json",
+   "src/lib/report/mismatch.ts"
+  ],
+  "agent_support": [
+   "src/lib/report/docxFixtures.ts",
+   "src/lib/report/placeholders.ts",
+   "src/lib/report/zip.ts"
+  ],
+  "denominators": {
+   "refusal": 7,
+   "preservation": 8,
+   "review": 3
+  }
+ },
+ "round": 3
+}

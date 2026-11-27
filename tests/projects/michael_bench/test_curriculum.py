@@ -504,18 +504,21 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"orchestrate-voice-integration-v4": "orchestrate-voice-integration-v5",
-           "kerrigan-plan-conflict-queue": "kerrigan-plan-conflict-queue-v3",
+CURRENT = {"yv-relevance-instrument-v3": "yv-relevance-instrument-v4",
+           "kerrigan-plan-conflict-queue-v3": "kerrigan-plan-conflict-queue-v4",
+           "design-alethiometer-case-v3": "design-alethiometer-case-v4",
+           "orchestrate-voice-integration-v4": "orchestrate-voice-integration-v5",
+           "kerrigan-plan-conflict-queue": "kerrigan-plan-conflict-queue-v4",
            "review-conflict-predictor-v3": "review-conflict-predictor-v4",
-           "design-alethiometer-case-v2": "design-alethiometer-case-v3",
-           "kerrigan-plan-conflict-queue-v2": "kerrigan-plan-conflict-queue-v3",
-           "yv-relevance-instrument-v2": "yv-relevance-instrument-v3",
+           "design-alethiometer-case-v2": "design-alethiometer-case-v4",
+           "kerrigan-plan-conflict-queue-v2": "kerrigan-plan-conflict-queue-v4",
+           "yv-relevance-instrument-v2": "yv-relevance-instrument-v4",
            "emv-thumbnails-gallery-v2": "emv-thumbnails-gallery-v3",
            "orchestrate-voice-integration-v3": "orchestrate-voice-integration-v5",
            "plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v4",
            "review-conflict-predictor-v2": "review-conflict-predictor-v4",
-           "design-alethiometer-case": "design-alethiometer-case-v3",
-           "yv-relevance-instrument": "yv-relevance-instrument-v3",
+           "design-alethiometer-case": "design-alethiometer-case-v4",
+           "yv-relevance-instrument": "yv-relevance-instrument-v4",
            "emv-thumbnails-gallery": "emv-thumbnails-gallery-v3",
            "orchestrate-voice-integration": "orchestrate-voice-integration-v5",
            "orchestrate-voice-integration-v2": "orchestrate-voice-integration-v5",
@@ -909,3 +912,95 @@ def test_no_human_time_estimates_in_current_metadata():
         if name not in retired:
             toml = (ROOT / "benchmarks/michael/curriculum/harbor" / name / "task.toml").read_text()
             assert "human" not in toml and "task_size = " in toml
+
+
+ROUND3_FRESH = {"cs-mismatch-stage-authority", "design-alethiometer-gear-mesh", "foal-meadow-regression-review",
+                "kirkland-compose-adoption", "te-baseline-eval", "vhs-room-registry-sync"}
+ROUND2_SINGLE_TASK_FAMILIES = {"Understand and plan", "Review and repair", "Research", "Design", "Experiment", "Orchestrate"}
+
+
+def test_round3_fresh_packages_cover_new_repos_large_work_and_thin_families():
+    """MB-R3 AC-B1: >=6 fresh calibrated packages, >=3 large multi-file, >=2 thin round-2 families."""
+    earlier = {curriculum.meta(n)["source"]["base_ref"] for n in curriculum.PACKAGES if n not in ROUND3_FRESH}
+    large = set()
+    for name in ROUND3_FRESH:
+        info = curriculum.meta(name)
+        assert info["round"] == 3 and "supersedes" not in info and info["source"]["base_ref"] not in earlier
+        receipt = json.loads((curriculum.HERE / name / "calibration.json").read_text())
+        assert [p["verdict"] for p in receipt["phases"]] == ["fail", "pass"]
+        size = curriculum.task_size(name)
+        if size["oracle_files_changed"] >= 3 and size["oracle_lines_added"] + size["oracle_lines_removed"] >= 100:
+            large.add(name)
+    assert len(ROUND3_FRESH) >= 6 and len(large) >= 3
+    assert len({curriculum.meta(n)["family"] for n in ROUND3_FRESH} & ROUND2_SINGLE_TASK_FAMILIES) >= 2
+
+
+DESIGN_V4 = "design-alethiometer-case-v4"
+RELIEF_BASE = "    return T040 + T063 + HINGE_NUT_H + 0.4       # backing strip + M1.6 nuts inside the wall\n"
+RELIEF_ORACLE = ("    screw_tips = HINGE_BODY_SCREW_LEN - T040      # countersunk screw protrudes past the wall\n"
+                 "    strip_and_nuts = T063 + HINGE_NUT_H          # backing strip + M1.6 nuts inside the wall\n"
+                 "    return max(screw_tips, strip_and_nuts) + RELIEF_CLEARANCE\n")
+
+
+@pytest.mark.parametrize("label,relief,failed", [
+    ("deeper relief that still clears", RELIEF_ORACLE.replace("+ RELIEF_CLEARANCE\n", "+ RELIEF_CLEARANCE + 0.2\n"), []),
+    ("clearance hard-coded", RELIEF_ORACLE.replace("+ RELIEF_CLEARANCE\n", "+ 0.4\n"),
+     ["hinge relief follows the screw length and clearance rule, not hard-coded"]),
+    ("screw tips only", RELIEF_ORACLE.replace("max(screw_tips, strip_and_nuts)", "screw_tips"),
+     ["hinge relief follows the screw length and clearance rule, not hard-coded"]),
+    ("large constant that always clears", "    return 50.0\n",
+     ["hinge relief follows the screw length and clearance rule, not hard-coded"]),
+])
+def test_design_v4_relief_is_specified_and_derived(label, relief, failed, tmp_path):
+    variant = _edited_reference(DESIGN_V4, "hardware/stack.py", RELIEF_ORACLE, relief)
+    assert _failed(variant, DESIGN_V4, tmp_path) == failed, label
+    base = (curriculum.HERE / DESIGN_V4 / "agent/hardware/stack.py").read_text()
+    assert RELIEF_BASE in base and "HINGE_BODY_SCREW_LEN - T040 inward" in base
+
+
+def test_queue_v4_keeps_the_oracle_and_drops_association():
+    old, new = curriculum.HERE / "kerrigan-plan-conflict-queue-v3", curriculum.HERE / "kerrigan-plan-conflict-queue-v4"
+    assert (curriculum.verifier_files("kerrigan-plan-conflict-queue-v4")["reference"]
+            == curriculum.verifier_files("kerrigan-plan-conflict-queue-v3")["reference"])
+    for path in (old / "agent").rglob("*"):
+        if path.is_file() and path.name != "TASK.md":
+            assert (new / path.relative_to(old)).read_bytes() == path.read_bytes()
+    task = (new / "agent/TASK.md").read_text()
+    assert "from an `agent:go`-assigned issue" not in task and "no association between the two required" in task
+
+
+def test_yv_v4_states_and_checks_the_empty_government_contract(tmp_path):
+    name = "yv-relevance-instrument-v4"
+    assert curriculum.verifier_files(name)["reference"] == curriculum.verifier_files("yv-relevance-instrument-v3")["reference"]
+    vacuous = _edited_reference(name, "evals/relevance/audit.ts",
+                                "governmentSources.length > 0 && starved.length === governmentSources.length",
+                                "starved.length === governmentSources.length")
+    assert _failed(vacuous, name, tmp_path) == ["no government sources is ranker-ordering, not vacuously absent"]
+    spec = (curriculum.HERE / name / "agent/evals/relevance/SPEC.md").read_text()
+    assert "an empty `governmentSources` list gives\n  `\"ranker-ordering\"`" in spec
+
+
+@pytest.mark.parametrize("path,before,after", [
+    ("hardware/README.md", "(an octagon with 16 mm chamfers)", "(an octagon, 16 mm chamfers)"),
+    ("hardware/BOM.md", "M1.6 \u00d7 6 brass", "M1.6 \u00d7 5 brass"),
+])
+def test_design_v4_documents_keep_wording_and_fixed_numbers(path, before, after, tmp_path):
+    variant = _edited_reference(DESIGN_V4, path, before, after)
+    assert _failed(variant, DESIGN_V4, tmp_path) == ["documents keep their wording, layout and every non-derived number"]
+
+
+def test_public_anchors_are_provisioned_with_oracle_and_base_verdicts():
+    """MB-R3 AC-B2: every pinned anchor is run (or its environment gap/defect recorded)."""
+    here = ROOT / "benchmarks/michael/curriculum"
+    anchors = json.loads((here / "anchors.json").read_text())["anchors"]
+    record = json.loads((here / "anchors-verification.json").read_text())
+    assert record["anchors_json_sha256"] == hashlib.sha256((here / "anchors.json").read_bytes()).hexdigest()
+    by_name = {a["name"]: a for a in record["anchors"]}
+    assert set(by_name) == {a["name"] for a in anchors} and len(by_name) == 10
+    for name, entry in by_name.items():
+        assert entry["status"] in record["statuses"], name
+        if entry["status"] == "verified":
+            assert entry["oracle"]["reward"] == 1.0 and entry["base"]["reward"] == 0.0, name
+        else:
+            assert entry["environment_needed"] and entry["notes"], name
+    assert sum(e["status"] == "verified" for e in by_name.values()) >= 8
