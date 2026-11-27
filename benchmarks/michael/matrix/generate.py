@@ -25,7 +25,7 @@ FAMILIES = {"validator": "Implement", "grouping": "Implement", "status": "Implem
             "selfhost-redeploy-state": "Operate", "sr-temporal-assay": "Experiment"}
 FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "sandbox-boundary-write",
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
-                 "harness-error", "invented-path-read", "spec-misread")
+                 "harness-error", "invented-path-read", "spec-misread", "budget-noncompletion")
 
 
 def failure_modes(attribution):
@@ -240,15 +240,19 @@ def ledger_records(root, *, selected=None):
             if len(trial["starts"]) != 1 or len(trial["attempts"]) != 1 or trial["origin"] != "new_trial":
                 raise ValueError("incomplete or retried matrix ledger slot")
             attempt = trial["attempts"][0]
-            if attempt["verdict"] not in ("passed", "failed"):
+            local = frozen.get("localInference")
+            ungraded = attempt["verdict"] == "ungraded"
+            if attempt["verdict"] not in ("passed", "failed") and not (local and ungraded):
                 raise ValueError("ungraded matrix attempt; attribution required")
             run = path.parent / model
             outcome = json.loads((run / "outcome.json").read_bytes())
             native = json.loads((run / "receipt/terminal.json").read_bytes())
-            source_sha = hashlib.sha256((run / "collected-source.bin").read_bytes()).hexdigest()
+            artifact = run / "collected-source.bin"
+            source_sha = (hashlib.sha256(artifact.read_bytes()).hexdigest()
+                          if artifact.exists() else None)
             if (outcome["conditionSha256"] != condition_digest(frozen) or
                     outcome["sourceSha256"] != source_sha or native["wholeProcessQuiescent"] is not True or
-                    native["cleanupSeconds"] > 15):
+                    native["cleanupSeconds"] > 15 or (not ungraded and source_sha is None)):
                 raise ValueError("matrix native condition/artifact/cleanup mismatch")
             passed = attempt["verdict"] == "passed"
             timing = attempt["time_to_verified_completion"]
@@ -257,15 +261,28 @@ def ledger_records(root, *, selected=None):
                 raise ValueError("matrix ledger/native result mismatch")
             failures = []
             resolution_sha = None
-            if not passed:
+            if not passed and not ungraded:
                 attribution, resolution_sha = resolved_attribution(root, name, repeat, model, run)
                 if attribution["cause"] != "model":
                     raise ValueError("non-model matrix failure requires corrected primary attempt")
                 failures = failure_modes(attribution)
-            local = frozen.get("localInference")
             if local and ((native.get("localInference", {}).get("release") or {}).get(
-                    "ownedRequestsDrained") is not True or native["nativePrompts"] != 0):
+                    "ownedRequestsDrained") is not True or native["nativePrompts"] != 0 or
+                    native.get("localInference", {}).get("synthetic") is True or
+                    (ungraded and native.get("localInference", {}).get("synthetic") is not False)):
                 raise ValueError("matrix local backend drain/prompt mismatch")
+            local_state = {}
+            if ungraded:
+                budget = (native.get("partialBudgetExhausted") is True and
+                    native["localInference"].get("attempts", 0) > 0 and native.get("stopReason") in (
+                        "timeout", "broker:agent_action_budget", "broker:task_output_budget", "local_output_cap"))
+                if budget:
+                    failures = ["budget-noncompletion"]
+                local_state = {"outcome_state": "budget-censored" if budget else (
+                    "environment-abort" if native.get("stopReason") == "external_cancel" and
+                    outcome.get("externalStopReason") else "unscored"),
+                    "eligible": budget,
+                    "noncompletion_reason": outcome.get("externalStopReason") or native.get("stopReason")}
             usage = ([event.get("usage") for event in native["localInference"]["events"]
                       if event["type"] == "local_request_finished"] if local else native["usage"])
             tokens = {}
@@ -276,10 +293,12 @@ def ledger_records(root, *, selected=None):
             records.append({"task": name, "repeat": repeat, "model": model,
                 "deployment_class": "local laptop" if local else "cloud",
                 "condition": frozen["condition"], "tool_host": "local macOS MXC", "round": "v3",
-                "family": curriculum.meta(name)["family"], "size": size(name), "resolved": passed,
+                "family": FAMILIES.get(name) or curriculum.meta(name)["family"],
+                "size": size(name), "resolved": passed,
                 "completion_seconds": seconds, "tokens": tokens, "cost": None,
                 "peak_memory_bytes": None, "energy_joules": None,
                 "failure_modes": failures,
+                **local_state,
                 "ledger_source": str(Path(Path(root).name) / path.relative_to(root)),
                 "ledger_sha256": hashlib.sha256(raw).hexdigest(),
                 "ledger_chain_head": head, "condition_sha256": outcome["conditionSha256"],
@@ -452,6 +471,7 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
     columns = set()
     seen = set()
     seen_ledgers = set()
+    unscored = []
     for row in records:
         key = row["condition"], row["model"], row["task"], row["repeat"]
         if key in seen or type(row["resolved"]) is not bool or row["deployment_class"] not in CLASSES:
@@ -479,8 +499,14 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
         if row["size"]["tier"] not in ("small", "medium", "large"):
             raise ValueError("invalid agent-native size tier")
         columns.add(column)
+        if row.get("eligible") is False:
+            if row["resolved"] or row["completion_seconds"] is not None or row.get(
+                    "outcome_state") not in ("environment-abort", "unscored"):
+                raise ValueError("invalid unscored physical attempt")
+            unscored.append(row)
+            continue
         groups.setdefault((target, column), []).append(row)
-    cells = {}
+    cells = {target: {} for target in sorted(targets)}
     for (target, column), rows in sorted(groups.items()):
         successes = sum(r["resolved"] for r in rows)
         times = [r["completion_seconds"] for r in rows if r["resolved"]]
@@ -506,7 +532,9 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
                 "ledger_source": r["ledger_source"], "ledger_sha256": r.get("ledger_sha256"),
                 "ledger_chain_head": r.get("ledger_chain_head"), "size": r["size"],
                 **({"attribution_resolution_sha256": r["attribution_resolution_sha256"]}
-                   if "attribution_resolution_sha256" in r else {})} for r in rows],
+                   if "attribution_resolution_sha256" in r else {}),
+                **({key: r[key] for key in ("outcome_state", "noncompletion_reason")}
+                   if "outcome_state" in r else {})} for r in rows],
         }
     recommendations = {}
     for column in sorted(columns):
@@ -522,6 +550,7 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
         recommendations[column] = {"status": "recommended" if eligible else "insufficient evidence",
             "target": min(eligible)[1] if eligible else None}
     return {"schema_version": 1, "targets": targets, "columns": sorted(columns), "cells": cells,
+        **({"unscored_attempts": unscored} if unscored else {}),
         "routing_policy": {"objective": objective, "minimum_n": minimum_n, "lower_ci_threshold": threshold},
         "recommendations": recommendations,
         "size_policy": {"small": "oracle diff <=1 file and <=100 changed lines",
@@ -533,13 +562,18 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
 
 def validate(value):
     required = json.loads((HERE / "schema.json").read_text())["required"]
-    if set(value) != set(required) or value["schema_version"] != 1:
+    if not set(required) <= set(value) <= set(required) | {"unscored_attempts"} or value["schema_version"] != 1:
         raise ValueError("matrix schema fields")
     if set(value["targets"]) != set(value["cells"]) or sorted(value["recommendations"]) != value["columns"]:
         raise ValueError("matrix schema target/column alignment")
     for target in value["targets"].values():
         if target["deployment_class"] not in CLASSES:
             raise ValueError("matrix schema deployment")
+    for row in value.get("unscored_attempts", []):
+        if (row.get("eligible") is not False or row.get("resolved") is not False or
+                row.get("completion_seconds") is not None or row.get("outcome_state") not in (
+                    "environment-abort", "unscored")):
+            raise ValueError("matrix schema unscored physical attempt")
     for target_cells in value["cells"].values():
         for column, cell in target_cells.items():
             if column not in value["columns"] or type(cell["n"]) is not int or cell["n"] < 1:
@@ -587,6 +621,16 @@ def markdown(value):
         "", "| Family × size | Recommendation |", "|---|---|"]
     for column, recommendation in value["recommendations"].items():
         lines.append(f"| {column} | {recommendation['target'] or recommendation['status']} |")
+    if value.get("unscored_attempts"):
+        lines += ["", "## Unscored physical attempts", "",
+            "Retained but excluded from success denominators and routing. Budget-censored "
+            "noncompletion instead counts in its condition's denominator, never as verified completion.",
+            "", "| Target / condition | Task | Outcome | Reason |",
+            "|---|---|---|---|"]
+        for row in value["unscored_attempts"]:
+            reason = str(row["noncompletion_reason"]).replace("|", "\\|").replace("\n", " ")
+            lines.append(f"| {row['condition']}:{row['model']} | {row['task']} | "
+                         f"{row['outcome_state']} | {reason} |")
     lines += ["", "## Provenance and prior attempts", "",
         "Selection/provenance is not a failure mode. Per-cell JSON provenance binds the exact ledger, "
         "chain head, frozen condition and artifact hashes. Native measurements come from the sealed index.",

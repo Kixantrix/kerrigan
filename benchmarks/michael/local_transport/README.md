@@ -69,6 +69,12 @@ An external resource/interference stop uses the live owner's stdin control,
 then waits for its bounded native cleanup. Exact artifacts may be retained
 after a clean cancellation for diagnostics, without classifying cancellation
 as budget exhaustion or completed work.
+The matrix retains local budget-censored attempts as noncompletion in the
+condition's denominator, with no verified completion time. Cleanly released
+environmental aborts and other unscored local attempts remain explicit
+`unscored_attempts`, excluded from success denominators and routing rather
+than silently dropped or labeled model failures. Synthetic proofs and
+unproven backend cleanup cannot enter those results.
 
 Round-three sandbox scratch is monitored at tool boundaries and on a 100 ms
 timer, with a 1 MiB / 128-entry threshold. This is **not a filesystem hard
