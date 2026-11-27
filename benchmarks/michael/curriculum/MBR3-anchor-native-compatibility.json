@@ -1,0 +1,578 @@
+{
+  "anchors": [
+    {
+      "basePassed": false,
+      "dataset": "terminal-bench@2.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 67277698,
+        "cpus": 1,
+        "dockerfile_from": "python:3.13-slim-bookworm",
+        "estimated_disk_bytes": 1342852616,
+        "gpus": 0,
+        "memory": "2G",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "localhost"
+        ],
+        "prebuilt_image": "alexgshaw/nginx-request-logging:20251031",
+        "storage": "10G",
+        "timeouts_sec": {
+          "agent": 900.0,
+          "build": 600.0,
+          "verifier": 900.0
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "nginx-request-logging",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+        "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+        "path": "nginx-request-logging",
+        "tree_sha256": "31ddf4ecf2e7ce9888d5ac04ddf99ac2e54861a11e18a37fe29fdd1991768fb3"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "terminal-bench@2.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 72338544,
+        "cpus": 1,
+        "dockerfile_from": "ubuntu:24.04",
+        "estimated_disk_bytes": 1363096000,
+        "gpus": 0,
+        "memory": "2G",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "localhost"
+        ],
+        "prebuilt_image": "alexgshaw/configure-git-webserver:20251031",
+        "storage": "10G",
+        "timeouts_sec": {
+          "agent": 900.0,
+          "build": 600.0,
+          "verifier": 900.0
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "configure-git-webserver",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+        "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+        "path": "configure-git-webserver",
+        "tree_sha256": "04094324743ebdce33620956bac69eb862c1182383b88c8ad3a73b3b5679f8da"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": null,
+      "dataset": "terminal-bench@2.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 6103392088,
+        "cpus": 1,
+        "dockerfile_from": "python:3.13-slim-bookworm",
+        "estimated_disk_bytes": 25487310176,
+        "gpus": 0,
+        "memory": "2G",
+        "network_hosts_referenced": [
+          "astral.sh"
+        ],
+        "prebuilt_image": "alexgshaw/pytorch-model-recovery:20251031",
+        "storage": "10G",
+        "timeouts_sec": {
+          "agent": 900.0,
+          "build": 600.0,
+          "verifier": 900.0
+        }
+      },
+      "harborStatus": "environment-gap",
+      "missingAdapters": [],
+      "name": "pytorch-model-recovery",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "environment-gap",
+      "oraclePassed": null,
+      "source": {
+        "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+        "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+        "path": "pytorch-model-recovery",
+        "tree_sha256": "be5bb73c926602db22994adb1fb61f1d6dfa80e2e960495975019015626b64e7"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "not run: estimated disk 25487310176 B (4.0x compressed 6103392088 B + 1 GiB) > free 7753166848 B on /"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "terminal-bench@2.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 509007650,
+        "cpus": 1,
+        "dockerfile_from": "python:3.13-slim-bookworm",
+        "estimated_disk_bytes": 3109772424,
+        "gpus": 0,
+        "memory": "4G",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "huggingface.co"
+        ],
+        "prebuilt_image": "alexgshaw/train-fasttext:20251031",
+        "storage": "10G",
+        "timeouts_sec": {
+          "agent": 3600.0,
+          "build": 600.0,
+          "verifier": 3600.0
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "train-fasttext",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+        "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+        "path": "train-fasttext",
+        "tree_sha256": "047391593897a00fc7724d8913e48b6fa8d10ea084c4710d4472db6da8a067bd"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "terminal-bench@2.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 158051230,
+        "cpus": 1,
+        "dockerfile_from": "python:3.13-slim-bookworm",
+        "estimated_disk_bytes": 1705946744,
+        "gpus": 0,
+        "memory": "2G",
+        "network_hosts_referenced": [
+          "astral.sh"
+        ],
+        "prebuilt_image": "alexgshaw/fix-git:20251031",
+        "storage": "10G",
+        "timeouts_sec": {
+          "agent": 900.0,
+          "build": 600.0,
+          "verifier": 900.0
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "fix-git",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+        "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+        "path": "fix-git",
+        "tree_sha256": "c5d23816ce43bd940f0361caab93ede4865cd4b2344e3058e81d52bffea41105"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "swebenchpro@1.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 521056950,
+        "cpus": 1,
+        "dockerfile_from": "jefzda/sweap-images:ansible.ansible-ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+        "estimated_disk_bytes": 3157969624,
+        "gpus": 0,
+        "memory": "4096 MB",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "github.com"
+        ],
+        "prebuilt_image": null,
+        "storage": "10240 MB",
+        "timeouts_sec": {
+          "agent": 3000,
+          "build": 1800.0,
+          "verifier": 3000
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+        "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+        "path": "datasets/swebenchpro/instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+        "tree_sha256": "59121bc23c4ff2df87fff8ad5a2ab339cbcf316f9393cac9e5bb810486ed8e71"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "swebenchpro@1.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 960345779,
+        "cpus": 1,
+        "dockerfile_from": "jefzda/sweap-images:internetarchive.openlibrary-internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf81299",
+        "estimated_disk_bytes": 4915124940,
+        "gpus": 0,
+        "memory": "4096 MB",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "github.com"
+        ],
+        "prebuilt_image": null,
+        "storage": "10240 MB",
+        "timeouts_sec": {
+          "agent": 3000,
+          "build": 1800.0,
+          "verifier": 3000
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+        "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+        "path": "datasets/swebenchpro/instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+        "tree_sha256": "842993ed880b75c4396d314b64bbe69de5b254504ec1395f6207f121c2a16c56"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "swebenchpro@1.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 691816291,
+        "cpus": 1,
+        "dockerfile_from": "jefzda/sweap-images:qutebrowser.qutebrowser-qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c",
+        "estimated_disk_bytes": 3841006988,
+        "gpus": 0,
+        "memory": "4096 MB",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "github.com"
+        ],
+        "prebuilt_image": null,
+        "storage": "10240 MB",
+        "timeouts_sec": {
+          "agent": 3000,
+          "build": 1800.0,
+          "verifier": 3000
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+        "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+        "path": "datasets/swebenchpro/instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+        "tree_sha256": "a0fd5729246fb13e30f146f5ce5d7f40e290daa1ec3aa005a63c547f4fe6f910"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "swebenchpro@1.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 1378609226,
+        "cpus": 1,
+        "dockerfile_from": "jefzda/sweap-images:element-hq.element-element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1",
+        "estimated_disk_bytes": 6588178728,
+        "gpus": 0,
+        "memory": "4096 MB",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "develop.element.io"
+        ],
+        "prebuilt_image": null,
+        "storage": "10240 MB",
+        "timeouts_sec": {
+          "agent": 3000,
+          "build": 1800.0,
+          "verifier": 3000
+        }
+      },
+      "harborStatus": "verified",
+      "missingAdapters": [
+        {
+          "description": "No answer-free task export, frozen manifest or declared read/write/run policy is registered in the existing native task registry.",
+          "id": "bounded-native-export-policy"
+        },
+        {
+          "description": "No declared final-file artifact bundle and collection contract maps the native task tree onto the Harbor environment state.",
+          "id": "exact-native-final-state"
+        },
+        {
+          "description": "No adapter maps the pinned Harbor verifier and reward to the existing strict independent grader assertions, artifact binding and ledger result.",
+          "id": "independent-grader-report"
+        }
+      ],
+      "name": "instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "adapter-missing",
+      "oraclePassed": true,
+      "source": {
+        "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+        "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+        "path": "datasets/swebenchpro/instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+        "tree_sha256": "93a00ac512ad1682ae06cd2d6721dcfe49ca1f2bdd474c57f4478f82bfa9dc46"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+      ]
+    },
+    {
+      "basePassed": false,
+      "dataset": "swebenchpro@1.0",
+      "environmentNeeded": {
+        "architectures": [
+          "amd64"
+        ],
+        "compressed_bytes": 878752409,
+        "cpus": 1,
+        "dockerfile_from": "jefzda/sweap-images:nodebb.nodebb-NodeBB__NodeBB-00c70ce7b0541cfc94afe567921d7668cdc8f4ac",
+        "estimated_disk_bytes": 4588751460,
+        "gpus": 0,
+        "memory": "4096 MB",
+        "network_hosts_referenced": [
+          "astral.sh",
+          "localhost"
+        ],
+        "prebuilt_image": null,
+        "storage": "10240 MB",
+        "timeouts_sec": {
+          "agent": 3000,
+          "build": 1800.0,
+          "verifier": 3000
+        }
+      },
+      "harborStatus": "task-defect",
+      "missingAdapters": [],
+      "name": "instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan",
+      "nativeRegistered": false,
+      "nativeRunAttempted": false,
+      "nativeStatus": "task-defect",
+      "oracleDiagnosis": {
+        "near_matches": {
+          "test/database.js | Test database test/database/sorted.js::Sorted Set methods test/database/sorted.js::getSortedSetRange() should work with big arrays (length > 100)": [
+            "test/database.js | Test database test/database/sorted.js::Sorted Set methods test/database/sorted.js::getSortedSetRange() should work with big arrays (length > 100) "
+          ],
+          "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"day": [
+            "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"day\""
+          ],
+          "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"off": [
+            "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"off\""
+          ],
+          "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"week": [
+            "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"week\""
+          ]
+        },
+        "network_error_signatures": [
+          "EAI_AGAIN",
+          "SELF_SIGNED_CERT_IN_CHAIN"
+        ],
+        "required_ids_failed": [
+          "test/socket.io.js | socket.io install/upgrade plugin should toggle plugin install",
+          "test/socket.io.js | socket.io install/upgrade plugin should upgrade plugin"
+        ],
+        "unmatchable_required_ids": [
+          "test/database.js | Test database test/database/sorted.js::Sorted Set methods test/database/sorted.js::getSortedSetRange() should work with big arrays (length > 100)",
+          "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"day",
+          "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"off",
+          "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"week"
+        ]
+      },
+      "oraclePassed": false,
+      "source": {
+        "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+        "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+        "path": "datasets/swebenchpro/instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan",
+        "tree_sha256": "d1853ecefcb259afaae9e22bb568cf46b927a4554af55a5bd373124311863168"
+      },
+      "upstreamNotes": [
+        "anchors.json has no tree_sha256; recorded here",
+        "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)",
+        "observed: oracle=0.0 base=0.0; oracle error='' base error=''"
+      ]
+    }
+  ],
+  "contractSources": {
+    "benchmarks/michael/replay_grader/specs.py": "c3b38595e035a45a1ce353e0b40b5dac9c1110e0b0d8776105104bfeb77cb7a7",
+    "benchmarks/michael/replay_trial/curriculum.py": "47c551f066838a5d8178ea726a3e833d565389d6f90213ee5e6887d4bdf774e5",
+    "benchmarks/michael/tasks/curriculum.py": "1f48ca964d81cc47098b3007c7068c4aac53ecd9da3a4487f5c574e46a18bfd3"
+  },
+  "decision": "No verified public anchor currently fits all three existing native contracts. Record the missing adapters; do not build a second harness or substitute Harbor runs for native model trials.",
+  "harborReceiptSha256": "73ac2ee553e618c392f41b8a8d015e0ae461b2837afb7b0a413cc8953dc1fb60",
+  "kind": "native-anchor-contract-compatibility",
+  "method": "Read-only imported receipt/registry inspection. No task code, download, container, inference or operational local endpoint request was executed.",
+  "registrySha256": "c49177a26fc4d7b23f4776083bd34519ef6d970abc30fcdfb988c49654191093",
+  "schema_version": 1
+}
