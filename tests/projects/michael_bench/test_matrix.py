@@ -106,6 +106,8 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
             {"description": "glob-overlap did not contribute to the outcome"}]}]}, "unsupported-defect-claim"),
         ({"cause": "model", "deterministicEvidence": "Independent cancelCheck: claimFixed=false"},
          "claimed-fix-not-implemented"),
+        ({"cause": "model", "deterministicEvidence": "unsupported auth-bypass claim"},
+         "unsupported-defect-claim"),
         ({"cause": "model", "deterministicEvidence": "write $TMPDIR/x outside allowed paths"},
          "sandbox-boundary-write"),
         ({"cause": "harness", "nativeStop": "protocol_budget"}, "harness-cap"),
@@ -121,12 +123,45 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
         "unsupported-defect-claim": 3}
 
 
-@pytest.mark.parametrize("parity", [False, True])
-def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_path, monkeypatch, parity):
+def test_split_attribution_requires_hash_bound_published_resolution(tmp_path, monkeypatch):
+    repository, root = tmp_path / "repo", tmp_path / "mbr3-discovery-v4"
+    run = root / "trials/fixture/repeat-2/model"
+    panel = root / "attribution/fixture/repeat-2/model/attribution.json"
+    panel.parent.mkdir(parents=True)
+    panel.write_text('{"cause":"unresolved","verdicts":[{"cause":"model"},{"cause":"task"}]}')
+    (run / "independent-grader").mkdir(parents=True)
+    for name in ("outcome.json", "collected-source.bin", "independent-grader/report.json"):
+        (run / name).write_bytes(b"synthetic immutable evidence")
+    destination = repository / "benchmarks/michael/curriculum/MBR3-fixture-resolution.json"
+    destination.parent.mkdir(parents=True)
+    monkeypatch.setattr(generate, "ROOT", repository)
+    assert generate.resolved_attribution(root, "fixture", 2, "model", run)[0]["cause"] == "unresolved"
+    receipt = {"kind": "deterministic-attribution-resolution",
+               "task": "fixture", "repeat": 2, "model": "model", "evidence_root": root.name,
+               "cause": "model", "counts_as_model_failure": True, "subject_rerun": False,
+               "failure_modes": ["unsupported-defect-claim"],
+               "evidence": ["unsupported auth-bypass claim"]}
+    bindings = {"originalPanelSha256": panel, "outcomeSha256": run / "outcome.json",
+                "collectedArtifactsSha256": run / "collected-source.bin",
+                "graderReportSha256": run / "independent-grader/report.json"}
+    receipt.update({key: hashlib.sha256(path.read_bytes()).hexdigest() for key, path in bindings.items()})
+    destination.write_text(json.dumps(receipt))
+    resolved, digest = generate.resolved_attribution(root, "fixture", 2, "model", run)
+    assert resolved["cause"] == "model" and generate.failure_modes(resolved) == ["unsupported-defect-claim"]
+    assert digest == hashlib.sha256(destination.read_bytes()).hexdigest()
+    assert json.loads(panel.read_bytes())["cause"] == "unresolved"
+    (run / "collected-source.bin").write_bytes(b"changed")
+    with pytest.raises(ValueError, match="resolution mismatch"):
+        generate.resolved_attribution(root, "fixture", 2, "model", run)
+
+
+@pytest.mark.parametrize("epoch", ["tooltip", "parity", "discovery"])
+def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_path, monkeypatch, epoch):
     repository = tmp_path / "repo"
     parent = tmp_path / "owned"
     old = parent / "mbr3-v1"
-    current = parent / ("mbr3-parity-v3" if parity else "mbr3-tooltip-v2")
+    current = parent / {"tooltip": "mbr3-tooltip-v2", "parity": "mbr3-parity-v3",
+                        "discovery": "mbr3-discovery-v4"}[epoch]
     old.mkdir(parents=True)
     current.mkdir()
     schedule = b"synthetic schedule"
@@ -137,6 +172,10 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
     attribution.parent.mkdir(parents=True)
     outcome.write_text('{"status":"ungraded"}')
     attribution.write_text('{"cause":"harness"}')
+    source_maps = {}
+    for root, owner in ((old, "a" * 64), (current, "b" * 64)):
+        source_maps[root] = {"benchmarks/michael/local_transport/owner.mjs": owner}
+        (root / "safety.json").write_text(json.dumps({"passed": True, "source": source_maps[root]}))
     plan = {
         "scheduleSha256": hashlib.sha256(schedule).hexdigest(),
         "attempts": [
@@ -145,19 +184,24 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
             {"task": "fixture", "repeat": 1, "model": "sonnet", "evidence_root": current.name,
              "source_epoch": "corrected"},
         ],
-        "source_epochs": {"original": {"ownerSha256": "a" * 64},
-                          "corrected": {"ownerSha256": "b" * 64}},
+        "source_epochs": {"original": {"ownerSha256": "a" * 64,
+                                      "safetySha256": hashlib.sha256((old / "safety.json").read_bytes()).hexdigest()},
+                          "corrected": {"ownerSha256": "b" * 64,
+                                        "safetySha256": hashlib.sha256((current / "safety.json").read_bytes()).hexdigest()}},
         "excluded_prior": {"task": "fixture", "repeat": 1, "model": "sonnet",
                           "outcomeSha256": hashlib.sha256(outcome.read_bytes()).hexdigest(),
                           "attributionSha256": hashlib.sha256(attribution.read_bytes()).hexdigest()},
     }
-    if parity:
+    if epoch != "tooltip":
         prior = plan.pop("excluded_prior")
         plan["excluded_priors"] = [{**prior, "failure_modes": ["invented-path-read"],
                                    "behavior": "invented-path-read", "cutoff": "harness-policy"}]
-    verification = repository / "benchmarks/michael/local_transport" / (
-        "mbr3-parity-verification.json" if parity else "mbr3-tooltip-verification.json")
+    verification = repository / "benchmarks/michael/local_transport" / f"mbr3-{epoch}-verification.json"
     verification.parent.mkdir(parents=True)
+    if epoch == "discovery":
+        sweep = verification.with_name("mbr3-discovery-parity.json")
+        sweep.write_bytes(b"synthetic sweep")
+        plan["paritySweepSha256"] = hashlib.sha256(sweep.read_bytes()).hexdigest()
     verification.write_text(json.dumps({"primaryPlan": plan}))
     path = current / "primary-plan.json"
     path.write_text(json.dumps(plan))
@@ -165,6 +209,7 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
 
     def reader(root, *, selected):
         return [{**record(model, repeat), "task": task, "condition": "MB-R3",
+                 "transport_source_sha256": generate.condition_digest(source_maps[root]),
                  "transport_owner_sha256": "a" * 64 if root == old else "b" * 64}
                 for task, repeat, model in selected]
 
@@ -172,7 +217,7 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
     rows, source = generate.epoch_records(path)
     assert {row["condition"] for row in rows} == {"MB-R3/original", "MB-R3/corrected"}
     assert source["prior_attempts"][0]["failure_modes"] == [
-        "invented-path-read" if parity else "harness-error"]
+        "harness-error" if epoch == "tooltip" else "invented-path-read"]
     assert source["prior_attempts"][0]["provenance"]["excluded_from_task_failures"] is True
     changed = copy.deepcopy(plan)
     changed["attempts"][0]["evidence_root"] = "access-only"
