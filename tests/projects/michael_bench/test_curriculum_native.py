@@ -390,3 +390,109 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
+
+
+PARITY_CASES = [
+    ("directory", {"op": "read", "path": "briefs"}, "action_directory_feedback"),
+    ("directory-slash", {"op": "read", "path": "briefs/"}, "action_directory_feedback"),
+    ("directory-case", {"op": "read", "path": "BRIEFS"}, "action_directory_feedback"),
+    ("root", {"op": "read", "path": "."}, "action_directory_feedback"),
+    ("root-prefix", {"op": "read", "path": "./"}, "action_directory_feedback"),
+    ("offset", {"op": "read", "path": "TASK.md", "offset": 1}, "execute"),
+    ("limit", {"op": "read", "path": "TASK.md", "limit": 100}, "action_schema_invalid"),
+    ("offset-limit", {"op": "read", "path": "TASK.md", "offset": 0, "limit": 100}, "action_schema_invalid"),
+    ("negative-offset", {"op": "read", "path": "TASK.md", "offset": -1}, "action_schema_invalid"),
+    ("string-offset", {"op": "read", "path": "TASK.md", "offset": "0"}, "action_schema_invalid"),
+    ("large-offset", {"op": "read", "path": "TASK.md", "offset": 4194305}, "action_schema_invalid"),
+    ("eof-offset", {"op": "read", "path": "TASK.md", "offset": 4194304}, "execute"),
+    ("invented-brief", {"op": "read", "path": "briefs/T012-L2-session.md"}, "not_found"),
+    ("tooltip-self-test", {"op": "run", "path": "self_test.py"}, "not_found"),
+    ("missing-leaf", {"op": "read", "path": "briefs/missing.md"}, "not_found"),
+    ("missing-parent", {"op": "run", "path": "missing/check.mjs"}, "not_found"),
+    ("trailing-slash-file", {"op": "read", "path": "TASK.md/"}, "action_path_feedback"),
+    ("dot-prefix", {"op": "read", "path": "./TASK.md"}, "action_path_feedback"),
+    ("redundant-separators", {"op": "read", "path": "src//session.ts"}, "action_path_feedback"),
+    ("case", {"op": "read", "path": "task.md"}, "action_path_feedback"),
+    ("absolute-in-root", {"op": "read", "path": "$ROOT/TASK.md"}, "action_path_feedback"),
+    ("run-args", {"op": "run", "path": "self_test.mjs", "args": ["--check"]}, "action_schema_invalid"),
+    ("run-extra-data", {"op": "run", "path": "self_test.mjs", "data": ""}, "action_schema_invalid"),
+    ("run-readonly", {"op": "run", "path": "TASK.md"}, "action_operation_feedback"),
+    ("write-new-allowed", {"op": "write", "path": "self_test.mjs", "data": "console.log('safe');"}, "execute"),
+    ("write-new-artifact", {"op": "write", "path": "src/session.ts", "data": "$BASE"}, "execute"),
+    ("write-new-undeclared", {"op": "write", "path": "new.txt", "data": "not written"}, "not_found"),
+    ("write-readonly", {"op": "write", "path": "TASK.md", "data": "not written"}, "action_operation_feedback"),
+    ("write-directory", {"op": "write", "path": "briefs", "data": "not written"}, "action_directory_feedback"),
+    ("file-as-directory", {"op": "read", "path": "TASK.md/missing"}, "action_path_feedback"),
+    ("missing-space", {"op": "read", "path": "missing name.md"}, "not_found"),
+    ("missing-unicode", {"op": "read", "path": "missing-\u03b1.md"}, "not_found"),
+    ("empty-path", {"op": "read", "path": ""}, "action_schema_invalid"),
+    ("nul-path", {"op": "read", "path": "missing\0file"}, "action_schema_invalid"),
+    ("long-component", {"op": "read", "path": "x" * 256}, "action_schema_invalid"),
+    ("extra-operation", {"op": "list", "path": "TASK.md"}, "action_operation_feedback"),
+    ("existing-undeclared", {"op": "read", "path": "briefs/HIDDEN.md"}, "cutoff"),
+    ("run-existing-undeclared", {"op": "run", "path": "hidden.txt"}, "cutoff"),
+    ("write-existing-undeclared", {"op": "write", "path": "hidden.txt", "data": "not written"}, "cutoff"),
+    ("undeclared-directory", {"op": "read", "path": "hidden-dir"}, "cutoff"),
+    ("outside-root", {"op": "read", "path": "/missing"}, "cutoff"),
+    ("parent-traversal", {"op": "read", "path": "../missing"}, "cutoff"),
+    ("internal-traversal", {"op": "read", "path": "briefs/../TASK.md"}, "cutoff"),
+    ("symlink-file", {"op": "read", "path": "alias-file"}, "cutoff"),
+    ("symlink-directory", {"op": "read", "path": "alias-dir/missing"}, "cutoff"),
+    ("hardlink", {"op": "read", "path": "hardlink"}, "cutoff"),
+    ("special-file", {"op": "read", "path": "fifo"}, "cutoff"),
+]
+
+
+@pytest.mark.parametrize("case,args,expected", PARITY_CASES, ids=[row[0] for row in PARITY_CASES])
+def test_native_cli_parity_sweep(owned, tmp_path, case, args, expected):
+    name = "orchestrate-voice-integration-v5"
+    policy = native.round_three_policy(name, active_seconds=15)
+    run = native.prepare(owned, tmp_path / "run", name, seconds=15, policy=policy)
+    task = run / "task"
+    (task / "hidden.txt").write_text("synthetic undeclared fixture")
+    (task / "briefs/HIDDEN.md").write_text("not in the declared manifest")
+    (task / "hidden-dir").mkdir()
+    (task / "alias-file").symlink_to(task / "TASK.md")
+    (task / "alias-dir").symlink_to(task / "briefs", target_is_directory=True)
+    os.link(task / "hidden.txt", task / "hardlink")
+    os.mkfifo(task / "fifo")
+    if case == "write-new-allowed":
+        (task / policy["scratch"]).unlink()
+    if case == "write-new-artifact":
+        (task / "src/session.ts").unlink()
+    args = {**args, "path": args["path"].replace("$ROOT", str(task))}
+    if args.get("data") == "$BASE":
+        args["data"] = specs.package(name)[0]["src/session.ts"].decode()
+    config = json.loads((run / "config.json").read_bytes())
+    config["diagnostics"] = [args, {"op": "read", "path": "TASK.md"}]
+    api.grader.persist(run / "config.json", config)
+    binding = json.loads((run / "curriculum-start.json").read_bytes())
+    from benchmarks.michael.replay_trial import validator
+    binding["configSha256"] = validator.digest(config)
+    api.grader.persist(run / "curriculum-start.json", binding)
+    child = api.runner.launch(run)
+    try:
+        child.wait(timeout=32)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    assert terminal["wholeProcessQuiescent"] and terminal["cleanupSeconds"] <= 15
+    assert terminal["nativePrompts"] == 0 and not terminal["nativeStarts"]
+    if expected == "cutoff":
+        assert "action_denied" in terminal["stopReason"]
+        assert not terminal["actions"]
+    else:
+        assert terminal["stopReason"] == "diagnostics_complete", terminal["stopReason"]
+        assert len(terminal["actions"]) == 2 + len(policy["artifacts"])
+        first = json.loads((run / "receipt/action-result-1.json").read_bytes())
+        if expected != "execute":
+            assert first["rejected"] and first["result"]["feedback"].startswith(expected + ";")
+        else:
+            assert first["result"]["exitCode"] == 0
+        if expected == "action_directory_feedback" and args["op"] == "read":
+            import base64
+            listing = base64.b64decode(first["result"]["stdout"]).decode()
+            assert "HIDDEN" not in listing and "hidden" not in listing
+        assert native.collect(run) == specs.base(name)
+    assert (task / "hidden.txt").read_text() == "synthetic undeclared fixture"
+    assert not (task / "new.txt").exists()
