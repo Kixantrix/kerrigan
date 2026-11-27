@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/apps/kerrigan-dashboard/src/lib/plan-conflict.ts", "/app/apps/kerrigan-dashboard/src/lib/plan-queue.ts"]
+
+[task]
+name = "kixantrix/michael-kerrigan-plan-conflict-queue-v4"
+version = "1.0.0"
+description = "M6.3: plan-save conflict detection and crash-safe offline edit queue (two new modules)"
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/kerrigan"
+base_ref = "822993442330ceaacaa549d9637bdae74dc8f05e"
+reference_ref = "44c2938acf63ceaa402c23eac06c5b024d589afa"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 40
+denominators = "{\"conflict\": 7, \"queue\": 5, \"replay\": 10}"
+task_size = "{\"files_to_read\": 7, \"hidden_checks\": 22, \"hidden_clauses\": 54, \"lines_to_read\": 899, \"oracle_files_changed\": 2, \"oracle_lines_added\": 396, \"oracle_lines_removed\": 4, \"writable_files\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

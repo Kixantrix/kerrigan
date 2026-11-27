@@ -1,0 +1,1338 @@
+[
+ {
+  "original_id": "backlash: unequal pair, nominal outlines",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 20,
+    "zb": 45,
+    "module": 1.0,
+    "ca": [
+     3.0,
+     -2.0
+    ],
+    "cb": [
+     31.275729433562,
+     14.325
+    ],
+    "thin_a": 0.1,
+    "thin_b": 0.06,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.0,
+    "fat": 0.0
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.191063,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: unequal pair, fat cut",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 20,
+    "zb": 45,
+    "module": 1.0,
+    "ca": [
+     3.0,
+     -2.0
+    ],
+    "cb": [
+     31.275729433562,
+     14.325
+    ],
+    "thin_a": 0.1,
+    "thin_b": 0.06,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.0,
+    "fat": 0.04
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.020795,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: unequal pair, centres closed and fat",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 20,
+    "zb": 45,
+    "module": 1.0,
+    "ca": [
+     3.0,
+     -2.0
+    ],
+    "cb": [
+     31.275729433562,
+     14.325
+    ],
+    "thin_a": 0.1,
+    "thin_b": 0.06,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.12,
+    "fat": 0.02
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.01678,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: bought driver keeps its nominal teeth",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 26,
+    "zb": 32,
+    "module": 0.8,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     -21.894838064312,
+     -7.969069339488
+    ],
+    "thin_a": 0.08,
+    "thin_b": 0.2,
+    "laser_a": false,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.05,
+    "fat": 0.065
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.038348,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: bought driven gear keeps its nominal teeth",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 45,
+    "zb": 20,
+    "module": 1.0,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     23.065823202305,
+     23.065823202305
+    ],
+    "thin_a": 0.08,
+    "thin_b": 0.08,
+    "laser_a": true,
+    "laser_b": false
+   },
+   "args": {
+    "shrink": 0.0,
+    "fat": 0.05
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.062137,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: thin teeth, tips reach the roots",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 24,
+    "zb": 30,
+    "module": 0.8,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     21.7,
+     0.0
+    ],
+    "thin_a": 0.6,
+    "thin_b": 0.6,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.25,
+    "fat": 0.065
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "value"
+    ],
+    null
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: thin teeth, roots still clear",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 24,
+    "zb": 30,
+    "module": 0.8,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     21.7,
+     0.0
+    ],
+    "thin_a": 0.6,
+    "thin_b": 0.6,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.1,
+    "fat": 0.065
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.323314,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: wide centres measured at the driven pitch circle",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 15,
+    "zb": 60,
+    "module": 0.5,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     4.956384713713,
+     -18.497479573436
+    ],
+    "thin_a": 0.05,
+    "thin_b": 0.05,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.0,
+    "fat": 0.0
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.363054,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "backlash: unthinned fat teeth bind",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "backlash",
+   "pair": {
+    "za": 30,
+    "zb": 18,
+    "module": 1.0,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     24.05,
+     0.0
+    ],
+    "thin_a": 0.0,
+    "thin_b": 0.0,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.0,
+    "fat": 0.03
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "value"
+    ],
+    null
+   ]
+  ]
+ },
+ {
+  "original_id": "margin: limited by tip-to-root clearance",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "margin",
+   "pair": {
+    "za": 24,
+    "zb": 30,
+    "module": 0.8,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     21.7,
+     0.0
+    ],
+    "thin_a": 0.6,
+    "thin_b": 0.6,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "fat": 0.065
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.17,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "margin: laser pair at worst-case fat",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "margin",
+   "pair": {
+    "za": 32,
+    "zb": 32,
+    "module": 0.8,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     25.7,
+     0.0
+    ],
+    "thin_a": 0.2,
+    "thin_b": 0.2,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "fat": 0.065
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    -0.003781,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "margin: binds even with centres opened",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "margin",
+   "pair": {
+    "za": 20,
+    "zb": 20,
+    "module": 0.8,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     16.0,
+     0.0
+    ],
+    "thin_a": 0.0,
+    "thin_b": 0.0,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "fat": 0.065
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    -0.3,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "margin: generous pair without fat",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "margin",
+   "pair": {
+    "za": 18,
+    "zb": 40,
+    "module": 1.25,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     -18.15,
+     31.436722157375
+    ],
+    "thin_a": 0.9,
+    "thin_b": 0.9,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "fat": 0.0
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.3625,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "margin: never binds inside the search range",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "margin",
+   "pair": {
+    "za": 40,
+    "zb": 40,
+    "module": 2.0,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     80.3,
+     0.0
+    ],
+    "thin_a": 1.2,
+    "thin_b": 1.2,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "fat": 0.0
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    0.6,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "contact ratio: unequal pair",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "contact_ratio",
+   "pair": {
+    "za": 20,
+    "zb": 45,
+    "module": 1.0,
+    "ca": [
+     3.0,
+     -2.0
+    ],
+    "cb": [
+     31.275729433562,
+     14.325
+    ],
+    "thin_a": 0.1,
+    "thin_b": 0.06,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.0
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    1.500273,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "contact ratio: small equal pinions",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "contact_ratio",
+   "pair": {
+    "za": 12,
+    "zb": 12,
+    "module": 0.8,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     9.7,
+     0.0
+    ],
+    "thin_a": 0.2,
+    "thin_b": 0.2,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.0
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    1.301017,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "contact ratio: fine module, centres closed",
+  "group": "mesh",
+  "probe": {
+   "op": "held_out",
+   "kind": "contact_ratio",
+   "pair": {
+    "za": 15,
+    "zb": 60,
+    "module": 0.5,
+    "ca": [
+     0.0,
+     0.0
+    ],
+    "cb": [
+     4.956384713713,
+     -18.497479573436
+    ],
+    "thin_a": 0.05,
+    "thin_b": 0.05,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {
+    "shrink": 0.2
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "value"
+    ],
+    1.25155,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "design: laser-cut thinning reads well and survives a typical cut",
+  "group": "design",
+  "probe": {
+   "op": "design_rules"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "nominal_in_range"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "typical_reads"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "design: loose spares turn freely at the worst-case cut",
+  "group": "design",
+  "probe": {
+   "op": "design_rules"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "loose_fat_runs"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "design: one thinner laser-cut spare per laser gear, outside the assembly",
+  "group": "design",
+  "probe": {
+   "op": "spares"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "names_match"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "laser_cut"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "same_teeth"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "thinner"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "outline_matches_thinning"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "not_assembled"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "design: mesh pairs taken from the placed design",
+  "group": "design",
+  "probe": {
+   "op": "pairs"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "pairs",
+     "knob I → sensor I"
+    ],
+    {
+     "driver": "knob_I_26T",
+     "driven": "gear_sensor_I_32T",
+     "consistent": true
+    }
+   ],
+   [
+    "path_within",
+    [
+     "pairs",
+     "knob I → sensor I",
+     "centre_minus_theoretical"
+    ],
+    0.1,
+    1e-06
+   ],
+   [
+    "path_match",
+    [
+     "pairs",
+     "sensor I → hand I"
+    ],
+    {
+     "driver": "gear_sensor_I_32T",
+     "driven": "gear_hand_I_32T",
+     "consistent": true
+    }
+   ],
+   [
+    "path_within",
+    [
+     "pairs",
+     "sensor I → hand I",
+     "centre_minus_theoretical"
+    ],
+    0.1,
+    1e-06
+   ],
+   [
+    "path_match",
+    [
+     "pairs",
+     "knob II → sensor II"
+    ],
+    {
+     "driver": "knob_II_26T",
+     "driven": "gear_sensor_II_32T",
+     "consistent": true
+    }
+   ],
+   [
+    "path_within",
+    [
+     "pairs",
+     "knob II → sensor II",
+     "centre_minus_theoretical"
+    ],
+    0.1,
+    1e-06
+   ],
+   [
+    "path_match",
+    [
+     "pairs",
+     "sensor II → hand II"
+    ],
+    {
+     "driver": "gear_sensor_II_32T",
+     "driven": "gear_hand_II_32T",
+     "consistent": true
+    }
+   ],
+   [
+    "path_within",
+    [
+     "pairs",
+     "sensor II → hand II",
+     "centre_minus_theoretical"
+    ],
+    0.1,
+    1e-06
+   ],
+   [
+    "path_match",
+    [
+     "pairs",
+     "knob III → sensor III"
+    ],
+    {
+     "driver": "knob_III_26T",
+     "driven": "gear_sensor_III_32T",
+     "consistent": true
+    }
+   ],
+   [
+    "path_within",
+    [
+     "pairs",
+     "knob III → sensor III",
+     "centre_minus_theoretical"
+    ],
+    0.1,
+    1e-06
+   ],
+   [
+    "path_match",
+    [
+     "pairs",
+     "sensor III → hand III"
+    ],
+    {
+     "driver": "gear_sensor_III_32T",
+     "driven": "gear_hand_III_32T",
+     "consistent": true
+    }
+   ],
+   [
+    "path_within",
+    [
+     "pairs",
+     "sensor III → hand III",
+     "centre_minus_theoretical"
+    ],
+    0.1,
+    1e-06
+   ],
+   [
+    "path_match",
+    [
+     "pairs",
+     "motor → needle"
+    ],
+    {
+     "driver": "gear_motor_34T",
+     "driven": "gear_needle_17T",
+     "consistent": true
+    }
+   ],
+   [
+    "path_within",
+    [
+     "pairs",
+     "motor → needle",
+     "centre_minus_theoretical"
+    ],
+    0.1,
+    1e-06
+   ],
+   [
+    "path_keys",
+    [
+     "pairs"
+    ],
+    [
+     "knob I → sensor I",
+     "knob II → sensor II",
+     "knob III → sensor III",
+     "motor → needle",
+     "sensor I → hand I",
+     "sensor II → hand II",
+     "sensor III → hand III"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "loose_pairs_use_loose_thinning"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "build: the corrected design passes the check build",
+  "group": "build",
+  "probe": {
+   "op": "check",
+   "edits": []
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "rc_ok"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "build: report rows agree with a trusted recomputation",
+  "group": "build",
+  "probe": {
+   "op": "report"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "build",
+     "rc_ok"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "missing_rows"
+    ],
+    []
+   ],
+   [
+    "path_within",
+    [
+     "max_row_error"
+    ],
+    0.0,
+    0.0015
+   ]
+  ]
+ },
+ {
+  "original_id": "build: the loose spares are ordered with the parts",
+  "group": "build",
+  "probe": {
+   "op": "order"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "order_parts"
+    ],
+    [
+     "gear_hand_I_32T_L",
+     "gear_hand_II_32T_L",
+     "gear_hand_III_32T_L",
+     "gear_sensor_I_32T_L",
+     "gear_sensor_II_32T_L",
+     "gear_sensor_III_32T_L",
+     "gear_needle_17T_L",
+     "gear_motor_34T_L"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "build: too much backlash fails the check build",
+  "group": "build",
+  "probe": {
+   "op": "check",
+   "edits": [
+    [
+     "design.py",
+     "GEAR_BACKLASH",
+     "0.45"
+    ],
+    [
+     "design.py",
+     "GEAR_BACKLASH_LOOSE",
+     "0.60"
+    ]
+   ],
+   "flagged": true
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "rc_nonzero"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "flagged"
+    ],
+    [
+     "sensor I → hand I",
+     "sensor II → hand II",
+     "sensor III → hand III",
+     "motor → needle"
+    ]
+   ],
+   [
+    "path_contains_none",
+    [
+     "flagged"
+    ],
+    [
+     "knob I → sensor I",
+     "knob II → sensor II",
+     "knob III → sensor III"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "build: spares too fat for a worst-case cut fail the check build",
+  "group": "build",
+  "probe": {
+   "op": "check",
+   "edits": [
+    [
+     "design.py",
+     "GEAR_BACKLASH_LOOSE",
+     "0.22"
+    ]
+   ],
+   "flagged": true
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "rc_nonzero"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "flagged"
+    ],
+    [
+     "sensor I → hand I",
+     "sensor II → hand II",
+     "sensor III → hand III",
+     "motor → needle"
+    ]
+   ],
+   [
+    "path_contains_none",
+    [
+     "flagged"
+    ],
+    [
+     "knob I → sensor I",
+     "knob II → sensor II",
+     "knob III → sensor III"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "build: a typical cut that no longer reads fails the check build",
+  "group": "build",
+  "probe": {
+   "op": "check",
+   "edits": [
+    [
+     "design.py",
+     "GEAR_BACKLASH",
+     "0.10"
+    ],
+    [
+     "design.py",
+     "GEAR_BACKLASH_LOOSE",
+     "0.40"
+    ]
+   ],
+   "flagged": true
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "rc_nonzero"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "flagged"
+    ],
+    [
+     "sensor I → hand I",
+     "sensor II → hand II",
+     "sensor III → hand III",
+     "motor → needle"
+    ]
+   ],
+   [
+    "path_contains_none",
+    [
+     "flagged"
+    ],
+    [
+     "knob I → sensor I",
+     "knob II → sensor II",
+     "knob III → sensor III"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "build: centres set too close bind and fail without crashing",
+  "group": "build",
+  "probe": {
+   "op": "check",
+   "edits": [
+    [
+     "layout.py",
+     "CENTER_SLOP",
+     "-0.5"
+    ]
+   ],
+   "flagged": true
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "rc_nonzero"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "crashed"
+    ],
+    false
+   ],
+   [
+    "path_contains_all",
+    [
+     "flagged"
+    ],
+    [
+     "knob I → sensor I",
+     "knob II → sensor II",
+     "knob III → sensor III",
+     "sensor I → hand I",
+     "sensor II → hand II",
+     "sensor III → hand III",
+     "motor → needle"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "build: a different valid thinning still passes",
+  "group": "build",
+  "probe": {
+   "op": "check",
+   "edits": [
+    [
+     "design.py",
+     "GEAR_BACKLASH",
+     "0.26"
+    ],
+    [
+     "design.py",
+     "GEAR_BACKLASH_LOOSE",
+     "0.40"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "rc_ok"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "preservation: 3-D interference still fails the check build",
+  "group": "preservation",
+  "probe": {
+   "op": "check",
+   "edits": [],
+   "break_interference": true
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "rc_nonzero"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "preservation: assembled gear train unchanged apart from the thinning",
+  "group": "preservation",
+  "probe": {
+   "op": "assembly"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "names"
+    ],
+    [
+     "gear_hand_III_32T",
+     "gear_hand_II_32T",
+     "gear_hand_I_32T",
+     "gear_motor_34T",
+     "gear_needle_17T",
+     "gear_sensor_III_32T",
+     "gear_sensor_II_32T",
+     "gear_sensor_I_32T",
+     "knob_III_26T",
+     "knob_II_26T",
+     "knob_I_26T"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "outlines_match"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "laser_use_gear_backlash"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "knob_nominal"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "preservation: bench tooling still ordered",
+  "group": "preservation",
+  "probe": {
+   "op": "order"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "order_parts"
+    ],
+    [
+     "hand_setting_tool",
+     "hinge_gauge"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "pair distances: placed centres and theoretical",
+  "group": "preservation",
+  "probe": {
+   "op": "held_out",
+   "kind": "distances",
+   "pair": {
+    "za": 20,
+    "zb": 45,
+    "module": 1.0,
+    "ca": [
+     3.0,
+     -2.0
+    ],
+    "cb": [
+     31.275729433562,
+     14.325
+    ],
+    "thin_a": 0.1,
+    "thin_b": 0.06,
+    "laser_a": true,
+    "laser_b": true
+   },
+   "args": {}
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "nominal"
+    ],
+    32.65,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     "theoretical"
+    ],
+    32.5,
+    1e-06
+   ]
+  ]
+ }
+]

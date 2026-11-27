@@ -1,0 +1,52 @@
+{
+ "id": "te-baseline-eval",
+ "family": "Experiment",
+ "title": "Audit a leaky recommender baseline benchmark and correct its reported winner",
+ "source": {
+  "repo": "Kixantrix/taste-engine",
+  "visibility": "public",
+  "kind": "pr",
+  "pr": 17,
+  "issue": 8,
+  "base_ref": "a3f19d6fb639db75697f510cd047f6720cbedc3b",
+  "reference_ref": "f808b83010e2d4a2ca2c439e81683c970e7e5a77",
+  "history_status": "merged",
+  "reference_kind": "spec-derived-oracle"
+ },
+ "derivation": "Taste Engine PR #17 (merged) specified the ML-01 offline benchmark (issue #8, still open: temporal split with no leakage, NDCG@10/Recall@20/coverage with sample counts, popularity/genre Baseline A vs liked-minus-disliked similarity Baseline B, dossier section 5.5 'report uncertainty and sample counts'). No upstream implementation exists yet, so the package is spec-derived: SPEC.md restates the merged specification with every literal fixed (thresholds, tie-breaks, rounding, exact sign test, report keys); the draft harness and its defects (boundary/re-watch/latest-rating leakage in the split, untruncated IDCG, capped recall denominator, Baseline B ignoring dislikes, Baseline A fitted on the full log, cold-start viewers scored, winner named from a mean difference) and the oracle are synthesized against it, on the scaffold layout of the open OPS-01 branch (apps/taste-engine/src/taste_engine). Household data are synthetic (seeded generator); expected values were cross-checked against a second, independently written implementation of SPEC.md.",
+ "privacy": "public",
+ "coverage": "Four modules checked on three held-out synthetic households (A wins, B wins, inconclusive) and held-out metric/sign-test inputs, the committed report recomputed on the visible fixture including its conclusion (the naive mean-difference winner and the draft's winner are both rejected), plus preservation of behavior the draft already had right.",
+ "historical_exposure": "Public repository, but ML-01 is unimplemented upstream; the oracle and synthetic data exist only in this package.",
+ "outcome_evidence": "metric_within_tolerance",
+ "estimated_agent_minutes": 45,
+ "long_horizon": true,
+ "required_environment": "cloud-linux: python3.12 stdlib slice. The full ML-01 task in the product needs the OPS-01 FastAPI/Postgres stack, the Wikidata/TVmaze catalog and MovieLens fixtures (non-redistributable) plus pytest with the 'eval' marker; none of that is needed for this pure-logic slice.",
+ "residual_rubric": [
+  "Whether the agent also documents the corrected finding in prose (e.g. a findings note) is not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "harness": "te_baseline_eval.py",
+  "candidate": "apps/taste-engine/src/taste_engine/eval/benchmark.py",
+  "candidates": [
+   "apps/taste-engine/eval/reports/ml-01-baselines.json",
+   "apps/taste-engine/src/taste_engine/eval/baselines.py",
+   "apps/taste-engine/src/taste_engine/eval/benchmark.py",
+   "apps/taste-engine/src/taste_engine/eval/metrics.py",
+   "apps/taste-engine/src/taste_engine/eval/split.py"
+  ],
+  "agent_support": [
+   "apps/taste-engine/src/taste_engine/__init__.py",
+   "apps/taste-engine/src/taste_engine/eval/__init__.py"
+  ],
+  "denominators": {
+   "split": 2,
+   "metrics": 3,
+   "baselines": 4,
+   "benchmark": 6,
+   "report": 2,
+   "preservation": 5
+  }
+ },
+ "round": 3
+}

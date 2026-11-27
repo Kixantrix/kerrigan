@@ -1,0 +1,50 @@
+{
+ "id": "design-alethiometer-case-v4",
+ "family": "Design",
+ "title": "Thin the alethiometer case within clearance and relief rules, with consistent documents",
+ "source": {
+  "repo": "Kixantrix/alethiometer",
+  "visibility": "public",
+  "kind": "commit",
+  "pr": null,
+  "base_ref": "7f8b4bbc8fc49395d775bd4d5442d87a03e86189",
+  "reference_ref": "4528e967d970045fb1366c5310843178a99c115b",
+  "history_status": "unmerged-branch"
+ },
+ "derivation": "Public hardware-branch commit 4528e96 (5 mm hand standoffs, 1.5 mm crystal clearance, P2 hinge relief widened to clear screw tips, README/BOM/ASSEMBLY updates). The CAD module needs cadquery/shapely, so its Z stack-up and hinge-relief constants are excerpted verbatim into a stdlib model; document excerpts are lightly normalized to be consistent with that model (upper-shell flange stated as the model's shell height). v2 (MB-010c follow-up): native admission audit of v1 (benchmarks/michael/curriculum/MB-010r-design-admission.json, sha256 d9662f6ff35d061be579ced3939603d397d838e2b60fc8f22e7f0e39f5bb7b77) found the oracle README stated 37.0 mm while the model computes 36.949 mm (36.9 mm at the required 0.1 mm precision), masked by a 0.06 mm check tolerance. The oracle now states 36.9/44.6 mm, the instruction requires half-up rounding at each document's precision, and every document number is checked for exact equality with the rounded model value; model-value checks keep sub-0.01 mm tolerances. v3: literal-overspecification audit (MB-010r-literal-audit.json, sha256 73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412): HAND_STANDOFF compared as float 5.0 with a strict type check, so an int 5 failed -> numeric comparison within 1e-9. Instruction and oracle unchanged. v4 (round 3): native round-3 admission of v3 returned needs_fix (receipt benchmarks/michael/curriculum/MBR3-design-alethiometer-case-v3-admission.json, sha256 e2f8283e1b75d6dd670e3327a7e93bbb9d775a12dc118474ed1b603b5e6e49ee): the hinge-relief defect was not determinable from what the agent sees, because which parts enter the relief and how far was undocumented, so the oracle's screw-tip derivation (and the grader's need formula) was unspecified. The base and oracle stack.py now document that geometry next to the hinge constants (screw tip reaches HINGE_BODY_SCREW_LEN - T040 inward with the countersunk head flush in the wall; strip and nuts reach T063 + HINGE_NUT_H), so the base relief (wall + strip + nuts + a hard-coded 0.4) is a genuine, specified defect. The instruction states the depth must follow from the constants; a new harness design_alethiometer_case_v4.py also perturbs RELIEF_CLEARANCE and checks that the report's relief and flange match the model. Relief checks stay lower bounds.",
+ "privacy": "public",
+ "coverage": "Constraint validator over a multi-file design change: optimal catalog choice, perturbation-tested relief derivation, preserved fixed parts, and exact rounded document/model consistency.",
+ "historical_exposure": "Public repository branch; exposure/recognition risk.",
+ "outcome_evidence": "constraint_validator",
+ "estimated_agent_minutes": 30,
+ "residual_rubric": [
+  "Physical manufacturability beyond the stated rules (renders, DXF/STEP regeneration) is out of scope and not graded."
+ ],
+ "leak_tokens": [],
+ "grader": {
+  "harness": "design_alethiometer_case_v4.py",
+  "candidate": "hardware/stack.py",
+  "candidates": [
+   "hardware/ASSEMBLY.md",
+   "hardware/BOM.md",
+   "hardware/README.md",
+   "hardware/stack.py"
+  ],
+  "denominators": {
+   "design": 3,
+   "rules": 2,
+   "preservation": 2,
+   "docs": 6
+  }
+ },
+ "supersedes": "design-alethiometer-case-v3",
+ "round": 3,
+ "prior_evidence": {
+  "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
+  "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
+ },
+ "admission_evidence": {
+  "path": "benchmarks/michael/curriculum/MBR3-design-alethiometer-case-v3-admission.json",
+  "sha256": "e2f8283e1b75d6dd670e3327a7e93bbb9d775a12dc118474ed1b603b5e6e49ee"
+ }
+}

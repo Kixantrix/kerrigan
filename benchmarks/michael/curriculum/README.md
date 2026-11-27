@@ -233,3 +233,77 @@ yv-relevance-instrument-v2 and emv-thumbnails-gallery-v2 change only the instruc
 yv and emv v1 are now retired, citing `MB-010r-yv-relevance-instrument-admission.json` and `MB-010r-emv-thumbnails-gallery-admission.json`. research-serverless-cost-v2 makes the `unknowns` check set-based: exact set, no duplicates, any order. Its instruction, oracle and other checks are unchanged; v1 stays frozen and excluded after both native subjects failed only that order clause. An audit of every array check in the research, plan, design and orchestrate packages found no other order over-specification. The plan conflict pairs and orchestrate defect categories are sorted by their harness, citations and requirement files use contains-all checks, and design and orchestrate lists follow fixed document or protocol order.
 
 orchestrate-voice-integration-v2 rewards genuine extra findings and penalizes invented ones. Its audit recorded one genuine extra beyond the five integration defects: a memory leak, where budget-ended sessions are never deleted (`server.ts:53`). It recorded auth-bypass and race-condition as absent. MB-010r later reproduced a reentrant cancel-ordering weakness, so that race-condition finding is genuine: v3 audits it with a behavioral fix check, while auth-bypass remains absent. V1 and v2 stay frozen and retired. The ledger requires the five integration defects and permits only audited, behaviorally fixed extras; a claimed leak is checked after 40 sessions end. See the native diagnostics and results-v2 for the distinction between a package audit fault and the independent model-caused failures.
+
+## Public anchors provisioning
+
+`anchors_provision.py` provisions the 10 frozen public anchors in
+`anchors.json` through Harbor and writes `anchors-verification.json`. The
+script uses only the stdlib and subprocess. It fetches each task with a shallow,
+blobless sparse checkout at its pinned commit into `.kerrigan/anchors/` (that
+directory is gitignored, and no public task content is vendored here). It then
+hashes the task tree. anchors.json has no `tree_sha256` yet, so the hash is
+recorded. Next, it runs Harbor's built-in `oracle` agent, which must score 1,
+and `nop` agent (the base), which must score 0, with `-e docker`. It handles
+one anchor at a time and removes that anchor's task images and the builder
+cache after each run. `michael-*` images are never touched. Results merge
+per anchor, so you can rerun a subset:
+
+```bash
+python3 benchmarks/michael/curriculum/anchors_provision.py            # all 10
+python3 benchmarks/michael/curriculum/anchors_provision.py --only fix-git instance_ansible
+python3 benchmarks/michael/curriculum/anchors_provision.py --fetch-only  # fetch + hash only
+```
+
+Requirements: Harbor 0.27.0 (`HARBOR` or `--harbor`, default
+`/tmp/harbor-venv/bin/harbor`) and Docker with the compose v2 plugin. Harbor
+needs `docker compose`, and this host had to install the plugin under
+`~/.docker/cli-plugins`. A disk preflight skips an anchor and records an
+`environment-gap` when 4x its compressed image plus 1 GiB exceeds free disk.
+Use `--force` to try anyway.
+
+**Host shim, recorded per run:** this host's egress allowlist blocks
+`astral.sh`, and its TLS-intercepting proxy breaks uv's bundled roots. Every
+Terminal-Bench 2.0 verifier runs `curl https://astral.sh/uv/... | sh; source
+$HOME/.local/bin/env`. `--uv-shim auto` therefore bind-mounts, read-only at
+`/root/.local/bin`, what that installer would place there. The mount contains
+uv 0.9.5 from PyPI (sha256-checked), an `env` file and the host CA bundle
+(`SSL_CERT_FILE`, `UV_NATIVE_TLS=1`). No task file, test or image is modified.
+Hosts that can reach astral.sh get no shim.
+
+**Licenses:** Terminal-Bench 2.0 is Apache-2.0. `laude-institute/harbor-datasets`
+has no license: it has no LICENSE file, and GitHub reports none. Its SWE-bench
+Pro tasks adapt `scaleapi/SWE-bench_Pro-os`, which is MIT. We reference tasks
+only by URL and pinned commit.
+
+Results, 2026-11-27, with 2 CPUs, 7.7 GiB RAM, ~7.7 GB free disk, x86_64,
+Docker 29.1.3 and Harbor 0.27.0. Times are Harbor trial seconds; image bytes
+are the compressed `docker image inspect` size.
+
+| Anchor | Status | Oracle | Base | Image bytes |
+|---|---|---|---|---|
+| nginx-request-logging | verified | 1 (29 s) | 0 (26 s) | 67,285,778 |
+| configure-git-webserver | verified | 1 (57 s) | 0 (24 s) | 72,341,286 |
+| pytorch-model-recovery | environment-gap | not run | not run | 6,103,392,088 (Hub) |
+| train-fasttext | verified | 1 (212 s) | 0 (32 s) | 509,018,113 |
+| fix-git | verified | 1 (28 s) | 0 (21 s) | 158,060,522 |
+| SWE-Pro ansible 0ea40e09 | verified | 1 (26 s) | 0 (22 s) | 521,067,424 |
+| SWE-Pro openlibrary 00bec1e7 | verified | 1 (23 s) | 0 (18 s) | 960,358,775 |
+| SWE-Pro qutebrowser 01d1d149 | verified | 1 (23 s) | 0 (20 s) | 691,826,340 |
+| SWE-Pro element-web 1077729a | verified | 1 (121 s) | 0 (120 s) | 1,378,624,156 |
+| SWE-Pro nodebb 00c70ce7 | task-defect | 0 (346 s) | 0 (237 s) | 878,765,103 |
+
+- **pytorch-model-recovery** (`environment-gap`): the prebuilt
+  `alexgshaw/pytorch-model-recovery:20251031` image is 6.1 GB compressed
+  (amd64 only) because `pip install torch==2.7.1` pulls the CUDA wheels. It
+  needs about 25 GB of free Docker disk (estimated) plus 1 CPU and 2 GB RAM,
+  but no GPU. This host had ~7.7 GB, so it was not run.
+- **nodebb** (`task-defect`; Harbor's own result is oracle 0): as packaged at
+  harbor-datasets@c8e8f3fa, 4 of the 681 required test IDs can never match the
+  verifier parser's names. Three are truncated at an embedded double quote, for
+  example `...ACP default "day`, and one has lost its trailing space. The
+  oracle passes those tests under their full names, so the oracle cannot pass
+  in any environment. Two more required tests need live egress:
+  `packages.nodebb.org`, which is unresolvable here, and an untampered
+  `registry.npmjs.org`, which fails here with `SELF_SIGNED_CERT_IN_CHAIN`
+  behind the proxy. The evidence is in `oracle_diagnosis`. The anchor set is
+  frozen, so replacing this anchor needs a new revision of anchors.json.

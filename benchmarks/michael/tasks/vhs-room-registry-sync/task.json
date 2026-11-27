@@ -1,0 +1,60 @@
+{
+ "id": "vhs-room-registry-sync",
+ "family": "Operate",
+ "title": "Keep two VHS API backends' room/PIN registries convergent through partitions, replays, restarts, clock skew and misconfiguration",
+ "source": {
+  "repo": "Kixantrix/vhs-video-stack",
+  "visibility": "private",
+  "kind": "issue+pr",
+  "pr": 194,
+  "issue": 193,
+  "base_ref": "c89b7fb93fb8c7b0f931a929a350e8c31a8c5018",
+  "reference_ref": "1cbf506d797c5349749bd4f3c0e35e7ae262bc68",
+  "history_status": "merged"
+ },
+ "derivation": "Private vhs-video-stack issue #193 / PR #194 (hybrid hosting slice 1: bidirectional room/PIN registry replication between two API backends under intermittent connectivity) re-synthesized as a sanitized, dependency-free slice of the real api/ tree. db.js, index.js, admin.js and middleware.js are trimmed from the exact base (call-session, telemetry, quality, auth and user routes removed; LiveKit SDK replaced by a local HMAC token); better-sqlite3 and express are replaced by read-only stand-ins over node:sqlite and node:http (api/lib/). The oracle is the merged PR's non-test diff applied verbatim to the trimmed files: new sync.js (logical clock, LWW merge with tombstones and content tiebreak, diff/apply) and sync-routes.js (x-sync-secret guard), db.js migration/backfill, soft-delete, revive-by-name, clock seeding and registry adapters, and the /sync mount in index.js. The PR's Jest/supertest suite is replaced by held-out operational scenarios: separate module graphs and SQLite files per backend, restarts on the same file, partitions, stale and duplicate delivery, crafted skewed/tied peer snapshots, a database created with the pre-PR schema, and misconfigured secrets. The wire format, applied-count meaning and backfill rule, which the issue left open but the checks need, are stated in TASK.md from the oracle. No private hostnames, credentials or data are included.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Two-to-three-backend replication through HTTP only: export, peer-only create, PIN interchangeability, LWW both directions, same-millisecond ordering, commutative merge with exact ties, tombstone tie rule, timestamp preservation, delete propagation, no resurrection from stale peers, unseen deletes, revive-by-name, idempotent re-delivery, no duplicate rows, clock skew, restart persistence and clock seeding, in-place schema upgrade with backfill, secret guard and malformed payloads; plus preservation of the disabled-by-default deployment and existing room/token/admin contracts.",
+ "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
+ "outcome_evidence": "held_out_tests",
+ "estimated_agent_minutes": 50,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Design notes on the timestamp and tombstone choices, and the prose for a future background scheduler, are not graded.",
+  "Code structure (purity of the merge layer) is encouraged but not graded."
+ ],
+ "leak_tokens": [
+  "mergeRoomRegistries",
+  "applyRoomRegistry",
+  "getRoomRegistry",
+  "createSyncRouter",
+  "applySnapshotToRecords"
+ ],
+ "required_environment": "Full upstream task: Node 20+ with npm dependencies (express, better-sqlite3 native build, cors, cookie-parser, livekit-server-sdk, jest, supertest). The packaged slice runs on michael-replay-grader-node:mb008 (Node 24, node:sqlite, loopback HTTP, no npm) with vendored express/better-sqlite3 stand-ins.",
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "api/sync.js",
+  "candidates": [
+   "api/db.js",
+   "api/index.js",
+   "api/sync-routes.js",
+   "api/sync.js"
+  ],
+  "agent_support": [
+   "api/admin.js",
+   "api/lib/express.js",
+   "api/lib/sqlite.js",
+   "api/middleware.js"
+  ],
+  "denominators": {
+   "replication": 3,
+   "conflicts": 5,
+   "tombstones": 4,
+   "operations": 7,
+   "guard": 2,
+   "preservation": 3
+  }
+ },
+ "round": 3
+}

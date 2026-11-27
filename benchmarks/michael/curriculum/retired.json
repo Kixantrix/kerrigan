@@ -23,7 +23,7 @@
   "design-alethiometer-case": {
    "by": "MB-010r native automated admission",
    "reason": "contradiction: oracle README stated 37.0 mm body height while the model computes 36.949 mm (36.9 mm at the required 0.1 mm precision); a 0.06 mm document-check tolerance masked the mismatch",
-   "superseded_by": "design-alethiometer-case-v3",
+   "superseded_by": "design-alethiometer-case-v4",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-design-admission.json",
     "sha256": "d9662f6ff35d061be579ced3939603d397d838e2b60fc8f22e7f0e39f5bb7b77"
@@ -31,7 +31,7 @@
   },
   "yv-relevance-instrument": {
    "by": "MB-010r native automated admission",
-   "superseded_by": "yv-relevance-instrument-v3",
+   "superseded_by": "yv-relevance-instrument-v4",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-yv-relevance-instrument-admission.json",
     "sha256": "95c33e662663c48d164300905a0050b245db4f11d00d1a8ba8821a36870fb4fb"
@@ -94,7 +94,7 @@
   },
   "yv-relevance-instrument-v2": {
    "by": "MB-010r literal-overspecification audit",
-   "superseded_by": "yv-relevance-instrument-v3",
+   "superseded_by": "yv-relevance-instrument-v4",
    "reason": "task-caused: scoreArm results compared with a closed field set the spec does not state",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
@@ -103,7 +103,7 @@
   },
   "kerrigan-plan-conflict-queue-v2": {
    "by": "MB-010r literal-overspecification audit",
-   "superseded_by": "kerrigan-plan-conflict-queue-v3",
+   "superseded_by": "kerrigan-plan-conflict-queue-v4",
    "reason": "task-caused: 'filesystem-safe' ids checked against a narrower character class than the instruction states",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
@@ -112,7 +112,7 @@
   },
   "design-alethiometer-case-v2": {
    "by": "MB-010r literal-overspecification audit",
-   "superseded_by": "design-alethiometer-case-v3",
+   "superseded_by": "design-alethiometer-case-v4",
    "reason": "task-caused: HAND_STANDOFF compared with a strict float type, so an integer 5 failed",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
@@ -130,7 +130,7 @@
   },
   "kerrigan-plan-conflict-queue": {
    "by": "MB-010r literal-overspecification audit",
-   "superseded_by": "kerrigan-plan-conflict-queue-v3",
+   "superseded_by": "kerrigan-plan-conflict-queue-v4",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
     "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
@@ -142,6 +142,33 @@
    "superseded_by": "orchestrate-voice-integration-v5",
    "reason": "task-caused (native v4 admission needs_fix): L2 brief/plan said client-side budget accounting feeds R7 while the oracle meters on the server; the task said out-of-order controls are ignored while the oracle's start() was unguarded; round 2 finalizes on v3",
    "evidence_pending": "native v4 admission (needs_fix) to be cited when pushed"
+  },
+  "design-alethiometer-case-v3": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "design-alethiometer-case-v4",
+   "reason": "task-caused (native round-3 admission needs_fix): the hinge-relief defect was not determinable because the geometry of the parts entering the relief was undocumented, leaving the oracle/grader derivation unspecified",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-design-alethiometer-case-v3-admission.json",
+    "sha256": "e2f8283e1b75d6dd670e3327a7e93bbb9d775a12dc118474ed1b603b5e6e49ee"
+   }
+  },
+  "kerrigan-plan-conflict-queue-v3": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "kerrigan-plan-conflict-queue-v4",
+   "reason": "task-caused (native round-3 admission needs_fix): the Goal required the plan-edit PR to come from the agent:go issue, but merged #365 and the checks require no association",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-kerrigan-plan-conflict-queue-v3-admission.json",
+    "sha256": "f76141d9074491a1e14c7a28ef8b8920bfc92fedecfd2f7805882113e222e022"
+   }
+  },
+  "yv-relevance-instrument-v3": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "yv-relevance-instrument-v4",
+   "reason": "task-caused (native round-3 admission needs_fix): SPEC said subject-matter-absent when every government source is starved (vacuous for an empty list) while the real oracle requires at least one government source",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-yv-relevance-instrument-v3-admission.json",
+    "sha256": "fb52dc3afc4abc62f2fa901ea6329b1a26245bdccd84680d62b1b9e16dff05f2"
+   }
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",
@@ -902,6 +929,156 @@
       "why": "the task said out-of-order controls are ignored but the oracle's start() re-joined from any state; the oracle now guards start(), the instruction lists each guarded control, and the check covers start/press/audio/release/finish out of order"
      }
     ]
+   },
+   "design-alethiometer-case-v4": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "design-alethiometer-case-v3",
+    "findings": [
+     {
+      "where": "agent/hardware/stack.py hinge comment; TASK.md relief rule",
+      "old": "only 'nuts and a .063\" backing strip sit inside the wall' documented; which parts enter the relief and how far was unstated",
+      "new": "geometry documented: screw tip reaches HINGE_BODY_SCREW_LEN - T040 inward (countersunk head flush), strip and nuts reach T063 + HINGE_NUT_H; nothing else enters. TASK.md: depth must follow from the constants",
+      "why": "the oracle's screw-tip derivation and the grader's need formula were not determinable from agent-visible material, so the required defect was not a specified defect"
+     },
+     {
+      "where": "row 'hinge relief follows the screw length and clearance rule, not hard-coded'; row 'model report stays consistent with the stack'",
+      "old_clauses": [
+       [
+        "path_equal",
+        [
+         "relief_ok",
+         1
+        ],
+        true
+       ],
+       [
+        "path_equal",
+        [
+         "relief_ok",
+         2
+        ],
+        true
+       ]
+      ],
+      "new_clauses": [
+       [
+        "path_equal",
+        [
+         "relief_ok",
+         1
+        ],
+        true
+       ],
+       [
+        "path_equal",
+        [
+         "relief_ok",
+         2
+        ],
+        true
+       ],
+       [
+        "path_equal",
+        [
+         "relief_ok",
+         3
+        ],
+        true
+       ],
+       [
+        "path_equal",
+        [
+         "report_relief_consistent"
+        ],
+        true
+       ]
+      ],
+      "why": "the instruction now promises the depth tracks the clearance rule; RELIEF_CLEARANCE is perturbed (new harness design_alethiometer_case_v4.py) and the report's relief/flange must match the model, closing untested statements"
+     }
+    ],
+    "admission_evidence": {
+     "path": "benchmarks/michael/curriculum/MBR3-design-alethiometer-case-v3-admission.json",
+     "sha256": "e2f8283e1b75d6dd670e3327a7e93bbb9d775a12dc118474ed1b603b5e6e49ee"
+    }
+   },
+   "kerrigan-plan-conflict-queue-v4": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "kerrigan-plan-conflict-queue-v3",
+    "findings": [
+     {
+      "where": "agent/TASK.md Goal and Contract",
+      "old": "if the plan file is touched by an open PR from an `agent:go`-assigned issue",
+      "new": "while any open issue is labeled agent:go and an open PR touches the plan file; the PR is not required to belong to, link to or be opened from the labeled issue",
+      "why": "merged #365 (the oracle) and the hidden checks establish only that both exist; the instruction implied an association nothing checks"
+     },
+     {
+      "where": "agent/TASK.md new Grading section",
+      "old": "module gap comment, strict TS/no any and ~/.kerrigan/queue default stated as requirements",
+      "new": "stated as plan requirements that are not graded",
+      "why": "pre-empts untested-requirement findings; oracle and checks unchanged"
+     }
+    ],
+    "admission_evidence": {
+     "path": "benchmarks/michael/curriculum/MBR3-kerrigan-plan-conflict-queue-v3-admission.json",
+     "sha256": "f76141d9074491a1e14c7a28ef8b8920bfc92fedecfd2f7805882113e222e022"
+    }
+   },
+   "yv-relevance-instrument-v4": {
+    "round": 3,
+    "state": "provisional",
+    "supersedes": "yv-relevance-instrument-v3",
+    "findings": [
+     {
+      "where": "agent/evals/relevance/SPEC.md \u00a73 finding",
+      "old": "`finding` is \"subject-matter-absent\" when every government source is starved, otherwise \"ranker-ordering\".",
+      "new": "subject-matter-absent when there is at least one government source and every government source is starved; an empty governmentSources list gives ranker-ordering; a government source with no items is not starved",
+      "why": "the real oracle (governmentSources.length > 0 && starved.length === governmentSources.length) does not take the vacuous reading; instruction fixed to match"
+     },
+     {
+      "where": "hidden/rows.json new row",
+      "new_clauses": [
+       [
+        "path_equal",
+        [
+         "none",
+         "starvedSources"
+        ],
+        []
+       ],
+       [
+        "path_equal",
+        [
+         "none",
+         "finding"
+        ],
+        "ranker-ordering"
+       ],
+       [
+        "path_equal",
+        [
+         "absent",
+         "starvedSources"
+        ],
+        []
+       ],
+       [
+        "path_equal",
+        [
+         "absent",
+         "finding"
+        ],
+        "ranker-ordering"
+       ]
+      ],
+      "why": "the stated empty-list contract is now checked (scenario auditNoGovernment); oracle passes"
+     }
+    ],
+    "admission_evidence": {
+     "path": "benchmarks/michael/curriculum/MBR3-yv-relevance-instrument-v3-admission.json",
+     "sha256": "fb52dc3afc4abc62f2fa901ea6329b1a26245bdccd84680d62b1b9e16dff05f2"
+    }
    }
   }
  }
