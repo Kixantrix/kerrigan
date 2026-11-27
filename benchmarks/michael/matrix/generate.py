@@ -23,7 +23,7 @@ FAMILIES = {"validator": "Implement", "grouping": "Implement", "status": "Implem
             "selfhost-redeploy-state": "Operate", "sr-temporal-assay": "Experiment"}
 FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "sandbox-boundary-write",
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
-                 "harness-error")
+                 "harness-error", "invented-path-read")
 
 
 def failure_modes(attribution):
@@ -224,12 +224,19 @@ def ledger_records(root, *, selected=None):
                 if attribution["cause"] != "model":
                     raise ValueError("non-model matrix failure requires corrected primary attempt")
                 failures = failure_modes(attribution)
-            usage = native["usage"]
+            local = frozen.get("localInference")
+            if local and ((native.get("localInference", {}).get("release") or {}).get(
+                    "ownedRequestsDrained") is not True or native["nativePrompts"] != 0):
+                raise ValueError("matrix local backend drain/prompt mismatch")
+            usage = ([event.get("usage") for event in native["localInference"]["events"]
+                      if event["type"] == "local_request_finished"] if local else native["usage"])
             tokens = {}
             for key in ("inputTokens", "outputTokens"):
-                values = [value.get(key) for value in usage] if isinstance(usage, list) else []
+                values = [value.get(key) if isinstance(value, dict) else None
+                          for value in usage] if isinstance(usage, list) else []
                 tokens[key] = sum(values) if values and all(type(v) is int for v in values) else None
-            records.append({"task": name, "repeat": repeat, "model": model, "deployment_class": "cloud",
+            records.append({"task": name, "repeat": repeat, "model": model,
+                "deployment_class": "local laptop" if local else "cloud",
                 "condition": frozen["condition"], "tool_host": "local macOS MXC", "round": "v3",
                 "family": curriculum.meta(name)["family"], "size": size(name), "resolved": passed,
                 "completion_seconds": seconds, "tokens": tokens, "cost": None,
@@ -250,11 +257,14 @@ def ledger_records(root, *, selected=None):
 
 def epoch_records(plan_path):
     """Resolve only the published recovery plan; outcomes still come from verified ledgers."""
-    verification_path = ROOT / "benchmarks/michael/local_transport/mbr3-tooltip-verification.json"
-    verification = json.loads(verification_path.read_bytes())
     plan = json.loads(Path(plan_path).read_bytes())
-    if plan != verification["primaryPlan"]:
+    paths = [ROOT / "benchmarks/michael/local_transport" / name for name in (
+        "mbr3-tooltip-verification.json", "mbr3-parity-verification.json")]
+    matches = [path for path in paths if path.is_file() and
+               json.loads(path.read_bytes()).get("primaryPlan") == plan]
+    if len(matches) != 1:
         raise ValueError("source epoch plan differs from published verification")
+    verification_path = matches[0]
     parent = Path(plan_path).parent.parent
     if hashlib.sha256((parent / "mbr3-v1/schedule.json").read_bytes()).hexdigest() != plan["scheduleSha256"]:
         raise ValueError("source epoch schedule mismatch")
@@ -262,21 +272,34 @@ def epoch_records(plan_path):
     labels = {}
     for row in plan["attempts"]:
         alias = row["evidence_root"]
-        if alias not in ("mbr3-v1", "mbr3-tooltip-v2"):
+        if alias not in ("mbr3-v1", "mbr3-tooltip-v2", "mbr3-parity-v3"):
             raise ValueError("source epoch evidence alias denied")
         key = row["task"], row["repeat"], row["model"]
         if key in labels:
             raise ValueError("duplicate source epoch attempt")
         selections.setdefault(alias, set()).add(key)
         labels[key] = row["source_epoch"]
-    prior = plan["excluded_prior"]
-    prior_root = parent / "mbr3-v1"
-    outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
-    attribution_path = prior_root / "attribution" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "attribution.json"
-    if (hashlib.sha256(outcome_path.read_bytes()).hexdigest() != prior["outcomeSha256"] or
-            hashlib.sha256(attribution_path.read_bytes()).hexdigest() != prior["attributionSha256"] or
-            json.loads(attribution_path.read_bytes())["cause"] != "harness"):
-        raise ValueError("source epoch prior attribution mismatch")
+    priors = plan.get("excluded_priors") or [plan["excluded_prior"]]
+    safe_priors = []
+    for prior in priors:
+        alias = prior.get("evidence_root", "mbr3-v1")
+        if alias not in ("mbr3-v1", "mbr3-tooltip-v2"):
+            raise ValueError("source epoch prior alias denied")
+        prior_root = parent / alias
+        outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
+        attribution_path = prior_root / "attribution" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "attribution.json"
+        if (hashlib.sha256(outcome_path.read_bytes()).hexdigest() != prior["outcomeSha256"] or
+                hashlib.sha256(attribution_path.read_bytes()).hexdigest() != prior["attributionSha256"] or
+                json.loads(attribution_path.read_bytes())["cause"] != "harness"):
+            raise ValueError("source epoch prior attribution mismatch")
+        safe_priors.append({
+            "task": prior["task"], "model": prior["model"], "round": "v3", "status": "ungraded",
+            "failure_modes": prior.get("failure_modes", ["harness-error"]),
+            "provenance": {"attribution_sha256": prior["attributionSha256"],
+                           "outcome_sha256": prior["outcomeSha256"],
+                           "cutoff": prior.get("cutoff", "harness"),
+                           "excluded_from_task_failures": True},
+        })
     records = []
     for alias, selected in selections.items():
         for row in ledger_records(parent / alias, selected=selected):
@@ -288,12 +311,7 @@ def epoch_records(plan_path):
     source = {"path": str(verification_path.relative_to(ROOT)),
               "sha256": hashlib.sha256(verification_path.read_bytes()).hexdigest(),
               "role": "Published native source epochs and complete logical-attempt selection",
-              "prior_attempts": [{
-                  "task": prior["task"], "model": prior["model"], "round": "v3",
-                  "status": "ungraded", "failure_modes": ["harness-error"],
-                  "provenance": {"attribution_sha256": prior["attributionSha256"],
-                                 "outcome_sha256": prior["outcomeSha256"]},
-              }]}
+              "prior_attempts": safe_priors}
     return records, source
 
 
