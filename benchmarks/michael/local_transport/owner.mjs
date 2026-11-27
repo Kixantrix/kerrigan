@@ -12,7 +12,9 @@ import { localWindow } from "./local_window.mjs";
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 admission(config);
 const TASK_VALIDATOR = config.curriculumTask ? config.taskPolicy : LEGACY_TASK_POLICY;
-const finalPaths = TASK_VALIDATOR.artifacts || [TASK_VALIDATOR.source];
+// Diff-contract tasks have no final artifact reads: the trusted collector computes the patch.
+const finalPaths = TASK_VALIDATOR.finalState?.kind === "git-diff" ? [] :
+    (TASK_VALIDATOR.artifacts || [TASK_VALIDATOR.source]);
 const finalIds = finalPaths.map((_, index) => finalPaths.length === 1 ?
     "controller-final-source" : `controller-final-source-${index}`);
 if (config.validatorReplay && (config.model !== null || config.approved !== false ||

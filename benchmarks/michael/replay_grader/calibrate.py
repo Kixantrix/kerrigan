@@ -41,10 +41,8 @@ def receipt(name, directory=None):
 
 
 def path(name):
-    if name in packages.CASES:
-        return packages.HERE / name / "grader-calibration.json"
     from benchmarks.michael.tasks import curriculum
-    return curriculum.directory(name) / "calibration.json"
+    return curriculum.package_dir(name) / ("grader-calibration.json" if name in packages.CASES else "calibration.json")
 
 
 def main():

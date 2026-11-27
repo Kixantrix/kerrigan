@@ -55,3 +55,6 @@ pr_*.md
 
 # Conductor scratch dir (redispatch/reply comment bodies, temp commit messages)
 .specify/tmp/
+
+# Verified cache of materialized public anchors (upstream GPL/AGPL bytes; never committed).
+.cache/michael-anchors/

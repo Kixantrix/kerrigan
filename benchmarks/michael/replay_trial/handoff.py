@@ -23,7 +23,8 @@ def descriptor(kind, name):
 def bundle(owned, model, *, synthetic=False, task_name="validator", configuration=None):
     frozen = validator.frozen(owned) if configuration is None else configuration
     local = frozen.get("localInference")
-    task = json.loads((api.packages.HERE / task_name / "manifest.json").read_bytes())
+    from benchmarks.michael.tasks import curriculum
+    task = json.loads((curriculum.package_dir(task_name) / "manifest.json").read_bytes())
     target = {**descriptor("target", ("synthetic-" if synthetic else "") + model),
               "requested_identity": ("not invoked; fixture for " if synthetic else "") + model,
               "observed_identity": unknown(), "runtime": known(

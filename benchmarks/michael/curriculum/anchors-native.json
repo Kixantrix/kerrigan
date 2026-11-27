@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
  "anchors_json_revision": 2,
- "contracts_sha256": "30af1235aaab453e0c6424eb63ad6c4a51e3ca0c5b1464cc637661d932c178c0",
+ "contracts_sha256": "09a8567f704691e6440b75846bf926a02fc07471ebe128240cf8bb414ffa70c8",
  "converter": "benchmarks/michael/curriculum/anchors_convert.py",
  "statuses": {
   "converted": "native package calibrated: base fails, oracle passes, repeatable",
@@ -303,43 +303,771 @@
   },
   {
    "name": "instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
-   "status": "pending",
-   "kind": "converter-scope",
-   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
-   "evidence": null,
-   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+   "status": "converted",
+   "package": "anchor-swepro-ansible",
+   "package_path": "benchmarks/michael/tasks/anchors/anchor-swepro-ansible",
+   "family": "Implement",
+   "contract": "git-diff",
+   "task_image": "jefzda/sweap-images@sha256:f33e649225791eef0da314cce6065a3f6dadfa48e707584e815d4bf3af4062b5",
+   "verifier_image": "mbanchor-anchor-swepro-ansible:verifier",
+   "image_bytes": {
+    "task_image": null,
+    "environment_image": 524376315,
+    "verifier_image": 526043815
+   },
+   "subset": {
+    "files": 221,
+    "bytes": 1786133,
+    "exported_files": 221,
+    "exported_bytes": 1786133,
+    "repo_tracked_files": 4854,
+    "repo_tracked_bytes": 13797987,
+    "caps": {
+     "files": 2000,
+     "bytes": 16777216,
+     "file_bytes": 524288
+    }
+   },
+   "dropped": 0,
+   "max_patch_bytes": 1048576,
+   "oracle_patch_bytes": 1854,
+   "gold_created": [
+    "changelogs/fragments/81659_varswithsources.yml"
+   ],
+   "rows": {
+    "fail_to_pass": 1,
+    "pass_to_pass": 15,
+    "harbor-reward": 1
+   },
+   "p2p_rows": "per-test",
+   "harbor_verifier_seconds": 5.2,
+   "oracle_precheck_seconds": 3.6,
+   "native_policy": {
+    "read": 226,
+    "write": 223,
+    "finalState": {
+     "artifact": "final-state.patch",
+     "kind": "git-diff",
+     "maxBytes": 1048576,
+     "newFiles": "new-files.json",
+     "prefix": "app/"
+    },
+    "bytes": 131072
+   },
+   "calibration": {
+    "phases": {
+     "baseline": {
+      "verdict": "fail",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 0,
+        "total": 1
+       },
+       "harbor-reward": {
+        "passed": 0,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 15,
+        "total": 15
+       }
+      },
+      "failed": [
+       "fail_to_pass::test/units/utils/test_vars.py::TestVariableUtils::test_combine_vars_replace",
+       "harbor::reward.txt"
+      ],
+      "observation_sha256": [
+       "ef574661078a4f90eee0247da34c195239d4c95f4e6f6c94eb50bb056660fac3",
+       "ef574661078a4f90eee0247da34c195239d4c95f4e6f6c94eb50bb056660fac3"
+      ],
+      "seconds": 4.1
+     },
+     "reference": {
+      "verdict": "pass",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 1,
+        "total": 1
+       },
+       "harbor-reward": {
+        "passed": 1,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 15,
+        "total": 15
+       }
+      },
+      "failed": [],
+      "observation_sha256": [
+       "90d4a345593a2a7440d9997d5f125c54b7a155eb5f0598dc6d3fd5a0dc1424d2",
+       "90d4a345593a2a7440d9997d5f125c54b7a155eb5f0598dc6d3fd5a0dc1424d2"
+      ],
+      "seconds": 3.9
+     }
+    },
+    "repeatable": true,
+    "denominators": {
+     "fail_to_pass": 1,
+     "harbor-reward": 1,
+     "pass_to_pass": 15
+    },
+    "base_fails": true,
+    "oracle_passes": true,
+    "grading_seconds_max": 3.5,
+    "candidate_seconds": 120,
+    "fits_candidate_seconds": true,
+    "observations_match_previous": true
+   },
+   "harbor_lint": {
+    "status": "run",
+    "harbor": "0.27.0",
+    "rules": [
+     "root-agent",
+     "shared-verifier",
+     "unpinned-image"
+    ],
+    "addressed_by_conversion": {
+     "unpinned-image": "task image pinned by sha256 digest",
+     "shared-verifier": "verifier is a fresh container from the verifier image with only the artifacts",
+     "verifier-runtime-install": "test.sh dependencies pre-installed at build time; grading is offline",
+     "verifier-network-download": "grading runs with --network none and UV_OFFLINE=1",
+     "root-agent": "not applicable: the native agent never runs in the task container"
+    }
+   },
+   "seconds": {
+    "environment": 17.1,
+    "subset": 2.8,
+    "oracle": 0.7,
+    "verifier_image": 4.6,
+    "oracle_precheck": 3.6,
+    "package": 0.0,
+    "calibration": 18.4,
+    "total": 51.7
+   },
+   "images_removed": [
+    "mbanchor-anchor-swepro-ansible:verifier",
+    "mbanchor-anchor-swepro-ansible:env"
+   ],
+   "recorded_at": "2026-11-27T09:33:36+00:00",
+   "materialized": true,
+   "recalibrated_at": "2026-11-27T10:22:08+00:00",
+   "recalibration_seconds": {
+    "images": 22.1,
+    "total": 42.1
+   }
   },
   {
    "name": "instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
-   "status": "pending",
-   "kind": "converter-scope",
-   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
-   "evidence": null,
-   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+   "status": "converted",
+   "package": "anchor-swepro-openlibrary",
+   "package_path": "benchmarks/michael/tasks/anchors/anchor-swepro-openlibrary",
+   "family": "Implement",
+   "contract": "git-diff",
+   "task_image": "jefzda/sweap-images@sha256:418a25cd0428c123907968972a7e07b1246836c9d7bac33e7d1eb286b12b41b9",
+   "verifier_image": "mbanchor-anchor-swepro-openlibrary:verifier",
+   "image_bytes": {
+    "task_image": null,
+    "environment_image": 976473233,
+    "verifier_image": 977719371
+   },
+   "subset": {
+    "files": 186,
+    "bytes": 1521953,
+    "exported_files": 186,
+    "exported_bytes": 1521953,
+    "repo_tracked_files": 1951,
+    "repo_tracked_bytes": 25944618,
+    "caps": {
+     "files": 2000,
+     "bytes": 16777216,
+     "file_bytes": 524288
+    }
+   },
+   "dropped": 0,
+   "max_patch_bytes": 1048576,
+   "oracle_patch_bytes": 3968,
+   "gold_created": [],
+   "rows": {
+    "fail_to_pass": 3,
+    "pass_to_pass": 15,
+    "harbor-reward": 1
+   },
+   "p2p_rows": "per-test",
+   "harbor_verifier_seconds": 2.4,
+   "oracle_precheck_seconds": 1.6,
+   "native_policy": {
+    "read": 191,
+    "write": 188,
+    "finalState": {
+     "artifact": "final-state.patch",
+     "kind": "git-diff",
+     "maxBytes": 1048576,
+     "newFiles": "new-files.json",
+     "prefix": "app/"
+    },
+    "bytes": 65536
+   },
+   "calibration": {
+    "phases": {
+     "baseline": {
+      "verdict": "fail",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 0,
+        "total": 3
+       },
+       "harbor-reward": {
+        "passed": 0,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 15,
+        "total": 15
+       }
+      },
+      "failed": [
+       "fail_to_pass::openlibrary/plugins/importapi/tests/test_import_validator.py::test_validate_strong_identifier_minimal",
+       "fail_to_pass::openlibrary/plugins/importapi/tests/test_import_validator.py::test_validate_multiple_strong_identifiers[isbn_10]",
+       "fail_to_pass::openlibrary/plugins/importapi/tests/test_import_validator.py::test_validate_multiple_strong_identifiers[lccn]",
+       "harbor::reward.txt"
+      ],
+      "observation_sha256": [
+       "9d3ff43f3cf880375afd76508841f5da75d7ebae9220352225a855ab2cbec813",
+       "9d3ff43f3cf880375afd76508841f5da75d7ebae9220352225a855ab2cbec813"
+      ],
+      "seconds": 1.8
+     },
+     "reference": {
+      "verdict": "pass",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 3,
+        "total": 3
+       },
+       "harbor-reward": {
+        "passed": 1,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 15,
+        "total": 15
+       }
+      },
+      "failed": [],
+      "observation_sha256": [
+       "64d34eb2febcd973e385d19a27f9a9e200748ff567568b60827b05ac22523235",
+       "64d34eb2febcd973e385d19a27f9a9e200748ff567568b60827b05ac22523235"
+      ],
+      "seconds": 1.8
+     }
+    },
+    "repeatable": true,
+    "denominators": {
+     "fail_to_pass": 3,
+     "harbor-reward": 1,
+     "pass_to_pass": 15
+    },
+    "base_fails": true,
+    "oracle_passes": true,
+    "grading_seconds_max": 1.3,
+    "candidate_seconds": 120,
+    "fits_candidate_seconds": true,
+    "observations_match_previous": true
+   },
+   "harbor_lint": {
+    "status": "run",
+    "harbor": "0.27.0",
+    "rules": [
+     "root-agent",
+     "shared-verifier",
+     "unpinned-image"
+    ],
+    "addressed_by_conversion": {
+     "unpinned-image": "task image pinned by sha256 digest",
+     "shared-verifier": "verifier is a fresh container from the verifier image with only the artifacts",
+     "verifier-runtime-install": "test.sh dependencies pre-installed at build time; grading is offline",
+     "verifier-network-download": "grading runs with --network none and UV_OFFLINE=1",
+     "root-agent": "not applicable: the native agent never runs in the task container"
+    }
+   },
+   "seconds": {
+    "environment": 36.8,
+    "subset": 3.3,
+    "oracle": 0.6,
+    "verifier_image": 3.4,
+    "oracle_precheck": 1.6,
+    "package": 0.0,
+    "calibration": 9.7,
+    "total": 59.8
+   },
+   "images_removed": [
+    "mbanchor-anchor-swepro-openlibrary:verifier",
+    "mbanchor-anchor-swepro-openlibrary:env"
+   ],
+   "recorded_at": "2026-11-27T09:34:40+00:00",
+   "materialized": true,
+   "recalibrated_at": "2026-11-27T10:23:00+00:00",
+   "recalibration_seconds": {
+    "images": 39.0,
+    "total": 51.2
+   }
   },
   {
    "name": "instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
-   "status": "pending",
-   "kind": "converter-scope",
-   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
-   "evidence": null,
-   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+   "status": "converted",
+   "package": "anchor-swepro-qutebrowser",
+   "package_path": "benchmarks/michael/tasks/anchors/anchor-swepro-qutebrowser",
+   "family": "Implement",
+   "contract": "git-diff",
+   "task_image": "jefzda/sweap-images@sha256:86caacd224a26c2a26ca50bfca31b3c088be8b10012ea1c3fc6ead428bc21247",
+   "verifier_image": "mbanchor-anchor-swepro-qutebrowser:verifier",
+   "image_bytes": {
+    "task_image": null,
+    "environment_image": 697221825,
+    "verifier_image": 698614986
+   },
+   "subset": {
+    "files": 179,
+    "bytes": 2349172,
+    "exported_files": 179,
+    "exported_bytes": 2349172,
+    "repo_tracked_files": 835,
+    "repo_tracked_bytes": 16197362,
+    "caps": {
+     "files": 2000,
+     "bytes": 16777216,
+     "file_bytes": 524288
+    }
+   },
+   "dropped": 0,
+   "max_patch_bytes": 1048576,
+   "oracle_patch_bytes": 5659,
+   "gold_created": [],
+   "rows": {
+    "fail_to_pass": 3,
+    "pass_to_pass": 46,
+    "harbor-reward": 1
+   },
+   "p2p_rows": "per-test",
+   "harbor_verifier_seconds": 5.2,
+   "oracle_precheck_seconds": 4.4,
+   "native_policy": {
+    "read": 184,
+    "write": 181,
+    "finalState": {
+     "artifact": "final-state.patch",
+     "kind": "git-diff",
+     "maxBytes": 1048576,
+     "newFiles": "new-files.json",
+     "prefix": "app/"
+    },
+    "bytes": 524288
+   },
+   "calibration": {
+    "phases": {
+     "baseline": {
+      "verdict": "fail",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 0,
+        "total": 3
+       },
+       "harbor-reward": {
+        "passed": 0,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 46,
+        "total": 46
+       }
+      },
+      "failed": [
+       "fail_to_pass::tests/unit/utils/test_version.py::TestModuleVersions::test_version_attribute[VERSION-expected_modules0]",
+       "fail_to_pass::tests/unit/utils/test_version.py::TestModuleVersions::test_version_attribute[SIP_VERSION_STR-expected_modules1]",
+       "fail_to_pass::tests/unit/utils/test_version.py::TestModuleVersions::test_version_attribute[None-expected_modules2]",
+       "harbor::reward.txt"
+      ],
+      "observation_sha256": [
+       "422727c72f9ab8b72c6effa838eee995e78f691af7b2ce0702d3c94fbfe6f8e6",
+       "422727c72f9ab8b72c6effa838eee995e78f691af7b2ce0702d3c94fbfe6f8e6"
+      ],
+      "seconds": 4.8
+     },
+     "reference": {
+      "verdict": "pass",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 3,
+        "total": 3
+       },
+       "harbor-reward": {
+        "passed": 1,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 46,
+        "total": 46
+       }
+      },
+      "failed": [],
+      "observation_sha256": [
+       "25d827d9216b0611b8cd215d6a94cfc88c31cbdbf4a28b95af3cf43c54ac4e93",
+       "25d827d9216b0611b8cd215d6a94cfc88c31cbdbf4a28b95af3cf43c54ac4e93"
+      ],
+      "seconds": 4.5
+     }
+    },
+    "repeatable": true,
+    "denominators": {
+     "fail_to_pass": 3,
+     "harbor-reward": 1,
+     "pass_to_pass": 46
+    },
+    "base_fails": true,
+    "oracle_passes": true,
+    "grading_seconds_max": 4.3,
+    "candidate_seconds": 120,
+    "fits_candidate_seconds": true,
+    "observations_match_previous": true
+   },
+   "harbor_lint": {
+    "status": "run",
+    "harbor": "0.27.0",
+    "rules": [
+     "root-agent",
+     "shared-verifier",
+     "unpinned-image"
+    ],
+    "addressed_by_conversion": {
+     "unpinned-image": "task image pinned by sha256 digest",
+     "shared-verifier": "verifier is a fresh container from the verifier image with only the artifacts",
+     "verifier-runtime-install": "test.sh dependencies pre-installed at build time; grading is offline",
+     "verifier-network-download": "grading runs with --network none and UV_OFFLINE=1",
+     "root-agent": "not applicable: the native agent never runs in the task container"
+    }
+   },
+   "seconds": {
+    "environment": 24.2,
+    "subset": 2.5,
+    "oracle": 0.6,
+    "verifier_image": 6.3,
+    "oracle_precheck": 4.4,
+    "package": 0.0,
+    "calibration": 21.0,
+    "total": 63.6
+   },
+   "images_removed": [
+    "mbanchor-anchor-swepro-qutebrowser:verifier",
+    "mbanchor-anchor-swepro-qutebrowser:env"
+   ],
+   "recorded_at": "2026-11-27T09:35:46+00:00",
+   "materialized": true,
+   "recalibrated_at": "2026-11-27T10:23:48+00:00",
+   "recalibration_seconds": {
+    "images": 26.3,
+    "total": 48.5
+   }
   },
   {
    "name": "instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
-   "status": "pending",
-   "kind": "converter-scope",
-   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
-   "evidence": null,
-   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+   "status": "converted",
+   "package": "anchor-swepro-element-web",
+   "package_path": "benchmarks/michael/tasks/anchors/anchor-swepro-element-web",
+   "family": "Implement",
+   "contract": "git-diff",
+   "task_image": "jefzda/sweap-images@sha256:d2896e2a4dc6aee6c6ee6a17465e7d443976ac06a8510fd80215a68cda1ff71d",
+   "verifier_image": "mbanchor-anchor-swepro-element-web:verifier",
+   "image_bytes": {
+    "task_image": null,
+    "environment_image": 1401106571,
+    "verifier_image": 1415583783
+   },
+   "subset": {
+    "files": 1082,
+    "bytes": 6817912,
+    "exported_files": 1075,
+    "exported_bytes": 6554642,
+    "repo_tracked_files": 3425,
+    "repo_tracked_bytes": 49622778,
+    "caps": {
+     "files": 2000,
+     "bytes": 16777216,
+     "file_bytes": 524288
+    }
+   },
+   "dropped": 7,
+   "max_patch_bytes": 1048576,
+   "oracle_patch_bytes": 4000,
+   "gold_created": [],
+   "rows": {
+    "fail_to_pass": 1,
+    "pass_to_pass": 385,
+    "harbor-reward": 1
+   },
+   "p2p_rows": "per-test",
+   "harbor_verifier_seconds": 100.8,
+   "oracle_precheck_seconds": 68.0,
+   "native_policy": {
+    "read": 1080,
+    "write": 1077,
+    "finalState": {
+     "artifact": "final-state.patch",
+     "kind": "git-diff",
+     "maxBytes": 1048576,
+     "newFiles": "new-files.json",
+     "prefix": "app/"
+    },
+    "bytes": 524288
+   },
+   "calibration": {
+    "phases": {
+     "baseline": {
+      "verdict": "fail",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 0,
+        "total": 1
+       },
+       "harbor-reward": {
+        "passed": 0,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 385,
+        "total": 385
+       }
+      },
+      "failed": [
+       "fail_to_pass::test/unit-tests/components/viewmodels/roomlist/RoomListViewModel-test.tsx | Sticky room and active index | active index is calculated with the last opened room in a space",
+       "harbor::reward.txt"
+      ],
+      "observation_sha256": [
+       "805b26898659d0d883b427d621fe9d301fb9aa672d30d6dd2f944f7e9a8b4cca",
+       "805b26898659d0d883b427d621fe9d301fb9aa672d30d6dd2f944f7e9a8b4cca"
+      ],
+      "seconds": 67.5
+     },
+     "reference": {
+      "verdict": "pass",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 1,
+        "total": 1
+       },
+       "harbor-reward": {
+        "passed": 1,
+        "total": 1
+       },
+       "pass_to_pass": {
+        "passed": 385,
+        "total": 385
+       }
+      },
+      "failed": [],
+      "observation_sha256": [
+       "9930dd4b7b5f3a5a1ffc884691ae5519e0e732bc1fc365e9836d47266979c89b",
+       "9930dd4b7b5f3a5a1ffc884691ae5519e0e732bc1fc365e9836d47266979c89b"
+      ],
+      "seconds": 67.8
+     }
+    },
+    "repeatable": true,
+    "denominators": {
+     "fail_to_pass": 1,
+     "harbor-reward": 1,
+     "pass_to_pass": 385
+    },
+    "base_fails": true,
+    "oracle_passes": true,
+    "grading_seconds_max": 66.8,
+    "candidate_seconds": 330,
+    "fits_candidate_seconds": true,
+    "observations_match_previous": true
+   },
+   "harbor_lint": {
+    "status": "run",
+    "harbor": "0.27.0",
+    "rules": [
+     "root-agent",
+     "shared-verifier",
+     "unpinned-image"
+    ],
+    "addressed_by_conversion": {
+     "unpinned-image": "task image pinned by sha256 digest",
+     "shared-verifier": "verifier is a fresh container from the verifier image with only the artifacts",
+     "verifier-runtime-install": "test.sh dependencies pre-installed at build time; grading is offline",
+     "verifier-network-download": "grading runs with --network none and UV_OFFLINE=1",
+     "root-agent": "not applicable: the native agent never runs in the task container"
+    }
+   },
+   "seconds": {
+    "environment": 41.5,
+    "subset": 3.7,
+    "oracle": 0.6,
+    "verifier_image": 73.6,
+    "oracle_precheck": 68.0,
+    "package": 0.2,
+    "calibration": 278.1,
+    "total": 470.5
+   },
+   "images_removed": [
+    "mbanchor-anchor-swepro-element-web:verifier",
+    "mbanchor-anchor-swepro-element-web:env"
+   ],
+   "recorded_at": "2026-11-27T09:43:41+00:00",
+   "materialized": true,
+   "recalibrated_at": "2026-11-27T10:30:26+00:00",
+   "recalibration_seconds": {
+    "images": 120.5,
+    "total": 398.1
+   }
   },
   {
    "name": "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
-   "status": "pending",
-   "kind": "converter-scope",
-   "reason": "Not straightforward with this converter. (1) Write set: SWE-bench Pro lets the agent edit any file of a large repository, while the native policy needs an explicit pre-existing write list; using the gold patch's files would leak the fix location, and the whole repo is thousands of files. (2) Bounds: the repository trees (tens of MB) exceed the native read/aggregate bounds unless a principled subset is chosen per task. (3) Verifier adapter: the SWE-Pro verifier is not test.sh+CTRF; it runs a per-repo run_script/parser and grades fail_to_pass/pass_to_pass ID lists from tests/config.json (pytest for ansible/openlibrary/qutebrowser, jest/mocha-style for element-web/tutanota), which needs a second adapter. (4) Images are 0.5-1.4 GB compressed on a ~6 GB-free host. The Harbor-path verification (oracle 1, base 0) in anchors-verification.json stays valid.",
-   "evidence": null,
-   "next_step": "Add a 'swebenchpro' adapter (config.json fail_to_pass/pass_to_pass -> strict rows) and a declared write-set rule (e.g. all tracked files under the package directories the issue names), starting with the three pytest repos."
+   "status": "converted",
+   "package": "anchor-swepro-tutanota",
+   "package_path": "benchmarks/michael/tasks/anchors/anchor-swepro-tutanota",
+   "family": "Implement",
+   "contract": "git-diff",
+   "task_image": "jefzda/sweap-images@sha256:526a22a82597f1876abfc41f1e1313b3813916e116ce9f3e62a60f45bad3d66f",
+   "verifier_image": "mbanchor-anchor-swepro-tutanota:verifier",
+   "image_bytes": {
+    "task_image": null,
+    "environment_image": 1375856463,
+    "verifier_image": 1376451373
+   },
+   "subset": {
+    "files": 551,
+    "bytes": 9123319,
+    "exported_files": 551,
+    "exported_bytes": 9123319,
+    "repo_tracked_files": 1937,
+    "repo_tracked_bytes": 50657986,
+    "caps": {
+     "files": 2000,
+     "bytes": 16777216,
+     "file_bytes": 524288
+    }
+   },
+   "dropped": 0,
+   "max_patch_bytes": 1048576,
+   "oracle_patch_bytes": 17494,
+   "gold_created": [
+    "src/api/main/OperationProgressTracker.ts"
+   ],
+   "rows": {
+    "fail_to_pass": 1,
+    "harbor-reward": 1
+   },
+   "p2p_rows": "per-test",
+   "harbor_verifier_seconds": 98.8,
+   "oracle_precheck_seconds": 87.7,
+   "native_policy": {
+    "read": 556,
+    "write": 553,
+    "finalState": {
+     "artifact": "final-state.patch",
+     "kind": "git-diff",
+     "maxBytes": 1048576,
+     "newFiles": "new-files.json",
+     "prefix": "app/"
+    },
+    "bytes": 524288
+   },
+   "calibration": {
+    "phases": {
+     "baseline": {
+      "verdict": "fail",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 0,
+        "total": 1
+       },
+       "harbor-reward": {
+        "passed": 0,
+        "total": 1
+       }
+      },
+      "failed": [
+       "fail_to_pass::test/tests/api/worker/facades/CalendarFacadeTest.js | test suite",
+       "harbor::reward.txt"
+      ],
+      "observation_sha256": [
+       "b38dcf8e7e22234ae1b35c3927da7d91f1fff8a664d4273a39e3463e1c3d4e7d",
+       "b38dcf8e7e22234ae1b35c3927da7d91f1fff8a664d4273a39e3463e1c3d4e7d"
+      ],
+      "seconds": 11.9
+     },
+     "reference": {
+      "verdict": "pass",
+      "counts": {
+       "fail_to_pass": {
+        "passed": 1,
+        "total": 1
+       },
+       "harbor-reward": {
+        "passed": 1,
+        "total": 1
+       }
+      },
+      "failed": [],
+      "observation_sha256": [
+       "951b8e1d0ea4432cb504e24ad2a263a6876c63f4ae5d6f23f6727affa558b88f",
+       "951b8e1d0ea4432cb504e24ad2a263a6876c63f4ae5d6f23f6727affa558b88f"
+      ],
+      "seconds": 88.0
+     }
+    },
+    "repeatable": true,
+    "denominators": {
+     "fail_to_pass": 1,
+     "harbor-reward": 1
+    },
+    "base_fails": true,
+    "oracle_passes": true,
+    "grading_seconds_max": 87.2,
+    "candidate_seconds": 300,
+    "fits_candidate_seconds": true,
+    "observations_match_previous": true
+   },
+   "harbor_lint": {
+    "status": "run",
+    "harbor": "0.27.0",
+    "rules": [
+     "root-agent",
+     "shared-verifier",
+     "unpinned-image"
+    ],
+    "addressed_by_conversion": {
+     "unpinned-image": "task image pinned by sha256 digest",
+     "shared-verifier": "verifier is a fresh container from the verifier image with only the artifacts",
+     "verifier-runtime-install": "test.sh dependencies pre-installed at build time; grading is offline",
+     "verifier-network-download": "grading runs with --network none and UV_OFFLINE=1",
+     "root-agent": "not applicable: the native agent never runs in the task container"
+    }
+   },
+   "seconds": {
+    "environment": 37.0,
+    "subset": 4.1,
+    "oracle": 0.7,
+    "verifier_image": 27.9,
+    "oracle_precheck": 87.7,
+    "package": 0.1,
+    "calibration": 202.0,
+    "total": 363.9
+   },
+   "images_removed": [
+    "mbanchor-anchor-swepro-tutanota:verifier",
+    "mbanchor-anchor-swepro-tutanota:env"
+   ],
+   "recorded_at": "2026-11-27T09:49:48+00:00",
+   "materialized": true,
+   "recalibrated_at": "2026-11-27T10:34:54+00:00",
+   "recalibration_seconds": {
+    "images": 63.7,
+    "total": 267.9
+   }
   }
  ]
 }

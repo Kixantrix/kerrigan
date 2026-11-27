@@ -1,0 +1,98 @@
+{
+ "id": "anchor-swepro-element-web",
+ "family": "Implement",
+ "title": "Keep the sticky room list index correct when the active space changes (SWE-bench Pro element-web)",
+ "source": {
+  "repo": "laude-institute/harbor-datasets",
+  "visibility": "public",
+  "kind": "harbor-task",
+  "pr": null,
+  "base_ref": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+  "reference_ref": "c8e8f3fac7097accaacf261d74c3d6f441de45b1:datasets/swebenchpro/instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan/solution/solve.sh",
+  "history_status": "public-benchmark"
+ },
+ "derivation": "Converted by anchors_convert_swe.py from SWE-bench Pro 'instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan' (element-hq/element-web base 4f32727829c1087e9d3d9955785d8a6255457c7d, gold 1077729a19c0ce902e713cf6fab42c91fb7907f1) via https://github.com/laude-institute/harbor-datasets.git@c8e8f3fac7097accaacf261d74c3d6f441de45b1 (task tree_sha256 93a00ac512ad1682ae06cd2d6721dcfe49ca1f2bdd474c57f4478f82bfa9dc46). Workspace = hidden tests' transitive local imports + loaded conftest.py + gold-modified files + repo configuration (text only); every exported repo file is writable. Final state = canonical git diff of the writable files against the export. Base = empty diff; reference = the task's own solve.sh in the task image, diffed over the subset. Hidden checks = the original tests/test.sh offline; one strict row per FAIL_TO_PASS and PASS_TO_PASS test plus the Harbor reward row.",
+ "privacy": "public",
+ "coverage": "SWE-bench Pro FAIL_TO_PASS (1) and PASS_TO_PASS (385) tests and the Harbor reward.",
+ "historical_exposure": "Public benchmark (SWE-bench Pro public set) over a public repository; the fix may be in training data. Reported separately, never pooled.",
+ "outcome_evidence": "held_out_tests",
+ "long_horizon": false,
+ "residual_rubric": [
+  "Only test outcomes are graded; code quality of the patch is not judged."
+ ],
+ "required_environment": "cloud-linux Docker: verifier image mbanchor-anchor-swepro-element-web:verifier (task image + original test.sh warm-up, built by anchors_convert.py --build-only instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan); 4096 MB, no network at grading time; amd64.",
+ "leak_tokens": [
+  "1077729a19c0ce902e713cf6fab42c91fb7907f1"
+ ],
+ "round": 3,
+ "anchor": {
+  "dataset": "swebenchpro@1.0",
+  "name": "instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+  "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+  "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+  "path": "datasets/swebenchpro/instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+  "git_tree": "10d8bec767d2189a7ed9ed9f7472bbe6c6318169",
+  "tree_sha256": "93a00ac512ad1682ae06cd2d6721dcfe49ca1f2bdd474c57f4478f82bfa9dc46",
+  "task_image": "jefzda/sweap-images@sha256:d2896e2a4dc6aee6c6ee6a17465e7d443976ac06a8510fd80215a68cda1ff71d",
+  "upstream_repo": "element-hq/element-web",
+  "base_commit": "4f32727829c1087e9d3d9955785d8a6255457c7d",
+  "gold_commit": "1077729a19c0ce902e713cf6fab42c91fb7907f1",
+  "license": {
+   "repository": "AGPL-3.0-only OR GPL-3.0-only",
+   "tests": "SWE-bench Pro (scaleapi/SWE-bench_Pro-os, MIT) via harbor-datasets (no declared licence; Harbor adapter test.sh)"
+  },
+  "harbor_verification": {
+   "oracle_reward": 1.0,
+   "base_reward": 0.0,
+   "verifier_seconds": 100.8,
+   "recorded_at": "2026-11-27T05:45:34+00:00"
+  },
+  "gold_modified": [
+   "src/components/viewmodels/roomlist/useStickyRoomList.tsx",
+   "src/stores/spaces/SpaceStore.ts"
+  ],
+  "gold_created": [],
+  "subset": {
+   "files": 1082,
+   "bytes": 6817912,
+   "exported_files": 1075,
+   "exported_bytes": 6554642,
+   "repo_tracked_files": 3425,
+   "repo_tracked_bytes": 49622778,
+   "caps": {
+    "files": 2000,
+    "bytes": 16777216,
+    "file_bytes": 524288
+   }
+  },
+  "python_roots": [
+   ""
+  ]
+ },
+ "grader": {
+  "runtime": "harbor",
+  "contract": "git-diff",
+  "harness": "swebenchpro_anchor.py",
+  "candidate": "final-state.patch",
+  "writable_prefix": "app/",
+  "new_files": "new-files.json",
+  "max_patch_bytes": 1048576,
+  "denominators": {
+   "fail_to_pass": 1,
+   "pass_to_pass": 385,
+   "harbor-reward": 1
+  },
+  "image": "mbanchor-anchor-swepro-element-web:verifier",
+  "candidate_seconds": 330,
+  "memory": "4096m",
+  "workdir": "/app",
+  "python": "/opt/mb-anchor/python",
+  "p2p_rows": "per-test"
+ },
+ "native_limits": {
+  "bytes": 524288,
+  "channel": 524288,
+  "payload": 2097152,
+  "aggregate": 4194304
+ }
+}

@@ -1,0 +1,98 @@
+{
+ "id": "anchor-swepro-qutebrowser",
+ "family": "Implement",
+ "title": "Report the adblock library version and handle its absence (SWE-bench Pro qutebrowser)",
+ "source": {
+  "repo": "laude-institute/harbor-datasets",
+  "visibility": "public",
+  "kind": "harbor-task",
+  "pr": null,
+  "base_ref": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+  "reference_ref": "c8e8f3fac7097accaacf261d74c3d6f441de45b1:datasets/swebenchpro/instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171/solution/solve.sh",
+  "history_status": "public-benchmark"
+ },
+ "derivation": "Converted by anchors_convert_swe.py from SWE-bench Pro 'instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171' (qutebrowser/qutebrowser base 71451483f4f380c2f70f6e5b28025af79b1168e5, gold 01d1d1494411380d97cac14614a829d3a69cecaf) via https://github.com/laude-institute/harbor-datasets.git@c8e8f3fac7097accaacf261d74c3d6f441de45b1 (task tree_sha256 a0fd5729246fb13e30f146f5ce5d7f40e290daa1ec3aa005a63c547f4fe6f910). Workspace = hidden tests' transitive local imports + loaded conftest.py + gold-modified files + repo configuration (text only); every exported repo file is writable. Final state = canonical git diff of the writable files against the export. Base = empty diff; reference = the task's own solve.sh in the task image, diffed over the subset. Hidden checks = the original tests/test.sh offline; one strict row per FAIL_TO_PASS and PASS_TO_PASS test plus the Harbor reward row.",
+ "privacy": "public",
+ "coverage": "SWE-bench Pro FAIL_TO_PASS (3) and PASS_TO_PASS (46) tests and the Harbor reward.",
+ "historical_exposure": "Public benchmark (SWE-bench Pro public set) over a public repository; the fix may be in training data. Reported separately, never pooled.",
+ "outcome_evidence": "held_out_tests",
+ "long_horizon": false,
+ "residual_rubric": [
+  "Only test outcomes are graded; code quality of the patch is not judged."
+ ],
+ "required_environment": "cloud-linux Docker: verifier image mbanchor-anchor-swepro-qutebrowser:verifier (task image + original test.sh warm-up, built by anchors_convert.py --build-only instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171); 4096 MB, no network at grading time; amd64.",
+ "leak_tokens": [
+  "01d1d1494411380d97cac14614a829d3a69cecaf"
+ ],
+ "round": 3,
+ "anchor": {
+  "dataset": "swebenchpro@1.0",
+  "name": "instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+  "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+  "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+  "path": "datasets/swebenchpro/instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+  "git_tree": "806bab38e47ea72415c44ef764e74598d51327c7",
+  "tree_sha256": "a0fd5729246fb13e30f146f5ce5d7f40e290daa1ec3aa005a63c547f4fe6f910",
+  "task_image": "jefzda/sweap-images@sha256:86caacd224a26c2a26ca50bfca31b3c088be8b10012ea1c3fc6ead428bc21247",
+  "upstream_repo": "qutebrowser/qutebrowser",
+  "base_commit": "71451483f4f380c2f70f6e5b28025af79b1168e5",
+  "gold_commit": "01d1d1494411380d97cac14614a829d3a69cecaf",
+  "license": {
+   "repository": "GPL-3.0-or-later",
+   "tests": "SWE-bench Pro (scaleapi/SWE-bench_Pro-os, MIT) via harbor-datasets (no declared licence; Harbor adapter test.sh)"
+  },
+  "harbor_verification": {
+   "oracle_reward": 1.0,
+   "base_reward": 0.0,
+   "verifier_seconds": 5.2,
+   "recorded_at": "2026-11-27T05:40:38+00:00"
+  },
+  "gold_modified": [
+   "qutebrowser/components/braveadblock.py",
+   "qutebrowser/utils/version.py"
+  ],
+  "gold_created": [],
+  "subset": {
+   "files": 179,
+   "bytes": 2349172,
+   "exported_files": 179,
+   "exported_bytes": 2349172,
+   "repo_tracked_files": 835,
+   "repo_tracked_bytes": 16197362,
+   "caps": {
+    "files": 2000,
+    "bytes": 16777216,
+    "file_bytes": 524288
+   }
+  },
+  "python_roots": [
+   ""
+  ]
+ },
+ "grader": {
+  "runtime": "harbor",
+  "contract": "git-diff",
+  "harness": "swebenchpro_anchor.py",
+  "candidate": "final-state.patch",
+  "writable_prefix": "app/",
+  "new_files": "new-files.json",
+  "max_patch_bytes": 1048576,
+  "denominators": {
+   "fail_to_pass": 3,
+   "pass_to_pass": 46,
+   "harbor-reward": 1
+  },
+  "image": "mbanchor-anchor-swepro-qutebrowser:verifier",
+  "candidate_seconds": 120,
+  "memory": "4096m",
+  "workdir": "/app",
+  "python": "/opt/mb-anchor/python",
+  "p2p_rows": "per-test"
+ },
+ "native_limits": {
+  "bytes": 524288,
+  "channel": 524288,
+  "payload": 2097152,
+  "aggregate": 4194304
+ }
+}

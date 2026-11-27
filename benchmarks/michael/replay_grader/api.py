@@ -195,7 +195,10 @@ def bindings(source, task="validator"):
     if descriptor != frozen:
         raise GraderError("frozen package mismatch")
     policy = policy_files(task)
-    return {"task": task, "source_sha256": sha(source), "package_sha256": packages.bundle_digest(agent),
+    from benchmarks.michael.tasks import curriculum
+    extra = ({"materialized_manifest_sha256": sha((curriculum.package_dir(task) / "materialize.json").read_bytes())}
+             if curriculum.materialized(task) else {})
+    return {**extra, "task": task, "source_sha256": sha(source), "package_sha256": packages.bundle_digest(agent),
             "verifier_material_sha256": packages.inventory(verifier),
             "policy_files_sha256": policy, "verifier_policy_sha256": sha(encoded(policy))}
 
@@ -238,7 +241,7 @@ def _create_anchor(spec, name, run_id, image_id):
            "--memory", spec["memory"], "--memory-swap", spec["memory"], "--cpus", "1",
            "--pids-limit", "512", "--ulimit", "nofile=8192:8192", "--log-driver", "none",
            "--user", "0:0", "--workdir", spec["workdir"], image_id,
-           spec["python"], "-I", "-B", "-c", (HERE / "bootstrap.py").read_text())
+           spec["python"], "-I", "-B", "-c", (HERE / spec.get("bootstrap", "bootstrap.py")).read_text())
     info = json.loads(docker("inspect", name))[0]
     config = info["HostConfig"]
     added = sorted(cap.removeprefix("CAP_") for cap in config["CapAdd"] or [])
@@ -250,9 +253,14 @@ def _create_anchor(spec, name, run_id, image_id):
              "Memory", "MemorySwap", "NanoCpus", "PidsLimit", "Tmpfs", "Binds")}
 
 
+def source_limit(task="validator"):
+    """Per-task candidate byte limit; diff-contract anchors declare a larger patch cap."""
+    return max(SOURCE_LIMIT, specs.spec(task).get("source_limit", 0))
+
+
 def grade(source, directory, *, seconds=10, task="validator"):
     specs.spec(task)
-    if not isinstance(source, bytes) or not 0 < len(source) <= SOURCE_LIMIT:
+    if not isinstance(source, bytes) or not 0 < len(source) <= source_limit(task):
         raise ValueError("candidate source byte limit")
     if not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or not 0 < seconds <= 30:
         raise ValueError("candidate execution budget must be finite and <=30 seconds")
@@ -395,7 +403,7 @@ def main():
     parser.add_argument("--task", default="validator", choices=sorted(specs.SPECS))
     args = parser.parse_args()
     with args.source.open("rb") as stream:
-        source = stream.read(SOURCE_LIMIT + 1)
+        source = stream.read(source_limit(args.task) + 1)
     report = grade(source, args.receipt, task=args.task)
     print(json.dumps(report, indent=2))
     raise SystemExit(0 if report["verdict"] == "pass" else 1)

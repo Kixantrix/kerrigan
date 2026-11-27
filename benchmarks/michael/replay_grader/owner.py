@@ -20,7 +20,7 @@ def identity():
 def run(directory, controller_fd):
     start = json.loads((directory / "start.json").read_bytes())
     source = (directory / "source.bin").read_bytes()
-    if len(source) > api.SOURCE_LIMIT or api.sha(source) != start["source_sha256"]:
+    if len(source) > api.source_limit(start.get("task", "validator")) or api.sha(source) != start["source_sha256"]:
         raise api.GraderError("owned source binding mismatch")
     api.CONTROLLER_FD = controller_fd
     api.persist(directory / "owner.json", {

@@ -48,12 +48,20 @@ def material(name):
     if name == "validator":
         policy = json.loads((api.runner.HERE / "validator-task-policy.json").read_bytes())
     else:
-        directory = tasks.directory(name) if name in tasks.ANCHORS else tasks.HERE / name
-        policy = json.loads((directory / "native-policy.json").read_bytes())
+        policy = json.loads((tasks.package_dir(name) / "native-policy.json").read_bytes())
     if sorted(policy["read"]) != sorted([*agent, policy["scratch"]]):
         raise api.TrialError("native export allowlist mismatch")
     policy["run"] = [path for path in policy["write"] if Path(path).suffix in (".py", ".ts", ".mjs", ".js")]
     policy["readonlySizes"] = {path: len(data) for path, data in agent.items() if path not in policy["write"]}
+    if diff_contract(policy):
+        # Diff contract: every exported repo file is writable; the final state is the trusted patch.
+        if ([policy["finalState"]["artifact"]] != specs.candidate_files(name) or "artifacts" in policy
+                or policy["source"] != policy["finalState"]["artifact"] or policy["source"] in policy["write"]
+                or not set(policy["write"]) <= set(agent) | {policy["scratch"]}):
+            raise api.TrialError("native diff-contract declaration mismatch")
+        policy["finalOutputReserve"] = 0
+        policy["run"] = [policy["scratch"]]  # repo files are editable, not runnable entry points
+        return agent, policy, descriptor
     artifacts = policy.get("artifacts", [policy["source"]])
     if artifacts != specs.candidate_files(name) or not set(artifacts) <= set(policy["write"]):
         raise api.TrialError("native artifact declaration mismatch")
@@ -61,11 +69,20 @@ def material(name):
     return agent, policy, descriptor
 
 
+def diff_contract(policy):
+    return (policy.get("finalState") or {}).get("kind") == "git-diff"
+
+
 def prompt(policy):
     return (
         "Solve TASK.md using only mb_action read/write/run. Read the instruction and visible files. "
-        f"Final artifacts: {policy.get('artifacts', [policy['source']])}. "
-        f"Only these and {policy['scratch']} are writable artifacts. "
+        + (f"Final state: the git diff of your edits to the writable repository files (all exported repo "
+           f"files; at most {policy['finalState']['maxBytes']} bytes), computed after you stop; declare new "
+           f"files in {policy['finalState']['newFiles']} as a JSON object {{path: text}}. "
+           f"Only those files and {policy['scratch']} are writable. "
+           if diff_contract(policy) else
+           f"Final artifacts: {policy.get('artifacts', [policy['source']])}. "
+           f"Only these and {policy['scratch']} are writable artifacts. ")
         + (f"Per-run TMPDIR is .scratch, writable only within this sandbox and discarded after cleanup. "
            "Use mb_action paths .scratch/name.py or .scratch/name.mjs for temp self-tests; "
            "32KiB/file,1MiB aggregate scratch,128 entries, no aliases/special files. "
@@ -74,7 +91,7 @@ def prompt(policy):
         "type stripping; no pytest, npm installation, shell, subprocess, network or hidden checks. "
         "Frozen export shell/pytest claims are not available. Verifier uses isolated Python3.12/Node24. "
         "Use public self-tests; exits1/2 and 30s timeout/truncated32KiB output are repair feedback. "
-        f"At most{policy['actions'] - len(policy.get('artifacts', [policy['source']]))} agent actions,"
+        f"At most{policy['actions'] - (0 if diff_contract(policy) else len(policy.get('artifacts', [policy['source']])))} agent actions,"
         "32KiB/file/channel,256KiB/action,4MiB aggregate input, "
         f"1MiB retained output with{policy['finalOutputReserve']} bytes reserved for final reads,"
         f"{policy['activeSeconds']} active seconds. "
@@ -100,7 +117,7 @@ def sources():
     paths.update(api.grader.HERE / name for name in api.grader.POLICY_FILES)
     paths.update(api.grader.HERE.glob("harnesses/*.py"))
     paths.update(api.grader.HERE.glob("harnesses/*.mjs"))
-    paths.add(api.grader.HERE / "harbor_adapter.py")
+    paths.update(api.grader.HERE / name for name in ("harbor_adapter.py", "swebenchpro_adapter.py", "final_diff.py"))
     paths.update((tasks.HERE / "curriculum.py", tasks.HERE / "packages.py"))
     paths.update((api.packages.ROOT / "benchmarks/michael/curriculum").glob("*.py"))
     return {str(path.relative_to(root)): api.sha(path.read_bytes()) for path in sorted(paths)}
@@ -191,8 +208,8 @@ def collect(run, *, local_partial=False):
     binding = json.loads((run / "curriculum-start.json").read_bytes())
     native = json.loads((run / "receipt/terminal.json").read_bytes())
     policy = config["taskPolicy"]
-    paths = policy.get("artifacts", [policy["source"]])
-    final_ids = ["controller-final-source"] if len(paths) == 1 else [
+    paths = [] if diff_contract(policy) else policy.get("artifacts", [policy["source"]])
+    final_ids = [] if not paths else ["controller-final-source"] if len(paths) == 1 else [
         f"controller-final-source-{index}" for index in range(len(paths))]
     eligible = native["stopReason"] in ("session_idle", "diagnostics_complete",
         "timeout", "broker:agent_action_budget", "broker:task_output_budget")
@@ -207,7 +224,8 @@ def collect(run, *, local_partial=False):
                 ((native.get("localInference", {}).get("result") or {}).get("status") != "completed"
                  and not local_diagnostics) or
                 (native.get("localInference", {}).get("release") or {}).get("ownedRequestsDrained") is not True))
-            or native["actions"][-len(paths):] != final_ids
+            or (paths and native["actions"][-len(paths):] != final_ids)
+            or (not paths and any(str(a).startswith("controller-final-source") for a in native["actions"]))
             or (config.get("scratchDirectory") and (
                 native.get("scratch", {}).get("error") or
                 native.get("scratch", {}).get("cleanup") != {"discarded": True} or
@@ -227,7 +245,15 @@ def collect(run, *, local_partial=False):
     for name, digest in binding["agentFiles"].items():
         readonly_policy = {**policy, "bytes": max(policy["bytes"], policy["readonlySizes"].get(name, 0))}
         if name not in policy["write"] and api.sha(api.read_source(run / "task", name, policy=readonly_policy)) != digest:
-            raise api.TrialError("readonly export changed")
+            raise api.TrialError("readonly export mismatch (changed)" if diff_contract(policy)
+                                 else "readonly export changed")
+    if diff_contract(policy):
+        data = diff_final_state(run, binding, policy, config)
+        with (run / "collected-source.bin").open("xb") as output:
+            output.write(data)
+            output.flush()
+            os.fsync(output.fileno())
+        return data
     collected = {}
     for index, path in enumerate(paths, len(native["actions"]) - len(paths) + 1):
         data = api.read_source(run / "task", path, policy=policy)
@@ -245,10 +271,39 @@ def collect(run, *, local_partial=False):
     return data
 
 
+def diff_final_state(run, binding, policy, config):
+    """Trusted post-quiescence patch of every writable repo file against the exported base."""
+    from benchmarks.michael.replay_grader import final_diff
+    state = policy["finalState"]
+    exported = tasks.agent_files(config["curriculumTask"])  # verified cache for materialized anchors
+    base = {path: exported[path] for path in policy["write"] if path != policy["scratch"]}
+    if api.packages.inventory(base) != {p: d for p, d in binding["agentFiles"].items() if p in base}:
+        raise api.TrialError("diff-contract base mismatch")
+    final = {path: api.read_source(run / "task", path, policy=policy) for path in base}
+    declared = final.pop(state["newFiles"])
+    base.pop(state["newFiles"])
+    try:
+        created = final_diff.new_files(declared, state["prefix"])
+        return final_diff.make(base, final, max_bytes=state["maxBytes"], created=created)
+    except final_diff.DiffError as error:
+        raise api.TrialError(f"final-state patch rejected: {error}") from error
+
+
 def offline(owned, directory, name, data, *, policy=None):
     policy = material(name)[1] if policy is None else policy
-    writes = [{"op": "write", "path": path, "data": source.decode()}
-        for path, source in specs.unbundle(name, data).items()]
+    if diff_contract(policy):
+        from benchmarks.michael.replay_grader import final_diff
+        agent, state = material(name)[0], policy["finalState"]
+        changed = final_diff.apply({p: agent[p] for p in policy["write"] if p in agent}, data)
+        created = {p: d.decode() for p, d in changed.items() if p not in agent}
+        writes = [{"op": "write", "path": path, "data": source.decode()}
+            for path, source in changed.items() if path in agent]
+        if created:
+            writes.append({"op": "write", "path": state["newFiles"],
+                           "data": json.dumps(created, sort_keys=True, indent=1) + "\n"})
+    else:
+        writes = [{"op": "write", "path": path, "data": source.decode()}
+            for path, source in specs.unbundle(name, data).items()]
     run = prepare(owned, directory, name, seconds=30, policy=policy, diagnostics=[*writes,
         {"op": "write", "path": policy["scratch"], "data":
             "import yaml; assert yaml.__version__=='6.0.2'\n" if policy["scratch"].endswith(".py") else

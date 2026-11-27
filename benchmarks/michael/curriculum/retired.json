@@ -174,7 +174,14 @@
    "by": "MB-010r literal-overspecification audit",
    "superseded_by": "foal-meadow-regression-review-v2",
    "reason": "environment-caused (native fit): the writable game files (35.5/36.3 KB) exceed the default 32 KiB native per-file limit; v2 keeps the content byte-identical and raises only this package's native limits",
-   "evidence_pending": "native executor fit-check failure for foal-meadow-regression-review (bytes 32,768 < 36,330-byte writable file); cite once pushed"
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-foal-meadow-regression-review-v2-native-fit.json",
+    "sha256": "6758cc55c6255bd7973c754ac03e743bb1d055e7b390d28a9753813cf87933ed"
+   },
+   "supporting_evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-foal-meadow-regression-review-native-fit.json",
+    "sha256": "1e87696759bb626831a10bfb9cb0b82bf31d7759a74c7863ae59c087285ac696"
+   }
   },
   "vhs-room-registry-sync": {
    "by": "MBR3 native admission (needs_fix)",
