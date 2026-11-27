@@ -6,7 +6,7 @@ import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATO
 import { admission } from "./validator_admission.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
 import { SCRATCH, scratchState, discardScratch } from "./scratch.mjs";
-import { taskPathMissing } from "./path_probe.mjs";
+import { taskPathState } from "./path_probe.mjs";
 import { localWindow } from "./local_window.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
@@ -241,25 +241,57 @@ async function action(id, args, final = false) {
         throw new Error("reserved_source_identifier");
     if (config.validatorTask && !final && actions.size >= TASK_VALIDATOR.actions - finalPaths.length)
         throw new Error("agent_action_budget");
-    let payload;
+    let payload, pathState;
     try {
-        const missingPath = config.curriculumTask && !final && ["read", "run"].includes(args?.op) &&
-            taskPathMissing(config.task, taskRootIdentity, args.path, config.python);
+        let feedback = null;
+        if (config.curriculumTask && !final) {
+            pathState = taskPathState(config.task, taskRootIdentity, args?.path, config.python, TASK_VALIDATOR);
+            feedback = pathState.feedback;
+            if (!feedback && ["missing", "missing-parent"].includes(pathState.kind) &&
+                !(args?.op === "write" && (TASK_VALIDATOR.write.includes(args.path) ||
+                    (scratchRoot && args.path.startsWith(SCRATCH.directory + "/")))))
+                feedback = "action_not_found_feedback";
+            if (!feedback && pathState.kind === "missing-parent" &&
+                !(args?.op === "write" && scratchRoot && args.path.startsWith(SCRATCH.directory + "/")))
+                feedback = "action_not_found_feedback";
+            if (!feedback && (args?.op === "write" && !TASK_VALIDATOR.write.includes(args.path) &&
+                !(scratchRoot && args.path.startsWith(SCRATCH.directory + "/")) ||
+                args?.op === "run" && !TASK_VALIDATOR.run.includes(args.path) &&
+                !(scratchRoot && args.path.startsWith(SCRATCH.directory + "/")) ||
+                !["read", "write", "run"].includes(args?.op)))
+                feedback = "action_operation_feedback";
+        }
         payload = validateAction(id, args, budget, config.curriculumTask ? TASK_VALIDATOR :
-            config.validatorTask ? "task" : config.validatorReplay === true, missingPath);
+            config.validatorTask ? "task" : config.validatorReplay === true, feedback);
     } catch (error) {
-        if (!config.curriculumTask ||
-            !["action_schema_feedback", "action_not_found_feedback"].includes(error.message)) throw error;
-        const notFound = error.message === "action_not_found_feedback";
+        const code = error.message;
+        if (!config.curriculumTask || !["action_schema_feedback", "action_not_found_feedback",
+            "action_path_feedback", "action_directory_feedback", "action_operation_feedback"].includes(code))
+            throw error;
         const index = actions.size;
         persist(`action-${index}`, { id, args, atMs: performance.now() - began, rejected: true });
-        const text = Buffer.from(notFound ? "Not found; nothing executed. Consult policy.json for allowed paths." :
+        const directory = code === "action_directory_feedback" && args?.op === "read";
+        const messages = {
+            action_not_found_feedback: "Not found; nothing executed. Consult policy.json for allowed paths.",
+            action_path_feedback: `Use canonical relative task path: ${pathState?.path || "(see policy.json)"}. Nothing executed.`,
+            action_directory_feedback: directory ?
+                "Declared manifest children only (not host enumeration):\n" + pathState.children.join("\n") :
+                "Directory is not a writable or runnable file. Nothing executed.",
+            action_operation_feedback: "Operation is not permitted for this artifact. Nothing executed; consult policy.json.",
+            action_schema_feedback:
             'Action rejected; nothing executed. Use read(op,path[,offset]), ' +
-            'write(op,path,data), or run(op,path). No additional fields. Correct the request.');
-        const retained = bounded(`task-${index}-stderr`, text, TASK_VALIDATOR.channel, false);
+            'write(op,path,data), or run(op,path). No additional fields. Correct the request.'
+        };
+        const offset = directory ? args.offset || 0 : 0;
+        const text = Buffer.from(messages[code]).subarray(offset, offset + 4096);
+        const retained = bounded(`task-${index}-${directory ? "stdout" : "stderr"}`, text,
+            TASK_VALIDATOR.channel, false);
         if (!retained || stopping) throw new Error("task_output_budget");
-        const result = {exitCode: 2, timedOut: false, stdout: "", stderr: retained.toString("base64"),
-            feedback: `${notFound ? "not_found" : "action_schema_invalid"}; request consumed one action and its input bytes`};
+        const result = {exitCode: directory ? 0 : 2, timedOut: false,
+            stdout: directory ? retained.toString("base64") : "",
+            stderr: directory ? "" : retained.toString("base64"),
+            feedback: `${code === "action_not_found_feedback" ? "not_found" :
+                code === "action_schema_feedback" ? "action_schema_invalid" : code}; request consumed one action and its input bytes`};
         persist(`action-result-${index}`, { id, result, rejected: true });
         return result;
     }

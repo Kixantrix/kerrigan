@@ -50,7 +50,7 @@ elif op == "write" and name in policy["write"] and isinstance(args["data"], str)
             current.mkdir(exist_ok=True)
             if current.is_symlink() or not current.is_dir():
                 raise ValueError("scratch parent denied")
-    with os.fdopen(files.opened(".", name, os.O_WRONLY | (os.O_CREAT if scratch else 0)), "wb") as stream:
+    with os.fdopen(files.opened(".", name, os.O_WRONLY | os.O_CREAT), "wb") as stream:
         stream.truncate(0)
         stream.write(data)
     print("written")

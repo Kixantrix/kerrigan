@@ -9,7 +9,7 @@ provisional, and no local-model inference has run in this condition.
 
 `local_inference.mjs` and `local_window.mjs` are offline-tested OpenAI-compatible
 adapter components. The native owner now routes their sole tool through the
-same proven CLI inventory and MXC action broker; `local_trial.py` prefreeses
+same proven CLI inventory and MXC action broker; `local_trial.py` prefreezes
 task/policy/runtime/condition, starts ledger slots, collects exact artifacts,
 and refuses Docker grading without a matching post-window release receipt.
 A real HTTP synthetic test exercises actual native gate/actions/cleanup, not
@@ -83,8 +83,19 @@ rejects traversal and aliases without reading file contents. Existing files
 outside the allowlist and paths outside the task root still cut off. This
 corrects a policy cutoff after MAI invented `briefs/T012-L2-session.md`; the
 actual manifest names `briefs/L2-orchestration.md`. Preserve the invented-path
-behavior and original harness-policy cutoff, disclose its fresh replacement,
-and report both old-policy and CLI-parity counts. No replacement has run yet.
+behavior and original harness-policy cutoff and report both old-policy and
+CLI-parity counts. Its replacement was also stopped, on a directory read.
+
+The consolidated `discovery-parity-v4` sweep covers 47 action shapes, including
+directory reads, offsets/limits, missing files, spelling variants, run arguments
+and creation of missing declared artifacts. Safe unsupported shapes return
+bounded, action/input/output-charged repair feedback; directory listings are
+derived only from the declared manifest, never host enumeration. Existing
+undeclared files, outside-root access, traversal, aliases and special files
+still cut off. [The generated case matrix](mbr3-discovery-parity.md) and its
+[JSON receipts](mbr3-discovery-parity.json) include exact replays of all three
+prior discovery cutoffs. All prior physical slots are retained; only unresolved
+harness-faulted logical slots receive fresh, disclosed attempts.
 
 Foundation: `2df6f85`. Environment: `local-attested-macos`; results are dated
 operator observations, not human-attested completion. This condition is **local
