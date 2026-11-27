@@ -5,7 +5,7 @@ export const VALIDATOR = Object.freeze(JSON.parse(
 export const TASK_VALIDATOR = Object.freeze(JSON.parse(
     readFileSync(new URL("./validator-task-policy.json", import.meta.url), "utf8")));
 
-export function validateAction(id, args, state, validatorReplay = false) {
+export function validateAction(id, args, state, validatorReplay = false, missingPath = false) {
     const task = validatorReplay === "task" || (validatorReplay !== null && typeof validatorReplay === "object");
     const policy = typeof validatorReplay === "object" && validatorReplay !== null ? validatorReplay :
         validatorReplay === "task" ? TASK_VALIDATOR : validatorReplay ? VALIDATOR : null;
@@ -18,10 +18,11 @@ export function validateAction(id, args, state, validatorReplay = false) {
     const pagedRead = task && typeof validatorReplay === "object" && args?.op === "read" &&
         keys === "offset,op,path" && Number.isSafeInteger(args.offset) && args.offset >= 0 && args.offset <= 4194304;
     if (!args || !["read", "write", "run"].includes(args.op) ||
-        (!scratchPath && !(policy ? policy.read : ["candidate.py", "result.txt"]).includes(args.path)) ||
+        (missingPath && (!task || !["read", "run"].includes(args.op))) ||
+        (!missingPath && !scratchPath && !(policy ? policy.read : ["candidate.py", "result.txt"]).includes(args.path)) ||
         (args.op === "run" && !(task ? (policy.run || policy.write) :
             [policy ? policy.source : "candidate.py"]).includes(args.path) &&
-            !(scratchPath && /\.(py|ts|mjs|js)$/.test(args.path))) ||
+            !(scratchPath && /\.(py|ts|mjs|js)$/.test(args.path)) && !missingPath) ||
         (policy && args.op === "write" && !(policy.write || [policy.source]).includes(args.path) && !scratchPath))
         throw new Error("action_denied");
     const malformed = (!pagedRead && keys !== (args.op === "write" ? "data,op,path" : "op,path")) ||
@@ -37,6 +38,7 @@ export function validateAction(id, args, state, validatorReplay = false) {
     state.bytes += payload.length;
     state.actions.add(id);
     if (malformed) throw new Error("action_schema_feedback");
+    if (missingPath) throw new Error("action_not_found_feedback");
     return payload;
 }
 

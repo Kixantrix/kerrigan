@@ -82,7 +82,9 @@ def prompt(policy):
         'write={"op":"write","path":"an allowed path","data":"text"}; '
         'run={"op":"run","path":"an allowed executable path"}. Never put offset or data on run. '
         "Malformed fields on an allowed path are rejected without execution and consume budget; "
-        "correct them using the returned feedback. Out-of-scope paths/operations stop the attempt. "
+        "correct them using the returned feedback. Reads/runs of nonexistent relative task paths "
+        "return charged not-found feedback; no traversal or aliases. Existing out-of-allowlist files, "
+        "outside-root paths, and forbidden operations stop the attempt. "
         "do not rely on tool-preview temporary files. Read all parts of long files. "
         "Stop when done. Independent hidden verification only follows owned cleanup."
     )
