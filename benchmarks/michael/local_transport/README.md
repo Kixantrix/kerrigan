@@ -15,17 +15,21 @@ exact interval and namespace and the setup session acknowledges it.
 
 The frozen window permits at most three hours, sequential requests, unchanged
 native settings/cache policy, and 15 seconds of cleanup reserve. Readiness uses
-only `/health` and `/v1/models`; exact request/response IDs provide correlation,
+only `/health` and `/v1/models`; fresh per-task session IDs and exact
+request/response IDs provide correlation,
 not authenticated exclusivity. Mixed-content snapshot/flight endpoints are not
 read. Non-idle boundaries or ambiguous identity stop admission; closing our
-HTTP connection is not proof that the backend drained. Release must separately
+HTTP connection is not proof that the backend drained. A failed request or
+ambiguous native usage closes further admissions in that window; it is not
+silently retried. Release must separately
 observe health idle, otherwise ownership cleanup remains unproven.
 
 Input JSON is capped at 64 KiB for conservative headroom. This is a stricter
 condition limit and a byte heuristic, not an exact rendered-token certificate:
 MTPLX's Anthropic count route differs from native chat canonicalization.
 Generated tools cannot execute without known native input/output/total usage
-within 229,376 / 16,384 / 262,144 tokens. Unknown usage remains unknown.
+within 229,376 / 16,384 / 262,144 tokens. Missing final usage also prevents
+certifying completion; unknown usage remains unknown in the receipt.
 
 Local timing and energy are **shared with background workloads**. Metadata-only
 process-name/CPU/RSS, load and memory-pressure snapshots do not authorize

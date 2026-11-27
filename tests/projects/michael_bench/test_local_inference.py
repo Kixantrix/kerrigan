@@ -13,22 +13,26 @@ const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synth
  concurrency:1,grading:'after-window-release'};
 assert.throws(()=>validateLocalCondition({...condition,endpoint:'http://example.test/v1'}),/endpoint/);
 assert.throws(()=>validateLocalCondition({...condition,concurrency:2}),/condition/);
-const records=[],calls=[];let requests=0,boundaries=0;
-const result=await localLoop({condition,prompt:'synthetic',tools:[],signal:new AbortController().signal,
+const records=[],calls=[];let requests=0,boundaries=0,sessionId;
+await assert.rejects(()=>localLoop({condition,prompt:'synthetic',tools:[],signal:new AbortController().signal,
  clock:()=>1000,boundary:async()=>{boundaries++},record:r=>records.push(r),
  execute:async(id,args)=>{calls.push(args);return {exitCode:0}},
  fetcher:async(url,options)=>{
   const body=JSON.parse(options.body);assert.equal(body.max_tokens,16384);
+  if(!requests)sessionId=options.headers['x-mtplx-session-id'];
+  assert.match(sessionId,/^mbr3-synthetic-[0-9a-f-]{36}$/);
+  assert.equal(options.headers['x-mtplx-session-id'],sessionId);
   if(requests)assert.equal(body.messages.at(-1).role,'tool');
   const message=requests++===0?{role:'assistant',content:null,tool_calls:[
    {type:'function',id:'tool-1',function:{name:'mb_action',arguments:'{"op":"read","path":"TASK.md"}'}}]}:
    {role:'assistant',content:'done'};
   return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
     choices:[{message}],usage:requests===1?{prompt_tokens:12,completion_tokens:3,total_tokens:15}:undefined}));
- }});
-assert.equal(result.calls,2);assert.equal(boundaries,4);assert.equal(calls[0].op,'read');
+ }}),/ambiguous_native_fit/);
+assert.equal(requests,2);assert.equal(boundaries,4);assert.equal(calls[0].op,'read');
 assert.equal(records.filter(r=>r.type==='local_request_finished')[1].usage,null);
 assert.equal(records.filter(r=>r.type==='local_request_finished')[0].usage.inputTokens,12);
+assert(records.filter(r=>r.type==='local_request_started').every(r=>r.sessionId===sessionId));
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)
@@ -85,7 +89,7 @@ const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synth
  limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
  concurrency:1,grading:'after-window-release'};
 let active=0;const events=[];
-const window=localWindow({condition,record:r=>events.push(r),clock:()=>1000,
+const makeWindow=()=>localWindow({condition,record:r=>events.push(r),clock:()=>1000,
  snapshot:()=>({memoryPressureFreePercent:45,loadAverage:[4,3,2],
  heavyProcesses:[{name:'Gridiron',cpuPercent:60,residentBytes:2000000000}]}),
  fetcher:async(url,options)=>{
@@ -96,10 +100,14 @@ const window=localWindow({condition,record:r=>events.push(r),clock:()=>1000,
    usage:{prompt_tokens:10,completion_tokens:1,total_tokens:11},
    choices:[{message:{role:'assistant',content:'done'}}]}));
  }});
-active=1;await assert.rejects(()=>window.boundary(),/contention/);
+let window=makeWindow();
+const options={prompt:'synthetic',tools:[],signal:new AbortController().signal,
+ execute:async()=>{throw Error('unexpected tool')}};
+active=1;await assert.rejects(()=>window.run(options),/contention/);
 active=0;
-const result=await window.run({prompt:'synthetic',tools:[],signal:new AbortController().signal,
- execute:async()=>{throw Error('unexpected tool')}});
+await assert.rejects(()=>window.run(options),/concurrency_denied/);
+await window.release();window=makeWindow();
+const result=await window.run(options);
 assert.equal(result.status,'completed');
 assert(events.some(r=>r.resources?.heavyProcesses[0].name==='Gridiron'));
 const release=await window.release();

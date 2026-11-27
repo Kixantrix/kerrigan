@@ -25,7 +25,7 @@ export function metadataSnapshot() {
 export function localWindow({ condition, record, fetcher = fetch, clock = Date.now,
     snapshot = metadataSnapshot }) {
     validateLocalCondition(condition);
-    let running = false, released = false;
+    let running = false, released = false, failed = false;
     const events = [], ownIds = new Set();
     const retain = event => {
         events.push(event);
@@ -35,7 +35,10 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
     async function metadata(route, timeoutMs = 2000) {
         const response = await fetcher(condition.endpoint.replace(/\/v1$/, "") + route, {
             method: "GET", signal: AbortSignal.timeout(timeoutMs), redirect: "error" });
-        if (!response.ok) throw new Error(`local_metadata_http:${response.status}`);
+        if (!response.ok) {
+            await response.body?.cancel();
+            throw new Error(`local_metadata_http:${response.status}`);
+        }
         const reader = response.body.getReader();
         const chunks = [];
         let size = 0;
@@ -98,10 +101,15 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
     return {
         boundary, release,
         async run(options) {
-            if (running || released) throw new Error("local_window_concurrency_denied");
+            if (running || released || failed) throw new Error("local_window_concurrency_denied");
             running = true;
             try {
-                return await localLoop({ ...options, condition, boundary, record: retain, fetcher, clock });
+                const result = await localLoop({ ...options, condition, boundary, record: retain, fetcher, clock });
+                if (result.status !== "completed") failed = true;
+                return result;
+            } catch (error) {
+                failed = true;
+                throw error;
             } finally {
                 running = false;
             }

@@ -30,7 +30,10 @@ export function validateLocalCondition(condition) {
 }
 
 async function boundedJson(response, signal) {
-    if (!response.ok) throw new Error(`local_http_status:${response.status}`);
+    if (!response.ok) {
+        await response.body?.cancel();
+        throw new Error(`local_http_status:${response.status}`);
+    }
     let bytes = 0;
     const parts = [];
     for await (const part of response.body) {
@@ -46,6 +49,7 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
     fetcher = fetch, clock = Date.now, monotonic = () => performance.now() }) {
     validateLocalCondition(condition);
     const messages = [{ role: "user", content: prompt }];
+    const sessionId = `${condition.requestNamespace || "mbr3-synthetic"}-${randomUUID()}`;
     let calls = 0;
     while (true) {
         if (calls >= LOCAL_LIMITS.requests) throw new Error("local_request_budget");
@@ -66,12 +70,13 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
             max_tokens: LOCAL_LIMITS.outputTokens };
         const started = clock();
         const startedMonotonic = monotonic();
-        record({ type: "local_request_started", requestId, startedMs: started,
+        record({ type: "local_request_started", requestId, sessionId, startedMs: started,
             inputBytes, inputEstimate: "UTF-8 JSON headroom heuristic; not exact native rendered count" });
         let response;
         try {
             response = await boundedJson(await fetcher(condition.endpoint + "/chat/completions", {
-                method: "POST", headers: { "content-type": "application/json", "x-mtplx-request-id": requestId },
+                method: "POST", headers: { "content-type": "application/json", "x-mtplx-request-id": requestId,
+                    "x-mtplx-session-id": sessionId },
                 body: JSON.stringify(body), signal: requestSignal, redirect: "error"
             }), requestSignal);
         } catch (error) {
@@ -129,6 +134,7 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
             decodeTokensPerSecond: stats.decode_tok_s, energyJoules: null });
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         calls++;
+        if (!limitsVerified) throw new Error("local_ambiguous_native_fit");
         if (finishReason === "length") return { calls, status: "output-cap", limitsVerified };
         const message = response.choices[0].message;
         const toolCalls = message.tool_calls || [];
@@ -138,7 +144,6 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
             ...(toolCalls.length ? { tool_calls: toolCalls } : {}),
             ...(typeof message.reasoning_content === "string" ? { reasoning_content: message.reasoning_content } : {}) });
         if (!toolCalls.length) return { calls, status: "completed", limitsVerified };
-        if (!limitsVerified) throw new Error("local_ambiguous_native_fit");
         const call = toolCalls[0];
         if (call.type !== "function" || call.function?.name !== "mb_action" ||
             typeof call.id !== "string" || typeof call.function.arguments !== "string")
