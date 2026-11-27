@@ -90,6 +90,16 @@ accepted with only `untested_requirement` findings:
 [gear mesh](MBR3-design-alethiometer-gear-mesh-admission.json).
 Their 36 order-balanced subjects are in progress and are not yet pooled into
 the published matrix. Admission findings are not subject failures.
+
+YV-v4 MAI repeat 1 is retained as a model-caused **`spec-misread`** (14/16),
+without rerun. The [hash-bound resolution](MBR3-yv-v4-repeat1-resolution.json)
+preserves the original split panel: `.some` contradicts the specified nonempty
+topic list in which **every** lower-cased topic must be a title token.
+**Round-4 known issue:** rewrite the clumsy sentence as "items whose topic list
+is nonempty and in which every lower-cased topic is a title token"; do not
+change v4 mid-cohort. Flag any Sonnet miss of this exact clause for the
+coordinator to reconsider task attribution.
+
 [VHS admission](MBR3-vhs-room-registry-sync-admission.json) returned `needs_fix`
 for instruction/oracle contradictions concerning deleted-room listings,
 disabled live-name duplicates and replicated renames. Its blind pass does not
