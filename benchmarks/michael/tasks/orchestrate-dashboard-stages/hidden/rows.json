@@ -1,0 +1,732 @@
+[
+ {
+  "original_id": "R1 statuses keyed by every canonical stage id",
+  "group": "integration",
+  "probe": {
+   "scenario": "stageIds"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sameKeys"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "allPlanned"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "R3 work linked to stages by whole task token in title or branch",
+  "group": "integration",
+  "probe": {
+   "scenario": "linkage"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "statuses"
+    ],
+    {
+     "M3 — Project detail + DAG": "in-review",
+     "M3.2 Status taxonomy": "in-review",
+     "M3.4 Plan editor pane": "dispatched",
+     "M30 — Mobile capture": "blocked",
+     "Docs refresh": "dispatched",
+     "M7": "dispatched"
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "R4 merged PRs give the merged signal, closed-unmerged do not",
+  "group": "integration",
+  "probe": {
+   "scenario": "merged"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "statuses"
+    ],
+    {
+     "M3.1 Plan parser": "merged",
+     "M3.2 Status derivation": "planned",
+     "M3.3 DAG canvas": "dispatched"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "offline"
+    ],
+    false
+   ]
+  ]
+ },
+ {
+  "original_id": "R4 R6 failing merged read reported offline without throwing",
+  "group": "integration",
+  "probe": {
+   "scenario": "mergedOffline"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "threw"
+    ],
+    false
+   ],
+   [
+    "path_equal",
+    [
+     "offline"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "stagesCovered"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "R5 multi-repo pooling keeps reviews with their own PR",
+  "group": "integration",
+  "probe": {
+   "scenario": "multiRepo"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "forward"
+    ],
+    {
+     "M3.2 Status derivation": "in-review",
+     "M5.2 Plan update tool": "dispatched",
+     "M4.1 ACP client": "dispatched"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "backward"
+    ],
+    {
+     "M3.2 Status derivation": "in-review",
+     "M5.2 Plan update tool": "dispatched",
+     "M4.1 ACP client": "dispatched"
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "R7 plan edits address deduplicated parser stage ids",
+  "group": "integration",
+  "probe": {
+   "scenario": "dedupedIds"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "replaceSecond"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "replaceFirst"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "addAfterSecond"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "depsOnSecond"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "R8 edit-deps frontmatter reads back as requested",
+  "group": "integration",
+  "probe": {
+   "scenario": "editDeps"
+  },
+  "clauses": [
+   [
+    "path_match",
+    [
+     "newEntry"
+    ],
+    {
+     "applied": true,
+     "errors": [],
+     "deps": [
+      "build>docs",
+      "build>release"
+     ]
+    }
+   ],
+   [
+    "path_match",
+    [
+     "newEntryTwo"
+    ],
+    {
+     "applied": true,
+     "errors": [],
+     "deps": [
+      "build>docs",
+      "build>release",
+      "release>docs"
+     ]
+    }
+   ],
+   [
+    "path_match",
+    [
+     "existingEntry"
+    ],
+    {
+     "applied": true,
+     "errors": [],
+     "deps": [
+      "build>release",
+      "docs>release"
+     ]
+    }
+   ],
+   [
+    "path_match",
+    [
+     "clearEntry"
+    ],
+    {
+     "applied": true,
+     "errors": [],
+     "deps": []
+    }
+   ],
+   [
+    "path_match",
+    [
+     "noFrontmatter"
+    ],
+    {
+     "applied": true,
+     "errors": [],
+     "deps": [
+      "build>docs"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "R8 edits that break parsing are rejected",
+  "group": "integration",
+  "probe": {
+   "scenario": "rejectsInvalid"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "unknownDependency"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "cycle"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "unknownStageDeps"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "removesDependedOnStage"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "validApplied"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "R2 AC-005 statuses follow the plan precedence",
+  "group": "preservation",
+  "probe": {
+   "scenario": "precedence"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "statuses"
+    ],
+    {
+     "M2.1 Shell scaffold": "blocked",
+     "M2.2 Projects reader": "needs-attestation",
+     "M2.3 GitHub client": "needs-human-test",
+     "M2.4 Portfolio grid": "in-review",
+     "M2.5 Build CI": "dispatched",
+     "M2.6 Release notes": "planned"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "offline"
+    ],
+    false
+   ]
+  ]
+ },
+ {
+  "original_id": "R6 GitHub failures degrade to offline with loaded data kept",
+  "group": "preservation",
+  "probe": {
+   "scenario": "offline"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "noAuth",
+     "offline"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "noAuth",
+     "statuses"
+    ],
+    {
+     "M2.1 Shell scaffold": "blocked",
+     "M2.5 Build CI": "planned"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "partial",
+     "offline"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "partial",
+     "statuses"
+    ],
+    {
+     "M2.1 Shell scaffold": "planned",
+     "M2.5 Build CI": "dispatched"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "reviewsFail",
+     "offline"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "reviewsFail",
+     "statuses",
+     "M2.5 Build CI"
+    ],
+    "dispatched"
+   ],
+   [
+    "path_equal",
+    [
+     "openFail",
+     "offline"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "landed plan-update section editing preserved",
+  "group": "preservation",
+  "probe": {
+   "scenario": "planUpdatePreserved"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "replaceKeepsRest"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "appendLast"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "unknownRejected"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "landed GitHub client and route contracts preserved",
+  "group": "preservation",
+  "probe": {
+   "scenario": "tokenPerRequest"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "perRequest"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "helpersWork"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "viewShape"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "every requirement recorded as met",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_keys",
+    [
+     "requirements"
+    ],
+    [
+     "R1",
+     "R2",
+     "R3",
+     "R4",
+     "R5",
+     "R6",
+     "R7",
+     "R8"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R1",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R2",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R3",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R4",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R5",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R6",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R7",
+     "status"
+    ],
+    "met"
+   ],
+   [
+    "path_equal",
+    [
+     "requirements",
+     "R8",
+     "status"
+    ],
+    "met"
+   ]
+  ]
+ },
+ {
+  "original_id": "requirements list the slice files the plan assigns them",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R1"
+    ],
+    [
+     "src/plan-parser.ts",
+     "src/project-status.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R2"
+    ],
+    [
+     "src/status.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R3"
+    ],
+    [
+     "src/status.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R4"
+    ],
+    [
+     "src/github.ts",
+     "src/project-status.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R5"
+    ],
+    [
+     "src/status.ts",
+     "src/project-status.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R6"
+    ],
+    [
+     "src/github.ts",
+     "src/project-status.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R7"
+    ],
+    [
+     "src/plan-update.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "requirementFiles",
+     "R8"
+    ],
+    [
+     "src/plan-update.ts"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "requirementFilesKnown"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "required cross-slice defects recorded",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "categoriesSorted"
+    ],
+    [
+     "frontmatter-format-mismatch",
+     "linkage-mismatch",
+     "merged-source-missing",
+     "review-key-collision",
+     "stage-id-mismatch",
+     "unvalidated-edit"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "defect entries name the files where each defect is located",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "defectFilesKnown"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "defectsLocated"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "no nonexistent, unknown or duplicate defects listed",
+  "group": "ledger",
+  "probe": {
+   "scenario": "ledger"
+  },
+  "clauses": [
+   [
+    "path_contains_none",
+    [
+     "categoriesSorted"
+    ],
+    [
+     "etag-staleness",
+     "precedence-inversion",
+     "token-persistence"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "unknownCategories"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ }
+]

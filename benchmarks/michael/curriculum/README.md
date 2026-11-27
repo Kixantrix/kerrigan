@@ -275,7 +275,7 @@ has no license: it has no LICENSE file, and GitHub reports none. Its SWE-bench
 Pro tasks adapt `scaleapi/SWE-bench_Pro-os`, which is MIT. We reference tasks
 only by URL and pinned commit.
 
-Results, 2026-11-27, with 2 CPUs, 7.7 GiB RAM, ~7.7 GB free disk, x86_64,
+Results for anchors.json revision 2, 2026-11-27, with 2 CPUs, 7.7 GiB RAM, ~7.7 GB free disk, x86_64,
 Docker 29.1.3 and Harbor 0.27.0. Times are Harbor trial seconds; image bytes
 are the compressed `docker image inspect` size.
 
@@ -290,20 +290,24 @@ are the compressed `docker image inspect` size.
 | SWE-Pro openlibrary 00bec1e7 | verified | 1 (23 s) | 0 (18 s) | 960,358,775 |
 | SWE-Pro qutebrowser 01d1d149 | verified | 1 (23 s) | 0 (20 s) | 691,826,340 |
 | SWE-Pro element-web 1077729a | verified | 1 (121 s) | 0 (120 s) | 1,378,624,156 |
-| SWE-Pro nodebb 00c70ce7 | task-defect | 0 (346 s) | 0 (237 s) | 878,765,103 |
+| SWE-Pro tutanota 09c2776c (rev 2) | verified | 1 (119 s) | 0 (57 s) | 1,357,144,012 |
 
 - **pytorch-model-recovery** (`environment-gap`): the prebuilt
   `alexgshaw/pytorch-model-recovery:20251031` image is 6.1 GB compressed
   (amd64 only) because `pip install torch==2.7.1` pulls the CUDA wheels. It
   needs about 25 GB of free Docker disk (estimated) plus 1 CPU and 2 GB RAM,
   but no GPU. This host had ~7.7 GB, so it was not run.
-- **nodebb** (`task-defect`; Harbor's own result is oracle 0): as packaged at
-  harbor-datasets@c8e8f3fa, 4 of the 681 required test IDs can never match the
-  verifier parser's names. Three are truncated at an embedded double quote, for
-  example `...ACP default "day`, and one has lost its trailing space. The
-  oracle passes those tests under their full names, so the oracle cannot pass
-  in any environment. Two more required tests need live egress:
-  `packages.nodebb.org`, which is unresolvable here, and an untampered
-  `registry.npmjs.org`, which fails here with `SELF_SIGNED_CERT_IN_CHAIN`
-  behind the proxy. The evidence is in `oracle_diagnosis`. The anchor set is
-  frozen, so replacing this anchor needs a new revision of anchors.json.
+- **Revision 2:** NodeBB was replaced; its record is kept under
+  `superseded` in anchors-verification.json and under `revisions` in
+  anchors.json. The status was `task-defect`, and Harbor's oracle reward was 0
+  (346 s); the base reward was also 0. As packaged at harbor-datasets@c8e8f3fa,
+  4 of the 681 required test IDs can never match the names the verifier parser
+  emits. Three are truncated at an embedded double quote, for example
+  `...ACP default "day`. The fourth lost its trailing space. The oracle passes
+  those tests under their full names, so it cannot pass in any environment.
+  The evidence is in `oracle_diagnosis`. The replacement follows the same
+  rule: the first task by sorted instance name from a JS/TS repo not yet
+  represented. The first candidate, protonmail/webclients `01b519cd`, was
+  rejected because its image is 5.57 GB compressed, about 23 GB on disk, which
+  exceeds this host. The next two protonmail images are 4.7 to 4.8 GB, so the
+  repo was skipped. tutao/tutanota `09c2776c` (TypeScript) was then verified.

@@ -854,6 +854,93 @@
    }
   },
   "decision": {
+   "state": "retired",
+   "reasons": [
+    "environment-caused (native fit): the writable game files (35.5/36.3 KB) exceed the default 32 KiB native per-file limit; v2 keeps the content byte-identical and raises only this package's native limits"
+   ],
+   "superseded_by": "foal-meadow-regression-review-v2"
+  }
+ },
+ {
+  "task": "kixantrix/michael-foal-meadow-regression-review-v2",
+  "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "artifact_passed": 8.0,
+    "artifact_total": 8.0,
+    "preservation_passed": 15.0,
+    "preservation_total": 15.0,
+    "regression_passed": 18.0,
+    "regression_total": 18.0,
+    "review_passed": 7.0,
+    "review_total": 7.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "artifact_passed": 0.0,
+    "artifact_total": 8.0,
+    "preservation_passed": 15.0,
+    "preservation_total": 15.0,
+    "regression_passed": 0.0,
+    "regression_total": 18.0,
+    "review_passed": 1.0,
+    "review_total": 7.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review-v2",
+      "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd"
+     },
+     "request_sha256": "104b2508c3cf11baea62d599a31a206cf0d7a1beda01ef88f02dc19d598a9823",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review-v2",
+      "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd"
+     },
+     "request_sha256": "37176bbd72b6e3fab524b2b0a920ba2631e8ca7829c0ea6163f450449eb80353",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/foal-meadow-regression-review-v2",
+     "task_sha256": "3fe97e9efafc8d91c8aaa2ca7cbd62803dd2e11f5fee6fa6189510e3a35e67dd",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "24458b948097b7043fc87b0170a7968bf7a7d8a41c4f7bde8875ca7a10f1a32b",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
    "state": "provisional",
    "reasons": [
     "model gates pending executor"
@@ -1356,6 +1443,170 @@
   }
  },
  {
+  "task": "kixantrix/michael-orchestrate-dashboard-stages",
+  "task_sha256": "dbf5ccfdef356fdd70c319852069f49b85c180c4f0a15add946c18c140bc19f4",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "integration_passed": 8.0,
+    "integration_total": 8.0,
+    "ledger_passed": 5.0,
+    "ledger_total": 5.0,
+    "preservation_passed": 4.0,
+    "preservation_total": 4.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "integration_passed": 1.0,
+    "integration_total": 8.0,
+    "ledger_passed": 2.0,
+    "ledger_total": 5.0,
+    "preservation_passed": 4.0,
+    "preservation_total": 4.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-dashboard-stages",
+      "task_sha256": "dbf5ccfdef356fdd70c319852069f49b85c180c4f0a15add946c18c140bc19f4"
+     },
+     "request_sha256": "5233c2caaf15d6a999fb0e08f667639eb146b7f800aa51a3d3b281a0d4bb066d",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-dashboard-stages",
+      "task_sha256": "dbf5ccfdef356fdd70c319852069f49b85c180c4f0a15add946c18c140bc19f4"
+     },
+     "request_sha256": "740c26014d04fd63a3359d5a82d378bf43fd7b3a37b64e658d03f4e0be74604a",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-dashboard-stages",
+     "task_sha256": "dbf5ccfdef356fdd70c319852069f49b85c180c4f0a15add946c18c140bc19f4",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "c9b3b68ac1c136f3fb85bb5b259efdfca6f4e474639004cbd1769b8139fa994f",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
+  "task": "kixantrix/michael-orchestrate-sl-sim-phase-one",
+  "task_sha256": "7d50c084f0690693297d7f46e20f222a00341d93c0a87a9289a1f9a576925285",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "integration_passed": 9.0,
+    "integration_total": 9.0,
+    "ledger_passed": 6.0,
+    "ledger_total": 6.0,
+    "preservation_passed": 5.0,
+    "preservation_total": 5.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "integration_passed": 0.0,
+    "integration_total": 9.0,
+    "ledger_passed": 2.0,
+    "ledger_total": 6.0,
+    "preservation_passed": 5.0,
+    "preservation_total": 5.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-sl-sim-phase-one",
+      "task_sha256": "7d50c084f0690693297d7f46e20f222a00341d93c0a87a9289a1f9a576925285"
+     },
+     "request_sha256": "60f6b8885809d3b8e8840c9b6f864afdaa23e1bd59eb6e0268838f76722d7c52",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-sl-sim-phase-one",
+      "task_sha256": "7d50c084f0690693297d7f46e20f222a00341d93c0a87a9289a1f9a576925285"
+     },
+     "request_sha256": "097c65ba6e32f3ba2efa83fe91e5a43e933d7e5035429db40dbf94dbb7f5e328",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/orchestrate-sl-sim-phase-one",
+     "task_sha256": "7d50c084f0690693297d7f46e20f222a00341d93c0a87a9289a1f9a576925285",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "c5d29f7f556833fd7956510ca5b89516c09c74f7edc38ca238fdcab1db848a23",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
   "task": "kixantrix/michael-orchestrate-voice-integration",
   "task_sha256": "d564803f9dad90d6744fdea41b8401c69801a41e12558a7c3af1c2c50c62756a",
   "deterministic": {
@@ -1770,6 +2021,174 @@
   }
  },
  {
+  "task": "kixantrix/michael-plan-custom-action-briefing",
+  "task_sha256": "aef00f248085ca1b82126cf27157ca6d3fa95398400499c83fe98def67367060",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "acs_passed": 4.0,
+    "acs_total": 4.0,
+    "ladder_passed": 5.0,
+    "ladder_total": 5.0,
+    "reward": 1.0,
+    "routing_passed": 1.0,
+    "routing_total": 1.0,
+    "scope_passed": 7.0,
+    "scope_total": 7.0,
+    "tests_passed": 4.0,
+    "tests_total": 4.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "acs_passed": 0.0,
+    "acs_total": 4.0,
+    "ladder_passed": 1.0,
+    "ladder_total": 5.0,
+    "reward": 0.0,
+    "routing_passed": 0.0,
+    "routing_total": 1.0,
+    "scope_passed": 2.0,
+    "scope_total": 7.0,
+    "tests_passed": 1.0,
+    "tests_total": 4.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/plan-custom-action-briefing",
+      "task_sha256": "aef00f248085ca1b82126cf27157ca6d3fa95398400499c83fe98def67367060"
+     },
+     "request_sha256": "a63eaed996525019a6d6670e998777124a0382f0a857a2d68652c2053de39d5f",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/plan-custom-action-briefing",
+      "task_sha256": "aef00f248085ca1b82126cf27157ca6d3fa95398400499c83fe98def67367060"
+     },
+     "request_sha256": "c42fecfab88e83aa391bf69972cbe4241704aa1d00ec37dc88f4acafa508a6df",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/plan-custom-action-briefing",
+     "task_sha256": "aef00f248085ca1b82126cf27157ca6d3fa95398400499c83fe98def67367060",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "3b85b9872dfb64ba54d4ace09590c11731cf73b04e1eb2a4e5929dd0bf4c62e5",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
+  "task": "kixantrix/michael-plan-dashboard-decomposition",
+  "task_sha256": "b2a4055221590a500825dd51dea32386e6eaa0792d5857d01c0ee2635f926293",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "constraint_passed": 8.0,
+    "constraint_total": 8.0,
+    "required_passed": 17.0,
+    "required_total": 17.0,
+    "reward": 1.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "constraint_passed": 0.0,
+    "constraint_total": 8.0,
+    "required_passed": 0.0,
+    "required_total": 17.0,
+    "reward": 0.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-decomposition",
+      "task_sha256": "b2a4055221590a500825dd51dea32386e6eaa0792d5857d01c0ee2635f926293"
+     },
+     "request_sha256": "a0e7944b38c99bb3a4e5c582950b1684d2ce528c583fe849dea92ed3d18cc7b2",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-decomposition",
+      "task_sha256": "b2a4055221590a500825dd51dea32386e6eaa0792d5857d01c0ee2635f926293"
+     },
+     "request_sha256": "fa4edfc842cbd70d0d48e88e0a897c722c726529e50ed06b8560109e896e4f41",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/plan-dashboard-decomposition",
+     "task_sha256": "b2a4055221590a500825dd51dea32386e6eaa0792d5857d01c0ee2635f926293",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "eda26d0a12304741762bfd577285b1f021365f11a942c51dc9ac19ea15c94543",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
   "task": "kixantrix/michael-plan-dashboard-waves",
   "task_sha256": "76aa307c891b1b60258eaac2f8d378e77c6a6af1496131924980916a591c0791",
   "deterministic": {
@@ -1916,6 +2335,186 @@
      ]
     },
     "request_sha256": "effcc76e136dab10ca3e076362f6cff6b73b3a1493e5ef42942f264d3b70e650",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
+  "task": "kixantrix/michael-research-admin-auth-choice",
+  "task_sha256": "cfe151bc3a55cd1d98578f26feb75da27576529bc4fda7ebfff53dc3906c9d9b",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "decision_passed": 2.0,
+    "decision_total": 2.0,
+    "elimination_passed": 7.0,
+    "elimination_total": 7.0,
+    "evidence_passed": 3.0,
+    "evidence_total": 3.0,
+    "repo_passed": 2.0,
+    "repo_total": 2.0,
+    "reward": 1.0,
+    "synthesis_passed": 2.0,
+    "synthesis_total": 2.0,
+    "uncertainty_passed": 2.0,
+    "uncertainty_total": 2.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "decision_passed": 0.0,
+    "decision_total": 2.0,
+    "elimination_passed": 0.0,
+    "elimination_total": 7.0,
+    "evidence_passed": 0.0,
+    "evidence_total": 3.0,
+    "repo_passed": 0.0,
+    "repo_total": 2.0,
+    "reward": 0.0,
+    "synthesis_passed": 0.0,
+    "synthesis_total": 2.0,
+    "uncertainty_passed": 0.0,
+    "uncertainty_total": 2.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-admin-auth-choice",
+      "task_sha256": "cfe151bc3a55cd1d98578f26feb75da27576529bc4fda7ebfff53dc3906c9d9b"
+     },
+     "request_sha256": "6a522d2a54abc56938f46ac7d991de4f240d880bf59713ddaf04de05f6501581",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-admin-auth-choice",
+      "task_sha256": "cfe151bc3a55cd1d98578f26feb75da27576529bc4fda7ebfff53dc3906c9d9b"
+     },
+     "request_sha256": "0b9e554d3f31858b7a629f038d8a793763ef88ccda09bd4e3067f5293c3d45c7",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/research-admin-auth-choice",
+     "task_sha256": "cfe151bc3a55cd1d98578f26feb75da27576529bc4fda7ebfff53dc3906c9d9b",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "7c98594a2be52608dc854bc8cf0f79ff523b5036b56ad61b967c8351b8baf89b",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
+ },
+ {
+  "task": "kixantrix/michael-research-cs-speech-stack",
+  "task_sha256": "c34160406e59f6134371e6723126d2ed7f40f0ef4780cf58ef0067b9e8fad4f3",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "decision_passed": 10.0,
+    "decision_total": 10.0,
+    "evidence_passed": 3.0,
+    "evidence_total": 3.0,
+    "reward": 1.0,
+    "synthesis_passed": 4.0,
+    "synthesis_total": 4.0,
+    "uncertainty_passed": 3.0,
+    "uncertainty_total": 3.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "decision_passed": 0.0,
+    "decision_total": 10.0,
+    "evidence_passed": 0.0,
+    "evidence_total": 3.0,
+    "reward": 0.0,
+    "synthesis_passed": 0.0,
+    "synthesis_total": 4.0,
+    "uncertainty_passed": 1.0,
+    "uncertainty_total": 3.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-cs-speech-stack",
+      "task_sha256": "c34160406e59f6134371e6723126d2ed7f40f0ef4780cf58ef0067b9e8fad4f3"
+     },
+     "request_sha256": "f493ec5d26e954baf94960e3c0fa206bfca080d9b1851e1cf147b6d3a979a2e4",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-cs-speech-stack",
+      "task_sha256": "c34160406e59f6134371e6723126d2ed7f40f0ef4780cf58ef0067b9e8fad4f3"
+     },
+     "request_sha256": "a3ce93f1bc8a76d0a97927feeaf2217a08dd5d69c538ea1dcd3f7fc3f74880a9",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/research-cs-speech-stack",
+     "task_sha256": "c34160406e59f6134371e6723126d2ed7f40f0ef4780cf58ef0067b9e8fad4f3",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "15e3dfb826e69059b8d8a73edf702409c0a0954b886970698b9c9353225c702e",
     "status": "pending_executor"
    }
   },

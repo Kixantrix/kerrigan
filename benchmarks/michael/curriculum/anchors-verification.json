@@ -602,6 +602,196 @@
    "recorded_at": "2026-11-27T05:45:34+00:00"
   },
   {
+   "name": "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+   "dataset": "swebenchpro@1.0",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+   "git_tree": "ef55f0682c80692b302425de05f4345ae0491a90",
+   "tree_sha256": "5e5e911e7efb926af284d2c8de867f7b5d429c0cebc75986ae296ecfd3e0dcf6",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": null,
+    "dockerfile_from": "jefzda/sweap-images:tutao.tutanota-tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+    "cpus": 1,
+    "memory": "4096 MB",
+    "storage": "10240 MB",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 3000,
+     "verifier": 3000,
+     "build": 1800.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh"
+    ],
+    "compressed_bytes": 1357130738,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 6502264776
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 119.1,
+    "wall_seconds": 124.1,
+    "harbor_task_checksum": "d3cef6d5e20144af10e9a30308b4752d413a2216f0ca26613c1e77e2c4b203c5",
+    "phases_seconds": {
+     "environment_setup": 8.2,
+     "agent_execution": 0.4,
+     "verifier": 98.8
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 56.7,
+    "wall_seconds": 61.6,
+    "harbor_task_checksum": "d3cef6d5e20144af10e9a30308b4752d413a2216f0ca26613c1e77e2c4b203c5",
+    "phases_seconds": {
+     "environment_setup": 4.4,
+     "agent_execution": 0.0,
+     "verifier": 40.7
+    }
+   },
+   "image": "jefzda/sweap-images:tutao.tutanota-tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+   "image_size_bytes": 1357144012,
+   "images_created": {
+    "jefzda/sweap-images:tutao.tutanota-tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf": 1357144012
+   },
+   "status": "verified",
+   "images_removed": [
+    "jefzda/sweap-images:tutao.tutanota-tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf"
+   ],
+   "run_index": 3,
+   "recorded_at": "2026-11-27T06:24:51+00:00"
+  }
+ ],
+ "runs": [
+  {
+   "timestamp": "2026-11-27T05:05:22+00:00",
+   "harbor_version": "0.27.0",
+   "docker_version": "29.1.3",
+   "docker_compose_version": "2.40.3",
+   "host": {
+    "arch": "x86_64",
+    "cpus": 2,
+    "memory_bytes": 8012476416,
+    "disk_total_bytes": 19504254976,
+    "disk_free_bytes_at_start": 7910969344
+   },
+   "uv_shim": {
+    "version": "0.9.5",
+    "mount": "/root/.local/bin (read-only)",
+    "env_file": [
+     "export PATH=\"$HOME/.local/bin:$PATH\"",
+     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
+     "export UV_NATIVE_TLS=1"
+    ],
+    "reason": "astral.sh unreachable from host"
+   }
+  },
+  {
+   "timestamp": "2026-11-27T05:36:18+00:00",
+   "harbor_version": "0.27.0",
+   "docker_version": "29.1.3",
+   "docker_compose_version": "2.40.3",
+   "host": {
+    "arch": "x86_64",
+    "cpus": 2,
+    "memory_bytes": 8012476416,
+    "disk_total_bytes": 19504254976,
+    "disk_free_bytes_at_start": 7017144320
+   },
+   "only": [
+    "instance_"
+   ],
+   "uv_shim": {
+    "version": "0.9.5",
+    "mount": "/root/.local/bin (read-only)",
+    "env_file": [
+     "export PATH=\"$HOME/.local/bin:$PATH\"",
+     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
+     "export UV_NATIVE_TLS=1"
+    ],
+    "reason": "astral.sh unreachable from host"
+   }
+  },
+  {
+   "timestamp": "2026-11-27T05:46:30+00:00",
+   "harbor_version": "0.27.0",
+   "docker_version": "29.1.3",
+   "docker_compose_version": "2.40.3",
+   "host": {
+    "arch": "x86_64",
+    "cpus": 2,
+    "memory_bytes": 8012476416,
+    "disk_total_bytes": 19504254976,
+    "disk_free_bytes_at_start": 6232502272
+   },
+   "only": [
+    "instance_nodebb"
+   ],
+   "uv_shim": {
+    "version": "0.9.5",
+    "mount": "/root/.local/bin (read-only)",
+    "env_file": [
+     "export PATH=\"$HOME/.local/bin:$PATH\"",
+     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
+     "export UV_NATIVE_TLS=1"
+    ],
+    "reason": "astral.sh unreachable from host"
+   }
+  },
+  {
+   "timestamp": "2026-11-27T06:21:02+00:00",
+   "harbor_version": "0.27.0",
+   "docker_version": "29.1.3",
+   "docker_compose_version": "2.40.3",
+   "host": {
+    "arch": "x86_64",
+    "cpus": 2,
+    "memory_bytes": 8012476416,
+    "disk_total_bytes": 19504254976,
+    "disk_free_bytes_at_start": 6839492608
+   },
+   "only": [
+    "instance_tutao"
+   ],
+   "uv_shim": {
+    "version": "0.9.5",
+    "mount": "/root/.local/bin (read-only)",
+    "env_file": [
+     "export PATH=\"$HOME/.local/bin:$PATH\"",
+     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
+     "export UV_NATIVE_TLS=1"
+    ],
+    "reason": "astral.sh unreachable from host"
+   }
+  }
+ ],
+ "anchors_json_sha256": "f741d50458300a648610a87b6401326d30d1b43cf37e393d49d648d682639ab8",
+ "agents": {
+  "oracle": "harbor built-in oracle (runs solution/solve.sh)",
+  "base": "harbor built-in nop (does nothing)"
+ },
+ "environment": "harbor local docker, one anchor at a time, task images removed after each",
+ "statuses": {
+  "verified": "oracle reward 1 and base reward 0 on this host",
+  "environment-gap": "could not run or pass here; see environment_needed and notes",
+  "task-defect": "oracle cannot pass as packaged in any environment; see oracle_diagnosis"
+ },
+ "licenses": {
+  "https://github.com/laude-institute/terminal-bench-2.git": "Terminal-Bench 2.0 tasks; repository license Apache-2.0.",
+  "https://github.com/laude-institute/harbor-datasets.git": "harbor-datasets declares no license (no LICENSE file; GitHub reports none). The SWE-bench Pro public set it adapts comes from scaleapi/SWE-bench_Pro-os (MIT). Tasks are referenced by pinned commit only and never vendored."
+ },
+ "tree_sha256_definition": "sha256 of sorted lines '<relpath>\\0<x|->\\0<sha256(file)>\\n' over task dir",
+ "superseded": [
+  {
    "name": "instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan",
    "dataset": "swebenchpro@1.0",
    "git_url": "https://github.com/laude-institute/harbor-datasets.git",
@@ -700,100 +890,33 @@
     "jefzda/sweap-images:nodebb.nodebb-NodeBB__NodeBB-00c70ce7b0541cfc94afe567921d7668cdc8f4ac"
    ],
    "run_index": 2,
-   "recorded_at": "2026-11-27T05:57:06+00:00"
+   "recorded_at": "2026-11-27T05:57:06+00:00",
+   "superseded_by_revision": null,
+   "superseded_reason": "not in current anchors.json"
   }
  ],
- "runs": [
+ "anchors_json_revision": 2,
+ "anchors_json_revisions": [
   {
-   "timestamp": "2026-11-27T05:05:22+00:00",
-   "harbor_version": "0.27.0",
-   "docker_version": "29.1.3",
-   "docker_compose_version": "2.40.3",
-   "host": {
-    "arch": "x86_64",
-    "cpus": 2,
-    "memory_bytes": 8012476416,
-    "disk_total_bytes": 19504254976,
-    "disk_free_bytes_at_start": 7910969344
-   },
-   "uv_shim": {
-    "version": "0.9.5",
-    "mount": "/root/.local/bin (read-only)",
-    "env_file": [
-     "export PATH=\"$HOME/.local/bin:$PATH\"",
-     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
-     "export UV_NATIVE_TLS=1"
-    ],
-    "reason": "astral.sh unreachable from host"
-   }
-  },
-  {
-   "timestamp": "2026-11-27T05:36:18+00:00",
-   "harbor_version": "0.27.0",
-   "docker_version": "29.1.3",
-   "docker_compose_version": "2.40.3",
-   "host": {
-    "arch": "x86_64",
-    "cpus": 2,
-    "memory_bytes": 8012476416,
-    "disk_total_bytes": 19504254976,
-    "disk_free_bytes_at_start": 7017144320
-   },
-   "only": [
-    "instance_"
+   "revision": 2,
+   "date": "2026-11-27",
+   "change": "Replaced instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan with instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf.",
+   "reason": "Task defect in harbor-datasets@c8e8f3fa: 4 of 681 required test IDs in tests/config.json can never match the verifier parser's names (3 truncated at an embedded double quote, 1 with its trailing space stripped), so the oracle cannot reward 1 in any environment. Two further required tests need live egress (packages.nodebb.org, registry.npmjs.org). Evidence: anchors-verification.json superseded[].",
+   "selection": "Same rule (first task by sorted instance name per repo), restricted to JS/TS repos not already represented, to keep language balance. Candidates in order: protonmail/webclients, then tutao/tutanota.",
+   "rejected_candidates": [
+    {
+     "name": "instance_protonmail__webclients-01b519cd49e6a24d9a05d2eb97f54e420740072e",
+     "reason": "image jefzda/sweap-images (protonmail webclients) is 5,565,156,382 B compressed; exceeds this host's ~7 GB free disk (needs ~23 GB by the 4x estimate). The next two protonmail tasks are 4.66 GB and 4.78 GB compressed, so the repo was skipped."
+    }
    ],
-   "uv_shim": {
-    "version": "0.9.5",
-    "mount": "/root/.local/bin (read-only)",
-    "env_file": [
-     "export PATH=\"$HOME/.local/bin:$PATH\"",
-     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
-     "export UV_NATIVE_TLS=1"
-    ],
-    "reason": "astral.sh unreachable from host"
-   }
-  },
-  {
-   "timestamp": "2026-11-27T05:46:30+00:00",
-   "harbor_version": "0.27.0",
-   "docker_version": "29.1.3",
-   "docker_compose_version": "2.40.3",
-   "host": {
-    "arch": "x86_64",
-    "cpus": 2,
-    "memory_bytes": 8012476416,
-    "disk_total_bytes": 19504254976,
-    "disk_free_bytes_at_start": 6232502272
-   },
-   "only": [
-    "instance_nodebb"
-   ],
-   "uv_shim": {
-    "version": "0.9.5",
-    "mount": "/root/.local/bin (read-only)",
-    "env_file": [
-     "export PATH=\"$HOME/.local/bin:$PATH\"",
-     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
-     "export UV_NATIVE_TLS=1"
-    ],
-    "reason": "astral.sh unreachable from host"
+   "replaced": {
+    "name": "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+    "tree_sha256": "d1853ecefcb259afaae9e22bb568cf46b927a4554af55a5bd373124311863168",
+    "git_tree": "c6d2829679ec6638e47a98e1a9a6652b443a6d43",
+    "oracle_reward": 0.0,
+    "base_reward": 0.0,
+    "status": "task-defect"
    }
   }
- ],
- "anchors_json_sha256": "c49177a26fc4d7b23f4776083bd34519ef6d970abc30fcdfb988c49654191093",
- "agents": {
-  "oracle": "harbor built-in oracle (runs solution/solve.sh)",
-  "base": "harbor built-in nop (does nothing)"
- },
- "environment": "harbor local docker, one anchor at a time, task images removed after each",
- "statuses": {
-  "verified": "oracle reward 1 and base reward 0 on this host",
-  "environment-gap": "could not run or pass here; see environment_needed and notes",
-  "task-defect": "oracle cannot pass as packaged in any environment; see oracle_diagnosis"
- },
- "licenses": {
-  "https://github.com/laude-institute/terminal-bench-2.git": "Terminal-Bench 2.0 tasks; repository license Apache-2.0.",
-  "https://github.com/laude-institute/harbor-datasets.git": "harbor-datasets declares no license (no LICENSE file; GitHub reports none). The SWE-bench Pro public set it adapts comes from scaleapi/SWE-bench_Pro-os (MIT). Tasks are referenced by pinned commit only and never vendored."
- },
- "tree_sha256_definition": "sha256 of sorted lines '<relpath>\\0<x|->\\0<sha256(file)>\\n' over task dir"
+ ]
 }

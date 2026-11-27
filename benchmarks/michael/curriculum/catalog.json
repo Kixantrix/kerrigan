@@ -312,9 +312,9 @@
    "grader_image": "needs-image: linux container with python3.12 stdlib (briefing validators)"
   },
   {
-   "id": "kerrigan-dashboard-decomposition",
+   "id": "plan-dashboard-decomposition",
    "family": "Understand and plan",
-   "title": "Decompose dashboard milestones M2-M8 into dispatchable tasks and waves",
+   "title": "Decompose dashboard milestones M2-M8 into dispatchable tasks, touch sets, waves and AC tests",
    "repo": "Kixantrix/kerrigan",
    "visibility": "public",
    "source": {
@@ -326,22 +326,34 @@
    "reference_ref": "806f712902d3bde02c730e23bddd249850baa5e1",
    "stack": [
     "markdown",
-    "python"
+    "json"
    ],
-   "toolchain": "python3.12 + repo validators",
+   "toolchain": "python3.12 stdlib",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux",
+   "required_environment": "cloud-linux (python3 stdlib only; plan artifact graded offline)",
    "outcome_evidence": "required_facts_checklist",
-   "evidence_detail": "Checklist: 23 tasks with Touch annotations, dependency-consistent waves (conflict predictor yields no overlapping globs within a wave), required artifact set present, check_artifacts validator passes.",
+   "evidence_detail": "25 invariant rows: deliverable coverage, >=2 tasks/milestone, file-accurate touch sets vs repo tree, recomputed fnmatch overlaps and tight waves (<=10), transitive consumption edges, exact AC set/ownership, closed level/environment/routing vocabularies, size limits, MCP tool scope (spec over plan).",
    "privacy": "public",
-   "privacy_note": "Public repo.",
-   "estimated_agent_minutes": 40,
-   "long_horizon": true,
-   "summary": "Agent decomposes a multi-milestone desktop dashboard plan into dispatch-sized tasks with touch sets, waves, and acceptance tests, satisfying the harness's artifact validators.",
+   "privacy_note": "Public repo; exact public bytes.",
+   "estimated_agent_minutes": 30,
+   "long_horizon": false,
+   "summary": "Agent decomposes kerrigan-dashboard M2-M8 into dispatch-sized tasks with touch sets, dependencies, waves, routing and AC level/environment mapping; graded on invariants, not one decomposition.",
    "history_status": "merged",
-   "package": null,
-   "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with python3.12 + repo validators"
+   "package": "plan-dashboard-decomposition",
+   "provenance_kind": "merged-pr",
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 1,
+    "oracle_lines_added": 761,
+    "oracle_lines_removed": 4,
+    "writable_files": 1,
+    "files_to_read": 11,
+    "lines_to_read": 1508,
+    "hidden_checks": 25,
+    "hidden_clauses": 65
+   },
+   "replaces_candidate": "kerrigan-dashboard-decomposition"
   },
   {
    "id": "vhs-infrastructure-spec",
@@ -377,35 +389,48 @@
    "grader_image": "needs-image: linux container with python3.12 stdlib (artifact validators)"
   },
   {
-   "id": "emv-auth-decision",
+   "id": "research-admin-auth-choice",
    "family": "Research",
-   "title": "Choose an auth solution for a static-web-app + functions media vault",
+   "title": "Choose what replaces a plaintext env-var admin password under hard platform constraints",
    "repo": "Kixantrix/personal-selfhost",
    "visibility": "private",
    "source": {
     "kind": "pr",
     "pr": 20,
-    "issue": null
+    "issue": 19
    },
    "base_ref": "07fbe2d97f88f023217b03432dfdfec44f5384b3",
    "reference_ref": "2f9edd84189d17c11c5b4b04c5618f303a703aeb",
    "stack": [
-    "markdown"
+    "markdown",
+    "json"
    ],
-   "toolchain": "web sources + docs",
+   "toolchain": "frozen offline sources",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux",
+   "required_environment": "None beyond michael-replay-grader:mb006j (offline frozen sources; json_artifact_sets.py)",
    "outcome_evidence": "required_facts_checklist",
-   "evidence_detail": "Decision record compares >=5 options on cost, complexity, guest UX, admin UX, RBAC, session invalidation; each claim cites a verifiable vendor doc; selected option and residual risks stated.",
-   "privacy": "private-sanitized",
-   "privacy_note": "Private; decision question is generic (no domains).",
+   "evidence_detail": "Closed-vocabulary choice among 8 options, exact eliminating-constraint set per rejected option (incl. a plausible paid-plan trap and 5-step boundaries), recomputed costs within one cent, honest nulls + exact unknowns, repo-derived function sets, required source citations.",
+   "privacy": "private-synthetic-fixture",
+   "privacy_note": "Sanitized paraphrased sources; vendor names generalized, quantities invented, no hostnames/personal data.",
    "estimated_agent_minutes": 25,
    "long_horizon": false,
-   "summary": "Replace a plaintext env-var admin password. Agent evaluates auth options for the hosting platform from allowed sources and records a cited decision with uncertainty.",
+   "summary": "Replace a plaintext env-var admin password: apply seven explicit hard constraints to eight auth options from frozen sources and record a cited decision with honest unknowns.",
    "history_status": "merged",
-   "package": null,
-   "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with web sources + docs"
+   "package": "research-admin-auth-choice",
+   "provenance_kind": "pr",
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 1,
+    "oracle_lines_added": 126,
+    "oracle_lines_removed": 7,
+    "writable_files": 1,
+    "files_to_read": 10,
+    "lines_to_read": 378,
+    "hidden_checks": 18,
+    "hidden_clauses": 36
+   },
+   "replaces_candidate": "emv-auth-decision"
   },
   {
    "id": "ps-copilot-sdk-spike",
@@ -727,10 +752,10 @@
    "long_horizon": false,
    "summary": "Agent reviews a single-script canvas idle game against its gameplay rules after a polish update, repairs every regression in both HTML builds without regressing gameplay, and records findings.",
    "history_status": "merged",
-   "package": "foal-meadow-regression-review",
+   "package": "foal-meadow-regression-review-v2",
    "provenance_kind": "seeded-defects",
    "grader_image": "michael-replay-grader-node:mb008",
-   "round": 3,
+   "round": 4,
    "task_size": {
     "oracle_files_changed": 3,
     "oracle_lines_added": 26,
@@ -741,7 +766,10 @@
     "hidden_checks": 48,
     "hidden_clauses": 106
    },
-   "replaces_candidate": "foal-meadow-seeded-defects"
+   "replaces_candidate": "foal-meadow-seeded-defects",
+   "retired_packages": [
+    "foal-meadow-regression-review"
+   ]
   },
   {
    "id": "vhs-api-data-volume",
@@ -1399,35 +1427,41 @@
    "grader_image": "needs-image: linux container with godot 4.x headless + gdUnit"
   },
   {
-   "id": "sl-sim-phase-one",
+   "id": "orchestrate-sl-sim-phase-one",
    "family": "Orchestrate",
-   "title": "Drive a deterministic match-sim through physics, kicks, first touch, dribbling, possession and tackling",
+   "title": "Integrate four parallel match-sim mechanic slices (ball physics, locomotion, kick, first touch) so replays stay deterministic and the plan holds",
    "repo": "Kixantrix/sunday-league",
    "visibility": "private",
-   "source": {
-    "kind": "issue+pr",
-    "pr": 9,
-    "issue": null
-   },
-   "base_ref": "bc1959d55d5891c2964584708ac807178231e4f0",
-   "reference_ref": "0e1e5e686cc9443eee3ca655fbd9733af729604f",
-   "stack": [
-    "gdscript"
-   ],
-   "toolchain": "godot 4.x headless + gdUnit4",
+   "source": "merged PR series #9,#10,#11,#14,#16,#17 (+#18 friction fix)",
+   "base_ref": "347ffd5dac4998a01a3bab1d65073818dd597817",
+   "reference_ref": "d6826880d384acd8195f349595b7e1457235e7c3",
+   "stack": "Godot 4 / GDScript (graded as faithful TypeScript port)",
+   "toolchain": "node 24 type stripping, no deps",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux",
+   "required_environment": "Godot 4.3 headless + gdUnit4 golden-replay suite on Linux CI; package grades the faithful TS port under Node 24",
    "outcome_evidence": "integrated_outcome",
-   "evidence_detail": "Golden-replay determinism and all sim unit tests pass at the end; each task's tests (1.1-1.5) present and green.",
-   "privacy": "private-sanitized",
-   "privacy_note": "Private game repo.",
-   "estimated_agent_minutes": 300,
+   "evidence_detail": "Docker calibration: base 7/20 (integration 0/9), reference 20/20; 3 valid variants pass, 4 partial fixes fail intended rows",
+   "privacy": "private-synthetic-fixture",
+   "privacy_note": "Sanitized port; synthetic plan/briefs; no names, secrets or hosts",
+   "estimated_agent_minutes": 60,
    "long_horizon": true,
-   "summary": "Starting from the core scaffold (#9), agent splits and sequences tasks 1.1-1.5 (#11-#20), keeping replays deterministic as each mechanic lands.",
+   "summary": "Conductor integrates S1-S4 slices landed in parallel on the MatchSim core: find/fix 7 audited cross-slice defects, reject 2 decoys, and write a ledger with a dependency-respecting landing order; graded by deterministic-replay and mechanic scenarios on held-out inputs.",
    "history_status": "merged",
-   "package": null,
-   "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with godot 4.x headless + gdUnit4"
+   "package": "orchestrate-sl-sim-phase-one",
+   "provenance_kind": "pr-series-port",
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 6,
+    "oracle_lines_added": 202,
+    "oracle_lines_removed": 37,
+    "writable_files": 10,
+    "files_to_read": 22,
+    "lines_to_read": 1824,
+    "hidden_checks": 20,
+    "hidden_clauses": 145
+   },
+   "replaces_candidate": "sl-sim-phase-one"
   },
   {
    "id": "kerrigan-dashboard-waves",
@@ -1722,6 +1756,124 @@
     "lines_to_read": 4803,
     "hidden_checks": 22,
     "hidden_clauses": 94
+   }
+  },
+  {
+   "id": "research-cs-speech-stack",
+   "family": "Research",
+   "title": "Choose the on-device speech stack for bilingual zh/en sessions from a frozen evidence pack",
+   "repo": "Kixantrix/clinical-scribe",
+   "visibility": "private",
+   "source": "commit c635bea (decision record D2/D3; related PR #11)",
+   "base_ref": "75bd9e3a3b4b476eee127bb81d3f70cf80501594",
+   "reference_ref": "c635bea377d5b8fa0dfc5620ebda0db0bcc725bc",
+   "stack": [
+    "Rust/Tauri",
+    "Python",
+    "ONNX"
+   ],
+   "toolchain": "python3 stdlib (JSON artifact)",
+   "grader_container_ok": true,
+   "required_environment": "None beyond packaged source pack; graded on michael-replay-grader:mb006j",
+   "outcome_evidence": "required_facts_checklist",
+   "evidence_detail": "20 rows: closed-vocabulary choices, per-option eliminating requirement (exact key set), pooled metrics within 0.05, strict-boundary DER, honest nulls plus a non-null check for ARM64 accuracy, exact unknowns set, citation subsets",
+   "privacy": "private-synthetic-fixture",
+   "privacy_note": "Sanitized re-synthesis; invented quantities; no PHI, names, secrets or hostnames",
+   "estimated_agent_minutes": 25,
+   "long_horizon": false,
+   "summary": "Apply ordered requirements to a vendor survey, packaging catalog and benchmark CSVs to pick the on-device speech stack, eliminate 9 options with their first-failing requirement, choose diarization per session type, recompute pooled error/DER/footprint, and leave undeterminable values null.",
+   "history_status": "merged",
+   "package": "research-cs-speech-stack",
+   "provenance_kind": "commit",
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 1,
+    "oracle_lines_added": 75,
+    "oracle_lines_removed": 13,
+    "writable_files": 1,
+    "files_to_read": 10,
+    "lines_to_read": 239,
+    "hidden_checks": 20,
+    "hidden_clauses": 33
+   }
+  },
+  {
+   "id": "plan-custom-action-briefing",
+   "family": "Understand and plan",
+   "title": "Write the dispatch briefing for custom actions (Surface A) from a merged spec and plan",
+   "repo": "Kixantrix/your-voice",
+   "visibility": "private",
+   "source": "spec+plan PR #180; oracle PR #192",
+   "base_ref": "605d2900456b094beb1eab68dc32cb955a657a12",
+   "reference_ref": "432f3806383a570f8eb2145423f9bf2dc8870268",
+   "stack": "TypeScript (Hono+Drizzle API, React Native/Expo), SQL; graded artifact is JSON",
+   "toolchain": "python3.12 stdlib harness",
+   "grader_container_ok": true,
+   "required_environment": "cloud-linux: michael-replay-grader:mb006j; the briefed implementation needs Node 22+pnpm, jest/jest-expo, Playwright, PostgreSQL 16",
+   "outcome_evidence": "required_facts_checklist",
+   "evidence_detail": "21 deterministic rows: exact AC/deferred sets, open-decision set, closed level/environment taxonomy, plan-named tests, set-based glob recall/precision vs real PR #192 files, closed 17-item scope vocabulary, routing rule",
+   "privacy": "private-synthetic-fixture",
+   "privacy_note": "Verbatim excerpts of private planning docs/test headers; no secrets, hostnames, personal names or user data; CI DB URL redacted",
+   "estimated_agent_minutes": 30,
+   "long_horizon": false,
+   "summary": "Conductor writes a structured briefing for Phase 1 of a merged spec+plan: picks the right ACs (incl. one the plan table omits), notices the plan is stale vs the spec, assigns levels/environments per the rubric, scopes Touch globs to what the real change touched, classifies exclusions, cites the routing rule.",
+   "history_status": "merged",
+   "package": "plan-custom-action-briefing",
+   "provenance_kind": "real-pr",
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 1,
+    "oracle_lines_added": 159,
+    "oracle_lines_removed": 10,
+    "writable_files": 1,
+    "files_to_read": 13,
+    "lines_to_read": 2204,
+    "hidden_checks": 21,
+    "hidden_clauses": 37
+   }
+  },
+  {
+   "id": "kerrigan-dashboard-stage-integration",
+   "family": "Orchestrate",
+   "title": "Integrate five parallel dashboard slices (plan parser, GitHub client, status, project route, plan-update MCP tool) and record cross-slice defects",
+   "repo": "Kixantrix/kerrigan",
+   "visibility": "public",
+   "source": {
+    "kind": "issue+pr",
+    "pr": 385,
+    "issue": null
+   },
+   "base_ref": "822993442330ceaacaa549d9637bdae74dc8f05e",
+   "reference_ref": "83c5dc34e2cd767c0b91494bf7c3b15768c7c032",
+   "stack": [
+    "typescript"
+   ],
+   "toolchain": "node 24 type stripping (pure-logic slice of node 22 + vitest + tauri)",
+   "grader_container_ok": true,
+   "required_environment": "cloud-linux (original: Tauri 2 + pnpm/vitest/Playwright, Node 22 MCP server with git/gh + network)",
+   "outcome_evidence": "integrated_outcome",
+   "evidence_detail": "Behavioral scenarios on held-out plans over a fake GitHub transport (per-stage status, merged/multi-repo/offline, parser read-back of plan edits, rejection) plus a closed-vocabulary integration ledger with 6 audited required defects and 3 audited-absent distractors.",
+   "privacy": "public",
+   "privacy_note": "Public repo; plan-update fixes authored (defects unfixed upstream).",
+   "estimated_agent_minutes": 60,
+   "long_horizon": true,
+   "summary": "Slices landed in parallel (#308-#366); the agent integrates them so stage statuses and chat plan edits meet the wave plan, fixing merged-source, linkage, review-key, stage-id, frontmatter-format and validation defects, and writes an integration ledger.",
+   "history_status": "merged",
+   "package": "orchestrate-dashboard-stages",
+   "provenance_kind": "mined-history",
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 5,
+    "oracle_lines_added": 232,
+    "oracle_lines_removed": 42,
+    "writable_files": 5,
+    "files_to_read": 14,
+    "lines_to_read": 1769,
+    "hidden_checks": 17,
+    "hidden_clauses": 63
    }
   }
  ]

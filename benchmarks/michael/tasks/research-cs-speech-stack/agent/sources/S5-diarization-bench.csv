@@ -1,0 +1,9 @@
+session_type,method,fixture,speech_s,missed_s,false_alarm_s,confusion_s
+telehealth,acoustic-fixed-2,th_01,1500,15,12,48
+telehealth,acoustic-fixed-2,th_02,900,9,9,27
+in_person,acoustic-fixed-2,ip_01,1800,36,27,45
+in_person,acoustic-fixed-2,ip_02,1200,30,18,24
+in_person,acoustic-fixed-2,ip_03,600,15,9,18
+in_person,acoustic-auto-threshold,ip_01,1800,36,27,117
+in_person,acoustic-auto-threshold,ip_02,1200,30,18,84
+in_person,acoustic-auto-threshold,ip_03,600,15,9,24

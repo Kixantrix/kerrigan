@@ -1,0 +1,115 @@
+{
+ "id": "orchestrate-dashboard-stages",
+ "family": "Orchestrate",
+ "title": "Integrate five parallel dashboard slices (plan parser, GitHub client, status, project route, plan-update tool) against the wave plan and record the cross-slice defects",
+ "source": {
+  "repo": "Kixantrix/kerrigan",
+  "visibility": "public",
+  "kind": "issue+pr",
+  "pr": 385,
+  "prs": [
+   292,
+   308,
+   331,
+   336,
+   339,
+   355,
+   366,
+   385,
+   387,
+   394
+  ],
+  "base_ref": "822993442330ceaacaa549d9637bdae74dc8f05e",
+  "reference_ref": "83c5dc34e2cd767c0b91494bf7c3b15768c7c032",
+  "history_status": "merged",
+  "history_note": "Status/route fixes are merged upstream (#385, #387, #394); the plan-update fixes are authored for this package (those defects remain upstream)."
+ },
+ "catalog_candidate": "kerrigan-dashboard-waves",
+ "derivation": "Mined from the kerrigan-dashboard waves decomposed in #292 and dispatched as separate slices: M2.3 lib/github.ts (#308), M3.1 lib/plan-parser.ts (#331), M3.2 lib/status.ts (#336), M3.3 project route (#339, ProjectView data loading) and M5.2 tools/kerrigan-mcp plan-update (#366). base_ref is the #366 merge, where every slice had landed with green unit tests; the agent-visible src/ files are those slices at base_ref with only packaging edits (Octokit default factory removed so the client takes an injected request function; ProjectView's non-React collectStatusInput/fetchRepoStatus extracted verbatim into project-status.ts as loadProjectStatuses; the MCP tool's pure markdown-edit core extracted from plan-update.ts with McpError(InvalidParams) mapped to PlanUpdateError and the git/gh/zod layer dropped; import paths rewritten to .ts). Briefs are excerpts of the real dispatch briefings (.specify/briefings/M2.3, M3.1, M3.2, M3.3, M5.2) with paths mapped to src/. W-plan.md is the conductor's integration plan synthesized from spec ACs AC-005/AC-008/AC-011/AC-014/AC-016 and the briefs; it states the linkage token rule, the merged/review read rules and the plan-update validity rule explicitly. Real cross-slice defects: (1) merged-source-missing — the M3.2 brief deferred merged detection to a later read path that no slice built; the route only read open PRs, so every stage rendered planned after its work merged (fixed upstream by #385: listRecentlyMergedPRs + merged_at, reference copies it). (2) linkage-mismatch — M3.2's matcher links work by the task id in titles while M3.1 ids are slugs of whole headings (e.g. m3-project-detail-dag-read-only), so real plan stages never linked (fixed upstream by #387/#394 with a word-boundary milestone token over title and head branch; the reference generalizes it to the M<n>/M<n>.<m> token rule the plan states). (3) review-key-collision — the route merged per-repo review maps keyed by PR number into one Map while status looked reviews up by number, so on multi-repo projects (AC-016) a PR's reviews were overwritten by another repo's same-numbered PR (present at base_ref and still at HEAD; reference keys by html_url). (4) stage-id-mismatch — plan-update re-implemented the parser's slugify without its dedupe, so parser ids such as tests-2 cannot be addressed. (5) frontmatter-format-mismatch — edit-deps for a stage missing from an existing dependencies block writes list items at the key's indentation, which the parser reports as dependency-key-invalid and drops. (6) unvalidated-edit — edit-deps/replace-stage write plans with unknown ids or cycles that the dashboard parser rejects. (4)-(6) are genuine at base_ref and unfixed upstream; their reference fix is authored here (resolve stage ids through parsePlanMarkdown, serialize at the block's indentation, reject edits that introduce parser errors). Hidden checks run the integrated modules on held-out plans over a fake GitHub REST transport and check outcomes (per-stage status, offline, rejection, parser read-back), never ids, event names, call order or message text.",
+ "privacy": "public",
+ "coverage": "8 integration scenarios (R1, R3, R4 x2, R5, R7, R8 x2), 4 preservation scenarios (AC-005 precedence, offline tolerance, landed plan-update section editing, per-request token) and a 5-row ledger (requirements met and mapped to the plan's slice table; closed-vocabulary exact defect set with located files; distractors rejected).",
+ "historical_exposure": "Public repo; the #385/#387/#394 fixes are public history (recognition risk for the status/route defects). The plan-update fixes are not in upstream history.",
+ "outcome_evidence": "integrated_outcome",
+ "estimated_agent_minutes": 60,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Quality of integration notes and follow-up dispatch suggestions is not graded."
+ ],
+ "leak_tokens": [
+  "listRecentlyMergedPRs",
+  "extractMilestonePrefix",
+  "containsAsWord",
+  "listIssuesWithClosingPRs"
+ ],
+ "required_environment": "Original: Tauri 2 desktop app (Rust shell + React/Vite, pnpm, vitest, Playwright) for the dashboard and a Node 22 MCP server (@modelcontextprotocol/sdk, zod) shelling out to git and gh with network access to GitHub. Packaged: the pure TypeScript logic of each slice runs on node 24 type stripping (michael-replay-grader-node:mb008) with an injected fake GitHub transport; React rendering, Tauri fs, the MCP transport and the git/gh side effects are out of scope.",
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "src/project-status.ts",
+  "candidates": [
+   "INTEGRATION.json",
+   "src/github.ts",
+   "src/plan-update.ts",
+   "src/project-status.ts",
+   "src/status.ts"
+  ],
+  "agent_support": [
+   "src/plan-parser.ts"
+  ],
+  "denominators": {
+   "integration": 8,
+   "preservation": 4,
+   "ledger": 5
+  }
+ },
+ "audited_base_defects": [
+  {
+   "category": "merged-source-missing",
+   "file": "src/project-status.ts",
+   "line": 140,
+   "evidence": "fetchRepoStatus reads only listOpenPRs and listIssues (lines 140-143); github.ts exposes no closed/merged PR read (GitHubClient lines 116-138) and PullRequestData has no merged_at (lines 82-93), so status.ts isMergedPR (line 60) never sees a merged PR",
+   "required": true
+  },
+  {
+   "category": "review-key-collision",
+   "file": "src/project-status.ts",
+   "line": 112,
+   "evidence": "per-repo review maps keyed by PR number are merged into one Map (lines 111-113); status.ts looks reviews up by pr.number (lines 77, 197), so same-numbered PRs in two repos share one review list",
+   "required": true
+  },
+  {
+   "category": "linkage-mismatch",
+   "file": "src/status.ts",
+   "line": 159,
+   "evidence": "defaultStageMatcher (lines 159-175) compares the compact slug id or the full label with item titles; plan-parser ids are slugs of the whole heading (plan-parser.ts uniqueSlug line 346, slugify line 354), so 'M3.4 Plan editor pane' never links to 'M3.4: Add read-only PlanEditor pane', and head branches are ignored",
+   "required": true
+  },
+  {
+   "category": "stage-id-mismatch",
+   "file": "src/plan-update.ts",
+   "line": 103,
+   "evidence": "findSection (lines 99-108) compares slugify(stageId) with each label slug using a private slugify copy (line 36) without the parser's dedupe suffixes (plan-parser.ts uniqueSlug line 346), so 'tests-2' is not found",
+   "required": true
+  },
+  {
+   "category": "frontmatter-format-mismatch",
+   "file": "src/plan-update.ts",
+   "line": 279,
+   "evidence": "inserting a stage missing from an existing dependencies block re-indents every line of the entry to two spaces (lines 270-283), putting '- dep' at the key's indentation; parsePlanMarkdown then reports dependency-key-invalid and drops the dependency",
+   "required": true
+  },
+  {
+   "category": "unvalidated-edit",
+   "file": "src/plan-update.ts",
+   "line": 326,
+   "evidence": "applyPlanEdit (lines 326-346) returns edits naming unknown stages/dependencies or creating cycles without checking them against the parser contract",
+   "required": true
+  }
+ ],
+ "audited_absent": {
+  "token-persistence": "github.ts request() resolves the token per call (lines 216-222) and only passes it to the injected factory; nothing stores it (tokenPerRequest scenario).",
+  "precedence-inversion": "deriveStageStatus (status.ts lines 90-134) applies blocked > needs-attestation > needs-human-test > in-review > dispatched > merged > planned, exactly the plan's R2 order (precedence scenario).",
+  "etag-staleness": "github.ts caches by endpoint plus serialized params (line 225) and returns the cached payload only on a 304 for that same key (lines 255-258)."
+ },
+ "round": 4
+}

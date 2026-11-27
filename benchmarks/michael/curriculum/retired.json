@@ -169,6 +169,12 @@
     "path": "benchmarks/michael/curriculum/MBR3-yv-relevance-instrument-v3-admission.json",
     "sha256": "fb52dc3afc4abc62f2fa901ea6329b1a26245bdccd84680d62b1b9e16dff05f2"
    }
+  },
+  "foal-meadow-regression-review": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "foal-meadow-regression-review-v2",
+   "reason": "environment-caused (native fit): the writable game files (35.5/36.3 KB) exceed the default 32 KiB native per-file limit; v2 keeps the content byte-identical and raises only this package's native limits",
+   "evidence_pending": "native executor fit-check failure for foal-meadow-regression-review (bytes 32,768 < 36,330-byte writable file); cite once pushed"
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",
