@@ -17,8 +17,12 @@ export function metadataSnapshot() {
     const pressure = command("/usr/bin/memory_pressure", ["-Q"])
         .match(/System-wide memory free percentage:\s*(\d+)%/);
     if (!pressure) throw new Error("local_memory_pressure_unavailable");
+    // This sysctl exposes dispatch flags, not XNU's internal pressure enum.
+    const pressureFlag = command("/usr/sbin/sysctl", ["-n", "kern.memorystatus_vm_pressure_level"]).trim();
+    const memoryPressureState = { "1": "normal", "2": "warning", "4": "critical" }[pressureFlag];
+    if (!memoryPressureState) throw new Error("local_memory_pressure_unavailable");
     return { loadAverage: loadavg(), memoryPressureFreePercent: Number(pressure[1]),
-        heavyProcesses, condition: "shared with background workloads",
+        memoryPressureState, heavyProcesses, condition: "shared with background workloads",
         modelPeakMemoryBytes: null, energyJoules: null };
 }
 
@@ -53,7 +57,12 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
         } finally {
             await reader.cancel();
         }
-        return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+        try {
+            return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+        } catch (error) {
+            if (error instanceof SyntaxError) throw new Error("local_metadata_json_invalid");
+            throw error;
+        }
     }
     async function health(timeoutMs = 2000) {
         const value = await metadata("/health", timeoutMs);
@@ -73,7 +82,10 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
         const resources = snapshot();
         retain({ type: "local_boundary", atMs: clock(), model: condition.model, ...state, resources });
         if (state.activeRequests !== 0) throw new Error("local_endpoint_contention");
-        if (resources.memoryPressureFreePercent <= 5) throw new Error("local_resource_pressure");
+        if (!["normal", "warning", "critical"].includes(resources.memoryPressureState))
+            throw new Error("local_memory_pressure_unavailable");
+        if (resources.memoryPressureState !== "normal" || resources.memoryPressureFreePercent <= 5)
+            throw new Error("local_resource_pressure");
     }
     async function release() {
         const until = Math.min(clock() + LOCAL_LIMITS.cleanupSeconds * 1000, condition.windowEndMs);

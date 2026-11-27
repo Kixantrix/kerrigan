@@ -42,7 +42,12 @@ async function boundedJson(response, signal) {
         if (bytes > LOCAL_LIMITS.responseBytes) throw new Error("local_response_overflow");
         parts.push(part);
     }
-    return JSON.parse(Buffer.concat(parts).toString("utf8"));
+    try {
+        return JSON.parse(Buffer.concat(parts).toString("utf8"));
+    } catch (error) {
+        if (error instanceof SyntaxError) throw new Error("local_response_json_invalid");
+        throw error;
+    }
 }
 
 export async function localLoop({ condition, prompt, tools, execute, boundary, record, signal,
@@ -65,73 +70,75 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         if (remaining <= 0 || signal.aborted) throw new Error("local_window_closed");
         const requestId = `chatcmpl-${condition.requestNamespace || "mbr3-synthetic"}-${randomUUID()}`;
         const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(
-            Math.min(condition.requestSeconds * 1000, remaining))]);
+            Math.max(1, Math.floor(Math.min(condition.requestSeconds * 1000, remaining))))]);
         const body = { model: condition.model, messages, tools, stream: false,
             max_tokens: LOCAL_LIMITS.outputTokens };
         const started = clock();
         const startedMonotonic = monotonic();
         record({ type: "local_request_started", requestId, sessionId, startedMs: started,
             inputBytes, inputEstimate: "UTF-8 JSON headroom heuristic; not exact native rendered count" });
-        let response;
+        let response, nativeUsage, limitsVerified, finishReason;
         try {
             response = await boundedJson(await fetcher(condition.endpoint + "/chat/completions", {
                 method: "POST", headers: { "content-type": "application/json", "x-mtplx-request-id": requestId,
                     "x-mtplx-session-id": sessionId },
                 body: JSON.stringify(body), signal: requestSignal, redirect: "error"
             }), requestSignal);
+            if (response.id !== requestId || response.model !== condition.model ||
+                response.choices?.length !== 1 || response.choices[0].message?.role !== "assistant")
+                throw new Error("local_response_identity_or_shape");
+            const usage = response.usage;
+            const count = value => value === undefined ? null : value;
+            nativeUsage = {
+                inputTokens: count(usage?.prompt_tokens), outputTokens: count(usage?.completion_tokens),
+                totalTokens: count(usage?.total_tokens),
+                reasoningTokens: count(usage?.completion_tokens_details?.reasoning_tokens),
+                cachedTokens: count(usage?.prompt_tokens_details?.cached_tokens)
+            };
+            if (Object.values(nativeUsage).some(value => value !== null &&
+                (!Number.isSafeInteger(value) || value < 0)))
+                throw new Error("local_native_usage_shape");
+            limitsVerified = [nativeUsage.inputTokens, nativeUsage.outputTokens,
+                nativeUsage.totalTokens].every(value => value !== null);
+            if ((nativeUsage.inputTokens ?? 0) > LOCAL_LIMITS.inputTokens ||
+                (nativeUsage.outputTokens ?? 0) > LOCAL_LIMITS.outputTokens ||
+                (nativeUsage.totalTokens ?? 0) > LOCAL_LIMITS.contextTokens ||
+                (limitsVerified && nativeUsage.totalTokens !== nativeUsage.inputTokens + nativeUsage.outputTokens) ||
+                (nativeUsage.cachedTokens !== null && nativeUsage.inputTokens !== null &&
+                    nativeUsage.cachedTokens > nativeUsage.inputTokens) ||
+                (nativeUsage.reasoningTokens !== null && nativeUsage.outputTokens !== null &&
+                    nativeUsage.reasoningTokens > nativeUsage.outputTokens))
+                throw new Error("local_native_context_budget");
+            const stats = {};
+            if (response.mtplx_stats != null && (typeof response.mtplx_stats !== "object" ||
+                Array.isArray(response.mtplx_stats))) throw new Error("local_native_timing_shape");
+            for (const key of ["prompt_eval_time_s", "new_prefill_tokens", "cached_tokens",
+                "prefill_tok_s", "prefill_compute_tok_s", "prefill_wall_tok_s", "decode_elapsed_s",
+                "decode_tok_s", "elapsed_s", "request_elapsed_s", "request_tok_s", "ttft_s",
+                "reasoning_tokens", "answer_tokens"]) {
+                const value = response.mtplx_stats?.[key];
+                if (value != null && (typeof value !== "number" || !Number.isFinite(value) || value < 0 ||
+                    (key.endsWith("_tokens") && !Number.isSafeInteger(value))))
+                    throw new Error("local_native_timing_shape");
+                stats[key] = value ?? null;
+            }
+            const wallMs = monotonic() - startedMonotonic;
+            finishReason = response.choices[0].finish_reason ?? null;
+            record({ type: "local_request_finished", requestId, wallMs,
+                model: response.model, usage: usage ? nativeUsage : null, limitsVerified,
+                finishReason, nativeStats: stats,
+                exploratoryInput: nativeUsage.inputTokens === null ? null : nativeUsage.inputTokens > 131072,
+                tokensPerSecond: wallMs > 0 && nativeUsage.outputTokens !== null ?
+                    nativeUsage.outputTokens * 1000 / wallMs : null,
+                speedScope: "completion tokens / HTTP wall time, including prefill; shared with background workloads",
+                prefillSeconds: stats.prompt_eval_time_s, decodeSeconds: stats.decode_elapsed_s,
+                prefillTokensPerSecond: stats.prefill_compute_tok_s ?? stats.prefill_tok_s,
+                decodeTokensPerSecond: stats.decode_tok_s, energyJoules: null });
         } catch (error) {
             record({ type: "local_request_failed", requestId, wallMs: monotonic() - startedMonotonic,
                 reason: error.name === "TimeoutError" ? "deadline" : error.message });
             throw error;
         }
-        if (response.id !== requestId || response.model !== condition.model ||
-            response.choices?.length !== 1 || response.choices[0].message?.role !== "assistant")
-            throw new Error("local_response_identity_or_shape");
-        const usage = response.usage;
-        const count = value => value === undefined ? null : value;
-        const nativeUsage = {
-            inputTokens: count(usage?.prompt_tokens), outputTokens: count(usage?.completion_tokens),
-            totalTokens: count(usage?.total_tokens),
-            reasoningTokens: count(usage?.completion_tokens_details?.reasoning_tokens),
-            cachedTokens: count(usage?.prompt_tokens_details?.cached_tokens)
-        };
-        if (Object.values(nativeUsage).some(value => value !== null &&
-            (!Number.isSafeInteger(value) || value < 0)))
-            throw new Error("local_native_usage_shape");
-        const limitsVerified = [nativeUsage.inputTokens, nativeUsage.outputTokens,
-            nativeUsage.totalTokens].every(value => value !== null);
-        if ((nativeUsage.inputTokens ?? 0) > LOCAL_LIMITS.inputTokens ||
-            (nativeUsage.outputTokens ?? 0) > LOCAL_LIMITS.outputTokens ||
-            (nativeUsage.totalTokens ?? 0) > LOCAL_LIMITS.contextTokens ||
-            (limitsVerified && nativeUsage.totalTokens < nativeUsage.inputTokens + nativeUsage.outputTokens) ||
-            (nativeUsage.reasoningTokens !== null && nativeUsage.outputTokens !== null &&
-                nativeUsage.reasoningTokens > nativeUsage.outputTokens))
-            throw new Error("local_native_context_budget");
-        const stats = {};
-        if (response.mtplx_stats != null && (typeof response.mtplx_stats !== "object" ||
-            Array.isArray(response.mtplx_stats))) throw new Error("local_native_timing_shape");
-        for (const key of ["prompt_eval_time_s", "new_prefill_tokens", "cached_tokens",
-            "prefill_tok_s", "prefill_compute_tok_s", "prefill_wall_tok_s", "decode_elapsed_s",
-            "decode_tok_s", "elapsed_s", "request_elapsed_s", "request_tok_s", "ttft_s",
-            "reasoning_tokens", "answer_tokens"]) {
-            const value = response.mtplx_stats?.[key];
-            if (value != null && (typeof value !== "number" || !Number.isFinite(value) || value < 0 ||
-                (key.endsWith("_tokens") && !Number.isSafeInteger(value))))
-                throw new Error("local_native_timing_shape");
-            stats[key] = value ?? null;
-        }
-        const wallMs = monotonic() - startedMonotonic;
-        const finishReason = response.choices[0].finish_reason ?? null;
-        record({ type: "local_request_finished", requestId, wallMs,
-            model: response.model, usage: usage ? nativeUsage : null, limitsVerified,
-            finishReason, nativeStats: stats,
-            exploratoryInput: nativeUsage.inputTokens === null ? null : nativeUsage.inputTokens > 131072,
-            tokensPerSecond: wallMs > 0 && nativeUsage.outputTokens !== null ?
-                nativeUsage.outputTokens * 1000 / wallMs : null,
-            speedScope: "completion tokens / HTTP wall time, including prefill; shared with background workloads",
-            prefillSeconds: stats.prompt_eval_time_s, decodeSeconds: stats.decode_elapsed_s,
-            prefillTokensPerSecond: stats.prefill_compute_tok_s ?? stats.prefill_tok_s,
-            decodeTokensPerSecond: stats.decode_tok_s, energyJoules: null });
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         calls++;
         if (!limitsVerified) throw new Error("local_ambiguous_native_fit");

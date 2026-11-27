@@ -49,8 +49,12 @@ const base={condition,prompt:'synthetic',tools:[],signal:new AbortController().s
  record:()=>{},execute:async()=>{throw Error('should never execute')}};
 await assert.rejects(()=>localLoop({...base,boundary:async()=>{throw Error('ownership ambiguous')},
  fetcher:async()=>{throw Error('must not fetch')}}),/ownership ambiguous/);
-await assert.rejects(()=>localLoop({...base,boundary:async()=>{},
+const records=[];
+await assert.rejects(()=>localLoop({...base,record:r=>records.push(r),boundary:async()=>{},
  fetcher:async()=>new Response(JSON.stringify({id:'wrong',model:'synthetic-only',choices:[]}))}),/identity/);
+assert.equal(records.at(-1).type,'local_request_failed');
+assert.equal(records.at(-1).reason,'local_response_identity_or_shape');
+assert(records.at(-1).wallMs>=0);
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)
@@ -67,6 +71,9 @@ const base={condition,prompt:'synthetic',tools:[],signal:new AbortController().s
  record:()=>{},boundary:async()=>{},execute:async()=>{throw Error('must not execute')}};
 for(const [usage,reason] of [[undefined,/ambiguous_native_fit/],
  [{prompt_tokens:-1,completion_tokens:2,total_tokens:1},/usage_shape/],
+ [{prompt_tokens:1,completion_tokens:2,total_tokens:4},/context_budget/],
+ [{prompt_tokens:3,completion_tokens:1,total_tokens:4,
+   prompt_tokens_details:{cached_tokens:4}},/context_budget/],
  [{prompt_tokens:229377,completion_tokens:1,total_tokens:229378},/context_budget/]]) {
  await assert.rejects(()=>localLoop({...base,fetcher:async(url,options)=>new Response(JSON.stringify({
   id:options.headers['x-mtplx-request-id'],model:'synthetic-only',usage,
@@ -88,14 +95,15 @@ import {LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference
 const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
  limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
  concurrency:1,grading:'after-window-release'};
-let active=0;const events=[];
+let active=0,pressureState='normal',generations=0;const events=[];
 const makeWindow=()=>localWindow({condition,record:r=>events.push(r),clock:()=>1000,
- snapshot:()=>({memoryPressureFreePercent:45,loadAverage:[4,3,2],
+ snapshot:()=>({memoryPressureFreePercent:45,memoryPressureState:pressureState,loadAverage:[4,3,2],
  heavyProcesses:[{name:'Gridiron',cpuPercent:60,residentBytes:2000000000}]}),
  fetcher:async(url,options)=>{
   assert(!url.includes('snapshot')&&!url.includes('flight'));
   if(url.endsWith('/health'))return new Response(JSON.stringify({ok:true,active_requests:active}));
   if(url.endsWith('/models'))return new Response(JSON.stringify({data:[{id:'synthetic-only'}]}));
+  generations++;
   return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
    usage:{prompt_tokens:10,completion_tokens:1,total_tokens:11},
    choices:[{message:{role:'assistant',content:'done'}}]}));
@@ -114,6 +122,9 @@ const release=await window.release();
 assert.equal(release.ownedRequestsDrained,true);assert.equal(release.ownRequestIds.length,1);
 assert.equal(release.attempts.length,2);
 await assert.rejects(()=>window.run({}),/concurrency_denied/);
+pressureState='warning';window=makeWindow();
+await assert.rejects(()=>window.run(options),/resource_pressure/);
+assert.equal(generations,1);await window.release();
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)
@@ -148,3 +159,79 @@ for(const native of [undefined,{prompt_eval_time_s:2,new_prefill_tokens:10,cache
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)
+
+
+def test_local_real_http_stub_tool_loop_and_deadline_release():
+    script = """
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {localWindow} from './benchmarks/michael/local_transport/local_window.mjs';
+import {LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+let active=0,requests=0,stall=false,invalid=false,sessionId;const ids=new Set();
+const server=createServer((req,res)=>{
+ const reply=value=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(value))};
+ if(req.url==='/health')return reply({ok:true,active_requests:active});
+ if(req.url==='/v1/models')return reply({data:[{id:'synthetic-only'}]});
+ assert.equal(req.url,'/v1/chat/completions');
+ assert.equal(req.method,'POST');
+ const id=req.headers['x-mtplx-request-id'];
+ assert(!ids.has(id));ids.add(id);
+ const parts=[];
+ req.on('data',part=>parts.push(part));
+ req.on('end',()=>{
+  const body=JSON.parse(Buffer.concat(parts));requests++;
+  assert.equal(body.model,'synthetic-only');
+  assert.equal(body.max_tokens,16384);
+  if(stall) {
+   active++;res.once('close',()=>{active--});return;
+  }
+  if(invalid)return res.end('PRIVATE_SENTINEL not JSON');
+  if(requests===1)sessionId=req.headers['x-mtplx-session-id'];
+  assert.equal(req.headers['x-mtplx-session-id'],sessionId);
+  const message=requests===1?{role:'assistant',content:null,tool_calls:[
+   {type:'function',id:'t',function:{name:'mb_action',arguments:'{"op":"read","path":"TASK.md"}'}}]}:
+   {role:'assistant',content:'done'};
+  if(requests===2)assert.equal(body.messages.at(-1).role,'tool');
+  reply({id,model:'synthetic-only',choices:[{message,finish_reason:requests===1?'tool_calls':'stop'}],
+   usage:{prompt_tokens:20,completion_tokens:4,total_tokens:24}});
+ });
+});
+await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve)});
+try {
+ const port=server.address().port;assert.notEqual(port,8000);
+ const now=Date.now();
+ const condition={endpoint:`http://127.0.0.1:${port}/v1`,synthetic:true,model:'synthetic-only',
+  limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:now-1000,windowEndMs:now+60000,
+  concurrency:1,grading:'after-window-release'};
+ const events=[];let actions=0;
+ const makeWindow=condition=>localWindow({condition,record:r=>events.push(r),
+  snapshot:()=>({memoryPressureFreePercent:45,memoryPressureState:'normal',
+   loadAverage:[1,1,1],heavyProcesses:[]})});
+ let window=makeWindow(condition);
+ const options={prompt:'synthetic',tools:[],signal:new AbortController().signal,
+  execute:async(id,args)=>{actions++;assert.equal(args.path,'TASK.md');return {text:'synthetic task'}}};
+ assert.equal((await window.run(options)).status,'completed');
+ assert.equal(actions,1);assert.equal(requests,2);
+ assert.equal((await window.release()).ownedRequestsDrained,true);
+ stall=true;window=makeWindow({...condition,requestSeconds:0.0255});
+ await assert.rejects(()=>window.run(options),error=>error.name==='TimeoutError');
+ await assert.rejects(()=>window.run(options),/concurrency_denied/);
+ const release=await window.release();
+ assert.equal(release.ownedRequestsDrained,true);assert.equal(active,0);
+ assert.equal(release.ownRequestIds.length,1);
+ assert.equal(release.attempts.at(-1).reason,'deadline');
+ assert.equal(release.attempts.at(-1).usage,undefined);
+ assert.equal(actions,1);assert.equal(requests,3);
+ stall=false;invalid=true;window=makeWindow(condition);
+ await assert.rejects(()=>window.run(options),/local_response_json_invalid/);
+ const invalidRelease=await window.release();
+ assert.equal(invalidRelease.attempts.at(-1).reason,'local_response_json_invalid');
+ assert(!JSON.stringify(events).includes('PRIVATE_SENTINEL'));
+ assert.equal(actions,1);assert.equal(requests,4);
+} finally {
+ server.closeAllConnections();
+ await new Promise(resolve=>server.close(resolve));
+}
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=15)

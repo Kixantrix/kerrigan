@@ -9,7 +9,8 @@ provisional, and no local-model inference has run in this condition.
 
 `local_inference.mjs` and `local_window.mjs` are offline-tested OpenAI-compatible
 adapter components. They are not yet connected to the native owner/ledger;
-their stub tests are not an end-to-end local-model benchmark. Do not use them
+their real HTTP stub tests exercise tool-loop transport, deadlines and
+synthetic drain receipts, not an end-to-end local-model benchmark. Do not use them
 against the operational endpoint until the parent approves and announces the
 exact interval and namespace and the setup session acknowledges it.
 
@@ -33,7 +34,11 @@ certifying completion; unknown usage remains unknown in the receipt.
 
 Local timing and energy are **shared with background workloads**. Metadata-only
 process-name/CPU/RSS, load and memory-pressure snapshots do not authorize
-altering Gridiron. End-to-end HTTP token rate uses a monotonic clock and includes
+altering Gridiron. Admission requires normal macOS pressure, read from the
+unprivileged `kern.memorystatus_vm_pressure_level` dispatch flags (normal=1,
+warning=2, critical=4); the free-percentage heuristic alone is not a pressure
+certificate. Warning, critical or unknown states stop admission even when
+reported free percentage is high. End-to-end HTTP token rate uses a monotonic clock and includes
 prefill. Optional own-response `mtplx_stats` supplies native uncached prefill and
 decode rates/times; missing fields remain unknown. Derived `timings` defaults
 are not used as measurement evidence. Reasoning is included in completion
