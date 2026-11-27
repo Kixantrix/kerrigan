@@ -88,8 +88,25 @@ accepted with only `untested_requirement` findings:
 [Kirkland](MBR3-kirkland-compose-adoption-admission.json),
 [Taste Engine](MBR3-te-baseline-eval-admission.json) and
 [gear mesh](MBR3-design-alethiometer-gear-mesh-admission.json).
-Their 36 order-balanced subjects are in progress and are not yet pooled into
-the published matrix. Admission findings are not subject failures.
+Their [36 order-balanced subjects](MBR3-expanded-results.json) are complete:
+MAI **13/18**, Sonnet **16/18**, with no harness-fault replacements.
+The portable combined matrix is pending the queued follow-up cohorts.
+Admission findings are not subject failures.
+
+| Expanded task | MAI | Sonnet |
+|---|---:|---:|
+| Design case v4 | 3/3 | 1/3 |
+| Conflict queue v4 | 3/3 | 3/3 |
+| YV relevance v4 | 1/3 | 3/3 |
+| Kirkland Compose | 3/3 | 3/3 |
+| Taste Engine baseline | 3/3 | 3/3 |
+| Gear mesh | 0/3 | 3/3 |
+
+Sonnet's two case failures leave a stale README crystal-seat height. MAI's
+first two gear failures mishandle tip-to-root clearance; its third fails
+additional mesh/build checks. Both attribution auditors classify these as
+model-caused. Successful-only verified-time medians are 165.04s (MAI, n=13)
+and 45.40s (Sonnet, n=16); the successful-task mixtures differ.
 
 YV-v4 MAI repeats 1 and 3 are retained as model-caused **`spec-misread`** (14/16
 each), without rerun. The [repeat-1 resolution](MBR3-yv-v4-repeat1-resolution.json)
