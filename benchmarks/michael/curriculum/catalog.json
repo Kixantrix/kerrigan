@@ -1173,12 +1173,13 @@
    "long_horizon": true,
    "summary": "Agent builds the measurement harness (not the ranker) for item relevance; the real run surfaced a data defect where venue logistics were classified as subject matter.",
    "history_status": "merged",
-   "package": "yv-relevance-instrument-v3",
+   "package": "yv-relevance-instrument-v4",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "retired_packages": [
     "yv-relevance-instrument",
-    "yv-relevance-instrument-v2"
+    "yv-relevance-instrument-v2",
+    "yv-relevance-instrument-v3"
    ],
    "task_size": {
     "oracle_files_changed": 3,
@@ -1186,9 +1187,9 @@
     "oracle_lines_removed": 6,
     "writable_files": 3,
     "files_to_read": 9,
-    "lines_to_read": 913,
-    "hidden_checks": 12,
-    "hidden_clauses": 16
+    "lines_to_read": 921,
+    "hidden_checks": 16,
+    "hidden_clauses": 35
    }
   },
   {
@@ -1220,12 +1221,13 @@
    "long_horizon": true,
    "summary": "Lighter hands freed height. Agent changes parametric CAD to reduce standoffs, keeps clearances, widens a relief, and regenerates flats/renders and BOM/assembly text.",
    "history_status": "unmerged-branch",
-   "package": "design-alethiometer-case-v3",
+   "package": "design-alethiometer-case-v4",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader:mb006j",
    "retired_packages": [
     "design-alethiometer-case",
-    "design-alethiometer-case-v2"
+    "design-alethiometer-case-v2",
+    "design-alethiometer-case-v3"
    ],
    "task_size": {
     "oracle_files_changed": 4,
@@ -1233,9 +1235,9 @@
     "oracle_lines_removed": 10,
     "writable_files": 4,
     "files_to_read": 6,
-    "lines_to_read": 133,
-    "hidden_checks": 12,
-    "hidden_clauses": 32
+    "lines_to_read": 146,
+    "hidden_checks": 13,
+    "hidden_clauses": 41
    }
   },
   {
@@ -1625,12 +1627,13 @@
    "long_horizon": true,
    "summary": "Implement two new modules from the historical briefing: conflict detection against agent:go plan-edit PRs, and a crash-safe offline edit queue with ordered, idempotent replay.",
    "history_status": "merged",
-   "package": "kerrigan-plan-conflict-queue-v3",
+   "package": "kerrigan-plan-conflict-queue-v4",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "retired_packages": [
     "kerrigan-plan-conflict-queue",
-    "kerrigan-plan-conflict-queue-v2"
+    "kerrigan-plan-conflict-queue-v2",
+    "kerrigan-plan-conflict-queue-v3"
    ],
    "task_size": {
     "oracle_files_changed": 2,
@@ -1638,9 +1641,9 @@
     "oracle_lines_removed": 4,
     "writable_files": 2,
     "files_to_read": 7,
-    "lines_to_read": 887,
-    "hidden_checks": 20,
-    "hidden_clauses": 45
+    "lines_to_read": 899,
+    "hidden_checks": 22,
+    "hidden_clauses": 54
    }
   },
   {

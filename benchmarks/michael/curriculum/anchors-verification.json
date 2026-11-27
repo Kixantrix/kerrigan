@@ -1,0 +1,799 @@
+{
+ "schema_version": 1,
+ "anchors": [
+  {
+   "name": "nginx-request-logging",
+   "dataset": "terminal-bench@2.0",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "nginx-request-logging",
+   "git_tree": "7fb41899fff6ce5e3ccb43d562d441ee1b9b2e20",
+   "tree_sha256": "31ddf4ecf2e7ce9888d5ac04ddf99ac2e54861a11e18a37fe29fdd1991768fb3",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": "alexgshaw/nginx-request-logging:20251031",
+    "dockerfile_from": "python:3.13-slim-bookworm",
+    "cpus": 1,
+    "memory": "2G",
+    "storage": "10G",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 900.0,
+     "verifier": 900.0,
+     "build": 600.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "localhost"
+    ],
+    "compressed_bytes": 67277698,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 1342852616
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 29.4,
+    "wall_seconds": 37.7,
+    "harbor_task_checksum": "86a8bd681301002456da831adfae62fa7a538e8187d654e11335e92b81b0c2b3",
+    "phases_seconds": {
+     "environment_setup": 4.7,
+     "agent_execution": 6.0,
+     "verifier": 6.9
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 25.7,
+    "wall_seconds": 33.8,
+    "harbor_task_checksum": "86a8bd681301002456da831adfae62fa7a538e8187d654e11335e92b81b0c2b3",
+    "phases_seconds": {
+     "environment_setup": 2.0,
+     "agent_execution": 0.0,
+     "verifier": 11.5
+    }
+   },
+   "image": "alexgshaw/nginx-request-logging:20251031",
+   "image_size_bytes": 67285778,
+   "images_created": {
+    "alexgshaw/nginx-request-logging:20251031": 67285778
+   },
+   "status": "verified",
+   "images_removed": [
+    "alexgshaw/nginx-request-logging:20251031"
+   ],
+   "recorded_at": "2026-11-27T05:06:40+00:00",
+   "run_index": 0
+  },
+  {
+   "name": "configure-git-webserver",
+   "dataset": "terminal-bench@2.0",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "configure-git-webserver",
+   "git_tree": "f67af2944c6167383f3c096352b6febf9099d638",
+   "tree_sha256": "04094324743ebdce33620956bac69eb862c1182383b88c8ad3a73b3b5679f8da",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": "alexgshaw/configure-git-webserver:20251031",
+    "dockerfile_from": "ubuntu:24.04",
+    "cpus": 1,
+    "memory": "2G",
+    "storage": "10G",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 900.0,
+     "verifier": 900.0,
+     "build": 600.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "localhost"
+    ],
+    "compressed_bytes": 72338544,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 1363096000
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 56.9,
+    "wall_seconds": 66.6,
+    "harbor_task_checksum": "3ebefab7ff093813f99af237de90b1ed73363a4eb42ea8a17096939922a16bcf",
+    "phases_seconds": {
+     "environment_setup": 5.5,
+     "agent_execution": 28.3,
+     "verifier": 11.0
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 23.9,
+    "wall_seconds": 31.4,
+    "harbor_task_checksum": "3ebefab7ff093813f99af237de90b1ed73363a4eb42ea8a17096939922a16bcf",
+    "phases_seconds": {
+     "environment_setup": 1.5,
+     "agent_execution": 0.0,
+     "verifier": 10.8
+    }
+   },
+   "image": "alexgshaw/configure-git-webserver:20251031",
+   "image_size_bytes": 72341286,
+   "images_created": {
+    "alexgshaw/configure-git-webserver:20251031": 72341286
+   },
+   "status": "verified",
+   "images_removed": [
+    "alexgshaw/configure-git-webserver:20251031"
+   ],
+   "recorded_at": "2026-11-27T05:08:24+00:00",
+   "run_index": 0
+  },
+  {
+   "name": "pytorch-model-recovery",
+   "dataset": "terminal-bench@2.0",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "pytorch-model-recovery",
+   "git_tree": "38d95c73164b003bab5d219b7704b995e02720d2",
+   "tree_sha256": "be5bb73c926602db22994adb1fb61f1d6dfa80e2e960495975019015626b64e7",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "not run: estimated disk 25487310176 B (4.0x compressed 6103392088 B + 1 GiB) > free 7753166848 B on /"
+   ],
+   "environment_needed": {
+    "prebuilt_image": "alexgshaw/pytorch-model-recovery:20251031",
+    "dockerfile_from": "python:3.13-slim-bookworm",
+    "cpus": 1,
+    "memory": "2G",
+    "storage": "10G",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 900.0,
+     "verifier": 900.0,
+     "build": 600.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh"
+    ],
+    "compressed_bytes": 6103392088,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 25487310176
+   },
+   "status": "environment-gap",
+   "oracle": null,
+   "base": null,
+   "image": "alexgshaw/pytorch-model-recovery:20251031",
+   "image_size_bytes": null,
+   "recorded_at": "2026-11-27T05:08:25+00:00",
+   "run_index": 0
+  },
+  {
+   "name": "train-fasttext",
+   "dataset": "terminal-bench@2.0",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "train-fasttext",
+   "git_tree": "9446cefd31c23b6faf7eb66b27ca45fa46c94739",
+   "tree_sha256": "047391593897a00fc7724d8913e48b6fa8d10ea084c4710d4472db6da8a067bd",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": "alexgshaw/train-fasttext:20251031",
+    "dockerfile_from": "python:3.13-slim-bookworm",
+    "cpus": 1,
+    "memory": "4G",
+    "storage": "10G",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 3600.0,
+     "verifier": 3600.0,
+     "build": 600.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "huggingface.co"
+    ],
+    "compressed_bytes": 509007650,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 3109772424
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 211.8,
+    "wall_seconds": 224.9,
+    "harbor_task_checksum": "fe83ab1fc447e909ed3f48d61ff42abfd29b3168c63c3efcdea9c5014c27b2f7",
+    "phases_seconds": {
+     "environment_setup": 18.4,
+     "agent_execution": 164.1,
+     "verifier": 15.4
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 32.0,
+    "wall_seconds": 43.2,
+    "harbor_task_checksum": "fe83ab1fc447e909ed3f48d61ff42abfd29b3168c63c3efcdea9c5014c27b2f7",
+    "phases_seconds": {
+     "environment_setup": 2.4,
+     "agent_execution": 0.0,
+     "verifier": 15.9
+    }
+   },
+   "image": "alexgshaw/train-fasttext:20251031",
+   "image_size_bytes": 509018113,
+   "images_created": {
+    "alexgshaw/train-fasttext:20251031": 509018113
+   },
+   "status": "verified",
+   "images_removed": [
+    "alexgshaw/train-fasttext:20251031"
+   ],
+   "recorded_at": "2026-11-27T05:13:00+00:00",
+   "run_index": 0
+  },
+  {
+   "name": "fix-git",
+   "dataset": "terminal-bench@2.0",
+   "git_url": "https://github.com/laude-institute/terminal-bench-2.git",
+   "git_commit_id": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+   "path": "fix-git",
+   "git_tree": "3f631ddfdc2b8fd13a29bf779abfb89850a32334",
+   "tree_sha256": "c5d23816ce43bd940f0361caab93ede4865cd4b2344e3058e81d52bffea41105",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": "alexgshaw/fix-git:20251031",
+    "dockerfile_from": "python:3.13-slim-bookworm",
+    "cpus": 1,
+    "memory": "2G",
+    "storage": "10G",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 900.0,
+     "verifier": 900.0,
+     "build": 600.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh"
+    ],
+    "compressed_bytes": 158051230,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 1705946744
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 28.3,
+    "wall_seconds": 40.5,
+    "harbor_task_checksum": "7fa0a681f751d73f290d862522a82a5e448fa529834987ee1b80e5665c51aa7e",
+    "phases_seconds": {
+     "environment_setup": 8.3,
+     "agent_execution": 0.8,
+     "verifier": 6.7
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 20.6,
+    "wall_seconds": 30.0,
+    "harbor_task_checksum": "7fa0a681f751d73f290d862522a82a5e448fa529834987ee1b80e5665c51aa7e",
+    "phases_seconds": {
+     "environment_setup": 1.8,
+     "agent_execution": 0.0,
+     "verifier": 7.0
+    }
+   },
+   "image": "alexgshaw/fix-git:20251031",
+   "image_size_bytes": 158060522,
+   "images_created": {
+    "alexgshaw/fix-git:20251031": 158060522
+   },
+   "status": "verified",
+   "images_removed": [
+    "alexgshaw/fix-git:20251031"
+   ],
+   "recorded_at": "2026-11-27T05:14:17+00:00",
+   "run_index": 0
+  },
+  {
+   "name": "instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+   "dataset": "swebenchpro@1.0",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+   "git_tree": "cb6f9faa3ffa333b8944db8bd759f5a5f07e0546",
+   "tree_sha256": "59121bc23c4ff2df87fff8ad5a2ab339cbcf316f9393cac9e5bb810486ed8e71",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": null,
+    "dockerfile_from": "jefzda/sweap-images:ansible.ansible-ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+    "cpus": 1,
+    "memory": "4096 MB",
+    "storage": "10240 MB",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 3000,
+     "verifier": 3000,
+     "build": 1800.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "github.com"
+    ],
+    "compressed_bytes": 521056950,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 3157969624
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 25.9,
+    "wall_seconds": 32.3,
+    "harbor_task_checksum": "7dc7d9de0d8b1f950828387ce2d84263730c8c6bc2fb36de37fa1c524ef1cab6",
+    "phases_seconds": {
+     "environment_setup": 7.8,
+     "agent_execution": 0.6,
+     "verifier": 5.2
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 22.1,
+    "wall_seconds": 28.4,
+    "harbor_task_checksum": "7dc7d9de0d8b1f950828387ce2d84263730c8c6bc2fb36de37fa1c524ef1cab6",
+    "phases_seconds": {
+     "environment_setup": 5.0,
+     "agent_execution": 0.0,
+     "verifier": 5.0
+    }
+   },
+   "image": "jefzda/sweap-images:ansible.ansible-ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2",
+   "image_size_bytes": 521067424,
+   "images_created": {
+    "jefzda/sweap-images:ansible.ansible-ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2": 521067424
+   },
+   "status": "verified",
+   "images_removed": [
+    "jefzda/sweap-images:ansible.ansible-ansible__ansible-0ea40e09d1b35bcb69ff4d9cecf3d0defa4b36e8-v30a923fb5c164d6cd18280c02422f75e611e8fb2"
+   ],
+   "run_index": 1,
+   "recorded_at": "2026-11-27T05:37:44+00:00"
+  },
+  {
+   "name": "instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+   "dataset": "swebenchpro@1.0",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf8129942da2c2ca26",
+   "git_tree": "78c9bcd78f10fc61c21269f31d639ea7ab471bcc",
+   "tree_sha256": "842993ed880b75c4396d314b64bbe69de5b254504ec1395f6207f121c2a16c56",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": null,
+    "dockerfile_from": "jefzda/sweap-images:internetarchive.openlibrary-internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf81299",
+    "cpus": 1,
+    "memory": "4096 MB",
+    "storage": "10240 MB",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 3000,
+     "verifier": 3000,
+     "build": 1800.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "github.com"
+    ],
+    "compressed_bytes": 960345779,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 4915124940
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 22.8,
+    "wall_seconds": 29.2,
+    "harbor_task_checksum": "aa00e59f2dd35e99b2407dbaaa8d7f51033d3c69efec1de57a370a5ace1106e4",
+    "phases_seconds": {
+     "environment_setup": 8.0,
+     "agent_execution": 0.5,
+     "verifier": 2.4
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 18.4,
+    "wall_seconds": 23.5,
+    "harbor_task_checksum": "aa00e59f2dd35e99b2407dbaaa8d7f51033d3c69efec1de57a370a5ace1106e4",
+    "phases_seconds": {
+     "environment_setup": 4.4,
+     "agent_execution": 0.0,
+     "verifier": 2.5
+    }
+   },
+   "image": "jefzda/sweap-images:internetarchive.openlibrary-internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf81299",
+   "image_size_bytes": 960358775,
+   "images_created": {
+    "jefzda/sweap-images:internetarchive.openlibrary-internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf81299": 960358775
+   },
+   "status": "verified",
+   "images_removed": [
+    "jefzda/sweap-images:internetarchive.openlibrary-internetarchive__openlibrary-00bec1e7c8f3272c469a58e1377df03f955ed478-v13642507b4fc1f8d234172bf81299"
+   ],
+   "run_index": 1,
+   "recorded_at": "2026-11-27T05:39:22+00:00"
+  },
+  {
+   "name": "instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+   "dataset": "swebenchpro@1.0",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c171",
+   "git_tree": "806bab38e47ea72415c44ef764e74598d51327c7",
+   "tree_sha256": "a0fd5729246fb13e30f146f5ce5d7f40e290daa1ec3aa005a63c547f4fe6f910",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": null,
+    "dockerfile_from": "jefzda/sweap-images:qutebrowser.qutebrowser-qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c",
+    "cpus": 1,
+    "memory": "4096 MB",
+    "storage": "10240 MB",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 3000,
+     "verifier": 3000,
+     "build": 1800.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "github.com"
+    ],
+    "compressed_bytes": 691816291,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 3841006988
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 22.8,
+    "wall_seconds": 27.7,
+    "harbor_task_checksum": "256eac442feedde50790a82414de29a631ffaf7ef082f8d0530085d6adfdc336",
+    "phases_seconds": {
+     "environment_setup": 5.8,
+     "agent_execution": 0.4,
+     "verifier": 5.2
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 20.4,
+    "wall_seconds": 25.2,
+    "harbor_task_checksum": "256eac442feedde50790a82414de29a631ffaf7ef082f8d0530085d6adfdc336",
+    "phases_seconds": {
+     "environment_setup": 3.5,
+     "agent_execution": 0.0,
+     "verifier": 5.6
+    }
+   },
+   "image": "jefzda/sweap-images:qutebrowser.qutebrowser-qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c",
+   "image_size_bytes": 691826340,
+   "images_created": {
+    "jefzda/sweap-images:qutebrowser.qutebrowser-qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c": 691826340
+   },
+   "status": "verified",
+   "images_removed": [
+    "jefzda/sweap-images:qutebrowser.qutebrowser-qutebrowser__qutebrowser-01d1d1494411380d97cac14614a829d3a69cecaf-v2ef375ac784985212b1805e1d0431dc8f1b3c"
+   ],
+   "run_index": 1,
+   "recorded_at": "2026-11-27T05:40:38+00:00"
+  },
+  {
+   "name": "instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+   "dataset": "swebenchpro@1.0",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1-vnan",
+   "git_tree": "10d8bec767d2189a7ed9ed9f7472bbe6c6318169",
+   "tree_sha256": "93a00ac512ad1682ae06cd2d6721dcfe49ca1f2bdd474c57f4478f82bfa9dc46",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)"
+   ],
+   "environment_needed": {
+    "prebuilt_image": null,
+    "dockerfile_from": "jefzda/sweap-images:element-hq.element-element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1",
+    "cpus": 1,
+    "memory": "4096 MB",
+    "storage": "10240 MB",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 3000,
+     "verifier": 3000,
+     "build": 1800.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "develop.element.io"
+    ],
+    "compressed_bytes": 1378609226,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 6588178728
+   },
+   "oracle": {
+    "reward": 1.0,
+    "passed": true,
+    "seconds": 121.2,
+    "wall_seconds": 126.1,
+    "harbor_task_checksum": "b5f5dedb1b84c6b26ea320cc8accb13dc188e13a62fb6147c55e3441a07dd013",
+    "phases_seconds": {
+     "environment_setup": 8.3,
+     "agent_execution": 0.4,
+     "verifier": 100.8
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 119.7,
+    "wall_seconds": 126.2,
+    "harbor_task_checksum": "b5f5dedb1b84c6b26ea320cc8accb13dc188e13a62fb6147c55e3441a07dd013",
+    "phases_seconds": {
+     "environment_setup": 4.5,
+     "agent_execution": 0.0,
+     "verifier": 103.3
+    }
+   },
+   "image": "jefzda/sweap-images:element-hq.element-element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1",
+   "image_size_bytes": 1378624156,
+   "images_created": {
+    "jefzda/sweap-images:element-hq.element-element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1": 1378624156
+   },
+   "status": "verified",
+   "images_removed": [
+    "jefzda/sweap-images:element-hq.element-element-hq__element-web-1077729a19c0ce902e713cf6fab42c91fb7907f1"
+   ],
+   "run_index": 1,
+   "recorded_at": "2026-11-27T05:45:34+00:00"
+  },
+  {
+   "name": "instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan",
+   "dataset": "swebenchpro@1.0",
+   "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+   "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+   "path": "datasets/swebenchpro/instance_nodebb__nodebb-00c70ce7b0541cfc94afe567921d7668cdc8f4ac-vnan",
+   "git_tree": "c6d2829679ec6638e47a98e1a9a6652b443a6d43",
+   "tree_sha256": "d1853ecefcb259afaae9e22bb568cf46b927a4554af55a5bd373124311863168",
+   "notes": [
+    "anchors.json has no tree_sha256; recorded here",
+    "uv 0.9.5 shim mounted read-only at /root/.local/bin (astral.sh unreachable)",
+    "observed: oracle=0.0 base=0.0; oracle error='' base error=''"
+   ],
+   "environment_needed": {
+    "prebuilt_image": null,
+    "dockerfile_from": "jefzda/sweap-images:nodebb.nodebb-NodeBB__NodeBB-00c70ce7b0541cfc94afe567921d7668cdc8f4ac",
+    "cpus": 1,
+    "memory": "4096 MB",
+    "storage": "10240 MB",
+    "gpus": 0,
+    "timeouts_sec": {
+     "agent": 3000,
+     "verifier": 3000,
+     "build": 1800.0
+    },
+    "network_hosts_referenced": [
+     "astral.sh",
+     "localhost"
+    ],
+    "compressed_bytes": 878752409,
+    "architectures": [
+     "amd64"
+    ],
+    "estimated_disk_bytes": 4588751460
+   },
+   "oracle": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 345.6,
+    "wall_seconds": 350.7,
+    "harbor_task_checksum": "0c558cb63ea0124cad5278904ef878a96e53a713444cccfee9581bf0c3520cc5",
+    "phases_seconds": {
+     "environment_setup": 7.7,
+     "agent_execution": 0.6,
+     "verifier": 325.7
+    }
+   },
+   "base": {
+    "reward": 0.0,
+    "passed": false,
+    "seconds": 236.5,
+    "wall_seconds": 242.0,
+    "harbor_task_checksum": "0c558cb63ea0124cad5278904ef878a96e53a713444cccfee9581bf0c3520cc5",
+    "phases_seconds": {
+     "environment_setup": 4.3,
+     "agent_execution": 0.0,
+     "verifier": 220.5
+    }
+   },
+   "image": "jefzda/sweap-images:nodebb.nodebb-NodeBB__NodeBB-00c70ce7b0541cfc94afe567921d7668cdc8f4ac",
+   "image_size_bytes": 878765103,
+   "images_created": {
+    "jefzda/sweap-images:nodebb.nodebb-NodeBB__NodeBB-00c70ce7b0541cfc94afe567921d7668cdc8f4ac": 878765103
+   },
+   "status": "task-defect",
+   "oracle_diagnosis": {
+    "network_error_signatures": [
+     "EAI_AGAIN",
+     "SELF_SIGNED_CERT_IN_CHAIN"
+    ],
+    "unmatchable_required_ids": [
+     "test/database.js | Test database test/database/sorted.js::Sorted Set methods test/database/sorted.js::getSortedSetRange() should work with big arrays (length > 100)",
+     "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"day",
+     "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"off",
+     "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"week"
+    ],
+    "required_ids_failed": [
+     "test/socket.io.js | socket.io install/upgrade plugin should toggle plugin install",
+     "test/socket.io.js | socket.io install/upgrade plugin should upgrade plugin"
+    ],
+    "near_matches": {
+     "test/database.js | Test database test/database/sorted.js::Sorted Set methods test/database/sorted.js::getSortedSetRange() should work with big arrays (length > 100)": [
+      "test/database.js | Test database test/database/sorted.js::Sorted Set methods test/database/sorted.js::getSortedSetRange() should work with big arrays (length > 100) "
+     ],
+     "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"day": [
+      "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"day\""
+     ],
+     "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"off": [
+      "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"off\""
+     ],
+     "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"week": [
+      "test/user.js | User Digest.getSubscribers should accurately build digest list given ACP default \"week\""
+     ]
+    }
+   },
+   "images_removed": [
+    "jefzda/sweap-images:nodebb.nodebb-NodeBB__NodeBB-00c70ce7b0541cfc94afe567921d7668cdc8f4ac"
+   ],
+   "run_index": 2,
+   "recorded_at": "2026-11-27T05:57:06+00:00"
+  }
+ ],
+ "runs": [
+  {
+   "timestamp": "2026-11-27T05:05:22+00:00",
+   "harbor_version": "0.27.0",
+   "docker_version": "29.1.3",
+   "docker_compose_version": "2.40.3",
+   "host": {
+    "arch": "x86_64",
+    "cpus": 2,
+    "memory_bytes": 8012476416,
+    "disk_total_bytes": 19504254976,
+    "disk_free_bytes_at_start": 7910969344
+   },
+   "uv_shim": {
+    "version": "0.9.5",
+    "mount": "/root/.local/bin (read-only)",
+    "env_file": [
+     "export PATH=\"$HOME/.local/bin:$PATH\"",
+     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
+     "export UV_NATIVE_TLS=1"
+    ],
+    "reason": "astral.sh unreachable from host"
+   }
+  },
+  {
+   "timestamp": "2026-11-27T05:36:18+00:00",
+   "harbor_version": "0.27.0",
+   "docker_version": "29.1.3",
+   "docker_compose_version": "2.40.3",
+   "host": {
+    "arch": "x86_64",
+    "cpus": 2,
+    "memory_bytes": 8012476416,
+    "disk_total_bytes": 19504254976,
+    "disk_free_bytes_at_start": 7017144320
+   },
+   "only": [
+    "instance_"
+   ],
+   "uv_shim": {
+    "version": "0.9.5",
+    "mount": "/root/.local/bin (read-only)",
+    "env_file": [
+     "export PATH=\"$HOME/.local/bin:$PATH\"",
+     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
+     "export UV_NATIVE_TLS=1"
+    ],
+    "reason": "astral.sh unreachable from host"
+   }
+  },
+  {
+   "timestamp": "2026-11-27T05:46:30+00:00",
+   "harbor_version": "0.27.0",
+   "docker_version": "29.1.3",
+   "docker_compose_version": "2.40.3",
+   "host": {
+    "arch": "x86_64",
+    "cpus": 2,
+    "memory_bytes": 8012476416,
+    "disk_total_bytes": 19504254976,
+    "disk_free_bytes_at_start": 6232502272
+   },
+   "only": [
+    "instance_nodebb"
+   ],
+   "uv_shim": {
+    "version": "0.9.5",
+    "mount": "/root/.local/bin (read-only)",
+    "env_file": [
+     "export PATH=\"$HOME/.local/bin:$PATH\"",
+     "export SSL_CERT_FILE=/root/.local/bin/host-ca-bundle.pem",
+     "export UV_NATIVE_TLS=1"
+    ],
+    "reason": "astral.sh unreachable from host"
+   }
+  }
+ ],
+ "anchors_json_sha256": "c49177a26fc4d7b23f4776083bd34519ef6d970abc30fcdfb988c49654191093",
+ "agents": {
+  "oracle": "harbor built-in oracle (runs solution/solve.sh)",
+  "base": "harbor built-in nop (does nothing)"
+ },
+ "environment": "harbor local docker, one anchor at a time, task images removed after each",
+ "statuses": {
+  "verified": "oracle reward 1 and base reward 0 on this host",
+  "environment-gap": "could not run or pass here; see environment_needed and notes",
+  "task-defect": "oracle cannot pass as packaged in any environment; see oracle_diagnosis"
+ },
+ "licenses": {
+  "https://github.com/laude-institute/terminal-bench-2.git": "Terminal-Bench 2.0 tasks; repository license Apache-2.0.",
+  "https://github.com/laude-institute/harbor-datasets.git": "harbor-datasets declares no license (no LICENSE file; GitHub reports none). The SWE-bench Pro public set it adapts comes from scaleapi/SWE-bench_Pro-os (MIT). Tasks are referenced by pinned commit only and never vendored."
+ },
+ "tree_sha256_definition": "sha256 of sorted lines '<relpath>\\0<x|->\\0<sha256(file)>\\n' over task dir"
+}
