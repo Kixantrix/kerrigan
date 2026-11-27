@@ -80,6 +80,93 @@ def test_package_policy_closure_and_node_pin():
     assert native.NODE_VERSION.startswith("24.") and len(native.NODE_SHA256) == 64
 
 
+def test_scratch_metadata_scan_rejects_aliases_and_entry_overflow(tmp_path):
+    from benchmarks.michael.local_transport.scratch_scan import scan
+    root = tmp_path / ".scratch"
+    root.mkdir()
+    info = root.stat()
+    identity = [info.st_dev, info.st_ino]
+    (root / "nested").mkdir()
+    (root / "nested/file").write_bytes(b"temp")
+    assert scan(root, identity, 1048576, 128) == {"bytes": 4, "entries": 2}
+    (root / "alias").symlink_to(tmp_path)
+    with pytest.raises(ValueError, match="alias"):
+        scan(root, identity, 1048576, 128)
+    (root / "alias").unlink()
+    os.link(root / "nested/file", root / "hardlink")
+    with pytest.raises(ValueError, match="alias"):
+        scan(root, identity, 1048576, 128)
+    (root / "hardlink").unlink()
+    with pytest.raises(ValueError, match="entry_budget"):
+        scan(root, identity, 1048576, 1)
+    with pytest.raises(ValueError, match="identity"):
+        scan(root, [identity[0], identity[1] + 1], 1048576, 128)
+
+
+@pytest.mark.parametrize("name", ["validator", "grouping"])
+def test_round_three_tmpdir_write_run_cleanup_and_denial(owned, tmp_path, name):
+    policy = native.round_three_policy(name, active_seconds=15)
+    if name == "validator":
+        source = (
+            "import os,tempfile\n"
+            "assert os.environ['TMPDIR'].endswith('/.scratch')\n"
+            "with tempfile.NamedTemporaryFile(delete=False) as f: f.write(b'temp')\n"
+            "assert open(f.name,'rb').read()==b'temp'\n"
+            "try:\n open('../outside','w').write('bad')\n raise RuntimeError('write bypass')\n"
+            "except PermissionError: pass\n"
+            "try:\n os.fork()\n raise RuntimeError('fork bypass')\n"
+            "except PermissionError: pass\n")
+        scratch = ".scratch/nested/check.py"
+    else:
+        source = (
+            "import fs from 'node:fs'; import os from 'node:os'; import cp from 'node:child_process';\n"
+            "if(!os.tmpdir().endsWith('/.scratch'))throw Error('TMPDIR');\n"
+            "fs.writeFileSync(os.tmpdir()+'/native-temp','temp');\n"
+            "try{fs.writeFileSync('../outside','bad');throw Error('write bypass');}"
+            "catch(e){if(!['EPERM','EACCES'].includes(e.code))throw e;}\n"
+            "if(!cp.spawnSync('/usr/bin/true').error)throw Error('fork bypass');\n")
+        scratch = ".scratch/nested/check.mjs"
+    run = native.prepare(owned, tmp_path / "run", name, seconds=15, policy=policy,
+        diagnostics=[{"op": "write", "path": scratch, "data": source},
+                     {"op": "run", "path": scratch}])
+    config = json.loads((run / "config.json").read_bytes())
+    assert config["condition"] == "MB-R3"
+    child = api.runner.launch(run)
+    try:
+        child.wait(timeout=32)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
+    assert terminal["scratch"]["cleanup"] == {"discarded": True}
+    assert not terminal["scratch"].get("error")
+    assert not (run / "task/.scratch").exists()
+    result = json.loads((run / "receipt/action-result-2.json").read_bytes())["result"]
+    assert result["exitCode"] == 0
+    assert native.collect(run) == specs.base(name)
+
+
+def test_round_three_scratch_overflow_stops_and_discards(owned, tmp_path):
+    name = "validator"
+    policy = native.round_three_policy(name, active_seconds=15)
+    run = native.prepare(owned, tmp_path / "run", name, seconds=15, policy=policy,
+        diagnostics=[{"op": "write", "path": ".scratch/fill.py",
+            "data": "import os,time\nopen(os.environ['TMPDIR']+'/overflow','wb').write(b'x'*1048577)\ntime.sleep(3)\n"},
+            {"op": "run", "path": ".scratch/fill.py"}])
+    child = api.runner.launch(run)
+    try:
+        child.wait(timeout=32)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    assert terminal["wholeProcessQuiescent"] and terminal["cleanupSeconds"] <= 15
+    assert "scratch_byte_budget" in terminal["stopReason"]
+    assert terminal["scratch"]["cleanup"] == {"discarded": True}
+    assert not (run / "task/.scratch").exists()
+    with pytest.raises(api.TrialError, match="proof failed"):
+        native.collect(run)
+
+
 def test_native_paged_read_and_final_collection(owned, tmp_path):
     agent, policy, _ = native.material("grouping")
     run = native.prepare(owned, tmp_path / "run", "grouping", seconds=15, diagnostics=[

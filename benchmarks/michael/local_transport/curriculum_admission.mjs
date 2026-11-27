@@ -5,10 +5,16 @@ import { canonical } from "./limits.mjs";
 const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const digest = value => sha(JSON.stringify(canonical(value)));
 export function curriculumAdmission(config) {
-    if (!config.validatorTask || config.validatorReplay || config.condition !== "MB-010r" ||
+    const condition = config.taskPolicy?.scratchDirectory === ".scratch" ? "MB-R3" : "MB-010r";
+    if (!config.validatorTask || config.validatorReplay || config.condition !== condition ||
         !config.taskPolicy || config.seconds <= 0 || config.seconds > 10800 ||
         digest(config.taskPolicy) !== config.taskPolicySha256)
         throw new Error("curriculum_policy_denied");
+    if ((condition !== "MB-R3" && config.scratchDirectory !== undefined) ||
+        (condition === "MB-R3" && config.scratchDirectory !== `${config.task}/.scratch`) ||
+        (condition === "MB-R3" && (!Array.isArray(config.scratchIdentity) ||
+            config.scratchIdentity.length !== 2 || !config.scratchIdentity.every(Number.isSafeInteger))))
+        throw new Error("curriculum_scratch_policy_denied");
     if (config.model === null) {
         if (config.approved !== false || config.prompt !== undefined) throw new Error("offline_inference_denied");
         return;
@@ -16,7 +22,7 @@ export function curriculumAdmission(config) {
     const seal = JSON.parse(readFileSync(config.seal));
     const slot = JSON.parse(readFileSync(config.slot));
     const root = dirname(config.slot);
-    if (config.approved !== true || seal.condition !== "MB-010r" ||
+    if (config.approved !== true || seal.condition !== condition ||
         seal.authorizationSource !== "standing user direction (plan.md Standing autonomy)" ||
         seal.conditionSha256 !== digest(seal.frozen) ||
         seal.conditionSha256 !== config.conditionSha256 || !seal.frozen.models.includes(config.model) ||

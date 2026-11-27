@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 from math import comb, exp, log2, sqrt
+from statistics import median, quantiles
 
 
 def wilson(successes: int, total: int, z: float = 1.959963984540054) -> tuple[float, float] | None:
@@ -92,3 +93,56 @@ def summarize(trials: list[dict], *, k: int = 1) -> dict:
         "time_horizon_50_minutes": time_horizon(
             [(t["human_minutes"], bool(t["resolved"])) for t in trials if t.get("human_minutes")]),
     }
+
+
+def repeated(trials: list[dict], *, attempts: int = 3) -> dict:
+    """Order-balanced, exclusive subject attempts; missing slots cannot count as failures."""
+    if attempts < 1 or not trials:
+        raise ValueError("nonempty bounded repeated trials required")
+    groups = {}
+    seen = set()
+    for row in trials:
+        key = row["task"], row["model"], row["repeat"]
+        if key in seen or row["repeat"] not in range(1, attempts + 1):
+            raise ValueError("duplicate or invalid repeat")
+        if type(row["resolved"]) is not bool:
+            raise ValueError("resolved must be an observed boolean")
+        seen.add(key)
+        groups.setdefault((row["task"], row["model"]), []).append(row)
+    if any(len(rows) != attempts for rows in groups.values()):
+        raise ValueError("incomplete repeated task")
+    models = sorted({model for _, model in groups})
+    tasks = sorted({task for task, _ in groups})
+    if any((task, model) not in groups for task in tasks for model in models):
+        raise ValueError("unpaired task set")
+    result = {}
+    for model in models:
+        rows = [r for task in tasks for r in groups[task, model]]
+        passes = sum(r["resolved"] for r in rows)
+        times = [r["completion_seconds"] for r in rows if r["resolved"]]
+        if any(t is None or not isinstance(t, (int, float)) or t < 0 for t in times):
+            raise ValueError("passing attempts require verified completion time")
+        quartiles = quantiles(times, n=4, method="inclusive") if len(times) > 1 else None
+        all_pass = sum(all(r["resolved"] for r in groups[task, model]) for task in tasks)
+        result[model] = {
+            "tasks": len(tasks), "attempts": len(rows), "successes": passes,
+            "pass@1": passes / len(rows), "attempt_success_ci95": wilson(passes, len(rows)),
+            f"pass^{attempts}": all_pass / len(tasks),
+            f"pass^{attempts}_ci95": wilson(all_pass, len(tasks)),
+            "pass_any": sum(any(r["resolved"] for r in groups[task, model]) for task in tasks) / len(tasks),
+            "verified_time": {"n": len(times), "median_seconds": median(times) if times else None,
+                "q1_seconds": quartiles[0] if quartiles else (times[0] if times else None),
+                "q3_seconds": quartiles[2] if quartiles else (times[0] if times else None)},
+        }
+    paired = {}
+    for task in tasks:
+        paired[task] = {}
+        for model in models:
+            rows = groups[task, model]
+            times = [r["completion_seconds"] for r in rows if r["resolved"]]
+            paired[task][model] = {"successes": sum(r["resolved"] for r in rows),
+                "attempts": attempts, "median_completion_seconds": median(times) if times else None,
+                "first_positions": sum(r["order"] == 0 for r in rows)}
+    return {"models": result, "paired": paired,
+        "uncertainty": "Wilson intervals are descriptive; attempts share tasks and exposure. "
+            "pass^3 uses tasks as observations; completion quantiles exclude failures."}

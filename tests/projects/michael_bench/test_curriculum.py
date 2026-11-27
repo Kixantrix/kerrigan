@@ -859,6 +859,25 @@ def test_literal_audit_versions_keep_instruction_and_oracle(new, old):
 V5 = "orchestrate-voice-integration-v5"
 
 
+def test_repeated_metrics_require_complete_pairs_and_keep_failures():
+    from benchmarks.michael.curriculum import metrics
+    rows = [{"task": "t", "model": model, "repeat": i, "order": (i + k) % 2,
+             "resolved": model == "b" or i != 2,
+             "completion_seconds": float(i * 10) if model == "b" or i != 2 else None}
+            for k, model in enumerate(("a", "b")) for i in (1, 2, 3)]
+    summary = metrics.repeated(rows)
+    assert summary["models"]["a"]["pass@1"] == 2 / 3
+    assert summary["models"]["a"]["pass^3"] == 0
+    assert summary["models"]["a"]["pass_any"] == 1
+    assert summary["models"]["a"]["verified_time"] == {
+        "n": 2, "median_seconds": 20, "q1_seconds": 15, "q3_seconds": 25}
+    assert summary["models"]["b"]["pass^3"] == 1
+    with pytest.raises(ValueError, match="incomplete"):
+        metrics.repeated(rows[:-1])
+    with pytest.raises(ValueError, match="duplicate"):
+        metrics.repeated([*rows, rows[0]])
+
+
 def test_orchestrate_v5_guards_start_and_states_client_r7(tmp_path):
     # The v4 oracle's unguarded start() now fails exactly the out-of-order check; the v5 oracle passes.
     assert _failed(specs.reference("orchestrate-voice-integration-v4"), V5, tmp_path) == [

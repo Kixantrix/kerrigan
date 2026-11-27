@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATOR, TASK_VALIDATOR as LEGACY_TASK_POLICY } from "./limits.mjs";
 import { admission } from "./validator_admission.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
+import { SCRATCH, scratchState, discardScratch } from "./scratch.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 admission(config);
@@ -23,6 +24,19 @@ const live = new Set(), records = [], actions = new Set(), pending = new Map();
 let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, taskOutputBytes = 0;
 let cli, input, events = 0, toolQueue = Promise.resolve();
 let finishing = false, spawning = 0, finalSourceError;
+let scratchError, scratchCleanup, scratchPeakBytes = 0, scratchPeakEntries = 0;
+const scratchRoot = config.scratchDirectory ? config.task + "/" + SCRATCH.directory : null;
+function checkScratch() {
+    if (!scratchRoot) return;
+    try {
+        const state = scratchState(scratchRoot, config.scratchIdentity, config.python);
+        scratchPeakBytes = Math.max(scratchPeakBytes, state.bytes);
+        scratchPeakEntries = Math.max(scratchPeakEntries, state.entries);
+    } catch (error) {
+        scratchError = error.message;
+        stop(`scratch:${error.message}`);
+    }
+}
 const partialBudget = () => config.validatorTask &&
     ["timeout", "broker:agent_action_budget", "broker:task_output_budget"].includes(stopping);
 const budget = { actions, bytes: 0 };
@@ -80,7 +94,7 @@ async function owned(kind, command, profile, payload, run = false, final = false
             final ? TASK_VALIDATOR.finalReadSeconds * 1000 :
                 run ? TASK_VALIDATOR.runSeconds * 1000 : Infinity)),
         environment: kind === "cli" ? config.environment : {
-            PATH: "/usr/bin:/bin", HOME: config.task, TMPDIR: config.task,
+            PATH: "/usr/bin:/bin", HOME: config.task, TMPDIR: scratchRoot || config.task,
             PYTHONDONTWRITEBYTECODE: "1",
             MB_CURRICULUM_READ_CHUNK: config.curriculumTask && !final ? "4096" : "0" }
     }).finally(() => spawning--);
@@ -214,6 +228,7 @@ function parse(bytes) {
     try { protocol.feed(bytes); } catch (error) { stop(`protocol:${error.message}`); }
 }
 async function action(id, args, final = false) {
+    checkScratch();
     if (!gate || (stopping && !final)) throw new Error("execution_gated");
     if (config.validatorTask && !final && id.startsWith("controller-final-source"))
         throw new Error("reserved_source_identifier");
@@ -268,6 +283,8 @@ process.stdin.on("end", () => stop("controller_lost"));
 process.on("SIGTERM", () => stop("owner_terminated"));
 process.on("SIGINT", () => stop("owner_interrupted"));
 const deadline = setTimeout(() => stop("timeout"), config.seconds * 1000);
+const scratchMonitor = scratchRoot ? setInterval(checkScratch, 100) : null;
+checkScratch();
 try {
     const transport = await owned("cli", config.command, config.cliProfile);
     cli = transport.child; input = transport.stdin;
@@ -284,7 +301,9 @@ try {
                 "No-network no-fork confined Python/file action. Maximum 8 actions.",
             hasHandler: true, parameters: { type: "object", additionalProperties: false,
                 properties: { op: { enum: ["read", "write", "run"] },
-                    path: { enum: config.validatorTask ? TASK_VALIDATOR.read :
+                    path: scratchRoot ? { type: "string", description:
+                        "An explicitly allowed artifact path or a relative .scratch/ path; no parent traversal." } :
+                        { enum: config.validatorTask ? TASK_VALIDATOR.read :
                         config.validatorReplay ? VALIDATOR.read : ["candidate.py", "result.txt"] },
                     data: { type: "string", maxLength: config.validatorTask ? TASK_VALIDATOR.bytes :
                         config.validatorReplay ? VALIDATOR.bytes : 7000 },
@@ -382,6 +401,7 @@ try {
 finally {
     stop(stopping || "owner_finally");
     clearTimeout(deadline);
+    clearInterval(scratchMonitor);
     for (const child of live) child.kill();
     let cleanupTimer;
     const settled = await Promise.race([
@@ -405,6 +425,13 @@ finally {
         } catch (error) { finalSourceError = error.message; }
         finally { clearTimeout(timer); }
     }
+    if (scratchRoot && settled !== null && spawning === 0 &&
+        records.every(record => record.reaped && record.warnings?.length === 0)) {
+        try {
+            checkScratch();
+            scratchCleanup = discardScratch(scratchRoot, config.scratchIdentity);
+        } catch (error) { scratchError = error.message; }
+    }
     const cleanupSeconds = (performance.now() - cleanupStart) / 1000;
     const usage = messages.filter(item => item.message.params?.event?.type === "assistant.usage")
         .map(item => item.message.params.event.data);
@@ -415,6 +442,8 @@ finally {
         partialBudgetExhausted: partialBudget(), finalSourceError,
         cleanupSeconds, wholeProcessQuiescent: settled !== null && spawning === 0 && records.length > 0 &&
             records.every(record => record.reaped && record.warnings?.length === 0),
+        ...(scratchRoot ? { scratch: { peakBytes: scratchPeakBytes, peakEntries: scratchPeakEntries,
+            error: scratchError, cleanup: scratchCleanup, limits: SCRATCH } } : {}),
         records: records.map(({ wait, ...record }) => record),
         actions: [...actions], actionBytes: budget.bytes,         counts, events, messages, requests, protocolCondition: PROTOCOL,
         protocolBytes: protocol.total, evidenceDiskBytesBeforeTerminal: diskBytes,

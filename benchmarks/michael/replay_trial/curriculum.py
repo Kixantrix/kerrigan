@@ -15,6 +15,21 @@ NODE_VERSION = "24.11.1"
 NODE_SHA256 = "4255a388254ca4319e2f95f1da375d5deaddf25baf9c7c85070b67f9543b15d0"
 AUTH = validator.AUTHORIZATION_SOURCE
 CONDITION = "MB-010r"
+SCRATCH_DIRECTORY = ".scratch"
+
+
+def round_three_policy(name, *, active_seconds=None):
+    policy = material(name)[1]
+    policy["scratchDirectory"] = SCRATCH_DIRECTORY
+    if active_seconds is not None:
+        if not 0 < active_seconds <= 10800:
+            raise ValueError("invalid round-three ceiling")
+        policy["activeSeconds"] = active_seconds
+    return policy
+
+
+def condition(policy):
+    return "MB-R3" if policy.get("scratchDirectory") == SCRATCH_DIRECTORY else CONDITION
 
 
 def node_path(owned):
@@ -49,7 +64,11 @@ def prompt(policy):
     return (
         "Solve TASK.md using only mb_action read/write/run. Read the instruction and visible files. "
         f"Final artifacts: {policy.get('artifacts', [policy['source']])}. "
-        f"Only these and {policy['scratch']} are writable. "
+        f"Only these and {policy['scratch']} are writable artifacts. "
+        + (f"Per-run TMPDIR is .scratch, writable only within this sandbox and discarded after cleanup. "
+           "Use mb_action paths .scratch/name.py or .scratch/name.mjs for temp self-tests; "
+           "32KiB/file,1MiB aggregate scratch,128 entries, no aliases/special files. "
+           if policy.get("scratchDirectory") == SCRATCH_DIRECTORY else "") +
         "Public tools provide CPython 3.9 stdlib+PyYAML6.0.2 and Node24.11.1 built-in TypeScript "
         "type stripping; no pytest, npm installation, shell, subprocess, network or hidden checks. "
         "Frozen export shell/pytest claims are not available. Verifier uses isolated Python3.12/Node24. "
@@ -103,6 +122,9 @@ def prepare(owned, directory, name, *, diagnostics=(), seconds=3600, files=None,
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
     (task / policy["scratch"]).write_bytes(b"")
+    if policy.get("scratchDirectory") == SCRATCH_DIRECTORY:
+        scratch = task / SCRATCH_DIRECTORY
+        scratch.mkdir(mode=0o700)
     support.mkdir()
     (support / "yaml").mkdir()
     if yaml.__version__ != "6.0.2":
@@ -117,7 +139,7 @@ def prepare(owned, directory, name, *, diagnostics=(), seconds=3600, files=None,
     api.grader.persist(run / "trusted/node-runtime.json", {"path": str(node), "sha256": NODE_SHA256})
     config = json.loads((run / "config.json").read_bytes())
     config.pop("prompt")
-    config.update(curriculumTask=name, validatorTask=True, validatorReplay=False, condition=CONDITION,
+    config.update(curriculumTask=name, validatorTask=True, validatorReplay=False, condition=condition(policy),
         taskPolicy=policy, taskPolicySha256=validator.digest(policy), support=str(support),
         worker=str(run / "trusted/task_worker.py"), seconds=seconds, diagnostics=list(diagnostics))
     grant = f'(allow file-read* file-write* (subpath "{task}"))'
@@ -132,6 +154,10 @@ def prepare(owned, directory, name, *, diagnostics=(), seconds=3600, files=None,
     config["taskProfile"] += "\n(allow file-read* " + " ".join(f'(literal "{p}")' for p in sorted(directories)) + ")\n"
     config["taskProfile"] += f'(allow file-read* (subpath "{support}") (literal "{node}"))\n'
     config["sandbox"]["userPolicy"]["filesystem"]["readonlyPaths"] = [str(support), str(node)]
+    if policy.get("scratchDirectory") == SCRATCH_DIRECTORY:
+        config.update(scratchDirectory=str(scratch),
+                      scratchIdentity=[scratch.stat().st_dev, scratch.stat().st_ino])
+        config["taskProfile"] += f'\n(allow file-read* file-write* (subpath "{scratch}"))\n'
     api.grader.persist(run / "config.json", config)
     binding = {"name": name, "task": descriptor, "agentFiles": api.packages.inventory(agent),
         "taskRoot": [task.stat().st_dev, task.stat().st_ino], "source": sources(),
@@ -169,7 +195,11 @@ def collect(run):
             or binding["configSha256"] != validator.digest(config)
             or any(not row["reaped"] or row.get("warnings") for row in native["records"])
             or native["nativePrompts"] != (0 if config["model"] is None else 1)
-            or native["actions"][-len(paths):] != final_ids):
+            or native["actions"][-len(paths):] != final_ids
+            or (config.get("scratchDirectory") and (
+                native.get("scratch", {}).get("error") or
+                native.get("scratch", {}).get("cleanup") != {"discarded": True} or
+                (run / "task" / SCRATCH_DIRECTORY).exists()))):
         raise api.TrialError("native source/cleanup/completion proof failed")
     for path, digest in binding["runtimeFiles"].items():
         if api.sha(Path(path).read_bytes()) != digest:
@@ -203,11 +233,11 @@ def collect(run):
     return data
 
 
-def offline(owned, directory, name, data):
-    _, policy, _ = material(name)
+def offline(owned, directory, name, data, *, policy=None):
+    policy = material(name)[1] if policy is None else policy
     writes = [{"op": "write", "path": path, "data": source.decode()}
         for path, source in specs.unbundle(name, data).items()]
-    run = prepare(owned, directory, name, seconds=30, diagnostics=[*writes,
+    run = prepare(owned, directory, name, seconds=30, policy=policy, diagnostics=[*writes,
         {"op": "write", "path": policy["scratch"], "data":
             "import yaml; assert yaml.__version__=='6.0.2'\n" if policy["scratch"].endswith(".py") else
             "import assert from 'node:assert/strict'; assert.equal(process.versions.node,'24.11.1');\n"},
@@ -228,7 +258,7 @@ def offline(owned, directory, name, data):
 
 def freeze(owned, name, files, policy, models, instruction):
     image = specs.spec(name)["image"]
-    return {"condition": CONDITION, "package": name, "source": sources(),
+    return {"condition": condition(policy), "package": name, "source": sources(),
         "taskPolicySha256": validator.digest(policy), "agentFiles": api.packages.inventory(files),
         "runtimeFiles": runtime_files(owned), "models": models, "prompt": instruction,
         "image": image, "imageId": subprocess.check_output(
@@ -263,7 +293,7 @@ def execute(owned, root, name, model, models, safety, *, files=None, policy=None
             raise api.TrialError("frozen condition cannot be replaced")
     else:
         api.grader.persist(root / "safety.json", safety)
-        seal = {"condition": CONDITION, "frozen": frozen, "conditionSha256": validator.digest(frozen),
+        seal = {"condition": condition(policy), "frozen": frozen, "conditionSha256": validator.digest(frozen),
             "authorizationSource": AUTH, "safetySha256": api.sha((root / "safety.json").read_bytes())}
         with seal_path.open("xb") as output:
             output.write(api.packages.encoded(seal))
