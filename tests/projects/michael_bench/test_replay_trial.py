@@ -458,7 +458,8 @@ def test_mb006l_synthetic_owner_tool_loop(tmp_path, failure):
 def test_mb006l_javascript_admission_synthetic_files_only(tmp_path):
     module = tmp_path / "synthetic/local_transport"
     module.mkdir(parents=True)
-    for name in ("validator_admission.mjs", "curriculum_admission.mjs", "limits.mjs", "validator-policy.json", "validator-task-policy.json"):
+    for name in ("validator_admission.mjs", "curriculum_admission.mjs", "limits.mjs", "scratch.mjs",
+                 "validator-policy.json", "validator-task-policy.json"):
         (module / name).write_bytes((trial.runner.HERE / name).read_bytes())
     authority = module.parent / "replay_trial"
     authority.mkdir()

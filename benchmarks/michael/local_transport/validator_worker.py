@@ -20,7 +20,7 @@ def opened(root, name, flags=os.O_RDONLY, *, policy=None):
                                      dir_fd=directory)
             os.close(directory)
             directory = next_directory
-        fd = os.open(parts[-1], flags | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+        fd = os.open(parts[-1], flags | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600, dir_fd=directory)
         info = os.fstat(fd)
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
             os.close(fd)

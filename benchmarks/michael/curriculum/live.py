@@ -8,9 +8,9 @@ from benchmarks.michael.replay_trial import api, curriculum as native
 from benchmarks.michael.replay_grader import specs
 
 
-def audit_payload(name, *, active_seconds=3600):
+def audit_payload(name, *, active_seconds=3600, scratch_directory=False):
     agent, hidden, _, _ = specs.package(name)
-    policy = native.material(name)[1]
+    policy = native.round_three_policy(name) if scratch_directory else native.material(name)[1]
     policy["activeSeconds"] = active_seconds
     return {"instruction": agent["TASK.md"].decode(), "visible": {p: b.decode() for p, b in agent.items()},
         "oracle": hidden["reference"].decode(), "rows": specs.spec(name)["rows"](),
@@ -24,7 +24,7 @@ def audit_payload(name, *, active_seconds=3600):
             "a task contradictory merely because generated policy.json omits native scratch or Node."}
 
 
-def request_material(req):
+def request_material(req, *, scratch_directory=False):
     # Each visible part is bounded. No query ever shares the tested agent's state.
     text = json.dumps(req, ensure_ascii=False, sort_keys=True)
     parts = {}
@@ -58,6 +58,8 @@ def request_material(req):
     policy = {**native.material("validator")[1], "source": "RESULT.json", "scratch": "self_test.py",
         "read": sorted([*files, "self_test.py"]), "write": ["RESULT.json", "self_test.py"], "run": [],
         "readonlySizes": {p: len(b) for p, b in files.items() if p != "RESULT.json"}}
+    if scratch_directory:
+        policy["scratchDirectory"] = native.SCRATCH_DIRECTORY
     return files, policy, instruction
 
 
@@ -66,7 +68,7 @@ def query(owned, root, name, req, safety):
     root.mkdir(parents=True, exist_ok=True)
     with (root / "request.json").open("xb") as output:
         output.write(api.packages.encoded(req))
-    files, policy, prompt = request_material(req)
+    files, policy, prompt = request_material(req, scratch_directory=safety.get("condition") == "MB-R3")
     outcome = native.execute(owned, root, name, req["model"], [req["model"]], safety,
         files=files, policy=policy, instruction=prompt, grade=False)
     run = Path(root) / req["model"]
@@ -83,12 +85,13 @@ def admission(owned, root, name, safety, *, active_seconds=3600):
     audits = []
     for index, (model, family) in enumerate(admit.AUDITORS):
         req = automation.request("audit", model=model, family=family,
-            payload=audit_payload(name, active_seconds=active_seconds))
+            payload=audit_payload(name, active_seconds=active_seconds,
+                scratch_directory=safety.get("condition") == "MB-R3"))
         body, _ = query(owned, root / f"audit-{index}", name, req, safety)
         audits.append(body)
     blind_model, blind_family = admit.BLIND_SOLVER
     blind_root = root / "blind"
-    policy = native.material(name)[1]
+    policy = native.round_three_policy(name) if safety.get("condition") == "MB-R3" else native.material(name)[1]
     policy["activeSeconds"] = active_seconds
     outcome = native.execute(owned, blind_root, name, blind_model, [blind_model], safety, policy=policy,
         instruction=native.prompt(policy) + " Blind reimplementation: do not consult tests or an oracle.")

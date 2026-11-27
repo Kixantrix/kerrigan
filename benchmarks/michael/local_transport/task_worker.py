@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import re
 sys.path.insert(0, str(Path(__file__).parent))
 import validator_worker as files
 
@@ -13,6 +14,14 @@ if len(raw) > policy["payload"]:
     raise ValueError("action overflow")
 args = json.loads(raw)
 op, name = args["op"], args["path"]
+scratch = (policy.get("scratchDirectory") == ".scratch" and
+           isinstance(name, str) and name.startswith(".scratch/") and
+           all(re.fullmatch(r"[A-Za-z0-9_.-]+", part) and part not in (".", "..")
+               for part in name.split("/")))
+if scratch:
+    policy = {**policy, "read": [*policy["read"], name],
+              "write": [*policy["write"], name], "run": [*policy["run"], name]}
+    files.POLICY = policy
 if set(args) != ({"op", "path", "data"} if op == "write" else
                  {"op", "path", "offset"} if op == "read" and "offset" in args else {"op", "path"}):
     raise ValueError("action fields denied")
@@ -33,7 +42,15 @@ elif op == "write" and name in policy["write"] and isinstance(args["data"], str)
     data = args["data"].encode()
     if len(data) > policy["bytes"]:
         raise ValueError("file overflow")
-    with os.fdopen(files.opened(".", name, os.O_WRONLY), "wb") as stream:
+    if scratch:
+        parent = Path(name).parent
+        current = Path(".scratch")
+        for part in parent.parts[1:]:
+            current /= part
+            current.mkdir(exist_ok=True)
+            if current.is_symlink() or not current.is_dir():
+                raise ValueError("scratch parent denied")
+    with os.fdopen(files.opened(".", name, os.O_WRONLY | (os.O_CREAT if scratch else 0)), "wb") as stream:
         stream.truncate(0)
         stream.write(data)
     print("written")

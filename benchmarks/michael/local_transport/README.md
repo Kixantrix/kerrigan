@@ -1,5 +1,57 @@
 # MB-006c: local MXC proof, native canaries still gated
 
+## Round-three local-inference preparation
+
+`local-inventory.json` freezes the setup session's metadata-only handoff.
+Installed bytes are not RAM estimates; fresh manifest hashes and matching file
+sizes do not certify fresh tensor integrity. The selected Inkling model remains
+provisional, and no local-model inference has run in this condition.
+
+`local_inference.mjs` and `local_window.mjs` are offline-tested OpenAI-compatible
+adapter components. They are not yet connected to the native owner/ledger;
+their stub tests are not an end-to-end local-model benchmark. Do not use them
+against the operational endpoint until the parent approves and announces the
+exact interval and namespace and the setup session acknowledges it.
+
+The frozen window permits at most three hours, sequential requests, unchanged
+native settings/cache policy, and 15 seconds of cleanup reserve. Readiness uses
+only `/health` and `/v1/models`; fresh per-task session IDs and exact
+request/response IDs provide correlation,
+not authenticated exclusivity. Mixed-content snapshot/flight endpoints are not
+read. Non-idle boundaries or ambiguous identity stop admission; closing our
+HTTP connection is not proof that the backend drained. A failed request or
+ambiguous native usage closes further admissions in that window; it is not
+silently retried. Release must separately
+observe health idle, otherwise ownership cleanup remains unproven.
+
+Input JSON is capped at 64 KiB for conservative headroom. This is a stricter
+condition limit and a byte heuristic, not an exact rendered-token certificate:
+MTPLX's Anthropic count route differs from native chat canonicalization.
+Generated tools cannot execute without known native input/output/total usage
+within 229,376 / 16,384 / 262,144 tokens. Missing final usage also prevents
+certifying completion; unknown usage remains unknown in the receipt.
+
+Local timing and energy are **shared with background workloads**. Metadata-only
+process-name/CPU/RSS, load and memory-pressure snapshots do not authorize
+altering Gridiron. End-to-end HTTP token rate uses a monotonic clock and includes
+prefill. Optional own-response `mtplx_stats` supplies native uncached prefill and
+decode rates/times; missing fields remain unknown. Derived `timings` defaults
+are not used as measurement evidence. Reasoning is included in completion
+tokens and decode rates; native TTFT may be the first thought, not answer.
+Peak model memory and energy remain unknown unless actually measured.
+No containers, VMs or builds are permitted during the window. Exact artifacts
+must be collected first; Docker grading waits until release, and reported
+completion excludes the post-window verification queue.
+
+Round-three sandbox scratch is monitored at tool boundaries and on a 100 ms
+timer, with a 1 MiB / 128-entry threshold. This is **not a filesystem hard
+quota**: transient overshoot is possible before observation and cutoff.
+Descriptor-bound scans reject aliases without following candidate-controlled
+links; disposal occurs only after native handles are reaped. The 32 KiB
+write limit applies to broker operations, not a kernel-enforced temporary-file
+size limit. These restrictions remain a disclosed difference from an
+unrestricted stock CLI.
+
 Foundation: `2df6f85`. Environment: `local-attested-macos`; results are dated
 operator observations, not human-attested completion. This condition is **local
 agent/tools with cloud inference**, not cloud-hosted tools or local inference.

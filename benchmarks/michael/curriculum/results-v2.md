@@ -31,16 +31,16 @@ proof, agent work, owned cleanup and independent verification. Admission,
 attribution and quality-panel time are excluded. A failed attempt's elapsed
 time is not time to verified completion.
 
-| Round-2 task | Family | Estimated human min | MAI checks | Sonnet checks | MAI seconds | Sonnet seconds |
-|---|---|---:|---:|---:|---:|---:|
-| plan-dashboard-waves-v2 | Understand and plan | 15 | 10/10 | 10/10 | 49.66 | 21.83 |
-| review-conflict-predictor-v3 | Review and repair | 25 | 26/27, fail | 27/27 | 162.90, no completion | 39.17 |
-| research-serverless-cost-v2 | Research | 45 | 12/12 | 12/12 | 60.09 | 24.86 |
-| design-alethiometer-case-v2 | Design | 45 | 12/12 | 12/12 | 132.52 | 44.39 |
-| kerrigan-plan-conflict-queue-v2 | Implement | 90 | 20/20 | 20/20 | 176.38 | 37.92 |
-| yv-relevance-instrument-v2 | Experiment | 90 | 12/12 | 12/12 | 169.54 | 25.31 |
-| emv-thumbnails-gallery-v2 | Implement | 75 | 11/11 | 11/11 | 102.94 | 26.11 |
-| orchestrate-voice-integration-v3 | Orchestrate | 90 | 14/16, fail | 16/16 | 215.02, no completion | 56.98 |
+| Round-2 task | Family | MAI checks | Sonnet checks | MAI seconds | Sonnet seconds |
+|---|---|---:|---:|---:|---:|
+| plan-dashboard-waves-v2 | Understand and plan | 10/10 | 10/10 | 49.66 | 21.83 |
+| review-conflict-predictor-v3 | Review and repair | 26/27, fail | 27/27 | 162.90, no completion | 39.17 |
+| research-serverless-cost-v2 | Research | 12/12 | 12/12 | 60.09 | 24.86 |
+| design-alethiometer-case-v2 | Design | 12/12 | 12/12 | 132.52 | 44.39 |
+| kerrigan-plan-conflict-queue-v2 | Implement | 20/20 | 20/20 | 176.38 | 37.92 |
+| yv-relevance-instrument-v2 | Experiment | 12/12 | 12/12 | 169.54 | 25.31 |
+| emv-thumbnails-gallery-v2 | Implement | 11/11 | 11/11 | 102.94 | 26.11 |
+| orchestrate-voice-integration-v3 | Orchestrate | 14/16, fail | 16/16 | 215.02, no completion | 56.98 |
 
 MAI's review implementation passes all 22 preservation/regression checks.
 Its review ledger nevertheless alleges `glob-overlap`, a category that did
@@ -292,32 +292,16 @@ which adds provisional orchestration-v5 for round 3. It clarifies client-side
 R7 and guards `start()`, with broader out-of-order checks. It is not a new
 round-2 attempt, admission or primary result; v4 still has zero subjects.
 
-## Success versus estimated human time
+## Agent-native difficulty
 
-The task metadata supplies estimated human minutes, not timings from a
-controlled human study. The final eight goals occupy five bins: 15 minutes
-(one goal), 25 (one), 45 (two), 75 (one) and 90 (three). Each model contributes
-one selected admitted-and-run attempt per goal. Revisions and prior exposures are not
-extra observations. The estimates describe these curated fixture slices,
-not the time to build their original production projects.
-
-| Estimated human minutes | Tasks | MAI successes | Sonnet successes |
-|---:|---:|---:|---:|
-| 15 | 1 | 1/1 | 1/1 |
-| 25 | 1 | 0/1 | 1/1 |
-| 45 | 2 | 2/2 | 2/2 |
-| 75 | 1 | 1/1 | 1/1 |
-| 90 | 3 | 2/3 | 3/3 |
-
-The repository logistic fit returns no finite 50% horizon for either model:
-Sonnet has no failures, and MAI's fitted success does not decrease with
-estimated length. No horizon is inferred from that non-identifiability.
-
-This is a METR-style success-versus-estimated-time view, not a METR benchmark
-or a measured human-equivalent capability horizon. Eight selected tasks
-cannot support a robust 50% horizon estimate. The three-hour execution
-ceiling is only a safety budget; completing a 90-minute-estimate fixture in
-seconds does not establish a general three-hour capability.
+Human-time estimates and the associated horizon analysis were removed at
+the user's request. Historical evidence files remain immutable; their old
+metadata is not a current comparison axis. Difficulty is described by task
+size, actual verifier pass rates, observed agent time and effort. The
+per-task check counts and elapsed times above are measured observations;
+three-hour limits are safety budgets, not capability horizons. Round 3
+adds oracle-diff size, read-file counts, actions and model-call counts,
+with three attempts per model and alternating order.
 
 ## Pooled v1 + v2 view
 

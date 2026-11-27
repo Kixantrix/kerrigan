@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "targets", "columns", "cells", "routing_policy",
+    "recommendations", "size_policy", "limits", "sources"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "targets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["model", "deployment_class", "condition", "tool_host"],
+        "properties": {
+          "model": {"type": "string"},
+          "deployment_class": {"enum": ["cloud", "local laptop", "self-hosted infrastructure"]},
+          "condition": {"type": "string"},
+          "tool_host": {"type": "string"}
+        }
+      }
+    },
+    "columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "cells": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"$ref": "#/$defs/cell"}
+      }
+    },
+    "routing_policy": {
+      "type": "object",
+      "required": ["objective", "minimum_n", "lower_ci_threshold"],
+      "properties": {
+        "objective": {"enum": ["fastest", "cheapest"]},
+        "minimum_n": {"type": "integer", "minimum": 1},
+        "lower_ci_threshold": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1}
+      }
+    },
+    "recommendations": {"type": "object"},
+    "size_policy": {"type": "object"},
+    "limits": {"type": "string"},
+    "sources": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {
+    "measurement": {
+      "type": "object",
+      "required": ["status", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {"enum": ["known", "unknown"]},
+        "value": {"type": ["number", "null"], "minimum": 0}
+      },
+      "oneOf": [
+        {"properties": {"status": {"enum": ["known"]}, "value": {"type": "number"}}},
+        {"properties": {"status": {"enum": ["unknown"]}, "value": {"type": "null"}}}
+      ]
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "tasks", "successes", "success_rate", "wilson_ci95",
+        "verified_time_n", "median_verified_seconds", "tokens", "cost",
+        "peak_memory_bytes", "energy_joules", "failure_modes", "provenance"],
+      "properties": {
+        "n": {"type": "integer", "minimum": 1},
+        "tasks": {"type": "integer", "minimum": 1},
+        "successes": {"type": "integer", "minimum": 0},
+        "success_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "wilson_ci95": {"type": "array", "minItems": 2, "maxItems": 2,
+          "items": {"type": "number", "minimum": 0, "maximum": 1}},
+        "verified_time_n": {"type": "integer", "minimum": 0},
+        "median_verified_seconds": {"type": ["number", "null"], "minimum": 0},
+        "tokens": {"type": "object", "required": ["inputTokens", "outputTokens"],
+          "properties": {
+            "inputTokens": {"type": ["integer", "null"], "minimum": 0},
+            "outputTokens": {"type": ["integer", "null"], "minimum": 0}
+          }},
+        "cost": {"$ref": "#/$defs/measurement"},
+        "peak_memory_bytes": {"$ref": "#/$defs/measurement"},
+        "energy_joules": {"$ref": "#/$defs/measurement"},
+        "failure_modes": {"type": "object",
+          "propertyNames": {"enum": ["unsupported-defect-claim", "claimed-fix-not-implemented",
+            "sandbox-boundary-write", "harness-cap", "task-caused", "contention-timeout",
+            "model-failure-unclassified", "harness-error"]},
+          "additionalProperties": {"type": "integer", "minimum": 1}},
+        "provenance": {"type": "array", "items": {"type": "object"}}
+      }
+    }
+  }
+}

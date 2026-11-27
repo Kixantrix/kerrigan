@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { SCRATCH } from "./scratch.mjs";
 export const VALIDATOR = Object.freeze(JSON.parse(
     readFileSync(new URL("./validator-policy.json", import.meta.url), "utf8")));
 export const TASK_VALIDATOR = Object.freeze(JSON.parse(
@@ -11,13 +12,17 @@ export function validateAction(id, args, state, validatorReplay = false) {
     if (typeof id !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(id) || state.actions.has(id))
         throw new Error("duplicate_or_invalid_action");
     const keys = Object.keys(args || {}).sort().join(",");
+    const scratchPath = policy?.scratchDirectory === SCRATCH.directory && typeof args?.path === "string" &&
+        args.path.startsWith(SCRATCH.directory + "/") &&
+        args.path.split("/").every(part => /^[A-Za-z0-9_.-]+$/.test(part) && ![".", ".."].includes(part));
     const pagedRead = task && typeof validatorReplay === "object" && args?.op === "read" &&
         keys === "offset,op,path" && Number.isSafeInteger(args.offset) && args.offset >= 0 && args.offset <= 4194304;
     if (!args || !["read", "write", "run"].includes(args.op) ||
-        !(policy ? policy.read : ["candidate.py", "result.txt"]).includes(args.path) ||
+        (!scratchPath && !(policy ? policy.read : ["candidate.py", "result.txt"]).includes(args.path)) ||
         (args.op === "run" && !(task ? (policy.run || policy.write) :
-            [policy ? policy.source : "candidate.py"]).includes(args.path)) ||
-        (policy && args.op === "write" && !(policy.write || [policy.source]).includes(args.path)))
+            [policy ? policy.source : "candidate.py"]).includes(args.path) &&
+            !(scratchPath && /\.(py|ts|mjs|js)$/.test(args.path))) ||
+        (policy && args.op === "write" && !(policy.write || [policy.source]).includes(args.path) && !scratchPath))
         throw new Error("action_denied");
     const malformed = (!pagedRead && keys !== (args.op === "write" ? "data,op,path" : "op,path")) ||
         (args.op === "write" && typeof args.data !== "string");

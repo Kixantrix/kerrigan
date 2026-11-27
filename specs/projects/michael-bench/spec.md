@@ -41,6 +41,15 @@ Workload families:
 
 Coding is the first implemented family. Other families remain roadmap work until calibrated cases and outcome rubrics exist. Task selection follows the user's actual agent work mix across their repositories (personal-selfhost, kerrigan, alethiometer, taste-engine, voxel-solar-wallpaper, vhs-video-stack, your-voice, kirkland-prototype), not only small bug fixes.
 
+## Primary output: delegation matrix
+
+The bench exists to decide which model is better at what and what size of
+task to hand to each target. Its main product is a regenerated matrix of
+targets (cloud, local laptop and self-hosted infrastructure) by work family
+and task size. Each cell records reliability, speed, tokens/cost and resource
+use, plus a routing recommendation per cell, so delegation uses resources
+well. See `.specify/briefings/MB-R3.md` (AC-D1).
+
 ## Non-goals
 
 No universal model ranking, new agent role, automatic production changes, arbitrary model downloads, permission bypasses, or claim that token throughput measures productivity. Do not rebuild a general-purpose evaluation framework.
