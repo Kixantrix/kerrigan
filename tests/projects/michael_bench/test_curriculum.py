@@ -508,7 +508,8 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"vhs-room-registry-sync": "vhs-room-registry-sync-v2",
+CURRENT = {"cs-mismatch-stage-authority": "cs-mismatch-stage-authority-v2",
+           "vhs-room-registry-sync": "vhs-room-registry-sync-v2",
            "foal-meadow-regression-review": "foal-meadow-regression-review-v2",
            "yv-relevance-instrument-v3": "yv-relevance-instrument-v4",
            "kerrigan-plan-conflict-queue-v3": "kerrigan-plan-conflict-queue-v4",
@@ -1101,3 +1102,17 @@ def test_vhs_v2_states_the_merged_pr_behaviors_and_keeps_the_oracle():
                 "creating a name held by a disabled room revives that row and replicates",
                 "a replicated rename keeps the old name live on both backends"):
         assert row in ids
+
+
+def test_cs_v2_scopes_refusal_to_json_values_and_rejects_duplicate_findings(tmp_path):
+    old, new = "cs-mismatch-stage-authority", "cs-mismatch-stage-authority-v2"
+    assert curriculum.verifier_files(new)["reference"] == curriculum.verifier_files(old)["reference"]
+    task = (curriculum.HERE / new / "agent/TASK.md").read_text()
+    assert "Values JSON cannot serialise" in task and "TypeError" in task
+    hidden = json.dumps(curriculum.verifier_files(new), default=lambda b: b.decode()).lower()
+    assert "bigint" not in hidden and "circular" not in hidden
+    files = specs.unbundle(new, specs.reference(new))
+    ledger = json.loads(files["REVIEW.json"])
+    ledger["findings"] = ledger["findings"] * 2
+    files["REVIEW.json"] = (json.dumps(ledger, indent=2) + "\n").encode()
+    assert _failed(specs.bundle(files), new, tmp_path) == ["ledger entries are well formed, one per distinct defect"]

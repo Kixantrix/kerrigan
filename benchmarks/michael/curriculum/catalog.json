@@ -644,20 +644,23 @@
    "long_horizon": false,
    "summary": "Values arriving over IPC/stored JSON bypass TypeScript types; an unknown stage produced a non-authoritative verdict that still looked valid. Agent adds a strict runtime refusal and records a review ledger without false positives.",
    "history_status": "merged",
-   "package": "cs-mismatch-stage-authority",
+   "package": "cs-mismatch-stage-authority-v2",
    "provenance_kind": "mined-history",
    "grader_image": "michael-replay-grader-node:mb008",
-   "round": 3,
+   "round": 4,
    "task_size": {
     "oracle_files_changed": 2,
     "oracle_lines_added": 17,
     "oracle_lines_removed": 1,
     "writable_files": 2,
     "files_to_read": 8,
-    "lines_to_read": 688,
+    "lines_to_read": 692,
     "hidden_checks": 18,
-    "hidden_clauses": 75
-   }
+    "hidden_clauses": 76
+   },
+   "retired_packages": [
+    "cs-mismatch-stage-authority"
+   ]
   },
   {
    "id": "yv-purge-nulled-column",
