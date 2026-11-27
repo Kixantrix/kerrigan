@@ -467,6 +467,10 @@ def test_admission_and_attribution_rules():
                                 blind=wrongly_rejected)["state"] == "needs_fix"
     assert automation.admission(oracle_passes=True, base_fails=True, audits=[clean, clean],
                                 blind=[{"passed": True}])["state"] == "admitted"
+    for blind in ({"passed": False}, {"passed": False, "adjudication": None}):
+        assert automation.admission(oracle_passes=True, base_fails=True, audits=[clean, clean],
+                                    blind=[blind]) == {
+            "state": "provisional", "reasons": ["blind failure awaiting adjudication"]}
     agree = [{"cause": "harness", "confidence": .9, "evidence": []}] * 2
     assert automation.route_failure(agree)["action"] == "fix_harness_and_rerun"
     split = [{"cause": "model", "confidence": .9, "evidence": []}, {"cause": "task", "confidence": .9, "evidence": []}]

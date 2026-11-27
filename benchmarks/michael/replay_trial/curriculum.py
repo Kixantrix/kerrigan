@@ -83,9 +83,10 @@ def prompt(policy):
            if diff_contract(policy) else
            f"Final artifacts: {policy.get('artifacts', [policy['source']])}. "
            f"Only these and {policy['scratch']} are writable artifacts. ")
-        + (f"Per-run TMPDIR is .scratch, writable only within this sandbox and discarded after cleanup. "
+        + (f"Per-attempt TMPDIR is .scratch, persists across actions within this sandbox, "
+           "and is discarded only after attempt cleanup. "
            "Use mb_action paths .scratch/name.py or .scratch/name.mjs for temp self-tests; "
-           "32KiB/file,1MiB aggregate scratch,128 entries, no aliases/special files. "
+           f"{policy['bytes']} bytes/broker write,64MiB aggregate scratch,4096 entries, no aliases/special files. "
            if policy.get("scratchDirectory") == SCRATCH_DIRECTORY else "") +
         "Public tools provide CPython 3.9 stdlib+PyYAML6.0.2 and Node24.11.1 built-in TypeScript "
         "type stripping; no pytest, npm installation, shell, subprocess, network or hidden checks. "
