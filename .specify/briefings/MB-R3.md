@@ -23,8 +23,7 @@ and treat model failures as results.
 - AC-A3 — level: integration — environment: local-attested-macos.
   Report pass@1, pass^3 (all three pass) and pass-any. Give Wilson 95% CIs on
   the per-model task success rate, plus median and IQR time to verified
-  completion. Report a paired per-task comparison, and a METR-style 50%
-  success horizon if the data supports one. Keep round 2 separate. Pooling
+  completion. Report a paired per-task comparison. Keep round 2 separate. Pooling
   is only allowed with its conditions labeled.
 
 ### B. Curriculum: fresh, unseen tasks and anchors
@@ -33,7 +32,7 @@ and treat model failures as results.
   not yet used: clinical-scribe, taste-engine, vhs-video-stack,
   kirkland-prototype, alethiometer, personal-selfhost (ops and SR) and
   sunday-league logic, if it's testable outside Godot. Include at least 3
-  hour-plus tasks, and cover at least 2 families that had only one task in
+  large multi-file tasks, and cover at least 2 families that had only one task in
   round 2. Mine merged PRs where possible. The same admission discipline
   applies: Harbor, lint, oracle passes, base fails, fresh clone, and the
   literal/order/overspecification self-audit before handoff.
@@ -58,3 +57,15 @@ and treat model failures as results.
 
 ## Budget
 A: 200 turns. B: 120 turns. C: 80 turns.
+
+## Difficulty without human-time estimates (user, 2026-11-26)
+User: "what is est human time about? I'm not interested in comparing agents to
+buying a human". Remove estimated human minutes from the task metadata
+displays, the reports and the horizon analysis. Describe difficulty with
+agent-native measures instead:
+- task size (files and lines in the oracle diff, files to read, number of
+  hidden checks);
+- observed difficulty (pass rate and median agent time across all models and
+  attempts);
+- agent effort (tool actions, native model calls, tokens).
+Don't report a METR-style human-time horizon.
