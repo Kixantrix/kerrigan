@@ -87,6 +87,10 @@ five of the six fresh packages. Fresh native admission accepted
 [Kirkland](MBR3-kirkland-compose-adoption-admission.json), each with
 `untested_requirement` findings. The remaining admissions and repeated subjects
 are pending publication; these findings are not subject failures.
+[VHS admission](MBR3-vhs-room-registry-sync-admission.json) returned `needs_fix`
+for instruction/oracle contradictions concerning deleted-room listings,
+disabled live-name duplicates and replicated renames. Its blind pass does not
+override the admission gate; no scored subjects run on that version.
 
 `foal-meadow-regression-review` cannot enter its declared 32,768-byte native
 file condition: the two writable base HTML files are 35,505 and 36,330 bytes.
