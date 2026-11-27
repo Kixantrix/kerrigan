@@ -17,6 +17,7 @@ privacy = "private-synthetic-fixture"
 outcome_evidence = "metric_within_tolerance"
 estimated_agent_minutes = 45
 denominators = "{\"audit\": 3, \"blind\": 5, \"score\": 4}"
+task_size = "{\"files_to_read\": 9, \"hidden_checks\": 12, \"hidden_clauses\": 16, \"lines_to_read\": 912, \"oracle_files_changed\": 3, \"oracle_lines_added\": 148, \"oracle_lines_removed\": 6, \"writable_files\": 3}"
 
 [verifier]
 timeout_sec = 120.0

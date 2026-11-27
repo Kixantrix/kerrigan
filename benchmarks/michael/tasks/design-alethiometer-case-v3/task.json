@@ -17,7 +17,6 @@
  "historical_exposure": "Public repository branch; exposure/recognition risk.",
  "outcome_evidence": "constraint_validator",
  "estimated_agent_minutes": 30,
- "estimated_human_minutes": 45,
  "residual_rubric": [
   "Physical manufacturability beyond the stated rules (renders, DXF/STEP regeneration) is out of scope and not graded."
  ],
@@ -42,5 +41,6 @@
  "admission_evidence": {
   "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
   "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
- }
+ },
+ "round": 3
 }

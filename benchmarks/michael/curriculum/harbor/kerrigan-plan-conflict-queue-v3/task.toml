@@ -17,6 +17,7 @@ privacy = "public"
 outcome_evidence = "held_out_tests"
 estimated_agent_minutes = 40
 denominators = "{\"conflict\": 7, \"queue\": 4, \"replay\": 9}"
+task_size = "{\"files_to_read\": 7, \"hidden_checks\": 20, \"hidden_clauses\": 45, \"lines_to_read\": 887, \"oracle_files_changed\": 2, \"oracle_lines_added\": 396, \"oracle_lines_removed\": 4, \"writable_files\": 2}"
 
 [verifier]
 timeout_sec = 120.0

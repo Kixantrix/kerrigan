@@ -417,19 +417,20 @@ def test_metrics():
     low, high = metrics.wilson(8, 10)
     assert 0.49 < low < 0.5 and 0.94 < high < 0.95
     assert metrics.pass_at_k(4, 1, 2) == 0.5 and metrics.pass_hat_k(4, 2, 2) == pytest.approx(1 / 6)
-    trials = [{"task": "a", "resolved": True, "cost": 1.0, "wall_seconds": 10, "human_minutes": 5},
-              {"task": "a", "resolved": True, "cost": 1.0, "wall_seconds": 20, "human_minutes": 5},
-              {"task": "b", "resolved": False, "cost": 2.0, "wall_seconds": 30, "human_minutes": 120},
-              {"task": "b", "resolved": True, "cost": None, "wall_seconds": 40, "human_minutes": 120},
-              {"task": "c", "resolved": False, "wall_seconds": 5, "human_minutes": 480},
-              {"task": "c", "resolved": False, "wall_seconds": 5, "human_minutes": 480}]
+    trials = [{"task": "a", "resolved": True, "cost": 1.0, "wall_seconds": 10},
+              {"task": "a", "resolved": True, "cost": 1.0, "wall_seconds": 20},
+              {"task": "b", "resolved": False, "cost": 2.0, "wall_seconds": 30},
+              {"task": "b", "resolved": True, "cost": None, "wall_seconds": 40},
+              {"task": "c", "resolved": False, "wall_seconds": 5},
+              {"task": "c", "resolved": False, "wall_seconds": 5}]
     summary = metrics.summarize(trials, k=2)
     assert summary["resolved"] == 3 and summary["pass^2"] == pytest.approx(1 / 3)
     assert summary["pass@2"] == pytest.approx(2 / 3)
     assert summary["cost_per_resolved"]["status"] == "unknown"
     assert summary["wall_seconds_per_resolved"]["value"] == pytest.approx(110 / 3)
-    assert 5 < summary["time_horizon_50_minutes"] < 480
-    assert metrics.time_horizon([(5, True), (10, True)]) is None
+    assert "time_horizon_50_minutes" not in summary and not hasattr(metrics, "time_horizon")
+    assert summary["observed_difficulty"]["b"] == {"attempts": 2, "success_rate": 0.5, "median_agent_seconds": 35.0}
+    assert summary["observed_difficulty"]["c"]["success_rate"] == 0.0
 
 
 def test_model_requests_are_bound_and_family_constrained():
@@ -565,7 +566,9 @@ def test_long_horizon_set_spans_repos_languages_and_apps():
     assert len(long) >= 4
     for name in long:
         info = curriculum.meta(name)
-        assert info["estimated_human_minutes"] >= 60
+        size = curriculum.task_size(name)
+        assert size["oracle_files_changed"] >= 2 and size["oracle_lines_added"] + size["oracle_lines_removed"] >= 80
+        assert size["hidden_checks"] >= 10
         assert len(curriculum.candidates(name)) >= 2, "long-horizon packages require multi-file changes"
     repos = {curriculum.meta(n)["source"]["repo"] for n in long}
     suffix = {".ts": "typescript", ".mjs": "javascript", ".js": "javascript", ".py": "python"}
@@ -890,3 +893,19 @@ def test_orchestrate_v5_guards_start_and_states_client_r7(tmp_path):
     agent = curriculum.HERE / V5 / "agent"
     assert "accounting" not in (agent / "briefs" / "L2-orchestration.md").read_text()
     assert "`start` unless idle" in (agent / "TASK.md").read_text()
+
+
+def test_no_human_time_estimates_in_current_metadata():
+    """User, 2026-11-26: difficulty is agent-native task size, never estimated human time."""
+    retired = curriculum.retired()
+    for name in curriculum.PACKAGES:
+        assert not set(curriculum.HUMAN_TIME_FIELDS) & set(curriculum.meta(name))
+        if name not in retired and curriculum.meta(name).get("round") == 3:
+            raw = json.loads((curriculum.HERE / name / "task.json").read_text())
+            assert not set(curriculum.HUMAN_TIME_FIELDS) & set(raw), name
+    catalog = (ROOT / "benchmarks/michael/curriculum/catalog.json").read_text()
+    assert "human_minutes" not in catalog and "human minutes" not in catalog.lower()
+    for name in curriculum.PACKAGES:
+        if name not in retired:
+            toml = (ROOT / "benchmarks/michael/curriculum/harbor" / name / "task.toml").read_text()
+            assert "human" not in toml and "task_size = " in toml

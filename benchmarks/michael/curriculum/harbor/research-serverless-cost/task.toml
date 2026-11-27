@@ -17,6 +17,7 @@ privacy = "private-synthetic-fixture"
 outcome_evidence = "required_facts_checklist"
 estimated_agent_minutes = 30
 denominators = "{\"decision\": 1, \"evidence\": 3, \"synthesis\": 6, \"uncertainty\": 2}"
+task_size = "{\"files_to_read\": 9, \"hidden_checks\": 12, \"hidden_clauses\": 16, \"lines_to_read\": 126, \"oracle_files_changed\": 1, \"oracle_lines_added\": 55, \"oracle_lines_removed\": 11, \"writable_files\": 1}"
 
 [verifier]
 timeout_sec = 120.0
