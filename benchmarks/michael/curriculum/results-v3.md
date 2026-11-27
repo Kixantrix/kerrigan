@@ -91,9 +91,10 @@ accepted with only `untested_requirement` findings:
 Their 36 order-balanced subjects are in progress and are not yet pooled into
 the published matrix. Admission findings are not subject failures.
 
-YV-v4 MAI repeat 1 is retained as a model-caused **`spec-misread`** (14/16),
-without rerun. The [hash-bound resolution](MBR3-yv-v4-repeat1-resolution.json)
-preserves the original split panel: `.some` contradicts the specified nonempty
+YV-v4 MAI repeats 1 and 3 are retained as model-caused **`spec-misread`** (14/16
+each), without rerun. The [repeat-1 resolution](MBR3-yv-v4-repeat1-resolution.json)
+and [repeat-3 resolution](MBR3-yv-v4-repeat3-resolution.json) preserve both
+original split panels: `.some` contradicts the specified nonempty
 topic list in which **every** lower-cased topic must be a title token.
 **Round-4 known issue:** rewrite the clumsy sentence as "items whose topic list
 is nonempty and in which every lower-cased topic is a title token"; do not
