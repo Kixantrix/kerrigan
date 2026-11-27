@@ -1,0 +1,17 @@
+{
+  "transcription_location": null,
+  "asr_engine": null,
+  "eliminated": {},
+  "telehealth_diarization": null,
+  "in_person_diarization": null,
+  "capture_format": null,
+  "code_switch_error_pct": null,
+  "english_error_pct": null,
+  "arm64_code_switch_error_pct": null,
+  "arm64_real_time_factor": null,
+  "speechmatics_code_switch_error_pct": null,
+  "in_person_der_pct": null,
+  "stack_footprint_mb": null,
+  "unknowns": [],
+  "citations": {}
+}

@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/INTEGRATION.json", "/app/src/github.ts", "/app/src/plan-update.ts", "/app/src/project-status.ts", "/app/src/status.ts"]
+
+[task]
+name = "kixantrix/michael-orchestrate-dashboard-stages"
+version = "1.0.0"
+description = "Integrate five parallel dashboard slices (plan parser, GitHub client, status, project route, plan-update tool) against the wave plan and record the cross-slice defects"
+keywords = ["michael-bench", "orchestrate"]
+
+[metadata]
+family = "Orchestrate"
+source_repo = "Kixantrix/kerrigan"
+base_ref = "822993442330ceaacaa549d9637bdae74dc8f05e"
+reference_ref = "83c5dc34e2cd767c0b91494bf7c3b15768c7c032"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "integrated_outcome"
+estimated_agent_minutes = 60
+denominators = "{\"integration\": 8, \"ledger\": 5, \"preservation\": 4}"
+task_size = "{\"files_to_read\": 14, \"hidden_checks\": 17, \"hidden_clauses\": 63, \"lines_to_read\": 1769, \"oracle_files_changed\": 5, \"oracle_lines_added\": 232, \"oracle_lines_removed\": 42, \"writable_files\": 5}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

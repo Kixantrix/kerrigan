@@ -25,6 +25,10 @@ from benchmarks.michael.tasks.packages import bundle_digest, encoded, inventory,
 
 HERE = Path(__file__).resolve().parent
 PACKAGES = tuple(sorted(path.parent.name for path in HERE.glob("*/task.json")))
+# Converted public anchors (Harbor tasks, benchmarks/michael/curriculum/anchors_convert.py) are a
+# separate registry: same package layout and calibration, never pooled with tailored packages.
+ANCHOR_ROOT = HERE / "anchors"
+ANCHORS = tuple(sorted(path.parent.name for path in ANCHOR_ROOT.glob("*/task.json")))
 FAMILIES = ("Implement", "Understand and plan", "Research", "Review and repair", "Operate",
             "Experiment", "Design", "Orchestrate")
 PRIVACY = ("public", "private-sanitized", "private-synthetic-fixture", "private-blocked")
@@ -39,10 +43,16 @@ NATIVE_LIMITS = {"bytes": 32768, "payload": 262144, "aggregate": 4194304, "actio
 HUMAN_TIME_FIELDS = ("estimated_human_minutes",)
 
 
+def directory(name: str) -> Path:
+    if name in PACKAGES:
+        return HERE / name
+    if name in ANCHORS:
+        return ANCHOR_ROOT / name
+    raise ValueError(f"unknown curriculum package: {name}")
+
+
 def meta(name: str) -> dict:
-    if name not in PACKAGES:
-        raise ValueError(f"unknown curriculum package: {name}")
-    info = json.loads((HERE / name / "task.json").read_bytes())
+    info = json.loads((directory(name) / "task.json").read_bytes())
     for field in HUMAN_TIME_FIELDS:
         info.pop(field, None)
     return info
@@ -104,7 +114,7 @@ def _tree(root: Path) -> dict[str, bytes]:
 
 def agent_files(name: str) -> dict[str, bytes]:
     info = meta(name)
-    files = _tree(HERE / name / "agent")
+    files = _tree(directory(name) / "agent")
     if "policy.json" in files:
         raise ValueError("policy.json is generated, never stored")
     policy = {
@@ -131,7 +141,7 @@ def retired() -> dict:
 
 
 def verifier_files(name: str) -> dict[str, bytes]:
-    hidden = HERE / name / "hidden"
+    hidden = directory(name) / "hidden"
     files = {"reference": (hidden / "reference").read_bytes(),
              "rows": (hidden / "rows.json").read_bytes()}
     for path, data in (_tree(hidden / "sandbox") if (hidden / "sandbox").is_dir() else {}).items():
@@ -200,6 +210,11 @@ def native_policy(name: str) -> dict:
     scratch = "self_test.mjs" if info["grader"].get("runtime") == "node" else "self_test.py"
     policy = {"condition": f"MB-008-{name}", "source": candidate, "scratch": scratch,
               "read": [*files, scratch], "write": [*candidates(name), scratch], **NATIVE_LIMITS}
+    # Package-declared limits (e.g. real game files larger than the default per-file cap); never lower.
+    for key, value in info.get("native_limits", {}).items():
+        if key not in NATIVE_LIMITS or not isinstance(value, int) or value < NATIVE_LIMITS[key]:
+            raise ValueError(f"invalid native limit {key}={value!r} for {name}")
+        policy[key] = value
     if len(candidates(name)) > 1:
         # Multi-artifact: the native collector must collect every listed artifact (bundle).
         policy["artifacts"] = candidates(name)
@@ -243,10 +258,10 @@ def check_export(name: str, destination: Path) -> str:
         if data == reference or any(secret in data for key, secret in hidden.items()
                                     if not key.startswith("sandbox/") and len(secret) > 64):
             raise ValueError(f"verifier material in {path}")
-    frozen = json.loads((HERE / name / "manifest.json").read_text())
+    frozen = json.loads((directory(name) / "manifest.json").read_text())
     if descriptor(name) != frozen:
         raise ValueError(f"{name}: frozen source/material digests changed")
-    native = json.loads((HERE / name / "native-policy.json").read_text())
+    native = json.loads((directory(name) / "native-policy.json").read_text())
     if native_policy(name) != native:
         raise ValueError(f"{name}: native policy drifted")
     return bundle_digest(actual)
@@ -272,18 +287,18 @@ def calibrate(name: str) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("operation", choices=["freeze", "stage", "check", "calibrate"])
-    parser.add_argument("task", choices=PACKAGES)
+    parser.add_argument("task", choices=PACKAGES + ANCHORS)
     parser.add_argument("destination", type=Path, nargs="?")
     args = parser.parse_args()
     if args.operation == "freeze":
-        (HERE / args.task / "manifest.json").write_bytes(encoded(descriptor(args.task)))
-        (HERE / args.task / "native-policy.json").write_bytes(encoded(native_policy(args.task)))
+        (directory(args.task) / "manifest.json").write_bytes(encoded(descriptor(args.task)))
+        (directory(args.task) / "native-policy.json").write_bytes(encoded(native_policy(args.task)))
     elif args.operation == "stage":
         print(stage(args.task, args.destination))
     elif args.operation == "check":
         print(check_export(args.task, args.destination))
     else:
-        (HERE / args.task / "calibration.json").write_bytes(encoded(calibrate(args.task)))
+        (directory(args.task) / "calibration.json").write_bytes(encoded(calibrate(args.task)))
 
 
 if __name__ == "__main__":

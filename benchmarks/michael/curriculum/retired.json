@@ -169,6 +169,30 @@
     "path": "benchmarks/michael/curriculum/MBR3-yv-relevance-instrument-v3-admission.json",
     "sha256": "fb52dc3afc4abc62f2fa901ea6329b1a26245bdccd84680d62b1b9e16dff05f2"
    }
+  },
+  "foal-meadow-regression-review": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "foal-meadow-regression-review-v2",
+   "reason": "environment-caused (native fit): the writable game files (35.5/36.3 KB) exceed the default 32 KiB native per-file limit; v2 keeps the content byte-identical and raises only this package's native limits",
+   "evidence_pending": "native executor fit-check failure for foal-meadow-regression-review (bytes 32,768 < 36,330-byte writable file); cite once pushed"
+  },
+  "vhs-room-registry-sync": {
+   "by": "MBR3 native admission (needs_fix)",
+   "superseded_by": "vhs-room-registry-sync-v2",
+   "reason": "task-caused (native admission needs_fix): TASK.md contradicted merged PR #194 on admin listing of tombstones, reviving disabled names and replicated renames",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-vhs-room-registry-sync-admission.json",
+    "sha256": "b1888642f99f351dd78dd363a4b425cd368d34e4943c293170b4aa8869fb24dc"
+   }
+  },
+  "cs-mismatch-stage-authority": {
+   "by": "MBR3 native admission (needs_fix)",
+   "superseded_by": "cs-mismatch-stage-authority-v2",
+   "reason": "task-caused (native admission needs_fix): the refusal contract covered non-JSON values (BigInt, circular) that the real PR #56 oracle reports as TypeError; duplicate ledger entries were unchecked",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-cs-mismatch-stage-authority-admission.json",
+    "sha256": "5249814dcc67f563263bb9dc83af4d84a3986c59c4bc82464c6ed3e0a71d6eca"
+   }
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",

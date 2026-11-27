@@ -1,0 +1,2 @@
+My work focuses on methods, datasets, and benchmarks for training and evaluating large models (including language models) on __time series data__ and __code__. 
+Recently I have been teaching __multimodal language models__ to reason about time series, and building __LLM agents__ that can make decisions and take actions based off of these inputs.

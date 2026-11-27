@@ -412,7 +412,19 @@ def main() -> None:
         record["runs"] = [legacy] + record.get("runs", [])
         for entry in record["anchors"]:
             entry.setdefault("run_index", 0)
+    spec = json.loads(args.anchors.read_text())
+    current = {a["name"] for a in spec["anchors"]}
+    replaced = {r["replaced"]["name"]: r for r in spec.get("revisions", []) if r.get("replaced")}
+    for entry in [a for a in record["anchors"] if a["name"] not in current]:
+        # Anchors dropped by an anchors.json revision keep their evidence, marked superseded.
+        revision = replaced.get(entry["name"], {})
+        entry["superseded_by_revision"] = revision.get("revision")
+        entry["superseded_reason"] = revision.get("reason", "not in current anchors.json")
+        record.setdefault("superseded", []).append(entry)
+    record["anchors"] = [a for a in record["anchors"] if a["name"] in current]
     record |= {
+        "anchors_json_revision": spec.get("revision", 1),
+        "anchors_json_revisions": spec.get("revisions", []),
         "anchors_json_sha256": hashlib.sha256(args.anchors.read_bytes()).hexdigest(),
         "agents": {"oracle": "harbor built-in oracle (runs solution/solve.sh)",
                    "base": "harbor built-in nop (does nothing)"},

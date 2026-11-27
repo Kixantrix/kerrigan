@@ -1,0 +1,144 @@
+{
+ "image": "alexgshaw/nginx-request-logging@sha256:693e64431a0dbf45952e8b91a298d54fd60247e501c6623fb8fa3ebc07fc3d3d",
+ "image_id": "sha256:693e64431a0dbf45952e8b91a298d54fd60247e501c6623fb8fa3ebc07fc3d3d",
+ "environment_image": "mbanchor-anchor-tb-nginx-request-logging:env",
+ "workdir": "/app",
+ "workspace": [
+  {
+   "root": "/etc/nginx",
+   "include": [
+    "nginx.conf",
+    "sites-available/default",
+    "mime.types"
+   ],
+   "max_file_bytes": 32768
+  },
+  {
+   "root": "/var/www/html",
+   "max_file_bytes": 32768
+  }
+ ],
+ "renames": [],
+ "exported": {
+  "etc/nginx/mime.types": "4a1cdcc2a337e8126760f45aef1a43aca7230eb9725ea7ba226baf1b9ea40ae7",
+  "etc/nginx/nginx.conf": "48c6a4ec1e1fd28ccf968490f07e34a1d7f755793b2108a3ed8670b1ee2a0aa2",
+  "etc/nginx/sites-available/default": "ce0901350a021608139b5639cf4ccd7717bef8c3a9e4f79031eb46386b67b03f",
+  "var/www/html/index.nginx-debian.html": "fb47468a2cd3953c7131431991afcc6a2703f14640520102eea0a685a7e8d6de"
+ },
+ "dropped": [
+  {
+   "path": "/etc/nginx/fastcgi.conf",
+   "reason": "not included",
+   "bytes": 1125,
+   "sha256": "dc4a3e6f16eb08000fb4a4ba6aaf9faeb50d55a3eaf152907938632f5b85b3aa"
+  },
+  {
+   "path": "/etc/nginx/fastcgi_params",
+   "reason": "not included",
+   "bytes": 2460,
+   "sha256": "1f0fa817fef4b3e90407d6893d9ba5c0f605502d6916e765641ce95bdf77278f"
+  },
+  {
+   "path": "/etc/nginx/koi-utf",
+   "reason": "not included",
+   "bytes": 2837,
+   "sha256": "b5f8a6d411db5e5d11d151d50cd1e962444732593adec0e1ef0a8c6eebec63ee"
+  },
+  {
+   "path": "/etc/nginx/koi-win",
+   "reason": "not included",
+   "bytes": 2223,
+   "sha256": "de518a9eafe86c8bc705e296d0ef26135835b46bdc0de01d1d50a630fa5d341e"
+  },
+  {
+   "path": "/etc/nginx/proxy_params",
+   "reason": "not included",
+   "bytes": 1545,
+   "sha256": "b103620bcdeb1b225b425801fd93fb3d4a62dee44916d019eefff15372c983ca"
+  },
+  {
+   "path": "/etc/nginx/scgi_params",
+   "reason": "not included",
+   "bytes": 2038,
+   "sha256": "2c18e8d099346c24f0486b617ae5250c6166405f7f3ad4efc9af2e5272ab0d33"
+  },
+  {
+   "path": "/etc/nginx/sites-enabled/default",
+   "reason": "not included",
+   "bytes": null,
+   "sha256": null
+  },
+  {
+   "path": "/etc/nginx/snippets/fastcgi-php.conf",
+   "reason": "not included",
+   "bytes": 423,
+   "sha256": "a9dd98bf9631d727f0a846a9c7f4fe6193468a714c782df26d5cc9a7756411f2"
+  },
+  {
+   "path": "/etc/nginx/snippets/snakeoil.conf",
+   "reason": "not included",
+   "bytes": 217,
+   "sha256": "69de463039725a6636b5a3ca87a0968dde646279bc8bb4419d200f547448a55a"
+  },
+  {
+   "path": "/etc/nginx/uwsgi_params",
+   "reason": "not included",
+   "bytes": 2067,
+   "sha256": "5bebeb2eb092109c8a1a86b4650451a1f445b5b32fd599d79cb92c3bfc09214f"
+  },
+  {
+   "path": "/etc/nginx/win-utf",
+   "reason": "not included",
+   "bytes": 3071,
+   "sha256": "400bc5c78ad9e194069f8ce65db4284378fc95a89a70b17f4b0150a9af54b05b"
+  }
+ ],
+ "artifacts": [
+  {
+   "path": "/etc/nginx/nginx.conf",
+   "agent_path": "etc/nginx/nginx.conf",
+   "absent_if_empty": false,
+   "mode": "0644"
+  },
+  {
+   "path": "/etc/nginx/conf.d/benchmark-site.conf",
+   "agent_path": "etc/nginx/conf.d/benchmark-site.conf",
+   "absent_if_empty": true,
+   "mode": "0644"
+  },
+  {
+   "path": "/etc/nginx/sites-enabled/default",
+   "agent_path": "etc/nginx/sites-enabled/default",
+   "absent_if_empty": true,
+   "mode": "0644"
+  },
+  {
+   "path": "/var/www/html/index.html",
+   "agent_path": "var/www/html/index.html",
+   "absent_if_empty": true,
+   "mode": "0644"
+  },
+  {
+   "path": "/var/www/html/404.html",
+   "agent_path": "var/www/html/404.html",
+   "absent_if_empty": true,
+   "mode": "0644"
+  }
+ ],
+ "base_bytes": {
+  "etc/nginx/nginx.conf": 1446,
+  "etc/nginx/conf.d/benchmark-site.conf": 0,
+  "etc/nginx/sites-enabled/default": 2412,
+  "var/www/html/index.html": 0,
+  "var/www/html/404.html": 0
+ },
+ "oracle_bytes": {
+  "etc/nginx/nginx.conf": 1611,
+  "etc/nginx/conf.d/benchmark-site.conf": 390,
+  "etc/nginx/sites-enabled/default": 0,
+  "var/www/html/index.html": 35,
+  "var/www/html/404.html": 39
+ },
+ "native_limits": "shared defaults (2x largest artifact <= 32768 bytes)",
+ "solve_exit_code": 0
+}

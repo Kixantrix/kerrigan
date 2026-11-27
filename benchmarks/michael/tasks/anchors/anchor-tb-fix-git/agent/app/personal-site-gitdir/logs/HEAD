@@ -1,0 +1,5 @@
+0000000000000000000000000000000000000000 b0d59cded7105fea91a4ea0008098295d8895786 Test User <test@example.com> 1757786072 +0000	clone: from https://github.com/TheMikeMerrill/personal-site.git
+b0d59cded7105fea91a4ea0008098295d8895786 d7d3e4ba9350f634d92d39ace2b471433ee57d50 Test User <test@example.com> 1757786072 +0000	reset: moving to d7d3e4b
+d7d3e4ba9350f634d92d39ace2b471433ee57d50 c4e38a1833fdeaf320d60133c17e2930464c580c Test User <test@example.com> 1757786073 +0000	checkout: moving from master to HEAD~1
+c4e38a1833fdeaf320d60133c17e2930464c580c 650dba427e0a9dcd118f41a4c5e35c8017550a5a Test User <test@example.com> 1757786073 +0000	commit: Move to Stanford
+650dba427e0a9dcd118f41a4c5e35c8017550a5a d7d3e4ba9350f634d92d39ace2b471433ee57d50 Test User <test@example.com> 1757786073 +0000	checkout: moving from 650dba427e0a9dcd118f41a4c5e35c8017550a5a to master

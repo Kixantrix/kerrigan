@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/INTEGRATION.json", "/app/src/sim/ball_physics.ts", "/app/src/sim/ball_state.ts", "/app/src/sim/first_touch.ts", "/app/src/sim/input_provider.ts", "/app/src/sim/kick.ts", "/app/src/sim/locomotion.ts", "/app/src/sim/match_log.ts", "/app/src/sim/match_sim.ts", "/app/src/sim/player_state.ts"]
+
+[task]
+name = "kixantrix/michael-orchestrate-sl-sim-phase-one"
+version = "1.0.0"
+description = "Integrate four parallel match-sim mechanic slices (ball physics, locomotion, kick, first touch) so replays stay deterministic and the plan holds"
+keywords = ["michael-bench", "orchestrate"]
+
+[metadata]
+family = "Orchestrate"
+source_repo = "Kixantrix/sunday-league"
+base_ref = "347ffd5dac4998a01a3bab1d65073818dd597817"
+reference_ref = "d6826880d384acd8195f349595b7e1457235e7c3"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "integrated_outcome"
+estimated_agent_minutes = 60
+denominators = "{\"integration\": 9, \"ledger\": 6, \"preservation\": 5}"
+task_size = "{\"files_to_read\": 22, \"hidden_checks\": 20, \"hidden_clauses\": 145, \"lines_to_read\": 1824, \"oracle_files_changed\": 6, \"oracle_lines_added\": 202, \"oracle_lines_removed\": 37, \"writable_files\": 10}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

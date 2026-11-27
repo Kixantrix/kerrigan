@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import subprocess
 import tempfile
 
 import pytest
@@ -176,8 +177,11 @@ def test_native_policy_matches_existing_trial_shape(name):
     policy = json.loads((directory / name / "native-policy.json").read_text())
     multi = name in curriculum.PACKAGES and len(curriculum.candidates(name)) > 1
     assert set(policy) == set(VALIDATOR_POLICY) | ({"artifacts"} if multi else set())
+    declared = curriculum.meta(name).get("native_limits", {}) if name in curriculum.PACKAGES else {}
     for key, value in VALIDATOR_POLICY.items():
-        if key not in {"condition", "source", "scratch", "read", "write"}:
+        if key in declared:
+            assert policy[key] == declared[key] >= value, key  # package-declared, never below the default
+        elif key not in {"condition", "source", "scratch", "read", "write"}:
             assert policy[key] == value, key
     agent = curriculum.agent_files(name) if name in curriculum.PACKAGES else packages.agent_files(name)
     assert policy["source"] in agent and policy["source"] in policy["write"]
@@ -504,7 +508,10 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"yv-relevance-instrument-v3": "yv-relevance-instrument-v4",
+CURRENT = {"cs-mismatch-stage-authority": "cs-mismatch-stage-authority-v2",
+           "vhs-room-registry-sync": "vhs-room-registry-sync-v2",
+           "foal-meadow-regression-review": "foal-meadow-regression-review-v2",
+           "yv-relevance-instrument-v3": "yv-relevance-instrument-v4",
            "kerrigan-plan-conflict-queue-v3": "kerrigan-plan-conflict-queue-v4",
            "design-alethiometer-case-v3": "design-alethiometer-case-v4",
            "orchestrate-voice-integration-v4": "orchestrate-voice-integration-v5",
@@ -921,7 +928,9 @@ ROUND2_SINGLE_TASK_FAMILIES = {"Understand and plan", "Review and repair", "Rese
 
 def test_round3_fresh_packages_cover_new_repos_large_work_and_thin_families():
     """MB-R3 AC-B1: >=6 fresh calibrated packages, >=3 large multi-file, >=2 thin round-2 families."""
-    earlier = {curriculum.meta(n)["source"]["base_ref"] for n in curriculum.PACKAGES if n not in ROUND3_FRESH}
+    successors = {n for n in curriculum.PACKAGES if any(n.startswith(f + "-v") for f in ROUND3_FRESH)}
+    earlier = {curriculum.meta(n)["source"]["base_ref"] for n in curriculum.PACKAGES
+               if n not in ROUND3_FRESH | successors}
     large = set()
     for name in ROUND3_FRESH:
         info = curriculum.meta(name)
@@ -1003,4 +1012,107 @@ def test_public_anchors_are_provisioned_with_oracle_and_base_verdicts():
             assert entry["oracle"]["reward"] == 1.0 and entry["base"]["reward"] == 0.0, name
         else:
             assert entry["environment_needed"] and entry["notes"], name
-    assert sum(e["status"] == "verified" for e in by_name.values()) >= 8
+    assert sum(e["status"] == "verified" for e in by_name.values()) >= 9
+    assert json.loads((here / "anchors.json").read_text()).get("revision") == 2
+    assert all(e["status"] != "task-defect" for e in by_name.values())
+
+
+ROUND4 = {"research-admin-auth-choice", "research-cs-speech-stack", "plan-dashboard-decomposition",
+          "plan-custom-action-briefing", "orchestrate-dashboard-stages", "orchestrate-sl-sim-phase-one"}
+
+
+def test_round4_packages_fill_the_thin_families():
+    """Round 4: Research, Understand and plan and Orchestrate each gain two fresh calibrated packages."""
+    def refs(name):
+        source = curriculum.meta(name)["source"]
+        return source["base_ref"], source["reference_ref"]
+    earlier = {refs(n) for n in curriculum.PACKAGES if n not in ROUND4}
+    by_family = {}
+    for name in ROUND4:
+        info = curriculum.meta(name)
+        assert info["round"] == 4 and "supersedes" not in info and refs(name) not in earlier, name
+        receipt = json.loads((curriculum.HERE / name / "calibration.json").read_text())
+        assert [p["verdict"] for p in receipt["phases"]] == ["fail", "pass"], name
+        assert "Grading" in (curriculum.HERE / name / "agent/TASK.md").read_text(), name
+        by_family.setdefault(info["family"], set()).add(name)
+    assert {f: len(v) for f, v in by_family.items()} == {"Research": 2, "Understand and plan": 2, "Orchestrate": 2}
+    assert {curriculum.meta(n)["source"]["repo"] for n in by_family["Orchestrate"]} == {"Kixantrix/kerrigan", "Kixantrix/sunday-league"}
+
+
+def test_harbor_build_never_reuses_a_same_size_same_mtime_file_from_another_context(tmp_path):
+    """Fresh checkouts give equal mtimes; BuildKit's directory sync then reused a stale test.sh."""
+    if shutil.which("docker") is None:
+        pytest.skip("docker unavailable")
+    built = {}
+    for name, word in (("a", "FINDINGS"), ("b", "DECISION")):
+        context = tmp_path / name / "tests"
+        context.mkdir(parents=True)
+        (context / "Dockerfile").write_text(f"FROM {specs.NODE_IMAGE}\nCOPY . /ctx/\n")
+        (context / "test.sh").write_text(f"grade {word}.json\n")
+        for path in context.iterdir():
+            os.utime(path, (1_700_000_000, 1_700_000_000))
+        built[word] = harbor.build(context, "collision-check")
+    for word, tag in built.items():
+        shown = subprocess.run(["docker", "run", "--rm", "--network", "none", "--entrypoint", "cat", tag, "/ctx/test.sh"],
+                               capture_output=True, timeout=60)
+        assert shown.stdout.decode() == f"grade {word}.json\n"
+        subprocess.run(["docker", "image", "rm", "-f", tag], capture_output=True)
+
+
+def _writable_texts(name):
+    agent, writable = curriculum.agent_files(name), curriculum.candidates(name)
+    reference = curriculum.verifier_files(name)["reference"]
+    oracle = ({writable[0]: reference} if len(writable) == 1
+              else {path: text.encode() for path, text in json.loads(reference).items()})
+    return [data for path in writable for data in (agent.get(path, b""), oracle.get(path, b""))]
+
+
+@pytest.mark.parametrize("name", [n for n in curriculum.PACKAGES if n not in curriculum.retired()])
+def test_native_limits_cover_each_packages_own_artifacts(name):
+    """Per-file, read-channel, write-payload and final-collection limits fit the largest base/oracle file."""
+    policy = json.loads((curriculum.HERE / name / "native-policy.json").read_text())
+    assert policy == curriculum.native_policy(name)
+    texts = _writable_texts(name)
+    largest = max(len(t) for t in texts)
+    escaped = max(len(json.dumps(t.decode())) for t in texts)
+    assert policy["bytes"] >= largest * 5 // 4, (name, largest)
+    for key in ("channel", "payload", "finalOutputReserve"):
+        assert policy[key] >= escaped + 1024, (name, key, escaped)
+
+
+def test_foal_v2_only_raises_its_own_native_limits():
+    old, new = curriculum.HERE / "foal-meadow-regression-review", curriculum.HERE / "foal-meadow-regression-review-v2"
+    assert curriculum.agent_files(new.name) == curriculum.agent_files(old.name)
+    assert curriculum.verifier_files(new.name) == curriculum.verifier_files(old.name)
+    policy = curriculum.native_policy(new.name)
+    largest = max(len(t) for t in _writable_texts(new.name))
+    assert policy["bytes"] >= 2 * largest and policy["payload"] >= 2 * policy["bytes"]
+    assert curriculum.NATIVE_LIMITS["bytes"] == 32768  # shared default unchanged
+    v1 = json.loads((old / "native-policy.json").read_text())
+    assert v1["bytes"] < max(len(t) for t in _writable_texts(old.name))  # the native fit failure v2 fixes
+
+
+def test_vhs_v2_states_the_merged_pr_behaviors_and_keeps_the_oracle():
+    old, new = "vhs-room-registry-sync", "vhs-room-registry-sync-v2"
+    assert curriculum.verifier_files(new)["reference"] == curriculum.verifier_files(old)["reference"]
+    assert {p: d for p, d in curriculum.agent_files(new).items() if p not in ("TASK.md", "policy.json")} == {
+        p: d for p, d in curriculum.agent_files(old).items() if p not in ("TASK.md", "policy.json")}
+    ids = {r["original_id"] for r in json.loads((curriculum.HERE / new / "hidden/rows.json").read_text())}
+    for row in ("the admin room list keeps deleted rooms as disabled entries and a repeated delete succeeds",
+                "creating a name held by a disabled room revives that row and replicates",
+                "a replicated rename keeps the old name live on both backends"):
+        assert row in ids
+
+
+def test_cs_v2_scopes_refusal_to_json_values_and_rejects_duplicate_findings(tmp_path):
+    old, new = "cs-mismatch-stage-authority", "cs-mismatch-stage-authority-v2"
+    assert curriculum.verifier_files(new)["reference"] == curriculum.verifier_files(old)["reference"]
+    task = (curriculum.HERE / new / "agent/TASK.md").read_text()
+    assert "Values JSON cannot serialise" in task and "TypeError" in task
+    hidden = json.dumps(curriculum.verifier_files(new), default=lambda b: b.decode()).lower()
+    assert "bigint" not in hidden and "circular" not in hidden
+    files = specs.unbundle(new, specs.reference(new))
+    ledger = json.loads(files["REVIEW.json"])
+    ledger["findings"] = ledger["findings"] * 2
+    files["REVIEW.json"] = (json.dumps(ledger, indent=2) + "\n").encode()
+    assert _failed(specs.bundle(files), new, tmp_path) == ["ledger entries are well formed, one per distinct defect"]

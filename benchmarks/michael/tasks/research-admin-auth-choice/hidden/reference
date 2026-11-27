@@ -1,0 +1,128 @@
+{
+  "chosen_option": "builtin-github",
+  "rejected": {
+    "builtin-custom-oidc": [
+      "C1"
+    ],
+    "site-password": [
+      "C1",
+      "C6",
+      "C7"
+    ],
+    "directory-tenant": [
+      "C5"
+    ],
+    "saas-vendor-a": [
+      "C2"
+    ],
+    "saas-vendor-b": [
+      "C1",
+      "C2",
+      "C4"
+    ],
+    "self-hosted-oidc": [
+      "C1",
+      "C3",
+      "C5"
+    ],
+    "hashed-password": [
+      "C6"
+    ]
+  },
+  "added_monthly_cost_usd": {
+    "builtin-github": 0.0,
+    "builtin-custom-oidc": 18.0,
+    "site-password": 18.0,
+    "directory-tenant": 0.0,
+    "saas-vendor-a": 0.0,
+    "saas-vendor-b": null,
+    "self-hosted-oidc": null,
+    "hashed-password": 0.0
+  },
+  "password_checking_functions": [
+    "adminAuth",
+    "generateJoinToken",
+    "getAuditLog"
+  ],
+  "unguarded_admin_functions": [
+    "manageAlbum",
+    "syncLibrary"
+  ],
+  "unknowns": [
+    "added_monthly_cost_usd.saas-vendor-b",
+    "added_monthly_cost_usd.self-hosted-oidc"
+  ],
+  "citations": {
+    "chosen_option": [
+      "S1",
+      "S2",
+      "S3"
+    ],
+    "password_checking_functions": [
+      "S6"
+    ],
+    "unguarded_admin_functions": [
+      "S6",
+      "S7"
+    ],
+    "rejected.builtin-custom-oidc": [
+      "S1",
+      "S2",
+      "S3",
+      "S6"
+    ],
+    "rejected.site-password": [
+      "S1",
+      "S2",
+      "S3",
+      "S6"
+    ],
+    "rejected.directory-tenant": [
+      "S1",
+      "S4"
+    ],
+    "rejected.saas-vendor-a": [
+      "S1",
+      "S4"
+    ],
+    "rejected.saas-vendor-b": [
+      "S1",
+      "S4"
+    ],
+    "rejected.self-hosted-oidc": [
+      "S1",
+      "S5"
+    ],
+    "rejected.hashed-password": [
+      "S1",
+      "S5"
+    ],
+    "added_monthly_cost_usd.builtin-github": [
+      "S2",
+      "S3"
+    ],
+    "added_monthly_cost_usd.builtin-custom-oidc": [
+      "S1",
+      "S2",
+      "S3",
+      "S6"
+    ],
+    "added_monthly_cost_usd.site-password": [
+      "S1",
+      "S2",
+      "S3",
+      "S6"
+    ],
+    "added_monthly_cost_usd.directory-tenant": [
+      "S1",
+      "S4"
+    ],
+    "added_monthly_cost_usd.saas-vendor-a": [
+      "S1",
+      "S4"
+    ],
+    "added_monthly_cost_usd.hashed-password": [
+      "S5"
+    ]
+  }
+}

@@ -1,0 +1,614 @@
+[
+ {
+  "original_id": "only option satisfying every hard constraint chosen",
+  "group": "decision",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "chosen_option"
+    ],
+    "builtin-github"
+   ]
+  ]
+ },
+ {
+  "original_id": "every other option rejected and the chosen one is not",
+  "group": "decision",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_keys",
+    [
+     "artifact",
+     "rejected"
+    ],
+    [
+     "builtin-custom-oidc",
+     "directory-tenant",
+     "hashed-password",
+     "saas-vendor-a",
+     "saas-vendor-b",
+     "self-hosted-oidc",
+     "site-password"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "plausible built-in custom provider rejected only for its plan cost",
+  "group": "elimination",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "rejected",
+     "builtin-custom-oidc"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "C1"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "site password rejected for cost, shared secret and guest lockout",
+  "group": "elimination",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "rejected",
+     "site-password"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "C1",
+     "C6",
+     "C7"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "directory tenant rejected only for setup size",
+  "group": "elimination",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "rejected",
+     "directory-tenant"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "C5"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "vendor A at the five-step boundary rejected only as an extra vendor",
+  "group": "elimination",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "rejected",
+     "saas-vendor-a"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "C2"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "vendor B rejected for unknown cost, extra vendor and bundler SDK",
+  "group": "elimination",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "rejected",
+     "saas-vendor-b"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "C1",
+     "C2",
+     "C4"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "self-hosted server rejected for unknown cost, operations and setup size",
+  "group": "elimination",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "rejected",
+     "self-hosted-oidc"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "C1",
+     "C3",
+     "C5"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "hardened password rejected only for the shared non-revocable secret",
+  "group": "elimination",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "rejected",
+     "hashed-password"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "C6"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "standard-plan options cost nine dollars on each of both apps",
+  "group": "synthesis",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "builtin-custom-oidc"
+    ],
+    18.0,
+    0.01
+   ],
+   [
+    "path_within",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "site-password"
+    ],
+    18.0,
+    0.01
+   ]
+  ]
+ },
+ {
+  "original_id": "free-tier and no-new-resource options cost nothing at expected scale",
+  "group": "synthesis",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "builtin-github"
+    ],
+    0.0,
+    0.01
+   ],
+   [
+    "path_within",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "directory-tenant"
+    ],
+    0.0,
+    0.01
+   ],
+   [
+    "path_within",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "saas-vendor-a"
+    ],
+    0.0,
+    0.01
+   ],
+   [
+    "path_within",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "hashed-password"
+    ],
+    0.0,
+    0.01
+   ]
+  ]
+ },
+ {
+  "original_id": "functions reading the env-var password found",
+  "group": "repo",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "password_checking_functions"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "adminAuth",
+     "generateJoinToken",
+     "getAuditLog"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "admin operations with no check at all found",
+  "group": "repo",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "unguarded_admin_functions"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "manageAlbum",
+     "syncLibrary"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "undeterminable costs left null",
+  "group": "uncertainty",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "saas-vendor-b"
+    ],
+    null
+   ],
+   [
+    "path_equal",
+    [
+     "artifact",
+     "added_monthly_cost_usd",
+     "self-hosted-oidc"
+    ],
+    null
+   ]
+  ]
+ },
+ {
+  "original_id": "unknowns list exactly the undeterminable costs",
+  "group": "uncertainty",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": [
+    [
+     "unknowns"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "added_monthly_cost_usd.saas-vendor-b",
+     "added_monthly_cost_usd.self-hosted-oidc"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "decision cites the constraints and platform docs",
+  "group": "evidence",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "chosen_option"
+    ],
+    [
+     "S1",
+     "S2"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "custom-provider rejection and cost cite plan rules, prices and app count",
+  "group": "evidence",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "rejected.builtin-custom-oidc"
+    ],
+    [
+     "S1",
+     "S2",
+     "S3"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "added_monthly_cost_usd.builtin-custom-oidc"
+    ],
+    [
+     "S2",
+     "S3",
+     "S6"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "vendor rejection and repo findings cite their sources",
+  "group": "evidence",
+  "probe": {
+   "artifact": "FINDINGS.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "rejected.saas-vendor-a"
+    ],
+    [
+     "S1",
+     "S4"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "password_checking_functions"
+    ],
+    [
+     "S6"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "unguarded_admin_functions"
+    ],
+    [
+     "S6",
+     "S7"
+    ]
+   ]
+  ]
+ }
+]

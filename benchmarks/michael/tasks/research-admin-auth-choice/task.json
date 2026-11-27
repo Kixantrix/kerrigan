@@ -1,0 +1,39 @@
+{
+ "id": "research-admin-auth-choice",
+ "family": "Research",
+ "title": "Choose what replaces a plaintext env-var admin password under hard platform constraints",
+ "source": {
+  "repo": "Kixantrix/personal-selfhost",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 20,
+  "base_ref": "07fbe2d97f88f023217b03432dfdfec44f5384b3",
+  "reference_ref": "2f9edd84189d17c11c5b4b04c5618f303a703aeb",
+  "history_status": "merged"
+ },
+ "derivation": "Private decision record (PR #20, issue #19): the admin password of a static-web-app + serverless-functions media vault was a plaintext env var compared in several functions; five auth options (platform built-in auth with the pre-configured GitHub provider, the cloud provider's consumer-identity tenant, two identity SaaS vendors, a self-hosted OIDC server) were evaluated on cost, complexity, guest UX, admin UX, roles and session handling, and built-in GitHub sign-in was selected. Re-synthesized as seven sanitized sources: neutral paraphrases of the platform/vendor facts the decision relied on (vendor and product names generalized), a requirements sheet that turns the record's criteria into seven explicit hard constraints, and repo excerpts reduced from the base commit (functions that read the password: adminAuth, generateJoinToken, getAuditLog; admin functions with no check: manageAlbum and the library-sync function, renamed). Added beyond the record to make the decision uniquely determined and discriminating: two plausible platform-native traps that need the paid plan (custom OIDC provider, site-wide password protection), a hardened-password option, numbered setup-step lists with two options exactly at the 5-step limit, a two-app deployment so plan costs double, and a vendor whose price the sources omit (honest null). The plan price, app count, step counts and MAU limits are invented. No private code, hostnames, domains or personal data are included.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Deterministic required-facts checklist: closed-vocabulary decision, exact key set of rejected options, exact eliminating-constraint set per rejected option (7 rows incl. the plausible-but-wrong built-in custom provider and two 5-step boundary cases), recomputed costs within one cent, honest nulls and an exact unknowns set, repo-derived function sets, and required citations to source IDs. No model judge.",
+ "historical_exposure": "Private history; generalized vendor names and invented quantities give low recognition risk.",
+ "outcome_evidence": "required_facts_checklist",
+ "estimated_agent_minutes": 25,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Prose quality of any added rationale and citations for ungraded claim keys are not graded; recorded for later review only."
+ ],
+ "leak_tokens": [],
+ "required_environment": "None beyond the grader image: the upstream task was a documentation decision (vendor docs + repo reading). The packaged version is fully offline with frozen sources; michael-replay-grader:mb006j (python 3.12 stdlib) runs the shared json_artifact_sets.py harness.",
+ "grader": {
+  "harness": "json_artifact_sets.py",
+  "candidate": "FINDINGS.json",
+  "denominators": {
+   "decision": 2,
+   "elimination": 7,
+   "synthesis": 2,
+   "repo": 2,
+   "uncertainty": 2,
+   "evidence": 3
+  }
+ },
+ "round": 4
+}

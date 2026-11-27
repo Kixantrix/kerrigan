@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="A cozy bubble-pop game: rescue baby horses from bubbles and grow your meadow herd. No ads, no timers, saves automatically.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Foal Meadow">
+<meta name="theme-color" content="#9fdcf5">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Foal Rescue Meadow</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body {
+    position: fixed; inset: 0; width: 100%;
+    background: #aee4f7;
+    font-family: ui-rounded, -apple-system, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+  #game { position: fixed; inset: 0; display: block; }
+
+  #hud {
+    position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; z-index: 5; pointer-events: none;
+  }
+  .pill {
+    background: rgba(255, 248, 238, 0.92);
+    border-radius: 999px; padding: 8px 14px;
+    font-weight: 800; color: #5a4632; font-size: 16px;
+    box-shadow: 0 2px 10px rgba(90, 70, 50, 0.18);
+    display: flex; align-items: center; gap: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .spacer { flex: 1; }
+  .hbtn {
+    pointer-events: auto;
+    background: rgba(255, 248, 238, 0.94);
+    border: none; border-radius: 999px;
+    min-width: 46px; height: 46px; font-size: 21px;
+    box-shadow: 0 2px 10px rgba(90, 70, 50, 0.2);
+    color: #5a4632;
+  }
+  .hbtn:active { transform: scale(0.94); }
+  #shopBtn { padding: 0 18px; font-weight: 800; font-size: 16px; font-family: inherit; }
+
+  #toast {
+    position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 68px);
+    transform: translateX(-50%) translateY(-10px);
+    background: rgba(255, 248, 238, 0.96); color: #5a4632;
+    font-weight: 700; font-size: 15px;
+    padding: 10px 18px; border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(90, 70, 50, 0.22);
+    opacity: 0; transition: opacity 0.25s, transform 0.25s;
+    z-index: 8; max-width: 86%; text-align: center; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  #backdrop {
+    position: fixed; inset: 0; background: rgba(60, 45, 30, 0.25);
+    opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 9;
+  }
+  #backdrop.open { opacity: 1; pointer-events: auto; }
+
+  #sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: #fff8ee;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 32px rgba(60, 45, 30, 0.3);
+    transform: translateY(105%); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    z-index: 10; max-height: 72%;
+    display: flex; flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+  }
+  #sheet.open { transform: translateY(0); }
+  .sheetHead {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 18px 10px; font-size: 19px; font-weight: 800; color: #5a4632;
+  }
+  #closeShop {
+    border: none; background: #f0e6d8; color: #8a7a66;
+    border-radius: 999px; width: 38px; height: 38px; font-size: 16px; font-weight: 700;
+  }
+  #items { overflow-y: auto; padding: 0 12px 10px; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+  .item {
+    display: flex; align-items: center; gap: 12px;
+    background: #ffffff; border-radius: 18px;
+    padding: 12px 14px; margin-bottom: 9px;
+    box-shadow: 0 1px 5px rgba(90, 70, 50, 0.1);
+  }
+  .item .ic { font-size: 27px; width: 34px; text-align: center; }
+  .item .tx { flex: 1; min-width: 0; }
+  .item .tx b { display: block; color: #5a4632; font-size: 15.5px; }
+  .item .tx span { font-size: 12.5px; color: #9a8a74; }
+  .buy {
+    border: none; border-radius: 999px;
+    background: #ffd45e; color: #6b4e12;
+    font-weight: 800; font-family: inherit;
+    padding: 12px 15px; font-size: 14px; min-width: 82px;
+    font-variant-numeric: tabular-nums;
+  }
+  .buy:active { transform: scale(0.95); }
+  .buy:disabled { background: #ece4d6; color: #b0a591; transform: none; }
+  .buy.owned { background: #c5e8ad; color: #3e6a28; }
+  #stats { padding: 6px 18px 14px; font-size: 13px; color: #9a8a74; text-align: center; font-weight: 600; }
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div class="pill">🪙 <span id="coinsEl">0</span></div>
+  <div class="pill">🐴 <span id="herdEl">0/4</span></div>
+  <div class="spacer"></div>
+  <button class="hbtn" id="sndBtn">🔊</button>
+  <button class="hbtn" id="shopBtn">🎀 Shop</button>
+</div>
+
+<div id="toast"></div>
+<div id="backdrop"></div>
+<div id="sheet">
+  <div class="sheetHead"><span>🎀 Ranch Shop</span><button id="closeShop">✕</button></div>
+  <div id="items"></div>
+  <div id="stats"></div>
+</div>
+
+<script>
+'use strict';
+// ============================================================ helpers
+const $ = id => document.getElementById(id);
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const TAU = Math.PI * 2;
+
+function shade(hex, amt) { // lighten (+) / darken (-) a #rrggbb color
+  const n = parseInt(hex.slice(1), 16);
+  const r = clamp((n >> 16) + amt, 0, 255), g = clamp(((n >> 8) & 255) + amt, 0, 255), b = clamp((n & 255) + amt, 0, 255);
+  return `rgb(${r},${g},${b})`;
+}
+
+// ============================================================ constants
+const GROW_MS = 3 * 60 * 1000;          // foal -> horse
+const SAVE_KEY = 'foal-rescue-meadow-v1';
+
+const COATS = [
+  { body: '#b5773f', mane: '#6d4423' }, // chestnut
+  { body: '#8a5a33', mane: '#3f2a17' }, // bay
+  { body: '#e2b25f', mane: '#f6e7c1' }, // palomino
+  { body: '#b9bcc9', mane: '#8a8da0' }, // grey
+  { body: '#565661', mane: '#33333c' }, // black
+  { body: '#e8d3ab', mane: '#c9a86b' }, // cream
+  { body: '#c98f80', mane: '#8f5a4e' }, // strawberry roan
+  { body: '#f3efe7', mane: '#d8cfc0' }, // snow white
+];
+
+const NAMES = ['Buttercup','Clover','Daisy','Willow','Maple','Star','Biscuit','Pepper','Honey','Blossom',
+  'Juniper','Rosie','Cocoa','Misty','Sunny','Poppy','Hazel','Ginger','Luna','Marigold',
+  'Pippin','Toffee','Nutmeg','Snowdrop','Bramble','Fern','Dandelion','Sprout','Pebble','Cricket',
+  'Tulip','Sky','Acorn','Berry','Doodle','Waffles','Mochi','Peanut','Cupcake','Petal'];
+
+const SHOP = [
+  { id: 'cap',     ic: '🌿', name: 'Bigger Meadow', desc: 'Room for 2 more horses',  max: 8, cost: l => Math.round(25 * Math.pow(2.1, l)) },
+  { id: 'breeze',  ic: '🍃', name: 'Gentle Breeze', desc: 'Bubbles float in faster', max: 6, cost: l => Math.round(40 * Math.pow(2.2, l)) },
+  { id: 'lucky',   ic: '🍀', name: 'Lucky Skies',   desc: 'Rarer, richer bubbles',   max: 5, cost: l => Math.round(60 * Math.pow(2.3, l)) },
+  { id: 'flowers', ic: '🌼', name: 'Wildflowers',   desc: 'Blooms across the meadow', decor: true, cost: () => 50 },
+  { id: 'pond',    ic: '🪷', name: 'Lily Pond',     desc: 'A cool drink for the herd', decor: true, cost: () => 150 },
+  { id: 'barn',    ic: '🏡', name: 'Cozy Barn',     desc: 'Shelter for stormy nights', decor: true, cost: () => 350 },
+  { id: 'rainbow', ic: '🌈', name: 'Rainbow',       desc: 'Every meadow needs one',    decor: true, cost: () => 700 },
+];
+
+function titleFor(n) {
+  if (n >= 150) return 'Meadow Legend';
+  if (n >= 100) return 'Stable Star';
+  if (n >= 60)  return 'Herd Hero';
+  if (n >= 30)  return 'Pony Pal';
+  if (n >= 10)  return 'Foal Friend';
+  return 'New Rancher';
+}
+
+// ============================================================ state
+let S = null;
+let herdId = 1;
+
+function freshState() {
+  return {
+    coins: 0, rescued: 0, born: 0, muted: false, seenHint: false,
+    up: { cap: 0, breeze: 0, lucky: 0 },
+    decor: { flowers: false, pond: false, barn: false, rainbow: false },
+    herd: [], lastSeen: Date.now(),
+  };
+}
+const capOf = () => 4 + S.up.cap * 2;
+const adults = () => S.herd.filter(h => h.stage === 'adult');
+
+function pickName() {
+  const used = new Set(S.herd.map(h => h.name));
+  const free = NAMES.filter(n => !used.has(n));
+  return free.length ? free[Math.floor(Math.random() * free.length)]
+                     : NAMES[Math.floor(Math.random() * NAMES.length)] + ' Jr';
+}
+
+function makeHorse(stage, xf, yf) {
+  return {
+    id: herdId++, name: pickName(), coat: Math.floor(Math.random() * COATS.length),
+    stage, bornAt: Date.now(),
+    xf: xf !== undefined ? xf : rand(0.1, 0.9),
+    yf: yf !== undefined ? yf : rand(0.1, 0.9),
+    dir: Math.random() < 0.5 ? 1 : -1,
+    mode: 'idle', modeT: rand(0.5, 2), targetXf: 0, targetYf: 0,
+    phase: rand(0, TAU), petUntil: 0, petCd: 0,
+    nextCoinAt: Date.now() + rand(25000, 45000),
+  };
+}
+
+function save() {
+  S.lastSeen = Date.now();
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      S = Object.assign(freshState(), d);
+      S.up = Object.assign({}, d.up, { cap: 0, breeze: 0, lucky: 0 });
+      S.decor = Object.assign({ flowers: false, pond: false, barn: false, rainbow: false }, d.decor);
+      S.herd.forEach(h => {
+        herdId = Math.max(herdId, h.id + 1);
+        h.mode = 'idle'; h.modeT = rand(0.5, 2); h.phase = rand(0, TAU);
+        h.petUntil = 0; h.petCd = 0;
+        if (h.nextCoinAt === 0) h.nextCoinAt = Date.now() + rand(25000, 45000);
+      });
+      return true;
+    }
+  } catch (e) {}
+  S = freshState();
+  const mama = makeHorse('adult', 0.5, 0.55);
+  S.herd.push(mama);
+  return false;
+}
+
+// ============================================================ sound
+let AC = null;
+function unlockAudio() {
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  if (AC && AC.state === 'suspended') AC.resume();
+}
+function tone(f0, f1, dur, type, vol, delay) {
+  if (!AC || S.muted) return;
+  const t = AC.currentTime + (delay || 0);
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(f0, t);
+  o.frequency.exponentialRampToValueAtTime(Math.max(40, f1), t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g).connect(AC.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+const sPop    = () => tone(520 + Math.random() * 160, 980, 0.09, 'triangle', 0.12);
+const sCoin   = () => { tone(880, 880, 0.06, 'sine', 0.08); tone(1318, 1318, 0.1, 'sine', 0.08, 0.06); };
+const sRescue = () => [523, 659, 784].forEach((f, i) => tone(f, f, 0.14, 'sine', 0.09, i * 0.09));
+const sGrow   = () => [392, 494, 587].forEach((f, i) => tone(f, f, 0.16, 'sine', 0.09, i * 0.1));
+const sBirth  = () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.15, 'sine', 0.09, i * 0.09));
+const sBuy    = () => tone(600, 950, 0.13, 'sine', 0.1);
+const sPet    = () => tone(700 + Math.random() * 200, 1100, 0.08, 'sine', 0.07);
+
+// ============================================================ canvas setup
+const cv = $('game'), ctx = cv.getContext('2d');
+let W = 0, H = 0, MT = 0; // MT = meadow top
+
+function resize() {
+  W = window.innerWidth; H = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  MT = Math.round(H * 0.55);
+}
+window.addEventListener('resize', resize);
+resize();
+
+const horseXY = h => [h.xf * W, MT + 34 + h.yf * (H - MT - 78)];
+const horseScale = h => (0.72 + 0.4 * h.yf) * (h.stage === 'foal' ? 0.62 : 1);
+
+// ============================================================ entities
+let bubbles = [], fallers = [], parts = [], floaters = [];
+let spawnT = 1.2, growCheckT = 0, nextBirthAt = Date.now() + 60000, comboN = 0, lastPop = 0;
+
+const spawnInterval = () => Math.max(0.72, 1.5 * Math.pow(0.88, S.up.breeze));
+
+function pickKind() {
+  const L = S.up.lucky;
+  const w = [
+    ['foal',   S.herd.length + fallers.length < capOf() ? 3 : 0],
+    ['coin',   5],
+    ['clover', 1.2 + 0.5 * L],
+    ['star',   0.35 + 0.18 * L],
+  ];
+  let tot = w.reduce((s, x) => s + x[1], 0), r = Math.random() * tot;
+  for (const [k, v] of w) { if ((r -= v) <= 0) return k; }
+  return 'coin';
+}
+
+function spawnBubble() {
+  const kind = pickKind();
+  bubbles.push({
+    x: rand(30, W - 30), y: MT + rand(0, 30),
+    r: kind === 'foal' ? rand(30, 36) : rand(22, 28),
+    vy: rand(26, 42), wob: rand(14, 26), ph: rand(0, TAU),
+    kind, coat: Math.floor(Math.random() * COATS.length),
+  });
+}
+
+function burst(x, y, r, col) {
+  parts.push({ t: 'ring', x, y, r, age: 0, life: 0.35 });
+  for (let i = 0; i < 7; i++) {
+    const a = rand(0, TAU);
+    parts.push({ t: 'drop', x, y, vx: Math.cos(a) * rand(60, 160), vy: Math.sin(a) * rand(60, 160) - 40,
+                 age: 0, life: rand(0.35, 0.6), col: col || 'rgba(190,230,250,0.9)' });
+  }
+}
+function hearts(x, y, n) {
+  for (let i = 0; i < n; i++)
+    parts.push({ t: 'heart', x: x + rand(-14, 14), y: y + rand(-8, 4), vx: rand(-15, 15), vy: rand(-70, -40),
+                 age: 0, life: rand(0.8, 1.3), s: rand(8, 13) });
+}
+function sparkle(x, y, n) {
+  for (let i = 0; i < n; i++)
+    parts.push({ t: 'spark', x: x + rand(-16, 16), y: y + rand(-16, 16), vx: rand(-25, 25), vy: rand(-60, -15),
+                 age: 0, life: rand(0.4, 0.8), s: rand(3, 6) });
+}
+function floater(x, y, text, col) {
+  floaters.push({ x, y, text, col: col || '#5a4632', age: 0, life: 1.1 });
+}
+
+function gainCoins(n, x, y) {
+  S.coins += n;
+  if (x !== undefined) floater(x, y, '+' + n + ' 🪙', '#8a6a12');
+  hud();
+}
+
+// ============================================================ toasts
+const toastEl = $('toast');
+let toastQ = [], toastBusy = false;
+function toast(msg) {
+  toastQ.push(msg);
+  if (!toastBusy) nextToast();
+}
+function nextToast() {
+  if (!toastQ.length) { toastBusy = false; return; }
+  toastBusy = true;
+  toastEl.textContent = toastQ.shift();
+  toastEl.classList.add('show');
+  setTimeout(() => {
+    toastEl.classList.remove('show');
+    setTimeout(nextToast, 350);
+  }, 2400);
+}
+
+// ============================================================ game events
+function rescueFoal(b) {
+  const h = makeHorse('foal', clamp(b.x / W, 0.08, 0.92), rand(0.15, 0.85));
+  h.coat = b.coat;
+  const [, ty] = horseXY(h);
+  fallers.push({ x: b.x, y: b.y, vy: 30, targetY: ty, horse: h });
+  S.rescued++;
+  gainCoins(3, b.x, b.y - 10);
+  sRescue();
+}
+
+function landFaller(f) {
+  const h = f.horse;
+  h.xf = clamp(f.x / W, 0.06, 0.94);
+  S.herd.push(h);
+  sparkle(f.x, f.targetY - 20, 8);
+  toast('💖 ' + h.name + ' rescued!');
+  if (S.rescued === 1) toast('Foals grow up in a few minutes 🌱');
+  hud();
+}
+
+function popBubble(b) {
+  b.dead = true;
+  burst(b.x, b.y, b.r);
+  sPop();
+  const t = Date.now();
+  comboN = (t - lastPop < 1300) ? comboN + 1 : 0;
+  lastPop = t;
+  if (b.kind === 'coin')   { gainCoins(2 + (S.up.lucky > 2 ? 1 : 0), b.x, b.y); sCoin(); }
+  if (b.kind === 'clover') { gainCoins(6, b.x, b.y); sCoin(); }
+  if (b.kind === 'star')   { gainCoins(25, b.x, b.y); sparkle(b.x, b.y, 12); sCoin(); }
+  if (b.kind === 'foal')   rescueFoal(b);
+  if (comboN >= 3) {
+    gainCoins(comboN);
+    floater(b.x, b.y - 34, 'Combo x' + comboN + '! +' + comboN, '#c05a8a');
+    sparkle(b.x, b.y, 5);
+  }
+}
+
+function doBirth() {
+  const ad = adults();
+  const a = ad[Math.floor(Math.random() * ad.length)];
+  const h = makeHorse('foal', clamp(a.xf + rand(-0.08, 0.08), 0.08, 0.92), clamp(a.yf + rand(-0.1, 0.1), 0.05, 0.95));
+  S.herd.push(h);
+  S.born++;
+  const [px, py] = horseXY(h);
+  hearts(px, py - 40, 8);
+  sparkle(px, py - 20, 8);
+  toast('🎉 A foal was born — welcome, ' + h.name + '!');
+  sBirth();
+  hud();
+}
+
+function petHorse(h, px, py) {
+  const t = Date.now();
+  h.petUntil = t + 2000;
+  hearts(px, py - 40 * horseScale(h), 4);
+  sPet();
+  if (t > h.petCd) gainCoins(1, px, py - 60 * horseScale(h));
+  h.petCd = t + 3000;
+}
+
+// ============================================================ offline progress
+function processOffline() {
+  const t = Date.now(), gone = t - (S.lastSeen || t);
+  if (gone < 60000) return;
+  let grew = 0, births = 0, coins = 0;
+  S.herd.forEach(h => {
+    if (h.stage === 'foal' && t >= h.bornAt + GROW_MS) { h.stage = 'adult'; grew++; }
+  });
+  const tries = Math.min(Math.floor(gone / 120000), 3);
+  for (let i = 0; i < tries; i++) {
+    if (adults().length >= 2 && S.herd.length <= capOf() && Math.random() < 0.75) {
+      const a = adults()[0];
+      const h = makeHorse('foal', clamp(a.xf + rand(-0.1, 0.1), 0.08, 0.92), rand(0.1, 0.9));
+      h.bornAt = t - rand(0, Math.min(gone * 0.5, GROW_MS * 0.8)); // still a foal when you return
+      S.herd.push(h); S.born++; births++;
+    }
+  }
+  coins = Math.min(adults().length * Math.floor(gone / 3500), 120);
+  S.coins += coins;
+  const bits = [];
+  if (grew)   bits.push(grew + (grew > 1 ? ' foals grew up' : ' foal grew up'));
+  if (births) bits.push(births + (births > 1 ? ' foals were born' : ' foal was born'));
+  if (coins)  bits.push('the herd earned ' + coins + ' 🪙');
+  if (bits.length) toast('While you were away, ' + bits.join(', ') + '!');
+  nextBirthAt = t + rand(60000, 120000);
+  hud();
+}
+
+// ============================================================ update
+function update(dt) {
+  const t = Date.now();
+
+  // bubbles
+  spawnT -= dt;
+  if (spawnT <= 0 && bubbles.length < 14) { spawnBubble(); spawnT = spawnInterval() * rand(0.7, 1.3); }
+  bubbles.forEach(b => { b.y -= b.vy * dt; b.ph += dt * 1.6; });
+  bubbles = bubbles.filter(b => !b.dead && b.y > -b.r - 10);
+
+  // falling rescued foals
+  fallers.forEach(f => {
+    f.vy = Math.min(f.vy + 60 * dt, 90);
+    f.y += f.vy * dt;
+    if (f.y >= f.targetY) { f.done = true; landFaller(f); }
+  });
+  fallers = fallers.filter(f => !f.done);
+
+  // horses wander
+  S.herd.forEach(h => {
+    h.modeT -= dt;
+    if (h.mode === 'walk') {
+      const sp = (h.stage === 'foal' ? 0.045 : 0.032);
+      const dx = h.targetXf - h.xf, dy = h.targetYf - h.yf;
+      const d = Math.hypot(dx, dy);
+      if (d < 0.015) { h.mode = Math.random() < 0.5 ? 'graze' : 'idle'; h.modeT = rand(1.5, 4.5); }
+      else {
+        h.xf += (dx / d) * sp * dt; h.yf += (dy / d) * sp * dt;
+        h.dir = dx >= 0 ? 1 : -1;
+        h.phase += dt * 7;
+      }
+    } else if (h.modeT <= 0) {
+      if (Math.random() < 0.7) {
+        h.mode = 'walk';
+        h.targetXf = clamp(h.xf + rand(-0.3, 0.3), 0.06, 0.94);
+        h.targetYf = clamp(h.yf + rand(-0.35, 0.35), 0.05, 0.95);
+      } else { h.mode = Math.random() < 0.5 ? 'graze' : 'idle'; h.modeT = rand(1.5, 4); }
+    }
+    if (h.mode === 'graze') h.phase += dt * 2;
+
+    // idle income from grown horses
+    if (h.stage === 'adult' && t >= h.nextCoinAt) {
+      h.nextCoinAt = t + rand(25000, 45000);
+      const [px, py] = horseXY(h);
+      gainCoins(1, px, py - 62 * horseScale(h));
+      sparkle(px, py - 40 * horseScale(h), 3);
+    }
+  });
+
+  // growth
+  growCheckT -= dt;
+  if (growCheckT <= 0) {
+    growCheckT = 1;
+    S.herd.forEach(h => {
+      if (h.stage === 'foal' && t >= h.bornAt + GROW_MS) {
+        h.stage = 'adult';
+        const [px, py] = horseXY(h);
+        sparkle(px, py - 30, 10);
+        toast('🌱 ' + h.name + ' grew into a horse!');
+        sGrow();
+        if (adults().length === 2 && S.born === 0) toast('Two grown horses may have a baby 💕');
+      }
+    });
+  }
+
+  // births
+  if (t >= nextBirthAt) {
+    if (adults().length >= 2 && S.herd.length < capOf()) doBirth();
+    nextBirthAt = t + rand(90000, 150000);
+  }
+
+  // particles & floaters
+  parts.forEach(p => {
+    p.age += dt;
+    if (p.t === 'drop' || p.t === 'heart' || p.t === 'spark') {
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      if (p.t === 'drop') p.vy += 300 * dt;
+    }
+  });
+  parts = parts.filter(p => p.age < p.life);
+  floaters.forEach(f => { f.age += dt; f.y -= 34 * dt; });
+  floaters = floaters.filter(f => f.age < f.life);
+}
+
+// ============================================================ drawing: horse
+function drawHorse(c, x, y, k, ci, dir, phase, amp, graze, isFoal) {
+  const co = COATS[ci];
+  const dark = shade(co.body, -22), near = shade(co.body, -6);
+  c.save();
+  c.translate(x, y);
+  c.scale(dir * k, k);
+
+  // shadow
+  c.fillStyle = 'rgba(50,90,35,0.22)';
+  c.beginPath(); c.ellipse(0, 1.5, isFoal ? 20 : 24, 4.5, 0, 0, TAU); c.fill();
+
+  const bob = Math.sin(phase * 2) * 0.8 * (amp > 0 ? 1 : 0.3);
+  const bodyY = -27 + bob;
+  const legW = isFoal ? 3.6 : 4.8;
+  const rx = isFoal ? 16.5 : 21, ry = isFoal ? 10.5 : 13.5;
+
+  // legs (far pair darker, near pair)
+  const legs = [
+    { x: -14, ph: 0,           col: dark },
+    { x: 12,  ph: Math.PI,     col: dark },
+    { x: -10, ph: Math.PI,     col: near },
+    { x: 15,  ph: 0,           col: near },
+  ];
+  c.lineCap = 'round';
+  legs.forEach(L => {
+    const swing = Math.sin(phase + L.ph) * amp;
+    c.strokeStyle = L.col; c.lineWidth = legW;
+    c.beginPath(); c.moveTo(L.x, bodyY + 5); c.lineTo(L.x + swing, -2); c.stroke();
+    c.fillStyle = shade(co.mane, -12);
+    c.beginPath(); c.arc(L.x + swing, -1.5, legW * 0.62, 0, TAU); c.fill();
+  });
+
+  // tail
+  c.strokeStyle = co.mane; c.lineWidth = 6;
+  c.beginPath(); c.moveTo(-rx + 1, bodyY - 5);
+  c.quadraticCurveTo(-rx - 9, bodyY + 5, -rx - 6, -9); c.stroke();
+  c.lineWidth = 3.5;
+  c.beginPath(); c.moveTo(-rx + 1, bodyY - 4);
+  c.quadraticCurveTo(-rx - 12, bodyY + 8, -rx - 10, -11); c.stroke();
+
+  // body
+  c.fillStyle = co.body;
+  c.beginPath(); c.ellipse(0, bodyY, rx, ry, 0, 0, TAU); c.fill();
+
+  // neck + head (graze lowers the head)
+  const headX = 22 + graze * 4 - (isFoal ? 2 : 0);
+  const headY = bodyY - 19 + graze * (0 - bodyY - 15) + Math.sin(phase) * graze * 1.5;
+  const nsx = 11, nsy = bodyY - 6;
+  c.strokeStyle = co.body; c.lineWidth = isFoal ? 8.5 : 11;
+  c.beginPath(); c.moveTo(nsx, nsy); c.lineTo(headX - 2, headY + 2); c.stroke();
+
+  // mane along neck
+  c.fillStyle = co.mane;
+  for (const tt of [0.3, 0.58, 0.86]) {
+    const mx = nsx + (headX - 2 - nsx) * tt - 2.5;
+    const my = nsy + (headY + 2 - nsy) * tt - 4;
+    c.beginPath(); c.arc(mx, my, 4.4 - tt, 0, TAU); c.fill();
+  }
+
+  // head
+  const hr = isFoal ? 8.8 : 8.4;
+  c.fillStyle = co.body;
+  c.beginPath(); c.ellipse(headX + 2, headY, hr, hr * 0.85, 0, 0, TAU); c.fill();
+  // muzzle
+  c.fillStyle = shade(co.body, 34);
+  c.beginPath(); c.arc(headX + 8.6, headY + 2.6, 4.5, 0, TAU); c.fill();
+  c.fillStyle = shade(co.body, -40);
+  c.beginPath(); c.arc(headX + 10.2, headY + 2.2, 0.8, 0, TAU); c.fill();
+  // ear
+  c.fillStyle = co.body;
+  c.beginPath();
+  c.moveTo(headX - 2.5, headY - 5.5); c.lineTo(headX + 0.5, headY - 13.5); c.lineTo(headX + 4, headY - 5);
+  c.closePath(); c.fill();
+  // forelock
+  c.fillStyle = co.mane;
+  c.beginPath(); c.arc(headX - 1.5, headY - 6.5, 3.4, 0, TAU); c.fill();
+  // eye
+  const er = isFoal ? 2.1 : 1.7;
+  c.fillStyle = '#2a2118';
+  c.beginPath(); c.arc(headX + 3.6, headY - 1.4, er, 0, TAU); c.fill();
+  c.fillStyle = '#fff';
+  c.beginPath(); c.arc(headX + 3, headY - 2, er * 0.38, 0, TAU); c.fill();
+  // foal blush
+  if (isFoal) {
+    c.fillStyle = 'rgba(240,140,160,0.45)';
+    c.beginPath(); c.arc(headX + 0.5, headY + 3.2, 2.1, 0, TAU); c.fill();
+  }
+  c.restore();
+}
+
+// ============================================================ drawing: world
+const clouds = [];
+for (let i = 0; i < 4; i++) clouds.push({ xf: Math.random(), yf: 0.08 + Math.random() * 0.3, s: rand(0.7, 1.3), v: rand(3, 7) });
+
+const flowerSpots = [];
+for (let i = 0; i < 16; i++) {
+  // deterministic pseudo-random spots
+  const a = Math.sin(i * 127.1) * 43758.5453, b = Math.sin(i * 311.7) * 12543.85;
+  flowerSpots.push({ xf: a - Math.floor(a), yf: b - Math.floor(b), hue: i % 3 });
+}
+
+function drawWorld(t) {
+  // sky
+  let g = ctx.createLinearGradient(0, 0, 0, MT);
+  g.addColorStop(0, '#9fdcf5'); g.addColorStop(1, '#eaf8fe');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, MT + 2);
+
+  // sun
+  ctx.fillStyle = 'rgba(255,236,160,0.9)';
+  ctx.beginPath(); ctx.arc(W - 58, 84, 26, 0, TAU); ctx.fill();
+  ctx.fillStyle = 'rgba(255,236,160,0.3)';
+  ctx.beginPath(); ctx.arc(W - 58, 84, 40, 0, TAU); ctx.fill();
+
+  // rainbow decor
+  if (S.decor.rainbow) {
+    const cx = W * 0.72, cy = MT + 20;
+    const cols = ['rgba(240,110,110,.5)','rgba(245,180,90,.5)','rgba(245,230,120,.5)','rgba(140,210,130,.5)','rgba(120,170,235,.5)','rgba(180,140,225,.5)'];
+    cols.forEach((col, i) => {
+      ctx.strokeStyle = col; ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.arc(cx, cy, W * 0.34 - i * 7, Math.PI, TAU); ctx.stroke();
+    });
+  }
+
+  // clouds
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  clouds.forEach(cl => {
+    cl.xf += (cl.v / W) * 0.016;
+    if (cl.xf > 1.15) cl.xf = -0.15;
+    const cx = cl.xf * W, cy = cl.yf * MT, s = cl.s;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 16 * s, 0, TAU);
+    ctx.arc(cx + 18 * s, cy + 4 * s, 13 * s, 0, TAU);
+    ctx.arc(cx - 18 * s, cy + 5 * s, 12 * s, 0, TAU);
+    ctx.arc(cx + 2 * s, cy + 8 * s, 14 * s, 0, TAU);
+    ctx.fill();
+  });
+
+  // hills at horizon
+  ctx.fillStyle = '#a8d888';
+  ctx.beginPath(); ctx.ellipse(W * 0.22, MT + 14, W * 0.42, 42, 0, Math.PI, TAU); ctx.fill();
+  ctx.fillStyle = '#98cf76';
+  ctx.beginPath(); ctx.ellipse(W * 0.78, MT + 16, W * 0.46, 34, 0, Math.PI, TAU); ctx.fill();
+
+  // meadow
+  g = ctx.createLinearGradient(0, MT, 0, H);
+  g.addColorStop(0, '#8fce6a'); g.addColorStop(1, '#5fae44');
+  ctx.fillStyle = g; ctx.fillRect(0, MT, W, H - MT);
+
+  // barn decor (background)
+  if (S.decor.barn) {
+    const bx = W - 74, by = MT + 26, s = 1;
+    ctx.fillStyle = '#c05a4a';
+    ctx.fillRect(bx - 30 * s, by - 26 * s, 60 * s, 34 * s);
+    ctx.fillStyle = '#8a4234';
+    ctx.beginPath(); ctx.moveTo(bx - 36 * s, by - 26 * s); ctx.lineTo(bx, by - 48 * s); ctx.lineTo(bx + 36 * s, by - 26 * s); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#6d4423';
+    ctx.fillRect(bx - 9 * s, by - 12 * s, 18 * s, 20 * s);
+    ctx.strokeStyle = '#f3e6cf'; ctx.lineWidth = 2;
+    ctx.strokeRect(bx - 9 * s, by - 12 * s, 18 * s, 20 * s);
+  }
+
+  // pond decor (background)
+  if (S.decor.pond) {
+    const px = W * 0.2, py = MT + 46;
+    ctx.fillStyle = '#7ec4d8';
+    ctx.beginPath(); ctx.ellipse(px, py, 62, 19, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath(); ctx.ellipse(px - 14, py - 4, 26, 6, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#4e9a5f';
+    ctx.beginPath(); ctx.ellipse(px + 26, py + 2, 9, 5, 0.3, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#f0a8c8';
+    ctx.beginPath(); ctx.arc(px + 26, py, 3, 0, TAU); ctx.fill();
+  }
+
+  // grass tufts
+  ctx.strokeStyle = 'rgba(60,130,45,0.5)'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+  for (let i = 0; i < 22; i++) {
+    const a = Math.sin(i * 91.3) * 4721.7, b = Math.sin(i * 53.7) * 8231.3;
+    const gx = (a - Math.floor(a)) * W, gy = MT + 20 + (b - Math.floor(b)) * (H - MT - 40);
+    ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx - 2.5, gy - 6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx + 2.5, gy - 6.5); ctx.stroke();
+  }
+
+  // wildflowers decor
+  if (S.decor.flowers) {
+    const cols = ['#f5d76e', '#f0a8c8', '#e8ecf5'];
+    flowerSpots.forEach(f => {
+      const fx = 14 + f.xf * (W - 28), fy = MT + 24 + f.yf * (H - MT - 52);
+      ctx.fillStyle = cols[f.hue];
+      for (let p = 0; p < 5; p++) {
+        const a = (p / 5) * TAU + f.xf * 6;
+        ctx.beginPath(); ctx.arc(fx + Math.cos(a) * 3.2, fy + Math.sin(a) * 3.2, 2.4, 0, TAU); ctx.fill();
+      }
+      ctx.fillStyle = '#e8952e';
+      ctx.beginPath(); ctx.arc(fx, fy, 2, 0, TAU); ctx.fill();
+    });
+  }
+}
+
+function drawBubble(b) {
+  const { x, y, r } = b;
+  const wx = x + Math.sin(b.ph) * b.wob * 0.25;
+  ctx.save();
+  ctx.translate(wx, y);
+  // bubble sphere
+  const g = ctx.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.15, 0, 0, r);
+  g.addColorStop(0, 'rgba(255,255,255,0.55)');
+  g.addColorStop(0.7, 'rgba(200,235,250,0.28)');
+  g.addColorStop(1, 'rgba(160,215,245,0.5)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(0, 0, r - 0.8, 0, TAU); ctx.stroke();
+  // highlight
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(0, 0, r * 0.68, -2.4, -1.5); ctx.stroke();
+  // contents
+  if (b.kind === 'foal') {
+    drawHorse(ctx, 0, r * 0.5, r / 58, b.coat, 1, b.ph * 2, 1.5, 0, true);
+  } else {
+    const icon = b.kind === 'coin' ? '🪙' : b.kind === 'clover' ? '🍀' : '⭐';
+    ctx.font = Math.round(r * 0.95) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(icon, 0, 2);
+  }
+  ctx.restore();
+  b.drawX = x; // remember for hit test
+}
+
+function drawParticles() {
+  parts.forEach(p => {
+    const f = 1 - p.age / p.life;
+    if (p.t === 'ring') {
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.8 * f) + ')';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (1 + (1 - f) * 1.1), 0, TAU); ctx.stroke();
+    } else if (p.t === 'drop') {
+      ctx.fillStyle = p.col;
+      ctx.globalAlpha = f;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.6, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 1;
+    } else if (p.t === 'heart') {
+      ctx.globalAlpha = f;
+      ctx.font = p.s + 'px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('💗', p.x, p.y);
+      ctx.globalAlpha = 1;
+    } else if (p.t === 'spark') {
+      ctx.fillStyle = 'rgba(255,235,140,' + f + ')';
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.age * 5);
+      ctx.fillRect(-p.s / 2, -1, p.s, 2); ctx.fillRect(-1, -p.s / 2, 2, p.s);
+      ctx.restore();
+    }
+  });
+}
+
+function draw(t) {
+  drawWorld(t);
+  bubbles.forEach(drawBubble);
+
+  // rescued foals gently floating down
+  fallers.forEach(f => {
+    ctx.save(); ctx.globalAlpha = 0.95;
+    drawHorse(ctx, f.x, f.y, 0.5, f.horse.coat, 1, t * 6, 1.5, 0, true);
+    ctx.restore();
+  });
+
+  // herd, sorted by depth
+  const sorted = [...S.herd].sort((a, b) => a.yf - b.yf);
+  const tn = Date.now();
+  sorted.forEach(h => {
+    const [px, py] = horseXY(h);
+    const k = horseScale(h);
+    const amp = h.mode === 'walk' ? 3.5 : 0;
+    const graze = h.mode === 'graze' ? 0.85 + Math.sin(h.phase) * 0.1 : 0;
+    drawHorse(ctx, px, py, k, h.coat, h.dir, h.phase, amp, graze, h.stage === 'foal');
+    if (tn < h.petUntil) {
+      ctx.font = '700 13px ui-rounded, -apple-system, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      const label = h.name + (h.stage === 'foal' ? ' 🍼' : '');
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = 'rgba(255,248,238,0.92)';
+      const ly = py - 68 * k;
+      ctx.beginPath();
+      ctx.roundRect(px - tw / 2 - 8, ly - 18, tw + 16, 22, 11);
+      ctx.fill();
+      ctx.fillStyle = '#5a4632';
+      ctx.fillText(label, px, ly + 1);
+    }
+  });
+
+  drawParticles();
+
+  // floating texts
+  floaters.forEach(f => {
+    const a = 1 - f.age / f.life;
+    ctx.globalAlpha = a;
+    ctx.font = '800 16px ui-rounded, -apple-system, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 4;
+    ctx.strokeText(f.text, f.x, f.y);
+    ctx.fillStyle = f.col;
+    ctx.fillText(f.text, f.x, f.y);
+    ctx.globalAlpha = 1;
+  });
+}
+
+// roundRect polyfill for older Safari
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+
+// ============================================================ input
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  unlockAudio();
+  const x = e.clientX, y = e.clientY;
+
+  // bubbles first (topmost)
+  for (let i = bubbles.length - 1; i >= 0; i--) {
+    const b = bubbles[i];
+    const bx = b.drawX !== undefined ? b.drawX : b.x;
+    if (Math.hypot(x - bx, y - b.y) < b.r + 16) { popBubble(b); return; }
+  }
+  // then horses
+  let best = null, bestD = 1e9;
+  S.herd.forEach(h => {
+    const [px, py] = horseXY(h);
+    const d = Math.hypot(x - px, y - (py - 26 * horseScale(h)));
+    if (d < 46 * horseScale(h) + 8 && d < bestD) { best = h; bestD = d; }
+  });
+  if (best) { const [px, py] = horseXY(best); petHorse(best, px, py); return; }
+  // gentle feedback anywhere
+  sparkle(x, y, 2);
+});
+
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
+
+// ============================================================ HUD & shop
+function hud() {
+  $('coinsEl').textContent = S.coins;
+  $('herdEl').textContent = S.herd.length + '/' + capOf();
+}
+
+const sheet = $('sheet'), backdrop = $('backdrop');
+function openShop() { renderShop(); sheet.classList.add('open'); backdrop.classList.add('open'); }
+function closeShop() { sheet.classList.remove('open'); backdrop.classList.remove('open'); }
+$('shopBtn').addEventListener('click', () => { unlockAudio(); openShop(); });
+$('closeShop').addEventListener('click', closeShop);
+backdrop.addEventListener('click', closeShop);
+
+$('sndBtn').addEventListener('click', () => {
+  unlockAudio();
+  S.muted = !S.muted;
+  $('sndBtn').textContent = S.muted ? '🔇' : '🔊';
+  save();
+});
+
+function renderShop() {
+  const box = $('items');
+  box.innerHTML = '';
+  SHOP.forEach(it => {
+    const lvl = it.decor ? (S.decor[it.id] ? 1 : 0) : S.up[it.id];
+    const maxed = it.decor ? S.decor[it.id] : lvl >= it.max;
+    const cost = it.cost(lvl);
+    const row = document.createElement('div');
+    row.className = 'item';
+    const lvlTxt = it.decor ? '' : ' <span style="color:#c0a878">Lv ' + lvl + '/' + it.max + '</span>';
+    row.innerHTML =
+      '<div class="ic">' + it.ic + '</div>' +
+      '<div class="tx"><b>' + it.name + lvlTxt + '</b><span>' + it.desc + '</span></div>';
+    const btn = document.createElement('button');
+    btn.className = 'buy';
+    if (maxed) { btn.classList.add('owned'); btn.textContent = it.decor ? 'Yours ✓' : 'MAX'; btn.disabled = true; }
+    else {
+      btn.textContent = cost + ' 🪙';
+      btn.disabled = S.coins < cost;
+      btn.addEventListener('click', () => {
+        if (S.coins < cost) return;
+        if (it.decor) S.decor[it.id] = true; else S.up[it.id]++;
+        S.coins -= it.cost(it.decor ? 0 : S.up[it.id]);
+        sBuy(); save(); hud(); renderShop();
+        toast(it.ic + ' ' + it.name + '!');
+      });
+    }
+    row.appendChild(btn);
+    box.appendChild(row);
+  });
+  const total = S.rescued + S.born;
+  $('stats').textContent = 'Rescued ' + S.rescued + ' · Born ' + S.born + ' · ' + titleFor(total);
+}
+
+// ============================================================ boot & loop
+const hadSave = load();
+processOffline();
+hud();
+$('sndBtn').textContent = S.muted ? '🔇' : '🔊';
+
+if (!hadSave) {
+  setTimeout(() => toast('Pop the bubbles to rescue baby horses! 🫧🐴'), 600);
+  setTimeout(() => toast('Tap a horse to say hello 💗'), 4000);
+}
+
+let lastT = performance.now(), saveT = 0;
+function loop(t) {
+  const dt = Math.min((t - lastT) / 1000, 0.05);
+  lastT = t;
+  update(dt);
+  draw(t / 1000);
+  saveT += dt;
+  if (saveT > 5) { saveT = 0; save(); }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+window.addEventListener('pagehide', save);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') save();
+  else { processOffline(); lastT = performance.now(); }
+});
+</script>
+</body>
+</html>

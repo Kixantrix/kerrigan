@@ -1,0 +1,161 @@
+{
+  "task_id": "custom-actions-phase-1",
+  "objective": "Let somebody record a commitment nobody scheduled (a custom action) on Act, held like any other commitment: same state machine, reminders, .ics, export, import and deletion.",
+  "acceptance_criteria": [
+    {
+      "id": "AC-FF1",
+      "level": "integration",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/commitments-routes.test.ts",
+        "apps/mobile/__tests__/act-screen.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-FF2",
+      "level": "unit",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/mobile/__tests__/act-screen.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-FF3",
+      "level": "integration",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/free-form-has-no-source.test.ts"
+      ]
+    },
+    {
+      "id": "AC-FF4",
+      "level": "integration",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/opportunity-route-boundary.test.ts"
+      ]
+    },
+    {
+      "id": "AC-FF5",
+      "level": "unit",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/reminders-calendar.test.ts"
+      ]
+    },
+    {
+      "id": "AC-FF6",
+      "level": "unit",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/reminder-sweep.test.ts",
+        "apps/mobile/__tests__/act-screen.test.tsx"
+      ]
+    },
+    {
+      "id": "AC-FF7",
+      "level": "unit",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/commitment-origin-parity.test.ts"
+      ]
+    },
+    {
+      "id": "AC-FF8",
+      "level": "integration",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/import-round-trip.test.ts"
+      ]
+    },
+    {
+      "id": "AC-FF9",
+      "level": "integration",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/api/test/deletion-scopes.test.ts"
+      ]
+    },
+    {
+      "id": "AC-FF9a",
+      "level": "unit",
+      "environment": "cloud-linux",
+      "tests": [
+        "apps/mobile/__tests__/plan-screen.test.tsx"
+      ]
+    }
+  ],
+  "deferred_acs": [
+    "AC-FF10",
+    "AC-FF11",
+    "AC-FF12",
+    "AC-FF13",
+    "AC-FF14",
+    "AC-FF15",
+    "AC-FF16",
+    "AC-FF17",
+    "AC-FF18",
+    "AC-FF19",
+    "AC-FF20",
+    "AC-FF21",
+    "AC-FF22",
+    "AC-FF23"
+  ],
+  "deferred_reason": "sequenced-after-this-task",
+  "open_owner_decisions": [
+    "D2"
+  ],
+  "touch": [
+    "apps/api/src/actions/state.ts",
+    "apps/api/src/actions/store.ts",
+    "apps/api/src/actions/routes.ts",
+    "apps/api/src/db/schema.ts",
+    "apps/api/drizzle/0017_*.sql",
+    "apps/api/drizzle/meta/0017_snapshot.json",
+    "apps/api/drizzle/meta/_journal.json",
+    "apps/api/src/reminders/calendar.ts",
+    "apps/api/src/export/service.ts",
+    "apps/api/src/export/render.ts",
+    "apps/api/src/import/service.ts",
+    "apps/api/dev/seeded-server.ts",
+    "apps/mobile/app/(tabs)/act.tsx",
+    "apps/mobile/app/(tabs)/today.tsx",
+    "apps/mobile/src/actions/CustomAction.tsx",
+    "apps/mobile/src/state/AppState.tsx",
+    "apps/mobile/e2e/fixtures.ts",
+    "apps/api/test/{action-ladder,action-reflection,commitment-origin-parity,commitment-row-migration,commitments-routes,deletion-scopes,export-formats,free-form-has-no-source,import-round-trip,opportunity-route-boundary,reminder-sweep,reminders-calendar,reminders-email}.test.ts",
+    "apps/mobile/__tests__/{act-screen,plan-screen,today-screen}.test.tsx"
+  ],
+  "read_only": [
+    "specs/projects/your-voice/**",
+    "apps/api/src/opportunities/**",
+    "apps/api/src/conversation/**",
+    "apps/api/src/authenticity/**",
+    "packages/types/**",
+    "apps/mobile/src/authenticity/**"
+  ],
+  "scope_items": {
+    "in": [
+      "nullable-opportunity-columns",
+      "csv-origin-column",
+      "legacy-title-alias",
+      "plan-screen-pointer",
+      "no-reminder-statement",
+      "unsourced-statement",
+      "ics-own-plan-line"
+    ],
+    "out": [
+      "surface-b-proposals",
+      "eighth-authenticity-category",
+      "conversation-prompt-change",
+      "acceptance-tests-entry",
+      "deliverable-generation",
+      "column-rename-or-drop",
+      "separate-creation-route",
+      "origin-branch-in-transition",
+      "staged-guard-on-custom-actions",
+      "plan-pointer-only-when-feed-empty"
+    ]
+  },
+  "routing_rule": "R-cloud-default"
+}
