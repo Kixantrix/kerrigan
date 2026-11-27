@@ -50,16 +50,31 @@ certificate. Stable warning is conditionally admissible when explicitly frozen
 with `allowWarning`; it is labeled contended/non-isolated. A fresh three-sample
 pressure/swap/health baseline precedes real requests. Critical or unknown
 pressure, increasing baseline swap, sustained boundary swap growth, endpoint
-contention and server errors stop admission. A normal observation is labeled
-no known background workload, not exclusive hardware. End-to-end HTTP token rate uses a monotonic clock and includes
+contention and server errors stop admission. Normal pressure alone establishes
+neither an absence of background work nor exclusive hardware. Frozen resident
+infrastructure is retained at each boundary and labeled not fully isolated,
+even when verified idle. End-to-end HTTP token rate uses a monotonic clock and includes
 prefill. Optional own-response `mtplx_stats` supplies native uncached prefill and
 decode rates/times; missing fields remain unknown. Derived `timings` defaults
 are not used as measurement evidence. Reasoning is included in completion
 tokens and decode rates; native TTFT may be the first thought, not answer.
 Peak model memory and energy remain unknown unless actually measured.
-No containers, VMs or builds are permitted during the window. Exact artifacts
+No VM/container starts, running containers, active grading/conversion/builds or
+competing compute are permitted during the window. An already-running VM may
+remain only after its idle state, residency and background CPU are verified;
+never stop a shared service to force admission. Exact artifacts
 must be collected first; Docker grading waits until release, and reported
 completion excludes the post-window verification queue.
+An external resource/interference stop uses the live owner's stdin control,
+then waits for its bounded native cleanup. Exact artifacts may be retained
+after a clean cancellation for diagnostics, without classifying cancellation
+as budget exhaustion or completed work.
+The matrix retains local budget-censored attempts as noncompletion in the
+condition's denominator, with no verified completion time. Cleanly released
+environmental aborts and other unscored local attempts remain explicit
+`unscored_attempts`, excluded from success denominators and routing rather
+than silently dropped or labeled model failures. Synthetic proofs and
+unproven backend cleanup cannot enter those results.
 
 Round-three sandbox scratch is monitored at tool boundaries and on a 100 ms
 timer, with a 1 MiB / 128-entry threshold. This is **not a filesystem hard

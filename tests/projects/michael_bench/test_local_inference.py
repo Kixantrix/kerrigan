@@ -298,6 +298,7 @@ import {localWindow} from './benchmarks/michael/local_transport/local_window.mjs
 import {LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
 const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
  limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,allowWarning:true,
+ residentInfrastructure:[{name:'synthetic-idle-vm',idleVerified:true}],
  concurrency:1,grading:'after-window-release'};
 let swap=100,state='warning',requests=0;
 const events=[];
@@ -320,12 +321,20 @@ assert.equal((await window.run(options)).status,'completed');
 swap+=10;
 await assert.rejects(()=>window.run(options),/resource_pressure/);
 assert(events.some(e=>e.resources?.memoryPressureState==='warning'));
+assert(events.filter(e=>e.resources?.memoryPressureState==='warning')
+ .every(e=>e.resources.condition==='contended/non-isolated'));
 assert(events.some(e=>e.resources?.swapUsedChangeBytes===10));
 await window.release();
 state='critical';window=make();
 const before=requests;
 await assert.rejects(()=>window.run(options),/resource_pressure/);
 assert.equal(requests,before);await window.release();
+state='normal';window=make();
+assert.equal((await window.run(options)).status,'completed');
+const resources=events.findLast(e=>e.type==='local_boundary').resources;
+assert.match(resources.condition,/resident-idle.*not fully isolated/);
+assert.deepEqual(resources.residentInfrastructure,condition.residentInfrastructure);
+await window.release();
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)

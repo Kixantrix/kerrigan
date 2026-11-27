@@ -89,11 +89,15 @@ def prompt(policy):
            if policy.get("scratchDirectory") == SCRATCH_DIRECTORY else "") +
         "Public tools provide CPython 3.9 stdlib+PyYAML6.0.2 and Node24.11.1 built-in TypeScript "
         "type stripping; no pytest, npm installation, shell, subprocess, network or hidden checks. "
-        "Frozen export shell/pytest claims are not available. Verifier uses isolated Python3.12/Node24. "
-        "Use public self-tests; exits1/2 and 30s timeout/truncated32KiB output are repair feedback. "
-        f"At most{policy['actions'] - (0 if diff_contract(policy) else len(policy.get('artifacts', [policy['source']])))} agent actions,"
-        "32KiB/file/channel,256KiB/action,4MiB aggregate input, "
-        f"1MiB retained output with{policy['finalOutputReserve']} bytes reserved for final reads,"
+        "Frozen export shell/pytest claims are not available. "
+        "Independent verification uses the task-declared isolated grader runtime, not the public tools. "
+        f"Use public self-tests; exits1/2 and {policy['runSeconds']}s timeout/"
+        f"truncated {policy['channel']}-byte channel output are repair feedback. "
+        f"At most {policy['actions'] - (0 if diff_contract(policy) else len(policy.get('artifacts', [policy['source']])))} agent actions, "
+        f"{policy['bytes']} bytes/file, {policy['channel']} bytes/channel, "
+        f"{policy['payload']} bytes/action, {policy['aggregate']} bytes aggregate input, "
+        f"{policy['outputAggregate']} bytes retained output with "
+        f"{policy['finalOutputReserve']} bytes reserved for final reads, "
         f"{policy['activeSeconds']} active seconds. "
         "Reads return at most4096 bytes as text. Continue with byte offset=nextOffset until empty; "
         'Exact argument shapes: read={"op":"read","path":"an allowed path","offset":0}; '
@@ -213,8 +217,10 @@ def collect(run, *, local_partial=False):
         f"controller-final-source-{index}" for index in range(len(paths))]
     eligible = native["stopReason"] in ("session_idle", "diagnostics_complete",
         "timeout", "broker:agent_action_budget", "broker:task_output_budget")
-    local_diagnostics = local_partial and config.get("localInference") and native.get("partialBudgetExhausted")
+    local_diagnostics = local_partial and config.get("localInference") and (
+        native.get("partialBudgetExhausted") or native["stopReason"] == "external_cancel")
     eligible = eligible or (local_diagnostics and native["stopReason"] == "local_output_cap")
+    eligible = eligible or (local_diagnostics and native["stopReason"] == "external_cancel")
     if (not eligible or native["wholeProcessQuiescent"] is not True or native["cleanupSeconds"] > 15
             or native.get("finalSourceError") or binding["source"] != sources()
             or binding["configSha256"] != validator.digest(config)

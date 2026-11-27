@@ -483,7 +483,8 @@ finally {
             Math.max(1, cleanupStart + 15000 - performance.now())); }) ]);
     clearTimeout(cleanupTimer);
     if (settled !== null && spawning === 0 && config.validatorTask && gate &&
-        (partialBudget() || ["session_idle", "diagnostics_complete"].includes(stopping)) &&
+        (partialBudget() || ["session_idle", "diagnostics_complete"].includes(stopping) ||
+            (config.localInference && stopping === "external_cancel")) &&
         !finalIds.some(id => actions.has(id))) {
         let timer;
         try {
