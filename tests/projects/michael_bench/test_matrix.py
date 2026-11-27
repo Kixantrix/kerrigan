@@ -104,6 +104,8 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
     cases = [
         ({"cause": "model", "verdicts": [{"evidence": [
             {"description": "glob-overlap did not contribute to the outcome"}]}]}, "unsupported-defect-claim"),
+        ({"cause": "model", "verdicts": [{"evidence": [
+            {"description": "glob-overlap was a false-positive review finding"}]}]}, "unsupported-defect-claim"),
         ({"cause": "model", "deterministicEvidence": "Independent cancelCheck: claimFixed=false"},
          "claimed-fix-not-implemented"),
         ({"cause": "model", "deterministicEvidence": "unsupported auth-bypass claim"},
