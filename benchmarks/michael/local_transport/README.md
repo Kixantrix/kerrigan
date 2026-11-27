@@ -64,6 +64,11 @@ remained ungraded, and was independently attributed to the harness. The
 corrected epoch derives its description and runnable paths from the actual
 policy without widening any allowlist. The faulted slot and five preceding
 verified passes are retained; its replacement uses a new disclosed slot.
+`mbr3-tooltip-verification.json` binds the native regression checks, fresh
+calibration and immutable primary-selection plan. Matrix regeneration with
+`--source-epoch-plan <owned>/mbr3-tooltip-v2/primary-plan.json` requires every
+selected attempt to be complete, validates the excluded harness attribution,
+and labels the two source epochs separately instead of silently pooling them.
 
 Foundation: `2df6f85`. Environment: `local-attested-macos`; results are dated
 operator observations, not human-attested completion. This condition is **local

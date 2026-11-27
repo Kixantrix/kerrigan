@@ -119,3 +119,100 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
     result = generate.build([record("a", i, passed=False) for i in range(3)])
     assert result["cells"]["synthetic:a"]["Implement × small"]["failure_modes"] == {
         "unsupported-defect-claim": 3}
+
+
+def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_path, monkeypatch):
+    repository = tmp_path / "repo"
+    parent = tmp_path / "owned"
+    old = parent / "mbr3-v1"
+    current = parent / "mbr3-tooltip-v2"
+    old.mkdir(parents=True)
+    current.mkdir()
+    schedule = b"synthetic schedule"
+    (old / "schedule.json").write_bytes(schedule)
+    outcome = old / "trials/fixture/repeat-1/sonnet/outcome.json"
+    attribution = old / "attribution/fixture/repeat-1/sonnet/attribution.json"
+    outcome.parent.mkdir(parents=True)
+    attribution.parent.mkdir(parents=True)
+    outcome.write_text('{"status":"ungraded"}')
+    attribution.write_text('{"cause":"harness"}')
+    plan = {
+        "scheduleSha256": hashlib.sha256(schedule).hexdigest(),
+        "attempts": [
+            {"task": "fixture", "repeat": 1, "model": "mai", "evidence_root": old.name,
+             "source_epoch": "original"},
+            {"task": "fixture", "repeat": 1, "model": "sonnet", "evidence_root": current.name,
+             "source_epoch": "corrected"},
+        ],
+        "source_epochs": {"original": {"ownerSha256": "a" * 64},
+                          "corrected": {"ownerSha256": "b" * 64}},
+        "excluded_prior": {"task": "fixture", "repeat": 1, "model": "sonnet",
+                          "outcomeSha256": hashlib.sha256(outcome.read_bytes()).hexdigest(),
+                          "attributionSha256": hashlib.sha256(attribution.read_bytes()).hexdigest()},
+    }
+    verification = repository / "benchmarks/michael/local_transport/mbr3-tooltip-verification.json"
+    verification.parent.mkdir(parents=True)
+    verification.write_text(json.dumps({"primaryPlan": plan}))
+    path = current / "primary-plan.json"
+    path.write_text(json.dumps(plan))
+    monkeypatch.setattr(generate, "ROOT", repository)
+
+    def reader(root, *, selected):
+        return [{**record(model, repeat), "task": task, "condition": "MB-R3",
+                 "transport_owner_sha256": "a" * 64 if root == old else "b" * 64}
+                for task, repeat, model in selected]
+
+    monkeypatch.setattr(generate, "ledger_records", reader)
+    rows, source = generate.epoch_records(path)
+    assert {row["condition"] for row in rows} == {"MB-R3/original", "MB-R3/corrected"}
+    assert source["prior_attempts"][0]["failure_modes"] == ["harness-error"]
+    changed = copy.deepcopy(plan)
+    changed["attempts"][0]["evidence_root"] = "access-only"
+    path.write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match="differs from published"):
+        generate.epoch_records(path)
+    path.write_text(json.dumps(plan))
+    monkeypatch.setattr(generate, "ledger_records",
+                        lambda root, selected: [{**reader(root, selected=selected)[0],
+                                                 "transport_owner_sha256": "c" * 64}])
+    with pytest.raises(ValueError, match="native owner mismatch"):
+        generate.epoch_records(path)
+
+
+def test_selected_ledger_reader_does_not_publish_missing_attempts(tmp_path, monkeypatch):
+    path = tmp_path / "trials/fixture/repeat-1/ledger.jsonl"
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b"")
+    monkeypatch.setattr(generate.Ledger, "_read", lambda self, stream: ({}, None, "a" * 64))
+    with pytest.raises(ValueError, match="incomplete selected"):
+        generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
+
+
+def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(tmp_path, monkeypatch):
+    batch = tmp_path / "trials/fixture/repeat-1"
+    run = batch / "model"
+    (run / "receipt").mkdir(parents=True)
+    path = batch / "ledger.jsonl"
+    path.write_bytes(b"synthetic ledger")
+    (run / "collected-source.bin").write_bytes(b"final artifact")
+    frozen = {"package": "fixture", "condition": "synthetic",
+              "source": {"benchmarks/michael/local_transport/owner.mjs": "a" * 64}}
+    outcome = {"conditionSha256": generate.condition_digest(frozen),
+               "sourceSha256": hashlib.sha256(b"final artifact").hexdigest(),
+               "status": "pass", "completionSeconds": 10}
+    (run / "outcome.json").write_text(json.dumps(outcome))
+    (run / "receipt/terminal.json").write_text(json.dumps({
+        "wholeProcessQuiescent": True, "cleanupSeconds": 1,
+        "usage": [{"inputTokens": 100, "outputTokens": 20}]}))
+    trial = {"bundle": {"agent": {"configuration": {"value": frozen}}},
+             "starts": [{}], "origin": "new_trial",
+             "attempts": [{"verdict": "passed",
+                           "time_to_verified_completion": {"status": "known",
+                                                           "value": {"seconds": 10}}}]}
+    monkeypatch.setattr(generate.Ledger, "_read",
+                        lambda self, stream: ({"model": trial}, None, "b" * 64))
+    monkeypatch.setattr(generate.curriculum, "meta", lambda name: {"family": "Implement"})
+    monkeypatch.setattr(generate, "size", lambda name: {"tier": "small"})
+    rows = generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
+    assert len(rows) == 1
+    assert rows[0]["tokens"] == {"inputTokens": 100, "outputTokens": 20}

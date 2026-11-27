@@ -185,21 +185,25 @@ def seed():
     return records, sources
 
 
-def ledger_records(root):
+def ledger_records(root, *, selected=None):
     """Read completed round-three slots directly; never accept hand-authored outcome rows."""
     records = []
+    observed = set()
     for path in sorted(Path(root).glob("trials/*/repeat-*/ledger.jsonl")):
         raw = path.read_bytes()
         states, _, head = Ledger(path)._read(io.BytesIO(raw))
         repeat = int(path.parent.name.removeprefix("repeat-"))
         for model, trial in sorted(states.items()):
+            frozen = trial["bundle"]["agent"]["configuration"]["value"]
+            name = frozen["package"]
+            attempt_key = name, repeat, model
+            if selected is not None and attempt_key not in selected:
+                continue
             if len(trial["starts"]) != 1 or len(trial["attempts"]) != 1 or trial["origin"] != "new_trial":
                 raise ValueError("incomplete or retried matrix ledger slot")
             attempt = trial["attempts"][0]
             if attempt["verdict"] not in ("passed", "failed"):
                 raise ValueError("ungraded matrix attempt; attribution required")
-            frozen = trial["bundle"]["agent"]["configuration"]["value"]
-            name = frozen["package"]
             run = path.parent / model
             outcome = json.loads((run / "outcome.json").read_bytes())
             native = json.loads((run / "receipt/terminal.json").read_bytes())
@@ -231,12 +235,66 @@ def ledger_records(root):
                 "completion_seconds": seconds, "tokens": tokens, "cost": None,
                 "peak_memory_bytes": None, "energy_joules": None,
                 "failure_modes": failures,
-                "ledger_source": str(path), "ledger_sha256": hashlib.sha256(raw).hexdigest(),
+                "ledger_source": str(Path(Path(root).name) / path.relative_to(root)),
+                "ledger_sha256": hashlib.sha256(raw).hexdigest(),
                 "ledger_chain_head": head, "condition_sha256": outcome["conditionSha256"],
-                "source_sha256": source_sha})
+                "source_sha256": source_sha,
+                "transport_owner_sha256": frozen["source"]["benchmarks/michael/local_transport/owner.mjs"]})
+            observed.add(attempt_key)
+    if selected is not None and observed != selected:
+        raise ValueError("incomplete selected round-three cohort")
     if not records:
         raise ValueError("no completed round-three ledger records")
     return records
+
+
+def epoch_records(plan_path):
+    """Resolve only the published recovery plan; outcomes still come from verified ledgers."""
+    verification_path = ROOT / "benchmarks/michael/local_transport/mbr3-tooltip-verification.json"
+    verification = json.loads(verification_path.read_bytes())
+    plan = json.loads(Path(plan_path).read_bytes())
+    if plan != verification["primaryPlan"]:
+        raise ValueError("source epoch plan differs from published verification")
+    parent = Path(plan_path).parent.parent
+    if hashlib.sha256((parent / "mbr3-v1/schedule.json").read_bytes()).hexdigest() != plan["scheduleSha256"]:
+        raise ValueError("source epoch schedule mismatch")
+    selections = {}
+    labels = {}
+    for row in plan["attempts"]:
+        alias = row["evidence_root"]
+        if alias not in ("mbr3-v1", "mbr3-tooltip-v2"):
+            raise ValueError("source epoch evidence alias denied")
+        key = row["task"], row["repeat"], row["model"]
+        if key in labels:
+            raise ValueError("duplicate source epoch attempt")
+        selections.setdefault(alias, set()).add(key)
+        labels[key] = row["source_epoch"]
+    prior = plan["excluded_prior"]
+    prior_root = parent / "mbr3-v1"
+    outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
+    attribution_path = prior_root / "attribution" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "attribution.json"
+    if (hashlib.sha256(outcome_path.read_bytes()).hexdigest() != prior["outcomeSha256"] or
+            hashlib.sha256(attribution_path.read_bytes()).hexdigest() != prior["attributionSha256"] or
+            json.loads(attribution_path.read_bytes())["cause"] != "harness"):
+        raise ValueError("source epoch prior attribution mismatch")
+    records = []
+    for alias, selected in selections.items():
+        for row in ledger_records(parent / alias, selected=selected):
+            epoch = labels[row["task"], row["repeat"], row["model"]]
+            if row["transport_owner_sha256"] != plan["source_epochs"][epoch]["ownerSha256"]:
+                raise ValueError("source epoch native owner mismatch")
+            row["condition"] += "/" + epoch
+            records.append(row)
+    source = {"path": str(verification_path.relative_to(ROOT)),
+              "sha256": hashlib.sha256(verification_path.read_bytes()).hexdigest(),
+              "role": "Published native source epochs and complete logical-attempt selection",
+              "prior_attempts": [{
+                  "task": prior["task"], "model": prior["model"], "round": "v3",
+                  "status": "ungraded", "failure_modes": ["harness-error"],
+                  "provenance": {"attribution_sha256": prior["attributionSha256"],
+                                 "outcome_sha256": prior["outcomeSha256"]},
+              }]}
+    return records, source
 
 
 def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
@@ -391,10 +449,18 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-root", type=Path, action="append", default=[],
                         help="Round-three evidence root containing trials/*/repeat-*/ledger.jsonl")
+    parser.add_argument("--source-epoch-plan", type=Path,
+                        help="Published tooltip-recovery primary-plan.json; requires complete selected slots")
     args = parser.parse_args()
+    if args.run_root and args.source_epoch_plan:
+        parser.error("use either run roots or the published source-epoch plan, not both")
     records, sources = seed()
     for root in args.run_root:
         records.extend(ledger_records(root))
+    if args.source_epoch_plan:
+        selected, source = epoch_records(args.source_epoch_plan)
+        records.extend(selected)
+        sources.append(source)
     value = build(records)
     value["sources"] = sources
     validate(value)
