@@ -80,11 +80,41 @@ def test_matrix_rejects_inconsistent_unknowns_and_observed_counts():
 
 
 def test_matrix_generation_matches_committed_outputs():
-    rows, sources = generate.seed()
+    rows, sources = generate.default_records()
     value = generate.build(rows)
     value["sources"] = sources
     assert json.loads((generate.HERE / "matrix.json").read_text()) == value
     assert (generate.HERE / "matrix.md").read_text() == generate.markdown(value)
+
+
+def test_sealed_epoch_archive_reproduces_without_owned_paths_and_rejects_members(tmp_path, monkeypatch):
+    folder = tmp_path / "benchmarks/michael/curriculum"
+    folder.mkdir(parents=True)
+    path = folder / "MBR3-core-verification.json"
+    archive = folder / "MBR3-core-evidence.tar.gz"
+    plan = "mbr3-discovery-v4/primary-plan.json"
+    monkeypatch.setattr(generate, "ROOT", tmp_path)
+    monkeypatch.setattr(generate, "epoch_records",
+                        lambda value: ([record("model", 1)], {"path": "synthetic published epoch"}))
+    for member_name, bad_digest in ((plan, False), (plan, True), ("../escape", False)):
+        raw = b"synthetic immutable plan"
+        with tarfile.open(archive, "w:gz") as target:
+            member = tarfile.TarInfo(member_name)
+            member.size = len(raw)
+            target.addfile(member, io.BytesIO(raw))
+        path.write_text(json.dumps({
+            "archiveFile": archive.name, "archiveSha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+            "primaryPlanPath": plan, "members": {
+                member_name: "0" * 64 if bad_digest else hashlib.sha256(raw).hexdigest()}}))
+        if bad_digest or member_name != plan:
+            with pytest.raises(ValueError, match="archived member mismatch|archive member denied"):
+                generate.sealed_epoch_records(path)
+        else:
+            rows, sources = generate.sealed_epoch_records(path)
+            assert rows == [record("model", 1)] and len(sources) == 3
+    row = {**record("model", 1), "ledger_sha256": "a" * 64}
+    with pytest.raises(ValueError, match="ledger slot across conditions"):
+        generate.build([row, {**row, "condition": "renamed"}])
 
 
 def test_matrix_rejects_rehashed_but_corrupt_ledger_chain(tmp_path):
