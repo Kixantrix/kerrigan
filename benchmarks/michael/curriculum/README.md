@@ -368,8 +368,8 @@ Status (anchors.json revision 2):
   sshd, a bare repository tree and permissions), train-fasttext (a binary model
   of up to 150 MiB that needs compiled training) and pytorch-model-recovery
   (disk).
-- **Pending:** the five SWE-bench Pro anchors. They need a config.json
-  fail_to_pass/pass_to_pass adapter and a write-set rule.
+- **SWE-bench Pro:** all five are declared as diff-contract conversions (see
+  below). The per-anchor status is in `anchors-native.json`.
 
 Reasons are in `anchors-native.json`.
 
@@ -377,3 +377,91 @@ Reasons are in `anchors-native.json`.
 same container as the candidate's final state. A started service runs the
 candidate's configuration as root, without network or added capabilities. The
 harness discards `/logs/verifier` before the tests run.
+
+### SWE-bench Pro diff contract
+
+`anchors_convert_swe.py` applies the coordinator's rules from 2026-11-27.
+
+- **Write set:** every exported tracked repository file is writable (agent
+  path `app/<path>`), as in SWE-bench practice.
+- **Workspace (`anchors_subset.py`):** starts from the hidden tests at their
+  gold version and adds:
+  - their transitive local imports. Python imports are resolved statically
+    over declared source roots. JS/TS imports are resolved relative to the
+    importer, with extension and `index` probing, `./x.js` to `x.ts`, and
+    tsconfig `baseUrl`/`paths`.
+  - the `conftest.py` files pytest loads;
+  - the files the gold patch modifies, so the oracle diff applies. The whole
+    subset is writable, so this reveals no location;
+  - repository configuration and licence files.
+
+  Caps: 2,000 files, 16 MiB, and UTF-8 text files of at most 512 KiB.
+  Binaries are dropped and recorded.
+- **Final state (`replay_grader/final_diff.py`):** a canonical `git apply`
+  patch of the writable files against the export, capped at 1 MiB. The native
+  collector computes it after quiescence from file bytes; no final artifact
+  reads happen (`finalState.kind = git-diff`). The native tool can only write
+  existing files, so new files are declared in the writable `new-files.json`
+  (`{agent path: text}`, at most 64 files) and folded into the patch as new
+  files. Deletions are not supported. Base = empty diff. Oracle = the task's
+  own `solve.sh`, run in the image and diffed over the subset plus the files
+  it creates.
+- **Verifier:** the image is the task's own `environment/Dockerfile` with
+  `FROM` pinned by digest. It gets one networked warm-up run of the original
+  `tests/test.sh` at build time, after which the repo is reset to the base
+  commit. At grading time `swebenchpro_anchor.py` runs `git apply -p2`, then
+  the unmodified `tests/test.sh` (gold test checkout, `run_script.sh`,
+  `parser.py`) offline.
+- **Rows (`swebenchpro_adapter.py`):** one per FAIL_TO_PASS test (group
+  `fail_to_pass`) and one per PASS_TO_PASS test (group `pass_to_pass`), plus
+  the reward row. Above 512 PASS_TO_PASS tests this switches to one aggregate
+  row plus one row per test file; no current anchor needs it. Only `passed`
+  passes.
+- **Grading budget:** `candidate_seconds` is 3x the Harbor-measured verifier
+  phase, in 30 s steps, between 120 and 900 s. Each record stores the
+  measured maximum and whether it fits.
+- **Trust limit:** as in SWE-bench, the candidate's code runs during the tests,
+  as root, with no network.
+
+### Materialized anchors (no upstream bytes in git)
+
+The SWE-bench Pro repositories are GPL-3.0/AGPL-3.0, and their tests/ and gold
+patch are upstream-derived. None of these bytes are committed. Each
+`tasks/anchors/anchor-swepro-*/` directory commits only `task.json`, `NOTICE`,
+`materialize.json`, `manifest.json`, `native-policy.json`, `calibration.json`
+and `export.json`.
+
+`materialize.json` pins three sources:
+
+- the upstream repository URL and base commit;
+- the Harbor task image digest;
+- the harbor-datasets commit, task path and tree sha256.
+
+It also records the gold-patch sha256, the hidden tests' per-file sha256, the
+binary-drop list and the sha256 of every `agent/` and `hidden/` file.
+
+```bash
+python -m benchmarks.michael.curriculum.anchors_convert --materialize [anchor ...]   # default: all
+```
+
+This rebuilds the files into the gitignored `.cache/michael-anchors/<package>/`:
+
+- a blobless sparse git fetch of the exact upstream commit;
+- the pinned harbor-datasets `tests/` and `instruction.md`;
+- the gold patch applied with `git apply`;
+- generated `TASK.md`, rows and contract files.
+
+It verifies every file before atomically replacing the cache. Any mismatch
+exits 1 and nothing is accepted.
+
+`curriculum.agent_files`/`verifier_files` re-verify the cache on load (file set
+and sha256). If the cache is absent, incomplete or tampered with, loading
+raises `AnchorCacheError` naming the materialize command. The frozen
+descriptor and the grader bindings include
+`materialized_manifest_sha256`. `--recalibrate` rebuilds the images from the
+pins and recalibrates from the verified cache. Tests that need the bytes skip
+with "run anchors_convert --materialize" when the cache is absent.
+
+`curriculum.package_dir(name)` is the single resolver for a package's committed
+directory. It covers `tasks/<name>` for catalog packages and the legacy
+grouping/status/validator packages, and `tasks/anchors/<name>` for anchors.

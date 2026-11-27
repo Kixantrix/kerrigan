@@ -174,11 +174,18 @@
    "by": "MB-010r literal-overspecification audit",
    "superseded_by": "foal-meadow-regression-review-v2",
    "reason": "environment-caused (native fit): the writable game files (35.5/36.3 KB) exceed the default 32 KiB native per-file limit; v2 keeps the content byte-identical and raises only this package's native limits",
-   "evidence_pending": "native executor fit-check failure for foal-meadow-regression-review (bytes 32,768 < 36,330-byte writable file); cite once pushed"
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-foal-meadow-regression-review-v2-native-fit.json",
+    "sha256": "6758cc55c6255bd7973c754ac03e743bb1d055e7b390d28a9753813cf87933ed"
+   },
+   "supporting_evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-foal-meadow-regression-review-native-fit.json",
+    "sha256": "1e87696759bb626831a10bfb9cb0b82bf31d7759a74c7863ae59c087285ac696"
+   }
   },
   "vhs-room-registry-sync": {
    "by": "MBR3 native admission (needs_fix)",
-   "superseded_by": "vhs-room-registry-sync-v2",
+   "superseded_by": "vhs-room-registry-sync-v3",
    "reason": "task-caused (native admission needs_fix): TASK.md contradicted merged PR #194 on admin listing of tombstones, reviving disabled names and replicated renames",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MBR3-vhs-room-registry-sync-admission.json",
@@ -193,6 +200,12 @@
     "path": "benchmarks/michael/curriculum/MBR3-cs-mismatch-stage-authority-admission.json",
     "sha256": "5249814dcc67f563263bb9dc83af4d84a3986c59c4bc82464c6ed3e0a71d6eca"
    }
+  },
+  "vhs-room-registry-sync-v2": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "vhs-room-registry-sync-v3",
+   "reason": "task-caused (native admission overspecified_test): the rename row compared live-name arrays in a fixed order although snapshot record order is free",
+   "evidence_pending": "native admission receipt for vhs-room-registry-sync-v2 (overspecified_test on liveNames order); cite once pushed"
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",

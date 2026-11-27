@@ -29,6 +29,15 @@ PACKAGES = tuple(sorted(path.parent.name for path in HERE.glob("*/task.json")))
 # separate registry: same package layout and calibration, never pooled with tailored packages.
 ANCHOR_ROOT = HERE / "anchors"
 ANCHORS = tuple(sorted(path.parent.name for path in ANCHOR_ROOT.glob("*/task.json")))
+# Anchors whose agent/ and hidden/ material is upstream (e.g. GPL/AGPL) source are never committed:
+# the package commits only materialize.json (pinned sources + sha256 of every file) and the
+# materialize step fetches the bytes into this gitignored cache, verified on every load.
+CACHE_ROOT = HERE.parents[2] / ".cache" / "michael-anchors"
+MATERIALIZE = "python -m benchmarks.michael.curriculum.anchors_convert --materialize"
+
+
+class AnchorCacheError(ValueError):
+    """A materialized anchor's verified cache is absent, incomplete or tampered with."""
 FAMILIES = ("Implement", "Understand and plan", "Research", "Review and repair", "Operate",
             "Experiment", "Design", "Orchestrate")
 PRIVACY = ("public", "private-sanitized", "private-synthetic-fixture", "private-blocked")
@@ -43,16 +52,82 @@ NATIVE_LIMITS = {"bytes": 32768, "payload": 262144, "aggregate": 4194304, "actio
 HUMAN_TIME_FIELDS = ("estimated_human_minutes",)
 
 
-def directory(name: str) -> Path:
-    if name in PACKAGES:
+def package_dir(name: str) -> Path:
+    """The ONE resolver for a package's committed directory (manifest.json, task.json, policies, receipts).
+
+    Catalog packages and the legacy packages.CASES (validator/grouping/status) live at tasks/<name>;
+    converted public anchors at tasks/anchors/<name>. A materialized anchor's agent/ and hidden/ bytes
+    are not there: agent_files/verifier_files load them from the verified cache (cache_files).
+    """
+    from benchmarks.michael.tasks import packages
+    if name in PACKAGES or name in packages.CASES:
         return HERE / name
     if name in ANCHORS:
         return ANCHOR_ROOT / name
     raise ValueError(f"unknown curriculum package: {name}")
 
 
+def directory(name: str) -> Path:
+    """Curriculum packages and anchors only (legacy CASES have no task.json); see package_dir."""
+    if name not in PACKAGES and name not in ANCHORS:
+        raise ValueError(f"unknown curriculum package: {name}")
+    return package_dir(name)
+
+
+def materialized(name: str) -> bool:
+    return name in ANCHORS and (package_dir(name) / "materialize.json").is_file()
+
+
+_VERIFIED: dict[str, tuple] = {}
+
+
+def cache_files(name: str) -> dict[str, bytes]:
+    """Every cached agent/ and hidden/ file, verified against materialize.json; fails closed."""
+    raw = (package_dir(name) / "materialize.json").read_bytes()
+    manifest = json.loads(raw)
+    root = CACHE_ROOT / name
+    hint = f"run `{MATERIALIZE} {manifest['anchor']}`"
+    if not root.is_dir() or root.is_symlink():
+        raise AnchorCacheError(f"{name}: verified anchor cache {root} is absent; {hint}")
+    found = {}
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root).as_posix()
+        if path.is_symlink() or not (path.is_file() or path.is_dir()):
+            raise AnchorCacheError(f"{name}: cache entry {relative} is not a regular file; {hint}")
+        if path.is_file():
+            found[relative] = path
+    if set(found) != set(manifest["files"]):
+        extra, missing = sorted(set(found) - set(manifest["files"])), sorted(set(manifest["files"]) - set(found))
+        raise AnchorCacheError(f"{name}: cache file set differs from materialize.json "
+                               f"(extra {extra[:3]}, missing {missing[:3]}); {hint}")
+    signature = (sha(raw), tuple((rel, (st := path.stat()).st_size, st.st_mtime_ns, st.st_ino, st.st_ctime_ns)
+                                 for rel, path in found.items()))
+    if name in _VERIFIED and _VERIFIED[name][0] == signature:
+        return dict(_VERIFIED[name][1])
+    files = {}
+    for relative, path in found.items():
+        data = path.read_bytes()
+        if sha(data) != manifest["files"][relative]:
+            _VERIFIED.pop(name, None)
+            raise AnchorCacheError(f"{name}: cached {relative} fails its pinned sha256; {hint}")
+        files[relative] = data
+    _VERIFIED[name] = (signature, files)
+    return dict(files)
+
+
+def available(name: str) -> bool:
+    """True unless this is a materialized anchor whose verified cache cannot be loaded."""
+    if not materialized(name):
+        return True
+    try:
+        cache_files(name)
+    except AnchorCacheError:
+        return False
+    return True
+
+
 def meta(name: str) -> dict:
-    info = json.loads((directory(name) / "task.json").read_bytes())
+    info = json.loads((package_dir(name) / "task.json").read_bytes())
     for field in HUMAN_TIME_FIELDS:
         info.pop(field, None)
     return info
@@ -64,6 +139,17 @@ def task_size(name: str) -> dict:
     agent = agent_files(name)
     hidden = verifier_files(name)
     writable = candidates(name)
+    if meta(name)["grader"].get("contract") == "git-diff":
+        from benchmarks.michael.replay_grader import final_diff
+        patch = hidden["reference"].decode()
+        table = json.loads(hidden["rows"])
+        lines = [line for line in patch.splitlines() if not line.startswith(("---", "+++"))]
+        return {"oracle_files_changed": len(final_diff.paths(hidden["reference"])),
+                "oracle_lines_added": sum(line.startswith("+") for line in lines),
+                "oracle_lines_removed": sum(line.startswith("-") for line in lines),
+                "writable_files": len(writable_paths(name)), "files_to_read": len(agent),
+                "lines_to_read": sum(data.count(b"\n") for data in agent.values()),
+                "hidden_checks": len(table), "hidden_clauses": sum(len(row["clauses"]) for row in table)}
     if len(writable) == 1:
         oracle = {writable[0]: hidden["reference"]}
     else:
@@ -114,7 +200,10 @@ def _tree(root: Path) -> dict[str, bytes]:
 
 def agent_files(name: str) -> dict[str, bytes]:
     info = meta(name)
-    files = _tree(directory(name) / "agent")
+    if materialized(name):
+        files = {path[len("agent/"):]: data for path, data in cache_files(name).items() if path.startswith("agent/")}
+    else:
+        files = _tree(package_dir(name) / "agent")
     if "policy.json" in files:
         raise ValueError("policy.json is generated, never stored")
     policy = {
@@ -141,7 +230,10 @@ def retired() -> dict:
 
 
 def verifier_files(name: str) -> dict[str, bytes]:
-    hidden = directory(name) / "hidden"
+    if materialized(name):
+        cached = {path[len("hidden/"):]: data for path, data in cache_files(name).items() if path.startswith("hidden/")}
+        return {"reference": cached.pop("reference"), "rows": cached.pop("rows.json"), **cached}
+    hidden = package_dir(name) / "hidden"
     files = {"reference": (hidden / "reference").read_bytes(),
              "rows": (hidden / "rows.json").read_bytes()}
     for path, data in (_tree(hidden / "sandbox") if (hidden / "sandbox").is_dir() else {}).items():
@@ -186,6 +278,9 @@ def descriptor(name: str) -> dict:
             "environment": "cloud-linux", "level": "integration",
             "outcome_evidence": info["outcome_evidence"],
             "limitations": "No model trial, representative-day coverage, native isolation, or contamination-free claim.",
+            **({"materialized_manifest_sha256": sha((package_dir(name) / "materialize.json").read_bytes()),
+                "materialized_from": "verified cache (agent/ and hidden/ bytes are fetched, not committed)"}
+               if materialized(name) else {}),
         },
         "base": ({"uri": f"package:{name}/agent/{candidate}", "sha256": sha(agent[candidate])}
                  if len(candidates(name)) == 1 else
@@ -202,6 +297,15 @@ def descriptor(name: str) -> dict:
     })
 
 
+def writable_paths(name: str) -> list[str]:
+    """Agent-writable files: the declared artifacts, or every exported repo file for a diff contract."""
+    grader = meta(name)["grader"]
+    if grader.get("contract") == "git-diff":
+        return sorted(path for path in agent_files(name)
+                      if path.startswith(grader["writable_prefix"]) or path == grader["new_files"])
+    return candidates(name)
+
+
 def native_policy(name: str) -> dict:
     """Per-task policy in the existing native trial shape (validator-task-policy.json)."""
     info = meta(name)
@@ -209,13 +313,20 @@ def native_policy(name: str) -> dict:
     files = sorted(agent_files(name))
     scratch = "self_test.mjs" if info["grader"].get("runtime") == "node" else "self_test.py"
     policy = {"condition": f"MB-008-{name}", "source": candidate, "scratch": scratch,
-              "read": [*files, scratch], "write": [*candidates(name), scratch], **NATIVE_LIMITS}
+              "read": [*files, scratch], "write": [*writable_paths(name), scratch], **NATIVE_LIMITS}
     # Package-declared limits (e.g. real game files larger than the default per-file cap); never lower.
     for key, value in info.get("native_limits", {}).items():
         if key not in NATIVE_LIMITS or not isinstance(value, int) or value < NATIVE_LIMITS[key]:
             raise ValueError(f"invalid native limit {key}={value!r} for {name}")
         policy[key] = value
-    if len(candidates(name)) > 1:
+    if info["grader"].get("contract") == "git-diff":
+        # Diff contract: no final artifact reads; the trusted collector computes the patch of the
+        # writable files against the export, bounded by maxBytes (replay_grader/final_diff.py).
+        policy["finalState"] = {"kind": "git-diff", "artifact": candidate,
+                                "maxBytes": info["grader"]["max_patch_bytes"],
+                                "newFiles": info["grader"]["new_files"], "prefix": info["grader"]["writable_prefix"]}
+        policy["finalOutputReserve"] = 0
+    elif len(candidates(name)) > 1:
         # Multi-artifact: the native collector must collect every listed artifact (bundle).
         policy["artifacts"] = candidates(name)
     return policy
@@ -252,16 +363,17 @@ def check_export(name: str, destination: Path) -> str:
         raise ValueError("export path/content allowlist mismatch (possible contamination)")
     hidden = verifier_files(name)
     reference = hidden["reference"]
+    tokens = forbidden_tokens(name)
     for path, data in actual.items():
-        if any(token in data for token in forbidden_tokens(name)):
+        if any(token in data for token in tokens):
             raise ValueError(f"solution-bearing historical reference or hidden check name leaks into {path}")
         if data == reference or any(secret in data for key, secret in hidden.items()
                                     if not key.startswith("sandbox/") and len(secret) > 64):
             raise ValueError(f"verifier material in {path}")
-    frozen = json.loads((directory(name) / "manifest.json").read_text())
+    frozen = json.loads((package_dir(name) / "manifest.json").read_text())
     if descriptor(name) != frozen:
         raise ValueError(f"{name}: frozen source/material digests changed")
-    native = json.loads((directory(name) / "native-policy.json").read_text())
+    native = json.loads((package_dir(name) / "native-policy.json").read_text())
     if native_policy(name) != native:
         raise ValueError(f"{name}: native policy drifted")
     return bundle_digest(actual)
@@ -291,14 +403,14 @@ def main() -> None:
     parser.add_argument("destination", type=Path, nargs="?")
     args = parser.parse_args()
     if args.operation == "freeze":
-        (directory(args.task) / "manifest.json").write_bytes(encoded(descriptor(args.task)))
-        (directory(args.task) / "native-policy.json").write_bytes(encoded(native_policy(args.task)))
+        (package_dir(args.task) / "manifest.json").write_bytes(encoded(descriptor(args.task)))
+        (package_dir(args.task) / "native-policy.json").write_bytes(encoded(native_policy(args.task)))
     elif args.operation == "stage":
         print(stage(args.task, args.destination))
     elif args.operation == "check":
         print(check_export(args.task, args.destination))
     else:
-        (directory(args.task) / "calibration.json").write_bytes(encoded(calibrate(args.task)))
+        (package_dir(args.task) / "calibration.json").write_bytes(encoded(calibrate(args.task)))
 
 
 if __name__ == "__main__":

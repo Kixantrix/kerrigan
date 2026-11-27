@@ -75,9 +75,18 @@ def test_native_no_fork_and_unlisted_files(owned, tmp_path, name):
 
 
 def test_package_policy_closure_and_node_pin():
+    from benchmarks.michael.tasks import curriculum as packages_
     for name in native.NAMES:
+        if not packages_.available(name):  # materialized anchor without its verified cache: see test_anchor_native
+            continue
         agent, policy, _ = native.material(name)
         assert set(policy["read"]) == set(agent) | {policy["scratch"]}
+        if native.diff_contract(policy):  # SWE-bench Pro anchors: every exported repo file writable, no final reads
+            assert policy["source"] == policy["finalState"]["artifact"] not in policy["write"]
+            assert set(policy["write"]) <= set(agent) | {policy["scratch"]} and policy["finalOutputReserve"] == 0
+            assert policy["runSeconds"] == 30 and policy["actions"] == 128 and policy["run"] == [policy["scratch"]]
+            assert policy["readonlySizes"] == {p: len(b) for p, b in agent.items() if p not in policy["write"]}
+            continue
         artifacts = policy.get("artifacts", [policy["source"]])
         assert policy["source"] in artifacts and set(policy["write"]) == {*artifacts, policy["scratch"]}
         assert policy["finalOutputReserve"] == len(artifacts) * policy["bytes"]

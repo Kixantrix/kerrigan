@@ -662,6 +662,7 @@ def write_record(contracts: dict, converted: dict[str, dict]) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    # Usage: python -m benchmarks.michael.curriculum.anchors_convert --materialize [anchor ...]
     parser.add_argument("--only", nargs="*")
     parser.add_argument("--work-dir", type=Path, default=provision.DEFAULT_WORK)
     parser.add_argument("--keep-images", action="store_true")
@@ -669,11 +670,41 @@ def main() -> None:
                         or "/tmp/harbor-venv/bin/harbor")
     parser.add_argument("--build-only", nargs="*", help="rebuild verifier images for converted anchors")
     parser.add_argument("--record-only", action="store_true", help="rewrite anchors-native.json exclusions only")
+    parser.add_argument("--recalibrate", nargs="*", metavar="ANCHOR",
+                        help="SWE-bench Pro anchors: rebuild images from pins and recalibrate from the verified cache")
+    parser.add_argument("--materialize", nargs="*", metavar="ANCHOR",
+                        help="fetch and verify the uncommitted upstream bytes of materialized anchors "
+                             "(default: all) into .cache/michael-anchors/; fails closed")
     args = parser.parse_args()
+    if args.materialize is not None:
+        from benchmarks.michael.curriculum import anchors_materialize
+        try:
+            for package in anchors_materialize.resolve_names(args.materialize):
+                print(f"[{now()}] materialize {package}", file=sys.stderr, flush=True)
+                print(f"  -> verified {anchors_materialize.materialize(package)}", file=sys.stderr, flush=True)
+        except Exception as exc:  # noqa: BLE001 - fail closed with a clear message
+            print(f"materialize failed (nothing accepted): {exc}", file=sys.stderr)
+            raise SystemExit(1)
+        return
     contracts = json.loads(CONTRACTS.read_text())
+    if args.recalibrate is not None:
+        from benchmarks.michael.curriculum import anchors_convert_swe
+        previous = {a["name"]: a for a in json.loads(RECORD.read_text())["anchors"]}
+        names = args.recalibrate or [n for n, c in contracts["conversions"].items() if c.get("kind") == "swebenchpro-diff"]
+        updated = {}
+        for name in names:
+            print(f"[{now()}] recalibrate {name}", file=sys.stderr, flush=True)
+            updated[name] = anchors_convert_swe.recalibrate(name, contracts["conversions"][name], args, previous[name])
+            write_record(contracts, updated)
+        return
     if args.build_only:
         for name in args.build_only:
-            build_only(name, contracts["conversions"][name], args)
+            conversion = contracts["conversions"][name]
+            if conversion.get("kind") == "swebenchpro-diff":
+                from benchmarks.michael.curriculum import anchors_convert_swe
+                anchors_convert_swe.build_only(name, conversion, args)
+            else:
+                build_only(name, conversion, args)
         return
     converted = {}
     if not args.record_only:
@@ -682,13 +713,17 @@ def main() -> None:
                 continue
             print(f"[{now()}] {name}", file=sys.stderr, flush=True)
             try:
-                converted[name] = convert(name, conversion, args)
-            except (ConversionError, subprocess.SubprocessError, OSError, KeyError, ValueError) as exc:
+                if conversion.get("kind") == "swebenchpro-diff":
+                    from benchmarks.michael.curriculum import anchors_convert_swe
+                    converted[name] = anchors_convert_swe.convert(name, conversion, args)
+                else:
+                    converted[name] = convert(name, conversion, args)
+            except Exception as exc:  # noqa: BLE001 - record and continue (module may run as __main__)
                 converted[name] = {"name": name, "status": "conversion-failed", "package": conversion["package"],
                                    "error": str(exc)[:3000], "recorded_at": now()}
                 shutil.rmtree(ANCHOR_ROOT / conversion["package"], ignore_errors=True)
                 if not args.keep_images:
-                    remove_images([conversion["image"], f"mbanchor-{conversion['package']}:env",
+                    remove_images([conversion.get("image"), f"mbanchor-{conversion['package']}:env",
                                    f"mbanchor-{conversion['package']}:verifier"])
             print(f"  -> {converted[name]['status']}", file=sys.stderr, flush=True)
     write_record(contracts, converted)

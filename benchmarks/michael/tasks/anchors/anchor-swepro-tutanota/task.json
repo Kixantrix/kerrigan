@@ -1,0 +1,103 @@
+{
+ "id": "anchor-swepro-tutanota",
+ "family": "Implement",
+ "title": "Track calendar import progress through an operation progress tracker (SWE-bench Pro tutanota)",
+ "source": {
+  "repo": "laude-institute/harbor-datasets",
+  "visibility": "public",
+  "kind": "harbor-task",
+  "pr": null,
+  "base_ref": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+  "reference_ref": "c8e8f3fac7097accaacf261d74c3d6f441de45b1:datasets/swebenchpro/instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf/solution/solve.sh",
+  "history_status": "public-benchmark"
+ },
+ "derivation": "Converted by anchors_convert_swe.py from SWE-bench Pro 'instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf' (tutao/tutanota base 70c37c09d61793fb8a34df626c6b9687b115ecb9, gold 09c2776c0fce3db5c6e18da92b5a45dce9f013aa) via https://github.com/laude-institute/harbor-datasets.git@c8e8f3fac7097accaacf261d74c3d6f441de45b1 (task tree_sha256 5e5e911e7efb926af284d2c8de867f7b5d429c0cebc75986ae296ecfd3e0dcf6). Workspace = hidden tests' transitive local imports + loaded conftest.py + gold-modified files + repo configuration (text only); every exported repo file is writable. Final state = canonical git diff of the writable files against the export. Base = empty diff; reference = the task's own solve.sh in the task image, diffed over the subset plus the gold-created files ['src/api/main/OperationProgressTracker.ts'] (declared via new-files.json). Hidden checks = the original tests/test.sh offline; one strict row per FAIL_TO_PASS and PASS_TO_PASS test plus the Harbor reward row.",
+ "privacy": "public",
+ "coverage": "SWE-bench Pro FAIL_TO_PASS (1) and PASS_TO_PASS (0) tests and the Harbor reward.",
+ "historical_exposure": "Public benchmark (SWE-bench Pro public set) over a public repository; the fix may be in training data. Reported separately, never pooled.",
+ "outcome_evidence": "held_out_tests",
+ "long_horizon": false,
+ "residual_rubric": [
+  "Only test outcomes are graded; code quality of the patch is not judged."
+ ],
+ "required_environment": "cloud-linux Docker: verifier image mbanchor-anchor-swepro-tutanota:verifier (task image + original test.sh warm-up, built by anchors_convert.py --build-only instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf); 4096 MB, no network at grading time; amd64.",
+ "leak_tokens": [
+  "09c2776c0fce3db5c6e18da92b5a45dce9f013aa"
+ ],
+ "round": 3,
+ "anchor": {
+  "dataset": "swebenchpro@1.0",
+  "name": "instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+  "git_url": "https://github.com/laude-institute/harbor-datasets.git",
+  "git_commit_id": "c8e8f3fac7097accaacf261d74c3d6f441de45b1",
+  "path": "datasets/swebenchpro/instance_tutao__tutanota-09c2776c0fce3db5c6e18da92b5a45dce9f013aa-vbc0d9ba8f0071fbe982809910959a6ff8884dbbf",
+  "git_tree": "ef55f0682c80692b302425de05f4345ae0491a90",
+  "tree_sha256": "5e5e911e7efb926af284d2c8de867f7b5d429c0cebc75986ae296ecfd3e0dcf6",
+  "task_image": "jefzda/sweap-images@sha256:526a22a82597f1876abfc41f1e1313b3813916e116ce9f3e62a60f45bad3d66f",
+  "upstream_repo": "tutao/tutanota",
+  "base_commit": "70c37c09d61793fb8a34df626c6b9687b115ecb9",
+  "gold_commit": "09c2776c0fce3db5c6e18da92b5a45dce9f013aa",
+  "license": {
+   "repository": "GPL-3.0",
+   "tests": "SWE-bench Pro (scaleapi/SWE-bench_Pro-os, MIT) via harbor-datasets (no declared licence; Harbor adapter test.sh)"
+  },
+  "harbor_verification": {
+   "oracle_reward": 1.0,
+   "base_reward": 0.0,
+   "verifier_seconds": 98.8,
+   "recorded_at": "2026-11-27T06:24:51+00:00"
+  },
+  "gold_modified": [
+   "src/api/main/MainLocator.ts",
+   "src/api/main/WorkerClient.ts",
+   "src/api/worker/WorkerImpl.ts",
+   "src/api/worker/WorkerLocator.ts",
+   "src/api/worker/facades/CalendarFacade.ts",
+   "src/calendar/export/CalendarImporterDialog.ts"
+  ],
+  "gold_created": [
+   "src/api/main/OperationProgressTracker.ts"
+  ],
+  "subset": {
+   "files": 551,
+   "bytes": 9123319,
+   "exported_files": 551,
+   "exported_bytes": 9123319,
+   "repo_tracked_files": 1937,
+   "repo_tracked_bytes": 50657986,
+   "caps": {
+    "files": 2000,
+    "bytes": 16777216,
+    "file_bytes": 524288
+   }
+  },
+  "python_roots": [
+   ""
+  ]
+ },
+ "grader": {
+  "runtime": "harbor",
+  "contract": "git-diff",
+  "harness": "swebenchpro_anchor.py",
+  "candidate": "final-state.patch",
+  "writable_prefix": "app/",
+  "new_files": "new-files.json",
+  "max_patch_bytes": 1048576,
+  "denominators": {
+   "fail_to_pass": 1,
+   "harbor-reward": 1
+  },
+  "image": "mbanchor-anchor-swepro-tutanota:verifier",
+  "candidate_seconds": 300,
+  "memory": "4096m",
+  "workdir": "/app",
+  "python": "/opt/mb-anchor/python",
+  "p2p_rows": "per-test"
+ },
+ "native_limits": {
+  "bytes": 524288,
+  "channel": 524288,
+  "payload": 2097152,
+  "aggregate": 4194304
+ }
+}

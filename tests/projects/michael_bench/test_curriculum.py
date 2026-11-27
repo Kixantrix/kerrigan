@@ -512,8 +512,9 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"cs-mismatch-stage-authority": "cs-mismatch-stage-authority-v2",
-           "vhs-room-registry-sync": "vhs-room-registry-sync-v2",
+CURRENT = {"vhs-room-registry-sync-v2": "vhs-room-registry-sync-v3",
+           "cs-mismatch-stage-authority": "cs-mismatch-stage-authority-v2",
+           "vhs-room-registry-sync": "vhs-room-registry-sync-v3",
            "foal-meadow-regression-review": "foal-meadow-regression-review-v2",
            "yv-relevance-instrument-v3": "yv-relevance-instrument-v4",
            "kerrigan-plan-conflict-queue-v3": "kerrigan-plan-conflict-queue-v4",
@@ -1120,3 +1121,18 @@ def test_cs_v2_scopes_refusal_to_json_values_and_rejects_duplicate_findings(tmp_
     ledger["findings"] = ledger["findings"] * 2
     files["REVIEW.json"] = (json.dumps(ledger, indent=2) + "\n").encode()
     assert _failed(specs.bundle(files), new, tmp_path) == ["ledger entries are well formed, one per distinct defect"]
+
+
+VHS_V3 = "vhs-room-registry-sync-v3"
+VHS_RENAME_ROW = "a replicated rename keeps the old name live on both backends"
+VHS_EXPORT_SORT = "return rows.map(roomRowToRecord).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));"
+
+
+def test_vhs_v3_live_names_are_a_set_without_duplicates(tmp_path):
+    assert curriculum.verifier_files(VHS_V3)["reference"] == curriculum.verifier_files("vhs-room-registry-sync-v2")["reference"]
+    reordered = _edited_reference(VHS_V3, "api/sync.js", VHS_EXPORT_SORT,
+                                  "return rows.map(roomRowToRecord).sort((a, b) => (a.name < b.name ? 1 : a.name > b.name ? -1 : 0));")
+    assert _failed(reordered, VHS_V3, tmp_path) == []
+    duplicated = _edited_reference(VHS_V3, "api/sync.js", VHS_EXPORT_SORT,
+                                   "return rows.map(roomRowToRecord).flatMap((r) => [r, r]);")
+    assert VHS_RENAME_ROW in _failed(duplicated, VHS_V3, tmp_path)

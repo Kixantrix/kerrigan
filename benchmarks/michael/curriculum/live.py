@@ -8,20 +8,37 @@ from benchmarks.michael.replay_trial import api, curriculum as native
 from benchmarks.michael.replay_grader import specs
 
 
+BINARY_NOTE = ("Binary (non-UTF-8) files are listed as {path, sha256, bytes, binary: true} with their content "
+               "omitted; judge them only by path, size and role, never by guessed content.")
+
+
+def payload_file(path, data):
+    """UTF-8 text unchanged; binary files as metadata only (content omitted)."""
+    try:
+        return data.decode()
+    except UnicodeDecodeError:
+        return {"path": path, "sha256": api.sha(data), "bytes": len(data), "binary": True}
+
+
 def audit_payload(name, *, active_seconds=3600, scratch_directory=False):
     agent, hidden, _, _ = specs.package(name)
     policy = native.round_three_policy(name) if scratch_directory else native.material(name)[1]
     policy["activeSeconds"] = active_seconds
-    return {"instruction": agent["TASK.md"].decode(), "visible": {p: b.decode() for p, b in agent.items()},
+    visible = {p: payload_file(p, b) for p, b in agent.items()}
+    fixtures = {p: payload_file(p, b) for p, b in specs.spec(name)["extra"]().items()}
+    binary = any(isinstance(v, dict) for v in [*visible.values(), *fixtures.values()])
+    return {"instruction": agent["TASK.md"].decode(), "visible": visible,
+        **({"binaryContentOmitted": BINARY_NOTE} if binary else {}),
         "oracle": hidden["reference"].decode(), "rows": specs.spec(name)["rows"](),
         "trustedHarness": (api.grader.HERE / specs.spec(name)["harness"]).read_text(),
-        "trustedFixtures": {p: b.decode() for p, b in specs.spec(name)["extra"]().items()},
+        "trustedFixtures": fixtures,
         "effectiveNativePolicy": policy, "effectiveNativeInstruction": native.prompt(policy),
         "contextPrecedence": "Audit the actual combined task and native instruction. The native overlay "
             "explicitly corrects exported shell/pytest/toolchain claims and declares the scratch path, "
             "writable artifact paths and execution limits. It overrides generated policy.json's tool "
             "availability/write declarations, not the task's required solution behavior. Do not call "
-            "a task contradictory merely because generated policy.json omits native scratch or Node."}
+            "a task contradictory merely because generated policy.json omits native scratch or Node."
+            + (" " + BINARY_NOTE if binary else "")}
 
 
 def request_material(req, *, scratch_directory=False):

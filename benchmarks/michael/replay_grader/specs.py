@@ -74,6 +74,21 @@ def register_anchors():
     from benchmarks.michael.tasks import curriculum
     for name in curriculum.ANCHORS:
         grader = curriculum.meta(name)["grader"]
+        if grader.get("contract") == "git-diff":
+            from benchmarks.michael.replay_grader import swebenchpro_adapter
+            SPECS[name] = {
+                "name": name, "runtime": "harbor", "image": grader["image"], "candidate": grader["candidate"],
+                "harness": "harnesses/swebenchpro_anchor.py", "harness_target": "harness.py",
+                "bootstrap": "harnesses/bootstrap_anchor.py",
+                "support": ["swebenchpro_adapter.py", "harnesses/bootstrap_anchor.py"],
+                "rows": lambda name=name: curriculum.rows(name), "denominators": grader["denominators"],
+                "valid": swebenchpro_adapter.valid, "candidate_seconds": grader["candidate_seconds"],
+                "source_limit": grader["max_patch_bytes"], "memory": grader["memory"],
+                "workdir": grader["workdir"], "python": grader["python"],
+                "extra": lambda name=name: {
+                    **curriculum.sandbox_fixtures(name),
+                    "swebenchpro_adapter.py": (HERE / "swebenchpro_adapter.py").read_bytes()}}
+            continue
         SPECS[name] = {
             "name": name, "runtime": "harbor", "image": grader["image"], "candidate": grader["candidate"],
             "candidates": list(grader["candidates"]), "harness": "harnesses/harbor_anchor.py",
@@ -116,11 +131,12 @@ def spec(name):
 def package(name):
     """Return (agent_files, verifier_files, descriptor, frozen) bindings for a task."""
     if name in packages.CASES:
-        frozen = json.loads((packages.HERE / name / "manifest.json").read_bytes())
+        from benchmarks.michael.tasks import curriculum
+        frozen = json.loads((curriculum.package_dir(name) / "manifest.json").read_bytes())
         return packages.agent_files(name), packages.verifier_files(name), packages.descriptor(name), frozen
     from benchmarks.michael.tasks import curriculum
     return (curriculum.agent_files(name), curriculum.verifier_files(name), curriculum.descriptor(name),
-            json.loads((curriculum.directory(name) / "manifest.json").read_bytes()))
+            json.loads((curriculum.package_dir(name) / "manifest.json").read_bytes()))
 
 
 def reference(name):
