@@ -1,0 +1,117 @@
+{
+  "condition": "MB-R3-local-preparation",
+  "observed_at": "2026-11-26T20:57:27.676-08:00",
+  "source": "Local AI setup session bd5369f9-6de5-4f0e-8cc3-f76a2b61caad metadata-only handoff",
+  "inventory_anchors": {
+    "preparation_manifest_sha256": "dcbeccce91a9c3f924b0d09838dd90587d25eae34c0d3cf83dea28c5bc4e9898",
+    "inkling_bonsai_manifest_sha256": "dcdd5fd705333b6fa6894896b99953a873043f40cfa883ca07d8801064b4a61f",
+    "historically_inventoried_files_present_size_matched": 518,
+    "fresh_large_tensor_rehash": false
+  },
+  "installed_models": [
+    {
+      "repository": "beamster/Qwen3.8-Flash-Next-Sushi-STQ-2.75bpw",
+      "revision": "9f32dc5cff726783366443cd732c2ee6138bfade",
+      "format": "Sushi nominal 2.75bpw mixed",
+      "files": 218, "bytes": 80495092329,
+      "manifest_sha256": "b611f3b9a84bf519f2102344334228e2c3d87bbb5974f49309419c1cc058290e"
+    },
+    {
+      "repository": "beamster/Qwen3.8-Flash-Next-Sushi-2bpw",
+      "revision": "f37e7ba46f0f2993b6ca373221530c579f258712",
+      "format": "Sushi nominal 2bpw mixed",
+      "files": 220, "bytes": 69578850680,
+      "manifest_sha256": "24673b8044904cf03ac5dcbfd0f766e03ac5a0110bae49d0d0b5a4a8f1993c74"
+    },
+    {
+      "repository": "incoai/Qwen3.8-Flash-Next-DFlash2",
+      "revision": "a22a1744e85c17364dcc54a6a420af7135d4c7f6",
+      "format": "BF16 drafter, first header checked",
+      "files": 6, "bytes": 1206437758,
+      "manifest_sha256": "47c44870c1163dbada6a7c5172c5ec97296332f0932bb4a7c9842372ffe6428d"
+    },
+    {
+      "repository": "mlx-community/Qwen3.8-27B-4bit",
+      "revision": "b935172e4bb5dcd0543774a34748fb92422e3027",
+      "format": "affine 4bit/group64",
+      "files": 15, "bytes": 16074310928,
+      "manifest_sha256": "08e89ae809afa022375f34612f91240fb3008d97c9447d6d3985275cc1f9fc54"
+    },
+    {
+      "repository": "incoai/Qwen3.8-27B-DFlash2",
+      "revision": "015e795645c74b1a0eeef3b570031fb62e769bc5",
+      "format": "BF16 drafter, first header checked",
+      "files": 5, "bytes": 3849113004,
+      "manifest_sha256": "07a5421ac07f3c4ddaf9f6cb16f0eeacb5c8b3016e0198970fd340669a0310af"
+    },
+    {
+      "repository": "Youssofal/Inkling-2-Mini-MTPLX-Optimized-Quality",
+      "revision": "1ee9bded6a180953aae72654fc88110184172d53",
+      "format": "mixed NVFP4/MXFP8/modelopt",
+      "files": 18, "bytes": 20191604720,
+      "manifest_sha256": "641ea17278340114f1ef78c2d2ccd1907e784ee0324f216a3f881ef7ff02d1d5"
+    },
+    {
+      "repository": "Youssofal/Ternary-Bonsai-2-27B-MTPLX-Optimized-Speed",
+      "revision": "03bd60bb82755f2446f5083426dca9708eb8e0fe",
+      "format": "ternary pack; affine 2bit/group128 container metadata",
+      "files": 18, "bytes": 8847918956,
+      "manifest_sha256": "427a2c46fa9308576975250f6244981cbec93528248bb5e0e789ddbd432a4edf"
+    },
+    {
+      "repository": "Youssofal/Qwen3.8-27B-MTPLX-Optimized-Speed",
+      "revision": "1d5087d2062c02b279180a53e4016cf9cd7a3d7e",
+      "format": "affine 4bit/group32",
+      "files": 18, "bytes": 20703486926,
+      "manifest_sha256": "4c8e26f5509644ead473c5491be48354dddddac4ee4d115f6ab97f4be2dad905",
+      "restricted_contents_received": false
+    }
+  ],
+  "selected_model": {
+    "repository": "Youssofal/Inkling-2-Mini-MTPLX-Optimized-Quality",
+    "revision": "1ee9bded6a180953aae72654fc88110184172d53",
+    "http_model": "mtplx-inkling-2-mini-optimized-quality",
+    "format": "mixed NVFP4/MXFP8/modelopt",
+    "inventoried_files": 18,
+    "installed_bytes": 20191604720,
+    "proof_manifest_sha256": "641ea17278340114f1ef78c2d2ccd1907e784ee0324f216a3f881ef7ff02d1d5"
+  },
+  "runtime": {
+    "mtplx": "2.13.2",
+    "mlx": "0.32.2",
+    "mlx_lm": "0.31.3",
+    "wheel_sha256": "768f00718c8685ad50be7d9f673eb49f7b8ebf7efc581ef60bb5be4baf3ab9e1",
+    "python_version": "3.13.18",
+    "python_sha256": "a457b0384643f4c394885874c99a82f58da72497407fa5b652d1329f00149e57"
+  },
+  "hardware": {
+    "model": "Mac17,11",
+    "chip": "M5 Max",
+    "cpu_cores": 18,
+    "gpu_cores": 40,
+    "unified_memory_bytes": 68719476736,
+    "os": "macOS 27.2.1",
+    "build": "26B8132"
+  },
+  "endpoint": "http://127.0.0.1:8000/v1",
+  "measurement_limits": [
+    "Historical model payload verification on November 23; fresh present-file size checks and manifest hashes are not fresh tensor hashes.",
+    "Endpoint readiness and idle count were a historical metadata snapshot, not resource-release clearance.",
+    "Selected model recommendation is provisional and based on historical tests, not global superiority.",
+    "User operational service, not benchmark-owned; no inference until parent go and announced bounded interval.",
+    "Local speed and energy are shared with background workloads; correctness is separate.",
+    "Unmeasured energy, peak model memory and backend setting attestation remain unknown."
+  ],
+  "window_guards": {
+    "maximum_seconds": 10800,
+    "concurrency": 1,
+    "input_token_limit": 229376,
+    "total_context_limit": 262144,
+    "output_including_reasoning_limit": 16384,
+    "exploratory_above_input_tokens": 131072,
+    "grading": "after-window-release",
+    "prohibited_during_window": ["VMs", "containers", "builds", "model switches", "cache resets", "priming", "shared setting changes"],
+    "ownership": "Exact response/request correlation and conservative health-idle boundary checks; stop on ambiguous endpoint ownership. Mixed-content status endpoints require explicit privacy-compatible projection.",
+    "cotenant_policy": "Do not pause or alter Gridiron; record metadata-only background process/load/pressure snapshots. Resource-contention deadlines are not model failures."
+  }
+}
