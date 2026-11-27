@@ -1,0 +1,65 @@
+{
+ "id": "vhs-room-registry-sync-v3",
+ "family": "Operate",
+ "title": "Keep two VHS API backends' room/PIN registries convergent through partitions, replays, restarts, clock skew and misconfiguration",
+ "source": {
+  "repo": "Kixantrix/vhs-video-stack",
+  "visibility": "private",
+  "kind": "issue+pr",
+  "pr": 194,
+  "issue": 193,
+  "base_ref": "c89b7fb93fb8c7b0f931a929a350e8c31a8c5018",
+  "reference_ref": "1cbf506d797c5349749bd4f3c0e35e7ae262bc68",
+  "history_status": "merged"
+ },
+ "derivation": "Private vhs-video-stack issue #193 / PR #194 (hybrid hosting slice 1: bidirectional room/PIN registry replication between two API backends under intermittent connectivity) re-synthesized as a sanitized, dependency-free slice of the real api/ tree. db.js, index.js, admin.js and middleware.js are trimmed from the exact base (call-session, telemetry, quality, auth and user routes removed; LiveKit SDK replaced by a local HMAC token); better-sqlite3 and express are replaced by read-only stand-ins over node:sqlite and node:http (api/lib/). The oracle is the merged PR's non-test diff applied verbatim to the trimmed files: new sync.js (logical clock, LWW merge with tombstones and content tiebreak, diff/apply) and sync-routes.js (x-sync-secret guard), db.js migration/backfill, soft-delete, revive-by-name, clock seeding and registry adapters, and the /sync mount in index.js. The PR's Jest/supertest suite is replaced by held-out operational scenarios: separate module graphs and SQLite files per backend, restarts on the same file, partitions, stale and duplicate delivery, crafted skewed/tied peer snapshots, a database created with the pre-PR schema, and misconfigured secrets. The wire format, applied-count meaning and backfill rule, which the issue left open but the checks need, are stated in TASK.md from the oracle. No private hostnames, credentials or data are included. v2 (round 4): native admission of v1 returned needs_fix (benchmarks/michael/curriculum/MBR3-vhs-room-registry-sync-admission.json). Three instruction/oracle contradictions are fixed in the instruction, not the oracle (the merged PR #194 code is unchanged): (1) GET /admin/rooms keeps listing tombstones with enabled false and a repeated DELETE returns 200; (2) creating a name held by a disabled room revives that row (only an enabled live duplicate is 409); (3) a rename changes the key in place without a tombstone, so after a two-way exchange both names stay live. Each now has a hidden row. Untested requirements gained rows: re-creation through POST /rooms and POST /admin/rooms, enable/disable and display-name replication, regenerate-code replication, unknown record fields (ignored by tie-breaking and change counting), bare-array payloads, and preservation of authenticated/admin create, regenerate-code and session rejoin. The no-scheduler and purity guidance moved to an explicit required-but-ungraded paragraph; renaming onto a tombstoned/disabled name and admin edits of deleted ids are declared unspecified. The tiebreak is stated to use only known fields. v1's 24 rows are unchanged; 9 rows were added (33). v3 (round 4): native admission of v2 flagged overspecified_test (receipt cited once pushed): the rename row compared live-name arrays to fixed orders although snapshot record order is explicitly free. Live names are now compared as a set (sorted unique names) with a separate duplicates count that must be 0. Instruction, oracle and every other row unchanged.",
+ "privacy": "private-synthetic-fixture",
+ "coverage": "Two-to-three-backend replication through HTTP only: export, peer-only create, PIN interchangeability, LWW both directions, same-millisecond ordering, commutative merge with exact ties, tombstone tie rule, timestamp preservation, delete propagation, no resurrection from stale peers, unseen deletes, revive-by-name, idempotent re-delivery, no duplicate rows, clock skew, restart persistence and clock seeding, in-place schema upgrade with backfill, secret guard and malformed payloads; plus preservation of the disabled-by-default deployment and existing room/token/admin contracts. v2 adds admin-list tombstones, disabled-name revival, rename semantics, all create paths, toggle/display-name/regenerate replication, unknown fields and bare arrays.",
+ "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
+ "outcome_evidence": "held_out_tests",
+ "estimated_agent_minutes": 50,
+ "long_horizon": true,
+ "residual_rubric": [
+  "Absence of a background scheduler or other periodic work is required but not graded.",
+  "Purity of the merge layer and thin adapters are required but not graded; design notes are not graded."
+ ],
+ "leak_tokens": [
+  "mergeRoomRegistries",
+  "applyRoomRegistry",
+  "getRoomRegistry",
+  "createSyncRouter",
+  "applySnapshotToRecords"
+ ],
+ "required_environment": "Full upstream task: Node 20+ with npm dependencies (express, better-sqlite3 native build, cors, cookie-parser, livekit-server-sdk, jest, supertest). The packaged slice runs on michael-replay-grader-node:mb008 (Node 24, node:sqlite, loopback HTTP, no npm) with vendored express/better-sqlite3 stand-ins.",
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "api/sync.js",
+  "candidates": [
+   "api/db.js",
+   "api/index.js",
+   "api/sync-routes.js",
+   "api/sync.js"
+  ],
+  "agent_support": [
+   "api/admin.js",
+   "api/lib/express.js",
+   "api/lib/sqlite.js",
+   "api/middleware.js"
+  ],
+  "denominators": {
+   "replication": 6,
+   "conflicts": 6,
+   "tombstones": 7,
+   "operations": 7,
+   "guard": 3,
+   "preservation": 4
+  }
+ },
+ "round": 4,
+ "supersedes": "vhs-room-registry-sync-v2",
+ "prior_evidence": {
+  "path": "benchmarks/michael/curriculum/MBR3-vhs-room-registry-sync-admission.json",
+  "sha256": "b1888642f99f351dd78dd363a4b425cd368d34e4943c293170b4aa8869fb24dc"
+ }
+}

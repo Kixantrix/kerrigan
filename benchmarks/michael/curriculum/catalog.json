@@ -1704,7 +1704,7 @@
    "long_horizon": true,
    "summary": "Implement bidirectional room/PIN registry replication (LWW, tombstones, monotonic clock seeded across restarts, in-place schema upgrade, shared-secret guard) across db.js, index.js, sync.js and sync-routes.js",
    "history_status": "merged",
-   "package": "vhs-room-registry-sync-v2",
+   "package": "vhs-room-registry-sync-v3",
    "provenance_kind": "issue+pr",
    "grader_image": "michael-replay-grader-node:mb008",
    "round": 4,
@@ -1716,10 +1716,11 @@
     "files_to_read": 10,
     "lines_to_read": 1400,
     "hidden_checks": 33,
-    "hidden_clauses": 119
+    "hidden_clauses": 123
    },
    "retired_packages": [
-    "vhs-room-registry-sync"
+    "vhs-room-registry-sync",
+    "vhs-room-registry-sync-v2"
    ]
   },
   {

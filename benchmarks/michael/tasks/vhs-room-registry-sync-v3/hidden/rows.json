@@ -1,0 +1,1598 @@
+[
+ {
+  "original_id": "export lists every room with the wire-format fields",
+  "group": "replication",
+  "probe": {
+   "scenario": "replicate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "exportCount"
+    ],
+    2
+   ],
+   [
+    "path_true",
+    [
+     "exportFieldsOk"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "exportView"
+    ],
+    [
+     {
+      "access_code": "amber-otter-lake",
+      "deleted": false,
+      "display_name": "Kitchen TV",
+      "enabled": 1,
+      "name": "kitchen"
+     },
+     {
+      "access_code": "delta-wren-fog",
+      "deleted": false,
+      "display_name": "porch",
+      "enabled": 1,
+      "name": "porch"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a peer-only room is created on the other backend with the same PIN",
+  "group": "replication",
+  "probe": {
+   "scenario": "replicate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "pushStatus"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "pushApplied"
+    ],
+    2
+   ],
+   [
+    "path_true",
+    [
+     "responseMatchesPeer"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "peerView"
+    ],
+    [
+     {
+      "access_code": "amber-otter-lake",
+      "deleted": false,
+      "display_name": "Kitchen TV",
+      "enabled": 1,
+      "name": "kitchen"
+     },
+     {
+      "access_code": "delta-wren-fog",
+      "deleted": false,
+      "display_name": "porch",
+      "enabled": 1,
+      "name": "porch"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a replicated PIN admits a join on the other backend",
+  "group": "replication",
+  "probe": {
+   "scenario": "replicate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "peerJoins"
+    ],
+    [
+     200,
+     200,
+     401
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "peerListed"
+    ],
+    [
+     "kitchen",
+     "porch"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "the newer edit wins in both directions after an exchange",
+  "group": "conflicts",
+  "probe": {
+   "scenario": "lww"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "den"
+    ],
+    [
+     "den-from-a",
+     "den-from-a"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "study"
+    ],
+    [
+     "study-from-b",
+     "study-from-b"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "converged"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "joins"
+    ],
+    [
+     200,
+     200,
+     401
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "edits within one millisecond still order and the later edit wins",
+  "group": "conflicts",
+  "probe": {
+   "scenario": "rapid"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "strictlyIncreasing"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "latestOnA"
+    ],
+    "hall-three"
+   ],
+   [
+    "path_equal",
+    [
+     "staleReplayLast"
+    ],
+    "hall-three"
+   ],
+   [
+    "path_equal",
+    [
+     "inOrder"
+    ],
+    "hall-three"
+   ]
+  ]
+ },
+ {
+  "original_id": "merge outcome is independent of delivery order, including exact ties",
+  "group": "conflicts",
+  "probe": {
+   "scenario": "commutative"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "converged"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "stampsConverged"
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "alphaIsOneOfTied"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "gamma"
+    ],
+    [
+     "gamma-y",
+     "gamma-y"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "names"
+    ],
+    [
+     "alpha",
+     "beta",
+     "delta",
+     "epsilon",
+     "gamma",
+     "theta"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "on an exact timestamp tie a tombstone beats a live record",
+  "group": "conflicts",
+  "probe": {
+   "scenario": "commutative"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "beta"
+    ],
+    [
+     {
+      "deleted": true,
+      "name": "beta"
+     },
+     {
+      "deleted": true,
+      "name": "beta"
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "betaJoin"
+    ],
+    [
+     404,
+     404
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "applied records keep the peer's timestamps",
+  "group": "conflicts",
+  "probe": {
+   "scenario": "commutative"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "stamps"
+    ],
+    {
+     "alpha": 1767225600010,
+     "beta": 1767225600020,
+     "delta": 1767225600005,
+     "epsilon": 1767225600001,
+     "gamma": 1767225600031,
+     "theta": 1767225600040
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "a delete propagates to the peer and blocks joins there",
+  "group": "tombstones",
+  "probe": {
+   "scenario": "tombstone"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "afterDelete"
+    ],
+    {
+     "deleteStatus": 200,
+     "aAttic": {
+      "deleted": true,
+      "name": "attic"
+     },
+     "aListed": [
+      "cellar"
+     ],
+     "deliveredStatus": 200,
+     "bAttic": {
+      "deleted": true,
+      "name": "attic"
+     },
+     "bListed": [
+      "cellar"
+     ],
+     "bJoin": 404,
+     "bCellarJoin": 200
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "a stale peer snapshot does not resurrect a deleted room",
+  "group": "tombstones",
+  "probe": {
+   "scenario": "tombstone"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "replay"
+    ],
+    {
+     "statuses": [
+      200,
+      200
+     ],
+     "attic": [
+      {
+       "deleted": true,
+       "name": "attic"
+      },
+      {
+       "deleted": true,
+       "name": "attic"
+      }
+     ],
+     "joins": [
+      404,
+      404
+     ],
+     "listed": [
+      [
+       "cellar"
+      ],
+      [
+       "cellar"
+      ]
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "a deletion replicates to a peer that never saw the room",
+  "group": "tombstones",
+  "probe": {
+   "scenario": "tombstone"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "unseen"
+    ],
+    {
+     "shedOnB": {
+      "deleted": true,
+      "name": "shed"
+     },
+     "afterStale": {
+      "deleted": true,
+      "name": "shed"
+     },
+     "bListed": [
+      "cellar"
+     ],
+     "bJoin": 404
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "re-creating a deleted room revives it and wins over the old tombstone",
+  "group": "tombstones",
+  "probe": {
+   "scenario": "recreate"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "recreateStatus"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "garage"
+    ],
+    [
+     {
+      "access_code": "garage-new",
+      "deleted": false,
+      "display_name": "Garage",
+      "enabled": 1,
+      "name": "garage"
+     },
+     {
+      "access_code": "garage-new",
+      "deleted": false,
+      "display_name": "Garage",
+      "enabled": 1,
+      "name": "garage"
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "garageRecords"
+    ],
+    [
+     1,
+     1
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "joins"
+    ],
+    [
+     200,
+     200,
+     401
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "re-delivering an already merged snapshot changes nothing",
+  "group": "operations",
+  "probe": {
+   "scenario": "redeliver"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "firstApplied"
+    ],
+    4
+   ],
+   [
+    "path_equal",
+    [
+     "secondApplied"
+    ],
+    0
+   ],
+   [
+    "path_true",
+    [
+     "unchanged"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "exchangeApplied"
+    ],
+    [
+     0,
+     0
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "applying by name never duplicates a room",
+  "group": "operations",
+  "probe": {
+   "scenario": "redeliver"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "namesUnique"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "adminGreenRows"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "green"
+    ],
+    {
+     "access_code": "green-newer",
+     "deleted": false,
+     "display_name": "green",
+     "enabled": 1,
+     "name": "green"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "updateApplied"
+    ],
+    1
+   ]
+  ]
+ },
+ {
+  "original_id": "a local edit after accepting a clock-skewed peer record still wins",
+  "group": "operations",
+  "probe": {
+   "scenario": "skew"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "editStatus"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "aPin"
+    ],
+    "loft-local-edit"
+   ],
+   [
+    "path_true",
+    [
+     "aAhead"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "bPin"
+    ],
+    "loft-local-edit"
+   ],
+   [
+    "path_equal",
+    [
+     "bJoin"
+    ],
+    200
+   ]
+  ]
+ },
+ {
+  "original_id": "replicated rooms and tombstones survive a restart",
+  "group": "operations",
+  "probe": {
+   "scenario": "restart"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "survived",
+     "same"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "survived",
+     "nook"
+    ],
+    {
+     "deleted": true,
+     "name": "nook"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "survived",
+     "nookJoin"
+    ],
+    404
+   ],
+   [
+    "path_equal",
+    [
+     "survived",
+     "bayJoin"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "survived",
+     "listed"
+    ],
+    [
+     "bay",
+     "loft"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a restarted backend's next edit wins over every timestamp it stored",
+  "group": "operations",
+  "probe": {
+   "scenario": "restart"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "editStatus"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "aPin"
+    ],
+    "loft-after-restart"
+   ],
+   [
+    "path_true",
+    [
+     "aAhead"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "bPin"
+    ],
+    "loft-after-restart"
+   ],
+   [
+    "path_equal",
+    [
+     "bJoin"
+    ],
+    200
+   ]
+  ]
+ },
+ {
+  "original_id": "an existing database is upgraded in place without losing rooms",
+  "group": "operations",
+  "probe": {
+   "scenario": "legacy"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "health"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "lounge"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "view"
+    ],
+    [
+     {
+      "access_code": "lounge-old-pin",
+      "deleted": false,
+      "display_name": "Lounge",
+      "enabled": 1,
+      "name": "lounge"
+     },
+     {
+      "access_code": "office-old-pin",
+      "deleted": false,
+      "display_name": "Office",
+      "enabled": 1,
+      "name": "office"
+     },
+     {
+      "access_code": "spare-old-pin",
+      "deleted": false,
+      "display_name": "Spare",
+      "enabled": 0,
+      "name": "spare"
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "stamps"
+    ],
+    {
+     "lounge": 1709287200000,
+     "office": 1706774400000,
+     "spare": 1705730400000
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "backfilled timestamps take part in last-writer-wins and survive another start",
+  "group": "operations",
+  "probe": {
+   "scenario": "legacy"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "olderStatus"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "newerStatus"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "pins"
+    ],
+    [
+     "lounge-old-pin",
+     "office-newer"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "restartHealth"
+    ],
+    200
+   ],
+   [
+    "path_true",
+    [
+     "restartSame"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "officeJoin"
+    ],
+    200
+   ]
+  ]
+ },
+ {
+  "original_id": "a missing or wrong sync secret is rejected without touching the registry",
+  "group": "guard",
+  "probe": {
+   "scenario": "guard"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "rejected"
+    ],
+    {
+     "statuses": [
+      401,
+      401,
+      401,
+      401,
+      401
+     ],
+     "rightStatus": 200,
+     "names": [
+      "vault"
+     ],
+     "intruderJoin": 404
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "a sync payload without a rooms array is rejected",
+  "group": "guard",
+  "probe": {
+   "scenario": "guard"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "malformed"
+    ],
+    {
+     "statuses": [
+      400,
+      400,
+      400
+     ],
+     "names": [
+      "vault"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "sync routes stay disabled when the secret is unset or empty",
+  "group": "preservation",
+  "probe": {
+   "scenario": "disabled"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "unset"
+    ],
+    [
+     404,
+     404,
+     404
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "others"
+    ],
+    [
+     200,
+     200,
+     200
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "blank"
+    ],
+    [
+     404,
+     404,
+     404
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "blankListed"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "existing room and token endpoints keep their contracts",
+  "group": "preservation",
+  "probe": {
+   "scenario": "preserve"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "statuses"
+    ],
+    {
+     "created": 200,
+     "createdBody": {
+      "accessCode": "patio-pin",
+      "displayName": "Patio",
+      "name": "patio"
+     },
+     "duplicate": 409,
+     "health": "ok",
+     "info": 200,
+     "listed": [
+      "patio"
+     ],
+     "missingCode": 400,
+     "missingIdentity": 400,
+     "rightPin": 200,
+     "unknown": 404,
+     "wrongPin": 401
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "admin rename, delete and re-create keep their contracts",
+  "group": "preservation",
+  "probe": {
+   "scenario": "preserve"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "lifecycle"
+    ],
+    {
+     "del": 200,
+     "deleteUnknown": 404,
+     "displayName": "Back Patio",
+     "infoAfter": 404,
+     "joinAfter": 404,
+     "joinOldPin": 401,
+     "joinRecreated": 200,
+     "listedAfter": [],
+     "listedFinal": [
+      "patio"
+     ],
+     "noAuth": 401,
+     "recreate": 200,
+     "renamed": 200
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "the admin room list keeps deleted rooms as disabled entries and a repeated delete succeeds",
+  "group": "tombstones",
+  "probe": {
+   "scenario": "adminView"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "first"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "second"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "aAdminAttic"
+    ],
+    [
+     {
+      "enabled": false
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "aAdminCellar"
+    ],
+    [
+     {
+      "enabled": true
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "stillDeleted"
+    ],
+    {
+     "deleted": true,
+     "name": "attic"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "aListed"
+    ],
+    [
+     "cellar"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "aInfo"
+    ],
+    404
+   ],
+   [
+    "path_equal",
+    [
+     "bAdminShed"
+    ],
+    [
+     {
+      "enabled": false
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "bListed"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "creating a name held by a disabled room revives that row and replicates",
+  "group": "tombstones",
+  "probe": {
+   "scenario": "disabledName"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "disable"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "joinDisabled"
+    ],
+    404
+   ],
+   [
+    "path_equal",
+    [
+     "recreate"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "duplicate"
+    ],
+    409
+   ],
+   [
+    "path_equal",
+    [
+     "aJoins"
+    ],
+    [
+     200,
+     401
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "aAdminRows"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "aRecords"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "bDen"
+    ],
+    {
+     "access_code": "den-two",
+     "deleted": false,
+     "display_name": "Den Two",
+     "enabled": 1,
+     "name": "den"
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "bJoin"
+    ],
+    200
+   ]
+  ]
+ },
+ {
+  "original_id": "re-creating through authenticated and admin create wins over the tombstone",
+  "group": "tombstones",
+  "probe": {
+   "scenario": "recreateAuth"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "statuses"
+    ],
+    [
+     200,
+     200
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "codes"
+    ],
+    [
+     "gym-new",
+     "yard-new"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "gym"
+    ],
+    [
+     "gym-new",
+     "gym-new"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "yard"
+    ],
+    [
+     "yard-new",
+     "yard-new"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "deletedFlags"
+    ],
+    [
+     false,
+     false,
+     false,
+     false
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "joins"
+    ],
+    [
+     200,
+     200,
+     200,
+     200
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "disabling, re-enabling and renaming the display name replicate",
+  "group": "replication",
+  "probe": {
+   "scenario": "toggle"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "off"
+    ],
+    {
+     "bPorch": {
+      "access_code": "porch-pin",
+      "deleted": false,
+      "display_name": "porch",
+      "enabled": 0,
+      "name": "porch"
+     },
+     "bJoin": 404,
+     "bListed": [
+      "hall"
+     ],
+     "bHall": {
+      "access_code": "hall-pin",
+      "deleted": false,
+      "display_name": "Front Hall",
+      "enabled": 1,
+      "name": "hall"
+     }
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "on"
+    ],
+    {
+     "bPorch": {
+      "access_code": "porch-pin",
+      "deleted": false,
+      "display_name": "porch",
+      "enabled": 1,
+      "name": "porch"
+     },
+     "bJoin": 200,
+     "bListed": [
+      "hall",
+      "porch"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "a replicated rename keeps the old name live on both backends",
+  "group": "replication",
+  "probe": {
+   "scenario": "rename"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "renamed"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "aBefore",
+     "names"
+    ],
+    [
+     "family"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "aBefore",
+     "duplicates"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "bAfterOneWay",
+     "names"
+    ],
+    [
+     "den",
+     "family"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "bAfterOneWay",
+     "duplicates"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "aLive",
+     "names"
+    ],
+    [
+     "den",
+     "family"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "aLive",
+     "duplicates"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "bLive",
+     "names"
+    ],
+    [
+     "den",
+     "family"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "bLive",
+     "duplicates"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "pins"
+    ],
+    [
+     "den-pin",
+     "den-pin",
+     "den-pin",
+     "den-pin"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "joins"
+    ],
+    [
+     200,
+     200,
+     200,
+     200
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a regenerated access code replicates",
+  "group": "replication",
+  "probe": {
+   "scenario": "preserve2"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "replicated"
+    ],
+    {
+     "bJoin": 200,
+     "bOld": 401,
+     "bLab": 200
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "unknown record fields neither change the winner nor count as changes",
+  "group": "conflicts",
+  "probe": {
+   "scenario": "extensions"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "statuses"
+    ],
+    [
+     200,
+     200,
+     200,
+     200,
+     200
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "applied"
+    ],
+    [
+     1,
+     1,
+     2,
+     0,
+     0
+    ]
+   ],
+   [
+    "path_true",
+    [
+     "converged"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "view"
+    ],
+    [
+     {
+      "access_code": "alpha-pin",
+      "deleted": false,
+      "display_name": "alpha",
+      "enabled": 1,
+      "name": "alpha"
+     },
+     {
+      "access_code": "beta-pin",
+      "deleted": false,
+      "display_name": "beta",
+      "enabled": 1,
+      "name": "beta"
+     }
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a bare-array sync payload is accepted",
+  "group": "guard",
+  "probe": {
+   "scenario": "extensions"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "bareStatus"
+    ],
+    200
+   ],
+   [
+    "path_equal",
+    [
+     "bareApplied"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "bareView"
+    ],
+    [
+     {
+      "access_code": "delta-pin",
+      "deleted": false,
+      "display_name": "delta",
+      "enabled": 1,
+      "name": "delta"
+     },
+     {
+      "access_code": "gamma-pin",
+      "deleted": false,
+      "display_name": "gamma",
+      "enabled": 1,
+      "name": "gamma"
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "bareJoin"
+    ],
+    200
+   ]
+  ]
+ },
+ {
+  "original_id": "authenticated create, admin create, regenerate-code and session rejoin keep their contracts",
+  "group": "preservation",
+  "probe": {
+   "scenario": "preserve2"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "creator"
+    ],
+    {
+     "noAuth": 401,
+     "status": 200,
+     "accessCode": "lab-pin",
+     "duplicate": 409,
+     "missingName": 400
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "adminCreate"
+    ],
+    {
+     "status": 200,
+     "accessCode": "den-pin",
+     "enabled": true,
+     "duplicate": 409,
+     "missingName": 400,
+     "noAuth": 401
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "regenerate"
+    ],
+    {
+     "status": 200,
+     "changed": true,
+     "oldPin": 401,
+     "newPin": 200,
+     "unknown": 404
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "rejoin"
+    ],
+    {
+     "withPin": 200,
+     "sessionOnly": 200,
+     "anonymous": 401,
+     "canRejoin": true
+    }
+   ]
+  ]
+ }
+]

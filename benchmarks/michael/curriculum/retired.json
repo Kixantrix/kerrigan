@@ -185,7 +185,7 @@
   },
   "vhs-room-registry-sync": {
    "by": "MBR3 native admission (needs_fix)",
-   "superseded_by": "vhs-room-registry-sync-v2",
+   "superseded_by": "vhs-room-registry-sync-v3",
    "reason": "task-caused (native admission needs_fix): TASK.md contradicted merged PR #194 on admin listing of tombstones, reviving disabled names and replicated renames",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MBR3-vhs-room-registry-sync-admission.json",
@@ -200,6 +200,12 @@
     "path": "benchmarks/michael/curriculum/MBR3-cs-mismatch-stage-authority-admission.json",
     "sha256": "5249814dcc67f563263bb9dc83af4d84a3986c59c4bc82464c6ed3e0a71d6eca"
    }
+  },
+  "vhs-room-registry-sync-v2": {
+   "by": "MB-010r literal-overspecification audit",
+   "superseded_by": "vhs-room-registry-sync-v3",
+   "reason": "task-caused (native admission overspecified_test): the rename row compared live-name arrays in a fixed order although snapshot record order is free",
+   "evidence_pending": "native admission receipt for vhs-room-registry-sync-v2 (overspecified_test on liveNames order); cite once pushed"
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",
