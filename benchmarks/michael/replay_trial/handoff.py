@@ -22,17 +22,20 @@ def descriptor(kind, name):
 
 def bundle(owned, model, *, synthetic=False, task_name="validator", configuration=None):
     frozen = validator.frozen(owned) if configuration is None else configuration
+    local = frozen.get("localInference")
     task = json.loads((api.packages.HERE / task_name / "manifest.json").read_bytes())
     target = {**descriptor("target", ("synthetic-" if synthetic else "") + model),
               "requested_identity": ("not invoked; fixture for " if synthetic else "") + model,
-              "observed_identity": unknown(), "runtime": known("pinned local CLI/MXC; cloud inference")}
+              "observed_identity": unknown(), "runtime": known(
+                  "pinned local CLI/MXC tools; local OpenAI-compatible inference" if local else
+                  "pinned local CLI/MXC; cloud inference")}
     agent = {**descriptor("agent", "mb006l-native-validator"),
              "harness": {"id": "mb006l", "revision": "1", "sha256": api.sha(api.packages.encoded(frozen["source"]))},
              "configuration": known(frozen)}
     condition = {**descriptor("condition", "mb006l-" + target["id"]),
                  "task": ref(task), "target": ref(target), "agent": ref(agent),
                  "hosts": {"agent": known("local-macos"), "verifier": known("local-docker"),
-                           "inference": unknown()}, "track": "practical_system",
+                           "inference": known("local-macos") if local else unknown()}, "track": "practical_system",
                  "retry_policy": "no_automatic_retries", "cache_policy": unknown(),
                  "budgets": {"active_safety_seconds": known(frozen.get("activeSeconds", 3600)), "attempt_limit": known(1),
                              "response_tokens": unknown(), "reasoning_tokens": unknown()},
@@ -42,10 +45,15 @@ def bundle(owned, model, *, synthetic=False, task_name="validator", configuratio
 
 
 def terminal(bundle, native, graded, timings, *, owner_exited, source_sha, synthetic=False, expected_assertions=25):
+    local = native.get("localInference")
+    inference_complete = (native.get("nativePrompts") == (0 if synthetic else 1)) if not local else (
+        not synthetic and local.get("synthetic") is False and native.get("nativePrompts") == 0 and
+        local.get("attempts", 0) > 0 and (local.get("result") or {}).get("status") == "completed" and
+        (local.get("release") or {}).get("ownedRequestsDrained") is True)
     complete = (owner_exited and native.get("wholeProcessQuiescent") is True
                 and native.get("cleanupSeconds", 16) <= 15
                 and native.get("stopReason") == ("diagnostics_complete" if synthetic else "session_idle")
-                and native.get("nativePrompts") == (0 if synthetic else 1))
+                and inference_complete)
     verified = (complete and graded is not None and graded.get("status") == "graded"
                 and isinstance(source_sha, str) and len(source_sha) == 64
                 and graded.get("verdict") in ("pass", "fail")

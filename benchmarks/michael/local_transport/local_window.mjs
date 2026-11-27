@@ -21,8 +21,13 @@ export function metadataSnapshot() {
     const pressureFlag = command("/usr/sbin/sysctl", ["-n", "kern.memorystatus_vm_pressure_level"]).trim();
     const memoryPressureState = { "1": "normal", "2": "warning", "4": "critical" }[pressureFlag];
     if (!memoryPressureState) throw new Error("local_memory_pressure_unavailable");
+    const swap = command("/usr/sbin/sysctl", ["-n", "vm.swapusage"])
+        .match(/used\s*=\s*([\d.]+)([MG])/);
+    if (!swap) throw new Error("local_swap_metadata_unavailable");
     return { loadAverage: loadavg(), memoryPressureFreePercent: Number(pressure[1]),
-        memoryPressureState, heavyProcesses, condition: "shared with background workloads",
+        memoryPressureState, swapUsedBytes: Number(swap[1]) * (swap[2] === "G" ? 1073741824 : 1048576),
+        heavyProcesses, condition: memoryPressureState === "normal" ?
+            "local-laptop, no known background workload; metadata observations retained" : "contended/non-isolated",
         modelPeakMemoryBytes: null, energyJoules: null };
 }
 
@@ -31,6 +36,7 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
     validateLocalCondition(condition);
     let running = false, released = false, failed = false;
     const events = [], ownIds = new Set();
+    let previousSwap = null, growingSwap = 0, baseline = false;
     const retain = event => {
         events.push(event);
         if (event.type === "local_request_started") ownIds.add(event.requestId);
@@ -80,12 +86,32 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
             throw new Error("local_model_identity_ambiguous");
         const state = await health();
         const resources = snapshot();
+        if (!condition.synthetic && !Number.isFinite(resources.swapUsedBytes))
+            throw new Error("local_swap_metadata_unavailable");
+        resources.swapUsedChangeBytes = previousSwap === null ? null : resources.swapUsedBytes - previousSwap;
+        growingSwap = resources.swapUsedChangeBytes > 0 ? growingSwap + 1 : 0;
+        previousSwap = resources.swapUsedBytes ?? null;
         retain({ type: "local_boundary", atMs: clock(), model: condition.model, ...state, resources });
         if (state.activeRequests !== 0) throw new Error("local_endpoint_contention");
         if (!["normal", "warning", "critical"].includes(resources.memoryPressureState))
             throw new Error("local_memory_pressure_unavailable");
-        if (resources.memoryPressureState !== "normal" || resources.memoryPressureFreePercent <= 5)
+        if (resources.memoryPressureState === "critical" ||
+            (resources.memoryPressureState === "warning" && condition.allowWarning !== true) ||
+            resources.memoryPressureFreePercent <= 5 || growingSwap >= 2)
             throw new Error("local_resource_pressure");
+        if (!baseline && !condition.synthetic) {
+            baseline = true;
+            const initialPressure = resources.memoryPressureState;
+            for (let sample = 0; sample < 2; sample++) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await boundary();
+                const latest = events.at(-1).resources;
+                if (latest.swapUsedChangeBytes > 0 ||
+                    (initialPressure === "warning" && latest.memoryPressureState !== "warning" &&
+                     latest.memoryPressureState !== "normal"))
+                    throw new Error("local_resource_baseline_unstable");
+            }
+        }
     }
     async function release() {
         const until = Math.min(clock() + LOCAL_LIMITS.cleanupSeconds * 1000, condition.windowEndMs);

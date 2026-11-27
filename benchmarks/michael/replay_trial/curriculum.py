@@ -197,6 +197,9 @@ def collect(run):
             or binding["configSha256"] != validator.digest(config)
             or any(not row["reaped"] or row.get("warnings") for row in native["records"])
             or native["nativePrompts"] != (0 if config["model"] is None else 1)
+            or (config.get("localInference") and (
+                (native.get("localInference", {}).get("result") or {}).get("status") != "completed" or
+                (native.get("localInference", {}).get("release") or {}).get("ownedRequestsDrained") is not True))
             or native["actions"][-len(paths):] != final_ids
             or (config.get("scratchDirectory") and (
                 native.get("scratch", {}).get("error") or

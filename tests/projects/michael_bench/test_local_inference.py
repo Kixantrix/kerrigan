@@ -1,5 +1,8 @@
 """Offline synthetic provider; never connects to the operational model server."""
 import subprocess
+import json
+
+import pytest
 
 from benchmarks.michael.replay_trial import api
 
@@ -235,3 +238,79 @@ try {
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=15)
+
+
+def test_local_ledger_requires_backend_drain_and_excludes_synthetic_native_proofs(tmp_path):
+    from benchmarks.michael.replay_trial import handoff
+    bundle = handoff.bundle(tmp_path, "test-only", synthetic=True, configuration={
+        "source": {}, "localInference": {"model": "test-only"}})
+    assert bundle["condition"]["hosts"]["inference"]["value"] == "local-macos"
+    native = {"stopReason": "session_idle", "wholeProcessQuiescent": True, "cleanupSeconds": 1,
+              "nativePrompts": 0, "localInference": {"synthetic": False, "attempts": 2,
+                  "result": {"status": "completed"}, "release": {"ownedRequestsDrained": True}}}
+    report = {"status": "graded", "verdict": "pass", "cleanup": {"proven": True},
+              "bindings": {"source_sha256": "a" * 64}, "assertions": [{"passed": True}]}
+    def result():
+        return handoff.terminal(bundle, native, report, {"end_to_end": 10},
+            owner_exited=True, source_sha="a" * 64, expected_assertions=1)["attempts"][0]
+    assert result()["verdict"] == "passed"
+    native["localInference"]["release"]["ownedRequestsDrained"] = False
+    assert result()["verdict"] == "ungraded"
+    native["localInference"]["release"]["ownedRequestsDrained"] = True
+    native["localInference"]["synthetic"] = True
+    assert result()["verdict"] == "ungraded"
+
+
+def test_local_post_window_grader_refuses_missing_or_wrong_release_before_docker(tmp_path, monkeypatch):
+    from benchmarks.michael.local_transport import local_trial
+    model = "test-only"
+    run = tmp_path / model
+    run.mkdir()
+    (tmp_path / "seal.json").write_text(json.dumps({"frozen": {"models": [model], "package": "validator",
+        "localInference": {"owningSession": "owner", "requestNamespace": "namespace"}}}))
+    (run / "local-outcome.json").write_text(json.dumps({"finishedAtMs": 100}))
+    monkeypatch.setattr(api.grader, "grade", lambda *args, **kwargs: pytest.fail("Docker before release"))
+    for receipt in ({}, {"released": True, "ownedRequestsDrained": True, "releasedAtMs": 200,
+                        "owningSession": "wrong", "requestNamespace": "namespace"}):
+        with pytest.raises(api.TrialError, match="matching window release"):
+            local_trial.finalize(tmp_path, receipt)
+
+
+def test_local_stable_warning_is_conditional_but_critical_and_swap_growth_stop():
+    script = """
+import assert from 'node:assert/strict';
+import {localWindow} from './benchmarks/michael/local_transport/local_window.mjs';
+import {LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,allowWarning:true,
+ concurrency:1,grading:'after-window-release'};
+let swap=100,state='warning',requests=0;
+const events=[];
+const make=()=>localWindow({condition,record:r=>events.push(r),clock:()=>1000,
+ snapshot:()=>({memoryPressureFreePercent:53,memoryPressureState:state,
+  swapUsedBytes:swap,loadAverage:[1,1,1],heavyProcesses:[]}),
+ fetcher:async(url,options)=>{
+  if(url.endsWith('/health'))return new Response(JSON.stringify({ok:true,active_requests:0}));
+  if(url.endsWith('/models'))return new Response(JSON.stringify({data:[{id:'synthetic-only'}]}));
+  requests++;swap+=10;
+  return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
+   usage:{prompt_tokens:2,completion_tokens:1,total_tokens:3},
+   choices:[{message:{role:'assistant',content:'done'},finish_reason:'stop'}]}));
+ }});
+const options={prompt:'synthetic',tools:[],signal:new AbortController().signal,execute:async()=>{}};
+let window=make();
+assert.equal((await window.run(options)).status,'completed');
+assert.equal((await window.run(options)).status,'completed');
+// A second consecutive boundary increase is sustained, unlike a single sample.
+swap+=10;
+await assert.rejects(()=>window.run(options),/resource_pressure/);
+assert(events.some(e=>e.resources?.memoryPressureState==='warning'));
+assert(events.some(e=>e.resources?.swapUsedChangeBytes===10));
+await window.release();
+state='critical';window=make();
+const before=requests;
+await assert.rejects(()=>window.run(options),/resource_pressure/);
+assert.equal(requests,before);await window.release();
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=10)
