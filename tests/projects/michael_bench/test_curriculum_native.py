@@ -97,6 +97,7 @@ def test_native_prompt_advertises_effective_package_limits(name):
     assert f"{policy['finalOutputReserve']} bytes reserved for final reads" in instruction
     assert f"{policy['runSeconds']}s timeout" in instruction
     assert "task-declared isolated grader runtime" in instruction
+    assert f"{policy['bytes']} bytes/broker write" in instruction
     if name == "foal-meadow-regression-review-v2":
         assert policy["finalOutputReserve"] == 393216
         assert "32KiB/file/channel" not in instruction
@@ -170,12 +171,15 @@ def test_round_three_tmpdir_write_run_cleanup_and_denial(owned, tmp_path, name):
     assert native.collect(run) == specs.base(name)
 
 
-def test_round_three_scratch_overflow_stops_and_discards(owned, tmp_path):
+@pytest.mark.parametrize("kind", ["bytes", "entries"])
+def test_round_three_scratch_overflow_stops_and_discards(owned, tmp_path, kind):
     name = "validator"
     policy = native.round_three_policy(name, active_seconds=15)
+    fill = ("with open(root+'/overflow','wb') as f: f.truncate(67108865)\n" if kind == "bytes" else
+            "for index in range(4096): open(root+'/'+str(index),'wb').close()\n")
     run = native.prepare(owned, tmp_path / "run", name, seconds=15, policy=policy,
         diagnostics=[{"op": "write", "path": ".scratch/fill.py",
-            "data": "import os,time\nopen(os.environ['TMPDIR']+'/overflow','wb').write(b'x'*1048577)\ntime.sleep(3)\n"},
+            "data": "import os,time\nroot=os.environ['TMPDIR']\n" + fill + "time.sleep(3)\n"},
             {"op": "run", "path": ".scratch/fill.py"}])
     child = api.runner.launch(run)
     try:
@@ -184,11 +188,43 @@ def test_round_three_scratch_overflow_stops_and_discards(owned, tmp_path):
         child.stdin.close()
     terminal = json.loads((run / "receipt/terminal.json").read_bytes())
     assert terminal["wholeProcessQuiescent"] and terminal["cleanupSeconds"] <= 15
-    assert "scratch_byte_budget" in terminal["stopReason"]
+    assert f"scratch_{'byte' if kind == 'bytes' else 'entry'}_budget" in terminal["stopReason"]
     assert terminal["scratch"]["cleanup"] == {"discarded": True}
     assert not (run / "task/.scratch").exists()
     with pytest.raises(api.TrialError, match="proof failed"):
         native.collect(run)
+
+
+def test_native_peer_tree_copies_above_old_scratch_limits(owned, tmp_path):
+    name = "vhs-room-registry-sync-v2"
+    policy = native.round_three_policy(name, active_seconds=20)
+    api_files = {path: data for path, data in native.material(name)[0].items() if path.startswith("api/")}
+    copies = max(1048576 // sum(map(len, api_files.values())) + 2, 128 // len(api_files) + 2)
+    source = ("import os,shutil\n"
+              f"for index in range({copies}): shutil.copytree('api',os.path.join(os.environ['TMPDIR'],str(index)))\n"
+              "print('peer-tree-copies-complete')\n")
+    run = native.prepare(owned, tmp_path / "run", name, seconds=20, policy=policy,
+        diagnostics=[{"op": "write", "path": ".scratch/peers.py", "data": source},
+                     {"op": "run", "path": ".scratch/peers.py"}])
+    child = api.runner.launch(run)
+    try:
+        child.wait(timeout=37)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    assert terminal["stopReason"] == "diagnostics_complete"
+    assert terminal["wholeProcessQuiescent"] and terminal["cleanupSeconds"] <= 15
+    result = json.loads((run / "receipt/action-result-2.json").read_bytes())["result"]
+    assert result["exitCode"] == 0 and not result["timedOut"]
+    assert terminal["scratch"]["peakBytes"] > 1048576
+    assert terminal["scratch"]["peakEntries"] > 128
+    assert terminal["scratch"]["limits"] == {"directory": ".scratch", "bytes": 67108864, "entries": 4096}
+    assert terminal["scratch"]["cleanup"] == {"discarded": True}
+    assert native.collect(run) == specs.base(name)
+    for task in native.NAMES:
+        instruction = native.prompt(native.round_three_policy(task))
+        assert "64MiB aggregate scratch,4096 entries" in instruction
+        assert "1MiB aggregate scratch" not in instruction
 
 
 def test_native_paged_read_and_final_collection(owned, tmp_path):

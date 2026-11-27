@@ -132,8 +132,26 @@ admission judgments are preserved for curriculum follow-up.
 file condition: the two writable base HTML files are 35,505 and 36,330 bytes.
 The [native-fit receipt](MBR3-foal-meadow-regression-review-native-fit.json)
 records zero model prompts and zero native process starts for that calibration.
-A separately declared bounded successor is pending; shared limits were not
-silently widened.
+The separately declared v2 successor reproduces 16/48 at base and 48/48 at
+reference under its package-specific limits; shared file limits were not
+silently widened. Its [six balanced subjects](MBR3-foal-results.json) are
+complete: **MAI 3/3, Sonnet 3/3**, each with 48/48 checks.
+
+VHS-v2's first blind admission slot is retained as a
+[harness-caused scratch-policy cutoff](MBR3-vhs-v2-scratch-harness-fault.json),
+not a model failure. The missing-adjudication aggregation crash is fixed:
+absent/null adjudication now yields provisional admission. Forward epoch
+`scratch-parity-v7c` applies 64 MiB/4,096 scratch entries identically to subjects
+and admission runs, with native over-limit cutoffs and post-quiescence disposal.
+The original slot remains ungraded; exactly one fresh disclosed blind slot is
+allowed. Existing audits remain preserved.
+
+The [prior scored scratch sweep](MBR3-scratch-old-cap-proximity.json) covers all
+63 physical round-three subjects, including three earlier harness cutoffs:
+the maximum observed successful scan was 34,587 bytes and 9 entries
+(3.30% and 7.03% of the former caps), with zero scratch cutoffs.
+These are observed scan peaks, not kernel-enforced high-water measurements;
+the rejected blind scan's exact size is unknown.
 
 The [public-anchor compatibility receipt](MBR3-anchor-native-compatibility.json)
 preserves eight Harbor-verified oracle/base pairs. They currently lack a native

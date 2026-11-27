@@ -77,11 +77,16 @@ than silently dropped or labeled model failures. Synthetic proofs and
 unproven backend cleanup cannot enter those results.
 
 Round-three sandbox scratch is monitored at tool boundaries and on a 100 ms
-timer, with a 1 MiB / 128-entry threshold. This is **not a filesystem hard
+timer. The forward `scratch-parity-v7c` epoch raises its threshold from
+1 MiB / 128 entries to 64 MiB / 4,096 entries, uniformly for subjects and
+admissions. A VHS-v2 blind solver's ordinary API-tree copies hit the old
+threshold; that ungraded slot remains a harness fault, with one disclosed
+replacement and no scored-subject rerun. Earlier source epochs keep their
+original limits and measurements. This is **not a filesystem hard
 quota**: transient overshoot is possible before observation and cutoff.
 Descriptor-bound scans reject aliases without following candidate-controlled
-links; disposal occurs only after native handles are reaped. The 32 KiB
-write limit applies to broker operations, not a kernel-enforced temporary-file
+links; disposal occurs only after native handles are reaped. The default 32 KiB scratch broker-write cap (or a package's explicitly declared
+file cap) applies to broker operations, not a kernel-enforced temporary-file
 size limit. These restrictions remain a disclosed difference from an
 unrestricted stock CLI.
 
