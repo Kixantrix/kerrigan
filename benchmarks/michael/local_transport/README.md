@@ -29,11 +29,24 @@ within 229,376 / 16,384 / 262,144 tokens. Unknown usage remains unknown.
 
 Local timing and energy are **shared with background workloads**. Metadata-only
 process-name/CPU/RSS, load and memory-pressure snapshots do not authorize
-altering Gridiron. End-to-end HTTP token rate includes prefill; separate prefill,
-decode, peak model memory and energy remain unknown unless actually exposed.
+altering Gridiron. End-to-end HTTP token rate uses a monotonic clock and includes
+prefill. Optional own-response `mtplx_stats` supplies native uncached prefill and
+decode rates/times; missing fields remain unknown. Derived `timings` defaults
+are not used as measurement evidence. Reasoning is included in completion
+tokens and decode rates; native TTFT may be the first thought, not answer.
+Peak model memory and energy remain unknown unless actually measured.
 No containers, VMs or builds are permitted during the window. Exact artifacts
 must be collected first; Docker grading waits until release, and reported
 completion excludes the post-window verification queue.
+
+Round-three sandbox scratch is monitored at tool boundaries and on a 100 ms
+timer, with a 1 MiB / 128-entry threshold. This is **not a filesystem hard
+quota**: transient overshoot is possible before observation and cutoff.
+Descriptor-bound scans reject aliases without following candidate-controlled
+links; disposal occurs only after native handles are reaped. The 32 KiB
+write limit applies to broker operations, not a kernel-enforced temporary-file
+size limit. These restrictions remain a disclosed difference from an
+unrestricted stock CLI.
 
 Foundation: `2df6f85`. Environment: `local-attested-macos`; results are dated
 operator observations, not human-attested completion. This condition is **local

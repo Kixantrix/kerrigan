@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { performance } from "node:perf_hooks";
 
 export const LOCAL_LIMITS = Object.freeze({
     inputTokens: 229376, contextTokens: 262144, outputTokens: 16384,
@@ -42,7 +43,7 @@ async function boundedJson(response, signal) {
 }
 
 export async function localLoop({ condition, prompt, tools, execute, boundary, record, signal,
-    fetcher = fetch, clock = Date.now }) {
+    fetcher = fetch, clock = Date.now, monotonic = () => performance.now() }) {
     validateLocalCondition(condition);
     const messages = [{ role: "user", content: prompt }];
     let calls = 0;
@@ -64,6 +65,7 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         const body = { model: condition.model, messages, tools, stream: false,
             max_tokens: LOCAL_LIMITS.outputTokens };
         const started = clock();
+        const startedMonotonic = monotonic();
         record({ type: "local_request_started", requestId, startedMs: started,
             inputBytes, inputEstimate: "UTF-8 JSON headroom heuristic; not exact native rendered count" });
         let response;
@@ -73,7 +75,7 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
                 body: JSON.stringify(body), signal: requestSignal, redirect: "error"
             }), requestSignal);
         } catch (error) {
-            record({ type: "local_request_failed", requestId, wallMs: clock() - started,
+            record({ type: "local_request_failed", requestId, wallMs: monotonic() - startedMonotonic,
                 reason: error.name === "TimeoutError" ? "deadline" : error.message });
             throw error;
         }
@@ -100,16 +102,34 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
             (nativeUsage.reasoningTokens !== null && nativeUsage.outputTokens !== null &&
                 nativeUsage.reasoningTokens > nativeUsage.outputTokens))
             throw new Error("local_native_context_budget");
-        const wallMs = clock() - started;
-        record({ type: "local_request_finished", requestId, wallMs: clock() - started,
+        const stats = {};
+        if (response.mtplx_stats != null && (typeof response.mtplx_stats !== "object" ||
+            Array.isArray(response.mtplx_stats))) throw new Error("local_native_timing_shape");
+        for (const key of ["prompt_eval_time_s", "new_prefill_tokens", "cached_tokens",
+            "prefill_tok_s", "prefill_compute_tok_s", "prefill_wall_tok_s", "decode_elapsed_s",
+            "decode_tok_s", "elapsed_s", "request_elapsed_s", "request_tok_s", "ttft_s",
+            "reasoning_tokens", "answer_tokens"]) {
+            const value = response.mtplx_stats?.[key];
+            if (value != null && (typeof value !== "number" || !Number.isFinite(value) || value < 0 ||
+                (key.endsWith("_tokens") && !Number.isSafeInteger(value))))
+                throw new Error("local_native_timing_shape");
+            stats[key] = value ?? null;
+        }
+        const wallMs = monotonic() - startedMonotonic;
+        const finishReason = response.choices[0].finish_reason ?? null;
+        record({ type: "local_request_finished", requestId, wallMs,
             model: response.model, usage: usage ? nativeUsage : null, limitsVerified,
+            finishReason, nativeStats: stats,
             exploratoryInput: nativeUsage.inputTokens === null ? null : nativeUsage.inputTokens > 131072,
             tokensPerSecond: wallMs > 0 && nativeUsage.outputTokens !== null ?
                 nativeUsage.outputTokens * 1000 / wallMs : null,
             speedScope: "completion tokens / HTTP wall time, including prefill; shared with background workloads",
-            prefillSeconds: null, decodeSeconds: null, energyJoules: null });
+            prefillSeconds: stats.prompt_eval_time_s, decodeSeconds: stats.decode_elapsed_s,
+            prefillTokensPerSecond: stats.prefill_compute_tok_s ?? stats.prefill_tok_s,
+            decodeTokensPerSecond: stats.decode_tok_s, energyJoules: null });
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         calls++;
+        if (finishReason === "length") return { calls, status: "output-cap", limitsVerified };
         const message = response.choices[0].message;
         const toolCalls = message.tool_calls || [];
         if (!Array.isArray(toolCalls) || toolCalls.length > 1)

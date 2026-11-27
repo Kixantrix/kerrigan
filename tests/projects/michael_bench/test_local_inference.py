@@ -109,3 +109,34 @@ await assert.rejects(()=>window.run({}),/concurrency_denied/);
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)
+
+
+def test_local_own_response_native_timings_ignore_derived_defaults_and_preserve_caps():
+    script = """
+import assert from 'node:assert/strict';
+import {localLoop,LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+for(const native of [undefined,{prompt_eval_time_s:2,new_prefill_tokens:10,cached_tokens:20,
+ prefill_compute_tok_s:5,decode_elapsed_s:3,decode_tok_s:4}]) {
+ const records=[];let time=0;
+ const result=await localLoop({condition,prompt:'synthetic',tools:[],signal:new AbortController().signal,
+  clock:()=>1000,monotonic:()=>{time+=1000;return time},boundary:async()=>{},
+  execute:async()=>{throw Error('length-capped tool must not execute')},record:r=>records.push(r),
+  fetcher:async(url,options)=>new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],
+   model:'synthetic-only',usage:{prompt_tokens:30,completion_tokens:12,total_tokens:42,
+    completion_tokens_details:{reasoning_tokens:8}},mtplx_stats:native,
+   timings:{prompt_ms:0,predicted_ms:0},choices:[{finish_reason:'length',message:{role:'assistant',
+    tool_calls:[{type:'function',id:'t',function:{name:'mb_action',arguments:'{}'}}]}}]}))});
+ assert.equal(result.status,'output-cap');
+ const receipt=records.find(r=>r.type==='local_request_finished');
+ assert.equal(receipt.wallMs,1000);assert.equal(receipt.tokensPerSecond,12);
+ assert.equal(receipt.usage.reasoningTokens,8);
+ assert.equal(receipt.prefillSeconds,native?2:null);
+ assert.equal(receipt.decodeTokensPerSecond,native?4:null);
+ assert.equal(receipt.nativeStats.ttft_s,null);
+}
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=10)
