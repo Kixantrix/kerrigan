@@ -183,7 +183,7 @@ def runtime_files(owned):
     return {str(path): api.sha(path.read_bytes()) for path in paths}
 
 
-def collect(run):
+def collect(run, *, local_partial=False):
     run = Path(run)
     config = json.loads((run / "config.json").read_bytes())
     binding = json.loads((run / "curriculum-start.json").read_bytes())
@@ -194,13 +194,16 @@ def collect(run):
         f"controller-final-source-{index}" for index in range(len(paths))]
     eligible = native["stopReason"] in ("session_idle", "diagnostics_complete",
         "timeout", "broker:agent_action_budget", "broker:task_output_budget")
+    local_diagnostics = local_partial and config.get("localInference") and native.get("partialBudgetExhausted")
+    eligible = eligible or (local_diagnostics and native["stopReason"] == "local_output_cap")
     if (not eligible or native["wholeProcessQuiescent"] is not True or native["cleanupSeconds"] > 15
             or native.get("finalSourceError") or binding["source"] != sources()
             or binding["configSha256"] != validator.digest(config)
             or any(not row["reaped"] or row.get("warnings") for row in native["records"])
             or native["nativePrompts"] != (0 if config["model"] is None else 1)
             or (config.get("localInference") and (
-                (native.get("localInference", {}).get("result") or {}).get("status") != "completed" or
+                ((native.get("localInference", {}).get("result") or {}).get("status") != "completed"
+                 and not local_diagnostics) or
                 (native.get("localInference", {}).get("release") or {}).get("ownedRequestsDrained") is not True))
             or native["actions"][-len(paths):] != final_ids
             or (config.get("scratchDirectory") and (

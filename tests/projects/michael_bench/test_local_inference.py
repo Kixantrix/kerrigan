@@ -276,6 +276,21 @@ def test_local_post_window_grader_refuses_missing_or_wrong_release_before_docker
             local_trial.finalize(tmp_path, receipt)
 
 
+@pytest.mark.parametrize("start,end", [(0, 9000), (20000, 100000)])
+def test_local_closed_window_cannot_allocate_a_ledger_or_process(tmp_path, monkeypatch, start, end):
+    from benchmarks.michael.local_transport import local_trial
+    frozen = {"source": {},
+              "localTrialSha256": api.sha(local_trial.Path(local_trial.__file__).read_bytes()),
+              "localInference": {"windowStartMs": start, "windowEndMs": end}}
+    (tmp_path / "seal.json").write_text(json.dumps({"frozen": frozen}))
+    monkeypatch.setattr(local_trial.native, "sources", lambda: {})
+    monkeypatch.setattr(local_trial.time, "time", lambda: 10)
+    monkeypatch.setattr(local_trial.handoff, "Ledger", lambda *args: pytest.fail("allocated closed slot"))
+    monkeypatch.setattr(local_trial.api.runner, "launch", lambda *args: pytest.fail("started closed slot"))
+    with pytest.raises(api.TrialError, match="window not open"):
+        local_trial.execute(tmp_path)
+
+
 def test_local_stable_warning_is_conditional_but_critical_and_swap_growth_stop():
     script = """
 import assert from 'node:assert/strict';

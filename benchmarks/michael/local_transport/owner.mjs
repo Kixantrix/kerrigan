@@ -23,7 +23,9 @@ const taskRootInfo = config.curriculumTask ? lstatSync(config.task) : null;
 const taskRootIdentity = taskRootInfo ? [taskRootInfo.dev, taskRootInfo.ino] : null;
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const { spawn } = await import(pathToFileURL(config.sdk));
-const began = performance.now(), until = began + config.seconds * 1000;
+const activeMilliseconds = Math.min(config.seconds * 1000, config.localInference ?
+    Math.max(0, config.localInference.windowEndMs - Date.now() - 15000) : Infinity);
+const began = performance.now(), until = began + activeMilliseconds;
 const live = new Set(), records = [], actions = new Set(), pending = new Map();
 let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, taskOutputBytes = 0;
 let cli, input, events = 0, toolQueue = Promise.resolve();
@@ -44,7 +46,7 @@ function checkScratch() {
     }
 }
 const partialBudget = () => config.validatorTask &&
-    ["timeout", "broker:agent_action_budget", "broker:task_output_budget"].includes(stopping);
+    ["timeout", "broker:agent_action_budget", "broker:task_output_budget", "local_output_cap"].includes(stopping);
 const budget = { actions, bytes: 0 };
 const counts = {}, messages = [], requests = [];
 function persist(name, value) {
@@ -326,7 +328,7 @@ process.stdin.on("data", bytes => {
 process.stdin.on("end", () => stop("controller_lost"));
 process.on("SIGTERM", () => stop("owner_terminated"));
 process.on("SIGINT", () => stop("owner_interrupted"));
-const deadline = setTimeout(() => stop("timeout"), config.seconds * 1000);
+const deadline = setTimeout(() => stop("timeout"), Math.max(1, until - performance.now()));
 const scratchMonitor = scratchRoot ? setInterval(checkScratch, 100) : null;
 checkScratch();
 try {
