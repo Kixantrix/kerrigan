@@ -5,6 +5,7 @@ import difflib
 import hashlib
 import io
 import json
+import re
 import tarfile
 import tempfile
 from pathlib import Path, PurePosixPath
@@ -296,7 +297,8 @@ def epoch_records(plan_path):
     plan = json.loads(Path(plan_path).read_bytes())
     paths = [ROOT / "benchmarks/michael/local_transport" / name for name in (
         "mbr3-tooltip-verification.json", "mbr3-parity-verification.json",
-        "mbr3-discovery-verification.json")]
+        "mbr3-discovery-verification.json", "mbr3-expanded-verification.json",
+        "mbr3-cloud-verification.json", "mbr3-final-verification.json")]
     matches = [path for path in paths if path.is_file() and
                json.loads(path.read_bytes()).get("primaryPlan") == plan]
     if len(matches) != 1:
@@ -311,20 +313,38 @@ def epoch_records(plan_path):
         raise ValueError("source epoch schedule mismatch")
     selections = {}
     labels = {}
+    aliases = {"mbr3-v1", "mbr3-tooltip-v2", "mbr3-parity-v3", "mbr3-discovery-v4"}
+    expected = set()
+    for cohort in plan.get("cohortSchedules", []):
+        alias = cohort["evidence_root"]
+        if not isinstance(alias, str) or not re.fullmatch(r"mbr3-[a-z0-9-]+", alias):
+            raise ValueError("source epoch cohort alias denied")
+        aliases.add(alias)
+        raw = (parent / alias / "schedule.json").read_bytes()
+        if hashlib.sha256(raw).hexdigest() != cohort["sha256"]:
+            raise ValueError("source epoch cohort schedule mismatch")
+        for item in json.loads(raw):
+            for model in item["models"]:
+                key = item["task"], item["repeat"], model
+                if key in expected:
+                    raise ValueError("duplicate source epoch scheduled attempt")
+                expected.add(key)
     for row in plan["attempts"]:
         alias = row["evidence_root"]
-        if alias not in ("mbr3-v1", "mbr3-tooltip-v2", "mbr3-parity-v3", "mbr3-discovery-v4"):
+        if alias not in aliases:
             raise ValueError("source epoch evidence alias denied")
         key = row["task"], row["repeat"], row["model"]
         if key in labels:
             raise ValueError("duplicate source epoch attempt")
         selections.setdefault(alias, set()).add(key)
         labels[key] = row["source_epoch"]
-    priors = plan.get("excluded_priors") or [plan["excluded_prior"]]
+    if "cohortSchedules" in plan and set(labels) != expected:
+        raise ValueError("incomplete source epoch cohort selection")
+    priors = plan.get("excluded_priors", [plan["excluded_prior"]] if "excluded_prior" in plan else [])
     safe_priors = []
     for prior in priors:
         alias = prior.get("evidence_root", "mbr3-v1")
-        if alias not in ("mbr3-v1", "mbr3-tooltip-v2", "mbr3-parity-v3"):
+        if alias not in aliases:
             raise ValueError("source epoch prior alias denied")
         prior_root = parent / alias
         outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
