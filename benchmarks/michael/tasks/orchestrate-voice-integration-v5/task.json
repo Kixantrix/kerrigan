@@ -17,7 +17,6 @@
  "historical_exposure": "Private history; synthetic fixture has low recognition risk.",
  "outcome_evidence": "integrated_outcome",
  "estimated_agent_minutes": 45,
- "estimated_human_minutes": 90,
  "long_horizon": true,
  "residual_rubric": [
   "Quality of integration notes and dispatch follow-ups is not graded."

@@ -34,10 +34,46 @@ NATIVE_LIMITS = {"bytes": 32768, "payload": 262144, "aggregate": 4194304, "actio
                  "cleanupSeconds": 15, "verificationSeconds": 180}
 
 
+# Difficulty is described by agent-native task size, never by estimated human time (user, 2026-11-26).
+# Frozen historical packages may still carry the field byte-for-byte; it is never read or displayed.
+HUMAN_TIME_FIELDS = ("estimated_human_minutes",)
+
+
 def meta(name: str) -> dict:
     if name not in PACKAGES:
         raise ValueError(f"unknown curriculum package: {name}")
-    return json.loads((HERE / name / "task.json").read_bytes())
+    info = json.loads((HERE / name / "task.json").read_bytes())
+    for field in HUMAN_TIME_FIELDS:
+        info.pop(field, None)
+    return info
+
+
+def task_size(name: str) -> dict:
+    """Agent-native size: oracle diff over the writable files, files to read, and hidden checks."""
+    import difflib
+    agent = agent_files(name)
+    hidden = verifier_files(name)
+    writable = candidates(name)
+    if len(writable) == 1:
+        oracle = {writable[0]: hidden["reference"]}
+    else:
+        oracle = {path: text.encode() for path, text in json.loads(hidden["reference"]).items()}
+    added = removed = changed = 0
+    for path in writable:
+        before = agent.get(path, b"").decode().splitlines()
+        after = oracle.get(path, b"").decode().splitlines()
+        lines = [line for line in difflib.unified_diff(before, after, lineterm="", n=0)
+                 if not line.startswith(("---", "+++", "@@"))]
+        plus = sum(line.startswith("+") for line in lines)
+        minus = sum(line.startswith("-") for line in lines)
+        changed += bool(plus or minus)
+        added += plus
+        removed += minus
+    table = json.loads(hidden["rows"])
+    return {"oracle_files_changed": changed, "oracle_lines_added": added, "oracle_lines_removed": removed,
+            "writable_files": len(writable), "files_to_read": len(agent),
+            "lines_to_read": sum(data.count(b"\n") for data in agent.values()),
+            "hidden_checks": len(table), "hidden_clauses": sum(len(row["clauses"]) for row in table)}
 
 
 IGNORED_PARTS = {"__pycache__", ".DS_Store", ".pytest_cache"}

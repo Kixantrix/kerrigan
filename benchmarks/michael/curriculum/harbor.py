@@ -140,6 +140,8 @@ def task_files(name: str) -> dict[str, bytes]:
         f"outcome_evidence = {_toml(info['outcome_evidence'])}",
         f"estimated_agent_minutes = {int(info['estimated_agent_minutes'])}",
         f"denominators = {_toml(json.dumps(spec['denominators'], sort_keys=True))}",
+        *([f"task_size = {_toml(json.dumps(curriculum.task_size(name), sort_keys=True))}"]
+          if name in curriculum.PACKAGES else []),
         "",
         "[verifier]",
         "timeout_sec = 120.0",

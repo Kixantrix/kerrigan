@@ -38,5 +38,6 @@
  "admission_evidence": {
   "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
   "sha256": "73c2e9f82e51fffa99fb102c6f2c711252404dbcdee093f8d608df2586484412"
- }
+ },
+ "round": 3
 }

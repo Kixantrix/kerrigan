@@ -17,6 +17,7 @@ privacy = "private-synthetic-fixture"
 outcome_evidence = "integrated_outcome"
 estimated_agent_minutes = 45
 denominators = "{\"integration\": 8, \"ledger\": 5, \"preservation\": 2}"
+task_size = "{\"files_to_read\": 12, \"hidden_checks\": 15, \"hidden_clauses\": 44, \"lines_to_read\": 322, \"oracle_files_changed\": 4, \"oracle_lines_added\": 106, \"oracle_lines_removed\": 10, \"writable_files\": 4}"
 
 [verifier]
 timeout_sec = 120.0

@@ -17,6 +17,7 @@ privacy = "private-synthetic-fixture"
 outcome_evidence = "metric_within_tolerance"
 estimated_agent_minutes = 30
 denominators = "{\"diagnosis\": 3, \"preservation\": 2, \"reproduce\": 6}"
+task_size = "{\"files_to_read\": 4, \"hidden_checks\": 11, \"hidden_clauses\": 21, \"lines_to_read\": 222, \"oracle_files_changed\": 1, \"oracle_lines_added\": 11, \"oracle_lines_removed\": 5, \"writable_files\": 1}"
 
 [verifier]
 timeout_sec = 120.0
