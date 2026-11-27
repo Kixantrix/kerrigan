@@ -83,7 +83,7 @@
         "failure_modes": {"type": "object",
           "propertyNames": {"enum": ["unsupported-defect-claim", "claimed-fix-not-implemented",
             "sandbox-boundary-write", "harness-cap", "task-caused", "contention-timeout",
-            "model-failure-unclassified", "harness-error"]},
+            "model-failure-unclassified", "harness-error", "invented-path-read"]},
           "additionalProperties": {"type": "integer", "minimum": 1}},
         "provenance": {"type": "array", "items": {"type": "object"}}
       }

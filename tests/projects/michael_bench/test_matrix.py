@@ -121,11 +121,12 @@ def test_controlled_failure_modes_use_attribution_not_selection_prose():
         "unsupported-defect-claim": 3}
 
 
-def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_path, monkeypatch):
+@pytest.mark.parametrize("parity", [False, True])
+def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_path, monkeypatch, parity):
     repository = tmp_path / "repo"
     parent = tmp_path / "owned"
     old = parent / "mbr3-v1"
-    current = parent / "mbr3-tooltip-v2"
+    current = parent / ("mbr3-parity-v3" if parity else "mbr3-tooltip-v2")
     old.mkdir(parents=True)
     current.mkdir()
     schedule = b"synthetic schedule"
@@ -150,7 +151,12 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
                           "outcomeSha256": hashlib.sha256(outcome.read_bytes()).hexdigest(),
                           "attributionSha256": hashlib.sha256(attribution.read_bytes()).hexdigest()},
     }
-    verification = repository / "benchmarks/michael/local_transport/mbr3-tooltip-verification.json"
+    if parity:
+        prior = plan.pop("excluded_prior")
+        plan["excluded_priors"] = [{**prior, "failure_modes": ["invented-path-read"],
+                                   "behavior": "invented-path-read", "cutoff": "harness-policy"}]
+    verification = repository / "benchmarks/michael/local_transport" / (
+        "mbr3-parity-verification.json" if parity else "mbr3-tooltip-verification.json")
     verification.parent.mkdir(parents=True)
     verification.write_text(json.dumps({"primaryPlan": plan}))
     path = current / "primary-plan.json"
@@ -165,7 +171,9 @@ def test_epoch_selection_requires_published_plan_and_matches_native_owner(tmp_pa
     monkeypatch.setattr(generate, "ledger_records", reader)
     rows, source = generate.epoch_records(path)
     assert {row["condition"] for row in rows} == {"MB-R3/original", "MB-R3/corrected"}
-    assert source["prior_attempts"][0]["failure_modes"] == ["harness-error"]
+    assert source["prior_attempts"][0]["failure_modes"] == [
+        "invented-path-read" if parity else "harness-error"]
+    assert source["prior_attempts"][0]["provenance"]["excluded_from_task_failures"] is True
     changed = copy.deepcopy(plan)
     changed["attempts"][0]["evidence_root"] = "access-only"
     path.write_text(json.dumps(changed))
@@ -188,7 +196,8 @@ def test_selected_ledger_reader_does_not_publish_missing_attempts(tmp_path, monk
         generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
 
 
-def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(tmp_path, monkeypatch):
+@pytest.mark.parametrize("local", [False, True])
+def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(tmp_path, monkeypatch, local):
     batch = tmp_path / "trials/fixture/repeat-1"
     run = batch / "model"
     (run / "receipt").mkdir(parents=True)
@@ -197,13 +206,21 @@ def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(
     (run / "collected-source.bin").write_bytes(b"final artifact")
     frozen = {"package": "fixture", "condition": "synthetic",
               "source": {"benchmarks/michael/local_transport/owner.mjs": "a" * 64}}
+    if local:
+        frozen["localInference"] = {"model": "model"}
     outcome = {"conditionSha256": generate.condition_digest(frozen),
                "sourceSha256": hashlib.sha256(b"final artifact").hexdigest(),
                "status": "pass", "completionSeconds": 10}
     (run / "outcome.json").write_text(json.dumps(outcome))
-    (run / "receipt/terminal.json").write_text(json.dumps({
+    terminal = {
         "wholeProcessQuiescent": True, "cleanupSeconds": 1,
-        "usage": [{"inputTokens": 100, "outputTokens": 20}]}))
+        "usage": [{"inputTokens": 100, "outputTokens": 20}]}
+    if local:
+        terminal.update(nativePrompts=0, usage="unknown", localInference={
+            "release": {"ownedRequestsDrained": True},
+            "events": [{"type": "local_request_finished",
+                        "usage": {"inputTokens": 100, "outputTokens": 20}}]})
+    (run / "receipt/terminal.json").write_text(json.dumps(terminal))
     trial = {"bundle": {"agent": {"configuration": {"value": frozen}}},
              "starts": [{}], "origin": "new_trial",
              "attempts": [{"verdict": "passed",
@@ -216,3 +233,9 @@ def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(
     rows = generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
     assert len(rows) == 1
     assert rows[0]["tokens"] == {"inputTokens": 100, "outputTokens": 20}
+    assert rows[0]["deployment_class"] == ("local laptop" if local else "cloud")
+    if local:
+        terminal["localInference"]["release"]["ownedRequestsDrained"] = False
+        (run / "receipt/terminal.json").write_text(json.dumps(terminal))
+        with pytest.raises(ValueError, match="backend drain"):
+            generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
