@@ -17,6 +17,7 @@ privacy = "public"
 outcome_evidence = "required_facts_checklist"
 estimated_agent_minutes = 15
 denominators = "{\"constraint\": 4, \"required\": 6}"
+task_size = "{\"files_to_read\": 7, \"hidden_checks\": 10, \"hidden_clauses\": 15, \"lines_to_read\": 163, \"oracle_files_changed\": 1, \"oracle_lines_added\": 45, \"oracle_lines_removed\": 4, \"writable_files\": 1}"
 
 [verifier]
 timeout_sec = 120.0

@@ -5,13 +5,16 @@
   both with the unbiased combinatorial estimators per task, then averaged;
 - cost, tokens and wall time per resolved task (totals over *all* attempts,
   divided by resolved count; unknowns stay unknown, never zero);
-- METR-style 50% time horizon: logistic fit of success on log2(estimated
-  human minutes), reporting the minutes at which predicted success is 50%.
+- observed difficulty per task: success rate and median agent seconds over all
+  models and attempts.
+
+Difficulty is never expressed as estimated human time and no human-time horizon is
+reported (user, 2026-11-26); task size comes from curriculum.task_size.
 """
 
 from __future__ import annotations
 
-from math import comb, exp, log2, sqrt
+from math import comb, sqrt
 
 
 def wilson(successes: int, total: int, z: float = 1.959963984540054) -> tuple[float, float] | None:
@@ -44,35 +47,24 @@ def _per_resolved(trials, key, resolved):
     return {"status": "known", "value": sum(values) / resolved}
 
 
-def time_horizon(points: list[tuple[float, bool]], iterations: int = 200) -> float | None:
-    """Minutes at 50% predicted success from (human minutes, success) pairs."""
-    data = [(log2(m), 1.0 if s else 0.0) for m, s in points if m > 0]
-    if len(data) < 2 or len({y for _, y in data}) < 2:
-        return None
-    a, b = 0.0, 0.0  # p = sigmoid(a + b * x)
-    for _ in range(iterations):  # Newton-Raphson with tiny ridge for separable data
-        ga = gb = haa = hab = hbb = 0.0
-        for x, y in data:
-            p = 1 / (1 + exp(-(a + b * x)))
-            w = p * (1 - p)
-            ga += y - p
-            gb += (y - p) * x
-            haa += w
-            hab += w * x
-            hbb += w * x * x
-        ga, gb, haa, hbb = ga - 1e-3 * a, gb - 1e-3 * b, haa + 1e-3, hbb + 1e-3
-        det = haa * hbb - hab * hab
-        if det <= 0:
-            break
-        a += (hbb * ga - hab * gb) / det
-        b += (haa * gb - hab * ga) / det
-    if b >= 0:
-        return None  # success does not fall with task length; horizon undefined
-    return 2 ** (-a / b)
+def observed_difficulty(trials: list[dict]) -> dict:
+    """Per task: attempts, success rate and median agent seconds across every model and attempt."""
+    by_task: dict[str, list[dict]] = {}
+    for trial in trials:
+        by_task.setdefault(trial["task"], []).append(trial)
+    out = {}
+    for name, ts in sorted(by_task.items()):
+        seconds = sorted(t["wall_seconds"] for t in ts if t.get("wall_seconds") is not None)
+        middle = len(seconds) // 2
+        median = (None if not seconds else seconds[middle] if len(seconds) % 2
+                  else (seconds[middle - 1] + seconds[middle]) / 2)
+        out[name] = {"attempts": len(ts), "success_rate": sum(bool(t["resolved"]) for t in ts) / len(ts),
+                     "median_agent_seconds": median}
+    return out
 
 
 def summarize(trials: list[dict], *, k: int = 1) -> dict:
-    """trials: {task, resolved, cost?, tokens?, wall_seconds?, human_minutes?}."""
+    """trials: {task, resolved, cost?, tokens?, wall_seconds?}."""
     by_task: dict[str, list[dict]] = {}
     for trial in trials:
         by_task.setdefault(trial["task"], []).append(trial)
@@ -89,6 +81,5 @@ def summarize(trials: list[dict], *, k: int = 1) -> dict:
         "cost_per_resolved": _per_resolved(trials, "cost", resolved),
         "tokens_per_resolved": _per_resolved(trials, "tokens", resolved),
         "wall_seconds_per_resolved": _per_resolved(trials, "wall_seconds", resolved),
-        "time_horizon_50_minutes": time_horizon(
-            [(t["human_minutes"], bool(t["resolved"])) for t in trials if t.get("human_minutes")]),
+        "observed_difficulty": observed_difficulty(trials),
     }

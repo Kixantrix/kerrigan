@@ -161,17 +161,17 @@ fills the empty families. Every package has a Harbor export with
 oracle passes and the base fails. Each also has a retained Docker calibration
 receipt and a fresh-clone reproduction. Base → reference independent checks:
 
-| Package | Family | Source | Lang / files | Human min | Base | Reference |
+| Package | Family | Source | Lang / files | Oracle diff (files, ±lines) | Base | Reference |
 |---|---|---|---|---:|---:|---:|
-| plan-dashboard-waves-v2 | Understand and plan | kerrigan #306 (public, exact) | JSON / 1 | 15 | 0/10 | 10/10 |
-| review-conflict-predictor-v2 | Review and repair (retired) | kerrigan #312 (public, exact) | Python / 1 | 25 | 11/25 | 25/25 |
-| review-conflict-predictor-v3 | Review and repair | kerrigan #312 (public, exact) | Python / 1 | 25 | 11/27 | 27/27 |
-| research-serverless-cost | Research | personal-selfhost #174 (synthetic) | JSON / 1 | 45 | 1/12 | 12/12 |
-| design-alethiometer-case | Design | alethiometer 4528e96 (public branch) | Python+Markdown / 4 | 45 | 3/12 | 12/12 |
-| orchestrate-voice-integration | Orchestrate, long | personal-selfhost T012 (synthetic) | TS+JSON / 4 | 90 | 1/13 | 13/13 |
-| kerrigan-plan-conflict-queue | Implement, long | kerrigan #365 (public, exact merged PR) | TS / 2 | 90 | 1/20 | 20/20 |
-| yv-relevance-instrument | Experiment, long | your-voice #224 app (synthetic) | TS / 3 | 90 | 0/12 | 12/12 |
-| emv-thumbnails-gallery | Implement, long | event-media-vault #8 app (synthetic) | JS / 3 | 75 | 2/11 | 11/11 |
+| plan-dashboard-waves-v2 | Understand and plan | kerrigan #306 (public, exact) | JSON / 1 | 1, +45/−4 | 0/10 | 10/10 |
+| review-conflict-predictor-v2 | Review and repair (retired) | kerrigan #312 (public, exact) | Python / 1 | 1, +89/−22 | 11/25 | 25/25 |
+| review-conflict-predictor-v3 | Review and repair | kerrigan #312 (public, exact) | Python / 1 | 1, +91/−22 | 11/27 | 27/27 |
+| research-serverless-cost | Research | personal-selfhost #174 (synthetic) | JSON / 1 | 1, +55/−11 | 1/12 | 12/12 |
+| design-alethiometer-case | Design | alethiometer 4528e96 (public branch) | Python+Markdown / 4 | 4, +12/−10 | 3/12 | 12/12 |
+| orchestrate-voice-integration | Orchestrate, long | personal-selfhost T012 (synthetic) | TS+JSON / 4 | 4, +99/−10 | 1/13 | 13/13 |
+| kerrigan-plan-conflict-queue | Implement, long | kerrigan #365 (public, exact merged PR) | TS / 2 | 2, +396/−4 | 1/20 | 20/20 |
+| yv-relevance-instrument | Experiment, long | your-voice #224 app (synthetic) | TS / 3 | 3, +148/−6 | 0/12 | 12/12 |
+| emv-thumbnails-gallery | Implement, long | event-media-vault #8 app (synthetic) | JS / 3 | 3, +77/−10 | 2/11 | 11/11 |
 
 - **Retired v1** (`retired.json`): `plan-dashboard-waves` and
   `review-conflict-predictor` remain byte-for-byte frozen but are recorded as
@@ -196,11 +196,19 @@ receipt and a fresh-clone reproduction. Base → reference independent checks:
   citations, honest-unknown checks and perturbation tests (for example, the
   hinge relief is re-evaluated with other screw lengths). Your-voice expected
   values come from an independent Python implementation of its spec.
-- The long-horizon set has 4 packages, each 75–90 estimated human minutes and
-  multi-file. They span 4 repositories and TypeScript plus JavaScript, and
-  include the your-voice and event-media-vault apps. One is an exact merged
-  public PR (#365). The estimated human minutes are recorded for METR-style
-  horizon reporting.
+- The long-horizon set has 4 packages, each multi-file (oracle diff of at
+  least 2 files and 80 lines, at least 10 hidden checks). They span 4
+  repositories and TypeScript plus JavaScript, and include the your-voice and
+  event-media-vault apps. One is an exact merged public PR (#365).
+- **Difficulty is agent-native, never estimated human time** (user,
+  2026-11-26). `curriculum.task_size(name)` reports the oracle diff (files and
+  lines over the writable files), files and lines to read, and hidden checks
+  and clauses; Harbor exports carry it as `task_size` metadata. Observed
+  difficulty (success rate and median agent seconds over all models and
+  attempts) comes from `metrics.observed_difficulty`. No human-time horizon is
+  reported. Frozen historical packages may still carry an
+  `estimated_human_minutes` field byte-for-byte; `curriculum.meta` drops it and
+  nothing reads or displays it.
 - **Model gates**: the two-family LLM audits and blind re-implementation are
   left `provisional` for the native executor, as frozen requests in
   `admission.json`. No model was run here.

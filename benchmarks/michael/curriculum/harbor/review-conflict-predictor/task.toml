@@ -17,6 +17,7 @@ privacy = "public"
 outcome_evidence = "defect_coverage"
 estimated_agent_minutes = 25
 denominators = "{\"preservation\": 10, \"regression\": 7, \"review\": 4}"
+task_size = "{\"files_to_read\": 5, \"hidden_checks\": 21, \"hidden_clauses\": 38, \"lines_to_read\": 281, \"oracle_files_changed\": 1, \"oracle_lines_added\": 89, \"oracle_lines_removed\": 22, \"writable_files\": 1}"
 
 [verifier]
 timeout_sec = 120.0
