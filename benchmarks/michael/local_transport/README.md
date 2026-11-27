@@ -70,6 +70,15 @@ calibration and immutable primary-selection plan. Matrix regeneration with
 selected attempt to be complete, validates the excluded harness attribution,
 and labels the two source epochs separately instead of silently pooling them.
 
+The next source epoch returns bounded, action-charged `not_found` feedback for
+reads/runs of nonexistent relative task paths. A metadata-only descriptor walk
+rejects traversal and aliases without reading file contents. Existing files
+outside the allowlist and paths outside the task root still cut off. This
+corrects a policy cutoff after MAI invented `briefs/T012-L2-session.md`; the
+actual manifest names `briefs/L2-orchestration.md`. Preserve the invented-path
+behavior and original harness-policy cutoff, disclose its fresh replacement,
+and report both old-policy and CLI-parity counts. No replacement has run yet.
+
 Foundation: `2df6f85`. Environment: `local-attested-macos`; results are dated
 operator observations, not human-attested completion. This condition is **local
 agent/tools with cloud inference**, not cloud-hosted tools or local inference.

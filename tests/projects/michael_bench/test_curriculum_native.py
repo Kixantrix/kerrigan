@@ -253,3 +253,60 @@ def test_native_bad_shape_is_charged_repair_feedback_not_execution(owned, tmp_pa
     assert terminal["stopReason"] == "diagnostics_complete"
     assert terminal["taskOutputRetainedBytes"] >= len("repaired\n")
     assert native.collect(run) == specs.base("validator")
+
+
+def test_missing_path_probe_is_descriptor_bound_and_never_follows_aliases(tmp_path):
+    from benchmarks.michael.local_transport.path_probe import missing
+    root = tmp_path / "task"
+    root.mkdir()
+    identity = [root.stat().st_dev, root.stat().st_ino]
+    (root / "existing").write_text("not read by the probe")
+    (root / "alias").symlink_to(tmp_path, target_is_directory=True)
+    assert missing(root, identity, "briefs/invented.md")
+    assert not missing(root, identity, "existing")
+    assert not missing(root, identity, "alias/missing")
+    assert not missing(root, identity, "existing/missing")
+    for path in ("../missing", "/missing", "a/../missing", "a//missing", ".", ""):
+        assert not missing(root, identity, path)
+    with pytest.raises(ValueError, match="identity"):
+        missing(root, [identity[0], identity[1] + 1], "missing")
+
+
+@pytest.mark.parametrize("op", ["read", "run"])
+def test_native_nonexistent_task_path_is_charged_not_found_feedback(owned, tmp_path, op):
+    run = native.prepare(owned, tmp_path / "run", "validator", seconds=15,
+        policy=native.round_three_policy("validator", active_seconds=15),
+        diagnostics=[{"op": op, "path": "briefs/invented.md"},
+                     {"op": "read", "path": "TASK.md"}])
+    child = api.runner.launch(run)
+    try:
+        child.wait(timeout=32)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    feedback = json.loads((run / "receipt/action-result-1.json").read_bytes())
+    assert feedback["rejected"] and feedback["result"]["exitCode"] == 2
+    assert feedback["result"]["feedback"].startswith("not_found;")
+    assert terminal["stopReason"] == "diagnostics_complete"
+    assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
+    assert len(terminal["actions"]) == 3 and terminal["actionBytes"] > 0
+    assert sum(row["kind"] == "task" for row in terminal["records"]) == 2
+    assert native.collect(run) == specs.base("validator")
+
+
+@pytest.mark.parametrize("path", ["hidden.txt", "alias/missing", "../missing", "/missing"])
+def test_native_missing_path_feedback_never_widens_existing_or_outside_access(owned, tmp_path, path):
+    run = native.prepare(owned, tmp_path / "run", "validator", seconds=15,
+        diagnostics=[{"op": "read", "path": path}])
+    (run / "task/hidden.txt").write_text("synthetic unlisted file")
+    (run / "task/alias").symlink_to(tmp_path, target_is_directory=True)
+    child = api.runner.launch(run)
+    try:
+        child.wait(timeout=32)
+    finally:
+        child.stdin.close()
+    terminal = json.loads((run / "receipt/terminal.json").read_bytes())
+    assert "action_denied" in terminal["stopReason"]
+    assert terminal["wholeProcessQuiescent"] and terminal["nativePrompts"] == 0
+    assert not terminal["actions"]
+    assert all(row["kind"] == "cli" for row in terminal["records"])

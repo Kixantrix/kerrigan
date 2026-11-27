@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, appendFileSync, openSync, fsyncSync, closeSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, openSync, fsyncSync, closeSync, lstatSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
 import { createHash } from "node:crypto";
@@ -6,6 +6,7 @@ import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATO
 import { admission } from "./validator_admission.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
 import { SCRATCH, scratchState, discardScratch } from "./scratch.mjs";
+import { taskPathMissing } from "./path_probe.mjs";
 
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 admission(config);
@@ -17,6 +18,8 @@ if (config.validatorReplay && (config.model !== null || config.approved !== fals
     config.transportProbe || config.prompt !== undefined || config.condition !== "MB-006k-offline"))
     throw new Error("validator_replay_forbids_inference");
 const initialConfig = structuredClone(config);
+const taskRootInfo = config.curriculumTask ? lstatSync(config.task) : null;
+const taskRootIdentity = taskRootInfo ? [taskRootInfo.dev, taskRootInfo.ino] : null;
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const { spawn } = await import(pathToFileURL(config.sdk));
 const began = performance.now(), until = began + config.seconds * 1000;
@@ -236,18 +239,23 @@ async function action(id, args, final = false) {
         throw new Error("agent_action_budget");
     let payload;
     try {
+        const missingPath = config.curriculumTask && !final && ["read", "run"].includes(args?.op) &&
+            taskPathMissing(config.task, taskRootIdentity, args.path, config.python);
         payload = validateAction(id, args, budget, config.curriculumTask ? TASK_VALIDATOR :
-            config.validatorTask ? "task" : config.validatorReplay === true);
+            config.validatorTask ? "task" : config.validatorReplay === true, missingPath);
     } catch (error) {
-        if (!config.curriculumTask || error.message !== "action_schema_feedback") throw error;
+        if (!config.curriculumTask ||
+            !["action_schema_feedback", "action_not_found_feedback"].includes(error.message)) throw error;
+        const notFound = error.message === "action_not_found_feedback";
         const index = actions.size;
         persist(`action-${index}`, { id, args, atMs: performance.now() - began, rejected: true });
-        const text = Buffer.from('Action rejected; nothing executed. Use read(op,path[,offset]), ' +
+        const text = Buffer.from(notFound ? "Not found; nothing executed. Consult policy.json for allowed paths." :
+            'Action rejected; nothing executed. Use read(op,path[,offset]), ' +
             'write(op,path,data), or run(op,path). No additional fields. Correct the request.');
         const retained = bounded(`task-${index}-stderr`, text, TASK_VALIDATOR.channel, false);
         if (!retained || stopping) throw new Error("task_output_budget");
         const result = {exitCode: 2, timedOut: false, stdout: "", stderr: retained.toString("base64"),
-            feedback: "action_schema_invalid; request consumed one action and its input bytes"};
+            feedback: `${notFound ? "not_found" : "action_schema_invalid"}; request consumed one action and its input bytes`};
         persist(`action-result-${index}`, { id, result, rejected: true });
         return result;
     }
