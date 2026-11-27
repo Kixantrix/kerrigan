@@ -153,6 +153,23 @@ the maximum observed successful scan was 34,587 bytes and 9 entries
 These are observed scan peaks, not kernel-enforced high-water measurements;
 the rejected blind scan's exact size is unknown.
 
+The [successor cohort](MBR3-successors-results.json) is complete:
+VHS-v2 and CS-v2 each score **3/3 per model**, with no scored replacements.
+The [VHS-v2 admission](MBR3-vhs-room-registry-sync-v2-admission.json) retains the
+original `overspecified_test` finding. Curriculum subsequently confirmed the
+trusted `view()` already sorts names; no scored subject failed that row.
+VHS-v3 remains a round-four known issue, not a round-three subject.
+
+All six gap-fill admissions are settled. Dashboard decomposition was rejected
+for leakage; custom-action briefing and dashboard orchestration were rejected
+for instruction/oracle contradictions. Their passing blind attempts do not
+override rejection, and none has scored subjects.
+The [three admitted gap-fill tasks](MBR3-gapfill-results.json) have completed
+18 balanced subjects: **MAI 9/9, Sonnet 7/9**.
+Both research tasks score 3/3 per model; SL phase-one orchestration scores MAI
+3/3 and Sonnet 1/3. Sonnet's first two attempts fail the rolling-resistance
+check (19/20 total); both independent panels classify these as model-caused.
+
 The [public-anchor compatibility receipt](MBR3-anchor-native-compatibility.json)
 preserves eight Harbor-verified oracle/base pairs. They currently lack a native
 export/policy, final-state artifact contract and independent-grader/ledger
