@@ -29,7 +29,17 @@ FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "san
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
                  "harness-error", "invented-path-read", "spec-misread", "budget-noncompletion",
                  "stale-derived-document", "wrong-domain-rule", "premature-stop-without-edit",
-                 "ignored-existing-state")
+                 "ignored-existing-state", "anchor-overspecified")
+
+
+ANCHOR_FAMILY = "Public anchor"
+
+
+def family(name):
+    """Public anchors are scored only in their own column, never in work-family routing cells."""
+    if name.startswith("anchor-"):
+        return ANCHOR_FAMILY
+    return FAMILIES.get(name) or curriculum.meta(name)["family"]
 
 
 def failure_modes(attribution):
@@ -324,7 +334,7 @@ def ledger_records(root, *, selected=None):
                 "deployment_class": "local laptop" if local else "cloud",
                 "condition": frozen["condition"] + ("/" + Path(root).name.removeprefix("mbr3-local-")
                     if local else ""), "tool_host": "local macOS MXC", "round": "v3",
-                "family": FAMILIES.get(name) or curriculum.meta(name)["family"],
+                "family": family(name),
                 "size": size(name), "resolved": passed,
                 "completion_seconds": seconds, "tokens": tokens, "cost": None,
                 "peak_memory_bytes": None, "energy_joules": None,
@@ -639,6 +649,10 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
         }
     recommendations = {}
     for column in sorted(columns):
+        if column.startswith(ANCHOR_FAMILY):
+            recommendations[column] = {"status": "not routed (public anchor)", "target": None,
+                                       "provisional": {"status": "not routed (public anchor)", "target": None}}
+            continue
         eligible = []
         for target, target_cells in cells.items():
             cell = target_cells.get(column)

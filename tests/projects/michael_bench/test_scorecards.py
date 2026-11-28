@@ -57,3 +57,20 @@ def test_committed_scorecards_match_generation():
     assert (scorecards.HERE / "overview.md").read_text() == table
     for model, text in cards.items():
         assert (scorecards.HERE / f"{model}.md").read_text() == text
+
+
+def test_anchors_never_feed_routing_and_report_raw_and_adjusted():
+    rows = [row("gpt-6.2-astra", "fixture", r) for r in range(1, 4)]
+    anchors = [row("gpt-6.2-astra", "anchor-x", r, passed=r != 3,
+                   modes=() if r != 3 else ["anchor-overspecified"]) for r in range(1, 4)]
+    for a in anchors:
+        a["family"] = generate.ANCHOR_FAMILY
+    records = rows + anchors
+    value = generate.build(records)
+    assert value["recommendations"]["Public anchor × small"]["status"] == "not routed (public anchor)"
+    assert all(not column.startswith("Public anchor") for column in pooled.pooled(records)["recommendations"])
+    cards, table = render(records)
+    card = cards["gpt-6.2-astra"]
+    assert "**Overall:** 3/3" in card  # anchors stay out of the overall rate
+    assert "**Raw (upstream-comparable):** 2/3" in card and "**Adjusted:** 2/2" in card
+    assert "| 2/3 / 2/2 |" in table and "host-resource-unavailable" in table

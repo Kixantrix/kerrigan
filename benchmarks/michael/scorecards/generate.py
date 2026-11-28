@@ -20,6 +20,22 @@ SELECTION = {
     "claude-sonnet-5.5": "Selection role in admission: co-audited which tasks were admitted, fixed or retired.",
 }
 USE, AVOID = 0.9, 0.67
+ANCHOR_NOTES = ("Public anchors are scored only here, never in work-type routing. Raw is upstream-comparable; "
+                "adjusted excludes failures confined to disclosed flagged behaviours (`anchor-overspecified`). "
+                "Graded on the shared Colima VM (effective 2 GiB / 2 CPU cap). nginx base calibrates 2/8 natively "
+                "vs 1/8 retained (admission holds). ansible and qutebrowser are admitted as `public-anchor-as-is`. "
+                "element-web and tutanota: host-resource-unavailable (blocked pending user decision).")
+
+
+def anchor_split(rows):
+    anchors = [r for r in rows if r["task"].startswith("anchor-")]
+    return [r for r in rows if not r["task"].startswith("anchor-")], anchors
+
+
+def anchor_scores(anchors):
+    raw = (sum(r["resolved"] for r in anchors), len(anchors))
+    kept = [r for r in anchors if "anchor-overspecified" not in r["failure_modes"]]
+    return raw, (sum(r["resolved"] for r in kept), len(kept))
 
 
 def pct(value):
@@ -62,6 +78,7 @@ def blind_record(root):
 
 def summarize(model, rows, unscored):
     scored = [r for r in rows if r.get("eligible") is not False]
+    scored, anchors = anchor_split(scored)
     successes = sum(r["resolved"] for r in scored)
     times = [r["completion_seconds"] for r in scored if r["resolved"] and not r.get("timing_excluded")]
     by_task = defaultdict(list)
@@ -84,7 +101,7 @@ def summarize(model, rows, unscored):
             "pass_any": (sum(any(v) for v in by_task.values()), len(by_task)),
             "times": times, "excluded_times": sum(1 for r in scored if r.get("timing_excluded")),
             "rows": scored, "families": dict(sorted(families.items())), "failures": failures,
-            "examples": examples, "unscored": unscored}
+            "examples": examples, "unscored": unscored, "anchors": anchors}
 
 
 def routing(value, model):
@@ -133,6 +150,15 @@ def scorecard(card, value, blind):
         times = [r["completion_seconds"] for r in rows if r["resolved"] and not r.get("timing_excluded")]
         lines.append(f"| {family} | {len(rows)} | {ci(sum(r['resolved'] for r in rows), len(rows))} | "
                      f"{seconds(times).split(' ')[0]} | {tokens(rows)} |")
+    if card["anchors"]:
+        (rp, rn), (ap, an) = anchor_scores(card["anchors"])
+        lines += ["", "## Public anchors", "", f"- **Raw (upstream-comparable):** {ci(rp, rn)}",
+                  f"- **Adjusted:** {ci(ap, an) if an else '—'}", "", "| Anchor | Runs | Raw pass |", "|---|---:|---:|"]
+        by_anchor = defaultdict(list)
+        for r in card["anchors"]:
+            by_anchor[r["task"]].append(r)
+        lines += [f"| {t} | {len(rs)} | {sum(r['resolved'] for r in rs)}/{len(rs)} |" for t, rs in sorted(by_anchor.items())]
+        lines += ["", ANCHOR_NOTES]
     lines += ["", "## Failure patterns", ""]
     if card["failures"]:
         lines += ["| Pattern | Count | Example |", "|---|---:|---|"]
@@ -167,19 +193,26 @@ def scorecard(card, value, blind):
     return "\n".join(lines)
 
 
+def anchor_cell(card):
+    if not card["anchors"]:
+        return "—"
+    (rp, rn), (ap, an) = anchor_scores(card["anchors"])
+    return f"{rp}/{rn} / {ap}/{an}"
+
+
 def overview(cards, value):
     columns = sorted({f for c in cards for f in c["families"]})
     name = lambda m: NAMES.get(m, m) if m else "insufficient evidence"
     lines = ["# Model overview", "", "Generated from verified ledgers; do not hand-edit. Cloud and local are never "
              "pooled in one cell. Cost is unknown for every model.", "",
-             "| Model | Deployment | Pass (95% Wilson) | Tasks | Median verified | Tokens in / out per run | Cost | Top failure pattern |",
-             "|---|---|---|---:|---:|---:|---|---|"]
+             "| Model | Deployment | Pass (95% Wilson) | Tasks | Median verified | Tokens in / out per run | Cost | Top failure pattern | Anchors raw / adjusted |",
+             "|---|---|---|---:|---:|---:|---|---|---|"]
     for c in cards:
         top = c["failures"].most_common(1)
         lines.append(f"| [{c['name']}]({c['model']}.md) | {c['deployment']} | "
                      f"{ci(c['successes'], c['n']) if c['n'] else '—'} | {c['tasks']} | "
                      f"{seconds(c['times']).split(' ')[0]} | {tokens(c['rows'])} | unknown | "
-                     f"{f'`{top[0][0]}` ×{top[0][1]}' if top else 'none'} |")
+                     f"{f'`{top[0][0]}` ×{top[0][1]}' if top else 'none'} | {anchor_cell(c)} |")
     lines += ["", "## Pass rate by work type", "", "| Work type | " + " | ".join(c["name"] for c in cards) + " |",
               "|---|" + "---|" * len(cards)]
     for column in columns:
@@ -195,7 +228,7 @@ def overview(cards, value):
                      f"{name(row['most_reliable'])} |")
     lines += ["", "Established: n≥5, 95% lower bound ≥80%, fastest. Provisional (weaker): n≥6 across ≥2 tasks, "
               "point success ≥90%, lower bound ≥50%, fastest. Every run is a fresh session; selection roles in "
-              "admission are disclosed per scorecard.", ""]
+              "admission are disclosed per scorecard.", "", ANCHOR_NOTES, ""]
     return "\n".join(lines)
 
 
