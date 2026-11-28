@@ -6,23 +6,23 @@ Generated from verified ledgers; do not hand-edit. Cloud and local are never poo
 |---|---|---|---:|---:|---:|---|---|
 | [Claude Sonnet 5.5](claude-sonnet-5.5.md) | cloud | 48/52 (82%–97%) | 22 | 40s | 254,896 / 7,132 | unknown | `stale-derived-document` ×2 |
 | [MAI Code 2](mai-code-2.md) | cloud | 44/52 (72%–92%) | 22 | 126s | 403,311 / 7,659 | unknown | `unsupported-defect-claim` ×3 |
-| [Inkling-2-mini (local)](mtplx-inkling-2-mini-optimized-quality.md) | local laptop | 6/9 (35%–88%) | 9 | 100s | 111,841 / 7,091 | unknown | `premature-stop-without-edit` ×2 |
+| [Inkling-2-mini (local)](mtplx-inkling-2-mini-optimized-quality.md) | local laptop | 8/15 (30%–75%) | 15 | 100s | 126,234 / 9,240 | unknown | `premature-stop-without-edit` ×3 |
 
 ## Pass rate by work type
 
 | Work type | Claude Sonnet 5.5 | MAI Code 2 | Inkling-2-mini (local) |
 |---|---|---|---|
-| Design × medium | 4/6 | 3/6 | 1/1 |
+| Design × medium | 4/6 | 3/6 | 1/2 |
 | Experiment × large | 3/3 | 3/3 | — |
-| Experiment × medium | 3/3 | 1/3 | — |
+| Experiment × medium | 3/3 | 1/3 | 0/1 |
 | Experiment × small | 1/1 | 1/1 | 1/1 |
-| Implement × medium | 9/9 | 9/9 | — |
-| Implement × small | 3/3 | 3/3 | 1/2 |
+| Implement × medium | 9/9 | 9/9 | 0/1 |
+| Implement × small | 3/3 | 3/3 | 2/3 |
 | Operate × large | 3/3 | 3/3 | — |
 | Operate × small | 1/1 | 1/1 | 1/1 |
 | Orchestrate × large | 1/3 | 3/3 | — |
-| Orchestrate × medium | 3/3 | 2/3 | — |
-| Research × medium | 3/3 | 3/3 | — |
+| Orchestrate × medium | 3/3 | 2/3 | 0/1 |
+| Research × medium | 3/3 | 3/3 | 1/1 |
 | Research × small | 4/4 | 4/4 | 2/2 |
 | Review and repair × medium | 9/9 | 7/9 | 0/1 |
 | Understand and plan × small | 1/1 | 1/1 | 0/1 |

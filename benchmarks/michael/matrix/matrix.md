@@ -48,6 +48,12 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-R3/gapfill-v8:mai-code-2 | cloud | Orchestrate × large | 3 | 3/3 (43.9%–100.0%) | 257.71 | 3,899,142 / 34,710 | unknown; unknown; unknown | none observed |
 | MB-R3/gapfill-v8:mai-code-2 | cloud | Research × medium | 3 | 3/3 (43.9%–100.0%) | 62.04 | 456,448 / 7,681 | unknown; unknown; unknown | none observed |
 | MB-R3/gapfill-v8:mai-code-2 | cloud | Research × small | 3 | 3/3 (43.9%–100.0%) | 68.09 | 454,538 / 6,337 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Design × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 49,495 / 16,973 | unknown; unknown; unknown | budget-noncompletion ×1 |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Experiment × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 192,344 / 12,792 | unknown; unknown; unknown | spec-misread ×1 |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Implement × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 14,406 / 4,899 | unknown; unknown; unknown | premature-stop-without-edit ×1 |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Implement × small | 1 | 1/1 (20.7%–100.0%) | 204.31 | 295,944 / 17,645 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Orchestrate × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 232,581 / 16,903 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Research × medium | 1 | 1/1 (20.7%–100.0%) | 81.19 | 102,176 / 5,573 | unknown; unknown; unknown | none observed |
 | MB-R3/local-laptop/v9b:mtplx-inkling-2-mini-optimized-quality | local laptop | Experiment × small | 1 | 1/1 (20.7%–100.0%) | 91.59 | 104,895 / 7,370 | unknown; unknown; unknown | none observed |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Design × medium | 1 | 1/1 (20.7%–100.0%) | unknown (1 host-sleep timing excluded) | 348,494 / 15,256 | unknown; unknown; unknown | none observed |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Implement × small | 2 | 1/2 (9.5%–90.5%) | 154.44 | 140,221 / 11,574 | unknown; unknown; unknown | premature-stop-without-edit ×1 |
@@ -104,6 +110,13 @@ Retained but excluded from success denominators and routing. Budget-censored non
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | foal-meadow-regression-review-v2 | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | review-conflict-predictor-v4 | environment-abort | environment: host sleep during inference (runtime:The operation was aborted due to timeout) |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | validator | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | foal-meadow-regression-review-v2 | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | kerrigan-plan-conflict-queue-v4 | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | kirkland-compose-adoption | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | orchestrate-sl-sim-phase-one | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | review-conflict-predictor-v4 | unscored | runtime:local_native_tool_failed |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | te-baseline-eval | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
+| MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | vhs-room-registry-sync-v2 | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
 
 ## Provenance and prior attempts
 
