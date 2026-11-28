@@ -254,6 +254,34 @@ derive the input bound from the token guardrail with a conservative
 bytes-per-token margin (exploratory label above about 131K), and require AC
 power or an approved process-scoped `caffeinate`.
 
+### Second window (v12b, 2026-11-28 07:30–08:04Z)
+
+Run concurrently with the MB-R3M cloud cohort (remote inference only; cloud
+Docker grading deferred until release), so timings are labeled
+concurrent-with-cloud-cohort. Process-scoped `caffeinate`, approved by the user,
+was asserted for the window and verified released. The Mac was on AC power with
+no sleep events, normal pressure, load about 2 and stable swap. The input policy
+is unchanged: Local AI setup rejected a token-derived bound as unverified, so
+the 64 KiB JSON cap remains and the token estimate is recorded only.
+
+The window sent 186 requests over 13 slots; all 13 concluded, which does not
+mean 13 successes:
+- **Pass:** validator (25/25), research-admin-auth-choice (18/18).
+- **Model failures:** emv-thumbnails-gallery-v3 (`premature-stop-without-edit`:
+  nine reads, no write), orchestrate-voice-integration-v5
+  (`unsupported-defect-claim`: duplicate defect entry; integration 9/9), and
+  yv-relevance-instrument-v4 (`spec-misread`, the same `.some` clause as MAI's
+  round-3 failures). The last two panels split and were resolved
+  deterministically by hash-bound receipts, without rerun.
+- **Output-cap noncompletion:** design-alethiometer-gear-mesh hit the
+  16,384-token output cap; counted in the denominator.
+- **Unscored input-admission unavailable (6):** foal-v2, kirkland, queue-v4,
+  te-baseline, sl-sim and vhs-v2.
+- **Unscored harness fault:** review-conflict-predictor-v4. The model emitted a
+  call missing `path` and the CLI rejected it; the adapter then aborted instead
+  of returning that rejection. Both causes are preserved. The adapter fix
+  needs a separately announced window for reruns.
+
 ## Local condition and reproducible evidence
 
 The local condition is

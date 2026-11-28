@@ -1,0 +1,26 @@
+{
+  "cause": "model",
+  "collectedArtifactsSha256": "e6e5e870d6ca1eb8b562418505f49eb1f702f82dff55c71ed889361bfd62e1c8",
+  "counts_as_model_failure": true,
+  "decision": "Apply the standing coordinator grammar adjudication to the identical failed clauses; retain the split panel and 14/16 result without rerun.",
+  "evidence": [
+    "spec-misread: audit.ts uses topics.some(...), but SPEC section 3 requires every lower-cased topic to be a title token.",
+    "The failed clauses and observations match the round-3 MAI repeat-1 failure resolved by the standing grammar ruling."
+  ],
+  "evidence_root": "mbr3-local-v12b",
+  "failure_modes": [
+    "spec-misread"
+  ],
+  "graderReportSha256": "0eaef629f88fc66b6855599e32eef3d9eeb02244ad1b55ef85e1a7393b79307e",
+  "kind": "deterministic-attribution-resolution",
+  "model": "mtplx-inkling-2-mini-optimized-quality",
+  "originalPanelSha256": "cebc95801e9471fe745658c7ef362841b7afede20d5d42fdf510ba3e1e310ec2",
+  "outcomeSha256": "af5e31ce3156977c73be920760877d824df823e8c2710b4ec25e0ba1ca549458",
+  "priorResolutionSha256": "c211ac4cd31e986abc4b4d8c9738ff1b74d69559e4190b98371436cd15dd2c51",
+  "publicationScope": "Sanitized attribution and immutable hashes only; original panel and artifacts unchanged.",
+  "repeat": 1,
+  "schema_version": 1,
+  "source_epoch": "local-laptop/v12b",
+  "subject_rerun": false,
+  "task": "yv-relevance-instrument-v4"
+}

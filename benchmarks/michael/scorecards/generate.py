@@ -155,6 +155,9 @@ def scorecard(card, value, blind):
     if card["deployment"] == "local laptop":
         caveats.append("Local co-tenancy: resident idle Colima/pa-dev-postgres; sleep-affected timings excluded; "
                        "never pooled with cloud.")
+        caveats.append("Overall combines local adapter epochs (v9b, v9d, v12b) that share the 64 KiB input cap; "
+                       "v12b also passes multiple tool calls and raised the protocol event-count cap. "
+                       "Per-epoch cells are in the matrix; later epochs run concurrently with cloud cohorts.")
     if card["unscored"]:
         caveats.append(f"{len(card['unscored'])} unscored physical attempt(s) (harness/environment), excluded "
                        "from rates: " + "; ".join(f"{r['task']} ({str(r['noncompletion_reason'])[:60]})"

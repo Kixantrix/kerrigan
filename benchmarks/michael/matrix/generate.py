@@ -56,6 +56,8 @@ def failure_modes(attribution):
         modes.append("unsupported-defect-claim")
     if "auth-bypass" in text and any(word in text.lower() for word in ("absent", "unsupported", "no authentication")):
         modes.append("unsupported-defect-claim")
+    if "unsupported second defect claim" in text.lower() and "unsupported-defect-claim" not in modes:
+        modes.append("unsupported-defect-claim")
     if ("$TMPDIR" in text and "outside" in text) or "out-of-scope write" in text:
         modes.append("sandbox-boundary-write")
     lower = text.lower()
@@ -64,7 +66,8 @@ def failure_modes(attribution):
     if any(word in lower for word in ("tooth thickness", "backlash", "tip-to-root", "rolling resistance",
                                        "constant deceleration")):
         modes.append("wrong-domain-rule")
-    if any(word in lower for word in ("only read task.md", "without editing", "unchanged original", "remained unchanged")):
+    if any(word in lower for word in ("only read task.md", "without editing", "unchanged original", "remained unchanged",
+                                       "no write", "original empty stub")):
         modes.append("premature-stop-without-edit")
     if any(word in lower for word in ("already delivered", "already present", "already contains")):
         modes.append("ignored-existing-state")

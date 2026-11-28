@@ -446,6 +446,8 @@ def test_pooled_view_pools_latest_cloud_versions_across_conditions_but_never_loc
     ("R3 rolling resistance is a constant deceleration that stops at zero; drops wrong", "wrong-domain-rule"),
     ("The model only read TASK.md and finished; the file remained unchanged", "premature-stop-without-edit"),
     ("Scheduled M2.1 although the scaffold was already present in repo-tree.txt", "ignored-existing-state"),
+    ("A duplicate defect entry is an unsupported second defect claim", "unsupported-defect-claim"),
+    ("Trajectory contains only read actions and no write; the stub is unchanged", "premature-stop-without-edit"),
 ])
 def test_deterministic_failed_clauses_map_to_controlled_vocabulary(text, mode):
     modes = generate.failure_modes({"cause": "model", "verdicts": [{"evidence": [text]}]})
