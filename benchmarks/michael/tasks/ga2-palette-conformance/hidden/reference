@@ -1,0 +1,225 @@
+"""Palette-conformance assertion for GA2 faction assets.
+
+Validates that a set of colors (RGB tuples or sampled from a PNG) fall within
+CIE76 ΔE tolerance of a faction's declared palette anchors in CIELAB space.
+
+Tolerance rationale:
+  DEFAULT_TOLERANCE = 12.0 ΔE (CIE76)
+  - ΔE < 1: imperceptible difference
+  - ΔE 1–5: noticeable on close inspection
+  - ΔE 5–12: clearly similar hue family (shading/AO gradients)
+  - ΔE > 12: different color to a typical observer
+  A value of 12 allows ambient-occlusion darkening and basic lighting
+  variation while rejecting off-faction hues. Ref: architecture.md#tradeoffs.
+
+Conversion: sRGB → linear RGB → XYZ (D65) → CIELAB.
+Distance: CIE76 ΔE = Euclidean distance in Lab space.
+Formulas from: CIE 15:2004, IEC 61966-2-1 (sRGB), and
+  Lindbloom (brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html).
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Iterable, List, Optional, Sequence, Tuple
+
+from ga2.palette import load_palette
+
+# ---------------------------------------------------------------------------
+# Public constants
+# ---------------------------------------------------------------------------
+
+DEFAULT_TOLERANCE: float = 12.0
+"""Max CIE76 ΔE from nearest palette anchor before a color is off-palette."""
+
+# ---------------------------------------------------------------------------
+# Result type
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class ConformanceResult:
+    """Result of a palette-conformance check."""
+
+    passed: bool
+    worst_delta_e: float
+    offending_colors: List[Tuple[int, int, int]] = field(default_factory=list)
+    nearest_palette_color: Optional[Tuple[int, int, int]] = None
+
+
+# ---------------------------------------------------------------------------
+# Color math (pure functions, no I/O)
+# ---------------------------------------------------------------------------
+
+
+def _srgb_to_linear(c: float) -> float:
+    """Linearize a single sRGB channel (0–1 range)."""
+    if c <= 0.04045:
+        return c / 12.92
+    return ((c + 0.055) / 1.055) ** 2.4
+
+
+def _rgb_to_xyz(r: int, g: int, b: int) -> Tuple[float, float, float]:
+    """Convert sRGB (0–255) to CIE XYZ (D65 illuminant).
+
+    Matrix from IEC 61966-2-1 / Lindbloom sRGB→XYZ (D65).
+    """
+    rl = _srgb_to_linear(r / 255.0)
+    gl = _srgb_to_linear(g / 255.0)
+    bl = _srgb_to_linear(b / 255.0)
+
+    # sRGB to XYZ (D65) matrix
+    x = 0.4124564 * rl + 0.3575761 * gl + 0.1804375 * bl
+    y = 0.2126729 * rl + 0.7151522 * gl + 0.0721750 * bl
+    z = 0.0193339 * rl + 0.1191920 * gl + 0.9503041 * bl
+    return (x, y, z)
+
+
+# D65 reference white
+_XN = 0.95047
+_YN = 1.00000
+_ZN = 1.08883
+
+
+def _f(t: float) -> float:
+    """CIE Lab transfer function."""
+    delta = 6.0 / 29.0
+    if t > delta**3:
+        return t ** (1.0 / 3.0)
+    return t / (3.0 * delta**2) + 4.0 / 29.0
+
+
+def _xyz_to_lab(x: float, y: float, z: float) -> Tuple[float, float, float]:
+    """Convert XYZ to CIELAB (D65 illuminant)."""
+    fx = _f(x / _XN)
+    fy = _f(y / _YN)
+    fz = _f(z / _ZN)
+
+    L = 116.0 * fy - 16.0
+    a = 500.0 * (fx - fy)
+    b_val = 200.0 * (fy - fz)
+    return (L, a, b_val)
+
+
+def rgb_to_lab(r: int, g: int, b: int) -> Tuple[float, float, float]:
+    """Convert sRGB (0–255) to CIELAB (D65). Public for testing."""
+    x, y, z = _rgb_to_xyz(r, g, b)
+    return _xyz_to_lab(x, y, z)
+
+
+def delta_e_cie76(
+    lab1: Tuple[float, float, float], lab2: Tuple[float, float, float]
+) -> float:
+    """CIE76 color difference (Euclidean distance in Lab)."""
+    return math.sqrt(
+        (lab1[0] - lab2[0]) ** 2
+        + (lab1[1] - lab2[1]) ** 2
+        + (lab1[2] - lab2[2]) ** 2
+    )
+
+
+# ---------------------------------------------------------------------------
+# Core assertion
+# ---------------------------------------------------------------------------
+
+
+def _hex_to_rgb(hex_str: str) -> Tuple[int, int, int]:
+    """Parse '#RRGGBB' to (R, G, B)."""
+    h = hex_str.lstrip("#")
+    return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+
+def colors_conform(
+    colors: Iterable[Tuple[int, int, int]],
+    faction: str,
+    tolerance: float = DEFAULT_TOLERANCE,
+) -> ConformanceResult:
+    """Check whether all colors are within tolerance of a faction palette.
+
+    Parameters
+    ----------
+    colors : iterable of (R, G, B) tuples (0–255 each)
+    faction : faction slug (matches shared/factions/<slug>/palette.json)
+    tolerance : max CIE76 ΔE from nearest palette anchor
+
+    Returns
+    -------
+    ConformanceResult with pass/fail, worst ΔE, and any offending colors.
+    """
+    palette = load_palette(faction)
+    palette_labs = [
+        rgb_to_lab(*_hex_to_rgb(hex_val)) for hex_val in palette.colors.values()
+    ]
+
+    worst_de = 0.0
+    offending: List[Tuple[int, int, int]] = []
+    nearest_color: Optional[Tuple[int, int, int]] = None
+
+    for color in colors:
+        lab = rgb_to_lab(*color)
+        min_de = float("inf")
+        best_palette_rgb: Optional[Tuple[int, int, int]] = None
+
+        for i, p_lab in enumerate(palette_labs):
+            de = delta_e_cie76(lab, p_lab)
+            if de < min_de:
+                min_de = de
+                best_palette_rgb = _hex_to_rgb(
+                    list(palette.colors.values())[i]
+                )
+
+        if min_de > worst_de:
+            worst_de = min_de
+            nearest_color = best_palette_rgb
+
+        if min_de > tolerance:
+            offending.append(color)
+
+    return ConformanceResult(
+        passed=len(offending) == 0,
+        worst_delta_e=worst_de,
+        offending_colors=offending,
+        nearest_palette_color=nearest_color,
+    )
+
+
+# ---------------------------------------------------------------------------
+# PNG sampling wrapper
+# ---------------------------------------------------------------------------
+
+
+def colors_from_png(
+    png_path: Path, sample_count: int = 256
+) -> List[Tuple[int, int, int]]:
+    """Sample colors from a PNG file uniformly.
+
+    Uses Pillow to read the image, samples up to `sample_count` pixels
+    uniformly distributed across the image. Returns a list of (R, G, B).
+    """
+    from PIL import Image  # noqa: E402 — Pillow is optional/lazy
+
+    img = Image.open(png_path).convert("RGB")
+    pixels = list(img.getdata())
+    total = len(pixels)
+
+    if total <= sample_count:
+        return [(p[0], p[1], p[2]) for p in pixels]
+
+    step = total / sample_count
+    return [
+        (pixels[int(i * step)][0], pixels[int(i * step)][1], pixels[int(i * step)][2])
+        for i in range(sample_count)
+    ]
+
+
+def png_conforms(
+    png_path: Path,
+    faction: str,
+    tolerance: float = DEFAULT_TOLERANCE,
+    sample_count: int = 256,
+) -> ConformanceResult:
+    """Check a PNG file's sampled colors against a faction palette."""
+    sampled = colors_from_png(png_path, sample_count=sample_count)
+    return colors_conform(sampled, faction, tolerance=tolerance)

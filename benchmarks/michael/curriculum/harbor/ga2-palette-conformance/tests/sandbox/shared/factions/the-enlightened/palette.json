@@ -1,0 +1,10 @@
+{
+  "faction_id": "the-enlightened",
+  "display_name": "The Enlightened",
+  "colors": {
+    "primary": "#6A1B9A",
+    "accent": "#FFFFF0",
+    "glow": "#E6C200"
+  },
+  "notes": "Violet sacred geometry with ivory surfaces and lens-flare gold energy accents. Avian swept-wing."
+}

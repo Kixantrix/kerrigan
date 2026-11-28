@@ -1,0 +1,10 @@
+{
+  "faction_id": "verdant-collective",
+  "display_name": "Verdant Collective",
+  "colors": {
+    "primary": "#2E7D32",
+    "accent": "#FFB300",
+    "hull": "#F5F5F0"
+  },
+  "notes": "Forest green dominance with amber bioluminescence and pale organic hulls. Insectoid hive-growth."
+}

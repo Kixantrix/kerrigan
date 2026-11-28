@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/scripts/ga2/palette_conformance.py"]
+
+[task]
+name = "kixantrix/michael-ga2-palette-conformance"
+version = "1.0.0"
+description = "Implement the faction palette-conformance check (sRGB to D65 Lab, CIE76 tolerance) for game assets"
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/galactic-asshole-2"
+base_ref = "597ab306d9f6e7aca3129f1408a566b82df4783f"
+reference_ref = "d74510961963243e46e4cc926d2d3d06f09f2f43"
+history_status = "merged"
+privacy = "private-sanitized"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 25
+denominators = "{\"color\": 3, \"conformance\": 8, \"contract\": 4}"
+task_size = "{\"files_to_read\": 12, \"hidden_checks\": 15, \"hidden_clauses\": 52, \"lines_to_read\": 239, \"oracle_files_changed\": 1, \"oracle_lines_added\": 225, \"oracle_lines_removed\": 1, \"writable_files\": 1}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

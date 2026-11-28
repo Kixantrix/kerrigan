@@ -1,0 +1,10 @@
+{
+  "faction_id": "hegemony",
+  "display_name": "The Hegemony",
+  "colors": {
+    "primary": "#C0C6CC",
+    "accent": "#D4AF37",
+    "hull": "#1B2A4A"
+  },
+  "notes": "Silver/gold imperial palette with deep-blue hull plating. Reptilian cold precision."
+}

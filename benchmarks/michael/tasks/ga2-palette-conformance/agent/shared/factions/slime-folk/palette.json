@@ -1,0 +1,10 @@
+{
+  "faction_id": "slime-folk",
+  "display_name": "The Slime Folk",
+  "colors": {
+    "primary": "#76FF03",
+    "accent": "#FFEB3B",
+    "glow": "#B2FF59"
+  },
+  "notes": "Neon green bioluminescent cores with yellow membrane highlights. Amorphous blob-forms."
+}

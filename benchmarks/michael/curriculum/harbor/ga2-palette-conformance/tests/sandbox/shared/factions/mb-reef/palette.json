@@ -1,0 +1,11 @@
+{
+  "faction_id": "mb-reef",
+  "display_name": "Held-out Reef",
+  "colors": {
+    "primary": "#1E88E5",
+    "accent": "#FF7043",
+    "hull": "#37474F",
+    "glow": "#80DEEA",
+    "trim": "#F4E04D"
+  }
+}

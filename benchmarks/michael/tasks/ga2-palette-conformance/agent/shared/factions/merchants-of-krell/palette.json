@@ -1,0 +1,10 @@
+{
+  "faction_id": "merchants-of-krell",
+  "display_name": "Merchants of Krell",
+  "colors": {
+    "primary": "#F57C00",
+    "accent": "#00897B",
+    "metal": "#B08D57"
+  },
+  "notes": "Warm orange trade-livery with teal instrument panels and brass fittings. Rodent/mustelid cargo-haulers."
+}

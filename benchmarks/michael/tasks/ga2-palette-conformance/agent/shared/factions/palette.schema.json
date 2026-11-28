@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Faction Palette",
+  "description": "Machine-readable color palette for a GA2 faction.",
+  "type": "object",
+  "required": ["faction_id", "display_name", "colors"],
+  "additionalProperties": false,
+  "properties": {
+    "faction_id": {
+      "type": "string",
+      "description": "Kebab-case faction slug matching the folder name."
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Human-readable faction name."
+    },
+    "colors": {
+      "type": "object",
+      "description": "Named hex color anchors keyed by role.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^#[0-9A-Fa-f]{6}$"
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional design notes."
+    }
+  }
+}

@@ -1,0 +1,811 @@
+[
+ {
+  "original_id": "white, black and neutral gray convert to their D65 Lab values",
+  "group": "color",
+  "probe": {
+   "op": "lab",
+   "colors": [
+    [
+     255,
+     255,
+     255
+    ],
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     128,
+     128,
+     128
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     0,
+     0
+    ],
+    100.0,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     0,
+     1
+    ],
+    0.0,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     0,
+     2
+    ],
+    0.0,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     1,
+     0
+    ],
+    0.0,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     1,
+     1
+    ],
+    0.0,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     1,
+     2
+    ],
+    0.0,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     2,
+     0
+    ],
+    53.585,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     2,
+     1
+    ],
+    0.0,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     2,
+     2
+    ],
+    0.0,
+    0.05
+   ]
+  ]
+ },
+ {
+  "original_id": "saturated sRGB primaries convert to their D65 Lab values",
+  "group": "color",
+  "probe": {
+   "op": "lab",
+   "colors": [
+    [
+     255,
+     0,
+     0
+    ],
+    [
+     0,
+     255,
+     0
+    ],
+    [
+     0,
+     0,
+     255
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     0,
+     0
+    ],
+    53.2408,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     0,
+     1
+    ],
+    80.0925,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     0,
+     2
+    ],
+    67.2032,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     1,
+     0
+    ],
+    87.7347,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     1,
+     1
+    ],
+    -86.1827,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     1,
+     2
+    ],
+    83.1793,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     2,
+     0
+    ],
+    32.297,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     2,
+     1
+    ],
+    79.1875,
+    0.05
+   ],
+   [
+    "path_within",
+    [
+     2,
+     2
+    ],
+    -107.8602,
+    0.05
+   ]
+  ]
+ },
+ {
+  "original_id": "CIE76 distance is the Euclidean distance in Lab",
+  "group": "color",
+  "probe": {
+   "op": "delta_e",
+   "pairs": [
+    [
+     [
+      0,
+      0,
+      0
+     ],
+     [
+      3,
+      4,
+      0
+     ]
+    ],
+    [
+     [
+      50,
+      10,
+      -10
+     ],
+     [
+      40,
+      -20,
+      30
+     ]
+    ],
+    [
+     [
+      20,
+      5,
+      5
+     ],
+     [
+      20,
+      5,
+      5
+     ]
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     0
+    ],
+    5.0,
+    1e-06
+   ],
+   [
+    "path_within",
+    [
+     1
+    ],
+    50.990195,
+    1e-05
+   ],
+   [
+    "path_within",
+    [
+     2
+    ],
+    0.0,
+    1e-09
+   ]
+  ]
+ },
+ {
+  "original_id": "exact anchors of a shipped faction conform at zero distance",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "hegemony",
+   "colors": [
+    [
+     192,
+     198,
+     204
+    ],
+    [
+     212,
+     175,
+     55
+    ],
+    [
+     27,
+     42,
+     74
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    true
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    0.0,
+    1e-09
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "any faction's palette is loaded, and colors may be a one-shot iterable",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "mb-reef",
+   "generator": true,
+   "colors": [
+    [
+     30,
+     136,
+     229
+    ],
+    [
+     255,
+     112,
+     67
+    ],
+    [
+     55,
+     71,
+     79
+    ],
+    [
+     128,
+     222,
+     234
+    ],
+    [
+     244,
+     224,
+     77
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    true
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    0.0,
+    1e-09
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "ambient-occlusion shading of the anchors stays within tolerance",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "merchants-of-krell",
+   "colors": [
+    [
+     220,
+     111,
+     0
+    ],
+    [
+     0,
+     123,
+     110
+    ],
+    [
+     158,
+     126,
+     78
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    true
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    9.0124,
+    0.05
+   ]
+  ]
+ },
+ {
+  "original_id": "off-palette hues fail and are the only offending colors",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "hegemony",
+   "colors": [
+    [
+     255,
+     0,
+     255
+    ],
+    [
+     192,
+     198,
+     204
+    ],
+    [
+     0,
+     255,
+     255
+    ],
+    [
+     27,
+     42,
+     74
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    false
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    109.7107,
+    0.05
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    [
+     [
+      0,
+      255,
+      255
+     ],
+     [
+      255,
+      0,
+      255
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "distance is measured to the nearest anchor of a single-color palette",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "mb-ink",
+   "colors": [
+    [
+     255,
+     255,
+     255
+    ],
+    [
+     128,
+     128,
+     128
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    false
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    100.0,
+    0.05
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    [
+     [
+      128,
+      128,
+      128
+     ],
+     [
+      255,
+      255,
+      255
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "red against a pure-green palette is the CIE76 red-green distance",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "mb-signal",
+   "colors": [
+    [
+     255,
+     0,
+     0
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    false
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    170.5652,
+    0.05
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    [
+     [
+      255,
+      0,
+      0
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "the default tolerance separates near from far shades",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "hegemony",
+   "colors": [
+    [
+     161,
+     167,
+     173
+    ],
+    [
+     157,
+     163,
+     169
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    false
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    12.895,
+    0.05
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    [
+     [
+      157,
+      163,
+      169
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "no colors conform with zero worst distance",
+  "group": "conformance",
+  "probe": {
+   "op": "conform",
+   "faction": "hegemony",
+   "colors": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    true
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    0.0,
+    1e-09
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "a tighter tolerance argument rejects a shade the default allows",
+  "group": "contract",
+  "probe": {
+   "op": "conform",
+   "faction": "hegemony",
+   "tolerance": 5.0,
+   "colors": [
+    [
+     173,
+     178,
+     184
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    false
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    7.243,
+    0.05
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    [
+     [
+      173,
+      178,
+      184
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a looser tolerance argument accepts a shade the default rejects",
+  "group": "contract",
+  "probe": {
+   "op": "conform",
+   "faction": "hegemony",
+   "tolerance": 13.0,
+   "colors": [
+    [
+     157,
+     163,
+     169
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "passed"
+    ],
+    true
+   ],
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    12.895,
+    0.05
+   ],
+   [
+    "path_equal",
+    [
+     "offending"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "an unknown faction raises ValueError",
+  "group": "contract",
+  "probe": {
+   "op": "conform",
+   "faction": "no-such-faction",
+   "colors": [
+    [
+     0,
+     0,
+     0
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "$error"
+    ],
+    "ValueError"
+   ]
+  ]
+ },
+ {
+  "original_id": "DEFAULT_TOLERANCE is 12 CIE76 units",
+  "group": "contract",
+  "probe": {
+   "op": "default"
+  },
+  "clauses": [
+   [
+    "path_within",
+    [],
+    12.0,
+    1e-09
+   ]
+  ]
+ }
+]

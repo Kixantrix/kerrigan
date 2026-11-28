@@ -1,0 +1,9 @@
+{
+  "faction_id": "the-null",
+  "display_name": "The Null",
+  "colors": {
+    "primary": "#0E0E10",
+    "accent": "#C81E1E"
+  },
+  "notes": "Matte black void-plating with acid-red threat markings. Void-beetle exoskeletal."
+}

@@ -1335,3 +1335,37 @@ def test_yv_v5_accepts_equivalent_rule_and_rejects_some_topic(tmp_path):
     some = _edited_reference(YV_V5, "evals/relevance/audit.ts", YV_RULE,
                              "return item.topics.some((topic) => words.has(topic.toLowerCase()));")
     assert _failed(some, YV_V5, tmp_path) == _failed(some, "yv-relevance-instrument-v4", tmp_path) != []
+
+
+# --- Round-4 breadth: fresh packages from repos without coverage --------------------------
+
+GA2 = "ga2-palette-conformance"
+GA2_PATH = "scripts/ga2/palette_conformance.py"
+
+
+def test_ga2_accepts_an_independent_implementation(tmp_path):
+    """Different published constants, a namedtuple result, list colors and deduplicated offenders all pass."""
+    alternative = (Path(__file__).parent / "fixtures/ga2_palette_alt.py").read_bytes()
+    assert _failed(alternative, GA2, tmp_path) == []
+
+
+@pytest.mark.parametrize("before,after,rows", [
+    ("    if c <= 0.04045:\n        return c / 12.92\n", "    return c\n    if c <= 0.04045:\n        return c / 12.92\n",
+     {"white, black and neutral gray convert to their D65 Lab values"}),  # 0/255 channels are gamma-invariant
+    ("    palette = load_palette(faction)\n", "    palette = load_palette(\"hegemony\")\n",
+     {"any faction's palette is loaded, and colors may be a one-shot iterable"}),
+    ("        if min_de > tolerance:\n", "        if min_de > DEFAULT_TOLERANCE:\n",
+     {"a tighter tolerance argument rejects a shade the default allows",
+      "a looser tolerance argument accepts a shade the default rejects"}),
+    ("        if min_de > worst_de:\n", "        if True:\n", {"off-palette hues fail and are the only offending colors"}),
+])
+def test_ga2_rejects_wrong_implementations(before, after, rows, tmp_path):
+    assert rows <= set(_failed(_edited_reference(GA2, GA2_PATH, before, after), GA2, tmp_path))
+
+
+def test_ga2_is_a_fresh_round4_package_from_an_uncovered_repo():
+    info = curriculum.meta(GA2)
+    assert info["round"] == 4 and "supersedes" not in info and info["source"]["repo"] == "Kixantrix/galactic-asshole-2"
+    agent = curriculum.agent_files(GA2)
+    assert not any(p.startswith("shared/factions/mb-") for p in agent)  # held-out palettes stay hidden
+    assert agent[GA2_PATH].count(b"\n") == 1

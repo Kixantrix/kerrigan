@@ -1,0 +1,50 @@
+{
+ "id": "ga2-palette-conformance",
+ "family": "Implement",
+ "title": "Implement the faction palette-conformance check (sRGB to D65 Lab, CIE76 tolerance) for game assets",
+ "source": {
+  "repo": "Kixantrix/galactic-asshole-2",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 6,
+  "issue": 4,
+  "base_ref": "597ab306d9f6e7aca3129f1408a566b82df4783f",
+  "reference_ref": "d74510961963243e46e4cc926d2d3d06f09f2f43",
+  "history_status": "merged"
+ },
+ "derivation": "galactic-asshole-2 PR #6 (merged, closes #4, the m1-harness dispatch briefing) added scripts/ga2/palette_conformance.py. Agent files are exact base-commit bytes of scripts/ga2/{__init__,palette}.py and shared/factions/**/palette.json plus palette.schema.json; the module is a one-line docstring stub (a new file in the PR) so the base can be graded. TASK.md restates the briefing's AC-m1h-1..3 and the architecture tradeoff excerpt, with the oracle's literals stated (DEFAULT_TOLERANCE 12.0, conform when distance <= tolerance, worst distance 0 with no colors, unknown faction raises the loader's ValueError, public rgb_to_lab/delta_e_cie76 as imported by the PR's tests). AC-m1h-4 (PNG sampling via Pillow) is out of scope because the grader image has no image library; the oracle's lazy Pillow wrapper is kept but not probed. The reference is the merged module byte-for-byte. Hidden checks call the module on held-out colors and three held-out faction palettes (sandbox fixtures, not in the agent tree): Lab values of neutral and saturated colors, Euclidean CIE76 on arbitrary Lab pairs, conformance outcomes (exact anchors, AO shading, off-palette hues, single-anchor palettes, default and explicit tolerance boundaries with >=0.4 margin, empty input, one-shot iterables), offending colors as a set, and the unknown-faction error. Expected values are the oracle's, checked at 0.05.",
+ "privacy": "private-sanitized",
+ "coverage": "15 rows: color science (3), conformance outcomes on shipped and held-out palettes (8), API contract (4).",
+ "historical_exposure": "Private repository; the color formulas are textbook, so recognition of the method (not the repo) is expected.",
+ "outcome_evidence": "held_out_tests",
+ "estimated_agent_minutes": 25,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Docstring rationale wording and any tests the agent writes are not graded."
+ ],
+ "leak_tokens": [
+  "Lindbloom",
+  "_hex_to_rgb"
+ ],
+ "required_environment": "cloud-linux: python3.12 stdlib (michael-replay-grader:mb006j). The source repo also pins Pillow for PNG sampling, which is out of scope here.",
+ "grader": {
+  "harness": "ga2_palette_conformance.py",
+  "candidate": "scripts/ga2/palette_conformance.py",
+  "agent_support": [
+   "scripts/ga2/__init__.py",
+   "scripts/ga2/palette.py",
+   "shared/factions/hegemony/palette.json",
+   "shared/factions/merchants-of-krell/palette.json",
+   "shared/factions/slime-folk/palette.json",
+   "shared/factions/the-enlightened/palette.json",
+   "shared/factions/the-null/palette.json",
+   "shared/factions/verdant-collective/palette.json"
+  ],
+  "denominators": {
+   "color": 3,
+   "conformance": 8,
+   "contract": 4
+  }
+ },
+ "round": 4
+}

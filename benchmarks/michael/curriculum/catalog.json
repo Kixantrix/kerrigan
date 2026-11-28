@@ -1895,6 +1895,48 @@
    "retired_packages": [
     "orchestrate-dashboard-stages"
    ]
+  },
+  {
+   "id": "ga2-palette-conformance",
+   "family": "Implement",
+   "title": "Implement the faction palette-conformance check (sRGB to D65 Lab, CIE76 tolerance) for game assets",
+   "repo": "Kixantrix/galactic-asshole-2",
+   "visibility": "private",
+   "source": {
+    "kind": "pr",
+    "pr": 6,
+    "issue": 4
+   },
+   "base_ref": "597ab306d9f6e7aca3129f1408a566b82df4783f",
+   "reference_ref": "d74510961963243e46e4cc926d2d3d06f09f2f43",
+   "stack": [
+    "python"
+   ],
+   "toolchain": "python3.12 stdlib",
+   "grader_container_ok": true,
+   "required_environment": "cloud-linux (python3 stdlib; PNG sampling via Pillow out of scope)",
+   "outcome_evidence": "held_out_tests",
+   "evidence_detail": "15 rows on held-out colors and three held-out faction palettes: Lab conversion, CIE76, conformance outcomes, tolerance boundaries, API contract. Base 0/15, reference 15/15; an independent implementation with alternate constants passes.",
+   "privacy": "private-sanitized",
+   "privacy_note": "Exact private bytes of the palette loader and faction palettes; no secrets, hosts or personal data.",
+   "estimated_agent_minutes": 25,
+   "long_horizon": false,
+   "summary": "Implement ga2.palette_conformance: sRGB->Lab (D65), CIE76 distance to the nearest faction anchor, configurable tolerance, offending colors; graded on held-out palettes and colors.",
+   "history_status": "merged",
+   "package": "ga2-palette-conformance",
+   "provenance_kind": "merged-pr",
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 1,
+    "oracle_lines_added": 225,
+    "oracle_lines_removed": 1,
+    "writable_files": 1,
+    "files_to_read": 12,
+    "lines_to_read": 239,
+    "hidden_checks": 15,
+    "hidden_clauses": 52
+   }
   }
  ],
  "anchor_packages": {
