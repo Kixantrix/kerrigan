@@ -449,8 +449,12 @@ try {
             execute: async (id, args) => {
                 const result = await rpc("session.tools.execute", {
                     sessionId, name: "mb_action", toolCallId: id, arguments: args });
-                if (result.resultType !== "success") throw new Error("local_native_tool_failed");
-                return result;
+                if (result.resultType === "success") return result;
+                // Stock-CLI parity: a rejected call (e.g. schema validation) returns its error to the
+                // model, bounded; a broker cutoff has already set stopping and still ends the attempt.
+                if (stopping || result.resultType !== "failure" || typeof result.error !== "string")
+                    throw new Error("local_native_tool_failed");
+                return { resultType: "failure", error: result.error.slice(0, 1024) };
             }
         });
         localRelease = await local.release();
