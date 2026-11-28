@@ -1,0 +1,596 @@
+[
+ {
+  "original_id": "Surface A ACs from the spec, including the Plan-screen AC the plan table omits, each once",
+  "group": "acs",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "acs"
+    ],
+    [
+     "FF1",
+     "FF2",
+     "FF3",
+     "FF4",
+     "FF5",
+     "FF6",
+     "FF7",
+     "FF8",
+     "FF9",
+     "FF9A"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "ac_dups"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "every Surface B AC deferred, each once",
+  "group": "acs",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "deferred"
+    ],
+    [
+     "FF10",
+     "FF11",
+     "FF12",
+     "FF13",
+     "FF14",
+     "FF15",
+     "FF16",
+     "FF17",
+     "FF18",
+     "FF19",
+     "FF20",
+     "FF21",
+     "FF22",
+     "FF23"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "deferred_dups"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "Surface B is approved and sequenced, not awaiting D1",
+  "group": "acs",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "reason"
+    ],
+    "sequenced-after-this-task"
+   ]
+  ]
+ },
+ {
+  "original_id": "only the D2 authenticity mechanic is still the owner's",
+  "group": "acs",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "open"
+    ],
+    [
+     "D2"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "every level is from the ladder and no AC is pushed to smoke, e2e or scenario",
+  "group": "ladder",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "levels_outside"
+    ],
+    []
+   ],
+   [
+    "path_contains_none",
+    [
+     "levels_used"
+    ],
+    [
+     "smoke",
+     "e2e",
+     "scenario",
+     "None"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "every AC runs on the cloud linux runner that CI provides",
+  "group": "ladder",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "envs_used"
+    ],
+    [
+     "cloud-linux"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "calendar builder and transition-table ACs are unit",
+  "group": "ladder",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "level",
+     "FF5"
+    ],
+    "unit"
+   ],
+   [
+    "path_equal",
+    [
+     "level",
+     "FF7"
+    ],
+    "unit"
+   ]
+  ]
+ },
+ {
+  "original_id": "route-driven commitment and feed ACs are integration",
+  "group": "ladder",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "level",
+     "FF1"
+    ],
+    "integration"
+   ],
+   [
+    "path_equal",
+    [
+     "level",
+     "FF4"
+    ],
+    "integration"
+   ]
+  ]
+ },
+ {
+  "original_id": "archive round-trip and account deletion ACs are integration",
+  "group": "ladder",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "level",
+     "FF8"
+    ],
+    "integration"
+   ],
+   [
+    "path_equal",
+    [
+     "level",
+     "FF9"
+    ],
+    "integration"
+   ]
+  ]
+ },
+ {
+  "original_id": "existing test files the plan names are used at their tree paths",
+  "group": "tests",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF1"
+    ],
+    [
+     "apps/api/test/commitments-routes.test.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF2"
+    ],
+    [
+     "apps/mobile/__tests__/act-screen.test.tsx"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF4"
+    ],
+    [
+     "apps/api/test/opportunity-route-boundary.test.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF5"
+    ],
+    [
+     "apps/api/test/reminders-calendar.test.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF6"
+    ],
+    [
+     "apps/api/test/reminder-sweep.test.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF8"
+    ],
+    [
+     "apps/api/test/import-round-trip.test.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF9"
+    ],
+    [
+     "apps/api/test/deletion-scopes.test.ts"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "new test files the plan names sit beside the API tests",
+  "group": "tests",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF3"
+    ],
+    [
+     "apps/api/test/free-form-has-no-source.test.ts"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "tests",
+     "FF7"
+    ],
+    [
+     "apps/api/test/commitment-origin-parity.test.ts"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "Plan-screen AC is tested by a mobile render test",
+  "group": "tests",
+  "probe": {
+   "op": "tests_under",
+   "id": "FF9A",
+   "prefix": "apps/mobile/__tests__/",
+   "suffix": ".test.tsx"
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "all"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "every AC names a test and every test file is inside touch",
+  "group": "tests",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "acs_without_tests"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "untouched_tests"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "touch covers the domain type, store, route, schema and generated migration",
+  "group": "scope",
+  "probe": {
+   "op": "match",
+   "paths": [
+    "apps/api/src/actions/state.ts",
+    "apps/api/src/actions/store.ts",
+    "apps/api/src/actions/routes.ts",
+    "apps/api/src/db/schema.ts",
+    "apps/api/drizzle/0017_quick_roulette.sql"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "matched"
+    ],
+    [
+     "apps/api/drizzle/0017_quick_roulette.sql",
+     "apps/api/src/actions/routes.ts",
+     "apps/api/src/actions/state.ts",
+     "apps/api/src/actions/store.ts",
+     "apps/api/src/db/schema.ts"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "touch covers the calendar, export and import readers",
+  "group": "scope",
+  "probe": {
+   "op": "match",
+   "paths": [
+    "apps/api/src/reminders/calendar.ts",
+    "apps/api/src/export/service.ts",
+    "apps/api/src/export/render.ts",
+    "apps/api/src/import/service.ts"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "matched"
+    ],
+    [
+     "apps/api/src/export/render.ts",
+     "apps/api/src/export/service.ts",
+     "apps/api/src/import/service.ts",
+     "apps/api/src/reminders/calendar.ts"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "touch covers the Act and Plan screens",
+  "group": "scope",
+  "probe": {
+   "op": "match",
+   "paths": [
+    "apps/mobile/app/(tabs)/act.tsx",
+    "apps/mobile/app/(tabs)/today.tsx"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "matched"
+    ],
+    [
+     "apps/mobile/app/(tabs)/act.tsx",
+     "apps/mobile/app/(tabs)/today.tsx"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "touch leaves the interviewer prompt, the authenticity category type and the resolver alone",
+  "group": "scope",
+  "probe": {
+   "op": "match",
+   "paths": [
+    "apps/api/src/conversation/prompt.ts",
+    "packages/types/src/authenticity.ts",
+    "apps/mobile/src/authenticity/resolve.ts"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "matched"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "touch leaves the ladder, Surface B proposal code, opportunity routes and sources and acceptance log alone",
+  "group": "scope",
+  "probe": {
+   "op": "match",
+   "paths": [
+    "apps/api/src/actions/ladder.ts",
+    "apps/api/src/actions/message.ts",
+    "apps/api/src/actions/reflection.ts",
+    "apps/mobile/src/components/OpportunityCard/ActionLadderPanel.tsx",
+    "apps/api/src/profile/proposals.ts",
+    "apps/mobile/src/proposals/ProposalsList.tsx",
+    "apps/api/src/opportunities/routes.ts",
+    "apps/api/src/opportunities/sources/congress-gov.ts",
+    "specs/projects/your-voice/acceptance-tests.md"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "matched"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "out-of-scope items are exactly the stated exclusions",
+  "group": "scope",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "scope_out"
+    ],
+    [
+     "acceptance-tests-entry",
+     "column-rename-or-drop",
+     "conversation-prompt-change",
+     "deliverable-generation",
+     "eighth-authenticity-category",
+     "origin-branch-in-transition",
+     "plan-pointer-only-when-feed-empty",
+     "separate-creation-route",
+     "staged-guard-on-custom-actions",
+     "surface-b-proposals"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "every scope item classified exactly once",
+  "group": "scope",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "scope_all"
+    ],
+    [
+     "acceptance-tests-entry",
+     "column-rename-or-drop",
+     "conversation-prompt-change",
+     "csv-origin-column",
+     "deliverable-generation",
+     "eighth-authenticity-category",
+     "ics-own-plan-line",
+     "legacy-title-alias",
+     "no-reminder-statement",
+     "nullable-opportunity-columns",
+     "origin-branch-in-transition",
+     "plan-pointer-only-when-feed-empty",
+     "plan-screen-pointer",
+     "separate-creation-route",
+     "staged-guard-on-custom-actions",
+     "surface-b-proposals",
+     "unsourced-statement"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "scope_overlap"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "scope_dups"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "no local rule fires, so the cloud default is cited",
+  "group": "routing",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "routing"
+    ],
+    "R-cloud-default"
+   ]
+  ]
+ }
+]

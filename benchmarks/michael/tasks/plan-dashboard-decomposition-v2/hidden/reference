@@ -1,0 +1,763 @@
+{
+ "tasks": [
+  {
+   "id": "M2.1",
+   "milestone": "M2",
+   "title": "Tauri 2 + Vite + React + TS + Tailwind project scaffold",
+   "covers": [
+    "M2-D1"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/**"
+   ],
+   "depends_on": [
+    "M1.1"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M2.2",
+   "milestone": "M2",
+   "title": "lib/projects.ts reader + schema validator",
+   "covers": [
+    "M2-D3"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/projects.ts",
+    "apps/kerrigan-dashboard/src/lib/projects.test.ts"
+   ],
+   "depends_on": [
+    "M2.1"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 3,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M2.3",
+   "milestone": "M2",
+   "title": "lib/github.ts Octokit wrapper with gh auth token + ETag polling",
+   "covers": [
+    "M2-D4"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/github.ts",
+    "apps/kerrigan-dashboard/src/lib/github.test.ts"
+   ],
+   "depends_on": [
+    "M2.1"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M2.4",
+   "milestone": "M2",
+   "title": "Portfolio view + project card component",
+   "covers": [
+    "M2-D2",
+    "M2-D5"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/routes/portfolio/**",
+    "apps/kerrigan-dashboard/src/components/ProjectCard/**"
+   ],
+   "depends_on": [
+    "M2.2",
+    "M2.3"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    },
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M2.5",
+   "milestone": "M2",
+   "title": "CI dashboard-build.yml workflow + extend smoke scripts",
+   "covers": [
+    "M2-D6",
+    "M2-D7"
+   ],
+   "touch": [
+    ".github/workflows/dashboard-build.yml",
+    "scripts/smoke.ps1",
+    "scripts/smoke.sh"
+   ],
+   "depends_on": [
+    "M2.1"
+   ],
+   "routing_rule": "R-cloud.heavy-compute",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "smoke",
+     "environment": "cloud-linux"
+    },
+    {
+     "level": "smoke",
+     "environment": "cloud-windows"
+    },
+    {
+     "level": "smoke",
+     "environment": "cloud-macos"
+    }
+   ]
+  },
+  {
+   "id": "M3.1",
+   "milestone": "M3",
+   "title": "Plan markdown parser (lib/plan-parser.ts)",
+   "covers": [
+    "M3-D1"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/plan-parser.ts",
+    "apps/kerrigan-dashboard/src/lib/plan-parser.test.ts"
+   ],
+   "depends_on": [
+    "M2.1"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M3.2",
+   "milestone": "M3",
+   "title": "Status taxonomy + derivation",
+   "covers": [
+    "M3-D3"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/status.ts",
+    "apps/kerrigan-dashboard/src/lib/status.test.ts"
+   ],
+   "depends_on": [
+    "M3.1",
+    "M2.3"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 3,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M3.3",
+   "milestone": "M3",
+   "title": "React Flow DAG canvas + auto-layout",
+   "covers": [
+    "M3-D2",
+    "M3-D4"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/routes/project/**",
+    "apps/kerrigan-dashboard/src/components/Dag/**"
+   ],
+   "depends_on": [
+    "M3.1",
+    "M3.2"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 6,
+   "tests": [
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M3.4",
+   "milestone": "M3",
+   "title": "Plan editor pane (read-only Tiptap)",
+   "covers": [
+    "M3-D5"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/components/PlanEditor/**"
+   ],
+   "depends_on": [
+    "M3.3"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    },
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M4.1",
+   "milestone": "M4",
+   "title": "lib/acp-client.ts ACP wrapper around copilot --acp",
+   "covers": [
+    "M4-D1"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/acp-client.ts",
+    "apps/kerrigan-dashboard/src/lib/acp-client.test.ts"
+   ],
+   "depends_on": [
+    "M2.1"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M4.2",
+   "milestone": "M4",
+   "title": "ACP event renderers + chat pane UI",
+   "covers": [
+    "M4-D2",
+    "M4-D3",
+    "M4-D4"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/components/Chat/**"
+   ],
+   "depends_on": [
+    "M4.1"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    },
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M5.1",
+   "milestone": "M5",
+   "title": "tools/kerrigan-mcp scaffold + kerrigan.dispatch tool",
+   "covers": [
+    "M5-D1"
+   ],
+   "touch": [
+    "tools/kerrigan-mcp/**"
+   ],
+   "depends_on": [
+    "M4.2"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "integration",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M5.2",
+   "milestone": "M5",
+   "title": "kerrigan.plan-update MCP tool",
+   "covers": [
+    "M5-D2"
+   ],
+   "touch": [
+    "tools/kerrigan-mcp/src/tools/plan-update.ts",
+    "tools/kerrigan-mcp/test/plan-update.test.ts"
+   ],
+   "depends_on": [
+    "M5.1"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "integration",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M5.3",
+   "milestone": "M5",
+   "title": "kerrigan.block-resolve + kerrigan.conflict-predict MCP tools",
+   "covers": [
+    "M5-D3",
+    "M5-D4"
+   ],
+   "touch": [
+    "tools/kerrigan-mcp/src/tools/block-resolve.ts",
+    "tools/kerrigan-mcp/src/tools/conflict-predict.ts",
+    "tools/kerrigan-mcp/test/block-resolve.test.ts",
+    "tools/kerrigan-mcp/test/conflict-predict.test.ts"
+   ],
+   "depends_on": [
+    "M5.1"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "integration",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M5.4",
+   "milestone": "M5",
+   "title": "Sidecar wiring + reactive pane refresh",
+   "covers": [
+    "M5-D5",
+    "M5-D6"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/mcp-sidecar.ts",
+    "apps/kerrigan-dashboard/src/components/Chat/**",
+    "apps/kerrigan-dashboard/src/components/Dag/**"
+   ],
+   "depends_on": [
+    "M5.1",
+    "M5.2",
+    "M5.3",
+    "M4.2"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 6,
+   "tests": [
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M6.1",
+   "milestone": "M6",
+   "title": "Tiptap writable + markdown round-trip",
+   "covers": [
+    "M6-D1",
+    "M6-D2"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/components/PlanEditor/**"
+   ],
+   "depends_on": [
+    "M3.4"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M6.2",
+   "milestone": "M6",
+   "title": "Branch-per-edit-session + draft PR open",
+   "covers": [
+    "M6-D3"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/plan-save.ts"
+   ],
+   "depends_on": [
+    "M6.1",
+    "M2.3"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "integration",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M6.3",
+   "milestone": "M6",
+   "title": "Conflict detection + offline edit queue",
+   "covers": [
+    "M6-D4",
+    "M6-D5"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/plan-conflict.ts",
+    "apps/kerrigan-dashboard/src/lib/plan-queue.ts"
+   ],
+   "depends_on": [
+    "M6.2"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    },
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M7.1",
+   "milestone": "M7",
+   "title": "Canvas particle system overlay",
+   "covers": [
+    "M7-D1",
+    "M7-D4",
+    "M7-D5"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/components/PrFlowOverlay/**"
+   ],
+   "depends_on": [
+    "M3.3"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    },
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M7.2",
+   "milestone": "M7",
+   "title": "PR to stage particle binding + lifecycle states",
+   "covers": [
+    "M7-D2",
+    "M7-D3"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/components/PrFlowOverlay/binding.ts"
+   ],
+   "depends_on": [
+    "M7.1",
+    "M3.2"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M8.1",
+   "milestone": "M8",
+   "title": "Cross-project inbox aggregator",
+   "covers": [
+    "M8-D1"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/lib/inbox.ts",
+    "apps/kerrigan-dashboard/src/lib/inbox.test.ts"
+   ],
+   "depends_on": [
+    "M2.3"
+   ],
+   "routing_rule": "R-cloud-default",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "unit",
+     "environment": "cloud-linux"
+    }
+   ]
+  },
+  {
+   "id": "M8.2",
+   "milestone": "M8",
+   "title": "Inbox view + per-item actions",
+   "covers": [
+    "M8-D2",
+    "M8-D3"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/routes/inbox/**"
+   ],
+   "depends_on": [
+    "M8.1",
+    "M5.1"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 5,
+   "tests": [
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    },
+    {
+     "level": "scenario",
+     "environment": "manual-human"
+    }
+   ]
+  },
+  {
+   "id": "M8.3",
+   "milestone": "M8",
+   "title": "Mobile-capture triage side panel (draft via kerrigan.plan-update)",
+   "covers": [
+    "M8-D4"
+   ],
+   "touch": [
+    "apps/kerrigan-dashboard/src/components/CaptureTriage/**"
+   ],
+   "depends_on": [
+    "M8.2",
+    "M5.2"
+   ],
+   "routing_rule": "R-cloud.e2e-headless",
+   "estimate_hours": 4,
+   "tests": [
+    {
+     "level": "e2e",
+     "environment": "cloud-linux"
+    }
+   ]
+  }
+ ],
+ "waves": [
+  [
+   "M2.1"
+  ],
+  [
+   "M2.2",
+   "M2.3",
+   "M2.5",
+   "M3.1",
+   "M4.1"
+  ],
+  [
+   "M2.4",
+   "M3.2",
+   "M4.2",
+   "M8.1"
+  ],
+  [
+   "M3.3",
+   "M5.1"
+  ],
+  [
+   "M3.4",
+   "M5.2",
+   "M5.3",
+   "M7.1",
+   "M8.2"
+  ],
+  [
+   "M5.4",
+   "M6.1",
+   "M7.2",
+   "M8.3"
+  ],
+  [
+   "M6.2"
+  ],
+  [
+   "M6.3"
+  ]
+ ],
+ "acceptance": [
+  {
+   "ac": "AC-001",
+   "task": "M2.4",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-002",
+   "task": "M2.4",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-014",
+   "task": "M2.4",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-017",
+   "task": "M2.3",
+   "level": "unit",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-017",
+   "task": "M2.4",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-003",
+   "task": "M3.3",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-004",
+   "task": "M3.3",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-004",
+   "task": "M3.1",
+   "level": "unit",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-005",
+   "task": "M3.2",
+   "level": "unit",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-005",
+   "task": "M3.3",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-016",
+   "task": "M3.2",
+   "level": "unit",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-010",
+   "task": "M4.1",
+   "level": "unit",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-010",
+   "task": "M4.2",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-011",
+   "task": "M5.4",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-008",
+   "task": "M6.1",
+   "level": "unit",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-009",
+   "task": "M6.2",
+   "level": "integration",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-015",
+   "task": "M6.3",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-006",
+   "task": "M7.2",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-007",
+   "task": "M7.2",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-020",
+   "task": "M7.1",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-012",
+   "task": "M8.1",
+   "level": "unit",
+   "environment": "cloud-linux"
+  },
+  {
+   "ac": "AC-013",
+   "task": "M8.2",
+   "level": "e2e",
+   "environment": "cloud-linux"
+  }
+ ],
+ "mcp_tools": [
+  "kerrigan.dispatch",
+  "kerrigan.plan-update",
+  "kerrigan.block-resolve",
+  "kerrigan.conflict-predict"
+ ]
+}
