@@ -3,7 +3,8 @@ import { performance } from "node:perf_hooks";
 
 export const LOCAL_LIMITS = Object.freeze({
     inputTokens: 229376, contextTokens: 262144, outputTokens: 16384,
-    inputBytes: 65536, responseBytes: 8388608, requests: 128, cleanupSeconds: 15
+    inputBytes: 65536, responseBytes: 8388608, requests: 128, cleanupSeconds: 15,
+    toolCallsPerResponse: 8
 });
 
 export function validateLocalCondition(condition) {
@@ -145,23 +146,26 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         if (finishReason === "length") return { calls, status: "output-cap", limitsVerified };
         const message = response.choices[0].message;
         const toolCalls = message.tool_calls || [];
-        if (!Array.isArray(toolCalls) || toolCalls.length > 1)
+        if (!Array.isArray(toolCalls) || toolCalls.length > LOCAL_LIMITS.toolCallsPerResponse)
             throw new Error("local_parallel_tools_denied");
         messages.push({ role: "assistant", content: message.content ?? null,
             ...(toolCalls.length ? { tool_calls: toolCalls } : {}),
             ...(typeof message.reasoning_content === "string" ? { reasoning_content: message.reasoning_content } : {}) });
         if (!toolCalls.length) return { calls, status: "completed", limitsVerified };
-        const call = toolCalls[0];
-        if (call.type !== "function" || call.function?.name !== "mb_action" ||
-            typeof call.id !== "string" || typeof call.function.arguments !== "string")
-            throw new Error("local_tool_contract_denied");
-        let args;
-        try { args = JSON.parse(call.function.arguments); }
-        catch (error) {
-            if (error instanceof SyntaxError) throw new Error("local_tool_arguments_json_invalid");
-            throw error;
+        const parsed = toolCalls.map(call => {
+            if (call?.type !== "function" || call.function?.name !== "mb_action" ||
+                typeof call.id !== "string" || typeof call.function.arguments !== "string")
+                throw new Error("local_tool_contract_denied");
+            try { return [call.id, JSON.parse(call.function.arguments)]; }
+            catch (error) {
+                if (error instanceof SyntaxError) throw new Error("local_tool_arguments_json_invalid");
+                throw error;
+            }
+        });
+        // Stock-CLI parity: several calls in one response run one at a time, in order, each charged.
+        for (const [id, args] of parsed) {
+            const result = await execute(id, args);
+            messages.push({ role: "tool", tool_call_id: id, content: JSON.stringify(result) });
         }
-        const result = await execute(call.id, args);
-        messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
     }
 }

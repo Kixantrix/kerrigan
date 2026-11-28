@@ -156,6 +156,36 @@ await assert.rejects(()=>make().boundary(),/local_metadata_overflow/);
                    check=True, timeout=10)
 
 
+def test_multiple_tool_calls_in_one_response_run_sequentially_and_stay_bounded():
+    script = """
+import assert from 'node:assert/strict';
+import {localLoop,LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+const call=i=>({id:'c'+i,type:'function',function:{name:'mb_action',arguments:JSON.stringify({op:'read',path:'f'+i})}});
+const run=async count=>{
+ let turn=0;const executed=[];const bodies=[];
+ const result=await localLoop({condition,prompt:'p',tools:[],signal:new AbortController().signal,
+  boundary:async()=>{},record:()=>{},clock:()=>1000,
+  execute:async(id,args)=>{executed.push([id,args.path]);return {ok:true}},
+  fetcher:async(url,options)=>{const body=JSON.parse(options.body);bodies.push(body);turn++;
+   const message=turn===1?{role:'assistant',content:null,tool_calls:Array.from({length:count},(_,i)=>call(i))}:
+    {role:'assistant',content:'done'};
+   return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
+    usage:{prompt_tokens:10,completion_tokens:1,total_tokens:11},choices:[{message,finish_reason:'stop'}]}));}});
+ return {result,executed,bodies};
+};
+const two=await run(2);
+assert.equal(two.result.status,'completed');
+assert.deepEqual(two.executed,[['c0','f0'],['c1','f1']]);
+assert.deepEqual(two.bodies[1].messages.slice(-2).map(m=>[m.role,m.tool_call_id]),[['tool','c0'],['tool','c1']]);
+await assert.rejects(()=>run(LOCAL_LIMITS.toolCallsPerResponse+1),/local_parallel_tools_denied/);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=10)
+
+
 def test_local_own_response_native_timings_ignore_derived_defaults_and_preserve_caps():
     script = """
 import assert from 'node:assert/strict';
