@@ -6,7 +6,7 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 
 - **Model ID:** `claude-sonnet-5.5`
 - **Deployment:** cloud
-- **Conditions/epochs:** MB-009r, MB-010r, MB-R3/discovery-parity-v4, MB-R3/expanded-v5, MB-R3/foal-v6, MB-R3/gapfill-v8, MB-R3/original-tooltip-v1, MB-R3/policy-tooltip-v2, MB-R3/successors-v7c
+- **Conditions/epochs:** MB-009r, MB-010r, MB-R3/anchors-v13, MB-R3/discovery-parity-v4, MB-R3/expanded-v5, MB-R3/foal-v6, MB-R3/gapfill-v8, MB-R3/original-tooltip-v1, MB-R3/policy-tooltip-v2, MB-R3/successors-v7c
 - **Overall:** 48/52 (82%–97%) across 22 tasks; pass@1 92%
 - **pass^3:** 13/15 tasks with ≥3 runs
 - **Pass-any:** 22/22 tasks
@@ -34,6 +34,19 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 | Research × small | 4 | 4/4 (51%–100%) | 29s | 129,092 / 2,584 |
 | Review and repair × medium | 9 | 9/9 (70%–100%) | 41s | 190,470 / 3,732 |
 | Understand and plan × small | 1 | 1/1 (21%–100%) | 22s | 83,588 / 2,218 |
+
+## Public anchors
+
+- **Raw (upstream-comparable):** 9/9 (70%–100%)
+- **Adjusted:** 9/9 (70%–100%)
+
+| Anchor | Runs | Raw pass |
+|---|---:|---:|
+| anchor-swepro-openlibrary | 3 | 3/3 |
+| anchor-tb-fix-git | 3 | 3/3 |
+| anchor-tb-nginx-request-logging | 3 | 3/3 |
+
+Public anchors are scored only here, never in work-type routing. Raw is upstream-comparable; adjusted excludes failures confined to disclosed flagged behaviours (`anchor-overspecified`). Graded on the shared Colima VM (effective 2 GiB / 2 CPU cap). nginx base calibrates 2/8 natively vs 1/8 retained (admission holds). ansible and qutebrowser are admitted as `public-anchor-as-is`. element-web and tutanota: host-resource-unavailable (blocked pending user decision).
 
 ## Failure patterns
 

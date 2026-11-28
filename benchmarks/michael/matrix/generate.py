@@ -29,7 +29,8 @@ FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "san
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
                  "harness-error", "invented-path-read", "spec-misread", "budget-noncompletion",
                  "stale-derived-document", "wrong-domain-rule", "premature-stop-without-edit",
-                 "ignored-existing-state", "anchor-overspecified")
+                 "ignored-existing-state", "anchor-overspecified",
+                 "incomplete-change")
 
 
 ANCHOR_FAMILY = "Public anchor"
@@ -80,6 +81,9 @@ def failure_modes(attribution):
     if any(word in lower for word in ("only read task.md", "without editing", "unchanged original", "remained unchanged",
                                        "no write", "original empty stub")):
         modes.append("premature-stop-without-edit")
+    if any(word in lower for word in ("did not write", "never decoded", "was a guess", "did not apply")) and \
+            "premature-stop-without-edit" not in modes:
+        modes.append("incomplete-change")
     if any(word in lower for word in ("already delivered", "already present", "already contains")):
         modes.append("ignored-existing-state")
     return modes or ["model-failure-unclassified"]

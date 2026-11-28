@@ -26,6 +26,20 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-010r:mai-code-2 | cloud | Research × small | 1 | 1/1 (20.7%–100.0%) | 60.09 | 114,985 / 1,881 | unknown; unknown; unknown | none observed |
 | MB-010r:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 89,359 / 9,103 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
 | MB-010r:mai-code-2 | cloud | Understand and plan × small | 1 | 1/1 (20.7%–100.0%) | 49.66 | 86,926 / 1,641 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:claude-opus-5.5 | cloud | Public anchor × large | 3 | 3/3 (43.9%–100.0%) | 56.50 | 374,423 / 9,512 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:claude-opus-5.5 | cloud | Public anchor × medium | 6 | 6/6 (61.0%–100.0%) | 51.14 | 847,069 / 21,088 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:claude-sonnet-5.5 | cloud | Public anchor × large | 3 | 3/3 (43.9%–100.0%) | 35.67 | 238,984 / 4,842 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:claude-sonnet-5.5 | cloud | Public anchor × medium | 6 | 6/6 (61.0%–100.0%) | 31.07 | 644,663 / 11,618 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:gemini-4-neon | cloud | Public anchor × large | 3 | 3/3 (43.9%–100.0%) | 117.86 | 157,781 / 28,952 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:gemini-4-neon | cloud | Public anchor × medium | 6 | 6/6 (61.0%–100.0%) | 169.94 | 1,465,146 / 79,591 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:gpt-5.6-sol | cloud | Public anchor × large | 3 | 3/3 (43.9%–100.0%) | 65.79 | 796,089 / 7,246 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:gpt-5.6-sol | cloud | Public anchor × medium | 6 | 5/6 (43.6%–97.0%) | 77.23 | 1,462,265 / 22,754 | unknown; unknown; unknown | incomplete-change ×1 |
+| MB-R3/anchors-v13:gpt-6.2-astra | cloud | Public anchor × large | 3 | 3/3 (43.9%–100.0%) | 78.19 | 619,818 / 5,967 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:gpt-6.2-astra | cloud | Public anchor × medium | 6 | 6/6 (61.0%–100.0%) | 74.97 | 1,387,149 / 14,491 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:gpt-6.2-sol | cloud | Public anchor × large | 3 | 3/3 (43.9%–100.0%) | 80.47 | 896,074 / 8,222 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:gpt-6.2-sol | cloud | Public anchor × medium | 6 | 6/6 (61.0%–100.0%) | 110.01 | 3,833,117 / 31,881 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:mai-code-2 | cloud | Public anchor × large | 3 | 3/3 (43.9%–100.0%) | 74.30 | 442,850 / 6,192 | unknown; unknown; unknown | none observed |
+| MB-R3/anchors-v13:mai-code-2 | cloud | Public anchor × medium | 6 | 6/6 (61.0%–100.0%) | 127.20 | 2,072,956 / 37,152 | unknown; unknown; unknown | none observed |
 | MB-R3/discovery-parity-v4:claude-sonnet-5.5 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 21.98 | 78,499 / 2,467 | unknown; unknown; unknown | none observed |
 | MB-R3/discovery-parity-v4:claude-sonnet-5.5 | cloud | Orchestrate × medium | 1 | 1/1 (20.7%–100.0%) | 44.32 | 134,916 / 5,340 | unknown; unknown; unknown | none observed |
 | MB-R3/discovery-parity-v4:claude-sonnet-5.5 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 40.91 | 104,441 / 5,458 | unknown; unknown; unknown | none observed |
@@ -54,6 +68,7 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Implement × small | 1 | 1/1 (20.7%–100.0%) | 204.31 | 295,944 / 17,645 | unknown; unknown; unknown | none observed |
 | MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Orchestrate × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 232,581 / 16,903 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
 | MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | local laptop | Research × medium | 1 | 1/1 (20.7%–100.0%) | 81.19 | 102,176 / 5,573 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v13b:mtplx-inkling-2-mini-optimized-quality | local laptop | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 23,757 / 16,829 | unknown; unknown; unknown | budget-noncompletion ×1 |
 | MB-R3/local-laptop/v9b:mtplx-inkling-2-mini-optimized-quality | local laptop | Experiment × small | 1 | 1/1 (20.7%–100.0%) | 91.59 | 104,895 / 7,370 | unknown; unknown; unknown | none observed |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Design × medium | 1 | 1/1 (20.7%–100.0%) | unknown (1 host-sleep timing excluded) | 348,494 / 15,256 | unknown; unknown; unknown | none observed |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Implement × small | 2 | 1/2 (9.5%–90.5%) | 154.44 | 140,221 / 11,574 | unknown; unknown; unknown | premature-stop-without-edit ×1 |
@@ -174,6 +189,8 @@ Provisional tier (weaker, not established): n≥6 across ≥2 tasks, point succe
 | Operate × small | insufficient evidence | insufficient evidence |
 | Orchestrate × large | insufficient evidence | insufficient evidence |
 | Orchestrate × medium | insufficient evidence | insufficient evidence |
+| Public anchor × large | not routed (public anchor) | not routed (public anchor) |
+| Public anchor × medium | not routed (public anchor) | not routed (public anchor) |
 | Research × medium | insufficient evidence | insufficient evidence |
 | Research × small | insufficient evidence | insufficient evidence |
 | Review and repair × medium | insufficient evidence | insufficient evidence |
@@ -198,6 +215,7 @@ Retained but excluded from success denominators and routing. Budget-censored non
 | MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | review-conflict-predictor-v4 | unscored | runtime:local_native_tool_failed |
 | MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | te-baseline-eval | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
 | MB-R3/local-laptop/v12b:mtplx-inkling-2-mini-optimized-quality | vhs-room-registry-sync-v2 | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
+| MB-R3/local-laptop/v13a:mtplx-inkling-2-mini-optimized-quality | kirkland-compose-adoption | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
 
 ## Provenance and prior attempts
 

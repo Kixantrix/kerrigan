@@ -6,7 +6,7 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 
 - **Model ID:** `gemini-4-neon`
 - **Deployment:** cloud
-- **Conditions/epochs:** MB-R3/models-screen-v11, MB-R3/models-screen-v12b
+- **Conditions/epochs:** MB-R3/anchors-v13, MB-R3/models-screen-v11, MB-R3/models-screen-v12b
 - **Overall:** 21/21 (85%–100%) across 21 tasks; pass@1 100%
 - **pass^3:** not yet (fewer than 3 runs per task)
 - **Pass-any:** 21/21 tasks
@@ -33,6 +33,19 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 | Research × small | 2 | 2/2 (34%–100%) | 150s | 101,812 / 15,074 |
 | Review and repair × medium | 3 | 3/3 (44%–100%) | 248s | 269,582 / 32,327 |
 | Understand and plan × small | 1 | 1/1 (21%–100%) | 118s | 74,269 / 9,679 |
+
+## Public anchors
+
+- **Raw (upstream-comparable):** 9/9 (70%–100%)
+- **Adjusted:** 9/9 (70%–100%)
+
+| Anchor | Runs | Raw pass |
+|---|---:|---:|
+| anchor-swepro-openlibrary | 3 | 3/3 |
+| anchor-tb-fix-git | 3 | 3/3 |
+| anchor-tb-nginx-request-logging | 3 | 3/3 |
+
+Public anchors are scored only here, never in work-type routing. Raw is upstream-comparable; adjusted excludes failures confined to disclosed flagged behaviours (`anchor-overspecified`). Graded on the shared Colima VM (effective 2 GiB / 2 CPU cap). nginx base calibrates 2/8 natively vs 1/8 retained (admission holds). ansible and qutebrowser are admitted as `public-anchor-as-is`. element-web and tutanota: host-resource-unavailable (blocked pending user decision).
 
 ## Failure patterns
 

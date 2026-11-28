@@ -448,6 +448,7 @@ def test_pooled_view_pools_latest_cloud_versions_across_conditions_but_never_loc
     ("Scheduled M2.1 although the scaffold was already present in repo-tree.txt", "ignored-existing-state"),
     ("A duplicate defect entry is an unsupported second defect claim", "unsupported-defect-claim"),
     ("Ledger lists four identical duplicate defect entries in src/server.ts", "unsupported-defect-claim"),
+    ("Restored about.md but did NOT write the layout blob; the edit was a guess", "incomplete-change"),
     ("Trajectory contains only read actions and no write; the stub is unchanged", "premature-stop-without-edit"),
 ])
 def test_deterministic_failed_clauses_map_to_controlled_vocabulary(text, mode):
