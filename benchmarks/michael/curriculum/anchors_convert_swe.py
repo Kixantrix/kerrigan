@@ -241,7 +241,8 @@ def _convert(name: str, conversion: dict, args) -> dict:
     begin = time.monotonic()
     verifier_seconds = evidence["oracle"]["phases_seconds"]["verifier"]
     seconds = conversion.get("candidate_seconds") or candidate_seconds(verifier_seconds)
-    build_verifier(tags["env"], task_dir, build, tags["verifier"], base_commit, name, digest, seconds)
+    build_verifier(tags["env"], task_dir, build, tags["verifier"], base_commit, name, digest, seconds,
+                   base_convert.build_ca(args))
     timings["verifier_image"] = round(time.monotonic() - begin, 1)
 
     # 5. offline pre-check through the harness: oracle passes every required test
@@ -392,15 +393,16 @@ def _convert(name: str, conversion: dict, args) -> dict:
 
 
 def build_verifier(env_image: str, task_dir: Path, build: Path, tag: str, base_commit: str, name: str,
-                   digest: str, seconds: int) -> None:
+                   digest: str, seconds: int, ca: bytes) -> None:
     """Verifier image: environment + one networked warm-up run of the ORIGINAL test.sh, then the repo is
     reset to the base commit and the tests/logs removed (only caches/installed requirements remain)."""
     context = build / "verifier"
     shutil.rmtree(context, ignore_errors=True)
     context.mkdir(parents=True)
     shutil.copytree(task_dir / "tests", context / "tests")
-    ca = Path("/etc/ssl/certs/ca-certificates.crt")
-    (context / "ca.pem").write_bytes(ca.read_bytes() if ca.is_file() else b"")
+    if not ca.strip():
+        raise ConversionError("refusing an empty CA bundle for the verifier build")
+    (context / "ca.pem").write_bytes(ca)  # bind-mounted for the warm-up RUN only, never copied into the image
     (context / "Dockerfile").write_text(
         f"FROM {env_image}\n"
         "RUN --mount=type=bind,source=tests,target=/mb-tests --mount=type=bind,source=ca.pem,target=/run/mb-ca.pem "
@@ -454,7 +456,8 @@ def build_only(name: str, conversion: dict, args) -> None:
     (build / "env/Dockerfile").write_text(dockerfile.replace(f"FROM {source_image}", f"FROM {task['anchor']['task_image']}", 1))
     sh(["docker", "build", "-q", "-t", f"mbanchor-{package}:env", str(build / "env")], timeout=3600)
     build_verifier(f"mbanchor-{package}:env", task_dir, build, task["grader"]["image"],
-                   task["anchor"]["base_commit"], name, task["anchor"]["task_image"], task["grader"]["candidate_seconds"])
+                   task["anchor"]["base_commit"], name, task["anchor"]["task_image"], task["grader"]["candidate_seconds"],
+                   base_convert.build_ca(args))
 
 
 def curriculum_cache(package: str) -> Path:

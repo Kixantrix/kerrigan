@@ -506,3 +506,50 @@ def test_audit_payload_lists_binary_files_without_content():
     json.dumps(payload)
     text_only = live.audit_payload("anchor-tb-nginx-request-logging")
     assert "binaryContentOmitted" not in text_only and all(isinstance(v, str) for v in text_only["visible"].values())
+
+
+# --- verifier build trust: explicit, hash-bound, never empty ---------------------------
+
+_PEM = b"-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----\n"
+
+
+def test_ca_bundle_refuses_empty_or_missing_bundle(tmp_path):
+    empty = tmp_path / "empty.pem"
+    empty.write_bytes(b"")
+    with pytest.raises(convert.ConversionError, match="empty"):
+        convert.ca_bundle(empty, hashlib.sha256(b"").hexdigest())
+    with pytest.raises(convert.ConversionError, match="empty"):
+        convert.ca_bundle(default=empty)
+    with pytest.raises(convert.ConversionError, match="--ca-bundle PATH"):
+        convert.ca_bundle(default=tmp_path / "absent.pem")
+    with pytest.raises(convert.ConversionError, match="--ca-bundle-sha256"):
+        convert.ca_bundle(empty)
+    with pytest.raises(convert.ConversionError, match="empty"):
+        convert.build_verifier("img", [], "/", "tag", tmp_path, tmp_path, "n", "img", b"")
+
+
+def test_ca_bundle_rejects_hash_mismatch_and_accepts_pinned_bundle(tmp_path):
+    bundle = tmp_path / "cacert.pem"
+    bundle.write_bytes(_PEM)
+    with pytest.raises(convert.ConversionError, match="sha256"):
+        convert.ca_bundle(bundle, "0" * 64)
+    assert convert.ca_bundle(bundle, hashlib.sha256(_PEM).hexdigest().upper()) == _PEM
+
+
+def test_ca_bundle_defaults_to_linux_system_bundle(tmp_path, monkeypatch):
+    assert convert.LINUX_CA_BUNDLE == Path("/etc/ssl/certs/ca-certificates.crt")
+    system = tmp_path / "ca-certificates.crt"
+    system.write_bytes(_PEM)
+    monkeypatch.setattr(convert.ca_bundle, "__defaults__", (None, None, system))
+    args = convert.argparse.Namespace()
+    assert convert.build_ca(args) == _PEM and args.ca_pem == _PEM
+
+
+def test_ca_cli_fails_closed_before_building(tmp_path):
+    empty = tmp_path / "empty.pem"
+    empty.write_bytes(b"")
+    result = subprocess.run([sys.executable, "-m", "benchmarks.michael.curriculum.anchors_convert", "--build-only",
+                             "fix-git", "--ca-bundle", str(empty), "--ca-bundle-sha256",
+                             hashlib.sha256(b"").hexdigest(), "--work-dir", str(tmp_path)],
+                            capture_output=True, text=True, timeout=60, check=False)
+    assert result.returncode == 2 and "CA bundle refused (nothing built)" in result.stderr

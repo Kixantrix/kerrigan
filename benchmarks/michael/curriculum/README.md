@@ -352,10 +352,18 @@ converter writes `anchors-native.json`.
   images are removed afterwards; `michael-*` images are never removed.
   Harbor's own lint of the original task is recorded. Rebuild a verifier image
   before grading or native runs with `--build-only <anchor>`.
+- **Build trust:** verifier builds keep TLS verification on. The CA bundle is
+  bind-mounted into the networked build step only, never into an image. It
+  defaults to `/etc/ssl/certs/ca-certificates.crt`. Other hosts (e.g. macOS)
+  pass `--ca-bundle PATH --ca-bundle-sha256 HEX`, such as the hash-pinned
+  public `cacert.pem` in `local_transport/runtime.json`. A missing, empty or
+  mismatched bundle fails closed (exit 2) before anything is built.
 
 ```bash
 python -m benchmarks.michael.curriculum.anchors_convert                  # all declared
 python -m benchmarks.michael.curriculum.anchors_convert --build-only fix-git
+python -m benchmarks.michael.curriculum.anchors_convert --build-only fix-git \
+    --ca-bundle trust/cacert.pem --ca-bundle-sha256 427c064216761a1e72a8b30f0d954d08cb6e4435a82091fb865afd20c8497285
 python -m benchmarks.michael.replay_grader.calibrate anchor-tb-fix-git   # needs the verifier image
 ```
 
