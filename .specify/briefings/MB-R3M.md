@@ -29,9 +29,19 @@ Run sequentially, with exclusive slots and fresh HTTPS/sandbox proof before
 each prompt. Never run during a local-model window.
 
 ## Independence and disclosure
-- Gemini 4 Neon was the blind re-implementer for admission, and GPT 5.6 Sol
-  was an admission auditor and quality-panel judge. Disclose this prior task
-  exposure in their rows. It is evidence leakage risk, not disqualification.
+- Every subject run is a fresh session with no memory, so no model has
+  "seen" the tasks in any carry-over sense. Don't describe this as exposure
+  or contamination.
+- The real issue is **selection bias**. Admission required a passing
+  `gemini-4-neon` blind solve, and `gpt-5.6-sol` (with Sonnet) audited which
+  tasks were admitted, fixed or retired. The task set is therefore filtered
+  toward tasks Gemini can solve and GPT-5.6 Sol judged sound. Label their rows
+  "selection role in admission". Also report Gemini's admission blind-solve
+  record (passes and failures) next to its scored results.
+- The same correction applies to round-1–3 wording about Sonnet/MAI "prior
+  exposure". Those were also fresh sessions, and only provider-side prompt
+  caching (speed and cost, not knowledge) could carry over. Fix that wording
+  in results-v2/v3.
 - The quality panel for any subject must exclude that subject's own model
   family. Pick judges from the remaining families.
 - Failure attribution follows the existing deterministic-first rule.
