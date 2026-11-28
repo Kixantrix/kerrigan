@@ -1,0 +1,547 @@
+[
+ {
+  "original_id": "transcription kept on the device because no service passes both gates",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "transcription_location"
+    ],
+    "on-device"
+   ]
+  ]
+ },
+ {
+  "original_id": "sensevoice engine chosen as the only engine passing R3 to R5",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "asr_engine"
+    ],
+    "sherpa-onnx-sensevoice"
+   ]
+  ]
+ },
+ {
+  "original_id": "elimination ledger covers exactly the nine unchosen options",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_keys",
+    [
+     "artifact",
+     "eliminated"
+    ],
+    [
+     "assemblyai",
+     "aws-transcribe",
+     "azure-speech",
+     "deepgram",
+     "faster-whisper-sidecar",
+     "google-stt",
+     "handrolled-onnx-whisper",
+     "speechmatics",
+     "whisper-cpp-turbo"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "segment-level BAA vendors fail on intra-sentence switching",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "azure-speech"
+    ],
+    "no-intra-sentence-switching"
+   ],
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "aws-transcribe"
+    ],
+    "no-intra-sentence-switching"
+   ],
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "google-stt"
+    ],
+    "no-intra-sentence-switching"
+   ]
+  ]
+ },
+ {
+  "original_id": "heavily marketed code-switching vendor fails on missing Chinese first",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "deepgram"
+    ],
+    "chinese-not-in-multilingual-mode"
+   ]
+  ]
+ },
+ {
+  "original_id": "capable vendors without a verified agreement fail R2",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "speechmatics"
+    ],
+    "baa-unverified"
+   ],
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "assemblyai"
+    ],
+    "baa-unverified"
+   ]
+  ]
+ },
+ {
+  "original_id": "python sidecar fails the ARM64 packaging requirement before quality",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "faster-whisper-sidecar"
+    ],
+    "no-arm64-prebuilt"
+   ]
+  ]
+ },
+ {
+  "original_id": "turbo fails the pooled code-switch gate despite best English and macro mean",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "whisper-cpp-turbo"
+    ],
+    "code-switch-gate"
+   ],
+   [
+    "path_equal",
+    [
+     "artifact",
+     "eliminated",
+     "handrolled-onnx-whisper"
+    ],
+    "code-switch-gate"
+   ]
+  ]
+ },
+ {
+  "original_id": "telehealth uses exact channel attribution with a two-channel capture",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "telehealth_diarization"
+    ],
+    "channel-separation"
+   ],
+   [
+    "path_equal",
+    [
+     "artifact",
+     "capture_format"
+    ],
+    "two-channel-mic-loopback"
+   ]
+  ]
+ },
+ {
+  "original_id": "auto-threshold at exactly the strict DER boundary is rejected",
+  "group": "decision",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "in_person_diarization"
+    ],
+    "acoustic-fixed-2"
+   ]
+  ]
+ },
+ {
+  "original_id": "pooled code-switch error of the chosen engine recomputed",
+  "group": "synthesis",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "artifact",
+     "code_switch_error_pct"
+    ],
+    8.166667,
+    0.05
+   ]
+  ]
+ },
+ {
+  "original_id": "pooled English error of the chosen engine recomputed",
+  "group": "synthesis",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "artifact",
+     "english_error_pct"
+    ],
+    10.4,
+    0.05
+   ]
+  ]
+ },
+ {
+  "original_id": "pooled in-person DER of the fixed two-cluster method recomputed",
+  "group": "synthesis",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "artifact",
+     "in_person_der_pct"
+    ],
+    6.166667,
+    0.05
+   ]
+  ]
+ },
+ {
+  "original_id": "footprint sums VAD, ASR and both diarization models only",
+  "group": "synthesis",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "artifact",
+     "stack_footprint_mb"
+    ],
+    172,
+    1
+   ]
+  ]
+ },
+ {
+  "original_id": "ARM64 speed and unbenchmarked vendor accuracy left null",
+  "group": "uncertainty",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "artifact",
+     "arm64_real_time_factor"
+    ],
+    null
+   ],
+   [
+    "path_equal",
+    [
+     "artifact",
+     "speechmatics_code_switch_error_pct"
+    ],
+    null
+   ]
+  ]
+ },
+ {
+  "original_id": "ARM64 accuracy carried over from x64 rather than nulled",
+  "group": "uncertainty",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "artifact",
+     "arm64_code_switch_error_pct"
+    ],
+    8.166667,
+    0.05
+   ]
+  ]
+ },
+ {
+  "original_id": "unknowns name exactly the two undeterminable keys",
+  "group": "uncertainty",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": [
+    [
+     "unknowns"
+    ]
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "sorted"
+    ],
+    [
+     "arm64_real_time_factor",
+     "speechmatics_code_switch_error_pct"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "sets",
+     0,
+     "duplicates"
+    ],
+    0
+   ]
+  ]
+ },
+ {
+  "original_id": "location and engine cite rules, survey, benchmark and catalog",
+  "group": "evidence",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": [],
+   "any_of": [
+    {
+     "path": [
+      "citations",
+      "transcription_location"
+     ],
+     "options": [
+      [
+       "S1",
+       "S3"
+      ],
+      [
+       "S1",
+       "S4",
+       "S7"
+      ]
+     ]
+    }
+   ]
+  },
+  "clauses": [
+   [
+    "path_true",
+    [
+     "any_of",
+     0
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "asr_engine"
+    ],
+    [
+     "S1",
+     "S4",
+     "S7"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "eliminated"
+    ],
+    [
+     "S3",
+     "S4",
+     "S7"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "error metrics cite the benchmark and the platform determinism note",
+  "group": "evidence",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "code_switch_error_pct"
+    ],
+    [
+     "S4"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "arm64_code_switch_error_pct"
+    ],
+    [
+     "S2",
+     "S4"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "stack_footprint_mb"
+    ],
+    [
+     "S7"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "diarization and capture answers cite the capture code and DER data",
+  "group": "evidence",
+  "probe": {
+   "artifact": "DECISION.json",
+   "sets": []
+  },
+  "clauses": [
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "in_person_diarization"
+    ],
+    [
+     "S1",
+     "S5"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "telehealth_diarization"
+    ],
+    [
+     "S6"
+    ]
+   ],
+   [
+    "path_contains_all",
+    [
+     "artifact",
+     "citations",
+     "capture_format"
+    ],
+    [
+     "S6"
+    ]
+   ]
+  ]
+ }
+]

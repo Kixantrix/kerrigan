@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/DECISION.json"]
+
+[task]
+name = "kixantrix/michael-research-cs-speech-stack-v2"
+version = "1.0.0"
+description = "Choose the on-device speech stack for bilingual zh/en sessions from a frozen evidence pack"
+keywords = ["michael-bench", "research"]
+
+[metadata]
+family = "Research"
+source_repo = "Kixantrix/clinical-scribe"
+base_ref = "75bd9e3a3b4b476eee127bb81d3f70cf80501594"
+reference_ref = "c635bea377d5b8fa0dfc5620ebda0db0bcc725bc"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "required_facts_checklist"
+estimated_agent_minutes = 25
+denominators = "{\"decision\": 10, \"evidence\": 3, \"synthesis\": 4, \"uncertainty\": 3}"
+task_size = "{\"files_to_read\": 10, \"hidden_checks\": 20, \"hidden_clauses\": 33, \"lines_to_read\": 241, \"oracle_files_changed\": 1, \"oracle_lines_added\": 75, \"oracle_lines_removed\": 13, \"writable_files\": 1}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

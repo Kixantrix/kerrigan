@@ -236,6 +236,15 @@
     "path": "benchmarks/michael/curriculum/MBR3-orchestrate-dashboard-stages-admission.json",
     "sha256": "2a344f4394779ffb67961d667b313d1cd7ea305929e582ae20662422d2edab93"
    }
+  },
+  "research-cs-speech-stack": {
+   "by": "MBR3 coordinator task adjudication (overspecified-check)",
+   "superseded_by": "research-cs-speech-stack-v2",
+   "reason": "task-caused (overspecified_test): the transcription_location citation check required S1 and S3, although S1 rule 1 is also settled by S1 with the S4/S7 evidence that an on-device engine passes R3-R5 (GPT 5.6 Sol 19/20, all answers correct)",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-cs-speech-gpt56-task-adjudication.json",
+    "sha256": "52992cf74b78a1f084698554a6b0daa86c9b20b23861d7d78317547069b702c5"
+   }
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",

@@ -1793,7 +1793,7 @@
    "long_horizon": false,
    "summary": "Apply ordered requirements to a vendor survey, packaging catalog and benchmark CSVs to pick the on-device speech stack, eliminate 9 options with their first-failing requirement, choose diarization per session type, recompute pooled error/DER/footprint, and leave undeterminable values null.",
    "history_status": "merged",
-   "package": "research-cs-speech-stack",
+   "package": "research-cs-speech-stack-v2",
    "provenance_kind": "commit",
    "grader_image": "michael-replay-grader:mb006j",
    "round": 4,
@@ -1803,10 +1803,13 @@
     "oracle_lines_removed": 13,
     "writable_files": 1,
     "files_to_read": 10,
-    "lines_to_read": 239,
+    "lines_to_read": 241,
     "hidden_checks": 20,
     "hidden_clauses": 33
-   }
+   },
+   "retired_packages": [
+    "research-cs-speech-stack"
+   ]
   },
   {
    "id": "plan-custom-action-briefing",

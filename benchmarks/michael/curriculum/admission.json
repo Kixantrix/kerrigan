@@ -2855,6 +2855,93 @@
    }
   },
   "decision": {
+   "state": "retired",
+   "reasons": [
+    "task-caused (overspecified_test): the transcription_location citation check required S1 and S3, although S1 rule 1 is also settled by S1 with the S4/S7 evidence that an on-device engine passes R3-R5 (GPT 5.6 Sol 19/20, all answers correct)"
+   ],
+   "superseded_by": "research-cs-speech-stack-v2"
+  }
+ },
+ {
+  "task": "kixantrix/michael-research-cs-speech-stack-v2",
+  "task_sha256": "8cd963f932874aab344075d6e38c06cf628509672d26b1c912e7c159e92aa07c",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "decision_passed": 10.0,
+    "decision_total": 10.0,
+    "evidence_passed": 3.0,
+    "evidence_total": 3.0,
+    "reward": 1.0,
+    "synthesis_passed": 4.0,
+    "synthesis_total": 4.0,
+    "uncertainty_passed": 3.0,
+    "uncertainty_total": 3.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "decision_passed": 0.0,
+    "decision_total": 10.0,
+    "evidence_passed": 0.0,
+    "evidence_total": 3.0,
+    "reward": 0.0,
+    "synthesis_passed": 0.0,
+    "synthesis_total": 4.0,
+    "uncertainty_passed": 1.0,
+    "uncertainty_total": 3.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-cs-speech-stack-v2",
+      "task_sha256": "8cd963f932874aab344075d6e38c06cf628509672d26b1c912e7c159e92aa07c"
+     },
+     "request_sha256": "bad61a6f90ca184178740e09d11fdd1373f3f21ba496a403f323dcce3fc74c4c",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/research-cs-speech-stack-v2",
+      "task_sha256": "8cd963f932874aab344075d6e38c06cf628509672d26b1c912e7c159e92aa07c"
+     },
+     "request_sha256": "6d71052171bc0788656d9cba2be162097f73f11a08717fb418e9c990f940ad21",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/research-cs-speech-stack-v2",
+     "task_sha256": "8cd963f932874aab344075d6e38c06cf628509672d26b1c912e7c159e92aa07c",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "3e9a728cf149548c64af1c24254f2c5e0a2853f270b44adb6e3407b09562f813",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
    "state": "provisional",
    "reasons": [
     "model gates pending executor"

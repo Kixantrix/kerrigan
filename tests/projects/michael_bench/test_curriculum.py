@@ -513,6 +513,7 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
 CURRENT = {"plan-dashboard-decomposition": "plan-dashboard-decomposition-v2",
+           "research-cs-speech-stack": "research-cs-speech-stack-v2",
            "plan-custom-action-briefing": "plan-custom-action-briefing-v2",
            "orchestrate-dashboard-stages": "orchestrate-dashboard-stages-v2",
            "vhs-room-registry-sync-v2": "vhs-room-registry-sync-v3",
@@ -1271,3 +1272,39 @@ def test_orchestrate_v2_checks_unknown_after_stage(tmp_path):
     variant = _edited_reference(ORCH_V2, "src/plan-update.ts", *UNKNOWN_AFTER_THROWS)
     assert _failed(variant, "orchestrate-dashboard-stages", tmp_path) == []  # the v1 gap
     assert _failed(variant, ORCH_V2, tmp_path) == [ORCH_PRESERVED]
+
+
+SPEECH_V2 = "research-cs-speech-stack-v2"
+SPEECH_ROW = "location and engine cite rules, survey, benchmark and catalog"
+
+
+def _cite_location(sources):
+    def mutate(decision):
+        decision["citations"]["transcription_location"] = sources
+    return mutate
+
+
+def test_speech_v2_keeps_oracle_and_cites_the_adjudication():
+    old = "research-cs-speech-stack"
+    assert curriculum.verifier_files(SPEECH_V2)["reference"] == curriculum.verifier_files(old)["reference"]
+    info = curriculum.meta(SPEECH_V2)
+    assert info["round"] == 4 and info["supersedes"] == old and info["grader"]["harness"] == "json_artifact_sets_v2.py"
+    evidence = info["admission_evidence"]
+    assert evidence["path"].endswith("MBR3-cs-speech-gpt56-task-adjudication.json")
+    assert hashlib.sha256((ROOT / evidence["path"]).read_bytes()).hexdigest() == evidence["sha256"]
+    assert curriculum.retired()[old]["evidence"] == evidence
+    assert "any one sufficient line" in curriculum.agent_files(SPEECH_V2)["TASK.md"].decode()
+
+
+@pytest.mark.parametrize("sources", [["S1", "S3"], ["S7", "S4", "S1"], ["S1", "S3", "S4", "S7", "S2"]])
+def test_speech_v2_accepts_any_sufficient_location_citation(sources, tmp_path):
+    variant = _json_reference(SPEECH_V2, "DECISION.json", _cite_location(sources))
+    assert _failed(variant, SPEECH_V2, tmp_path) == []
+    if "S3" not in sources:  # the round-3 overspecification
+        assert _failed(variant, "research-cs-speech-stack", tmp_path) == [SPEECH_ROW]
+
+
+@pytest.mark.parametrize("sources", [["S1", "S4"], ["S1", "S7"], ["S3", "S4", "S7"], ["S1"], "S1 S3"])
+def test_speech_v2_rejects_insufficient_location_citation(sources, tmp_path):
+    variant = _json_reference(SPEECH_V2, "DECISION.json", _cite_location(sources))
+    assert _failed(variant, SPEECH_V2, tmp_path) == [SPEECH_ROW]

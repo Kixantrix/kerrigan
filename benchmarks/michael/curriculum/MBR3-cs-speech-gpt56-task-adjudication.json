@@ -1,0 +1,28 @@
+{
+  "cause": "task",
+  "collectedArtifactsSha256": "57ce51b21c477c41f4bc1a05e5484a74dd98c2b3246d8dd73a5ffd51d892d7ea",
+  "counts_as_model_failure": false,
+  "decidedBy": "Michael Bench coordinator (ba383ac7), 2026-11-28",
+  "evidence": [
+    "S1 rule 1: on-device unless an off-device service satisfies R1 and R2 AND no on-device engine satisfies R3-R5.",
+    "Either conjunct failing establishes on-device; the model used the second (S1+S4+S7).",
+    "'Every source the answer depends on' does not uniquely require S3; the check path_contains_all [S1,S3] overspecifies.",
+    "All answers were correct (decision 10/10, synthesis 4/4, uncertainty 3/3)."
+  ],
+  "evidence_root": "mbr3-models-screen-v12b",
+  "failure_modes": [
+    "task-caused"
+  ],
+  "graderReportSha256": "1aedcf5c843c4e6af7d8940e8ca072c126b1ec0453889ef9fa1dcb70ca040b10",
+  "kind": "task-adjudication",
+  "label": "overspecified-check",
+  "model": "gpt-5.6-sol",
+  "originalPanelSha256": "1f13e55b79d4db534b846fb9a9ce4cb91c81a55cab253319434c5b177dcb593e",
+  "outcomeSha256": "777a5324f11b63e9537ecda7743801a717c54a30e38939a4cb6eb61b8aeaedd2",
+  "publicationScope": "Excluded from the denominator and disclosed; split panel and artifacts unchanged.",
+  "repeat": 1,
+  "roundFourKnownIssue": "Accept any sufficient citation set for transcription_location: {S1,S3} or {S1 + S4/S7 R3-R5 evidence}.",
+  "schema_version": 1,
+  "subject_rerun": false,
+  "task": "research-cs-speech-stack"
+}
