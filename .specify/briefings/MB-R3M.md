@@ -56,3 +56,30 @@ each prompt. Never run during a local-model window.
 
 ## Routing
 R-local.os-specific / R-local.device-io (native macOS MXC). Standing autonomy applies.
+
+## Deliverable the user will review (user, 2026-11-27)
+User: "I'll be looking for a full scorecard for each model and an overview
+table with all of them together so I can compare."
+
+Publish `benchmarks/michael/scorecards/`, generated from the ledgers by a tested
+script (never hand-edited):
+- **`<model>.md`, one per model:** Sonnet 5.5, MAI Code 2, Opus 5.5, GPT 6.2 Sol,
+  GPT 6.2 Astra, Gemini 4 Neon, GPT 5.6 Sol and local Inkling-2-mini. Each holds:
+  - the deployment class;
+  - the conditions and epochs covered;
+  - overall pass rate with a Wilson CI, pass@1 and pass^3;
+  - median and IQR verified time;
+  - tokens in/out per run, with cost, memory and energy shown as known or unknown;
+  - a per-work-type table (runs, pass rate with CI, median time, tokens);
+  - failure patterns with counts and an example per pattern;
+  - quality-panel results;
+  - routing recommendations where the model is the pick;
+  - one-line "use it for / avoid it for";
+  - caveats (selection role, local co-tenancy and sleep, harness-cap reruns).
+- **`overview.md`:** one table with every model as rows. Columns are overall pass
+  rate (CI), median verified time, tokens per run, cost if known, and the top
+  failure pattern, plus a per-work-type pass-rate grid and the provisional and
+  established routing picks per work type.
+
+Regenerate after every cohort or window. Never mix local and cloud in the
+same pooled cell. Anchors get their own column once they've run.
