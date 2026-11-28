@@ -133,6 +133,29 @@ assert.equal(generations,1);await window.release();
                    check=True, timeout=10)
 
 
+def test_window_accepts_large_diagnostic_health_but_keeps_metadata_bounded():
+    script = """
+import assert from 'node:assert/strict';
+import {localWindow,LOCAL_METADATA_BYTES} from './benchmarks/michael/local_transport/local_window.mjs';
+import {LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+let padding=76000;
+const make=()=>localWindow({condition,record:()=>{},clock:()=>1000,
+ snapshot:()=>({memoryPressureFreePercent:45,memoryPressureState:'normal',loadAverage:[1,1,1],heavyProcesses:[]}),
+ fetcher:async url=>{
+  if(url.endsWith('/health'))return new Response(JSON.stringify({ok:true,active_requests:0,diagnostics:'x'.repeat(padding)}));
+  return new Response(JSON.stringify({data:[{id:'synthetic-only'}]}));
+ }});
+await make().boundary();
+padding=LOCAL_METADATA_BYTES;
+await assert.rejects(()=>make().boundary(),/local_metadata_overflow/);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=10)
+
+
 def test_local_own_response_native_timings_ignore_derived_defaults_and_preserve_caps():
     script = """
 import assert from 'node:assert/strict';
