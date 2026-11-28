@@ -30,12 +30,20 @@ Usage::
     python -m benchmarks.michael.curriculum.anchors_convert                # all declared
     python -m benchmarks.michael.curriculum.anchors_convert --only fix-git
     python -m benchmarks.michael.curriculum.anchors_convert --build-only fix-git  # rebuild images
+    python -m benchmarks.michael.curriculum.anchors_convert --build-only fix-git \
+        --ca-bundle trust/cacert.pem --ca-bundle-sha256 <hex>  # hosts without the Linux system bundle
+
+Verifier builds fetch packages with TLS verification on. The public CA bundle is
+bind-mounted into those build steps only (never copied into an image); it is the
+Linux system bundle by default, or an explicit ``--ca-bundle`` that must match
+``--ca-bundle-sha256``. A missing, empty or mismatched bundle fails closed.
 """
 from __future__ import annotations
 
 import argparse
 import datetime as dt
 import fnmatch
+import hashlib
 import io
 import json
 import os
@@ -70,6 +78,38 @@ LICENSES = {"https://github.com/laude-institute/terminal-bench-2.git": "Apache-2
 
 class ConversionError(RuntimeError):
     pass
+
+
+LINUX_CA_BUNDLE = Path("/etc/ssl/certs/ca-certificates.crt")
+
+
+def ca_bundle(path: str | Path | None = None, sha256: str | None = None, default: Path = LINUX_CA_BUNDLE) -> bytes:
+    """The public CA bundle bind-mounted into verifier build steps; fails closed, never disables TLS."""
+    explicit = path is not None
+    source = Path(path) if explicit else default
+    if explicit and not sha256:
+        raise ConversionError("--ca-bundle requires --ca-bundle-sha256 (the expected bundle hash)")
+    if not source.is_file():
+        raise ConversionError(f"no CA bundle for verifier builds: {source} not found; pass --ca-bundle PATH "
+                              "--ca-bundle-sha256 HEX (e.g. a hash-pinned public cacert.pem)" if not explicit
+                              else f"--ca-bundle {source} is not a file")
+    data = source.read_bytes()
+    if not data.strip():
+        raise ConversionError(f"CA bundle {source} is empty; refusing to build without public trust")
+    if b"-----BEGIN CERTIFICATE-----" not in data:
+        raise ConversionError(f"CA bundle {source} contains no PEM certificates")
+    if sha256:
+        actual = hashlib.sha256(data).hexdigest()
+        if actual != sha256.strip().lower():
+            raise ConversionError(f"CA bundle {source} sha256 {actual} != expected {sha256.strip().lower()}")
+    return data
+
+
+def build_ca(args) -> bytes:
+    """Resolve (once per run) the CA bundle named on the command line, or the Linux default."""
+    if getattr(args, "ca_pem", None) is None:
+        args.ca_pem = ca_bundle(getattr(args, "ca_bundle", None), getattr(args, "ca_bundle_sha256", None))
+    return args.ca_pem
 
 
 def sh(args, *, timeout=600, check=True, data=None, text=False):
@@ -350,14 +390,16 @@ def build_environment(image: str, setup: list[str], tag: str, build: Path) -> st
 
 
 def build_verifier(env_image: str, prepare: list[str], workdir: str, tag: str, build: Path, work: Path,
-                   name: str, image: str) -> None:
-    """Verifier image = environment image + what tests/test.sh installs, cached for offline grading."""
+                   name: str, image: str, ca: bytes) -> None:
+    """Verifier image = environment image + what tests/test.sh installs, cached for offline grading.
+    ``ca`` (see ca_bundle) is bind-mounted for the networked build step only."""
     shim = provision.uv_shim(work, "on")
     for binary in ("uv", "uvx"):
         shutil.copy2(shim / binary, build / binary)
     (build / "env.sh").write_text('export PATH="$HOME/.local/bin:$PATH"\n')
-    ca = Path("/etc/ssl/certs/ca-certificates.crt")
-    (build / "ca.pem").write_bytes(ca.read_bytes() if ca.is_file() else b"")
+    if not ca.strip():
+        raise ConversionError("refusing an empty CA bundle for the verifier build")
+    (build / "ca.pem").write_bytes(ca)
     (build / "Dockerfile").write_text(
         f"FROM {env_image}\n"
         "COPY uv uvx /root/.local/bin/\nCOPY env.sh /root/.local/bin/env\n"
@@ -455,7 +497,7 @@ def convert(name: str, conversion: dict, args) -> dict:
     tests = {p.relative_to(task_dir / "tests").as_posix(): p.read_bytes()
              for p in sorted((task_dir / "tests").rglob("*")) if p.is_file()}
     prepare = test_prepare(tests["test.sh"].decode())
-    build_verifier(env_image, prepare, workdir, tags["verifier"], build, args.work_dir, name, image)
+    build_verifier(env_image, prepare, workdir, tags["verifier"], build, args.work_dir, name, image, build_ca(args))
     timings["verifier_image"] = round(time.monotonic() - begin, 1)
 
     # 5. test-ID discovery on the oracle state (trusted, offline) -> strict rows
@@ -628,7 +670,7 @@ def build_only(name: str, conversion: dict, args) -> None:
     sh(["docker", "pull", "-q", image], timeout=3600)
     env_image = build_environment(image, task["anchor"]["environment_setup"], f"mbanchor-{package}:env", build)
     build_verifier(env_image, task["anchor"]["verifier_prepare"], task["grader"]["workdir"],
-                   task["grader"]["image"], build, args.work_dir, name, image)
+                   task["grader"]["image"], build, args.work_dir, name, image, build_ca(args))
     print(f"{name}: {task['grader']['image']} ready", file=sys.stderr)
 
 
@@ -675,6 +717,10 @@ def main() -> None:
     parser.add_argument("--materialize", nargs="*", metavar="ANCHOR",
                         help="fetch and verify the uncommitted upstream bytes of materialized anchors "
                              "(default: all) into .cache/michael-anchors/; fails closed")
+    parser.add_argument("--ca-bundle", type=Path, metavar="PATH",
+                        help=f"PEM CA bundle bind-mounted into verifier build steps only (default: {LINUX_CA_BUNDLE} "
+                             "when present); requires --ca-bundle-sha256")
+    parser.add_argument("--ca-bundle-sha256", metavar="HEX", help="expected sha256 of the CA bundle")
     args = parser.parse_args()
     if args.materialize is not None:
         from benchmarks.michael.curriculum import anchors_materialize
@@ -686,6 +732,12 @@ def main() -> None:
             print(f"materialize failed (nothing accepted): {exc}", file=sys.stderr)
             raise SystemExit(1)
         return
+    if not args.record_only:
+        try:
+            build_ca(args)
+        except ConversionError as exc:
+            print(f"CA bundle refused (nothing built): {exc}", file=sys.stderr)
+            raise SystemExit(2)
     contracts = json.loads(CONTRACTS.read_text())
     if args.recalibrate is not None:
         from benchmarks.michael.curriculum import anchors_convert_swe
