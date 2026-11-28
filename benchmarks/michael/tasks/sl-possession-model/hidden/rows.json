@@ -1,0 +1,453 @@
+[
+ {
+  "original_id": "possession object states and transitions",
+  "group": "possession",
+  "probe": {
+   "scenario": "possessionObject"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "distinct"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "steps"
+    ],
+    [
+     {
+      "label": "new",
+      "state": "LOOSE",
+      "holder": -1,
+      "team": -1,
+      "held": false
+     },
+     {
+      "label": "hold",
+      "state": "HELD",
+      "holder": 3,
+      "team": 1,
+      "held": true
+     },
+     {
+      "label": "release-keeps-team",
+      "state": "IN_FLIGHT",
+      "holder": -1,
+      "team": 1,
+      "held": false
+     },
+     {
+      "label": "release-by-team",
+      "state": "IN_FLIGHT",
+      "holder": -1,
+      "team": 0,
+      "held": false
+     },
+     {
+      "label": "loose-keeps-team",
+      "state": "LOOSE",
+      "holder": -1,
+      "team": 0,
+      "held": false
+     },
+     {
+      "label": "loose-by-team",
+      "state": "LOOSE",
+      "holder": -1,
+      "team": 1,
+      "held": false
+     },
+     {
+      "label": "clear",
+      "state": "LOOSE",
+      "holder": -1,
+      "team": -1,
+      "held": false
+     }
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "dict"
+    ],
+    {
+     "state": "HELD",
+     "holder": 4,
+     "team": 1
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "the sim exposes a neutral possession and a player lookup",
+  "group": "possession",
+  "probe": {
+   "scenario": "simSurface",
+   "args": {
+    "seed": 5,
+    "id": 4
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "possession"
+    ],
+    {
+     "state": "LOOSE",
+     "holder": -1,
+     "team": -1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "found"
+    ],
+    4
+   ],
+   [
+    "path_equal",
+    [
+     "missing"
+    ],
+    null
+   ]
+  ]
+ },
+ {
+  "original_id": "a held ball rides with its carrier at the tuned offset and height",
+  "group": "carry",
+  "probe": {
+   "scenario": "carryFollows",
+   "args": {
+    "seed": 3,
+    "holder": 1,
+    "ticks": 40,
+    "carry": {
+     "offset": 0.7,
+     "height": 1.2
+    }
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    0,
+    1e-06
+   ],
+   [
+    "path_equal",
+    [
+     "events"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "possession"
+    ],
+    {
+     "state": "HELD",
+     "holder": 1,
+     "team": 0
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "carry offset and height default when tuning has no carry section",
+  "group": "carry",
+  "probe": {
+   "scenario": "carryFollows",
+   "args": {
+    "seed": 13,
+    "holder": 4,
+    "ticks": 30
+   }
+  },
+  "clauses": [
+   [
+    "path_within",
+    [
+     "worst"
+    ],
+    0,
+    1e-06
+   ]
+  ]
+ },
+ {
+  "original_id": "the touch models leave a carried ball alone",
+  "group": "carry",
+  "probe": {
+   "scenario": "heldIgnoresTouches",
+   "args": {
+    "seed": 8,
+    "ticks": 20
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "events"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "possession"
+    ],
+    {
+     "state": "HELD",
+     "holder": 0,
+     "team": 0
+    }
+   ],
+   [
+    "path_within",
+    [
+     "height"
+    ],
+    1.0,
+    1e-06
+   ]
+  ]
+ },
+ {
+  "original_id": "a carrier who no longer exists drops the ball",
+  "group": "carry",
+  "probe": {
+   "scenario": "vanishedCarrier",
+   "args": {
+    "seed": 4
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "after"
+    ],
+    {
+     "state": "LOOSE",
+     "holder": -1,
+     "team": 1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "finite"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "a fumble inherits the carrier's momentum and then falls under physics",
+  "group": "release",
+  "probe": {
+   "scenario": "fumble",
+   "args": {
+    "seed": 11,
+    "holder": 2
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "carriedFast"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "inherits"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "falls"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "possession"
+    ],
+    {
+     "state": "LOOSE",
+     "holder": -1,
+     "team": 0
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "an in-flight ball moves and is received exactly like a loose one",
+  "group": "release",
+  "probe": {
+   "scenario": "inFlight",
+   "args": {
+    "seed": 9,
+    "receiver": 2
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "samePath"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "sameEvents"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "received"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "flightState"
+    ],
+    "IN_FLIGHT"
+   ]
+  ]
+ },
+ {
+  "original_id": "kickoffs and goal restarts clear possession",
+  "group": "release",
+  "probe": {
+   "scenario": "restartClears",
+   "args": {
+    "seed": 6
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "kickoff"
+    ],
+    {
+     "state": "LOOSE",
+     "holder": -1,
+     "team": -1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "scored"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "afterGoal"
+    ],
+    {
+     "state": "LOOSE",
+     "holder": -1,
+     "team": -1
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "soccer AI matches keep their state digests and never leave a neutral loose ball",
+  "group": "preservation",
+  "probe": {
+   "scenario": "soccerUnchanged",
+   "args": {
+    "seeds": [
+     7,
+     99,
+     2024
+    ],
+    "ticks": 600
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "7"
+    ],
+    {
+     "digest": 2867064322,
+     "leftLoose": false
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "99"
+    ],
+    {
+     "digest": 773607781,
+     "leftLoose": false
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "2024"
+    ],
+    {
+     "digest": 1208526289,
+     "leftLoose": false
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "the seed-42 soccer match log is byte-identical",
+  "group": "preservation",
+  "probe": {
+   "scenario": "soccerLog",
+   "args": {
+    "seed": 42,
+    "ticks": 600
+   }
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "sha256"
+    ],
+    "81503f08a3241d37bac0650578384f1aae8ab97eff6bc487c374404558881101"
+   ]
+  ]
+ }
+]

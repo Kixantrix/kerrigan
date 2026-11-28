@@ -1,0 +1,98 @@
+{
+  "_comment": "All gameplay constants must live here (or similarly named JSON files), never hardcoded in GDScript. See architecture.md and spec.md Constraints. Units: metres, seconds, m/s. MatchSim runs on the X (goal-to-goal length) / Z (touchline width) ground plane; Y is ball height.",
+  "match": {
+    "tick_hz": 60,
+    "team_size": 3,
+    "kickoff_reset_ticks": 45
+  },
+  "pitch": {
+    "length": 40.0,
+    "width": 25.0,
+    "goal_width": 7.0,
+    "goal_height": 2.5,
+    "wall_restitution": 0.6
+  },
+  "ball": {
+    "radius": 0.11,
+    "gravity": 9.81,
+    "linear_drag": 0.08,
+    "magnus_coefficient": 0.12,
+    "spin_drag": 0.6,
+    "ground_restitution": 0.55,
+    "ground_friction": 1.6,
+    "rest_speed": 0.05,
+    "max_speed": 45.0,
+    "spawn_height": 0.11
+  },
+  "player": {
+    "radius": 0.4,
+    "max_speed": 7.0,
+    "sprint_multiplier": 1.35,
+    "acceleration": 30.0,
+    "turn_rate_rad": 12.0,
+    "stamina_max": 100.0,
+    "stamina_drain_rate": 25.0,
+    "stamina_recovery_rate": 15.0,
+    "stamina_sprint_min": 5.0,
+    "control_radius": 1.0,
+    "reach_height": 1.6,
+    "touch_cooldown_ticks": 8
+  },
+  "kick": {
+    "_comment": "Per-mechanic impulse + spin bands (task 1.3, game-design.md 2.3). speed/loft interpolate across the 0..1 power hold. axial_spin > 0 is topspin (ball dips), < 0 is backspin (ball floats); sidespin comes from the striker's approach angle, not from these.",
+    "pass": {
+      "speed_min": 6.0,
+      "speed_max": 16.0,
+      "loft_min": 0.0,
+      "loft_max": 0.6,
+      "axial_spin": 2.0
+    },
+    "shot": {
+      "speed_min": 14.0,
+      "speed_max": 30.0,
+      "loft_min": 0.8,
+      "loft_max": 3.2,
+      "axial_spin": 6.0
+    },
+    "lob": {
+      "speed_min": 5.0,
+      "speed_max": 13.0,
+      "loft_min": 4.0,
+      "loft_max": 8.0,
+      "axial_spin": -4.0
+    },
+    "approach_spin_factor": 1.2,
+    "max_side_spin": 14.0,
+    "side_spin_jitter": 0.6
+  },
+  "first_touch": {
+    "_comment": "How a player receives a moving ball (task 1.4, game-design.md 2.2 'first touch is the core mechanic'). Quality is a weighted blend of body orientation, closing speed and ball speed; it decides how much incoming speed survives the touch and how far a mis-control squirts sideways. Weights should sum to 1.0.",
+    "trigger_speed": 1.0,    "retention_poor": 0.85,
+    "retention_good": 0.12,
+    "kill_multiplier": 0.25,
+    "knock_on_speed": 5.0,
+    "max_error": 4.0,
+    "reference_ball_speed": 18.0,
+    "weight_orientation": 0.5,
+    "weight_closing_speed": 0.3,
+    "weight_ball_speed": 0.2,
+    "sprint_penalty": 0.15,
+    "cooldown_ticks": 6,
+    "error_jitter": 1.0
+  },
+  "dribble": {
+    "_comment": "Carrying the ball (architecture.md: 'the ball is never parented to a player; dribbling = repeated small touches by the locomotion system, each one a physics impulse'). While a player is moving and the ball is loose at their feet, each touch nudges it ahead of them. push_factor > 1 keeps the ball just in front at running pace; larger touch_interval_ticks means fewer, bigger knocks (looser control, more skill expression).",
+    "reach": 1.3,
+    "push_factor": 1.25,
+    "lead_bias": 0.55,
+    "min_player_speed": 0.6,
+    "max_relative_speed": 9.0,
+    "touch_interval_ticks": 7
+  },
+  "ai": {
+    "chase_jitter": 0.12,
+    "shoot_range": 14.0,
+    "formation_depth": 8.0,
+    "formation_spread": 6.0
+  }
+}

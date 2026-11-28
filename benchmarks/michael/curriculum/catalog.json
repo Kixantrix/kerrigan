@@ -79,20 +79,31 @@
    "stack": [
     "gdscript"
    ],
-   "toolchain": "godot 4.x headless + gdUnit4",
+   "toolchain": "node 24 type stripping, no deps (faithful TS port of the GDScript sim)",
    "grader_container_ok": true,
-   "required_environment": "cloud-linux",
+   "required_environment": "Godot 4 headless + gdUnit4 upstream; package grades the faithful TS port under Node 24",
    "outcome_evidence": "held_out_tests",
-   "evidence_detail": "Hidden gdUnit4 tests drive the headless MatchSim: possession state transitions (loose->held->in_flight), carrier-held ball follows player, soccer rules unchanged; golden-replay determinism test still passes.",
+   "evidence_detail": "Held-out scenarios drive sim.possession on the TS port: object transitions, per-tick carry pose with tuned and default carry, touch skipping, vanished carrier, fumble momentum, IN_FLIGHT==LOOSE physics, restart clearing, and soccer preservation (3 AI digests + seed-42 log hash). Base 2/11 (preservation only), reference 11/11.",
    "privacy": "private-sanitized",
-   "privacy_note": "Private game repo; task text describes the sim architecture generically. Code stays in a private grader image.",
+   "privacy_note": "Sanitized TS port of private game code; no names, secrets or hosts.",
    "estimated_agent_minutes": 40,
    "long_horizon": true,
    "summary": "The fixed-tick match sim assumed the ball is never parented to a player (a soccer-only rule). Agent adds an explicit possession model so carry/hand-off sports are expressible, keeping soccer behavior and replay determinism intact.",
    "history_status": "merged",
-   "package": null,
-   "provenance_kind": "mined-history",
-   "grader_image": "needs-image: linux container with godot 4.x headless + gdUnit4"
+   "package": "sl-possession-model",
+   "provenance_kind": "merged-pr-port",
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 4,
+    "oracle_lines_added": 106,
+    "oracle_lines_removed": 4,
+    "writable_files": 4,
+    "files_to_read": 21,
+    "lines_to_read": 2046,
+    "hidden_checks": 11,
+    "hidden_clauses": 30
+   }
   },
   {
    "id": "voxel-drag-physical-distance",

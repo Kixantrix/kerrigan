@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/data/tuning.json", "/app/src/sim/match_sim.ts", "/app/src/sim/possession.ts", "/app/src/sim/sports/soccer_rules.ts"]
+
+[task]
+name = "kixantrix/michael-sl-possession-model"
+version = "1.0.0"
+description = "Add an explicit LOOSE/HELD/IN_FLIGHT possession model to a deterministic match sim without changing soccer"
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/sunday-league"
+base_ref = "bfef6bd07a72f7f38949fa2d0dbd5f159c425e63"
+reference_ref = "34a5f631e59560e840900e4d23137893bb6d10f0"
+history_status = "merged"
+privacy = "private-sanitized"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 40
+denominators = "{\"carry\": 4, \"possession\": 2, \"preservation\": 2, \"release\": 3}"
+task_size = "{\"files_to_read\": 21, \"hidden_checks\": 11, \"hidden_clauses\": 30, \"lines_to_read\": 2046, \"oracle_files_changed\": 4, \"oracle_lines_added\": 106, \"oracle_lines_removed\": 4, \"writable_files\": 4}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

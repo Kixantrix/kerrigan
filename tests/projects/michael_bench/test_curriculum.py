@@ -1369,3 +1369,42 @@ def test_ga2_is_a_fresh_round4_package_from_an_uncovered_repo():
     agent = curriculum.agent_files(GA2)
     assert not any(p.startswith("shared/factions/mb-") for p in agent)  # held-out palettes stay hidden
     assert agent[GA2_PATH].count(b"\n") == 1
+
+
+SL = "sl-possession-model"
+SL_POS, SL_SIM, SL_RULES = "src/sim/possession.ts", "src/sim/match_sim.ts", "src/sim/sports/soccer_rules.ts"
+
+
+@pytest.mark.parametrize("path,before,after", [
+    (SL_POS, "export const PossessionState = { LOOSE: 0, HELD: 1, IN_FLIGHT: 2 } as const;",
+     "export const PossessionState = { LOOSE: \"loose\", HELD: \"held\", IN_FLIGHT: \"in-flight\" } as const;"),
+    (SL_SIM, "    for (const p of this.players) if (p.id === playerId) return p;\n    return null;\n",
+     "    return this.players.find((p) => p.id === playerId) ?? null;\n"),
+    (SL_SIM, "    const lead = holder.facing.length() > 0.0001 ? holder.facing.normalized() : Vector2.ZERO;\n",
+     "    const lead = holder.facing.normalized();\n"),
+])
+def test_sl_accepts_equivalent_implementations(path, before, after, tmp_path):
+    assert _failed(_edited_reference(SL, path, before, after), SL, tmp_path) == []
+
+
+@pytest.mark.parametrize("path,before,after,row", [
+    (SL_RULES, "    sim.possession.clear();\n", "", "kickoffs and goal restarts clear possession"),
+    (SL_SIM, "    if (this.possession.is_held()) return;\n", "", "the touch models leave a carried ball alone"),
+    (SL_SIM, 'c.get_float("carry", "offset", 0.45)', 'c.get_float("player", "carry_offset", 0.45)',
+     "a held ball rides with its carrier at the tuned offset and height"),
+    (SL_POS, "    this.state = PossessionState.LOOSE;\n    this.holder_id = -1;\n    if (byTeam >= 0) this.team = byTeam;\n",
+     "    this.state = PossessionState.LOOSE;\n    this.holder_id = -1;\n    this.team = byTeam;\n",
+     "a carrier who no longer exists drops the ball"),
+    (SL_SIM, "      this.possession.set_loose();\n      return;\n", "      return;\n", "a carrier who no longer exists drops the ball"),
+])
+def test_sl_rejects_partial_implementations(path, before, after, row, tmp_path):
+    assert row in _failed(_edited_reference(SL, path, before, after), SL, tmp_path)
+
+
+def test_sl_is_a_fresh_round4_port_whose_base_keeps_soccer():
+    info = curriculum.meta(SL)
+    assert info["round"] == 4 and "supersedes" not in info and info["source"]["pr"] == 19
+    receipt = json.loads((curriculum.HERE / SL / "calibration.json").read_text())
+    base, reference = receipt["phases"]
+    assert base["counts"]["preservation"] == reference["counts"]["preservation"] == {"passed": 2, "total": 2}
+    assert curriculum.agent_files(SL)[SL_POS].count(b"\n") == 2
