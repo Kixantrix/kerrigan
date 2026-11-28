@@ -7,7 +7,13 @@ import sys
 
 def scan(root, identity, byte_limit, entry_limit):
     flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
-    root_fd = os.open(root, flags)
+    try:
+        root_fd = os.open(root, flags)
+    except FileNotFoundError:
+        if os.path.lexists(root):
+            raise
+        # Task code removed its own TMPDIR; the stock CLI tolerates this, so it is empty, not fatal.
+        return {"bytes": 0, "entries": 0, "removed": True}
     try:
         info = os.fstat(root_fd)
         if [info.st_dev, info.st_ino] != identity:
