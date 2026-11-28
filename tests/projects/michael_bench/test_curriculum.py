@@ -1408,3 +1408,35 @@ def test_sl_is_a_fresh_round4_port_whose_base_keeps_soccer():
     base, reference = receipt["phases"]
     assert base["counts"]["preservation"] == reference["counts"]["preservation"] == {"passed": 2, "total": 2}
     assert curriculum.agent_files(SL)[SL_POS].count(b"\n") == 2
+
+
+VOXEL = "voxel-tuning-swipe"
+VOXEL_TUNING, VOXEL_SWIPE = "src/engine/tuning.ts", "src/engine/swipe.ts"
+
+
+def test_voxel_accepts_an_independent_port(tmp_path):
+    """Getter-backed live fields, plain parameter objects and a different control flow all pass."""
+    alt = Path(__file__).parent / "fixtures/voxel_alt"
+    files = {VOXEL_TUNING: (alt / "tuning.ts").read_bytes(), VOXEL_SWIPE: (alt / "swipe.ts").read_bytes()}
+    assert _failed(specs.bundle(files), VOXEL, tmp_path) == []
+
+
+@pytest.mark.parametrize("path,before,after,row", [
+    (VOXEL_TUNING, "    values.set(id, v);\n    if (p.rebuilds) this.revision += 1;\n", "    values.set(id, v);\n    this.revision += 1;\n",
+     "only real changes to scene parameters bump the rebuild revision, once per call"),
+    (VOXEL_TUNING, "Math.max(Math.trunc(base * factor), 0)", "Math.max(Math.round(base * factor), 0)",
+     "a multiplier of one leaves counts untouched and others truncate at zero"),
+    (VOXEL_TUNING, "values.get(id) ?? byId.get(id)?.default ?? 0.0", "values.get(id) ?? byId.get(id)?.default",
+     "unknown ids are ignored rather than crashing"),
+    (VOXEL_SWIPE, "elapsedMs < FLICK_MS", "elapsedMs <= FLICK_MS", "short fast flicks commit within the flick window only"),
+    (VOXEL_SWIPE, "return Math.min(Math.max(-gestureDp / Tuning.swipeDistanceDp, -1.0), 1.0);",
+     "return -gestureDp / Tuning.swipeDistanceDp;", "a gesture is worth at most one world, signed against the drag"),
+])
+def test_voxel_rejects_wrong_ports(path, before, after, row, tmp_path):
+    assert row in _failed(_edited_reference(VOXEL, path, before, after), VOXEL, tmp_path)
+
+
+def test_voxel_is_a_fresh_round4_port_that_says_so():
+    info = curriculum.meta(VOXEL)
+    assert info["round"] == 4 and "supersedes" not in info and info["source"]["repo"] == "Kixantrix/voxel-solar-wallpaper"
+    assert "faithful TypeScript port" in " ".join(curriculum.agent_files(VOXEL)["TASK.md"].decode().split())

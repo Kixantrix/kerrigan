@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/src/engine/swipe.ts", "/app/src/engine/tuning.ts"]
+
+[task]
+name = "kixantrix/michael-voxel-tuning-swipe"
+version = "1.0.0"
+description = "Implement a clamped, revisioned tuning registry and one-world swipe arithmetic for a live wallpaper engine (graded on a faithful TS port)"
+keywords = ["michael-bench", "implement"]
+
+[metadata]
+family = "Implement"
+source_repo = "Kixantrix/voxel-solar-wallpaper"
+base_ref = "c7ca6dea8f39149b08266fe22d0ca357fe2ef50a"
+reference_ref = "86f0416983996fa77d415122bbfbb400e997e4ce"
+history_status = "merged"
+privacy = "public"
+outcome_evidence = "held_out_tests"
+estimated_agent_minutes = 25
+denominators = "{\"counts\": 2, \"registry\": 2, \"swipe\": 4, \"values\": 5}"
+task_size = "{\"files_to_read\": 4, \"hidden_checks\": 13, \"hidden_clauses\": 43, \"lines_to_read\": 142, \"oracle_files_changed\": 2, \"oracle_lines_added\": 244, \"oracle_lines_removed\": 4, \"writable_files\": 2}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

@@ -1,0 +1,821 @@
+[
+ {
+  "original_id": "the registry declares exactly the specified parameters and groups",
+  "group": "registry",
+  "probe": {
+   "scenario": "registry"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "count"
+    ],
+    17
+   ],
+   [
+    "path_equal",
+    [
+     "params"
+    ],
+    {
+     "beltDensity": {
+      "group": "Sky",
+      "min": 0,
+      "max": 2,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": true,
+      "labelled": true,
+      "found": true
+     },
+     "cameraEase": {
+      "group": "Camera",
+      "min": 0.05,
+      "max": 0.4,
+      "default": 0.15,
+      "asPercent": false,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "coverZoom": {
+      "group": "Camera",
+      "min": 0.6,
+      "max": 1.8,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "eventLength": {
+      "group": "Events",
+      "min": 0.4,
+      "max": 2.5,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "eventRate": {
+      "group": "Events",
+      "min": 0.25,
+      "max": 4,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "foldEase": {
+      "group": "Camera",
+      "min": 0.04,
+      "max": 0.3,
+      "default": 0.11,
+      "asPercent": false,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "glowStrength": {
+      "group": "Sky",
+      "min": 0,
+      "max": 2,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "moonSweep": {
+      "group": "Motion",
+      "min": 0,
+      "max": 3,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "moteDensity": {
+      "group": "Sky",
+      "min": 0,
+      "max": 2.5,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": true,
+      "labelled": true,
+      "found": true
+     },
+     "openZoom": {
+      "group": "Camera",
+      "min": 0.5,
+      "max": 1.6,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "rollAmount": {
+      "group": "Camera",
+      "min": 0,
+      "max": 2,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "spinSweep": {
+      "group": "Motion",
+      "min": 0,
+      "max": 3,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "starBrightness": {
+      "group": "Sky",
+      "min": 0.3,
+      "max": 2,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "starDensity": {
+      "group": "Sky",
+      "min": 0.3,
+      "max": 2,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": true,
+      "labelled": true,
+      "found": true
+     },
+     "swipeCommit": {
+      "group": "Swipe",
+      "min": 0.15,
+      "max": 0.75,
+      "default": 0.35,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "swipeDistance": {
+      "group": "Swipe",
+      "min": 90,
+      "max": 420,
+      "default": 210,
+      "asPercent": false,
+      "suffix": "dp",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     },
+     "verticalTravel": {
+      "group": "Camera",
+      "min": 0,
+      "max": 1.6,
+      "default": 1,
+      "asPercent": true,
+      "suffix": "",
+      "rebuilds": false,
+      "labelled": true,
+      "found": true
+     }
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "groups"
+    ],
+    [
+     "Swipe",
+     "Camera",
+     "Motion",
+     "Sky",
+     "Events"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "defaults reproduce the shipped values everywhere",
+  "group": "registry",
+  "probe": {
+   "scenario": "defaults"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "snapshot"
+    ],
+    {
+     "beltDensity": 1,
+     "cameraEase": 0.15,
+     "coverZoom": 1,
+     "eventLength": 1,
+     "eventRate": 1,
+     "foldEase": 0.11,
+     "glowStrength": 1,
+     "moonSweep": 1,
+     "moteDensity": 1,
+     "openZoom": 1,
+     "rollAmount": 1,
+     "spinSweep": 1,
+     "starBrightness": 1,
+     "starDensity": 1,
+     "swipeCommit": 0.35,
+     "swipeDistance": 210,
+     "verticalTravel": 1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "live"
+    ],
+    {
+     "beltDensity": 1,
+     "cameraEase": 0.15,
+     "coverZoom": 1,
+     "eventLength": 1,
+     "eventRate": 1,
+     "foldEase": 0.11,
+     "glowStrength": 1,
+     "moonSweep": 1,
+     "moteDensity": 1,
+     "openZoom": 1,
+     "rollAmount": 1,
+     "spinSweep": 1,
+     "starBrightness": 1,
+     "starDensity": 1,
+     "swipeCommit": 0.35,
+     "swipeDistance": 210,
+     "verticalTravel": 1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "allDefault"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "values are clamped to their declared range",
+  "group": "values",
+  "probe": {
+   "scenario": "clamping"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "set"
+    ],
+    {
+     "beltDensity": [
+      0,
+      2
+     ],
+     "cameraEase": [
+      0.05,
+      0.4
+     ],
+     "coverZoom": [
+      0.6,
+      1.8
+     ],
+     "eventLength": [
+      0.4,
+      2.5
+     ],
+     "eventRate": [
+      0.25,
+      4
+     ],
+     "foldEase": [
+      0.04,
+      0.3
+     ],
+     "glowStrength": [
+      0,
+      2
+     ],
+     "moonSweep": [
+      0,
+      3
+     ],
+     "moteDensity": [
+      0,
+      2.5
+     ],
+     "openZoom": [
+      0.5,
+      1.6
+     ],
+     "rollAmount": [
+      0,
+      2
+     ],
+     "spinSweep": [
+      0,
+      3
+     ],
+     "starBrightness": [
+      0.3,
+      2
+     ],
+     "starDensity": [
+      0.3,
+      2
+     ],
+     "swipeCommit": [
+      0.15,
+      0.75
+     ],
+     "swipeDistance": [
+      90,
+      420
+     ],
+     "verticalTravel": [
+      0,
+      1.6
+     ]
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "replaced"
+    ],
+    [
+     4,
+     0.5
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "unknown ids are ignored rather than crashing",
+  "group": "values",
+  "probe": {
+   "scenario": "unknownIds"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "value"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "param"
+    ],
+    null
+   ],
+   [
+    "path_equal",
+    [
+     "isDefault"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "cameraEase"
+    ],
+    0.25
+   ],
+   [
+    "path_equal",
+    [
+     "inSnapshot"
+    ],
+    false
+   ]
+  ]
+ },
+ {
+  "original_id": "only real changes to scene parameters bump the rebuild revision, once per call",
+  "group": "values",
+  "probe": {
+   "scenario": "revisions"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "drawOnly"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "rebuild"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "sameValue"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "clampedSame"
+    ],
+    2
+   ],
+   [
+    "path_equal",
+    [
+     "replaceThree"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "replaceDrawOnly"
+    ],
+    3
+   ],
+   [
+    "path_equal",
+    [
+     "reset"
+    ],
+    4
+   ],
+   [
+    "path_equal",
+    [
+     "resetAgain"
+    ],
+    4
+   ]
+  ]
+ },
+ {
+  "original_id": "profiles round-trip and missing ids fall back to defaults",
+  "group": "values",
+  "probe": {
+   "scenario": "profiles"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "roundTrip"
+    ],
+    [
+     1.35,
+     2
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "missingDefault"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "given"
+    ],
+    2.5
+   ],
+   [
+    "path_equal",
+    [
+     "allDefault"
+    ],
+    false
+   ],
+   [
+    "path_equal",
+    [
+     "moonIsDefault"
+    ],
+    false
+   ],
+   [
+    "path_equal",
+    [
+     "openIsDefault"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "live fields always mirror the current values",
+  "group": "values",
+  "probe": {
+   "scenario": "liveFields"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "afterSet"
+    ],
+    {
+     "beltDensity": 1,
+     "cameraEase": 0.15,
+     "coverZoom": 1,
+     "eventLength": 2,
+     "eventRate": 1,
+     "foldEase": 0.11,
+     "glowStrength": 1,
+     "moonSweep": 1,
+     "moteDensity": 1,
+     "openZoom": 1,
+     "rollAmount": 0.25,
+     "spinSweep": 1,
+     "starBrightness": 1,
+     "starDensity": 1,
+     "swipeCommit": 0.35,
+     "swipeDistance": 300,
+     "verticalTravel": 1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "afterReplace"
+    ],
+    {
+     "beltDensity": 0.6,
+     "cameraEase": 0.15,
+     "coverZoom": 1,
+     "eventLength": 1,
+     "eventRate": 1,
+     "foldEase": 0.11,
+     "glowStrength": 1,
+     "moonSweep": 1,
+     "moteDensity": 1,
+     "openZoom": 1,
+     "rollAmount": 1,
+     "spinSweep": 1,
+     "starBrightness": 1,
+     "starDensity": 1,
+     "swipeCommit": 0.35,
+     "swipeDistance": 210,
+     "verticalTravel": 1
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "backToDefault"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "a multiplier of one leaves counts untouched and others truncate at zero",
+  "group": "counts",
+  "probe": {
+   "scenario": "scaleCount"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    [
+     1100,
+     210,
+     0,
+     20,
+     10,
+     0,
+     1000,
+     0,
+     998
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "readouts format as percentages or fixed decimals with their unit",
+  "group": "counts",
+  "probe": {
+   "scenario": "formatting"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    [
+     "35%",
+     "100%",
+     "25%",
+     "0%",
+     "210dp",
+     "99.50dp",
+     "100dp",
+     "420dp",
+     "0.15",
+     "0.40"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "a gesture is worth at most one world, signed against the drag",
+  "group": "swipe",
+  "probe": {
+   "scenario": "fractions"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "base"
+    ],
+    [
+     1,
+     1,
+     1,
+     0.5,
+     0,
+     -0.25,
+     -1,
+     -1,
+     -1
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "tuned"
+    ],
+    [
+     0.5,
+     -1
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "long drags commit one world and short slow ones spring back",
+  "group": "swipe",
+  "probe": {
+   "scenario": "outcomes"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "longs"
+    ],
+    [
+     1,
+     1,
+     1,
+     -1,
+     -1,
+     -1
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "slowLong"
+    ],
+    [
+     -1,
+     1
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "small"
+    ],
+    [
+     0,
+     0
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "still"
+    ],
+    [
+     0,
+     0
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "threshold"
+    ],
+    [
+     1,
+     0
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "short fast flicks commit within the flick window only",
+  "group": "swipe",
+  "probe": {
+   "scenario": "flicks"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    [
+     -1,
+     1,
+     -1,
+     1,
+     0,
+     0,
+     0,
+     0
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "swipe distance and commit threshold move the boundary",
+  "group": "swipe",
+  "probe": {
+   "scenario": "tunedSwipe"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "far"
+    ],
+    0
+   ],
+   [
+    "path_equal",
+    [
+     "near"
+    ],
+    -1
+   ],
+   [
+    "path_equal",
+    [
+     "boundary"
+    ],
+    [
+     0,
+     -1,
+     1
+    ]
+   ]
+  ]
+ }
+]

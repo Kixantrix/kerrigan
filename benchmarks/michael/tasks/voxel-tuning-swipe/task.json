@@ -1,0 +1,45 @@
+{
+ "id": "voxel-tuning-swipe",
+ "family": "Implement",
+ "title": "Implement a clamped, revisioned tuning registry and one-world swipe arithmetic for a live wallpaper engine (graded on a faithful TS port)",
+ "source": {
+  "repo": "Kixantrix/voxel-solar-wallpaper",
+  "visibility": "public",
+  "kind": "commit",
+  "commit": "86f0416983996fa77d415122bbfbb400e997e4ce",
+  "base_ref": "c7ca6dea8f39149b08266fe22d0ca357fe2ef50a",
+  "reference_ref": "86f0416983996fa77d415122bbfbb400e997e4ce",
+  "history_status": "merged"
+ },
+ "derivation": "voxel-solar-wallpaper commit 86f0416983 on main (merged history; the repo has no PRs) added engine/Tuning.kt (parameter registry, clamping, rebuild revision, profiles, scaleCount, readout formatting) and engine/Swipe.kt (a gesture is worth at most one world; commit on threshold or flick), pinned by TuningTest.kt. The Kotlin/Android app cannot run in the grader sandbox, so per coordinator direction the package is graded on a faithful TypeScript port of those two pure files (TASK.md says so): the reference ports Tuning.kt and Swipe.kt line-for-line (Kotlin object -> module singleton, Map snapshot -> plain object, coerceIn -> min/max, toInt -> Math.trunc, String.format(Locale.US, %.2f) -> toFixed(2), Math.round unchanged; parameter properties are written out because Node type stripping rejects them). TASK.md restates the two Milestone 4 tasks from docs/tasks.md and the commit's parameter table and semantics, including the 1e-9/1e-12 tolerances and the flick window. The agent files are two one-line stubs (both files are new in the commit). Hidden scenarios port every TuningTest case that does not need the renderer (clamping, uniqueness/ranges, revision, unknown ids, snapshot round-trip, missing ids, all swipe cases) and add held-out values: revision counts per call, live fields, scaleCount truncation and negative bases, readout formats away from rounding ties, flick window edges, and threshold probes either side of (not at) a floating-point boundary. TuningTest's Scene/AmbientEvents cases need the renderer port and are excluded.",
+ "privacy": "public",
+ "coverage": "13 rows: registry (2), values (5), counts and formatting (2), swipe (4).",
+ "historical_exposure": "Public repository; recognition risk moderate.",
+ "outcome_evidence": "held_out_tests",
+ "estimated_agent_minutes": 25,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Labels, hints and comment wording are not graded."
+ ],
+ "leak_tokens": [
+  "springing back otherwise",
+  "coerceIn"
+ ],
+ "required_environment": "Original: Android SDK + Gradle JVM unit tests (TuningTest.kt). Packaged: node 24 type stripping (michael-replay-grader-node:mb008) on the faithful TS port.",
+ "grader": {
+  "runtime": "node",
+  "harness": "scenarios.mjs",
+  "candidate": "src/engine/tuning.ts",
+  "candidates": [
+   "src/engine/swipe.ts",
+   "src/engine/tuning.ts"
+  ],
+  "denominators": {
+   "registry": 2,
+   "values": 5,
+   "counts": 2,
+   "swipe": 4
+  }
+ },
+ "round": 4
+}

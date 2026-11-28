@@ -1948,6 +1948,49 @@
     "hidden_checks": 15,
     "hidden_clauses": 52
    }
+  },
+  {
+   "id": "voxel-tuning-swipe",
+   "family": "Implement",
+   "title": "Implement a clamped, revisioned tuning registry and one-world swipe arithmetic for a live wallpaper engine",
+   "repo": "Kixantrix/voxel-solar-wallpaper",
+   "visibility": "public",
+   "source": {
+    "kind": "commit",
+    "pr": null,
+    "issue": null
+   },
+   "base_ref": "c7ca6dea8f39149b08266fe22d0ca357fe2ef50a",
+   "reference_ref": "86f0416983996fa77d415122bbfbb400e997e4ce",
+   "stack": [
+    "kotlin",
+    "typescript"
+   ],
+   "toolchain": "node 24 type stripping, no deps (faithful TS port of the Kotlin engine files)",
+   "grader_container_ok": true,
+   "required_environment": "Android SDK/Gradle JVM tests upstream; package grades the faithful TS port under Node 24",
+   "outcome_evidence": "held_out_tests",
+   "evidence_detail": "13 rows porting every renderer-free TuningTest case plus held-out values (revision per call, live fields, truncation, formats, flick window edges). Base 0/13, reference 13/13; an independent TS port passes, five wrong ports fail.",
+   "privacy": "public",
+   "privacy_note": "Public repo.",
+   "estimated_agent_minutes": 25,
+   "long_horizon": false,
+   "summary": "Implement Tuning (17 clamped parameters, rebuild revision, profiles, scaleCount, readouts) and Swipe (one world per gesture, flick commit) as pure modules; graded on a faithful TS port.",
+   "history_status": "merged",
+   "package": "voxel-tuning-swipe",
+   "provenance_kind": "merged-commit-port",
+   "grader_image": "michael-replay-grader-node:mb008",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 2,
+    "oracle_lines_added": 244,
+    "oracle_lines_removed": 4,
+    "writable_files": 2,
+    "files_to_read": 4,
+    "lines_to_read": 142,
+    "hidden_checks": 13,
+    "hidden_clauses": 43
+   }
   }
  ],
  "anchor_packages": {

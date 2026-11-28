@@ -4731,5 +4731,91 @@
     "model gates pending executor"
    ]
   }
+ },
+ {
+  "task": "kixantrix/michael-voxel-tuning-swipe",
+  "task_sha256": "740bbabe7e26eebe0389098c8de6ec2d1f0c6628d68556a94f3b95f2539e3efb",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "counts_passed": 2.0,
+    "counts_total": 2.0,
+    "registry_passed": 2.0,
+    "registry_total": 2.0,
+    "reward": 1.0,
+    "swipe_passed": 4.0,
+    "swipe_total": 4.0,
+    "ungraded": 0.0,
+    "values_passed": 5.0,
+    "values_total": 5.0
+   },
+   "base_reward": {
+    "counts_passed": 0.0,
+    "counts_total": 2.0,
+    "registry_passed": 0.0,
+    "registry_total": 2.0,
+    "reward": 0.0,
+    "swipe_passed": 0.0,
+    "swipe_total": 4.0,
+    "ungraded": 0.0,
+    "values_passed": 0.0,
+    "values_total": 5.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/voxel-tuning-swipe",
+      "task_sha256": "740bbabe7e26eebe0389098c8de6ec2d1f0c6628d68556a94f3b95f2539e3efb"
+     },
+     "request_sha256": "d165618503352ae3cc626e6ea3da4929412c5119cd1f9389e2bc9f53906683bb",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/voxel-tuning-swipe",
+      "task_sha256": "740bbabe7e26eebe0389098c8de6ec2d1f0c6628d68556a94f3b95f2539e3efb"
+     },
+     "request_sha256": "a67a992ecd669b543805d6f88bf1f0359e966921601ce833ebef2d82612787d5",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/voxel-tuning-swipe",
+     "task_sha256": "740bbabe7e26eebe0389098c8de6ec2d1f0c6628d68556a94f3b95f2539e3efb",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "119001fd3d07e8ed308625aae7dc73c385f6830dc8b2f7d8a610c59ca4350e45",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "provisional",
+   "reasons": [
+    "model gates pending executor"
+   ]
+  }
  }
 ]
