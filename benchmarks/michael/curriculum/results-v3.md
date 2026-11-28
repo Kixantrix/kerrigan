@@ -1,9 +1,43 @@
 # Round 3: repeated native trials
 
-**Status:** the initial three-task cloud cohort is complete. Expanded curriculum
-admissions/repeats are not yet included; the operational local-model window has
-not started. These are local macOS MXC tools with cloud inference, not
-cloud-hosted tools.
+**Status:** the cloud sections are final for every admitted non-anchor package:
+15 tasks, 90 logical attempts across five sealed cohorts. The seven public
+anchors are **pending** (verifier-build trust block, see below). The local-model
+window is reported separately. These are local macOS MXC tools with cloud
+inference, not cloud-hosted tools.
+
+## Round-three cloud summary (all admitted non-anchor tasks)
+
+Pooled across the core, expanded, Foal, successor and gap-fill cohorts. Each
+cohort keeps its own source-epoch label in the matrix; this table pools them
+with those conditions disclosed, and does not pool rounds 1-2.
+
+| Target | Successes / pass@1 | 95% Wilson | pass^3 (tasks) | 95% Wilson (pass^3) | Pass-any | Median verified s [Q1, Q3] | Input / output tokens |
+|---|---:|---|---:|---|---:|---|---:|
+| mai-code-2 | 37/45 (82.2%) | 68.7%-90.7% | 11/15 | 48.0%-89.1% | 14/15 | 153.63 [100.30, 231.02] | 19,991,364 / 375,019 |
+| claude-sonnet-5.5 | 41/45 (91.1%) | 79.3%-96.5% | 13/15 | 62.1%-96.3% | 15/15 | 42.26 [27.31, 55.74] | 12,711,353 / 349,994 |
+
+| Cohort | Tasks | MAI | Sonnet | Sealed record |
+|---|---:|---:|---:|---|
+| Core (source epochs v1-v4) | 3 | 6/9 | 9/9 | [core](MBR3-core-results.json) |
+| Expanded v5 | 6 | 13/18 | 16/18 | [expanded](MBR3-expanded-results.json) |
+| Foal v6 | 1 | 3/3 | 3/3 | [Foal](MBR3-foal-results.json) |
+| Successors v7c | 2 | 6/6 | 6/6 | [successors](MBR3-successors-results.json) |
+| Gap-fill v8 | 3 | 9/9 | 7/9 | [gap-fill](MBR3-gapfill-results.json) |
+| Public anchors | 7 | pending | pending | blocked; no subject started |
+
+Failure modes: MAI `unsupported-defect-claim` ×3, `spec-misread` ×2 and
+uncategorized model failures ×3 (gear mesh); Sonnet uncategorized model
+failures ×4 (design-case README ×2, SL rolling resistance ×2). All eight are
+model-attributed; there were no scored harness-fault replacements after core.
+Uncategorized means no controlled-vocabulary label applies, not unknown cause.
+The verified-time medians use different successful-task mixtures. Cost, peak
+model memory and energy remain unknown, not zero.
+
+All 90 records are bound by [MBR3-cloud-verification.json](MBR3-cloud-verification.json),
+which extends the immutable core archive with the four follow-up cohorts'
+complete schedules, ledgers, artifacts, independent reports, safety receipts
+and frozen source snapshots, and are in the [generated matrix](../matrix/matrix.md).
 
 ## Initial cloud cohort
 
@@ -90,7 +124,7 @@ accepted with only `untested_requirement` findings:
 [gear mesh](MBR3-design-alethiometer-gear-mesh-admission.json).
 Their [36 order-balanced subjects](MBR3-expanded-results.json) are complete:
 MAI **13/18**, Sonnet **16/18**, with no harness-fault replacements.
-The portable combined matrix is pending the queued follow-up cohorts.
+They are now in the portable combined matrix.
 Admission findings are not subject failures.
 
 | Expanded task | MAI | Sonnet |
@@ -176,6 +210,14 @@ export/policy, final-state artifact contract and independent-grader/ledger
 adapter. No native anchor trial or substitute harness was run. PyTorch's
 environment gap and NodeBB's task defect remain separate. Curriculum is
 preparing the converters; their results are not assumed here.
+
+**Anchor status: pending.** Native verifier builds on macOS write an empty CA
+bundle and fail PyPI TLS verification before image creation; the curriculum
+session is providing an explicit hash-bound `--ca-bundle` fix. Element-web and
+Tutanota diff-mode task profiles (about 500 KB and 260 KB) also fail native
+reference writes with stdin EPIPE. No anchor admission or subject slot has
+started, so the seven anchors have no scored cells (see
+[MB-R3 block](../../../.specify/blocks/MB-R3.yaml)).
 
 ## Local condition and reproducible evidence
 

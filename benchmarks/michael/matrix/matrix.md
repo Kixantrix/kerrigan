@@ -32,6 +32,22 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-R3/discovery-parity-v4:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 104.55 | 105,008 / 5,114 | unknown; unknown; unknown | none observed |
 | MB-R3/discovery-parity-v4:mai-code-2 | cloud | Orchestrate × medium | 2 | 1/2 (9.5%–90.5%) | 187.57 | 529,369 / 17,329 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
 | MB-R3/discovery-parity-v4:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 130,735 / 8,130 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
+| MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Design × medium | 6 | 4/6 (30.0%–90.3%) | 120.67 | 1,692,362 / 65,650 | unknown; unknown; unknown | model-failure-unclassified ×2 |
+| MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Experiment × large | 3 | 3/3 (43.9%–100.0%) | 43.62 | 608,806 / 16,719 | unknown; unknown; unknown | none observed |
+| MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Experiment × medium | 3 | 3/3 (43.9%–100.0%) | 26.25 | 184,698 / 10,100 | unknown; unknown; unknown | none observed |
+| MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Implement × medium | 6 | 6/6 (61.0%–100.0%) | 75.15 | 2,080,740 / 65,732 | unknown; unknown; unknown | none observed |
+| MB-R3/expanded-v5:mai-code-2 | cloud | Design × medium | 6 | 3/6 (18.8%–81.2%) | 103.32 | 1,878,768 / 65,684 | unknown; unknown; unknown | model-failure-unclassified ×3 |
+| MB-R3/expanded-v5:mai-code-2 | cloud | Experiment × large | 3 | 3/3 (43.9%–100.0%) | 213.05 | 2,441,885 / 23,444 | unknown; unknown; unknown | none observed |
+| MB-R3/expanded-v5:mai-code-2 | cloud | Experiment × medium | 3 | 1/3 (6.1%–79.2%) | 118.77 | 804,604 / 20,134 | unknown; unknown; unknown | spec-misread ×2 |
+| MB-R3/expanded-v5:mai-code-2 | cloud | Implement × medium | 6 | 6/6 (61.0%–100.0%) | 188.19 | 2,642,041 / 62,191 | unknown; unknown; unknown | none observed |
+| MB-R3/foal-v6:claude-sonnet-5.5 | cloud | Review and repair × medium | 3 | 3/3 (43.9%–100.0%) | 46.73 | 1,058,936 / 13,678 | unknown; unknown; unknown | none observed |
+| MB-R3/foal-v6:mai-code-2 | cloud | Review and repair × medium | 3 | 3/3 (43.9%–100.0%) | 231.24 | 2,822,750 / 28,444 | unknown; unknown; unknown | none observed |
+| MB-R3/gapfill-v8:claude-sonnet-5.5 | cloud | Orchestrate × large | 3 | 1/3 (6.1%–79.2%) | 152.12 | 3,025,330 / 54,074 | unknown; unknown; unknown | model-failure-unclassified ×2 |
+| MB-R3/gapfill-v8:claude-sonnet-5.5 | cloud | Research × medium | 3 | 3/3 (43.9%–100.0%) | 26.30 | 395,941 / 7,671 | unknown; unknown; unknown | none observed |
+| MB-R3/gapfill-v8:claude-sonnet-5.5 | cloud | Research × small | 3 | 3/3 (43.9%–100.0%) | 29.76 | 424,151 / 8,252 | unknown; unknown; unknown | none observed |
+| MB-R3/gapfill-v8:mai-code-2 | cloud | Orchestrate × large | 3 | 3/3 (43.9%–100.0%) | 257.71 | 3,899,142 / 34,710 | unknown; unknown; unknown | none observed |
+| MB-R3/gapfill-v8:mai-code-2 | cloud | Research × medium | 3 | 3/3 (43.9%–100.0%) | 62.04 | 456,448 / 7,681 | unknown; unknown; unknown | none observed |
+| MB-R3/gapfill-v8:mai-code-2 | cloud | Research × small | 3 | 3/3 (43.9%–100.0%) | 68.09 | 454,538 / 6,337 | unknown; unknown; unknown | none observed |
 | MB-R3/original-tooltip-v1:claude-sonnet-5.5 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 26.46 | 88,964 / 2,678 | unknown; unknown; unknown | none observed |
 | MB-R3/original-tooltip-v1:claude-sonnet-5.5 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 36.29 | 116,197 / 4,185 | unknown; unknown; unknown | none observed |
 | MB-R3/original-tooltip-v1:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 73.82 | 88,227 / 2,769 | unknown; unknown; unknown | none observed |
@@ -42,6 +58,10 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-R3/policy-tooltip-v2:claude-sonnet-5.5 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 40.56 | 117,000 / 4,343 | unknown; unknown; unknown | none observed |
 | MB-R3/policy-tooltip-v2:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 110.39 | 163,732 / 6,254 | unknown; unknown; unknown | none observed |
 | MB-R3/policy-tooltip-v2:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 285,415 / 15,832 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
+| MB-R3/successors-v7c:claude-sonnet-5.5 | cloud | Operate × large | 3 | 3/3 (43.9%–100.0%) | 140.15 | 1,899,195 / 63,617 | unknown; unknown; unknown | none observed |
+| MB-R3/successors-v7c:claude-sonnet-5.5 | cloud | Review and repair × medium | 3 | 3/3 (43.9%–100.0%) | 22.80 | 317,658 / 5,925 | unknown; unknown; unknown | none observed |
+| MB-R3/successors-v7c:mai-code-2 | cloud | Operate × large | 3 | 3/3 (43.9%–100.0%) | 278.01 | 2,287,742 / 40,854 | unknown; unknown; unknown | none observed |
+| MB-R3/successors-v7c:mai-code-2 | cloud | Review and repair × medium | 3 | 3/3 (43.9%–100.0%) | 89.96 | 586,178 / 13,448 | unknown; unknown; unknown | none observed |
 
 ## Derived routing
 
@@ -50,12 +70,16 @@ Objective: fastest; minimum n=5; 95% lower bound ≥80%. No fallback model is in
 | Family × size | Recommendation |
 |---|---|
 | Design × medium | insufficient evidence |
+| Experiment × large | insufficient evidence |
 | Experiment × medium | insufficient evidence |
 | Experiment × small | insufficient evidence |
 | Implement × medium | insufficient evidence |
 | Implement × small | insufficient evidence |
+| Operate × large | insufficient evidence |
 | Operate × small | insufficient evidence |
+| Orchestrate × large | insufficient evidence |
 | Orchestrate × medium | insufficient evidence |
+| Research × medium | insufficient evidence |
 | Research × small | insufficient evidence |
 | Review and repair × medium | insufficient evidence |
 | Understand and plan × small | insufficient evidence |
