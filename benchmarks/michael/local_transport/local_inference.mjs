@@ -3,7 +3,8 @@ import { performance } from "node:perf_hooks";
 
 export const LOCAL_LIMITS = Object.freeze({
     inputTokens: 229376, contextTokens: 262144, outputTokens: 16384,
-    inputBytes: 65536, templateTokensPerMessage: 256, responseBytes: 8388608, requests: 128, cleanupSeconds: 15,
+    inputBytes: 65536, templateTokensPerMessage: 256,
+    empiricalInput: Object.freeze({ bytes: 98304, nativeTokens: 172032, maxTokensPerByte: 0.8742 * 1.1 }), responseBytes: 8388608, requests: 128, cleanupSeconds: 15,
     toolCallsPerResponse: 8
 });
 
@@ -69,7 +70,11 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         const inputTokenHeuristic = previous === null ? inputBytes + LOCAL_LIMITS.templateTokensPerMessage :
             previous.inputTokens + (inputBytes - previous.inputBytes) +
             (messages.length - previous.messages) * LOCAL_LIMITS.templateTokensPerMessage;
-        if (inputBytes > LOCAL_LIMITS.inputBytes || inputTokenHeuristic > LOCAL_LIMITS.inputTokens)
+        // v13 monitored empirical admission PILOT (Local AI setup): 96 KiB JSON with native-count stops.
+        // Not exact-token preflight certification; missing native usage already ends admissions.
+        const empirical = condition.inputBound === "empirical-v13" ? LOCAL_LIMITS.empiricalInput : null;
+        if (inputBytes > (empirical ? empirical.bytes : LOCAL_LIMITS.inputBytes) ||
+            (!empirical && inputTokenHeuristic > LOCAL_LIMITS.inputTokens))
             throw new Error("local_context_budget");
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         const remaining = condition.windowEndMs - clock() - LOCAL_LIMITS.cleanupSeconds * 1000;
@@ -150,6 +155,9 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         calls++;
         if (!limitsVerified) throw new Error("local_ambiguous_native_fit");
         previous = { inputTokens: nativeUsage.inputTokens, inputBytes, messages: messages.length };
+        if (empirical && (nativeUsage.inputTokens > empirical.nativeTokens ||
+                          nativeUsage.inputTokens / inputBytes > empirical.maxTokensPerByte))
+            throw new Error("local_context_budget");
         if (finishReason === "length") return { calls, status: "output-cap", limitsVerified };
         const message = response.choices[0].message;
         const toolCalls = message.tool_calls || [];
