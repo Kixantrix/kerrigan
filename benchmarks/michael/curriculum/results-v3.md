@@ -26,11 +26,12 @@ with those conditions disclosed, and does not pool rounds 1-2.
 | Gap-fill v8 | 3 | 9/9 | 7/9 | [gap-fill](MBR3-gapfill-results.json) |
 | Public anchors | 7 | pending | pending | blocked; no subject started |
 
-Failure modes: MAI `unsupported-defect-claim` ×3, `spec-misread` ×2 and
-uncategorized model failures ×3 (gear mesh); Sonnet uncategorized model
-failures ×4 (design-case README ×2, SL rolling resistance ×2). All eight are
-model-attributed; there were no scored harness-fault replacements after core.
-Uncategorized means no controlled-vocabulary label applies, not unknown cause.
+Failure modes, from each failure's deterministic failed clause: MAI
+`unsupported-defect-claim` ×3, `spec-misread` ×2 and `wrong-domain-rule` ×3
+(gear-mesh tooth thickness/backlash); Sonnet `stale-derived-document` ×2
+(design-case README crystal-row height) and `wrong-domain-rule` ×2 (SL
+rolling-resistance deceleration). All are model-attributed; there were no scored
+harness-fault replacements after core.
 The verified-time medians use different successful-task mixtures. Cost, peak
 model memory and energy remain unknown, not zero.
 
@@ -55,7 +56,7 @@ provider/model revisions are unknown.
 Pass@1 is the empirical single-attempt success estimate across the three
 repeats, not a claim that only the first physical execution was selected.
 Pass^3 uses tasks as observations: its Wilson interval is 6.1%-79.2% for MAI
-and 43.9%-100% for Sonnet. Repeats share tasks and exposure, so these are
+and 43.9%-100% for Sonnet. Repeats share tasks (each in a fresh session without memory), so these are
 descriptive intervals, not independent-task population guarantees.
 
 | Task | MAI successes | Sonnet successes | MAI median verified seconds | Sonnet median verified seconds |
@@ -219,11 +220,45 @@ reference writes with stdin EPIPE. No anchor admission or subject slot has
 started, so the seven anchors have no scored cells (see
 [MB-R3 block](../../../.specify/blocks/MB-R3.yaml)).
 
+## Local-laptop window (first operational local condition)
+
+Target `local-laptop: mtplx-inkling-2-mini-optimized-quality` (MTPLX 2.13.2 on
+the user's M5 Max, 64 GiB, endpoint 127.0.0.1:8000), one attempt per task,
+smallest first, coordinated with the Local AI setup session on 2026-11-27
+(19:00–22:00 PST announced; inference 03:25–04:42Z). Requests were sequential,
+concurrency 1, and Docker grading ran only after release. The Colima VM and an
+idle pre-existing user container (`pa-dev-postgres`) remained resident, so the
+condition is **non-isolated**. It is **never pooled with cloud**, and each
+adapter revision is a separate condition (`/v9b`, `/v9d`).
+
+| Outcome | Tasks |
+|---|---|
+| Pass (6) | sr-temporal-assay (v9b), status, selfhost-redeploy-state, research-serverless-cost-v2, research-cs-speech-stack, design-alethiometer-case-v4 |
+| Model failure (3) | plan-dashboard-waves-v2 `ignored-existing-state` (scheduled the already-built scaffold), grouping and cs-mismatch-stage-authority-v2 `premature-stop-without-edit` (read TASK.md, then finished without the required edit) |
+| Unscored harness fault (5) | v9 zero-request `/health` size cap; status in v9b (two tool calls in one response) and v9c (scratch-scan timeout); emv-thumbnails-gallery-v3 (CLI tool-execute non-success); validator and foal-v2 (`harness-cap`: 64 KiB input-JSON heuristic, far below the agreed 229,376-token guardrail; not a model budget) |
+| Unscored environment (1) | review-conflict-predictor-v4: the Mac idle-slept on battery from 20:32:26 to 20:42:22 PST, and the 600 s request deadline was enforced on wake (680 s wall) |
+| Queued (9) | kirkland, gear-mesh, queue-v4, orchestrate-voice-v5, research-admin, yv-v4, te-baseline, sl-sim, vhs-v2, plus disclosed reruns of emv, review, validator and foal |
+
+All three failures are model-attributed by two independent cloud auditors.
+Each fault was fixed and pushed before the next disclosed attempt: bounded
+metadata (1d3217d), sequential multi-tool execution (5f7439c), tolerant timer
+scans (9f0abcc) and host-sleep-aware finalize (dfc6292). No failed model slot
+was rerun.
+
+Design-case's success also spans a 90 s host sleep. It counts as a success,
+but its timing is excluded from verified-time medians. Sleep-affected timings
+are not decode-performance evidence. Token totals are sums of native
+per-request receipts; reasoning tokens are **unknown** (missing on almost all
+responses). Energy and peak model memory are unknown, not zero. Next window:
+derive the input bound from the token guardrail with a conservative
+bytes-per-token margin (exploratory label above about 131K), and require AC
+power or an approved process-scoped `caffeinate`.
+
 ## Local condition and reproducible evidence
 
-The planned local condition is
-`local-laptop: mtplx-inkling-2-mini-optimized-quality`. It has no scored result
-yet. The real HTTP synthetic lifecycle proves native tool routing, exact
+The local condition is
+`local-laptop: mtplx-inkling-2-mini-optimized-quality`; its results are above and
+in [MBR3-local-verification.json](MBR3-local-verification.json). The real HTTP synthetic lifecycle proves native tool routing, exact
 collection, ledger finalization and Docker grading only after matching release;
 synthetic and budget-cutoff diagnostics never become completion verdicts.
 The whole-process deadline covers an in-progress tool, with 15 seconds reserved

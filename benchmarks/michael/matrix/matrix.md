@@ -32,22 +32,29 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 | MB-R3/discovery-parity-v4:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 104.55 | 105,008 / 5,114 | unknown; unknown; unknown | none observed |
 | MB-R3/discovery-parity-v4:mai-code-2 | cloud | Orchestrate × medium | 2 | 1/2 (9.5%–90.5%) | 187.57 | 529,369 / 17,329 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
 | MB-R3/discovery-parity-v4:mai-code-2 | cloud | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 130,735 / 8,130 | unknown; unknown; unknown | unsupported-defect-claim ×1 |
-| MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Design × medium | 6 | 4/6 (30.0%–90.3%) | 120.67 | 1,692,362 / 65,650 | unknown; unknown; unknown | model-failure-unclassified ×2 |
+| MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Design × medium | 6 | 4/6 (30.0%–90.3%) | 120.67 | 1,692,362 / 65,650 | unknown; unknown; unknown | stale-derived-document ×2 |
 | MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Experiment × large | 3 | 3/3 (43.9%–100.0%) | 43.62 | 608,806 / 16,719 | unknown; unknown; unknown | none observed |
 | MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Experiment × medium | 3 | 3/3 (43.9%–100.0%) | 26.25 | 184,698 / 10,100 | unknown; unknown; unknown | none observed |
 | MB-R3/expanded-v5:claude-sonnet-5.5 | cloud | Implement × medium | 6 | 6/6 (61.0%–100.0%) | 75.15 | 2,080,740 / 65,732 | unknown; unknown; unknown | none observed |
-| MB-R3/expanded-v5:mai-code-2 | cloud | Design × medium | 6 | 3/6 (18.8%–81.2%) | 103.32 | 1,878,768 / 65,684 | unknown; unknown; unknown | model-failure-unclassified ×3 |
+| MB-R3/expanded-v5:mai-code-2 | cloud | Design × medium | 6 | 3/6 (18.8%–81.2%) | 103.32 | 1,878,768 / 65,684 | unknown; unknown; unknown | wrong-domain-rule ×3 |
 | MB-R3/expanded-v5:mai-code-2 | cloud | Experiment × large | 3 | 3/3 (43.9%–100.0%) | 213.05 | 2,441,885 / 23,444 | unknown; unknown; unknown | none observed |
 | MB-R3/expanded-v5:mai-code-2 | cloud | Experiment × medium | 3 | 1/3 (6.1%–79.2%) | 118.77 | 804,604 / 20,134 | unknown; unknown; unknown | spec-misread ×2 |
 | MB-R3/expanded-v5:mai-code-2 | cloud | Implement × medium | 6 | 6/6 (61.0%–100.0%) | 188.19 | 2,642,041 / 62,191 | unknown; unknown; unknown | none observed |
 | MB-R3/foal-v6:claude-sonnet-5.5 | cloud | Review and repair × medium | 3 | 3/3 (43.9%–100.0%) | 46.73 | 1,058,936 / 13,678 | unknown; unknown; unknown | none observed |
 | MB-R3/foal-v6:mai-code-2 | cloud | Review and repair × medium | 3 | 3/3 (43.9%–100.0%) | 231.24 | 2,822,750 / 28,444 | unknown; unknown; unknown | none observed |
-| MB-R3/gapfill-v8:claude-sonnet-5.5 | cloud | Orchestrate × large | 3 | 1/3 (6.1%–79.2%) | 152.12 | 3,025,330 / 54,074 | unknown; unknown; unknown | model-failure-unclassified ×2 |
+| MB-R3/gapfill-v8:claude-sonnet-5.5 | cloud | Orchestrate × large | 3 | 1/3 (6.1%–79.2%) | 152.12 | 3,025,330 / 54,074 | unknown; unknown; unknown | wrong-domain-rule ×2 |
 | MB-R3/gapfill-v8:claude-sonnet-5.5 | cloud | Research × medium | 3 | 3/3 (43.9%–100.0%) | 26.30 | 395,941 / 7,671 | unknown; unknown; unknown | none observed |
 | MB-R3/gapfill-v8:claude-sonnet-5.5 | cloud | Research × small | 3 | 3/3 (43.9%–100.0%) | 29.76 | 424,151 / 8,252 | unknown; unknown; unknown | none observed |
 | MB-R3/gapfill-v8:mai-code-2 | cloud | Orchestrate × large | 3 | 3/3 (43.9%–100.0%) | 257.71 | 3,899,142 / 34,710 | unknown; unknown; unknown | none observed |
 | MB-R3/gapfill-v8:mai-code-2 | cloud | Research × medium | 3 | 3/3 (43.9%–100.0%) | 62.04 | 456,448 / 7,681 | unknown; unknown; unknown | none observed |
 | MB-R3/gapfill-v8:mai-code-2 | cloud | Research × small | 3 | 3/3 (43.9%–100.0%) | 68.09 | 454,538 / 6,337 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v9b:mtplx-inkling-2-mini-optimized-quality | local laptop | Experiment × small | 1 | 1/1 (20.7%–100.0%) | 91.59 | 104,895 / 7,370 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Design × medium | 1 | 1/1 (20.7%–100.0%) | unknown (1 host-sleep timing excluded) | 348,494 / 15,256 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Implement × small | 2 | 1/2 (9.5%–90.5%) | 154.44 | 140,221 / 11,574 | unknown; unknown; unknown | premature-stop-without-edit ×1 |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Operate × small | 1 | 1/1 (20.7%–100.0%) | 30.90 | 42,553 / 1,668 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Research × small | 2 | 2/2 (34.2%–100.0%) | 109.75 | 261,694 / 12,431 | unknown; unknown; unknown | none observed |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Review and repair × medium | 1 | 0/1 (0.0%–79.3%) | unknown | 3,052 / 111 | unknown; unknown; unknown | premature-stop-without-edit ×1 |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | local laptop | Understand and plan × small | 1 | 0/1 (0.0%–79.3%) | unknown | 105,661 / 15,410 | unknown; unknown; unknown | ignored-existing-state ×1 |
 | MB-R3/original-tooltip-v1:claude-sonnet-5.5 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 26.46 | 88,964 / 2,678 | unknown; unknown; unknown | none observed |
 | MB-R3/original-tooltip-v1:claude-sonnet-5.5 | cloud | Review and repair × medium | 1 | 1/1 (20.7%–100.0%) | 36.29 | 116,197 / 4,185 | unknown; unknown; unknown | none observed |
 | MB-R3/original-tooltip-v1:mai-code-2 | cloud | Implement × medium | 1 | 1/1 (20.7%–100.0%) | 73.82 | 88,227 / 2,769 | unknown; unknown; unknown | none observed |
@@ -84,6 +91,19 @@ Objective: fastest; minimum n=5; 95% lower bound ≥80%. No fallback model is in
 | Review and repair × medium | insufficient evidence |
 | Understand and plan × small | insufficient evidence |
 
+## Unscored physical attempts
+
+Retained but excluded from success denominators and routing. Budget-censored noncompletion instead counts in its condition's denominator, never as verified completion.
+
+| Target / condition | Task | Outcome | Reason |
+|---|---|---|---|
+| MB-R3/local-laptop/v9b:mtplx-inkling-2-mini-optimized-quality | status | unscored | runtime:local_parallel_tools_denied |
+| MB-R3/local-laptop/v9c:mtplx-inkling-2-mini-optimized-quality | status | unscored | scratch:scratch_scan:spawnSync /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3 ETIMEDOUT |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | emv-thumbnails-gallery-v3 | unscored | runtime:local_native_tool_failed |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | foal-meadow-regression-review-v2 | unscored | harness-cap: local 64 KiB input-JSON heuristic, not a model budget |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | review-conflict-predictor-v4 | environment-abort | environment: host sleep during inference (runtime:The operation was aborted due to timeout) |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | validator | unscored | harness-cap: local 64 KiB input-JSON heuristic, not a model budget |
+
 ## Provenance and prior attempts
 
 Selection/provenance is not a failure mode. Per-cell JSON provenance binds the exact ledger, chain head, frozen condition and artifact hashes. Native measurements come from the sealed index.
@@ -100,6 +120,63 @@ The following deterministically attributed prior attempts are excluded from prim
 | orchestrate-voice-integration-v5 | claude-sonnet-5.5 | v3 | ungraded | harness-error ×1 |
 | orchestrate-voice-integration-v5 | mai-code-2 | v3 | ungraded | invented-path-read ×1 |
 | orchestrate-voice-integration-v5 | mai-code-2 | v3 | ungraded | harness-error ×1 |
+
+## Pooled routing view
+
+Label: **pooled across conditions R1–R3 (native harness epochs differ)**. Deployment: cloud only; local is never pooled with cloud.
+Epochs: MB-009r, MB-010r, MB-R3/discovery-parity-v4, MB-R3/expanded-v5, MB-R3/foal-v6, MB-R3/gapfill-v8, MB-R3/original-tooltip-v1, MB-R3/policy-tooltip-v2, MB-R3/successors-v7c.
+Superseded task versions excluded: design-alethiometer-case-v2, emv-thumbnails-gallery-v2, kerrigan-plan-conflict-queue-v2, orchestrate-voice-integration-v3, review-conflict-predictor-v3, yv-relevance-instrument-v2.
+Rule: n≥5, 95% lower bound ≥80%, fastest median verified time; secondary pick is most reliable: highest 95% Wilson lower bound with n ≥ minimum_n, ties by median.
+
+| Model | Family × size | n (tasks) | Success (95% Wilson) | Median verified s |
+|---|---|---:|---|---:|
+| claude-sonnet-5.5 | Design × medium | 6 (2) | 4/6 (30.0%–90.3%) | 120.67 |
+| claude-sonnet-5.5 | Experiment × large | 3 (1) | 3/3 (43.9%–100.0%) | 43.62 |
+| claude-sonnet-5.5 | Experiment × medium | 3 (1) | 3/3 (43.9%–100.0%) | 26.25 |
+| claude-sonnet-5.5 | Experiment × small | 1 (1) | 1/1 (20.7%–100.0%) | 28.60 |
+| claude-sonnet-5.5 | Implement × medium | 9 (3) | 9/9 (70.1%–100.0%) | 42.26 |
+| claude-sonnet-5.5 | Implement × small | 3 (3) | 3/3 (43.9%–100.0%) | 35.06 |
+| claude-sonnet-5.5 | Operate × large | 3 (1) | 3/3 (43.9%–100.0%) | 140.15 |
+| claude-sonnet-5.5 | Operate × small | 1 (1) | 1/1 (20.7%–100.0%) | 20.30 |
+| claude-sonnet-5.5 | Orchestrate × large | 3 (1) | 1/3 (6.1%–79.2%) | 152.12 |
+| claude-sonnet-5.5 | Orchestrate × medium | 3 (1) | 3/3 (43.9%–100.0%) | 44.32 |
+| claude-sonnet-5.5 | Research × medium | 3 (1) | 3/3 (43.9%–100.0%) | 26.30 |
+| claude-sonnet-5.5 | Research × small | 4 (2) | 4/4 (51.0%–100.0%) | 29.27 |
+| claude-sonnet-5.5 | Review and repair × medium | 9 (3) | 9/9 (70.1%–100.0%) | 40.56 |
+| claude-sonnet-5.5 | Understand and plan × small | 1 (1) | 1/1 (20.7%–100.0%) | 21.83 |
+| mai-code-2 | Design × medium | 6 (2) | 3/6 (18.8%–81.2%) | 103.32 |
+| mai-code-2 | Experiment × large | 3 (1) | 3/3 (43.9%–100.0%) | 213.05 |
+| mai-code-2 | Experiment × medium | 3 (1) | 1/3 (6.1%–79.2%) | 118.77 |
+| mai-code-2 | Experiment × small | 1 (1) | 1/1 (20.7%–100.0%) | 52.00 |
+| mai-code-2 | Implement × medium | 9 (3) | 9/9 (70.1%–100.0%) | 153.63 |
+| mai-code-2 | Implement × small | 3 (3) | 3/3 (43.9%–100.0%) | 90.75 |
+| mai-code-2 | Operate × large | 3 (1) | 3/3 (43.9%–100.0%) | 278.01 |
+| mai-code-2 | Operate × small | 1 (1) | 1/1 (20.7%–100.0%) | 46.01 |
+| mai-code-2 | Orchestrate × large | 3 (1) | 3/3 (43.9%–100.0%) | 257.71 |
+| mai-code-2 | Orchestrate × medium | 3 (1) | 2/3 (20.8%–93.9%) | 201.69 |
+| mai-code-2 | Research × medium | 3 (1) | 3/3 (43.9%–100.0%) | 62.04 |
+| mai-code-2 | Research × small | 4 (2) | 4/4 (51.0%–100.0%) | 64.09 |
+| mai-code-2 | Review and repair × medium | 9 (3) | 7/9 (45.3%–93.7%) | 149.26 |
+| mai-code-2 | Understand and plan × small | 1 (1) | 1/1 (20.7%–100.0%) | 49.66 |
+
+| Family × size | Fastest reliable | Most reliable (lower bound) |
+|---|---|---|
+| Design × medium | insufficient evidence | claude-sonnet-5.5 (30.0%) |
+| Experiment × large | insufficient evidence | insufficient evidence |
+| Experiment × medium | insufficient evidence | insufficient evidence |
+| Experiment × small | insufficient evidence | insufficient evidence |
+| Implement × medium | insufficient evidence | claude-sonnet-5.5 (70.1%) |
+| Implement × small | insufficient evidence | insufficient evidence |
+| Operate × large | insufficient evidence | insufficient evidence |
+| Operate × small | insufficient evidence | insufficient evidence |
+| Orchestrate × large | insufficient evidence | insufficient evidence |
+| Orchestrate × medium | insufficient evidence | insufficient evidence |
+| Research × medium | insufficient evidence | insufficient evidence |
+| Research × small | insufficient evidence | insufficient evidence |
+| Review and repair × medium | insufficient evidence | claude-sonnet-5.5 (70.1%) |
+| Understand and plan × small | insufficient evidence | insufficient evidence |
+
+Pools different native harness epochs, rounds and correlated repeats of the same tasks; local or self-hosted targets are never pooled with cloud.
 
 ## Size and limits
 

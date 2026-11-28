@@ -167,7 +167,7 @@ evaluated v1 packages. Their decisions and ten trials remain unchanged;
 eight genuinely new task goals were evaluated here. New task versions are
 separate packages, not replacement evidence.
 
-## Prior attempts, task corrections and exposure
+## Prior attempts, task corrections and selection
 
 | Preserved version/attempt | Outcome or gate | Disposition |
 |---|---|---|
@@ -187,11 +187,12 @@ separate packages, not replacement evidence.
 
 No failed subject slot was rerun under the same frozen condition. Corrected task
 versions receive fresh disclosed conditions and keep the original outcomes.
-Both subjects saw research-v1 before research-v2, whose instruction is
-identical. Both saw orchestration-v1 and v2 before v3. No v4 subject session
-was started; its Sonnet audit and Gemini blind solve are not subject attempts. Fresh
-sessions do not establish remote isolation or absence of historical/service
-exposure.
+Research-v1 ran before research-v2, whose instruction is identical, and
+orchestration-v1/v2 ran before v3. Every subject run is a fresh session with no
+memory of earlier runs, so models carry no task knowledge between runs; only
+provider-side prompt caching could carry over, which affects speed and cost, not
+knowledge. No v4 subject session was started; its Sonnet audit and Gemini blind
+solve are not subject attempts.
 
 After the corrected-overlay re-audit, the sequential driver also ran original
 relevance and gallery before the parent's newer retirement manifest was
@@ -363,8 +364,9 @@ observed model time horizons.
 
 There is one attempt per model/task version, fixed MAI-first order, no
 controlled cache/provider state or host load, public historical source and
-repeated related-task exposure. Sonnet additionally audited tasks in
-separate sessions. No contamination-free, statistically independent or
+repeated related task versions (fresh sessions without memory; provider prompt
+caching can affect speed and cost only). Sonnet's separate audit sessions are a
+selection role in admission, not exposure. No contamination-free, statistically independent or
 general capability ranking is justified. Native reported model IDs/usage are
 receipts, not independently attested backend identity. Repeated context/cache
 input is not unique or billable prompt size; dollar cost, credits and power
