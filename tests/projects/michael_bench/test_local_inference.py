@@ -466,3 +466,23 @@ await window.release();
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)
+
+
+def test_scratch_removed_by_task_is_empty_not_fatal_but_aliases_still_cut_off(tmp_path):
+    from benchmarks.michael.local_transport.scratch_scan import scan
+    scratch = tmp_path / ".scratch"
+    scratch.mkdir()
+    identity = [scratch.stat().st_dev, scratch.stat().st_ino]
+    scratch.rmdir()
+    assert scan(str(scratch), identity, 10, 10) == {"bytes": 0, "entries": 0, "removed": True}
+    (tmp_path / "elsewhere").mkdir()
+    scratch.symlink_to(tmp_path / "elsewhere")
+    with pytest.raises(OSError):
+        scan(str(scratch), identity, 10, 10)
+    scratch.unlink()
+    script = f"""
+import assert from 'node:assert/strict';
+import {{discardScratch}} from './benchmarks/michael/local_transport/scratch.mjs';
+assert.deepEqual(discardScratch('{scratch}',[0,0]),{{discarded:true}});
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT, check=True, timeout=10)

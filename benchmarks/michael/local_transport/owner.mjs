@@ -33,7 +33,7 @@ let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, 
 let cli, input, events = 0, toolQueue = Promise.resolve();
 let finishing = false, spawning = 0, finalSourceError;
 let scratchError, scratchCleanup, scratchPeakBytes = 0, scratchPeakEntries = 0;
-let scratchConsecutiveMisses = 0, scratchMissedSamples = 0;
+let scratchConsecutiveMisses = 0, scratchMissedSamples = 0, scratchRemovedByTask = false;
 const localAbort = new AbortController(), localEvents = [];
 let local, localResult, localRelease;
 const scratchRoot = config.scratchDirectory ? config.task + "/" + SCRATCH.directory : null;
@@ -44,6 +44,7 @@ function checkScratch(boundary = false) {
         scratchPeakBytes = Math.max(scratchPeakBytes, state.bytes);
         scratchPeakEntries = Math.max(scratchPeakEntries, state.entries);
         scratchConsecutiveMisses = 0;
+        if (state.removed) scratchRemovedByTask = true;
     } catch (error) {
         // Timer samples may miss under host load; action boundaries and repeated misses still cut off.
         if (error.scanTimeout && !boundary && scratchConsecutiveMisses < SCAN.consecutiveMissesAllowed) {
@@ -528,7 +529,7 @@ finally {
         partialBudgetExhausted: partialBudget(), finalSourceError,
         cleanupSeconds, wholeProcessQuiescent: settled !== null && spawning === 0 && records.length > 0 &&
             records.every(record => record.reaped && record.warnings?.length === 0),
-        ...(scratchRoot ? { scratch: { peakBytes: scratchPeakBytes, peakEntries: scratchPeakEntries, missedSamples: scratchMissedSamples,
+        ...(scratchRoot ? { scratch: { peakBytes: scratchPeakBytes, peakEntries: scratchPeakEntries, missedSamples: scratchMissedSamples, removedByTask: scratchRemovedByTask,
             error: scratchError, cleanup: scratchCleanup, limits: SCRATCH } } : {}),
         records: records.map(({ wait, ...record }) => record),
         actions: [...actions], actionBytes: budget.bytes,         counts, events, messages, requests, protocolCondition: PROTOCOL,
