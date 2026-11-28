@@ -46,5 +46,5 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 ## Caveats
 
 - Local co-tenancy: resident idle Colima/pa-dev-postgres; sleep-affected timings excluded; never pooled with cloud.
-- 6 unscored physical attempt(s) (harness/environment), excluded from rates: status (runtime:local_parallel_tools_denied); status (scratch:scratch_scan:spawnSync /Library/Developer/CommandLin); emv-thumbnails-gallery-v3 (runtime:local_native_tool_failed); foal-meadow-regression-review-v2 (harness-cap: local 64 KiB input-JSON heuristic, not a model ); review-conflict-predictor-v4 (environment: host sleep during inference (runtime:The operat); validator (harness-cap: local 64 KiB input-JSON heuristic, not a model )
+- 6 unscored physical attempt(s) (harness/environment), excluded from rates: status (runtime:local_parallel_tools_denied); status (scratch:scratch_scan:spawnSync /Library/Developer/CommandLin); emv-thumbnails-gallery-v3 (runtime:local_native_tool_failed); foal-meadow-regression-review-v2 (harness-cap: input-admission unavailable (64 KiB input-JSON ); review-conflict-predictor-v4 (environment: host sleep during inference (runtime:The operat); validator (harness-cap: input-admission unavailable (64 KiB input-JSON )
 - Every run is a fresh session; repeats share tasks, so intervals are descriptive.

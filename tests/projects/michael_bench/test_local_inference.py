@@ -83,7 +83,7 @@ for(const [usage,reason] of [[undefined,/ambiguous_native_fit/],
   choices:[{message:{role:'assistant',tool_calls:[{type:'function',id:'t',
     function:{name:'mb_action',arguments:'{"op":"read","path":"TASK.md"}'}}]}}]}))}),reason);
 }
-await assert.rejects(()=>localLoop({...base,prompt:'x'.repeat(229377),
+await assert.rejects(()=>localLoop({...base,prompt:'x'.repeat(65537),
  fetcher:async()=>{throw Error('must not request')}}),/context_budget/);
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
@@ -201,11 +201,11 @@ assert.throws(()=>scratchState('{tmp_path}',[0,0],'{tmp_path}/missing-python',20
                    check=True, timeout=20)
 
 
-def test_input_bound_derives_from_native_tokens_not_a_byte_cap():
+def test_input_admission_keeps_byte_cap_and_records_token_heuristic_only():
     script = """
 import assert from 'node:assert/strict';
 import {localLoop,LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
-assert(!('inputBytes' in LOCAL_LIMITS));
+assert.equal(LOCAL_LIMITS.inputBytes,65536);
 const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
  limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
  concurrency:1,grading:'after-window-release'};
@@ -222,12 +222,11 @@ const run=async(toolResultBytes,reportedInput)=>{
     choices:[{message,finish_reason:'stop'}]}));}});
  return {result,started};
 };
-// 200 KB of tool output is far over the old 64 KiB cap but well inside the token guardrail.
-const ok=await run(200000,1000);
+const ok=await run(1000,500);
 assert.equal(ok.result.status,'completed');
-assert(ok.started[1].inputBytes>65536 && ok.started[1].inputTokenBound<LOCAL_LIMITS.inputTokens);
-// The same growth on top of a near-limit native count is refused before the request.
-await assert.rejects(()=>run(200000,LOCAL_LIMITS.inputTokens-1000),/local_context_budget/);
+assert(Number.isSafeInteger(ok.started[1].inputTokenHeuristic) && /unverified heuristic/.test(ok.started[1].inputEstimate));
+// A low heuristic never admits input beyond the byte cap.
+await assert.rejects(()=>run(70000,500),/local_context_budget/);
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=20)

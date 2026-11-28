@@ -301,7 +301,8 @@ def ledger_records(root, *, selected=None):
                     failures = ["budget-noncompletion"]
                 elif stop == "runtime:local_context_budget":
                     # Harness limit (64 KiB JSON heuristic), far below the agreed token guardrail.
-                    budget, reason = False, "harness-cap: local 64 KiB input-JSON heuristic, not a model budget"
+                    budget, reason = False, ("harness-cap: input-admission unavailable "
+                                             "(64 KiB input-JSON cap), not a model budget")
                 elif slept:
                     reason = f"environment: host sleep during inference ({stop})"
                 local_state = {"outcome_state": "budget-censored" if budget else (

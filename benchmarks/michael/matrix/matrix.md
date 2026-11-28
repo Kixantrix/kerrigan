@@ -101,9 +101,9 @@ Retained but excluded from success denominators and routing. Budget-censored non
 | MB-R3/local-laptop/v9b:mtplx-inkling-2-mini-optimized-quality | status | unscored | runtime:local_parallel_tools_denied |
 | MB-R3/local-laptop/v9c:mtplx-inkling-2-mini-optimized-quality | status | unscored | scratch:scratch_scan:spawnSync /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3 ETIMEDOUT |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | emv-thumbnails-gallery-v3 | unscored | runtime:local_native_tool_failed |
-| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | foal-meadow-regression-review-v2 | unscored | harness-cap: local 64 KiB input-JSON heuristic, not a model budget |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | foal-meadow-regression-review-v2 | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
 | MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | review-conflict-predictor-v4 | environment-abort | environment: host sleep during inference (runtime:The operation was aborted due to timeout) |
-| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | validator | unscored | harness-cap: local 64 KiB input-JSON heuristic, not a model budget |
+| MB-R3/local-laptop/v9d:mtplx-inkling-2-mini-optimized-quality | validator | unscored | harness-cap: input-admission unavailable (64 KiB input-JSON cap), not a model budget |
 
 ## Provenance and prior attempts
 
