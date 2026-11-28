@@ -8,6 +8,20 @@ LABEL = "pooled across conditions R1–R3 (native harness epochs differ)"
 VERSION = re.compile(r"^(?P<base>.+?)(?:-v(?P<version>\d+))?$")
 
 
+PROVISIONAL = {"minimum_n": 6, "minimum_tasks": 2, "point_success": 0.9, "lower_ci": 0.5}
+
+
+def provisional(candidates, policy=PROVISIONAL):
+    """Weaker, clearly labeled tier: fastest qualifying target, reliability-first tie-break."""
+    eligible = [(cell["median_verified_seconds"], -cell["wilson_ci95"][0], target)
+                for target, cell in candidates
+                if cell["n"] >= policy["minimum_n"] and cell["tasks"] >= policy["minimum_tasks"] and
+                cell["success_rate"] >= policy["point_success"] and cell["wilson_ci95"][0] >= policy["lower_ci"] and
+                cell["median_verified_seconds"] is not None]
+    return {"status": "provisional" if eligible else "insufficient evidence",
+            "target": min(eligible)[2] if eligible else None}
+
+
 def version(task):
     match = VERSION.match(task)
     return match["base"], int(match["version"] or 1)
@@ -48,6 +62,8 @@ def pooled(records, *, threshold=0.8, minimum_n=5):
                      if cell["median_verified_seconds"] is not None else float("inf"), model)
                     for model, cell in sampled]
         recommendations[column] = {
+            "provisional": provisional([(model, target[column]) for model, target in cells.items()
+                                        if column in target]),
             "fastest_reliable": min(fastest)[1] if fastest else None,
             "status": "recommended" if fastest else "insufficient evidence",
             "most_reliable": min(reliable)[2] if reliable else None,
@@ -57,6 +73,7 @@ def pooled(records, *, threshold=0.8, minimum_n=5):
                               for cell in model.values() for condition in cell["conditions"]}),
             "excluded_superseded_versions": sorted(excluded),
             "policy": {"objective": "fastest", "minimum_n": minimum_n, "lower_ci_threshold": threshold,
+                       "provisional": PROVISIONAL,
                        "secondary": "most reliable: highest 95% Wilson lower bound with n ≥ minimum_n, ties by median"},
             "cells": cells, "recommendations": recommendations,
             "limits": "Pools different native harness epochs, rounds and correlated repeats of the same tasks; "
@@ -79,10 +96,16 @@ def markdown(view):
             time = "unknown" if cell["median_verified_seconds"] is None else f"{cell['median_verified_seconds']:.2f}"
             lines.append(f"| {model} | {column} | {cell['n']} ({cell['tasks']}) | "
                          f"{cell['successes']}/{cell['n']} ({lo:.1%}–{hi:.1%}) | {time} |")
-    lines += ["", "| Family × size | Fastest reliable | Most reliable (lower bound) |", "|---|---|---|"]
+    tier = policy["provisional"]
+    lines += ["", f"Established: the rule above. Provisional (weaker, not established): n≥{tier['minimum_n']} across "
+              f"≥{tier['minimum_tasks']} tasks, point success ≥{tier['point_success']:.0%}, 95% lower bound "
+              f"≥{tier['lower_ci']:.0%}; fastest, reliability-first tie-break.", "",
+              "| Family × size | Established (fastest reliable) | Provisional | Most reliable (lower bound) |",
+              "|---|---|---|---|"]
     for column, row in view["recommendations"].items():
         reliable = (f"{row['most_reliable']} ({row['most_reliable_lower_ci']:.1%})"
                     if row["most_reliable"] else "insufficient evidence")
-        lines.append(f"| {column} | {row['fastest_reliable'] or row['status']} | {reliable} |")
+        lines.append(f"| {column} | {row['fastest_reliable'] or row['status']} | "
+                     f"{row['provisional']['target'] or row['provisional']['status']} | {reliable} |")
     lines += ["", view["limits"]]
     return lines

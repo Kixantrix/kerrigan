@@ -73,23 +73,24 @@ Unobserved deployment classes have no invented cells. Repeated exposure and spar
 ## Derived routing
 
 Objective: fastest; minimum n=5; 95% lower bound ≥80%. No fallback model is invented.
+Provisional tier (weaker, not established): n≥6 across ≥2 tasks, point success ≥90%, 95% lower bound ≥50%; fastest, reliability-first tie-break.
 
-| Family × size | Recommendation |
-|---|---|
-| Design × medium | insufficient evidence |
-| Experiment × large | insufficient evidence |
-| Experiment × medium | insufficient evidence |
-| Experiment × small | insufficient evidence |
-| Implement × medium | insufficient evidence |
-| Implement × small | insufficient evidence |
-| Operate × large | insufficient evidence |
-| Operate × small | insufficient evidence |
-| Orchestrate × large | insufficient evidence |
-| Orchestrate × medium | insufficient evidence |
-| Research × medium | insufficient evidence |
-| Research × small | insufficient evidence |
-| Review and repair × medium | insufficient evidence |
-| Understand and plan × small | insufficient evidence |
+| Family × size | Established | Provisional |
+|---|---|---|
+| Design × medium | insufficient evidence | insufficient evidence |
+| Experiment × large | insufficient evidence | insufficient evidence |
+| Experiment × medium | insufficient evidence | insufficient evidence |
+| Experiment × small | insufficient evidence | insufficient evidence |
+| Implement × medium | insufficient evidence | MB-R3/expanded-v5:claude-sonnet-5.5 |
+| Implement × small | insufficient evidence | insufficient evidence |
+| Operate × large | insufficient evidence | insufficient evidence |
+| Operate × small | insufficient evidence | insufficient evidence |
+| Orchestrate × large | insufficient evidence | insufficient evidence |
+| Orchestrate × medium | insufficient evidence | insufficient evidence |
+| Research × medium | insufficient evidence | insufficient evidence |
+| Research × small | insufficient evidence | insufficient evidence |
+| Review and repair × medium | insufficient evidence | insufficient evidence |
+| Understand and plan × small | insufficient evidence | insufficient evidence |
 
 ## Unscored physical attempts
 
@@ -159,22 +160,24 @@ Rule: n≥5, 95% lower bound ≥80%, fastest median verified time; secondary pic
 | mai-code-2 | Review and repair × medium | 9 (3) | 7/9 (45.3%–93.7%) | 149.26 |
 | mai-code-2 | Understand and plan × small | 1 (1) | 1/1 (20.7%–100.0%) | 49.66 |
 
-| Family × size | Fastest reliable | Most reliable (lower bound) |
-|---|---|---|
-| Design × medium | insufficient evidence | claude-sonnet-5.5 (30.0%) |
-| Experiment × large | insufficient evidence | insufficient evidence |
-| Experiment × medium | insufficient evidence | insufficient evidence |
-| Experiment × small | insufficient evidence | insufficient evidence |
-| Implement × medium | insufficient evidence | claude-sonnet-5.5 (70.1%) |
-| Implement × small | insufficient evidence | insufficient evidence |
-| Operate × large | insufficient evidence | insufficient evidence |
-| Operate × small | insufficient evidence | insufficient evidence |
-| Orchestrate × large | insufficient evidence | insufficient evidence |
-| Orchestrate × medium | insufficient evidence | insufficient evidence |
-| Research × medium | insufficient evidence | insufficient evidence |
-| Research × small | insufficient evidence | insufficient evidence |
-| Review and repair × medium | insufficient evidence | claude-sonnet-5.5 (70.1%) |
-| Understand and plan × small | insufficient evidence | insufficient evidence |
+Established: the rule above. Provisional (weaker, not established): n≥6 across ≥2 tasks, point success ≥90%, 95% lower bound ≥50%; fastest, reliability-first tie-break.
+
+| Family × size | Established (fastest reliable) | Provisional | Most reliable (lower bound) |
+|---|---|---|---|
+| Design × medium | insufficient evidence | insufficient evidence | claude-sonnet-5.5 (30.0%) |
+| Experiment × large | insufficient evidence | insufficient evidence | insufficient evidence |
+| Experiment × medium | insufficient evidence | insufficient evidence | insufficient evidence |
+| Experiment × small | insufficient evidence | insufficient evidence | insufficient evidence |
+| Implement × medium | insufficient evidence | claude-sonnet-5.5 | claude-sonnet-5.5 (70.1%) |
+| Implement × small | insufficient evidence | insufficient evidence | insufficient evidence |
+| Operate × large | insufficient evidence | insufficient evidence | insufficient evidence |
+| Operate × small | insufficient evidence | insufficient evidence | insufficient evidence |
+| Orchestrate × large | insufficient evidence | insufficient evidence | insufficient evidence |
+| Orchestrate × medium | insufficient evidence | insufficient evidence | insufficient evidence |
+| Research × medium | insufficient evidence | insufficient evidence | insufficient evidence |
+| Research × small | insufficient evidence | insufficient evidence | insufficient evidence |
+| Review and repair × medium | insufficient evidence | claude-sonnet-5.5 | claude-sonnet-5.5 (70.1%) |
+| Understand and plan × small | insufficient evidence | insufficient evidence | insufficient evidence |
 
 Pools different native harness epochs, rounds and correlated repeats of the same tasks; local or self-hosted targets are never pooled with cloud.
 

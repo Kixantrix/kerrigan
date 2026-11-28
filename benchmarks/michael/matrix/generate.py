@@ -621,10 +621,13 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
             if score is not None:
                 eligible.append((score, target))
         recommendations[column] = {"status": "recommended" if eligible else "insufficient evidence",
-            "target": min(eligible)[1] if eligible else None}
+            "target": min(eligible)[1] if eligible else None,
+            "provisional": pooled.provisional([(target, target_cells[column])
+                for target, target_cells in cells.items() if column in target_cells])}
     return {"schema_version": 1, "targets": targets, "columns": sorted(columns), "cells": cells,
         **({"unscored_attempts": unscored} if unscored else {}),
-        "routing_policy": {"objective": objective, "minimum_n": minimum_n, "lower_ci_threshold": threshold},
+        "routing_policy": {"objective": objective, "minimum_n": minimum_n, "lower_ci_threshold": threshold,
+                           "provisional": pooled.PROVISIONAL},
         "recommendations": recommendations,
         "size_policy": {"small": "oracle diff <=1 file and <=100 changed lines",
             "medium": "oracle diff <=4 files and <=400 changed lines", "large": "otherwise",
@@ -693,9 +696,13 @@ def markdown(value):
     lines += ["", "## Derived routing", "",
         f"Objective: {policy['objective']}; minimum n={policy['minimum_n']}; "
         f"95% lower bound ≥{policy['lower_ci_threshold']:.0%}. No fallback model is invented.",
-        "", "| Family × size | Recommendation |", "|---|---|"]
+        "Provisional tier (weaker, not established): n≥6 across ≥2 tasks, point success ≥90%, "
+        "95% lower bound ≥50%; fastest, reliability-first tie-break.",
+        "", "| Family × size | Established | Provisional |", "|---|---|---|"]
     for column, recommendation in value["recommendations"].items():
-        lines.append(f"| {column} | {recommendation['target'] or recommendation['status']} |")
+        provisional = recommendation["provisional"]
+        lines.append(f"| {column} | {recommendation['target'] or recommendation['status']} | "
+                     f"{provisional['target'] or provisional['status']} |")
     if value.get("unscored_attempts"):
         lines += ["", "## Unscored physical attempts", "",
             "Retained but excluded from success denominators and routing. Budget-censored "

@@ -468,3 +468,30 @@ def test_host_sleep_success_counts_but_is_excluded_from_verified_time():
     failed = [{**record("local", 9, passed=False), "timing_excluded": "host-sleep"}]
     with pytest.raises(ValueError, match="timing exclusion"):
         generate.build(failed)
+
+
+def test_routing_tiers_established_needs_sixteen_clean_successes_provisional_is_labeled_weaker():
+    from benchmarks.michael.matrix import pooled
+
+    def rows(model, n, *, tasks=3, failures=0, time=10):
+        return [{**record(model, i, passed=i >= failures, time=time), "task": f"fixture-{i % tasks}"}
+                for i in range(n)]
+
+    fixed = generate.build(rows("fast", 15, time=5) + rows("slow", 16, time=20))["recommendations"]["Implement × small"]
+    assert (fixed["status"], fixed["target"]) == ("recommended", "synthetic:slow")  # 16/16 lower bound 80.6%; 15/15 is 79.6%
+    three = generate.build(rows("a", 9, time=5) + rows("b", 9, time=20))["recommendations"]["Implement × small"]
+    assert three["status"] == "insufficient evidence"
+    assert three["provisional"] == {"status": "provisional", "target": "synthetic:a"}
+    one_task = generate.build(rows("a", 9, tasks=1))["recommendations"]["Implement × small"]
+    assert one_task["provisional"]["status"] == "insufficient evidence"
+    shaky = generate.build(rows("a", 9, failures=2, time=1) + rows("b", 9, time=30))["recommendations"]["Implement × small"]
+    assert shaky["provisional"]["target"] == "synthetic:b"  # 7/9 point success is below 90%
+    tie = pooled.provisional([("x", {"n": 10, "tasks": 3, "success_rate": 0.9, "wilson_ci95": [0.6, 1],
+                                     "median_verified_seconds": 10}),
+                              ("y", {"n": 10, "tasks": 3, "success_rate": 1.0, "wilson_ci95": [0.72, 1],
+                                     "median_verified_seconds": 10})])
+    assert tie["target"] == "y"  # equal speed: reliability first
+    matrix = generate.build(rows("a", 9))
+    matrix["sources"] = []
+    generate.validate(matrix)
+    assert "Provisional tier (weaker, not established)" in generate.markdown(matrix)
