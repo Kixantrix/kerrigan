@@ -216,7 +216,7 @@ The following deterministically attributed prior attempts are excluded from prim
 | orchestrate-voice-integration-v5 | mai-code-2 | v3 | ungraded | invented-path-read ×1 |
 | orchestrate-voice-integration-v5 | mai-code-2 | v3 | ungraded | harness-error ×1 |
 | design-alethiometer-gear-mesh | gpt-6.2-sol | v3 | ungraded | harness-error ×1 |
-| research-cs-speech-stack | gpt-5.6-sol | v3 | excluded-pending-adjudication | model-failure-unclassified ×1 |
+| research-cs-speech-stack | gpt-5.6-sol | v3 | task-caused | task-caused ×1 |
 | vhs-room-registry-sync-v2 | gemini-4-neon | v3 | excluded-pending-adjudication | model-failure-unclassified ×1 |
 
 ## Pooled routing view

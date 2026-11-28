@@ -92,10 +92,12 @@ Three slots are excluded and disclosed, not scored:
 - GPT 6.2 Sol gear-mesh: harness fault (16,384-event protocol cap, since raised).
 - Gemini vhs-v2: harness fault. The candidate deleted its own TMPDIR, and the
   scratch monitor treated that as fatal; the fix is pending.
-- GPT 5.6 Sol research-cs-speech: pending task adjudication. Location is
-  over-determined (S3, or S4+S7), but the oracle hard-codes S3.
+- GPT 5.6 Sol research-cs-speech: **task-caused** (`overspecified-check`), per
+  the coordinator's [adjudication](MBR3-cs-speech-gpt56-task-adjudication.json).
+  Location is over-determined (S1+S3, or S1+S4/S7), but the oracle hard-codes S3.
+  Round-4 known issue: accept any sufficient citation set.
 
-Each will get a disclosed rerun. One extra slot (emv, Gemini) ended
+The two harness faults get disclosed reruns. One extra slot (emv, Gemini) ended
 `controller_lost` during an aborted epoch switch and was rerun. **Selection role
 in admission:** Gemini 4 Neon was the admission blind solver (25/25 native
 round-3 blind passes), and GPT 5.6 Sol co-audited admissions. Both perfect rows

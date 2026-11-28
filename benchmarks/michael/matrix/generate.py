@@ -411,6 +411,14 @@ def epoch_records(plan_path):
         outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
         attribution_path = prior_root / "attribution" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "attribution.json"
         cause = json.loads(attribution_path.read_bytes())["cause"]
+        if cause == "unresolved" and prior.get("taskAdjudication"):
+            adjudication_path = ROOT / "benchmarks/michael/curriculum" / prior["taskAdjudication"]["file"]
+            adjudication = json.loads(adjudication_path.read_bytes())
+            if (hashlib.sha256(adjudication_path.read_bytes()).hexdigest() != prior["taskAdjudication"]["sha256"] or
+                    adjudication.get("cause") != "task" or adjudication.get("originalPanelSha256") !=
+                    prior["attributionSha256"] or adjudication.get("outcomeSha256") != prior["outcomeSha256"]):
+                raise ValueError("source epoch task adjudication mismatch")
+            cause = "task"
         allowed = ("harness", "task", "unresolved") if prior.get("closesScheduledSlot") else ("harness",)
         if (hashlib.sha256(outcome_path.read_bytes()).hexdigest() != prior["outcomeSha256"] or
                 hashlib.sha256(attribution_path.read_bytes()).hexdigest() != prior["attributionSha256"] or
