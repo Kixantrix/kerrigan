@@ -252,3 +252,10 @@ evaluation. The executor diagnoses each one, fixes it, re-freezes the condition
 and reruns as a new, disclosed attempt. The failed attempt is preserved and is
 never relabeled as a model outcome. A model's own failure on the task is a
 result, so it is not "fixed" by rerunning; it is preserved.
+
+User approval (2026-11-27, via ask_user): "Yes, keep it awake during any bench run."
+Bench executors may run an unprivileged, process-scoped `caffeinate -i -w <driver-pid>`
+for the life of any bench cohort or window driver, cloud or local, and release it
+at completion. No pmset, settings, display, disk or privileged changes. Lid-close
+and manual sleep still apply. Any slot that spans a sleep is still detected from
+pmset logs and recorded as environment/unscored, with a disclosed rerun.
