@@ -512,7 +512,10 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"vhs-room-registry-sync-v2": "vhs-room-registry-sync-v3",
+CURRENT = {"plan-dashboard-decomposition": "plan-dashboard-decomposition-v2",
+           "plan-custom-action-briefing": "plan-custom-action-briefing-v2",
+           "orchestrate-dashboard-stages": "orchestrate-dashboard-stages-v2",
+           "vhs-room-registry-sync-v2": "vhs-room-registry-sync-v3",
            "cs-mismatch-stage-authority": "cs-mismatch-stage-authority-v2",
            "vhs-room-registry-sync": "vhs-room-registry-sync-v3",
            "foal-meadow-regression-review": "foal-meadow-regression-review-v2",
@@ -1031,7 +1034,7 @@ def test_round4_packages_fill_the_thin_families():
     def refs(name):
         source = curriculum.meta(name)["source"]
         return source["base_ref"], source["reference_ref"]
-    earlier = {refs(n) for n in curriculum.PACKAGES if n not in ROUND4}
+    earlier = {refs(n) for n in curriculum.PACKAGES if n not in ROUND4 and "supersedes" not in curriculum.meta(n)}
     by_family = {}
     for name in ROUND4:
         info = curriculum.meta(name)
@@ -1136,3 +1139,135 @@ def test_vhs_v3_live_names_are_a_set_without_duplicates(tmp_path):
     duplicated = _edited_reference(VHS_V3, "api/sync.js", VHS_EXPORT_SORT,
                                    "return rows.map(roomRowToRecord).flatMap((r) => [r, r]);")
     assert VHS_RENAME_ROW in _failed(duplicated, VHS_V3, tmp_path)
+
+
+# --- Round-4 successors of native-admission needs_fix packages (MBR3 receipts) ------------
+
+R4_SUCCESSORS = {"plan-dashboard-decomposition-v2": "plan-dashboard-decomposition",
+                 "plan-custom-action-briefing-v2": "plan-custom-action-briefing",
+                 "orchestrate-dashboard-stages-v2": "orchestrate-dashboard-stages"}
+
+
+def _json_reference(task, path, mutate):
+    files = specs.unbundle(task, specs.reference(task))
+    data = json.loads(files[path])
+    mutate(data)
+    files[path] = json.dumps(data, indent=2).encode()
+    return files[path] if len(files) == 1 else specs.bundle(files)
+
+
+@pytest.mark.parametrize("new,old", R4_SUCCESSORS.items())
+def test_round4_successors_keep_the_oracle_and_cite_the_receipt(new, old):
+    assert curriculum.verifier_files(new)["reference"] == curriculum.verifier_files(old)["reference"]
+    info = curriculum.meta(new)
+    assert info["round"] == 4 and info["supersedes"] == old
+    evidence = info["admission_evidence"]
+    assert evidence["path"] == f"benchmarks/michael/curriculum/MBR3-{old}-admission.json"
+    assert hashlib.sha256((ROOT / evidence["path"]).read_bytes()).hexdigest() == evidence["sha256"]
+    assert curriculum.retired()[old]["evidence"] == evidence
+    receipt = json.loads((curriculum.HERE / new / "calibration.json").read_text())
+    assert [p["verdict"] for p in receipt["phases"]] == ["fail", "pass"]
+
+
+PLAN_V2 = "plan-dashboard-decomposition-v2"
+
+
+def _reverse_everything(plan):
+    plan["tasks"].reverse()
+    for wave in plan["waves"]:
+        wave.reverse()
+    plan["acceptance"].reverse()
+    plan["mcp_tools"].reverse()
+
+
+def _retitle_and_extend(plan):
+    for task in plan["tasks"]:
+        task["title"] = f"Deliver {task['id']}"
+        task["notes"] = "free text"
+    plan["notes"] = {"author": "conductor"}
+
+
+def _extra_dependency(plan):
+    last = next(t for t in plan["tasks"] if t["id"] == plan["waves"][-1][0])
+    last["depends_on"] = [*last["depends_on"], plan["waves"][0][0]]
+
+
+def _loosen_waves(plan):
+    plan["waves"][1].remove("M3.1")
+    plan["waves"].append(["M3.1"])
+
+
+def _drop_acceptance(plan):
+    plan["acceptance"].pop()
+
+
+def test_plan_v2_states_no_check_coverage():
+    old = curriculum.agent_files("plan-dashboard-decomposition")["TASK.md"].decode()
+    new = curriculum.agent_files(PLAN_V2)["TASK.md"].decode()
+    assert "Not graded" in old and "used for grading" in old
+    assert "graded" not in new.lower() and "## Grading" in new
+    assert old.split("## Grading")[0].replace("used for grading", "for this plan") == new.split("## Grading")[0]
+
+
+@pytest.mark.parametrize("mutate", [_reverse_everything, _retitle_and_extend, _extra_dependency])
+def test_plan_v2_accepts_order_literal_and_extra_dependency_variants(mutate, tmp_path):
+    assert _failed(_json_reference(PLAN_V2, "PLAN.json", mutate), PLAN_V2, tmp_path) == []
+
+
+@pytest.mark.parametrize("mutate", [_loosen_waves, _drop_acceptance])
+def test_plan_v2_still_rejects_invalid_plans(mutate, tmp_path):
+    assert _failed(_json_reference(PLAN_V2, "PLAN.json", mutate), PLAN_V2, tmp_path)
+
+
+BRIEF_V2 = "plan-custom-action-briefing-v2"
+BRIEF_ROUTES = "apps/api/src/opportunities/routes.ts"
+
+
+def test_briefing_v2_states_the_routes_fact_and_checks_it(tmp_path):
+    task = curriculum.agent_files(BRIEF_V2)["TASK.md"].decode()
+    assert "`apps/api/src/opportunities/routes.ts`" in task and "stays\n  unchanged in this task" in task
+    assert BRIEF_ROUTES not in json.dumps(json.loads(specs.reference(BRIEF_V2))["touch"])
+
+    def reorder(brief):
+        for value in brief.values():
+            if isinstance(value, list):
+                value.reverse()
+        brief["task_id"], brief["objective"] = "anything", "Any wording."
+    assert _failed(_json_reference(BRIEF_V2, "BRIEFING.json", reorder), BRIEF_V2, tmp_path) == []
+
+    def touch_routes(brief):
+        brief["touch"].append(BRIEF_ROUTES)
+    variant = _json_reference(BRIEF_V2, "BRIEFING.json", touch_routes)
+    assert _failed(variant, "plan-custom-action-briefing", tmp_path) == []  # the v1 gap
+    assert _failed(variant, BRIEF_V2, tmp_path) == [
+        "touch leaves the ladder, Surface B proposal code, opportunity routes and sources and acceptance log alone"]
+
+
+ORCH_V2 = "orchestrate-dashboard-stages-v2"
+ORCH_PRESERVED = "landed plan-update section editing preserved"
+FACTORY_OUTSIDE_TRY = ("    const octokitRequest = octokitFactory(token);\n    try {\n",
+                       "    try {\n    const octokitRequest = octokitFactory(token);\n")
+VALIDATE_ONLY_CLEAN = ("  if (parsePlanMarkdown(originalMarkdown).errors.length === 0) {\n",
+                       "  if (edit.op === \"edit-deps\" && !stageIdsOf(lines).includes(edit.stageId)) {\n"
+                       "    throw new PlanUpdateError(`Stage '${edit.stageId}' not found in plan`);\n  }\n"
+                       "  if (parsePlanMarkdown(originalMarkdown).errors.length === 0) {\n")
+UNKNOWN_AFTER_THROWS = ("    if (!afterSection) {\n      throw new PlanUpdateError(`Stage '${afterStageId}' not found in plan`);\n"
+                        "    }\n    insertAt = afterSection.end;\n", "    insertAt = afterSection?.end ?? bodyLines.length;\n")
+
+
+def test_orchestrate_v2_states_real_client_and_edit_behavior():
+    task = curriculum.agent_files(ORCH_V2)["TASK.md"].decode()
+    assert "never throws" not in task and "an edit naming a stage that does not exist" not in task
+    assert "thrown by `octokitFactory` itself is not caught" in task
+    assert "whether or not the plan has parser errors" in task and "governed by R8" in task
+
+
+@pytest.mark.parametrize("path,edit", [("src/github.ts", FACTORY_OUTSIDE_TRY), ("src/plan-update.ts", VALIDATE_ONLY_CLEAN)])
+def test_orchestrate_v2_accepts_either_unchecked_reading(path, edit, tmp_path):
+    assert _failed(_edited_reference(ORCH_V2, path, *edit), ORCH_V2, tmp_path) == []
+
+
+def test_orchestrate_v2_checks_unknown_after_stage(tmp_path):
+    variant = _edited_reference(ORCH_V2, "src/plan-update.ts", *UNKNOWN_AFTER_THROWS)
+    assert _failed(variant, "orchestrate-dashboard-stages", tmp_path) == []  # the v1 gap
+    assert _failed(variant, ORCH_V2, tmp_path) == [ORCH_PRESERVED]

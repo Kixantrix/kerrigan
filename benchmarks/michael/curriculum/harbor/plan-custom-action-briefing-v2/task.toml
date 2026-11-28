@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/BRIEFING.json"]
+
+[task]
+name = "kixantrix/michael-plan-custom-action-briefing-v2"
+version = "1.0.0"
+description = "Write the dispatch briefing for custom actions (Surface A) from a merged spec and plan"
+keywords = ["michael-bench", "understand-and-plan"]
+
+[metadata]
+family = "Understand and plan"
+source_repo = "Kixantrix/your-voice"
+base_ref = "605d2900456b094beb1eab68dc32cb955a657a12"
+reference_ref = "432f3806383a570f8eb2145423f9bf2dc8870268"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "required_facts_checklist"
+estimated_agent_minutes = 30
+denominators = "{\"acs\": 4, \"ladder\": 5, \"routing\": 1, \"scope\": 7, \"tests\": 4}"
+task_size = "{\"files_to_read\": 13, \"hidden_checks\": 21, \"hidden_clauses\": 37, \"lines_to_read\": 2209, \"oracle_files_changed\": 1, \"oracle_lines_added\": 159, \"oracle_lines_removed\": 10, \"writable_files\": 1}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

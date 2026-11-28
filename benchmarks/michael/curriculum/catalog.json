@@ -339,7 +339,7 @@
    "long_horizon": false,
    "summary": "Agent decomposes kerrigan-dashboard M2-M8 into dispatch-sized tasks with touch sets, dependencies, waves, routing and AC level/environment mapping; graded on invariants, not one decomposition.",
    "history_status": "merged",
-   "package": "plan-dashboard-decomposition",
+   "package": "plan-dashboard-decomposition-v2",
    "provenance_kind": "merged-pr",
    "grader_image": "michael-replay-grader:mb006j",
    "round": 4,
@@ -349,11 +349,14 @@
     "oracle_lines_removed": 4,
     "writable_files": 1,
     "files_to_read": 11,
-    "lines_to_read": 1508,
+    "lines_to_read": 1505,
     "hidden_checks": 25,
     "hidden_clauses": 65
    },
-   "replaces_candidate": "kerrigan-dashboard-decomposition"
+   "replaces_candidate": "kerrigan-dashboard-decomposition",
+   "retired_packages": [
+    "plan-dashboard-decomposition"
+   ]
   },
   {
    "id": "vhs-infrastructure-spec",
@@ -1826,7 +1829,7 @@
    "long_horizon": false,
    "summary": "Conductor writes a structured briefing for Phase 1 of a merged spec+plan: picks the right ACs (incl. one the plan table omits), notices the plan is stale vs the spec, assigns levels/environments per the rubric, scopes Touch globs to what the real change touched, classifies exclusions, cites the routing rule.",
    "history_status": "merged",
-   "package": "plan-custom-action-briefing",
+   "package": "plan-custom-action-briefing-v2",
    "provenance_kind": "real-pr",
    "grader_image": "michael-replay-grader:mb006j",
    "round": 4,
@@ -1836,10 +1839,13 @@
     "oracle_lines_removed": 10,
     "writable_files": 1,
     "files_to_read": 13,
-    "lines_to_read": 2204,
+    "lines_to_read": 2209,
     "hidden_checks": 21,
     "hidden_clauses": 37
-   }
+   },
+   "retired_packages": [
+    "plan-custom-action-briefing"
+   ]
   },
   {
    "id": "kerrigan-dashboard-stage-integration",
@@ -1868,7 +1874,7 @@
    "long_horizon": true,
    "summary": "Slices landed in parallel (#308-#366); the agent integrates them so stage statuses and chat plan edits meet the wave plan, fixing merged-source, linkage, review-key, stage-id, frontmatter-format and validation defects, and writes an integration ledger.",
    "history_status": "merged",
-   "package": "orchestrate-dashboard-stages",
+   "package": "orchestrate-dashboard-stages-v2",
    "provenance_kind": "mined-history",
    "grader_image": "michael-replay-grader-node:mb008",
    "round": 4,
@@ -1878,10 +1884,13 @@
     "oracle_lines_removed": 42,
     "writable_files": 5,
     "files_to_read": 14,
-    "lines_to_read": 1769,
+    "lines_to_read": 1774,
     "hidden_checks": 17,
-    "hidden_clauses": 63
-   }
+    "hidden_clauses": 64
+   },
+   "retired_packages": [
+    "orchestrate-dashboard-stages"
+   ]
   }
  ],
  "anchor_packages": {

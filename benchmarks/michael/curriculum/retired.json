@@ -209,6 +209,33 @@
     "path": "benchmarks/michael/curriculum/MBR3-vhs-room-registry-sync-v2-admission.json",
     "sha256": "f157d830c01c8167abe5216b9ae567346145a9b6c7fea6bbbf6a4e2142c8659d"
    }
+  },
+  "plan-dashboard-decomposition": {
+   "by": "MBR3 native admission (needs_fix)",
+   "superseded_by": "plan-dashboard-decomposition-v2",
+   "reason": "task-caused (native admission needs_fix, leakage): the Grading section's 'Not graded' list disclosed which requirements the hidden checks cover",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-plan-dashboard-decomposition-admission.json",
+    "sha256": "25966d313bcbb32822bc321b0578a0393f616ebccd5b32db1317f98927587749"
+   }
+  },
+  "plan-custom-action-briefing": {
+   "by": "MBR3 native admission (needs_fix)",
+   "superseded_by": "plan-custom-action-briefing-v2",
+   "reason": "task-caused (native admission needs_fix, contradiction): the touch rule required covering files the plan says change, and plan \u00a71.3 lists apps/api/src/opportunities/routes.ts conditionally, while the real PR #192 oracle keeps that file read-only",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-plan-custom-action-briefing-admission.json",
+    "sha256": "dfe369a64efa3651fef9bbf0852b98dd4b335397ba7d50abea4f67345f0fc109"
+   }
+  },
+  "orchestrate-dashboard-stages": {
+   "by": "MBR3 native admission (needs_fix)",
+   "superseded_by": "orchestrate-dashboard-stages-v2",
+   "reason": "task-caused (native admission needs_fix, contradictions): TASK.md said the GitHub client never throws although base and oracle call octokitFactory outside the try, and that any edit naming a nonexistent stage throws although edit-deps on a plan with parser errors is returned",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-orchestrate-dashboard-stages-admission.json",
+    "sha256": "2a344f4394779ffb67961d667b313d1cd7ea305929e582ae20662422d2edab93"
+   }
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",
