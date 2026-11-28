@@ -83,7 +83,7 @@ for(const [usage,reason] of [[undefined,/ambiguous_native_fit/],
   choices:[{message:{role:'assistant',tool_calls:[{type:'function',id:'t',
     function:{name:'mb_action',arguments:'{"op":"read","path":"TASK.md"}'}}]}}]}))}),reason);
 }
-await assert.rejects(()=>localLoop({...base,prompt:'x'.repeat(65537),
+await assert.rejects(()=>localLoop({...base,prompt:'x'.repeat(229377),
  fetcher:async()=>{throw Error('must not request')}}),/context_budget/);
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
@@ -196,6 +196,38 @@ import {{scratchState,SCAN}} from './benchmarks/michael/local_transport/scratch.
 assert(SCAN.timeoutMs >= 10000 && SCAN.consecutiveMissesAllowed === 2);
 assert.throws(()=>scratchState('{tmp_path}',[0,0],'{slow}',200),e=>e.scanTimeout===true&&/scratch_scan:.*ETIMEDOUT/.test(e.message));
 assert.throws(()=>scratchState('{tmp_path}',[0,0],'{tmp_path}/missing-python',200),e=>e.scanTimeout!==true);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=20)
+
+
+def test_input_bound_derives_from_native_tokens_not_a_byte_cap():
+    script = """
+import assert from 'node:assert/strict';
+import {localLoop,LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+assert(!('inputBytes' in LOCAL_LIMITS));
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+const run=async(toolResultBytes,reportedInput)=>{
+ let turn=0;const started=[];
+ const result=await localLoop({condition,prompt:'p',tools:[],signal:new AbortController().signal,
+  boundary:async()=>{},record:e=>{if(e.type==='local_request_started')started.push(e)},clock:()=>1000,
+  execute:async()=>({data:'x'.repeat(toolResultBytes)}),
+  fetcher:async(url,options)=>{turn++;
+   const message=turn===1?{role:'assistant',content:null,tool_calls:[{id:'c',type:'function',
+     function:{name:'mb_action',arguments:'{}'}}]}:{role:'assistant',content:'done'};
+   return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
+    usage:{prompt_tokens:reportedInput,completion_tokens:1,total_tokens:reportedInput+1},
+    choices:[{message,finish_reason:'stop'}]}));}});
+ return {result,started};
+};
+// 200 KB of tool output is far over the old 64 KiB cap but well inside the token guardrail.
+const ok=await run(200000,1000);
+assert.equal(ok.result.status,'completed');
+assert(ok.started[1].inputBytes>65536 && ok.started[1].inputTokenBound<LOCAL_LIMITS.inputTokens);
+// The same growth on top of a near-limit native count is refused before the request.
+await assert.rejects(()=>run(200000,LOCAL_LIMITS.inputTokens-1000),/local_context_budget/);
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=20)

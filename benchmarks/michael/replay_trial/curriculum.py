@@ -173,12 +173,22 @@ def prepare(owned, directory, name, *, diagnostics=(), seconds=3600, files=None,
     grant = f'(allow file-read* file-write* (subpath "{task}"))'
     if config["taskProfile"].count(grant) != 1:
         raise api.TrialError("profile closure mismatch")
-    config["taskProfile"] = config["taskProfile"].replace(grant,
-        "(allow file-read* " + " ".join(f'(literal "{task / p}")' for p in policy["read"]) + ")\n"
-        "(allow file-write* " + " ".join(f'(literal "{task / p}")' for p in policy["write"]) + ")")
+    if diff_contract(policy):
+        # Compact epoch for diff-mode anchors: one subpath grant on the exported task root. Large
+        # repositories otherwise need ~1k literal grants (stdin EPIPE). The broker still enforces the
+        # declared allowlist, symlink/special-file denies and out-of-root cutoffs; no-fork/network
+        # denies remain in the profile.
+        config["compactTaskProfile"] = "diff-mode-subpath-v12"
+    else:
+        config["taskProfile"] = config["taskProfile"].replace(grant,
+            "(allow file-read* " + " ".join(f'(literal "{task / p}")' for p in policy["read"]) + ")\n"
+            "(allow file-write* " + " ".join(f'(literal "{task / p}")' for p in policy["write"]) + ")")
     directories = {task, support, support / "yaml"}
-    for path in policy["read"]:
-        directories.update((task / path).parents)
+    if not diff_contract(policy):
+        for path in policy["read"]:
+            directories.update((task / path).parents)
+    else:
+        directories.update(task.parents)
     config["taskProfile"] += "\n(allow file-read* " + " ".join(f'(literal "{p}")' for p in sorted(directories)) + ")\n"
     config["taskProfile"] += f'(allow file-read* (subpath "{support}") (literal "{node}"))\n'
     config["sandbox"]["userPolicy"]["filesystem"]["readonlyPaths"] = [str(support), str(node)]
@@ -341,7 +351,8 @@ def freeze(owned, name, files, policy, models, instruction):
         "protocol": api.runner.environment(Path(owned) / "access-only")}
 
 
-def execute(owned, root, name, model, models, safety, *, files=None, policy=None, instruction=None, grade=True):
+def execute(owned, root, name, model, models, safety, *, files=None, policy=None, instruction=None, grade=True,
+            defer=False):
     root = Path(root)
     default_files, default_policy, _ = material(name)
     files = default_files if files is None else files
@@ -376,7 +387,9 @@ def execute(owned, root, name, model, models, safety, *, files=None, policy=None
         raise api.TrialError("spent/invalid curriculum slot")
     index = models.index(model)
     if index:
-        previous = json.loads((root / models[index - 1] / "outcome.json").read_bytes())
+        before = root / models[index - 1]
+        previous = json.loads(((before / "outcome.json") if (before / "outcome.json").exists()
+                               else (before / "deferred-outcome.json")).read_bytes())
         if previous["quiescent"] is not True:
             raise api.TrialError("previous model cleanup unproven")
     begin = time.monotonic()
@@ -412,6 +425,17 @@ def execute(owned, root, name, model, models, safety, *, files=None, policy=None
         "nativePrompts": native["nativePrompts"], "activeSeconds": native["activeSeconds"],
         "cleanupSeconds": native["cleanupSeconds"], "nativeStarts": native["nativeStarts"],
         "protocolBytes": native["protocolBytes"], "events": native["events"], "status": "ungraded"}
+    if defer and grade:
+        # Collect exact artifacts now; independent Docker grading waits for an explicit release.
+        try:
+            outcome["sourceSha256"] = api.sha(collect(run))
+            outcome["status"] = "awaiting-deferred-verification"
+        except (ValueError, OSError, api.TrialError) as error:
+            outcome["error"] = str(error)
+        outcome.update(elapsedSeconds=time.monotonic() - begin, ownerExited=child.poll() is not None,
+                       finishedAtMs=time.time() * 1000, grading="deferred until local-window release")
+        api.grader.persist(run / "deferred-outcome.json", outcome)
+        return outcome
     verification_start = time.monotonic()
     try:
         source = collect(run)
@@ -443,5 +467,56 @@ def execute(owned, root, name, model, models, safety, *, files=None, policy=None
                 "artifacts": [{"uri": str(path), "sha256": api.sha(path.read_bytes())}]}
             outcome["status"] = "partial"
         ledger.finalize(model, result, partial=partial)
+    api.grader.persist(run / "outcome.json", outcome)
+    return outcome
+
+
+def finalize_deferred(root, name, model, *, released_at_ms):
+    """Grade a deferred slot after release; the waiting queue is excluded from completion time."""
+    root = Path(root)
+    run = root / model
+    outcome = json.loads((run / "deferred-outcome.json").read_bytes())
+    if released_at_ms < outcome["finishedAtMs"]:
+        raise api.TrialError("deferred grading requires a release after collection")
+    frozen = json.loads((root / "seal.json").read_bytes())["frozen"]
+    native = json.loads((run / "receipt/terminal.json").read_bytes())
+    from . import handoff
+    bundle = handoff.bundle(None, model, task_name=name, configuration=frozen)
+    report, verification = None, 0.0
+    if outcome.get("sourceSha256"):
+        source = (run / "collected-source.bin").read_bytes()
+        if api.sha(source) != outcome["sourceSha256"]:
+            raise api.TrialError("deferred collected artifact changed")
+        existing = run / "independent-grader/report.json"
+        began = time.monotonic()
+        if existing.exists() and (run / "independent-grader/source.bin").read_bytes() == source:
+            report = json.loads(existing.read_bytes())
+            verification = sum(report["timings"].values())
+        else:
+            report = api.grader.grade(source, run / "independent-grader", task=name, seconds=30)
+            verification = time.monotonic() - began
+        if report["image_id"] != frozen["imageId"] or not report["cleanup"]["proven"]:
+            raise api.TrialError("independent image/cleanup mismatch")
+    status = report["verdict"] if report else "ungraded"
+    outcome.update(status=status, counts=report["counts"] if report else None, verificationSeconds=verification,
+                   excludedQueueSeconds=max(0, released_at_ms - outcome["finishedAtMs"]) / 1000,
+                   grading="deferred post-release verification; waiting queue excluded")
+    outcome["completionSeconds"] = (outcome["elapsedSeconds"] + verification if status == "pass" and
+                                    native["stopReason"] == "session_idle" else None)
+    assertions = sum(specs.spec(name)["denominators"].values())
+    result = handoff.terminal(bundle, native, report,
+        {"end_to_end": outcome["elapsedSeconds"] + verification, "agent_work": native["activeSeconds"],
+         "verification": verification}, owner_exited=outcome["ownerExited"],
+        source_sha=outcome.get("sourceSha256"), expected_assertions=assertions)
+    outcome["result"] = result
+    partial = None
+    if native.get("partialBudgetExhausted") and report and report["status"] == "graded":
+        path = run / "independent-grader/report.json"
+        partial = {"result": handoff.ref(result), "attempt_id": "attempt-1",
+            "passed": sum(a["passed"] for a in report["assertions"]), "total": assertions,
+            "source": "not completed within budget; independent partial diagnostics",
+            "artifacts": [{"uri": str(path), "sha256": api.sha(path.read_bytes())}]}
+        outcome["status"] = "partial"
+    handoff.Ledger(root / "ledger.jsonl").finalize(model, result, partial=partial)
     api.grader.persist(run / "outcome.json", outcome)
     return outcome

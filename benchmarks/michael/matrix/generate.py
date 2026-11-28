@@ -24,6 +24,7 @@ HERE = Path(__file__).resolve().parent
 CLASSES = ("cloud", "local laptop", "self-hosted infrastructure")
 FAMILIES = {"validator": "Implement", "grouping": "Implement", "status": "Implement",
             "selfhost-redeploy-state": "Operate", "sr-temporal-assay": "Experiment"}
+TOKEN_INPUT_BOUND = "native-token-derived-v12"
 FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "sandbox-boundary-write",
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
                  "harness-error", "invented-path-read", "spec-misread", "budget-noncompletion",
@@ -294,7 +295,11 @@ def ledger_records(root, *, selected=None):
                 stop = str(native.get("stopReason"))
                 slept = (outcome.get("hostSleepSuspectedSeconds") or 0) > 1
                 reason = outcome.get("externalStopReason") or stop
-                if stop == "runtime:local_context_budget":
+                if stop == "runtime:local_context_budget" and local.get("inputBound") == TOKEN_INPUT_BOUND:
+                    # The agreed 229,376-token input guardrail itself: a real budget noncompletion.
+                    budget, reason = True, "local input-token guardrail reached (229,376 tokens)"
+                    failures = ["budget-noncompletion"]
+                elif stop == "runtime:local_context_budget":
                     # Harness limit (64 KiB JSON heuristic), far below the agreed token guardrail.
                     budget, reason = False, "harness-cap: local 64 KiB input-JSON heuristic, not a model budget"
                 elif slept:

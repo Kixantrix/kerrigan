@@ -3,7 +3,7 @@ import { performance } from "node:perf_hooks";
 
 export const LOCAL_LIMITS = Object.freeze({
     inputTokens: 229376, contextTokens: 262144, outputTokens: 16384,
-    inputBytes: 65536, responseBytes: 8388608, requests: 128, cleanupSeconds: 15,
+    requestBytes: 4194304, templateTokensPerMessage: 256, responseBytes: 8388608, requests: 128, cleanupSeconds: 15,
     toolCallsPerResponse: 8
 });
 
@@ -56,15 +56,19 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
     validateLocalCondition(condition);
     const messages = [{ role: "user", content: prompt }];
     const sessionId = `${condition.requestNamespace || "mbr3-synthetic"}-${randomUUID()}`;
-    let calls = 0;
+    let calls = 0, previous = null;
     while (true) {
         if (calls >= LOCAL_LIMITS.requests) throw new Error("local_request_budget");
         const now = clock();
         if (now < condition.windowStartMs || now >= condition.windowEndMs - 15000 || signal.aborted)
             throw new Error("local_window_closed");
-        // Headroom heuristic, not an exact rendered-token bound; canonicalization can change input.
+        // Token-derived bound: byte-level BPE yields at most one token per added byte, plus a
+        // per-message chat-template margin, on top of the previous request's native input count.
         const inputBytes = Buffer.byteLength(JSON.stringify({ messages, tools }));
-        if (inputBytes > LOCAL_LIMITS.inputBytes)
+        const inputTokenBound = previous === null ? inputBytes + LOCAL_LIMITS.templateTokensPerMessage :
+            previous.inputTokens + (inputBytes - previous.inputBytes) +
+            (messages.length - previous.messages) * LOCAL_LIMITS.templateTokensPerMessage;
+        if (inputBytes > LOCAL_LIMITS.requestBytes || inputTokenBound > LOCAL_LIMITS.inputTokens)
             throw new Error("local_context_budget");
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         const remaining = condition.windowEndMs - clock() - LOCAL_LIMITS.cleanupSeconds * 1000;
@@ -77,7 +81,8 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         const started = clock();
         const startedMonotonic = monotonic();
         record({ type: "local_request_started", requestId, sessionId, startedMs: started,
-            inputBytes, inputEstimate: "UTF-8 JSON headroom heuristic; not exact native rendered count" });
+            inputBytes, inputTokenBound,
+            inputEstimate: "upper bound: previous native input tokens + added bytes + template margin" });
         let response, nativeUsage, limitsVerified, finishReason;
         try {
             response = await boundedJson(await fetcher(condition.endpoint + "/chat/completions", {
@@ -143,6 +148,7 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         calls++;
         if (!limitsVerified) throw new Error("local_ambiguous_native_fit");
+        previous = { inputTokens: nativeUsage.inputTokens, inputBytes, messages: messages.length };
         if (finishReason === "length") return { calls, status: "output-cap", limitsVerified };
         const message = response.choices[0].message;
         const toolCalls = message.tool_calls || [];

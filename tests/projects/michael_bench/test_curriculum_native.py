@@ -612,3 +612,33 @@ def test_native_cli_parity_sweep(owned, tmp_path, case, args, expected):
         assert native.collect(run) == specs.base(name)
     assert (task / "hidden.txt").read_text() == "synthetic undeclared fixture"
     assert not (task / "new.txt").exists()
+
+
+def test_deferred_cloud_slot_grades_only_after_release_and_excludes_queue(tmp_path, monkeypatch):
+    from benchmarks.michael.replay_trial import handoff
+    run = tmp_path / "model"
+    (run / "receipt").mkdir(parents=True)
+    source = b"exact artifact"
+    (run / "collected-source.bin").write_bytes(source)
+    (tmp_path / "seal.json").write_text(json.dumps({"frozen": {"imageId": "img"}}))
+    (run / "receipt/terminal.json").write_text(json.dumps({"stopReason": "session_idle", "activeSeconds": 5}))
+    (run / "deferred-outcome.json").write_text(json.dumps({
+        "sourceSha256": native.api.sha(source), "elapsedSeconds": 7.0, "finishedAtMs": 1000,
+        "ownerExited": True, "quiescent": True, "status": "awaiting-deferred-verification"}))
+    graded = []
+    monkeypatch.setattr(native.api.grader, "grade", lambda data, where, task, seconds: graded.append(data) or {
+        "image_id": "img", "cleanup": {"proven": True}, "verdict": "pass", "counts": {"x": {"passed": 1, "total": 1}},
+        "status": "graded", "assertions": [], "timings": {"verification": 0.1}})
+    monkeypatch.setattr(native.specs, "spec", lambda name: {"denominators": {"x": 1}})
+    monkeypatch.setattr(handoff, "bundle", lambda *a, **k: {})
+    seen = {}
+    monkeypatch.setattr(handoff, "terminal", lambda bundle, terminal, report, timings, **k: seen.update(timings) or {})
+    monkeypatch.setattr(handoff.Ledger, "finalize", lambda self, model, result, partial=None: None)
+    with pytest.raises(native.api.TrialError, match="release after collection"):
+        native.finalize_deferred(tmp_path, "fixture", "model", released_at_ms=999)
+    assert not graded
+    outcome = native.finalize_deferred(tmp_path, "fixture", "model", released_at_ms=61000)
+    assert graded == [source] and outcome["status"] == "pass"
+    assert outcome["excludedQueueSeconds"] == 60.0
+    assert outcome["completionSeconds"] == pytest.approx(7.0 + outcome["verificationSeconds"])
+    assert seen["end_to_end"] == pytest.approx(outcome["completionSeconds"])
