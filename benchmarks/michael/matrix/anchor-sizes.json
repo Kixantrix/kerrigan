@@ -1,0 +1,76 @@
+{
+ "anchors": {
+  "anchor-swepro-ansible": {
+   "manifestSha256": "c46a69abf03415b899ba3debd165897ad3edc51dd925515c40056faa23020c1f",
+   "size": {
+    "checks": 17,
+    "files_to_read": 225,
+    "oracle_files_touched": 1,
+    "oracle_lines_changed": 51,
+    "tier": "small"
+   }
+  },
+  "anchor-swepro-element-web": {
+   "manifestSha256": "d088a5be339d1e41707018f671903a8c4b2b8075a87cb2008e8543e0818c914d",
+   "size": {
+    "checks": 387,
+    "files_to_read": 1079,
+    "oracle_files_touched": 1,
+    "oracle_lines_changed": 83,
+    "tier": "small"
+   }
+  },
+  "anchor-swepro-openlibrary": {
+   "manifestSha256": "24b91ef335986722b1d6bd5e4b8195c45c0291c71023767f32115c0bc6b8b21f",
+   "size": {
+    "checks": 19,
+    "files_to_read": 190,
+    "oracle_files_touched": 1,
+    "oracle_lines_changed": 110,
+    "tier": "medium"
+   }
+  },
+  "anchor-swepro-qutebrowser": {
+   "manifestSha256": "d9577fa7f336b11cf0f83fbf030f6e9546fe033af43496feef15e5a3fc3ebde0",
+   "size": {
+    "checks": 50,
+    "files_to_read": 183,
+    "oracle_files_touched": 1,
+    "oracle_lines_changed": 149,
+    "tier": "medium"
+   }
+  },
+  "anchor-swepro-tutanota": {
+   "manifestSha256": "100d081296b6d4585ba8a38b1b16c2644d6b9e3847ab02d0493415a771d3bd31",
+   "size": {
+    "checks": 2,
+    "files_to_read": 555,
+    "oracle_files_touched": 1,
+    "oracle_lines_changed": 410,
+    "tier": "large"
+   }
+  },
+  "anchor-tb-fix-git": {
+   "manifestSha256": "3e05d734f5af62d72340a034caf5aaf1feb438c5a880d3ef0262af0babcb6fce",
+   "size": {
+    "checks": 3,
+    "files_to_read": 58,
+    "oracle_files_touched": 2,
+    "oracle_lines_changed": 36,
+    "tier": "medium"
+   }
+  },
+  "anchor-tb-nginx-request-logging": {
+   "manifestSha256": "17f35be1c440630ff478095162e05e1659bd8b0b3cff53d98994624636f7b968",
+   "size": {
+    "checks": 9,
+    "files_to_read": 10,
+    "oracle_files_touched": 5,
+    "oracle_lines_changed": 113,
+    "tier": "large"
+   }
+  }
+ },
+ "schema_version": 1,
+ "source": "measured once from the verified anchor cache; bound to committed manifests"
+}
