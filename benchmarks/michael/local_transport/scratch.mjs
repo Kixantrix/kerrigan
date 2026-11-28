@@ -24,6 +24,9 @@ export function scratchState(root, identity, python = "/usr/bin/python3", timeou
 }
 
 export function discardScratch(root, identity) {
+    if (!existsSync(root)) {
+        try { lstatSync(root); } catch (error) { if (error.code === "ENOENT") return { discarded: true }; throw error; }
+    }
     const info = lstatSync(root);
     if (!info.isDirectory() || info.isSymbolicLink() ||
         info.dev !== identity[0] || info.ino !== identity[1])

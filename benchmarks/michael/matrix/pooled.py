@@ -29,7 +29,8 @@ def version(task):
 
 def pooled(records, *, threshold=0.8, minimum_n=5):
     """Never mixes deployment classes; only cloud rows enter, and only each task's latest version."""
-    cloud = [row for row in records if row["deployment_class"] == "cloud" and row.get("eligible") is not False]
+    cloud = [row for row in records if row["deployment_class"] == "cloud" and row.get("eligible") is not False
+             and not row["task"].startswith("anchor-")]
     latest = {}
     for row in cloud:
         base, number = version(row["task"])

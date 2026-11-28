@@ -375,7 +375,8 @@ def test_native_missing_path_feedback_never_widens_existing_or_outside_access(ow
     assert all(row["kind"] == "cli" for row in terminal["records"])
 
 
-@pytest.mark.parametrize("mode", ["complete", "deadline", "output-cap", "schema-feedback", "external-stop"])
+@pytest.mark.parametrize("mode", ["complete", "deadline", "output-cap", "schema-feedback", "external-stop",
+                                  "missing-argument"])
 def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(owned, tmp_path, mode):
     cutoff = mode == "deadline"
     seen = []
@@ -384,6 +385,8 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
                {"op": "run", "path": "self_test.py"}]
     if mode == "schema-feedback":
         actions.insert(0, {"op": "read", "path": "TASK.md", "limit": 100})
+    if mode == "missing-argument":
+        actions.insert(0, {"op": "read"})
     if cutoff:
         actions = [{"op": "write", "path": "self_test.py", "data": "import time\ntime.sleep(30)\n"},
                    {"op": "run", "path": "self_test.py"}]
@@ -500,6 +503,8 @@ def test_synthetic_local_http_uses_actual_native_gate_actions_and_collection(own
         assert len(seen) == terminal["localInference"]["attempts"] == len(actions) + 1
         if mode == "schema-feedback":
             assert "action_schema_invalid" in json.dumps(seen[1]["messages"])
+        if mode == "missing-argument":
+            assert "Missing required arguments" in json.dumps(seen[1]["messages"])
         assert "local-native-proof" in json.dumps(seen[-1]["messages"])
         assert (run / "collected-source.bin").read_bytes() == specs.base("validator")
     finally:

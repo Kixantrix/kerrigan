@@ -6,15 +6,15 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 
 - **Model ID:** `mtplx-inkling-2-mini-optimized-quality`
 - **Deployment:** local laptop
-- **Conditions/epochs:** MB-R3/local-laptop/v12b, MB-R3/local-laptop/v9b, MB-R3/local-laptop/v9c, MB-R3/local-laptop/v9d
-- **Overall:** 8/15 (30%–75%) across 15 tasks; pass@1 53%
+- **Conditions/epochs:** MB-R3/local-laptop/v12b, MB-R3/local-laptop/v13a, MB-R3/local-laptop/v13b, MB-R3/local-laptop/v9b, MB-R3/local-laptop/v9c, MB-R3/local-laptop/v9d
+- **Overall:** 8/16 (28%–72%) across 16 tasks; pass@1 50%
 - **pass^3:** not yet (fewer than 3 runs per task)
-- **Pass-any:** 8/15 tasks
+- **Pass-any:** 8/16 tasks
 - **Verified time:** median [IQR] 100s [86–137]; 1 host-sleep timing(s) excluded
-- **Tokens per run (in / out):** 126,234 / 9,240
+- **Tokens per run (in / out):** 119,830 / 9,715
 - **Cost / peak memory / energy:** unknown / unknown / unknown (not measured; unknown is not zero)
 - **Use it for:** no work type with ≥3 runs at ≥90% yet
-- **Avoid it for:** Design × medium, Implement × small
+- **Avoid it for:** Design × medium, Implement × small, Review and repair × medium
 
 ## By work type
 
@@ -29,7 +29,7 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 | Orchestrate × medium | 1 | 0/1 (0%–79%) | — | 232,581 / 16,903 |
 | Research × medium | 1 | 1/1 (21%–100%) | 81s | 102,176 / 5,573 |
 | Research × small | 2 | 2/2 (34%–100%) | 110s | 130,847 / 6,216 |
-| Review and repair × medium | 1 | 0/1 (0%–79%) | — | 3,052 / 111 |
+| Review and repair × medium | 2 | 0/2 (0%–66%) | — | 13,404 / 8,470 |
 | Understand and plan × small | 1 | 0/1 (0%–79%) | — | 105,661 / 15,410 |
 
 ## Failure patterns
@@ -37,14 +37,14 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 | Pattern | Count | Example |
 |---|---:|---|
 | `premature-stop-without-edit` | 3 | cs-mismatch-stage-authority-v2 repeat 1 (MB-R3/local-laptop/v9d) |
+| `budget-noncompletion` | 2 | design-alethiometer-gear-mesh repeat 1 (MB-R3/local-laptop/v12b) |
 | `ignored-existing-state` | 1 | plan-dashboard-waves-v2 repeat 1 (MB-R3/local-laptop/v9d) |
-| `budget-noncompletion` | 1 | design-alethiometer-gear-mesh repeat 1 (MB-R3/local-laptop/v12b) |
 | `unsupported-defect-claim` | 1 | orchestrate-voice-integration-v5 repeat 1 (MB-R3/local-laptop/v12b) |
 | `spec-misread` | 1 | yv-relevance-instrument-v4 repeat 1 (MB-R3/local-laptop/v12b) |
 
 ## Quality panel
 
-7 scored failure(s); each was attributed by two independent auditors from other model families, deterministic evidence first. Only model-attributed failures are scored; harness/environment faults are listed under caveats and rerun as disclosed attempts.
+8 scored failure(s); each was attributed by two independent auditors from other model families, deterministic evidence first. Only model-attributed failures are scored; harness/environment faults are listed under caveats and rerun as disclosed attempts.
 
 ## Routing picks
 
@@ -54,5 +54,5 @@ Latest admitted task versions only; superseded versions excluded here (still in 
 
 - Local co-tenancy: resident idle Colima/pa-dev-postgres; sleep-affected timings excluded; never pooled with cloud.
 - Overall combines local adapter epochs (v9b, v9d, v12b) that share the 64 KiB input cap; v12b also passes multiple tool calls and raised the protocol event-count cap. Per-epoch cells are in the matrix; later epochs run concurrently with cloud cohorts.
-- 13 unscored physical attempt(s) (harness/environment), excluded from rates: status (runtime:local_parallel_tools_denied); status (scratch:scratch_scan:spawnSync /Library/Developer/CommandLin); emv-thumbnails-gallery-v3 (runtime:local_native_tool_failed); foal-meadow-regression-review-v2 (harness-cap: input-admission unavailable (64 KiB input-JSON ); review-conflict-predictor-v4 (environment: host sleep during inference (runtime:The operat); validator (harness-cap: input-admission unavailable (64 KiB input-JSON ); foal-meadow-regression-review-v2 (harness-cap: input-admission unavailable (64 KiB input-JSON ); kerrigan-plan-conflict-queue-v4 (harness-cap: input-admission unavailable (64 KiB input-JSON ); kirkland-compose-adoption (harness-cap: input-admission unavailable (64 KiB input-JSON ); orchestrate-sl-sim-phase-one (harness-cap: input-admission unavailable (64 KiB input-JSON ); review-conflict-predictor-v4 (runtime:local_native_tool_failed); te-baseline-eval (harness-cap: input-admission unavailable (64 KiB input-JSON ); vhs-room-registry-sync-v2 (harness-cap: input-admission unavailable (64 KiB input-JSON )
+- 14 unscored physical attempt(s) (harness/environment), excluded from rates: status (runtime:local_parallel_tools_denied); status (scratch:scratch_scan:spawnSync /Library/Developer/CommandLin); emv-thumbnails-gallery-v3 (runtime:local_native_tool_failed); foal-meadow-regression-review-v2 (harness-cap: input-admission unavailable (64 KiB input-JSON ); review-conflict-predictor-v4 (environment: host sleep during inference (runtime:The operat); validator (harness-cap: input-admission unavailable (64 KiB input-JSON ); foal-meadow-regression-review-v2 (harness-cap: input-admission unavailable (64 KiB input-JSON ); kerrigan-plan-conflict-queue-v4 (harness-cap: input-admission unavailable (64 KiB input-JSON ); kirkland-compose-adoption (harness-cap: input-admission unavailable (64 KiB input-JSON ); orchestrate-sl-sim-phase-one (harness-cap: input-admission unavailable (64 KiB input-JSON ); review-conflict-predictor-v4 (runtime:local_native_tool_failed); te-baseline-eval (harness-cap: input-admission unavailable (64 KiB input-JSON ); vhs-room-registry-sync-v2 (harness-cap: input-admission unavailable (64 KiB input-JSON ); kirkland-compose-adoption (harness-cap: input-admission unavailable (64 KiB input-JSON )
 - Every run is a fresh session; repeats share tasks, so intervals are descriptive.

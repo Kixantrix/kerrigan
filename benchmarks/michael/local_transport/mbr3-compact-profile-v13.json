@@ -1,0 +1,107 @@
+{
+ "epoch": "v13",
+ "kind": "compact-diff-profile-native-proof",
+ "modelPrompts": 0,
+ "passed": true,
+ "proofSha256": "35ba3b768eefc282c34893dc37c6e22a108911d0c400f49b39532e45db891fdb",
+ "scope": "Diff-mode anchors keep one subpath grant on the exported task root (epoch v13). Kernel: out-of-root read/write, fork, network and symlink escape denied. Broker: traversal and absolute paths cut off; special files in scratch cut off. Exact oracle collection; zero model prompts. Within the root the kernel allows undeclared files; the broker allowlist and final-diff collection still govern scored state.",
+ "sourceSha256": "413360436e5e97a819f8c732e2fbfbcbd552c08fa58c973e8ae3996be245c29c",
+ "tasks": {
+  "anchor-swepro-ansible": {
+   "brokerCutoffs": {
+    "absolute": {
+     "action": {
+      "op": "read",
+      "path": "/etc/hosts"
+     },
+     "stopReason": "broker:action_denied"
+    },
+    "traversal": {
+     "action": {
+      "op": "read",
+      "path": "../config.json"
+     },
+     "stopReason": "broker:action_denied"
+    }
+   },
+   "exactOracleCollection": true,
+   "kernel": {
+    "fork": "denied:PermissionError",
+    "network": "denied:PermissionError",
+    "read_outside_root": "denied:PermissionError",
+    "read_via_symlink": "denied:PermissionError",
+    "write_outside_root": "denied:PermissionError"
+   },
+   "profileBytes": 3799,
+   "scratchSpecialFileCutoff": {
+    "action": null,
+    "stopReason": "scratch:scratch_alias_or_special_file"
+   },
+   "terminalSha256": "c574ae32ac0b7acda677544d1cea4b39f7e963c4a587f05c0a1ed6ca02af041c"
+  },
+  "anchor-swepro-openlibrary": {
+   "brokerCutoffs": {
+    "absolute": {
+     "action": {
+      "op": "read",
+      "path": "/etc/hosts"
+     },
+     "stopReason": "broker:action_denied"
+    },
+    "traversal": {
+     "action": {
+      "op": "read",
+      "path": "../config.json"
+     },
+     "stopReason": "broker:action_denied"
+    }
+   },
+   "exactOracleCollection": true,
+   "kernel": {
+    "fork": "denied:PermissionError",
+    "network": "denied:PermissionError",
+    "read_outside_root": "denied:PermissionError",
+    "read_via_symlink": "denied:PermissionError",
+    "write_outside_root": "denied:PermissionError"
+   },
+   "profileBytes": 3835,
+   "scratchSpecialFileCutoff": {
+    "action": null,
+    "stopReason": "scratch:scratch_alias_or_special_file"
+   },
+   "terminalSha256": "bf5690cfea2925e971e49e294bfcb68da502da7b42ad03a0485cf01d48428f4a"
+  },
+  "anchor-swepro-qutebrowser": {
+   "brokerCutoffs": {
+    "absolute": {
+     "action": {
+      "op": "read",
+      "path": "/etc/hosts"
+     },
+     "stopReason": "broker:action_denied"
+    },
+    "traversal": {
+     "action": {
+      "op": "read",
+      "path": "../config.json"
+     },
+     "stopReason": "broker:action_denied"
+    }
+   },
+   "exactOracleCollection": true,
+   "kernel": {
+    "fork": "denied:PermissionError",
+    "network": "denied:PermissionError",
+    "read_outside_root": "denied:PermissionError",
+    "read_via_symlink": "denied:PermissionError",
+    "write_outside_root": "denied:PermissionError"
+   },
+   "profileBytes": 3835,
+   "scratchSpecialFileCutoff": {
+    "action": null,
+    "stopReason": "scratch:scratch_alias_or_special_file"
+   },
+   "terminalSha256": "dd72cfee06061c8f0e075ecb547944836fd5808905c002fcdd8e52da1f555f5f"
+  }
+ }
+}

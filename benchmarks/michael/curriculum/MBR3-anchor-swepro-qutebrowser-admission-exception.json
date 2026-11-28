@@ -1,0 +1,23 @@
+{
+  "admissionReceiptSha256": "126be5f6a7c2cd9e76a0faa39816c2bb5157ccdab5d45a43d4cd97c1a1b4b37a",
+  "decidedBy": "Michael Bench coordinator (ba383ac7), 2026-11-28",
+  "exception": "public-anchor-as-is",
+  "finding": "overspecified_test: tests use the private _reset_cache API and a particular mocking scheme; the oracle's braveadblock.init deferral of the outdated check is not described in the instruction. Contradiction: the original instruction's bash/test advice conflicts with the native contract (not test-enforced).",
+  "flaggedBehaviors": [
+    "braveadblock.init deferral of the outdated check",
+    "private _reset_cache mocking scheme"
+  ],
+  "kind": "admission-exception",
+  "originalDecision": {
+    "reasons": [
+      "contradiction",
+      "overspecified_test",
+      "untested_requirement"
+    ],
+    "state": "needs_fix"
+  },
+  "rule": "Public anchors are scored upstream against these exact tests; leaderboard comparability takes the same scoring. Dual reporting: raw (upstream-comparable) and adjusted, which excludes failures confined to disclosed flagged behaviors (anchor-overspecified).",
+  "schema_version": 1,
+  "scoring": "Anchor column and anchor scorecard section only; never pooled into work-family routing cells.",
+  "task": "anchor-swepro-qutebrowser"
+}

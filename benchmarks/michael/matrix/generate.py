@@ -29,7 +29,18 @@ FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "san
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
                  "harness-error", "invented-path-read", "spec-misread", "budget-noncompletion",
                  "stale-derived-document", "wrong-domain-rule", "premature-stop-without-edit",
-                 "ignored-existing-state")
+                 "ignored-existing-state", "anchor-overspecified",
+                 "incomplete-change")
+
+
+ANCHOR_FAMILY = "Public anchor"
+
+
+def family(name):
+    """Public anchors are scored only in their own column, never in work-family routing cells."""
+    if name.startswith("anchor-"):
+        return ANCHOR_FAMILY
+    return FAMILIES.get(name) or curriculum.meta(name)["family"]
 
 
 def failure_modes(attribution):
@@ -70,6 +81,9 @@ def failure_modes(attribution):
     if any(word in lower for word in ("only read task.md", "without editing", "unchanged original", "remained unchanged",
                                        "no write", "original empty stub")):
         modes.append("premature-stop-without-edit")
+    if any(word in lower for word in ("did not write", "never decoded", "was a guess", "did not apply")) and \
+            "premature-stop-without-edit" not in modes:
+        modes.append("incomplete-change")
     if any(word in lower for word in ("already delivered", "already present", "already contains")):
         modes.append("ignored-existing-state")
     return modes or ["model-failure-unclassified"]
@@ -324,7 +338,7 @@ def ledger_records(root, *, selected=None):
                 "deployment_class": "local laptop" if local else "cloud",
                 "condition": frozen["condition"] + ("/" + Path(root).name.removeprefix("mbr3-local-")
                     if local else ""), "tool_host": "local macOS MXC", "round": "v3",
-                "family": FAMILIES.get(name) or curriculum.meta(name)["family"],
+                "family": family(name),
                 "size": size(name), "resolved": passed,
                 "completion_seconds": seconds, "tokens": tokens, "cost": None,
                 "peak_memory_bytes": None, "energy_joules": None,
@@ -411,6 +425,14 @@ def epoch_records(plan_path):
         outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
         attribution_path = prior_root / "attribution" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "attribution.json"
         cause = json.loads(attribution_path.read_bytes())["cause"]
+        if cause == "unresolved" and prior.get("taskAdjudication"):
+            adjudication_path = ROOT / "benchmarks/michael/curriculum" / prior["taskAdjudication"]["file"]
+            adjudication = json.loads(adjudication_path.read_bytes())
+            if (hashlib.sha256(adjudication_path.read_bytes()).hexdigest() != prior["taskAdjudication"]["sha256"] or
+                    adjudication.get("cause") != "task" or adjudication.get("originalPanelSha256") !=
+                    prior["attributionSha256"] or adjudication.get("outcomeSha256") != prior["outcomeSha256"]):
+                raise ValueError("source epoch task adjudication mismatch")
+            cause = "task"
         allowed = ("harness", "task", "unresolved") if prior.get("closesScheduledSlot") else ("harness",)
         if (hashlib.sha256(outcome_path.read_bytes()).hexdigest() != prior["outcomeSha256"] or
                 hashlib.sha256(attribution_path.read_bytes()).hexdigest() != prior["attributionSha256"] or
@@ -631,6 +653,10 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
         }
     recommendations = {}
     for column in sorted(columns):
+        if column.startswith(ANCHOR_FAMILY):
+            recommendations[column] = {"status": "not routed (public anchor)", "target": None,
+                                       "provisional": {"status": "not routed (public anchor)", "target": None}}
+            continue
         eligible = []
         for target, target_cells in cells.items():
             cell = target_cells.get(column)

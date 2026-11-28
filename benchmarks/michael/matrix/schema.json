@@ -101,7 +101,7 @@
           "propertyNames": {"enum": ["spec-misread", "unsupported-defect-claim", "claimed-fix-not-implemented",
             "sandbox-boundary-write", "harness-cap", "task-caused", "contention-timeout",
             "model-failure-unclassified", "harness-error", "invented-path-read", "budget-noncompletion",
-            "stale-derived-document", "wrong-domain-rule", "premature-stop-without-edit", "ignored-existing-state"]},
+            "stale-derived-document", "wrong-domain-rule", "premature-stop-without-edit", "ignored-existing-state", "anchor-overspecified", "incomplete-change"]},
           "additionalProperties": {"type": "integer", "minimum": 1}},
         "provenance": {"type": "array", "items": {"type": "object"}}
       }

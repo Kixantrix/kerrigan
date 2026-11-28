@@ -232,6 +232,35 @@ await assert.rejects(()=>run(70000,500),/local_context_budget/);
                    check=True, timeout=20)
 
 
+def test_empirical_v13_input_bound_admits_larger_input_and_stops_on_native_guards():
+    script = """
+import assert from 'node:assert/strict';
+import {localLoop,LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+const base={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+const run=async(condition,toolResultBytes,tokens)=>{
+ let turn=0;
+ return localLoop({condition,prompt:'p',tools:[],signal:new AbortController().signal,
+  boundary:async()=>{},record:()=>{},clock:()=>1000,execute:async()=>({data:'x'.repeat(toolResultBytes)}),
+  fetcher:async(url,options)=>{turn++;const bytes=Buffer.byteLength(options.body);
+   const message=turn===1?{role:'assistant',content:null,tool_calls:[{id:'c',type:'function',
+     function:{name:'mb_action',arguments:'{}'}}]}:{role:'assistant',content:'done'};
+   const prompt=tokens(bytes);
+   return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
+    usage:{prompt_tokens:prompt,completion_tokens:1,total_tokens:prompt+1},choices:[{message,finish_reason:'stop'}]}));}});
+};
+const v13={...base,inputBound:'empirical-v13'};
+assert.equal((await run(v13,90000,b=>Math.floor(b*0.4))).status,'completed');
+await assert.rejects(()=>run(base,90000,b=>Math.floor(b*0.4)),/local_context_budget/);
+await assert.rejects(()=>run(v13,99000,b=>Math.floor(b*0.4)),/local_context_budget/);
+await assert.rejects(()=>run(v13,1000,b=>Math.floor(b*0.99)),/local_context_budget/);
+await assert.rejects(()=>run(v13,90000,()=>172033),/local_context_budget/);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=20)
+
+
 def test_local_own_response_native_timings_ignore_derived_defaults_and_preserve_caps():
     script = """
 import assert from 'node:assert/strict';
@@ -437,3 +466,23 @@ await window.release();
 """
     subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
                    check=True, timeout=10)
+
+
+def test_scratch_removed_by_task_is_empty_not_fatal_but_aliases_still_cut_off(tmp_path):
+    from benchmarks.michael.local_transport.scratch_scan import scan
+    scratch = tmp_path / ".scratch"
+    scratch.mkdir()
+    identity = [scratch.stat().st_dev, scratch.stat().st_ino]
+    scratch.rmdir()
+    assert scan(str(scratch), identity, 10, 10) == {"bytes": 0, "entries": 0, "removed": True}
+    (tmp_path / "elsewhere").mkdir()
+    scratch.symlink_to(tmp_path / "elsewhere")
+    with pytest.raises(OSError):
+        scan(str(scratch), identity, 10, 10)
+    scratch.unlink()
+    script = f"""
+import assert from 'node:assert/strict';
+import {{discardScratch}} from './benchmarks/michael/local_transport/scratch.mjs';
+assert.deepEqual(discardScratch('{scratch}',[0,0]),{{discarded:true}});
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT, check=True, timeout=10)

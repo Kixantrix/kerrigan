@@ -92,10 +92,12 @@ Three slots are excluded and disclosed, not scored:
 - GPT 6.2 Sol gear-mesh: harness fault (16,384-event protocol cap, since raised).
 - Gemini vhs-v2: harness fault. The candidate deleted its own TMPDIR, and the
   scratch monitor treated that as fatal; the fix is pending.
-- GPT 5.6 Sol research-cs-speech: pending task adjudication. Location is
-  over-determined (S3, or S4+S7), but the oracle hard-codes S3.
+- GPT 5.6 Sol research-cs-speech: **task-caused** (`overspecified-check`), per
+  the coordinator's [adjudication](MBR3-cs-speech-gpt56-task-adjudication.json).
+  Location is over-determined (S1+S3, or S1+S4/S7), but the oracle hard-codes S3.
+  Round-4 known issue: accept any sufficient citation set.
 
-Each will get a disclosed rerun. One extra slot (emv, Gemini) ended
+The two harness faults get disclosed reruns. One extra slot (emv, Gemini) ended
 `controller_lost` during an aborted epoch switch and was rerun. **Selection role
 in admission:** Gemini 4 Neon was the admission blind solver (25/25 native
 round-3 blind passes), and GPT 5.6 Sol co-audited admissions. Both perfect rows
@@ -142,6 +144,29 @@ The missing-path-only sensitivity is unchanged because MAI's later disclosed
 replacement independently failed the defect ledger. The all-original-rules
 view additionally counts Sonnet's misleading-tooltip cutoff. Physical
 execution fractions are not task-success estimates.
+
+## Public anchors (native, 7 cloud models)
+
+All 7 anchor verifier images were built on macOS with the hash-pinned public
+`--ca-bundle`. The compact diff-mode profile, a single subpath grant proven in
+[epoch v13](../local_transport/mbr3-compact-profile-v13.json), fixed the
+element-web and tutanota native EPIPE. Harbor containment was proven for the
+five runnable anchors.
+
+| Anchor | Admission | Status |
+|---|---|---|
+| fix-git (TB) | admitted with findings | scored |
+| nginx-request-logging (TB) | admitted with findings | scored; base calibrates 2/8 natively vs 1/8 retained, admission holds |
+| openlibrary (SWE-Pro) | admitted with findings | scored |
+| ansible (SWE-Pro) | `public-anchor-as-is` ([exception](MBR3-anchor-swepro-ansible-admission-exception.json)): the oracle accepts a non-mapping `\|=` that no test exercises | runs after the fill |
+| qutebrowser (SWE-Pro) | `public-anchor-as-is` ([exception](MBR3-anchor-swepro-qutebrowser-admission-exception.json)): the tests overspecify the private API and mocking | runs after the fill; raw and adjusted scores |
+| element-web, tutanota (SWE-Pro) | — | **host-resource-unavailable**: the shared Colima VM (2 CPU / 2 GiB) cannot grade them; blocked pending the user |
+
+Three order-balanced repeats × 7 models on the three scored anchors: every
+model scores 9/9 except GPT 5.6 Sol at 8/9. Its fix-git failure restored one
+lost file and guessed the other (`incomplete-change`). Anchors score only in
+the anchor column and the scorecard anchor section; they never feed routing
+cells. All grading ran under the VM's effective 2 GiB cap.
 
 ## Expanded curriculum and public anchors
 
