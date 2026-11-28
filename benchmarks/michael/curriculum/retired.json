@@ -202,10 +202,13 @@
    }
   },
   "vhs-room-registry-sync-v2": {
-   "by": "MB-010r literal-overspecification audit",
+   "by": "MBR3 native admission (admitted_with_findings)",
    "superseded_by": "vhs-room-registry-sync-v3",
    "reason": "task-caused (native admission overspecified_test): the rename row compared live-name arrays in a fixed order although snapshot record order is free",
-   "evidence_pending": "native admission receipt for vhs-room-registry-sync-v2 (overspecified_test on liveNames order); cite once pushed"
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-vhs-room-registry-sync-v2-admission.json",
+    "sha256": "f157d830c01c8167abe5216b9ae567346145a9b6c7fea6bbbf6a4e2142c8659d"
+   }
   }
  },
  "note": "Retired v1 packages are preserved byte-for-byte for provenance and are never re-admitted or scored.",
