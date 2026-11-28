@@ -186,6 +186,21 @@ await assert.rejects(()=>run(LOCAL_LIMITS.toolCallsPerResponse+1),/local_paralle
                    check=True, timeout=10)
 
 
+def test_scratch_scan_timeout_is_a_distinct_missed_observation(tmp_path):
+    slow = tmp_path / "slow-python"
+    slow.write_text("#!/bin/sh\nsleep 5\n")
+    slow.chmod(0o755)
+    script = f"""
+import assert from 'node:assert/strict';
+import {{scratchState,SCAN}} from './benchmarks/michael/local_transport/scratch.mjs';
+assert(SCAN.timeoutMs >= 10000 && SCAN.consecutiveMissesAllowed === 2);
+assert.throws(()=>scratchState('{tmp_path}',[0,0],'{slow}',200),e=>e.scanTimeout===true&&/scratch_scan:.*ETIMEDOUT/.test(e.message));
+assert.throws(()=>scratchState('{tmp_path}',[0,0],'{tmp_path}/missing-python',200),e=>e.scanTimeout!==true);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=20)
+
+
 def test_local_own_response_native_timings_ignore_derived_defaults_and_preserve_caps():
     script = """
 import assert from 'node:assert/strict';

@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { validateAction, nativeFailure, verifiedPublicHttps, canonical, VALIDATOR, TASK_VALIDATOR as LEGACY_TASK_POLICY } from "./limits.mjs";
 import { admission } from "./validator_admission.mjs";
 import { PROTOCOL, Protocol } from "./protocol.mjs";
-import { SCRATCH, scratchState, discardScratch } from "./scratch.mjs";
+import { SCAN, SCRATCH, scratchState, discardScratch } from "./scratch.mjs";
 import { taskPathState } from "./path_probe.mjs";
 import { localWindow } from "./local_window.mjs";
 
@@ -33,16 +33,24 @@ let stopping, activeEnd, cleanupStart, serial = 0, gate = false, diskBytes = 0, 
 let cli, input, events = 0, toolQueue = Promise.resolve();
 let finishing = false, spawning = 0, finalSourceError;
 let scratchError, scratchCleanup, scratchPeakBytes = 0, scratchPeakEntries = 0;
+let scratchConsecutiveMisses = 0, scratchMissedSamples = 0;
 const localAbort = new AbortController(), localEvents = [];
 let local, localResult, localRelease;
 const scratchRoot = config.scratchDirectory ? config.task + "/" + SCRATCH.directory : null;
-function checkScratch() {
+function checkScratch(boundary = false) {
     if (!scratchRoot) return;
     try {
         const state = scratchState(scratchRoot, config.scratchIdentity, config.python);
         scratchPeakBytes = Math.max(scratchPeakBytes, state.bytes);
         scratchPeakEntries = Math.max(scratchPeakEntries, state.entries);
+        scratchConsecutiveMisses = 0;
     } catch (error) {
+        // Timer samples may miss under host load; action boundaries and repeated misses still cut off.
+        if (error.scanTimeout && !boundary && scratchConsecutiveMisses < SCAN.consecutiveMissesAllowed) {
+            scratchConsecutiveMisses++;
+            scratchMissedSamples++;
+            return;
+        }
         scratchError = error.message;
         stop(`scratch:${error.message}`);
     }
@@ -239,7 +247,7 @@ function parse(bytes) {
     try { protocol.feed(bytes); } catch (error) { stop(`protocol:${error.message}`); }
 }
 async function action(id, args, final = false) {
-    checkScratch();
+    checkScratch(true);
     if (!gate || (stopping && !final)) throw new Error("execution_gated");
     if (config.validatorTask && !final && id.startsWith("controller-final-source"))
         throw new Error("reserved_source_identifier");
@@ -332,7 +340,7 @@ process.on("SIGTERM", () => stop("owner_terminated"));
 process.on("SIGINT", () => stop("owner_interrupted"));
 const deadline = setTimeout(() => stop("timeout"), Math.max(1, until - performance.now()));
 const scratchMonitor = scratchRoot ? setInterval(checkScratch, 100) : null;
-checkScratch();
+checkScratch(true);
 try {
     const transport = await owned("cli", config.command, config.cliProfile);
     cli = transport.child; input = transport.stdin;
@@ -502,7 +510,7 @@ finally {
     if (scratchRoot && settled !== null && spawning === 0 &&
         records.every(record => record.reaped && record.warnings?.length === 0)) {
         try {
-            checkScratch();
+            checkScratch(true);
             scratchCleanup = discardScratch(scratchRoot, config.scratchIdentity);
         } catch (error) { scratchError = error.message; }
     }
@@ -516,7 +524,7 @@ finally {
         partialBudgetExhausted: partialBudget(), finalSourceError,
         cleanupSeconds, wholeProcessQuiescent: settled !== null && spawning === 0 && records.length > 0 &&
             records.every(record => record.reaped && record.warnings?.length === 0),
-        ...(scratchRoot ? { scratch: { peakBytes: scratchPeakBytes, peakEntries: scratchPeakEntries,
+        ...(scratchRoot ? { scratch: { peakBytes: scratchPeakBytes, peakEntries: scratchPeakEntries, missedSamples: scratchMissedSamples,
             error: scratchError, cleanup: scratchCleanup, limits: SCRATCH } } : {}),
         records: records.map(({ wait, ...record }) => record),
         actions: [...actions], actionBytes: budget.bytes,         counts, events, messages, requests, protocolCondition: PROTOCOL,
