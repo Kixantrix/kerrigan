@@ -1,0 +1,505 @@
+[
+ {
+  "original_id": "the wave runs both tasks in parallel after T001",
+  "group": "wave",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "tasks"
+    ],
+    [
+     "T002",
+     "T003"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "parallel"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "deps"
+    ],
+    {
+     "T002": [
+      "T001"
+     ],
+     "T003": [
+      "T001"
+     ]
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "each task owns exactly the acceptance criteria its Done-when names",
+  "group": "wave",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "acceptance"
+    ],
+    {
+     "T002": [
+      "AC-001",
+      "AC-003",
+      "AC-004",
+      "AC-010"
+     ],
+     "T003": [
+      "AC-002",
+      "AC-005"
+     ]
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "acceptance_wellformed"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "both tasks route by the default cloud rule",
+  "group": "wave",
+  "probe": {
+   "op": "summary"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "routing"
+    ],
+    {
+     "T002": "R-cloud-default",
+     "T003": "R-cloud-default"
+    }
+   ]
+  ]
+ },
+ {
+  "original_id": "every touch entry is well formed and exists or is a new service path",
+  "group": "ownership",
+  "probe": {
+   "op": "syntax",
+   "creatable": [
+    "services/personal-assistant"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "T002"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "T003"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "the two touch sets are disjoint",
+  "group": "ownership",
+  "probe": {
+   "op": "disjoint"
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "the durable-state module directories the plan names belong to T002 only",
+  "group": "ownership",
+  "probe": {
+   "op": "owners",
+   "paths": [
+    "services/personal-assistant/src/session/**",
+    "services/personal-assistant/src/task/**",
+    "services/personal-assistant/src/inbox/**",
+    "services/personal-assistant/migrations/**"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/session/**"
+    ],
+    [
+     "T002"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/task/**"
+    ],
+    [
+     "T002"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/inbox/**"
+    ],
+    [
+     "T002"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/migrations/**"
+    ],
+    [
+     "T002"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "the vault module belongs to T003 only",
+  "group": "ownership",
+  "probe": {
+   "op": "owners",
+   "paths": [
+    "services/personal-assistant/src/vault/**"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/vault/**"
+    ],
+    [
+     "T003"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "each task owns its own tests",
+  "group": "ownership",
+  "probe": {
+   "op": "owners",
+   "paths": [
+    "services/personal-assistant/tests/**"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/tests/**"
+    ],
+    [
+     "T002",
+     "T003"
+    ]
+   ]
+  ]
+ },
+ {
+  "original_id": "the manifests and CI workflow each have exactly one owner",
+  "group": "ownership",
+  "probe": {
+   "op": "owner_count",
+   "paths": [
+    "services/personal-assistant/package.json",
+    "services/personal-assistant/package-lock.json",
+    ".github/workflows/personal-assistant-ci.yml"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/package.json"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/package-lock.json"
+    ],
+    1
+   ],
+   [
+    "path_equal",
+    [
+     ".github/workflows/personal-assistant-ci.yml"
+    ],
+    1
+   ]
+  ]
+ },
+ {
+  "original_id": "Wave 1 contracts are shared read-only inputs",
+  "group": "boundaries",
+  "probe": {
+   "op": "read_only",
+   "paths": [
+    "services/personal-assistant/src/protocol/**",
+    "services/personal-assistant/src/domain/**",
+    "services/personal-assistant/schemas/**"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/protocol/**"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/domain/**"
+    ],
+    true
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/schemas/**"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "no task touches the Wave 1 contracts",
+  "group": "boundaries",
+  "probe": {
+   "op": "owners",
+   "paths": [
+    "services/personal-assistant/src/protocol/index.ts",
+    "services/personal-assistant/src/domain/policies.ts",
+    "services/personal-assistant/schemas/v1-protocol.json"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/protocol/index.ts"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/src/domain/policies.ts"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant/schemas/v1-protocol.json"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "no task touches anything outside the wave's area",
+  "group": "boundaries",
+  "probe": {
+   "op": "owners",
+   "paths": [
+    "services/obsidian-agent/src/index.ts",
+    "apps/personal-assistant-android/app/Main.kt",
+    "adapters/copilot/index.ts",
+    "specs/projects/personal-assistant/spec.md",
+    ".specify/waves.yaml",
+    "deployment/local/compose.yml",
+    "services/personal-assistant-worker/index.ts",
+    ".github/workflows/ci-obsidian-agent.yml",
+    "scripts/smoke.sh"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "services/obsidian-agent/src/index.ts"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "apps/personal-assistant-android/app/Main.kt"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "adapters/copilot/index.ts"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "specs/projects/personal-assistant/spec.md"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     ".specify/waves.yaml"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "deployment/local/compose.yml"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "services/personal-assistant-worker/index.ts"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     ".github/workflows/ci-obsidian-agent.yml"
+    ],
+    []
+   ],
+   [
+    "path_equal",
+    [
+     "scripts/smoke.sh"
+    ],
+    []
+   ]
+  ]
+ },
+ {
+  "original_id": "T002 delivers exactly the durable-state scope items",
+  "group": "scope",
+  "probe": {
+   "op": "scope",
+   "vocabulary": [
+    "durable-session-task-state",
+    "outbox-and-sse",
+    "inbox-persistence",
+    "postgres-migrations",
+    "vault-semantic-operations",
+    "vault-search-projection",
+    "text-assistant-shell",
+    "copilot-worker-adapter",
+    "android-client",
+    "livekit-media",
+    "memory-stewardship",
+    "official-obsidian-adapter",
+    "personal-vault-promotion"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "T002",
+     "in"
+    ],
+    [
+     "durable-session-task-state",
+     "inbox-persistence",
+     "outbox-and-sse",
+     "postgres-migrations"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "T002",
+     "complete"
+    ],
+    true
+   ]
+  ]
+ },
+ {
+  "original_id": "T003 delivers exactly the vault scope items",
+  "group": "scope",
+  "probe": {
+   "op": "scope",
+   "vocabulary": [
+    "durable-session-task-state",
+    "outbox-and-sse",
+    "inbox-persistence",
+    "postgres-migrations",
+    "vault-semantic-operations",
+    "vault-search-projection",
+    "text-assistant-shell",
+    "copilot-worker-adapter",
+    "android-client",
+    "livekit-media",
+    "memory-stewardship",
+    "official-obsidian-adapter",
+    "personal-vault-promotion"
+   ]
+  },
+  "clauses": [
+   [
+    "path_equal",
+    [
+     "T003",
+     "in"
+    ],
+    [
+     "vault-search-projection",
+     "vault-semantic-operations"
+    ]
+   ],
+   [
+    "path_equal",
+    [
+     "T003",
+     "complete"
+    ],
+    true
+   ]
+  ]
+ }
+]

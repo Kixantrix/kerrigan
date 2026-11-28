@@ -1991,6 +1991,49 @@
     "hidden_checks": 13,
     "hidden_clauses": 43
    }
+  },
+  {
+   "id": "plan-pa-wave2-ownership",
+   "family": "Understand and plan",
+   "title": "Plan parallel Wave 2 dispatch ownership (disjoint touch sets, read-only contracts, ACs, routing, scope) for a personal-assistant platform",
+   "repo": "Kixantrix/personal-selfhost",
+   "visibility": "private",
+   "source": {
+    "kind": "pr",
+    "pr": 224,
+    "issue": null
+   },
+   "base_ref": "0abd3c4afbba15b4bc5e03360ff37d59506b09ba",
+   "reference_ref": "129c7461929629b5b108010ccf2a4528e2d4e5fa",
+   "stack": [
+    "markdown",
+    "json"
+   ],
+   "toolchain": "python3.12 stdlib",
+   "grader_container_ok": true,
+   "required_environment": "cloud-linux (python3 stdlib only; plan artifact graded offline)",
+   "outcome_evidence": "required_facts_checklist",
+   "evidence_detail": "14 invariant rows: parallelism/deps, exact base ACs, routing, touch syntax/existence, fnmatch disjointness, plan-named module ownership, single owner of manifests/CI, read-only Wave 1 contracts, out-of-area exclusion, closed-vocabulary scope. Base 3/14, reference 14/14; a differently laid-out valid plan passes, six invalid plans fail.",
+   "privacy": "private-sanitized",
+   "privacy_note": "Exact private planning artifacts; no secrets, hosts or personal data.",
+   "estimated_agent_minutes": 30,
+   "long_horizon": false,
+   "summary": "Conductor assigns disjoint ownership for two parallel cloud tasks (durable state vs synthetic vault) with read-only shared contracts, ACs, routing and scope; graded on invariants, not one layout.",
+   "history_status": "merged",
+   "package": "plan-pa-wave2-ownership",
+   "provenance_kind": "merged-pr",
+   "grader_image": "michael-replay-grader:mb006j",
+   "round": 4,
+   "task_size": {
+    "oracle_files_changed": 1,
+    "oracle_lines_added": 78,
+    "oracle_lines_removed": 14,
+    "writable_files": 1,
+    "files_to_read": 21,
+    "lines_to_read": 2711,
+    "hidden_checks": 14,
+    "hidden_clauses": 37
+   }
   }
  ],
  "anchor_packages": {

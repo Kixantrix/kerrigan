@@ -1440,3 +1440,73 @@ def test_voxel_is_a_fresh_round4_port_that_says_so():
     info = curriculum.meta(VOXEL)
     assert info["round"] == 4 and "supersedes" not in info and info["source"]["repo"] == "Kixantrix/voxel-solar-wallpaper"
     assert "faithful TypeScript port" in " ".join(curriculum.agent_files(VOXEL)["TASK.md"].decode().split())
+
+
+WAVE = "plan-pa-wave2-ownership"
+PA = "services/personal-assistant/"
+
+
+def _wave_other_layout(plan):
+    """Different module layout and file names, the manifests owned by T003 instead, wider read-only, any order."""
+    t2, t3 = plan["tasks"]["T002"], plan["tasks"]["T003"]
+    t2["touch"] = [PA + "src/session/index.ts", PA + "src/task/**", PA + "src/inbox/**", PA + "src/outbox/**",
+                   PA + "migrations/0001_durable.sql", PA + "tests/durable/**", ".github/workflows/personal-assistant-ci.yml"]
+    t3["touch"] = [PA + "src/vault/gateway/**", PA + "tests/vault/**", PA + "package.json", PA + "package-lock.json"]
+    plan["shared_read_only"] = ["specs/projects/personal-assistant/**", PA + "schemas/**", PA + "src/domain/**", PA + "src/protocol/**"]
+    for task in (t2, t3):
+        task["scope"]["out"].reverse()
+        task["note"] = "free text"
+
+
+def _wave_reordered(plan):
+    for task in plan["tasks"].values():
+        for key in ("acceptance", "touch"):
+            task[key].reverse()
+
+
+def test_wave_accepts_other_valid_ownership_plans(tmp_path):
+    for mutate in (_wave_other_layout, _wave_reordered):
+        assert _failed(_json_reference(WAVE, "WAVE2.json", mutate), WAVE, tmp_path) == [], mutate.__name__
+
+
+def _shared_manifest(plan):
+    plan["tasks"]["T003"]["touch"].append(PA + "package.json")
+
+
+def _whole_service(plan):
+    plan["tasks"]["T002"]["touch"] = [PA + "**"]
+
+
+def _sequential(plan):
+    plan["parallel"] = False
+
+
+def _cumulative_ac(plan):
+    plan["tasks"]["T002"]["acceptance"].append("AC-006")
+
+
+def _wildcard(plan):
+    plan["tasks"]["T003"]["touch"].append(PA + "src/vault/*.ts")
+
+
+def _schemas_writable(plan):
+    plan["shared_read_only"].remove(PA + "schemas/**")
+    plan["tasks"]["T002"]["touch"].append(PA + "schemas/**")
+
+
+@pytest.mark.parametrize("mutate,row", [
+    (_shared_manifest, "the manifests and CI workflow each have exactly one owner"),
+    (_whole_service, "the two touch sets are disjoint"),
+    (_sequential, "the wave runs both tasks in parallel after T001"),
+    (_cumulative_ac, "each task owns exactly the acceptance criteria its Done-when names"),
+    (_wildcard, "every touch entry is well formed and exists or is a new service path"),
+    (_schemas_writable, "no task touches the Wave 1 contracts"),
+])
+def test_wave_rejects_invalid_ownership_plans(mutate, row, tmp_path):
+    assert row in _failed(_json_reference(WAVE, "WAVE2.json", mutate), WAVE, tmp_path)
+
+
+def test_wave_is_a_fresh_round4_plan_package():
+    info = curriculum.meta(WAVE)
+    assert info["round"] == 4 and info["family"] == "Understand and plan" and "supersedes" not in info
+    assert info["source"]["repo"] == "Kixantrix/personal-selfhost" and info["source"]["pr"] == 224

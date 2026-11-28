@@ -1,0 +1,24 @@
+feature: personal-assistant
+generated_at: 2026-09-11T18:28:00Z
+waves:
+  - id: 1
+    tasks: [T001]
+    rationale: Protocol and synthetic trust boundaries must exist before persistent or provider integrations.
+  - id: 2
+    tasks: [T002, T003]
+    rationale: Durable task state and synthetic vault semantics touch separate modules after shared contracts stabilize.
+  - id: 3
+    tasks: [T004, T005]
+    rationale: Text interaction and Copilot adapter can proceed independently against durable task/vault contracts.
+  - id: 4
+    tasks: [T006]
+    rationale: Android shell integrates the stable assistant protocol.
+  - id: 5
+    tasks: [T007, T008]
+    rationale: Android bounded capabilities and server-side memory/inbox are separate surfaces.
+  - id: 6
+    tasks: [T009]
+    rationale: The official Obsidian adapter requires local application behavior but remains restricted to a generated vault.
+  - id: 7
+    tasks: [T010]
+    rationale: Personal-vault promotion is local-attested and blocked on every synthetic milestone and adapter attestation.

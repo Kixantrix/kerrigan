@@ -1,0 +1,90 @@
+{
+  "parallel": true,
+  "tasks": {
+    "T002": {
+      "depends_on": [
+        "T001"
+      ],
+      "acceptance": [
+        "AC-001",
+        "AC-003",
+        "AC-004",
+        "AC-010"
+      ],
+      "routing_rule": "R-cloud-default",
+      "touch": [
+        "services/personal-assistant/package.json",
+        "services/personal-assistant/package-lock.json",
+        "services/personal-assistant/src/durable/**",
+        "services/personal-assistant/src/session/**",
+        "services/personal-assistant/src/task/**",
+        "services/personal-assistant/src/inbox/**",
+        "services/personal-assistant/src/stream/**",
+        "services/personal-assistant/migrations/T002/**",
+        "services/personal-assistant/tests/durable-state/**",
+        "services/personal-assistant/README.md",
+        ".github/workflows/personal-assistant-ci.yml"
+      ],
+      "scope": {
+        "in": [
+          "durable-session-task-state",
+          "inbox-persistence",
+          "outbox-and-sse",
+          "postgres-migrations"
+        ],
+        "out": [
+          "vault-semantic-operations",
+          "vault-search-projection",
+          "text-assistant-shell",
+          "copilot-worker-adapter",
+          "android-client",
+          "livekit-media",
+          "memory-stewardship",
+          "official-obsidian-adapter",
+          "personal-vault-promotion"
+        ]
+      }
+    },
+    "T003": {
+      "depends_on": [
+        "T001"
+      ],
+      "acceptance": [
+        "AC-002",
+        "AC-005"
+      ],
+      "routing_rule": "R-cloud-default",
+      "touch": [
+        "services/personal-assistant/src/vault/semantic/**",
+        "services/personal-assistant/src/vault/projection/**",
+        "services/personal-assistant/src/vault/synthetic.ts",
+        "services/personal-assistant/tests/vault-semantic/**",
+        "services/personal-assistant/docs/T003-synthetic-vault.md"
+      ],
+      "scope": {
+        "in": [
+          "vault-search-projection",
+          "vault-semantic-operations"
+        ],
+        "out": [
+          "durable-session-task-state",
+          "outbox-and-sse",
+          "inbox-persistence",
+          "postgres-migrations",
+          "text-assistant-shell",
+          "copilot-worker-adapter",
+          "android-client",
+          "livekit-media",
+          "memory-stewardship",
+          "official-obsidian-adapter",
+          "personal-vault-promotion"
+        ]
+      }
+    }
+  },
+  "shared_read_only": [
+    "services/personal-assistant/src/protocol/**",
+    "services/personal-assistant/src/domain/**",
+    "services/personal-assistant/schemas/**"
+  ]
+}

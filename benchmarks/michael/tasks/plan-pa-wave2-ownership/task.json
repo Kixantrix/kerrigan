@@ -1,0 +1,44 @@
+{
+ "id": "plan-pa-wave2-ownership",
+ "family": "Understand and plan",
+ "title": "Plan parallel Wave 2 dispatch ownership (disjoint touch sets, read-only contracts, ACs, routing, scope) for a personal-assistant platform",
+ "source": {
+  "repo": "Kixantrix/personal-selfhost",
+  "visibility": "private",
+  "kind": "pr",
+  "pr": 224,
+  "base_ref": "0abd3c4afbba15b4bc5e03360ff37d59506b09ba",
+  "reference_ref": "129c7461929629b5b108010ccf2a4528e2d4e5fa",
+  "history_status": "merged"
+ },
+ "derivation": "personal-selfhost PR #224 (merged, 'Plan personal assistant Wave 2 dispatch') wrote closed T002/T003 briefings and recorded exact disjoint Wave 2 touch sets, shared read-only T001 contracts and an integration gate in .specify/waves.yaml. Inputs are exact base-commit bytes of specs/projects/personal-assistant/** (all 15 artifacts), .specify/waves.yaml, the delegation-rubric skill and the repository file list for services/, apps/, adapters/, scripts/, tests/ and .github/workflows/. The reference transcribes the merged waves.yaml touch_sets and shared_read_only verbatim into WAVE2.json, with parallel/dependencies from the base plan and tasks.md, routing R-cloud-default (the merged briefings route both to cloud), and a scope classification over a closed 13-item vocabulary that maps each later task of tasks.md. The PR also added AC-023..AC-026 and reworded Done-when lines; those are not derivable from the base inputs, so acceptance is the base tasks.md sets (AC-001/003/004/010 and AC-002/005) and TASK.md says so ('exactly the criteria tasks.md names'). Checks are invariants, not the oracle's paths: well-formed/existing touch entries, disjointness under the conflict predictor's fnmatch overlap, ownership of the module directories plan.md names (session/task/inbox/migrations to T002, vault to T003), each task owning tests, exactly one owner for the service manifests and CI workflow, Wave 1 contracts read-only and untouched, nothing outside the wave's area, and exact scope sets.",
+ "privacy": "private-sanitized",
+ "coverage": "14 rows: wave shape/AC/routing (3), ownership (6), boundaries (3), scope (2).",
+ "historical_exposure": "Private repository; recognition risk low.",
+ "outcome_evidence": "required_facts_checklist",
+ "estimated_agent_minutes": 30,
+ "long_horizon": false,
+ "residual_rubric": [
+  "Directory naming inside each owned area, integration-gate wording and any briefing prose are not graded."
+ ],
+ "leak_tokens": [
+  "durable-state/**",
+  "vault-semantic/**",
+  "T003-synthetic-vault.md"
+ ],
+ "required_environment": "cloud-linux: python3.12 stdlib harness (michael-replay-grader:mb006j) normalizes the JSON plan; the planned work itself needs Node 22 and PostgreSQL in CI.",
+ "grader": {
+  "harness": "plan_wave_ownership.py",
+  "candidate": "WAVE2.json",
+  "agent_support": [
+   "planning/repo-tree.txt"
+  ],
+  "denominators": {
+   "wave": 3,
+   "ownership": 6,
+   "boundaries": 3,
+   "scope": 2
+  }
+ },
+ "round": 4
+}

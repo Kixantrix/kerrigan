@@ -1,0 +1,26 @@
+{
+  "parallel": null,
+  "tasks": {
+    "T002": {
+      "depends_on": [],
+      "acceptance": [],
+      "routing_rule": "",
+      "touch": [],
+      "scope": {
+        "in": [],
+        "out": []
+      }
+    },
+    "T003": {
+      "depends_on": [],
+      "acceptance": [],
+      "routing_rule": "",
+      "touch": [],
+      "scope": {
+        "in": [],
+        "out": []
+      }
+    }
+  },
+  "shared_read_only": []
+}

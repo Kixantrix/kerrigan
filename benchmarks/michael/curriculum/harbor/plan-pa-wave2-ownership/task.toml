@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/WAVE2.json"]
+
+[task]
+name = "kixantrix/michael-plan-pa-wave2-ownership"
+version = "1.0.0"
+description = "Plan parallel Wave 2 dispatch ownership (disjoint touch sets, read-only contracts, ACs, routing, scope) for a personal-assistant platform"
+keywords = ["michael-bench", "understand-and-plan"]
+
+[metadata]
+family = "Understand and plan"
+source_repo = "Kixantrix/personal-selfhost"
+base_ref = "0abd3c4afbba15b4bc5e03360ff37d59506b09ba"
+reference_ref = "129c7461929629b5b108010ccf2a4528e2d4e5fa"
+history_status = "merged"
+privacy = "private-sanitized"
+outcome_evidence = "required_facts_checklist"
+estimated_agent_minutes = 30
+denominators = "{\"boundaries\": 3, \"ownership\": 6, \"scope\": 2, \"wave\": 3}"
+task_size = "{\"files_to_read\": 21, \"hidden_checks\": 14, \"hidden_clauses\": 37, \"lines_to_read\": 2711, \"oracle_files_changed\": 1, \"oracle_lines_added\": 78, \"oracle_lines_removed\": 14, \"writable_files\": 1}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"
