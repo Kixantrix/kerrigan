@@ -74,3 +74,17 @@ def test_anchors_never_feed_routing_and_report_raw_and_adjusted():
     assert "**Overall:** 3/3" in card  # anchors stay out of the overall rate
     assert "**Raw (upstream-comparable):** 2/3" in card and "**Adjusted:** 2/2" in card
     assert "| 2/3 / 2/2 |" in table and "host-resource-unavailable" in table
+
+
+def test_generation_needs_no_anchor_cache(tmp_path, monkeypatch):
+    from benchmarks.michael.tasks import curriculum
+    monkeypatch.setattr(curriculum, "CACHE_ROOT", tmp_path / "absent")
+    records, sources = generate.default_records()
+    value = generate.build(records)
+    value["pooled_routing"] = pooled.pooled(records)
+    value["sources"] = sources
+    import json
+    assert json.loads((generate.HERE / "matrix.json").read_text()) == value
+    cards, table = scorecards.build(records, value, scorecards.blind_record(
+        generate.ROOT / "benchmarks/michael/curriculum"))
+    assert (scorecards.HERE / "overview.md").read_text() == table

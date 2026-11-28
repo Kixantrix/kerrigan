@@ -90,6 +90,13 @@ def failure_modes(attribution):
 
 
 def size(task):
+    if task.startswith("anchor-"):
+        # Repository-only: frozen dimensions bound to the committed manifest, never the upstream cache.
+        frozen = json.loads((HERE / "anchor-sizes.json").read_bytes())["anchors"][task]
+        manifest = ROOT / "benchmarks/michael/tasks/anchors" / task / "manifest.json"
+        if hashlib.sha256(manifest.read_bytes()).hexdigest() != frozen["manifestSha256"]:
+            raise ValueError("anchor manifest changed; re-measure anchor-sizes.json")
+        return dict(frozen["size"])
     if task in curriculum.PACKAGES:
         measured = curriculum.task_size(task)
         touched = measured["oracle_files_changed"]
