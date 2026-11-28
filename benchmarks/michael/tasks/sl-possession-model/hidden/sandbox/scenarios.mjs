@@ -1,7 +1,7 @@
 // Trusted, answer-free scenarios for the explicit possession model. Each scenario builds the
 // candidate's MatchSim in-process from src/sim, drives it with held-out inputs and returns
 // observations; expected values live only in the host-side clauses.
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 const SIM = "/work/app/src/sim";
 const TUNING = JSON.parse(readFileSync("/work/app/data/tuning.json", "utf8"));
@@ -13,10 +13,25 @@ async function mods() {
   return { MatchSim: sim.MatchSim, Vector2: vec.Vector2, Vector3: vec.Vector3, runMatchLog: cli.runMatchLog,
     AiProvider: input.AiProvider, Possession: pos.Possession, PossessionState: pos.PossessionState };
 }
-async function soccer() {
-  const [sim, cli, input] = await Promise.all([import(`${SIM}/match_sim.ts`), import(`${SIM}/cli.ts`),
-    import(`${SIM}/input_provider.ts`)]);
-  return { MatchSim: sim.MatchSim, runMatchLog: cli.runMatchLog, AiProvider: input.AiProvider };
+async function soccer(root = "/work/app") {
+  const sim = `${root}/src/sim`;
+  const [m, cli, input] = await Promise.all([import(`${sim}/match_sim.ts`), import(`${sim}/cli.ts`),
+    import(`${sim}/input_provider.ts`)]);
+  return { MatchSim: m.MatchSim, runMatchLog: cli.runMatchLog, AiProvider: input.AiProvider };
+}
+// Soccer preservation is judged against the visible base port itself (a trusted, answer-free copy
+// shipped as baseline.json and written under /work/baseline), run in the same process on the same platform, so expected
+// values never depend on the host's floating-point last bits.
+const BASELINE = "/work/baseline";
+let staged = false;
+function stageBaseline() {
+  if (staged) return;
+  const files = JSON.parse(readFileSync("/work/app/baseline.json", "utf8"));
+  for (const [path, text] of Object.entries(files)) {
+    mkdirSync(`${BASELINE}/${path}`.replace(/\/[^/]+$/, ""), { recursive: true });
+    writeFileSync(`${BASELINE}/${path}`, text);
+  }
+  staged = true;
 }
 const tuning = (edit) => { const t = JSON.parse(JSON.stringify(TUNING)); edit(t); return t; };
 const named = (m, value) => Object.keys(m.PossessionState).find((k) => m.PossessionState[k] === value) ?? String(value);
@@ -183,27 +198,38 @@ export async function inFlight(args) {
     received: flight.kinds.includes("touch") || flight.kinds.includes("dribble"), flightState: flight.state.state };
 }
 
-// Soccer never leaves a neutral LOOSE ball and its AI matches are unchanged (state digests and full logs).
+// Soccer never leaves a neutral LOOSE ball and its AI matches are unchanged: the candidate's
+// state digest every 30 ticks equals the base port's.
 export async function soccerUnchanged(args) {
-  const m = await soccer();
+  stageBaseline();
+  const [m, base] = await Promise.all([soccer(), soccer(BASELINE)]);
   const out = {};
   for (const seed of args.seeds) {
-    const sim = new m.MatchSim(seed);
+    const sim = new m.MatchSim(seed), ref = new base.MatchSim(seed);
     const providers = [new m.AiProvider(0), new m.AiProvider(1)];
-    // Soccer stays in its initial (LOOSE, neutral) possession for the whole match.
+    const refProviders = [new base.AiProvider(0), new base.AiProvider(1)];
     const initial = JSON.stringify(sim.possession ?? null, ["state", "holder_id", "team"]);
-    let leftLoose = false;
+    let leftLoose = false, sameDigests = true;
     for (let i = 0; i < args.ticks; i += 1) {
       sim.advance(providers);
+      ref.advance(refProviders);
+      if (i % 30 === 29 && sim.state_digest() !== ref.state_digest()) sameDigests = false;
       if (JSON.stringify(sim.possession ?? null, ["state", "holder_id", "team"]) !== initial) leftLoose = true;
     }
-    out[seed] = { digest: sim.state_digest(), leftLoose };
+    out[seed] = { sameDigests, leftLoose };
   }
   return out;
 }
 
+// The full match log (events, snapshots, footer) is byte-identical to the base port's.
 export async function soccerLog(args) {
-  const m = await soccer();
-  const log = m.runMatchLog(args.seed, args.ticks).to_jsonl();
-  return { sha256: createHash("sha256").update(log).digest("hex") };
+  stageBaseline();
+  const [m, base] = await Promise.all([soccer(), soccer(BASELINE)]);
+  const out = {};
+  for (const seed of args.seeds) {
+    const log = m.runMatchLog(seed, args.ticks).to_jsonl();
+    const ref = base.runMatchLog(seed, args.ticks).to_jsonl();
+    out[seed] = { identical: log === ref, events: log.split("\n").filter((l) => l.includes('"event"')).length > 0 };
+  }
+  return out;
 }

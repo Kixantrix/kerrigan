@@ -384,7 +384,7 @@
   ]
  },
  {
-  "original_id": "soccer AI matches keep their state digests and never leave a neutral loose ball",
+  "original_id": "soccer AI matches match the base port tick by tick and never leave a neutral loose ball",
   "group": "preservation",
   "probe": {
    "scenario": "soccerUnchanged",
@@ -404,7 +404,7 @@
      "7"
     ],
     {
-     "digest": 2867064322,
+     "sameDigests": true,
      "leftLoose": false
     }
    ],
@@ -414,7 +414,7 @@
      "99"
     ],
     {
-     "digest": 773607781,
+     "sameDigests": true,
      "leftLoose": false
     }
    ],
@@ -424,19 +424,22 @@
      "2024"
     ],
     {
-     "digest": 1208526289,
+     "sameDigests": true,
      "leftLoose": false
     }
    ]
   ]
  },
  {
-  "original_id": "the seed-42 soccer match log is byte-identical",
+  "original_id": "soccer match logs are byte-identical to the base port's",
   "group": "preservation",
   "probe": {
    "scenario": "soccerLog",
    "args": {
-    "seed": 42,
+    "seeds": [
+     42,
+     5
+    ],
     "ticks": 600
    }
   },
@@ -444,9 +447,22 @@
    [
     "path_equal",
     [
-     "sha256"
+     "42"
     ],
-    "81503f08a3241d37bac0650578384f1aae8ab97eff6bc487c374404558881101"
+    {
+     "identical": true,
+     "events": true
+    }
+   ],
+   [
+    "path_equal",
+    [
+     "5"
+    ],
+    {
+     "identical": true,
+     "events": true
+    }
    ]
   ]
  }

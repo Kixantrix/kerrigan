@@ -17,7 +17,7 @@ privacy = "private-sanitized"
 outcome_evidence = "held_out_tests"
 estimated_agent_minutes = 40
 denominators = "{\"carry\": 4, \"possession\": 2, \"preservation\": 2, \"release\": 3}"
-task_size = "{\"files_to_read\": 21, \"hidden_checks\": 11, \"hidden_clauses\": 30, \"lines_to_read\": 2046, \"oracle_files_changed\": 4, \"oracle_lines_added\": 106, \"oracle_lines_removed\": 4, \"writable_files\": 4}"
+task_size = "{\"files_to_read\": 21, \"hidden_checks\": 11, \"hidden_clauses\": 31, \"lines_to_read\": 2046, \"oracle_files_changed\": 4, \"oracle_lines_added\": 106, \"oracle_lines_removed\": 4, \"writable_files\": 4}"
 
 [verifier]
 timeout_sec = 120.0
