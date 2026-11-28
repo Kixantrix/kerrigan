@@ -4230,7 +4230,7 @@
    "reasons": [
     "contradiction: specification required rejecting any own evaluative key, while the oracle and checks inspect only own enumerable string keys"
    ],
-   "superseded_by": "yv-relevance-instrument-v4"
+   "superseded_by": "yv-relevance-instrument-v5"
   }
  },
  {
@@ -4313,7 +4313,7 @@
    "reasons": [
     "task-caused: scoreArm results compared with a closed field set the spec does not state"
    ],
-   "superseded_by": "yv-relevance-instrument-v4"
+   "superseded_by": "yv-relevance-instrument-v5"
   }
  },
  {
@@ -4396,7 +4396,7 @@
    "reasons": [
     "task-caused (native round-3 admission needs_fix): SPEC said subject-matter-absent when every government source is starved (vacuous for an empty list) while the real oracle requires at least one government source"
    ],
-   "superseded_by": "yv-relevance-instrument-v4"
+   "superseded_by": "yv-relevance-instrument-v5"
   }
  },
  {
@@ -4471,6 +4471,89 @@
      ]
     },
     "request_sha256": "93b4c5a2b707f0b861432c322b491c723edb7d4371e393198f0d526efddc6a58",
+    "status": "pending_executor"
+   }
+  },
+  "decision": {
+   "state": "retired",
+   "reasons": [
+    "clarity: the topicsFromTitle sentence ('items with at least one topic whose every lower-cased topic is a token of the title') was misread as 'some topic' by two models; the requirement and checks were correct (failures stay model-caused)"
+   ],
+   "superseded_by": "yv-relevance-instrument-v5"
+  }
+ },
+ {
+  "task": "kixantrix/michael-yv-relevance-instrument-v5",
+  "task_sha256": "d4bfad53775748beda6348802ab63921ef3a2c9ddaf146b1214aa393cd554fe9",
+  "deterministic": {
+   "oracle_passes": true,
+   "base_fails": true,
+   "oracle_reward": {
+    "audit_passed": 5.0,
+    "audit_total": 5.0,
+    "blind_passed": 6.0,
+    "blind_total": 6.0,
+    "reward": 1.0,
+    "score_passed": 5.0,
+    "score_total": 5.0,
+    "ungraded": 0.0
+   },
+   "base_reward": {
+    "audit_passed": 0.0,
+    "audit_total": 5.0,
+    "blind_passed": 0.0,
+    "blind_total": 6.0,
+    "reward": 0.0,
+    "score_passed": 0.0,
+    "score_total": 5.0,
+    "ungraded": 0.0
+   },
+   "verifier_network": "none"
+  },
+  "model_gates": {
+   "audits": [
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "claude-sonnet-5.5",
+     "family": "anthropic",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v5",
+      "task_sha256": "d4bfad53775748beda6348802ab63921ef3a2c9ddaf146b1214aa393cd554fe9"
+     },
+     "request_sha256": "d7d0ec4f5346d6e5ae576742b5c56fd1b89cd31fbc098f87d1343a5d0707bce1",
+     "status": "pending_executor"
+    },
+    {
+     "kind": "audit",
+     "prompt_version": "mb008-v1",
+     "prompt": "You audit a benchmark task before admission. You see the public\ninstruction, the hidden verifier (tests/clauses) and the oracle solution.\nReport, as strict JSON matching the schema, every:\n- leakage: the instruction or visible files reveal the oracle or hidden checks;\n- untested_requirement: an instruction requirement that no check verifies;\n- overspecified_test: a check that rejects behavior the instruction allows;\n- contradiction: instruction, checks and oracle disagree.\nCite the exact check id or instruction sentence for each finding. Do not score\nany model. Output only JSON.",
+     "model": "gpt-5.6-sol",
+     "family": "openai",
+     "payload": {
+      "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v5",
+      "task_sha256": "d4bfad53775748beda6348802ab63921ef3a2c9ddaf146b1214aa393cd554fe9"
+     },
+     "request_sha256": "0fc9d5724a3e787549bca09ed37b6051b0aea8b41c9e21031c1be61476ab983d",
+     "status": "pending_executor"
+    }
+   ],
+   "blind_reimplementation": {
+    "kind": "blind",
+    "prompt_version": "mb008-v1",
+    "prompt": "Solve the task using only the instruction and the provided files.\nYou will not see tests. Produce the requested artifact.",
+    "model": "gemini-4-neon",
+    "family": "google",
+    "payload": {
+     "harbor_task": "benchmarks/michael/curriculum/harbor/yv-relevance-instrument-v5",
+     "task_sha256": "d4bfad53775748beda6348802ab63921ef3a2c9ddaf146b1214aa393cd554fe9",
+     "visible": [
+      "instruction.md",
+      "environment/"
+     ]
+    },
+    "request_sha256": "c5b548f6640736bfaa256b4b7e27f7f4176efa87ab1530cc3acbfdf795304833",
     "status": "pending_executor"
    }
   },

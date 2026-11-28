@@ -1207,13 +1207,14 @@
    "long_horizon": true,
    "summary": "Agent builds the measurement harness (not the ranker) for item relevance; the real run surfaced a data defect where venue logistics were classified as subject matter.",
    "history_status": "merged",
-   "package": "yv-relevance-instrument-v4",
+   "package": "yv-relevance-instrument-v5",
    "provenance_kind": "mined-history",
    "grader_image": "available: michael-replay-grader-node:mb008",
    "retired_packages": [
     "yv-relevance-instrument",
     "yv-relevance-instrument-v2",
-    "yv-relevance-instrument-v3"
+    "yv-relevance-instrument-v3",
+    "yv-relevance-instrument-v4"
    ],
    "task_size": {
     "oracle_files_changed": 3,

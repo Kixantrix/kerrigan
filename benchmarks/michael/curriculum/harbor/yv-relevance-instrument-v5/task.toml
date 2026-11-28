@@ -1,0 +1,35 @@
+schema_version = "1.4"
+artifacts = ["/app/evals/relevance/audit.ts", "/app/evals/relevance/blind.ts", "/app/evals/relevance/score.ts"]
+
+[task]
+name = "kixantrix/michael-yv-relevance-instrument-v5"
+version = "1.0.0"
+description = "Build a blind relevance-rating instrument that can find the ranker wrong"
+keywords = ["michael-bench", "experiment"]
+
+[metadata]
+family = "Experiment"
+source_repo = "Kixantrix/your-voice"
+base_ref = "bba55b3308dcafb745b0c1d77a1db96564c63f87"
+reference_ref = "dd533670f8c5f1c4ac0251934f274914a28df9f4"
+history_status = "merged"
+privacy = "private-synthetic-fixture"
+outcome_evidence = "metric_within_tolerance"
+estimated_agent_minutes = 45
+denominators = "{\"audit\": 5, \"blind\": 6, \"score\": 5}"
+task_size = "{\"files_to_read\": 9, \"hidden_checks\": 16, \"hidden_clauses\": 35, \"lines_to_read\": 921, \"oracle_files_changed\": 3, \"oracle_lines_added\": 148, \"oracle_lines_removed\": 6, \"writable_files\": 3}"
+
+[verifier]
+timeout_sec = 120.0
+environment_mode = "separate"
+network_mode = "no-network"
+
+[agent]
+timeout_sec = 3600.0
+user = "65534"
+network_mode = "no-network"
+
+[environment]
+cpus = 1
+memory_mb = 1024
+workdir = "/app"

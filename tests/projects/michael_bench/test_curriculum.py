@@ -512,7 +512,8 @@ def test_obscured_calibration_is_distinct_without_private_functions():
 # --- MB-010c: harder, broader curriculum ------------------------------------------------
 
 V2 = {"plan-dashboard-waves-v2": "plan-dashboard-waves", "review-conflict-predictor-v2": "review-conflict-predictor"}
-CURRENT = {"plan-dashboard-decomposition": "plan-dashboard-decomposition-v2",
+CURRENT = {"yv-relevance-instrument-v4": "yv-relevance-instrument-v5",
+           "plan-dashboard-decomposition": "plan-dashboard-decomposition-v2",
            "research-cs-speech-stack": "research-cs-speech-stack-v2",
            "plan-custom-action-briefing": "plan-custom-action-briefing-v2",
            "orchestrate-dashboard-stages": "orchestrate-dashboard-stages-v2",
@@ -520,7 +521,7 @@ CURRENT = {"plan-dashboard-decomposition": "plan-dashboard-decomposition-v2",
            "cs-mismatch-stage-authority": "cs-mismatch-stage-authority-v2",
            "vhs-room-registry-sync": "vhs-room-registry-sync-v3",
            "foal-meadow-regression-review": "foal-meadow-regression-review-v2",
-           "yv-relevance-instrument-v3": "yv-relevance-instrument-v4",
+           "yv-relevance-instrument-v3": "yv-relevance-instrument-v5",
            "kerrigan-plan-conflict-queue-v3": "kerrigan-plan-conflict-queue-v4",
            "design-alethiometer-case-v3": "design-alethiometer-case-v4",
            "orchestrate-voice-integration-v4": "orchestrate-voice-integration-v5",
@@ -528,13 +529,13 @@ CURRENT = {"plan-dashboard-decomposition": "plan-dashboard-decomposition-v2",
            "review-conflict-predictor-v3": "review-conflict-predictor-v4",
            "design-alethiometer-case-v2": "design-alethiometer-case-v4",
            "kerrigan-plan-conflict-queue-v2": "kerrigan-plan-conflict-queue-v4",
-           "yv-relevance-instrument-v2": "yv-relevance-instrument-v4",
+           "yv-relevance-instrument-v2": "yv-relevance-instrument-v5",
            "emv-thumbnails-gallery-v2": "emv-thumbnails-gallery-v3",
            "orchestrate-voice-integration-v3": "orchestrate-voice-integration-v5",
            "plan-dashboard-waves": "plan-dashboard-waves-v2", "review-conflict-predictor": "review-conflict-predictor-v4",
            "review-conflict-predictor-v2": "review-conflict-predictor-v4",
            "design-alethiometer-case": "design-alethiometer-case-v4",
-           "yv-relevance-instrument": "yv-relevance-instrument-v4",
+           "yv-relevance-instrument": "yv-relevance-instrument-v5",
            "emv-thumbnails-gallery": "emv-thumbnails-gallery-v3",
            "orchestrate-voice-integration": "orchestrate-voice-integration-v5",
            "orchestrate-voice-integration-v2": "orchestrate-voice-integration-v5",
@@ -1308,3 +1309,29 @@ def test_speech_v2_accepts_any_sufficient_location_citation(sources, tmp_path):
 def test_speech_v2_rejects_insufficient_location_citation(sources, tmp_path):
     variant = _json_reference(SPEECH_V2, "DECISION.json", _cite_location(sources))
     assert _failed(variant, SPEECH_V2, tmp_path) == [SPEECH_ROW]
+
+
+YV_V5 = "yv-relevance-instrument-v5"
+YV_SPEC = "evals/relevance/SPEC.md"
+YV_RULE = "return item.topics.length > 0 && item.topics.every((topic) => words.has(topic.toLowerCase()));"
+
+
+def test_yv_v5_is_a_clarity_only_rewrite():
+    old = "yv-relevance-instrument-v4"
+    assert curriculum.verifier_files(YV_V5) == curriculum.verifier_files(old)
+    before, after = curriculum.agent_files(old), curriculum.agent_files(YV_V5)
+    assert set(before) == set(after) and {k for k in before if before[k] != after[k]} == {YV_SPEC, "policy.json"}  # policy.json names the package
+    assert "whose topic list is\n  nonempty and in which every lower-cased topic is a token of the title" in after[YV_SPEC].decode()
+    assert "with at least one\n  topic whose every" not in after[YV_SPEC].decode()
+    info = curriculum.meta(YV_V5)
+    assert info["round"] == 4 and info["supersedes"] == old
+    assert curriculum.retired()[old]["evidence"] == info["admission_evidence"]
+
+
+def test_yv_v5_accepts_equivalent_rule_and_rejects_some_topic(tmp_path):
+    equivalent = _edited_reference(YV_V5, "evals/relevance/audit.ts", YV_RULE,
+                                   "return item.topics.length !== 0 && !item.topics.some((t) => !words.has(t.toLowerCase()));")
+    assert _failed(equivalent, YV_V5, tmp_path) == []
+    some = _edited_reference(YV_V5, "evals/relevance/audit.ts", YV_RULE,
+                             "return item.topics.some((topic) => words.has(topic.toLowerCase()));")
+    assert _failed(some, YV_V5, tmp_path) == _failed(some, "yv-relevance-instrument-v4", tmp_path) != []

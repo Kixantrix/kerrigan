@@ -1,0 +1,5 @@
+FROM node:24-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530
+COPY workspace/ /app/
+RUN chown -R 65534:65534 /app
+WORKDIR /app
+USER 65534:65534

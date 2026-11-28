@@ -31,7 +31,7 @@
   },
   "yv-relevance-instrument": {
    "by": "MB-010r native automated admission",
-   "superseded_by": "yv-relevance-instrument-v4",
+   "superseded_by": "yv-relevance-instrument-v5",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-yv-relevance-instrument-admission.json",
     "sha256": "95c33e662663c48d164300905a0050b245db4f11d00d1a8ba8821a36870fb4fb"
@@ -94,7 +94,7 @@
   },
   "yv-relevance-instrument-v2": {
    "by": "MB-010r literal-overspecification audit",
-   "superseded_by": "yv-relevance-instrument-v4",
+   "superseded_by": "yv-relevance-instrument-v5",
    "reason": "task-caused: scoreArm results compared with a closed field set the spec does not state",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MB-010r-literal-audit.json",
@@ -163,7 +163,7 @@
   },
   "yv-relevance-instrument-v3": {
    "by": "MB-010r literal-overspecification audit",
-   "superseded_by": "yv-relevance-instrument-v4",
+   "superseded_by": "yv-relevance-instrument-v5",
    "reason": "task-caused (native round-3 admission needs_fix): SPEC said subject-matter-absent when every government source is starved (vacuous for an empty list) while the real oracle requires at least one government source",
    "evidence": {
     "path": "benchmarks/michael/curriculum/MBR3-yv-relevance-instrument-v3-admission.json",
@@ -244,6 +244,15 @@
    "evidence": {
     "path": "benchmarks/michael/curriculum/MBR3-cs-speech-gpt56-task-adjudication.json",
     "sha256": "52992cf74b78a1f084698554a6b0daa86c9b20b23861d7d78317547069b702c5"
+   }
+  },
+  "yv-relevance-instrument-v4": {
+   "by": "MBR3 round-4 clarity known issue (coordinator)",
+   "superseded_by": "yv-relevance-instrument-v5",
+   "reason": "clarity: the topicsFromTitle sentence ('items with at least one topic whose every lower-cased topic is a token of the title') was misread as 'some topic' by two models; the requirement and checks were correct (failures stay model-caused)",
+   "evidence": {
+    "path": "benchmarks/michael/curriculum/MBR3-yv-v4-repeat1-resolution.json",
+    "sha256": "c211ac4cd31e986abc4b4d8c9738ff1b74d69559e4190b98371436cd15dd2c51"
    }
   }
  },
