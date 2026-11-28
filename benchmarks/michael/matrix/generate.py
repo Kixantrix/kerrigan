@@ -56,7 +56,8 @@ def failure_modes(attribution):
         modes.append("unsupported-defect-claim")
     if "auth-bypass" in text and any(word in text.lower() for word in ("absent", "unsupported", "no authentication")):
         modes.append("unsupported-defect-claim")
-    if "unsupported second defect claim" in text.lower() and "unsupported-defect-claim" not in modes:
+    if (("unsupported second defect claim" in text.lower() or
+         ("duplicate" in text.lower() and "defect" in text.lower())) and "unsupported-defect-claim" not in modes):
         modes.append("unsupported-defect-claim")
     if ("$TMPDIR" in text and "outside" in text) or "out-of-scope write" in text:
         modes.append("sandbox-boundary-write")
@@ -352,7 +353,7 @@ def epoch_records(plan_path):
     paths = [ROOT / "benchmarks/michael/local_transport" / name for name in (
         "mbr3-tooltip-verification.json", "mbr3-parity-verification.json",
         "mbr3-discovery-verification.json", "mbr3-expanded-verification.json",
-        "mbr3-cloud-verification.json", "mbr3-final-verification.json")]
+        "mbr3-cloud-verification.json", "mbr3-final-verification.json", "mbr3-cloud-v2-verification.json")]
     matches = [path for path in paths if path.is_file() and
                json.loads(path.read_bytes()).get("primaryPlan") == plan]
     if len(matches) != 1:
@@ -377,12 +378,16 @@ def epoch_records(plan_path):
         raw = (parent / alias / "schedule.json").read_bytes()
         if hashlib.sha256(raw).hexdigest() != cohort["sha256"]:
             raise ValueError("source epoch cohort schedule mismatch")
+        cohort_keys = set()
         for item in json.loads(raw):
             for model in item["models"]:
                 key = item["task"], item["repeat"], model
-                if key in expected:
+                if key in cohort_keys or (key in expected and not cohort.get("continues")):
                     raise ValueError("duplicate source epoch scheduled attempt")
-                expected.add(key)
+                cohort_keys.add(key)
+        if cohort.get("continues") and not cohort_keys <= expected:
+            raise ValueError("continuation cohort adds unscheduled attempts")
+        expected |= cohort_keys
     for row in plan["attempts"]:
         alias = row["evidence_root"]
         if alias not in aliases:
@@ -392,9 +397,11 @@ def epoch_records(plan_path):
             raise ValueError("duplicate source epoch attempt")
         selections.setdefault(alias, set()).add(key)
         labels[key] = row["source_epoch"]
-    if "cohortSchedules" in plan and set(labels) != expected:
-        raise ValueError("incomplete source epoch cohort selection")
     priors = plan.get("excluded_priors", [plan["excluded_prior"]] if "excluded_prior" in plan else [])
+    # A scheduled slot is complete when it is a primary attempt or a disclosed, attributed exclusion.
+    excluded_keys = {(p["task"], p["repeat"], p["model"]) for p in priors if p.get("closesScheduledSlot")}
+    if "cohortSchedules" in plan and (set(labels) | excluded_keys != expected or set(labels) & excluded_keys):
+        raise ValueError("incomplete source epoch cohort selection")
     safe_priors = []
     for prior in priors:
         alias = prior.get("evidence_root", "mbr3-v1")
@@ -403,12 +410,15 @@ def epoch_records(plan_path):
         prior_root = parent / alias
         outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
         attribution_path = prior_root / "attribution" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "attribution.json"
+        cause = json.loads(attribution_path.read_bytes())["cause"]
+        allowed = ("harness", "task", "unresolved") if prior.get("closesScheduledSlot") else ("harness",)
         if (hashlib.sha256(outcome_path.read_bytes()).hexdigest() != prior["outcomeSha256"] or
                 hashlib.sha256(attribution_path.read_bytes()).hexdigest() != prior["attributionSha256"] or
-                json.loads(attribution_path.read_bytes())["cause"] != "harness"):
+                cause not in allowed or (cause == "unresolved" and not prior.get("pendingAdjudication"))):
             raise ValueError("source epoch prior attribution mismatch")
         safe_priors.append({
-            "task": prior["task"], "model": prior["model"], "round": "v3", "status": "ungraded",
+            "task": prior["task"], "model": prior["model"], "round": "v3",
+            "status": {"harness": "ungraded", "task": "task-caused"}.get(cause, "excluded-pending-adjudication"),
             "failure_modes": prior.get("failure_modes", ["harness-error"]),
             "provenance": {"attribution_sha256": prior["attributionSha256"],
                            "outcome_sha256": prior["outcomeSha256"],
@@ -526,7 +536,8 @@ def sealed_local_records(path):
 
 def default_records():
     records, sources = seed()
-    for name in ("MBR3-verification.json", "MBR3-cloud-verification.json", "MBR3-core-verification.json"):
+    for name in ("MBR3-cloud-v2-verification.json", "MBR3-verification.json", "MBR3-cloud-verification.json",
+                 "MBR3-core-verification.json"):
         path = ROOT / "benchmarks/michael/curriculum" / name
         if path.is_file():
             additional, evidence = sealed_epoch_records(path)

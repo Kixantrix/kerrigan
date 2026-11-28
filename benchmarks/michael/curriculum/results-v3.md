@@ -71,6 +71,37 @@ hardware-speed comparison. Agent-native task sizes, token totals and
 per-cell sample counts are in the [generated matrix](../matrix/matrix.md).
 Cost, peak model memory and energy remain unknown, not zero.
 
+## Additional cloud models (MB-R3M screen, one attempt per model per task)
+
+Per the [MB-R3M brief](../../../.specify/briefings/MB-R3M.md): the same 22
+latest admitted packages, frozen grader and native harness, with Latin-square
+model order. The screen ran across two disclosed source epochs. `models-screen-v11`
+was stopped cleanly at a slot boundary; `models-screen-v12b` adds the raised
+protocol event-count cap and deferred grading while a local window ran
+concurrently. Generated details are in the [scorecards](../scorecards/overview.md).
+
+| Model | Pass (95% Wilson) | Median verified | Tokens in / out per run | Failures |
+|---|---|---:|---:|---|
+| Claude Opus 5.5 | 20/22 (72%–97%) | 58s | 342,043 / 9,829 | `wrong-domain-rule` ×2 (gear-mesh clearance, SL rolling resistance) |
+| GPT 6.2 Sol | 20/21 (77%–99%) | 89s | 574,246 / 7,096 | `unsupported-defect-claim` ×1 (duplicate ledger entries) |
+| GPT 6.2 Astra | 22/22 (85%–100%) | 75s | 259,635 / 4,091 | none |
+| Gemini 4 Neon | 21/21 (85%–100%) | 158s | 159,357 / 19,179 | none |
+| GPT 5.6 Sol | 21/21 (85%–100%) | 86s | 420,324 / 7,682 | none |
+
+Three slots are excluded and disclosed, not scored:
+- GPT 6.2 Sol gear-mesh: harness fault (16,384-event protocol cap, since raised).
+- Gemini vhs-v2: harness fault. The candidate deleted its own TMPDIR, and the
+  scratch monitor treated that as fatal; the fix is pending.
+- GPT 5.6 Sol research-cs-speech: pending task adjudication. Location is
+  over-determined (S3, or S4+S7), but the oracle hard-codes S3.
+
+Each will get a disclosed rerun. One extra slot (emv, Gemini) ended
+`controller_lost` during an aborted epoch switch and was rerun. **Selection role
+in admission:** Gemini 4 Neon was the admission blind solver (25/25 native
+round-3 blind passes), and GPT 5.6 Sol co-audited admissions. Both perfect rows
+are therefore on a task set filtered toward what they solve or judged sound.
+Every run is a fresh session. Fill to three repeats and the public anchors follow.
+
 ## Failure modes and source epochs
 
 MAI has `unsupported-defect-claim` x3 in this cohort: the non-contributing
