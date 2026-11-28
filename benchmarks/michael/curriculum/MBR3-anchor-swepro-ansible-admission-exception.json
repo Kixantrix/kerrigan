@@ -1,0 +1,18 @@
+{
+  "admissionReceiptSha256": "2f9bece980c65511a9a60b2383bfa014860ee6d6b83bc44226e2257358e0cb2c",
+  "decidedBy": "Michael Bench coordinator (ba383ac7), 2026-11-28",
+  "exception": "public-anchor-as-is",
+  "finding": "Oracle __ior__ calls self.data.update(other) unconditionally, accepting non-mapping iterables the instruction says to reject; the gold/hidden tests have no non-mapping union case.",
+  "kind": "admission-exception",
+  "originalDecision": {
+    "reasons": [
+      "contradiction",
+      "untested_requirement"
+    ],
+    "state": "needs_fix"
+  },
+  "rule": "Public anchors stay byte-identical to upstream for leaderboard comparability. A contradiction the hidden tests do not exercise cannot penalize a valid solution, so the anchor is admitted as-is; a contradiction the hidden tests enforce still blocks. Curriculum packages keep the strict gate.",
+  "schema_version": 1,
+  "scoring": "Anchor column and anchor scorecard section only; never pooled into work-family routing cells.",
+  "task": "anchor-swepro-ansible"
+}
