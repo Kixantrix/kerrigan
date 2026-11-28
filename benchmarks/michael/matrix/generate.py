@@ -13,6 +13,7 @@ from statistics import median
 from math import isfinite
 
 from benchmarks.michael.curriculum.metrics import wilson
+from benchmarks.michael.matrix import pooled
 from benchmarks.michael.replay_grader import specs
 from benchmarks.michael.tasks import curriculum
 from benchmarks.michael.ledger_report.api import Ledger
@@ -23,9 +24,12 @@ HERE = Path(__file__).resolve().parent
 CLASSES = ("cloud", "local laptop", "self-hosted infrastructure")
 FAMILIES = {"validator": "Implement", "grouping": "Implement", "status": "Implement",
             "selfhost-redeploy-state": "Operate", "sr-temporal-assay": "Experiment"}
+TOKEN_INPUT_BOUND = "native-token-derived-v12"
 FAILURE_MODES = ("unsupported-defect-claim", "claimed-fix-not-implemented", "sandbox-boundary-write",
                  "harness-cap", "task-caused", "contention-timeout", "model-failure-unclassified",
-                 "harness-error", "invented-path-read", "spec-misread", "budget-noncompletion")
+                 "harness-error", "invented-path-read", "spec-misread", "budget-noncompletion",
+                 "stale-derived-document", "wrong-domain-rule", "premature-stop-without-edit",
+                 "ignored-existing-state")
 
 
 def failure_modes(attribution):
@@ -52,8 +56,22 @@ def failure_modes(attribution):
         modes.append("unsupported-defect-claim")
     if "auth-bypass" in text and any(word in text.lower() for word in ("absent", "unsupported", "no authentication")):
         modes.append("unsupported-defect-claim")
+    if (("unsupported second defect claim" in text.lower() or
+         ("duplicate" in text.lower() and "defect" in text.lower())) and "unsupported-defect-claim" not in modes):
+        modes.append("unsupported-defect-claim")
     if ("$TMPDIR" in text and "outside" in text) or "out-of-scope write" in text:
         modes.append("sandbox-boundary-write")
+    lower = text.lower()
+    if "readme" in lower and any(word in lower for word in ("height table", "document dimension", "lower bound", "stale")):
+        modes.append("stale-derived-document")
+    if any(word in lower for word in ("tooth thickness", "backlash", "tip-to-root", "rolling resistance",
+                                       "constant deceleration")):
+        modes.append("wrong-domain-rule")
+    if any(word in lower for word in ("only read task.md", "without editing", "unchanged original", "remained unchanged",
+                                       "no write", "original empty stub")):
+        modes.append("premature-stop-without-edit")
+    if any(word in lower for word in ("already delivered", "already present", "already contains")):
+        modes.append("ignored-existing-state")
     return modes or ["model-failure-unclassified"]
 
 
@@ -278,11 +296,23 @@ def ledger_records(root, *, selected=None):
                         "timeout", "broker:agent_action_budget", "broker:task_output_budget", "local_output_cap"))
                 if budget:
                     failures = ["budget-noncompletion"]
+                stop = str(native.get("stopReason"))
+                slept = (outcome.get("hostSleepSuspectedSeconds") or 0) > 1
+                reason = outcome.get("externalStopReason") or stop
+                if stop == "runtime:local_context_budget" and local.get("inputBound") == TOKEN_INPUT_BOUND:
+                    # The agreed 229,376-token input guardrail itself: a real budget noncompletion.
+                    budget, reason = True, "local input-token guardrail reached (229,376 tokens)"
+                    failures = ["budget-noncompletion"]
+                elif stop == "runtime:local_context_budget":
+                    # Harness limit (64 KiB JSON heuristic), far below the agreed token guardrail.
+                    budget, reason = False, ("harness-cap: input-admission unavailable "
+                                             "(64 KiB input-JSON cap), not a model budget")
+                elif slept:
+                    reason = f"environment: host sleep during inference ({stop})"
                 local_state = {"outcome_state": "budget-censored" if budget else (
-                    "environment-abort" if native.get("stopReason") == "external_cancel" and
-                    outcome.get("externalStopReason") else "unscored"),
-                    "eligible": budget,
-                    "noncompletion_reason": outcome.get("externalStopReason") or native.get("stopReason")}
+                    "environment-abort" if slept or (native.get("stopReason") == "external_cancel" and
+                    outcome.get("externalStopReason")) else "unscored"),
+                    "eligible": budget, "noncompletion_reason": reason}
             usage = ([event.get("usage") for event in native["localInference"]["events"]
                       if event["type"] == "local_request_finished"] if local else native["usage"])
             tokens = {}
@@ -292,13 +322,16 @@ def ledger_records(root, *, selected=None):
                 tokens[key] = sum(values) if values and all(type(v) is int for v in values) else None
             records.append({"task": name, "repeat": repeat, "model": model,
                 "deployment_class": "local laptop" if local else "cloud",
-                "condition": frozen["condition"], "tool_host": "local macOS MXC", "round": "v3",
+                "condition": frozen["condition"] + ("/" + Path(root).name.removeprefix("mbr3-local-")
+                    if local else ""), "tool_host": "local macOS MXC", "round": "v3",
                 "family": FAMILIES.get(name) or curriculum.meta(name)["family"],
                 "size": size(name), "resolved": passed,
                 "completion_seconds": seconds, "tokens": tokens, "cost": None,
                 "peak_memory_bytes": None, "energy_joules": None,
                 "failure_modes": failures,
                 **local_state,
+                **({"timing_excluded": "host-sleep"} if local and passed and
+                   (outcome.get("hostSleepSuspectedSeconds") or 0) > 1 else {}),
                 "ledger_source": str(Path(Path(root).name) / path.relative_to(root)),
                 "ledger_sha256": hashlib.sha256(raw).hexdigest(),
                 "ledger_chain_head": head, "condition_sha256": outcome["conditionSha256"],
@@ -320,7 +353,7 @@ def epoch_records(plan_path):
     paths = [ROOT / "benchmarks/michael/local_transport" / name for name in (
         "mbr3-tooltip-verification.json", "mbr3-parity-verification.json",
         "mbr3-discovery-verification.json", "mbr3-expanded-verification.json",
-        "mbr3-cloud-verification.json", "mbr3-final-verification.json")]
+        "mbr3-cloud-verification.json", "mbr3-final-verification.json", "mbr3-cloud-v2-verification.json")]
     matches = [path for path in paths if path.is_file() and
                json.loads(path.read_bytes()).get("primaryPlan") == plan]
     if len(matches) != 1:
@@ -345,12 +378,16 @@ def epoch_records(plan_path):
         raw = (parent / alias / "schedule.json").read_bytes()
         if hashlib.sha256(raw).hexdigest() != cohort["sha256"]:
             raise ValueError("source epoch cohort schedule mismatch")
+        cohort_keys = set()
         for item in json.loads(raw):
             for model in item["models"]:
                 key = item["task"], item["repeat"], model
-                if key in expected:
+                if key in cohort_keys or (key in expected and not cohort.get("continues")):
                     raise ValueError("duplicate source epoch scheduled attempt")
-                expected.add(key)
+                cohort_keys.add(key)
+        if cohort.get("continues") and not cohort_keys <= expected:
+            raise ValueError("continuation cohort adds unscheduled attempts")
+        expected |= cohort_keys
     for row in plan["attempts"]:
         alias = row["evidence_root"]
         if alias not in aliases:
@@ -360,9 +397,11 @@ def epoch_records(plan_path):
             raise ValueError("duplicate source epoch attempt")
         selections.setdefault(alias, set()).add(key)
         labels[key] = row["source_epoch"]
-    if "cohortSchedules" in plan and set(labels) != expected:
-        raise ValueError("incomplete source epoch cohort selection")
     priors = plan.get("excluded_priors", [plan["excluded_prior"]] if "excluded_prior" in plan else [])
+    # A scheduled slot is complete when it is a primary attempt or a disclosed, attributed exclusion.
+    excluded_keys = {(p["task"], p["repeat"], p["model"]) for p in priors if p.get("closesScheduledSlot")}
+    if "cohortSchedules" in plan and (set(labels) | excluded_keys != expected or set(labels) & excluded_keys):
+        raise ValueError("incomplete source epoch cohort selection")
     safe_priors = []
     for prior in priors:
         alias = prior.get("evidence_root", "mbr3-v1")
@@ -371,12 +410,15 @@ def epoch_records(plan_path):
         prior_root = parent / alias
         outcome_path = prior_root / "trials" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "outcome.json"
         attribution_path = prior_root / "attribution" / prior["task"] / f"repeat-{prior['repeat']}" / prior["model"] / "attribution.json"
+        cause = json.loads(attribution_path.read_bytes())["cause"]
+        allowed = ("harness", "task", "unresolved") if prior.get("closesScheduledSlot") else ("harness",)
         if (hashlib.sha256(outcome_path.read_bytes()).hexdigest() != prior["outcomeSha256"] or
                 hashlib.sha256(attribution_path.read_bytes()).hexdigest() != prior["attributionSha256"] or
-                json.loads(attribution_path.read_bytes())["cause"] != "harness"):
+                cause not in allowed or (cause == "unresolved" and not prior.get("pendingAdjudication"))):
             raise ValueError("source epoch prior attribution mismatch")
         safe_priors.append({
-            "task": prior["task"], "model": prior["model"], "round": "v3", "status": "ungraded",
+            "task": prior["task"], "model": prior["model"], "round": "v3",
+            "status": {"harness": "ungraded", "task": "task-caused"}.get(cause, "excluded-pending-adjudication"),
             "failure_modes": prior.get("failure_modes", ["harness-error"]),
             "provenance": {"attribution_sha256": prior["attributionSha256"],
                            "outcome_sha256": prior["outcomeSha256"],
@@ -451,15 +493,62 @@ def sealed_epoch_records(path):
     return records, sources
 
 
+def sealed_local_records(path):
+    """Local-laptop windows sealed separately; never mixed into cloud cells."""
+    data = json.loads(path.read_bytes())
+    archive_path = path.with_name(data["archiveFile"])
+    if Path(data["archiveFile"]).name != data["archiveFile"]:
+        raise ValueError("matrix archive filename denied")
+    with archive_path.open("rb") as stream:
+        if hashlib.file_digest(stream, "sha256").hexdigest() != data["archiveSha256"]:
+            raise ValueError("matrix local archive mismatch")
+    records = []
+    with tempfile.TemporaryDirectory(prefix="michael-local-") as directory:
+        root = Path(directory)
+        found = set()
+        with tarfile.open(archive_path, "r|gz") as archive:
+            for member in archive:
+                relative = PurePosixPath(member.name)
+                if (relative.is_absolute() or ".." in relative.parts or not member.isfile() or
+                        member.name not in data["members"] or member.name in found):
+                    raise ValueError("matrix local archive member denied")
+                raw = archive.extractfile(member).read()
+                if hashlib.sha256(raw).hexdigest() != data["members"][member.name]:
+                    raise ValueError("matrix local archived member mismatch")
+                target = root.joinpath(*relative.parts)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+                found.add(member.name)
+        if found != set(data["members"]):
+            raise ValueError("matrix local archive incomplete")
+        for alias in data["localRunRoots"]:
+            if Path(alias).name != alias or not alias.startswith("mbr3-local-"):
+                raise ValueError("matrix local archive alias denied")
+            local = ledger_records(root / alias)
+            if any(row["deployment_class"] != "local laptop" for row in local):
+                raise ValueError("matrix local archive condition mismatch")
+            records.extend(local)
+    return records, [{"path": str(path.relative_to(ROOT)), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                      "role": "Sealed local-laptop windows (metadata-only terminal projection)"},
+                     {"path": str(archive_path.relative_to(ROOT)), "sha256": data["archiveSha256"],
+                      "role": "Local ledgers, artifacts, post-release reports and attributions"}]
+
+
 def default_records():
     records, sources = seed()
-    for name in ("MBR3-verification.json", "MBR3-cloud-verification.json", "MBR3-core-verification.json"):
+    for name in ("MBR3-cloud-v2-verification.json", "MBR3-verification.json", "MBR3-cloud-verification.json",
+                 "MBR3-core-verification.json"):
         path = ROOT / "benchmarks/michael/curriculum" / name
         if path.is_file():
             additional, evidence = sealed_epoch_records(path)
             records.extend(additional)
             sources.extend(evidence)
             break
+    local = ROOT / "benchmarks/michael/curriculum/MBR3-local-verification.json"
+    if local.is_file():
+        additional, evidence = sealed_local_records(local)
+        records.extend(additional)
+        sources.extend(evidence)
     return records, sources
 
 
@@ -509,7 +598,10 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
     cells = {target: {} for target in sorted(targets)}
     for (target, column), rows in sorted(groups.items()):
         successes = sum(r["resolved"] for r in rows)
-        times = [r["completion_seconds"] for r in rows if r["resolved"]]
+        times = [r["completion_seconds"] for r in rows if r["resolved"] and not r.get("timing_excluded")]
+        excluded_times = sum(1 for r in rows if r["resolved"] and r.get("timing_excluded"))
+        if any(r.get("timing_excluded") and (not r["resolved"] or r["completion_seconds"] is None) for r in rows):
+            raise ValueError("timing exclusion requires a verified success")
         if any(type(t) not in (int, float) or not isfinite(t) or t < 0 for t in times):
             raise ValueError("success without verified completion")
         def measured(key):
@@ -524,6 +616,7 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
             "n": len(rows), "tasks": len({r["task"] for r in rows}), "successes": successes,
             "success_rate": successes / len(rows), "wilson_ci95": list(wilson(successes, len(rows))),
             "verified_time_n": len(times), "median_verified_seconds": median(times) if times else None,
+            **({"timing_excluded_n": excluded_times} if excluded_times else {}),
             "tokens": tokens, "cost": measured("cost"), "peak_memory_bytes": measured("peak_memory_bytes"),
             "energy_joules": measured("energy_joules"),
             "failure_modes": dict(sorted(Counter(mode for r in rows for mode in set(r["failure_modes"])).items())),
@@ -548,10 +641,13 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
             if score is not None:
                 eligible.append((score, target))
         recommendations[column] = {"status": "recommended" if eligible else "insufficient evidence",
-            "target": min(eligible)[1] if eligible else None}
+            "target": min(eligible)[1] if eligible else None,
+            "provisional": pooled.provisional([(target, target_cells[column])
+                for target, target_cells in cells.items() if column in target_cells])}
     return {"schema_version": 1, "targets": targets, "columns": sorted(columns), "cells": cells,
         **({"unscored_attempts": unscored} if unscored else {}),
-        "routing_policy": {"objective": objective, "minimum_n": minimum_n, "lower_ci_threshold": threshold},
+        "routing_policy": {"objective": objective, "minimum_n": minimum_n, "lower_ci_threshold": threshold,
+                           "provisional": pooled.PROVISIONAL},
         "recommendations": recommendations,
         "size_policy": {"small": "oracle diff <=1 file and <=100 changed lines",
             "medium": "oracle diff <=4 files and <=400 changed lines", "large": "otherwise",
@@ -562,7 +658,7 @@ def build(records, *, threshold=0.8, minimum_n=5, objective="fastest"):
 
 def validate(value):
     required = json.loads((HERE / "schema.json").read_text())["required"]
-    if not set(required) <= set(value) <= set(required) | {"unscored_attempts"} or value["schema_version"] != 1:
+    if not set(required) <= set(value) <= set(required) | {"unscored_attempts", "pooled_routing"} or value["schema_version"] != 1:
         raise ValueError("matrix schema fields")
     if set(value["targets"]) != set(value["cells"]) or sorted(value["recommendations"]) != value["columns"]:
         raise ValueError("matrix schema target/column alignment")
@@ -589,8 +685,8 @@ def validate(value):
                     measured["status"] == "known" and (type(measured["value"]) not in (int, float) or
                         not isfinite(measured["value"]) or measured["value"] < 0)):
                     raise ValueError("matrix schema unknown measurement")
-            if cell["verified_time_n"] != cell["successes"] or (
-                cell["successes"] == 0 and cell["median_verified_seconds"] is not None):
+            if cell["verified_time_n"] + cell.get("timing_excluded_n", 0) != cell["successes"] or (
+                cell["verified_time_n"] == 0 and cell["median_verified_seconds"] is not None):
                 raise ValueError("matrix schema verification time")
             if any(mode not in FAILURE_MODES or type(n) is not int or not 1 <= n <= cell["n"]
                    for mode, n in cell["failure_modes"].items()):
@@ -611,6 +707,8 @@ def markdown(value):
             measured = "; ".join(str(cell[k]["value"]) if cell[k]["status"] == "known" else "unknown"
                 for k in ("cost", "peak_memory_bytes", "energy_joules"))
             time = "unknown" if cell["median_verified_seconds"] is None else f"{cell['median_verified_seconds']:.2f}"
+            if cell.get("timing_excluded_n"):
+                time += f" ({cell['timing_excluded_n']} host-sleep timing excluded)"
             failures = "; ".join(f"{mode} ×{n}" for mode, n in cell["failure_modes"].items()) or "none observed"
             lines.append(f"| {target} | {info['deployment_class']} | {column} | {cell['n']} | "
                 f"{cell['successes']}/{cell['n']} ({lo:.1%}–{hi:.1%}) | {time} | {tokens} | {measured} | {failures} |")
@@ -618,9 +716,13 @@ def markdown(value):
     lines += ["", "## Derived routing", "",
         f"Objective: {policy['objective']}; minimum n={policy['minimum_n']}; "
         f"95% lower bound ≥{policy['lower_ci_threshold']:.0%}. No fallback model is invented.",
-        "", "| Family × size | Recommendation |", "|---|---|"]
+        "Provisional tier (weaker, not established): n≥6 across ≥2 tasks, point success ≥90%, "
+        "95% lower bound ≥50%; fastest, reliability-first tie-break.",
+        "", "| Family × size | Established | Provisional |", "|---|---|---|"]
     for column, recommendation in value["recommendations"].items():
-        lines.append(f"| {column} | {recommendation['target'] or recommendation['status']} |")
+        provisional = recommendation["provisional"]
+        lines.append(f"| {column} | {recommendation['target'] or recommendation['status']} | "
+                     f"{provisional['target'] or provisional['status']} |")
     if value.get("unscored_attempts"):
         lines += ["", "## Unscored physical attempts", "",
             "Retained but excluded from success denominators and routing. Budget-censored "
@@ -640,6 +742,8 @@ def markdown(value):
         for row in source.get("prior_attempts", []):
             modes = "; ".join(f"{mode} ×1" for mode in row["failure_modes"])
             lines.append(f"| {row['task']} | {row['model']} | {row['round']} | {row['status']} | {modes} |")
+    if value.get("pooled_routing"):
+        lines += pooled.markdown(value["pooled_routing"])
     lines += ["", "## Size and limits", "", json.dumps(value["size_policy"], sort_keys=True), "", value["limits"], ""]
     return "\n".join(lines)
 
@@ -659,6 +763,7 @@ def main():
         records.extend(selected)
         sources.append(source)
     value = build(records)
+    value["pooled_routing"] = pooled.pooled(records)
     value["sources"] = sources
     validate(value)
     (HERE / "matrix.json").write_text(json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")

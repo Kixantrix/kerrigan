@@ -134,13 +134,24 @@ def finalize(root, release):
         if api.sha(source) != outcome["sourceSha256"]:
             raise api.TrialError("local collected artifact changed")
         began = time.monotonic()
-        report = api.grader.grade(source, run / "independent-grader", task=name, seconds=30)
-        verification = time.monotonic() - began
+        existing = run / "independent-grader/report.json"
+        if existing.exists() and (run / "independent-grader/source.bin").read_bytes() == source:
+            # An interrupted finalize already graded this exact source; never regrade a candidate.
+            report = json.loads(existing.read_bytes())
+            verification = sum(report["timings"].values())
+        else:
+            report = api.grader.grade(source, run / "independent-grader", task=name, seconds=30)
+            verification = time.monotonic() - began
         if report["image_id"] != frozen["imageId"] or report["cleanup"]["proven"] is not True:
             raise api.TrialError("local post-window grader image/cleanup mismatch")
     bundle = handoff.bundle(None, model, task_name=name, configuration=frozen)
+    # Python's monotonic clock pauses during host sleep while the owner's clock does not;
+    # use the wall-clock span when larger and disclose the difference as suspected sleep.
+    wall = (outcome["finishedAtMs"] - outcome["startedAtMs"]) / 1000
+    sleep_gap = max(0.0, wall - outcome["elapsedSeconds"])
+    slot_seconds = outcome["elapsedSeconds"] + sleep_gap if sleep_gap > 1 else outcome["elapsedSeconds"]
     timings = {"agent_work": terminal["activeSeconds"], "verification": verification,
-               "end_to_end": outcome["elapsedSeconds"] + verification}
+               "end_to_end": slot_seconds + verification}
     result = handoff.terminal(bundle, terminal, report, timings, owner_exited=outcome["quiescent"],
                              source_sha=outcome["sourceSha256"],
                              expected_assertions=sum(specs.spec(name)["denominators"].values()))
@@ -158,6 +169,7 @@ def finalize(root, release):
                    counts=report["counts"] if report else None,
                    completionSeconds=timings["end_to_end"] if verdict == "passed" else None,
                    verificationSeconds=verification,
+                   hostSleepSuspectedSeconds=sleep_gap if sleep_gap > 1 else 0.0,
                    excludedQueueSeconds=max(0, release["releasedAtMs"] - outcome["finishedAtMs"]) / 1000,
                    grading="post-window verification; waiting queue excluded")
     api.grader.persist(run / "outcome.json", outcome)

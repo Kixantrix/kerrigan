@@ -42,6 +42,8 @@
     "size_policy": {"type": "object"},
     "limits": {"type": "string"},
     "sources": {"type": "array", "items": {"type": "object"}},
+    "pooled_routing": {"type": "object", "required": ["label", "deployment_class", "epochs", "cells", "recommendations"],
+      "properties": {"deployment_class": {"const": "cloud"}}},
     "unscored_attempts": {
       "type": "array",
       "items": {
@@ -85,6 +87,7 @@
         "wilson_ci95": {"type": "array", "minItems": 2, "maxItems": 2,
           "items": {"type": "number", "minimum": 0, "maximum": 1}},
         "verified_time_n": {"type": "integer", "minimum": 0},
+        "timing_excluded_n": {"type": "integer", "minimum": 1},
         "median_verified_seconds": {"type": ["number", "null"], "minimum": 0},
         "tokens": {"type": "object", "required": ["inputTokens", "outputTokens"],
           "properties": {
@@ -97,7 +100,8 @@
         "failure_modes": {"type": "object",
           "propertyNames": {"enum": ["spec-misread", "unsupported-defect-claim", "claimed-fix-not-implemented",
             "sandbox-boundary-write", "harness-cap", "task-caused", "contention-timeout",
-            "model-failure-unclassified", "harness-error", "invented-path-read", "budget-noncompletion"]},
+            "model-failure-unclassified", "harness-error", "invented-path-read", "budget-noncompletion",
+            "stale-derived-document", "wrong-domain-rule", "premature-stop-without-edit", "ignored-existing-state"]},
           "additionalProperties": {"type": "integer", "minimum": 1}},
         "provenance": {"type": "array", "items": {"type": "object"}}
       }

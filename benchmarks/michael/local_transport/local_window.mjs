@@ -3,6 +3,9 @@ import { loadavg } from "node:os";
 import { basename } from "node:path";
 import { localLoop, validateLocalCondition, LOCAL_LIMITS } from "./local_inference.mjs";
 
+// MTPLX /health carries growing diagnostic counters (~76 KB observed 2026-11-27); stay bounded.
+export const LOCAL_METADATA_BYTES = 1048576;
+
 export function metadataSnapshot() {
     const command = (file, args) => {
         const result = spawnSync(file, args, { timeout: 2000, maxBuffer: 262144, encoding: "utf8" });
@@ -57,7 +60,7 @@ export function localWindow({ condition, record, fetcher = fetch, clock = Date.n
                 const { done, value } = await reader.read();
                 if (done) break;
                 size += value.byteLength;
-                if (size > 65536) throw new Error("local_metadata_overflow");
+                if (size > LOCAL_METADATA_BYTES) throw new Error("local_metadata_overflow");
                 chunks.push(value);
             }
         } finally {

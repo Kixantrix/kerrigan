@@ -7,7 +7,7 @@ import tarfile
 
 import pytest
 
-from benchmarks.michael.matrix import generate
+from benchmarks.michael.matrix import generate, pooled
 
 
 def record(model, repeat, *, passed=True, time=10, cost=None):
@@ -82,6 +82,7 @@ def test_matrix_rejects_inconsistent_unknowns_and_observed_counts():
 def test_matrix_generation_matches_committed_outputs():
     rows, sources = generate.default_records()
     value = generate.build(rows)
+    value["pooled_routing"] = pooled.pooled(rows)
     value["sources"] = sources
     assert json.loads((generate.HERE / "matrix.json").read_text()) == value
     assert (generate.HERE / "matrix.md").read_text() == generate.markdown(value)
@@ -388,7 +389,8 @@ def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(
         matrix = generate.build(rows)
         matrix["sources"] = []
         generate.validate(matrix)
-        target = matrix["cells"]["synthetic:model"]
+        assert rows[0]["condition"] == ("synthetic/" + tmp_path.name if local else "synthetic")
+        target = matrix["cells"][rows[0]["condition"] + ":model"]
         if state == "budget":
             assert target["Implement × small"]["n"] == 1
             assert target["Implement × small"]["successes"] == 0
@@ -406,3 +408,93 @@ def test_selected_ledger_reader_keeps_attempt_identity_separate_from_token_keys(
         (run / "receipt/terminal.json").write_text(json.dumps(terminal))
         with pytest.raises(ValueError, match="backend drain"):
             generate.ledger_records(tmp_path, selected={("fixture", 1, "model")})
+
+
+def test_pooled_view_pools_latest_cloud_versions_across_conditions_but_never_local():
+    from benchmarks.michael.matrix import pooled
+
+    def row(model, task, condition, repeat, *, passed=True, time=10, deployment="cloud"):
+        return {**record(model, repeat, passed=passed, time=time), "task": task,
+                "condition": condition, "deployment_class": deployment}
+
+    rows = [row("fast", "fixture-v2", "R1", i, time=5) for i in range(3)]
+    rows += [row("fast", "fixture-v2", "R3/epoch-a", i, time=5) for i in range(3)]
+    rows += [row("fast", "fixture", "R1", 9, passed=False)]  # superseded version stays out
+    rows += [row("steady", "fixture-v2", "R2", i, time=20) for i in range(6)]
+    rows += [row("fast", "fixture-v2", "MB-R3/local-laptop", 20 + i, passed=False, deployment="local laptop")
+             for i in range(6)]
+    split = generate.build(rows)
+    assert all(value["status"] == "insufficient evidence" for value in split["recommendations"].values())
+    view = pooled.pooled(rows)
+    cell = view["cells"]["fast"]["Implement × small"]
+    assert (cell["n"], cell["successes"], cell["conditions"]) == (6, 6, ["R1", "R3/epoch-a"])
+    assert view["excluded_superseded_versions"] == ["fixture"]
+    assert "MB-R3/local-laptop" not in view["epochs"] and view["deployment_class"] == "cloud"
+    assert view["label"] == "pooled across conditions R1–R3 (native harness epochs differ)"
+    choice = view["recommendations"]["Implement × small"]
+    assert choice["status"] == "insufficient evidence"  # 6/6 lower bound is 61%, below 80%
+    assert choice["most_reliable"] == "fast" and choice["most_reliable_lower_ci"] < 0.8
+    many = rows + [row(model, "fixture-v2", "R2", 100 + i, time=t) for model, t in (("fast", 5), ("steady", 20))
+                   for i in range(20)]
+    choice = pooled.pooled(many)["recommendations"]["Implement × small"]
+    assert (choice["fastest_reliable"], choice["status"]) == ("fast", "recommended")
+
+
+@pytest.mark.parametrize("text,mode", [
+    ("README crystal row keeps the stale 34.3 start; height table mismatch", "stale-derived-document"),
+    ("half-angle gives tooth thickness pi*m/2 - t, so every backlash overshoots", "wrong-domain-rule"),
+    ("R3 rolling resistance is a constant deceleration that stops at zero; drops wrong", "wrong-domain-rule"),
+    ("The model only read TASK.md and finished; the file remained unchanged", "premature-stop-without-edit"),
+    ("Scheduled M2.1 although the scaffold was already present in repo-tree.txt", "ignored-existing-state"),
+    ("A duplicate defect entry is an unsupported second defect claim", "unsupported-defect-claim"),
+    ("Ledger lists four identical duplicate defect entries in src/server.ts", "unsupported-defect-claim"),
+    ("Trajectory contains only read actions and no write; the stub is unchanged", "premature-stop-without-edit"),
+])
+def test_deterministic_failed_clauses_map_to_controlled_vocabulary(text, mode):
+    modes = generate.failure_modes({"cause": "model", "verdicts": [{"evidence": [text]}]})
+    assert mode in modes and "model-failure-unclassified" not in modes
+    assert mode in generate.FAILURE_MODES
+    assert mode in json.loads((generate.HERE / "schema.json").read_text())["$defs"]["cell"][
+        "properties"]["failure_modes"]["propertyNames"]["enum"]
+
+
+def test_host_sleep_success_counts_but_is_excluded_from_verified_time():
+    rows = [record("local", i, time=10 + i) for i in range(3)]
+    rows[0]["timing_excluded"] = "host-sleep"
+    cell = generate.build(rows)["cells"]["synthetic:local"]["Implement × small"]
+    assert (cell["successes"], cell["verified_time_n"], cell["timing_excluded_n"]) == (3, 2, 1)
+    assert cell["median_verified_seconds"] == 11.5
+    matrix = generate.build(rows)
+    matrix["sources"] = []
+    generate.validate(matrix)
+    assert "1 host-sleep timing excluded" in generate.markdown(matrix)
+    failed = [{**record("local", 9, passed=False), "timing_excluded": "host-sleep"}]
+    with pytest.raises(ValueError, match="timing exclusion"):
+        generate.build(failed)
+
+
+def test_routing_tiers_established_needs_sixteen_clean_successes_provisional_is_labeled_weaker():
+    from benchmarks.michael.matrix import pooled
+
+    def rows(model, n, *, tasks=3, failures=0, time=10):
+        return [{**record(model, i, passed=i >= failures, time=time), "task": f"fixture-{i % tasks}"}
+                for i in range(n)]
+
+    fixed = generate.build(rows("fast", 15, time=5) + rows("slow", 16, time=20))["recommendations"]["Implement × small"]
+    assert (fixed["status"], fixed["target"]) == ("recommended", "synthetic:slow")  # 16/16 lower bound 80.6%; 15/15 is 79.6%
+    three = generate.build(rows("a", 9, time=5) + rows("b", 9, time=20))["recommendations"]["Implement × small"]
+    assert three["status"] == "insufficient evidence"
+    assert three["provisional"] == {"status": "provisional", "target": "synthetic:a"}
+    one_task = generate.build(rows("a", 9, tasks=1))["recommendations"]["Implement × small"]
+    assert one_task["provisional"]["status"] == "insufficient evidence"
+    shaky = generate.build(rows("a", 9, failures=2, time=1) + rows("b", 9, time=30))["recommendations"]["Implement × small"]
+    assert shaky["provisional"]["target"] == "synthetic:b"  # 7/9 point success is below 90%
+    tie = pooled.provisional([("x", {"n": 10, "tasks": 3, "success_rate": 0.9, "wilson_ci95": [0.6, 1],
+                                     "median_verified_seconds": 10}),
+                              ("y", {"n": 10, "tasks": 3, "success_rate": 1.0, "wilson_ci95": [0.72, 1],
+                                     "median_verified_seconds": 10})])
+    assert tie["target"] == "y"  # equal speed: reliability first
+    matrix = generate.build(rows("a", 9))
+    matrix["sources"] = []
+    generate.validate(matrix)
+    assert "Provisional tier (weaker, not established)" in generate.markdown(matrix)

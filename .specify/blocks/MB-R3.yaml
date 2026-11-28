@@ -1,0 +1,62 @@
+task_id: MB-R3
+emitted_by: cloud
+emitted_at: "2026-11-27T13:23:41Z"
+reason: test_infrastructure_failure
+severity: high
+summary: Anchor verifier builds force an empty Linux-only CA bundle on macOS.
+decision_needed: |
+  Integrate the curriculum converter's explicit public-CA build fix, or leave
+  anchors blocked; do not bypass TLS verification or substitute a harness.
+details: |
+  Successor and gap-fill cohorts are complete and pushed at ccb92d8.
+  Parent bf2f0fb was merged only after those cohorts became quiescent.
+  All five SWE-bench Pro caches materialized and verified successfully.
+  Updated native regression: 76 passed, 56 calibration cases deselected.
+  Loaded-anchor contract/diff/binary-audit regression: 44 passed, 7 fresh
+  Docker calibration cases deselected. These are not full anchor certification.
+
+  The existing build_verifier implementations in anchors_convert.py and
+  anchors_convert_swe.py read /etc/ssl/certs/ca-certificates.crt, write empty
+  ca.pem when absent, then force SSL_CERT_FILE=/run/mb-ca.pem. The generated
+  fix-git ca.pem is zero bytes on this Mac. Actual BuildKit output reports
+  PyPI invalid peer certificate: UnknownIssuer before verifier image creation.
+  The already-approved public trust/cacert.pem remains hash-pinned at
+  427c064216761a1e72a8b30f0d954d08cb6e4435a82091fb865afd20c8497285.
+  No credentials, Keychain material or authorization state were inspected.
+
+  Missing Buildx was independently resolved with official docker/buildx
+  v0.39.1 darwin-arm64, digest verified:
+  7a7f10602f0826d36b046e8db012b4cbfaa4ba56f9d2a5d374fe5bb7ae864fc4.
+  The plugin and credential-free DOCKER_CONFIG exist only in owned session
+  state. DOCKER_HOST selects the existing Colima socket; no shared settings
+  or daemon configuration changed. The second build and a verbose diagnostic
+  reproduced the public-CA failure, not a model or containment failure.
+
+  The parent was notified to route the converter fix to curriculum. Converter
+  source edits and a second harness are outside this executor's scope.
+  No anchor model/admission slot has started. Native calibration and actual
+  seven-image Harbor containment proof remain pending. The local endpoint
+  has not been contacted and the local window has not been announced.
+
+  Further offline work preserved 12 of 14 exact native base/reference
+  collection cases in local_transport/mbr3-anchor-preflight-v10.json, without
+  Docker grading or inference. Element-web and Tutanota reference writes fail
+  with stdin:write EPIPE; both processes are reaped and cleanly quiescent.
+  Their task profiles are 500366 and 261068 bytes, with 1080/1077 and 556/553
+  read/write entries. The underlying native launch cause remains unknown.
+  A validator request padded with whitespace to 500366 profile bytes succeeds;
+  byte length alone is therefore not established as the explanation.
+  Two separately labeled finite-profile experiments also failed, one with
+  sandbox_init rejection and one with EPIPE. Neither was integrated, and
+  no directory permission or allowlist was widened. Original fixtures remain.
+  All seven existing verifier image tags are absent, so an offline reuse
+  alternative does not bypass the build prerequisite.
+options:
+  - id: A
+    description: Integrate an explicit hash-bound public-CA option in the existing converter.
+    implication: Keeps TLS verification, build-only trust mounts and the original grader path.
+  - id: B
+    description: Preserve the anchor setup block and defer anchor subjects.
+    implication: Cloud finalization and the authorized local window remain pending.
+recommendation: A
+minimum_human_input: "A converter-fix commit from the coordinating parent; no new sign-in."

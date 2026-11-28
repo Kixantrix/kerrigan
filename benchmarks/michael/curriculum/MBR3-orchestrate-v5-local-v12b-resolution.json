@@ -1,0 +1,26 @@
+{
+  "cause": "model",
+  "collectedArtifactsSha256": "f8d144ad6406143a7c258c517b82f06e2f5fd239b5cd0141f7561dd76da6fa7b",
+  "counts_as_model_failure": true,
+  "decision": "Deterministic ledger adjudication; preserve the split panel and failed 17/18 result without rerun.",
+  "evidence": [
+    "The only failed clause is the deterministic duplicates==0 ledger check: requirement-dropped in src/session.ts is listed twice.",
+    "TASK.md requires one entry per distinct genuine defect; the hidden reference has exactly one requirement-dropped defect.",
+    "A duplicate defect entry is an unsupported second defect claim; integration 9/9 and preservation 2/2 pass."
+  ],
+  "evidence_root": "mbr3-local-v12b",
+  "failure_modes": [
+    "unsupported-defect-claim"
+  ],
+  "graderReportSha256": "b61ed9a98b855acb6118550081e5c11df21db35ec279e13c2d14b25020bf8567",
+  "kind": "deterministic-attribution-resolution",
+  "model": "mtplx-inkling-2-mini-optimized-quality",
+  "originalPanelSha256": "440e193f0a22ccb21fba5077ff0ae467281b41ae3563baef64837a56a019d4b5",
+  "outcomeSha256": "4c0ef4777405c10c82f3a6a81140a4e1db7457e62661801ef11c87c4873721a1",
+  "publicationScope": "Sanitized attribution and immutable hashes only; original panel and artifacts unchanged.",
+  "repeat": 1,
+  "schema_version": 1,
+  "source_epoch": "local-laptop/v12b",
+  "subject_rerun": false,
+  "task": "orchestrate-voice-integration-v5"
+}

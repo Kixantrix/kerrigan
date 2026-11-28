@@ -3,7 +3,7 @@
   "header": 1024,
   "frame": 8388608,
   "total": 100663296,
-  "events": 16384,
+  "events": 262144,
   "sentFrame": 1048576,
   "sentTotal": 16777216,
   "disk": 1073741824

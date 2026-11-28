@@ -133,6 +133,105 @@ assert.equal(generations,1);await window.release();
                    check=True, timeout=10)
 
 
+def test_window_accepts_large_diagnostic_health_but_keeps_metadata_bounded():
+    script = """
+import assert from 'node:assert/strict';
+import {localWindow,LOCAL_METADATA_BYTES} from './benchmarks/michael/local_transport/local_window.mjs';
+import {LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+let padding=76000;
+const make=()=>localWindow({condition,record:()=>{},clock:()=>1000,
+ snapshot:()=>({memoryPressureFreePercent:45,memoryPressureState:'normal',loadAverage:[1,1,1],heavyProcesses:[]}),
+ fetcher:async url=>{
+  if(url.endsWith('/health'))return new Response(JSON.stringify({ok:true,active_requests:0,diagnostics:'x'.repeat(padding)}));
+  return new Response(JSON.stringify({data:[{id:'synthetic-only'}]}));
+ }});
+await make().boundary();
+padding=LOCAL_METADATA_BYTES;
+await assert.rejects(()=>make().boundary(),/local_metadata_overflow/);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=10)
+
+
+def test_multiple_tool_calls_in_one_response_run_sequentially_and_stay_bounded():
+    script = """
+import assert from 'node:assert/strict';
+import {localLoop,LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+const call=i=>({id:'c'+i,type:'function',function:{name:'mb_action',arguments:JSON.stringify({op:'read',path:'f'+i})}});
+const run=async count=>{
+ let turn=0;const executed=[];const bodies=[];
+ const result=await localLoop({condition,prompt:'p',tools:[],signal:new AbortController().signal,
+  boundary:async()=>{},record:()=>{},clock:()=>1000,
+  execute:async(id,args)=>{executed.push([id,args.path]);return {ok:true}},
+  fetcher:async(url,options)=>{const body=JSON.parse(options.body);bodies.push(body);turn++;
+   const message=turn===1?{role:'assistant',content:null,tool_calls:Array.from({length:count},(_,i)=>call(i))}:
+    {role:'assistant',content:'done'};
+   return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
+    usage:{prompt_tokens:10,completion_tokens:1,total_tokens:11},choices:[{message,finish_reason:'stop'}]}));}});
+ return {result,executed,bodies};
+};
+const two=await run(2);
+assert.equal(two.result.status,'completed');
+assert.deepEqual(two.executed,[['c0','f0'],['c1','f1']]);
+assert.deepEqual(two.bodies[1].messages.slice(-2).map(m=>[m.role,m.tool_call_id]),[['tool','c0'],['tool','c1']]);
+await assert.rejects(()=>run(LOCAL_LIMITS.toolCallsPerResponse+1),/local_parallel_tools_denied/);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=10)
+
+
+def test_scratch_scan_timeout_is_a_distinct_missed_observation(tmp_path):
+    slow = tmp_path / "slow-python"
+    slow.write_text("#!/bin/sh\nsleep 5\n")
+    slow.chmod(0o755)
+    script = f"""
+import assert from 'node:assert/strict';
+import {{scratchState,SCAN}} from './benchmarks/michael/local_transport/scratch.mjs';
+assert(SCAN.timeoutMs >= 10000 && SCAN.consecutiveMissesAllowed === 2);
+assert.throws(()=>scratchState('{tmp_path}',[0,0],'{slow}',200),e=>e.scanTimeout===true&&/scratch_scan:.*ETIMEDOUT/.test(e.message));
+assert.throws(()=>scratchState('{tmp_path}',[0,0],'{tmp_path}/missing-python',200),e=>e.scanTimeout!==true);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=20)
+
+
+def test_input_admission_keeps_byte_cap_and_records_token_heuristic_only():
+    script = """
+import assert from 'node:assert/strict';
+import {localLoop,LOCAL_LIMITS} from './benchmarks/michael/local_transport/local_inference.mjs';
+assert.equal(LOCAL_LIMITS.inputBytes,65536);
+const condition={endpoint:'http://127.0.0.1:9876/v1',synthetic:true,model:'synthetic-only',
+ limits:LOCAL_LIMITS,requestSeconds:2,windowStartMs:0,windowEndMs:3600000,
+ concurrency:1,grading:'after-window-release'};
+const run=async(toolResultBytes,reportedInput)=>{
+ let turn=0;const started=[];
+ const result=await localLoop({condition,prompt:'p',tools:[],signal:new AbortController().signal,
+  boundary:async()=>{},record:e=>{if(e.type==='local_request_started')started.push(e)},clock:()=>1000,
+  execute:async()=>({data:'x'.repeat(toolResultBytes)}),
+  fetcher:async(url,options)=>{turn++;
+   const message=turn===1?{role:'assistant',content:null,tool_calls:[{id:'c',type:'function',
+     function:{name:'mb_action',arguments:'{}'}}]}:{role:'assistant',content:'done'};
+   return new Response(JSON.stringify({id:options.headers['x-mtplx-request-id'],model:'synthetic-only',
+    usage:{prompt_tokens:reportedInput,completion_tokens:1,total_tokens:reportedInput+1},
+    choices:[{message,finish_reason:'stop'}]}));}});
+ return {result,started};
+};
+const ok=await run(1000,500);
+assert.equal(ok.result.status,'completed');
+assert(Number.isSafeInteger(ok.started[1].inputTokenHeuristic) && /unverified heuristic/.test(ok.started[1].inputEstimate));
+// A low heuristic never admits input beyond the byte cap.
+await assert.rejects(()=>run(70000,500),/local_context_budget/);
+"""
+    subprocess.run(["node", "--input-type=module", "-e", script], cwd=api.packages.ROOT,
+                   check=True, timeout=20)
+
+
 def test_local_own_response_native_timings_ignore_derived_defaults_and_preserve_caps():
     script = """
 import assert from 'node:assert/strict';

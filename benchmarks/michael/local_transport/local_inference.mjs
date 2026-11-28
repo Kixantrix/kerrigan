@@ -3,7 +3,8 @@ import { performance } from "node:perf_hooks";
 
 export const LOCAL_LIMITS = Object.freeze({
     inputTokens: 229376, contextTokens: 262144, outputTokens: 16384,
-    inputBytes: 65536, responseBytes: 8388608, requests: 128, cleanupSeconds: 15
+    inputBytes: 65536, templateTokensPerMessage: 256, responseBytes: 8388608, requests: 128, cleanupSeconds: 15,
+    toolCallsPerResponse: 8
 });
 
 export function validateLocalCondition(condition) {
@@ -55,15 +56,20 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
     validateLocalCondition(condition);
     const messages = [{ role: "user", content: prompt }];
     const sessionId = `${condition.requestNamespace || "mbr3-synthetic"}-${randomUUID()}`;
-    let calls = 0;
+    let calls = 0, previous = null;
     while (true) {
         if (calls >= LOCAL_LIMITS.requests) throw new Error("local_request_budget");
         const now = clock();
         if (now < condition.windowStartMs || now >= condition.windowEndMs - 15000 || signal.aborted)
             throw new Error("local_window_closed");
-        // Headroom heuristic, not an exact rendered-token bound; canonicalization can change input.
+        // Admission keeps the agreed 64 KiB JSON cap. The token estimate below is an UNVERIFIED
+        // heuristic (runtime re-rendering is not bounded by added text); it is recorded, never used
+        // to admit larger inputs. Exceeding the cap is input-admission-unavailable, not a model budget.
         const inputBytes = Buffer.byteLength(JSON.stringify({ messages, tools }));
-        if (inputBytes > LOCAL_LIMITS.inputBytes)
+        const inputTokenHeuristic = previous === null ? inputBytes + LOCAL_LIMITS.templateTokensPerMessage :
+            previous.inputTokens + (inputBytes - previous.inputBytes) +
+            (messages.length - previous.messages) * LOCAL_LIMITS.templateTokensPerMessage;
+        if (inputBytes > LOCAL_LIMITS.inputBytes || inputTokenHeuristic > LOCAL_LIMITS.inputTokens)
             throw new Error("local_context_budget");
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         const remaining = condition.windowEndMs - clock() - LOCAL_LIMITS.cleanupSeconds * 1000;
@@ -76,7 +82,8 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         const started = clock();
         const startedMonotonic = monotonic();
         record({ type: "local_request_started", requestId, sessionId, startedMs: started,
-            inputBytes, inputEstimate: "UTF-8 JSON headroom heuristic; not exact native rendered count" });
+            inputBytes, inputTokenHeuristic,
+            inputEstimate: "unverified heuristic (previous native input + added bytes + template margin); admission uses the 64 KiB cap" });
         let response, nativeUsage, limitsVerified, finishReason;
         try {
             response = await boundedJson(await fetcher(condition.endpoint + "/chat/completions", {
@@ -142,26 +149,30 @@ export async function localLoop({ condition, prompt, tools, execute, boundary, r
         await boundary({ expectedModel: condition.model, ownRequestId: null });
         calls++;
         if (!limitsVerified) throw new Error("local_ambiguous_native_fit");
+        previous = { inputTokens: nativeUsage.inputTokens, inputBytes, messages: messages.length };
         if (finishReason === "length") return { calls, status: "output-cap", limitsVerified };
         const message = response.choices[0].message;
         const toolCalls = message.tool_calls || [];
-        if (!Array.isArray(toolCalls) || toolCalls.length > 1)
+        if (!Array.isArray(toolCalls) || toolCalls.length > LOCAL_LIMITS.toolCallsPerResponse)
             throw new Error("local_parallel_tools_denied");
         messages.push({ role: "assistant", content: message.content ?? null,
             ...(toolCalls.length ? { tool_calls: toolCalls } : {}),
             ...(typeof message.reasoning_content === "string" ? { reasoning_content: message.reasoning_content } : {}) });
         if (!toolCalls.length) return { calls, status: "completed", limitsVerified };
-        const call = toolCalls[0];
-        if (call.type !== "function" || call.function?.name !== "mb_action" ||
-            typeof call.id !== "string" || typeof call.function.arguments !== "string")
-            throw new Error("local_tool_contract_denied");
-        let args;
-        try { args = JSON.parse(call.function.arguments); }
-        catch (error) {
-            if (error instanceof SyntaxError) throw new Error("local_tool_arguments_json_invalid");
-            throw error;
+        const parsed = toolCalls.map(call => {
+            if (call?.type !== "function" || call.function?.name !== "mb_action" ||
+                typeof call.id !== "string" || typeof call.function.arguments !== "string")
+                throw new Error("local_tool_contract_denied");
+            try { return [call.id, JSON.parse(call.function.arguments)]; }
+            catch (error) {
+                if (error instanceof SyntaxError) throw new Error("local_tool_arguments_json_invalid");
+                throw error;
+            }
+        });
+        // Stock-CLI parity: several calls in one response run one at a time, in order, each charged.
+        for (const [id, args] of parsed) {
+            const result = await execute(id, args);
+            messages.push({ role: "tool", tool_call_id: id, content: JSON.stringify(result) });
         }
-        const result = await execute(call.id, args);
-        messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
     }
 }
